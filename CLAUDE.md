@@ -20,8 +20,8 @@
 
 | カテゴリ | 技術 |
 |---|---|
-| フロントエンド | Next.js (App Router) + TypeScript |
-| スタイリング | Tailwind CSS |
+| フロントエンド | Next.js 16 (App Router) + TypeScript |
+| スタイリング | Tailwind CSS v4 |
 | DB・認証 | Supabase (PostgreSQL) |
 | ホスティング | Vercel |
 | コード管理 | GitHub |
@@ -48,13 +48,13 @@ my-app/
 ├── .env.example                 # 環境変数サンプル
 ├── next.config.ts
 ├── tsconfig.json
-├── tailwind.config.ts
 ├── package.json
 ├── design/                      # HTMLプロトタイプ（デザイン参照用）
 ├── public/                      # 静的ファイル
 └── src/
     ├── app/                     # Next.js App Router
-    │   ├── layout.tsx           # ルートレイアウト（フォント・CSS変数定義）
+    │   ├── globals.css          # Tailwind v4 + CSS変数定義
+    │   ├── layout.tsx           # ルートレイアウト（フォント・メタデータ）
     │   ├── page.tsx             # トップページ
     │   ├── counselors/
     │   │   └── [id]/page.tsx    # カウンセラー詳細
@@ -86,11 +86,11 @@ my-app/
 - 「高級感」ではなく「誠実な上質感」
 
 ### フォント
-| 用途 | フォント |
-|---|---|
-| 日本語見出し | Shippori Mincho |
-| 英語見出し | DM Serif Display |
-| 本文 | Noto Sans JP |
+| 用途 | フォント | CSS変数 |
+|---|---|---|
+| 日本語見出し | Shippori Mincho | `--font-mincho` |
+| 英語見出し | DM Serif Display | `--font-serif` |
+| 本文 | Noto Sans JP | `--font-sans` |
 
 ### カラートークン（CSS変数として必ず統一）
 
@@ -110,7 +110,21 @@ my-app/
 }
 ```
 
-**これらの値を直接ハードコードしてはいけない。必ずCSS変数を使うこと。**
+**Tailwind v4でのカラー指定：**
+- Tailwindユーティリティ: `text-accent`, `bg-pale`, `border-light` など
+- インラインCSS: `style={{ color: "var(--accent)" }}` など
+- `@theme inline` でTailwindのカラーとCSS変数を紐付けている（globals.css参照）
+
+---
+
+## Tailwind CSS v4 注意事項
+
+このプロジェクトはTailwind CSS v4を使用している。v3とは構成が異なる。
+
+- 設定ファイル（`tailwind.config.ts`）は**不要**。代わりに `globals.css` の `@theme inline` で設定
+- CSS記法: `@import "tailwindcss"` （v3の `@tailwind base/components/utilities` は使わない）
+- カスタムカラーは `--color-*` プレフィックスで定義
+- カスタムフォントは `--font-*` プレフィックスで定義
 
 ---
 
@@ -258,7 +272,8 @@ npm run lint
 
 ### CSS
 - カラーは必ずCSS変数を使う（ハードコード禁止）
-- TailwindのカスタムカラーもCSS変数を参照するよう設定する
+- Tailwindのユーティリティクラス（`text-accent`, `bg-pale` 等）を優先して使う
+- 直接CSS変数を参照する場合は `style={{ color: "var(--accent)" }}` のように書く
 - `/design/` フォルダのプロトタイプのデザインを忠実に再現する
 
 ### Supabase
