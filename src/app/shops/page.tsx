@@ -2,14 +2,40 @@ import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ShopSearch from "@/components/shops/ShopSearch";
-import { shops } from "@/lib/mock/shops";
+import { createClient } from "@/lib/supabase/server";
+import type { Shop } from "@/lib/mock/shops";
 
 export const metadata: Metadata = {
   title: "お店を探す | ふたりへ",
   description: "婚活のデート・お見合いにおすすめのお店を口コミで探せます。",
 };
 
-export default function ShopsPage() {
+async function getShops(): Promise<Shop[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("shops")
+    .select("id, name, area, category, badge_type, description, price_range, tags")
+    .order("name");
+
+  if (error || !data) return [];
+
+  return data.map((s) => ({
+    id: s.id,
+    name: s.name,
+    area: s.area ?? "",
+    category: s.category ?? "",
+    badge: s.badge_type,
+    rating: 0,
+    reviewCount: 0,
+    priceRange: s.price_range ?? "¥¥",
+    intro: s.description ?? "",
+    tags: s.tags ?? [],
+  }));
+}
+
+export default async function ShopsPage() {
+  const shops = await getShops();
+
   return (
     <>
       <Header />

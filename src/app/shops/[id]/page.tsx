@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { shops } from "@/lib/mock/shops";
+import { createClient } from "@/lib/supabase/server";
 import type { BadgeType } from "@/lib/mock/shops";
 
 /* ────────────────────────────────────────────────────────────
@@ -57,9 +57,30 @@ export default async function ShopDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const shop = shops.find((s) => s.id === id);
-  if (!shop) notFound();
 
+  const supabase = await createClient();
+  const { data: shopData } = await supabase
+    .from("shops")
+    .select("id, name, area, category, badge_type, description, price_range, tags, address")
+    .eq("id", id)
+    .single();
+
+  if (!shopData) notFound();
+
+  const shop = {
+    id: shopData.id,
+    name: shopData.name,
+    area: shopData.area ?? "",
+    category: shopData.category ?? "",
+    badge: shopData.badge_type as BadgeType,
+    rating: 0,
+    reviewCount: 0,
+    priceRange: shopData.price_range ?? "¥¥",
+    intro: shopData.description ?? "",
+    tags: shopData.tags ?? [],
+  };
+
+  // お店の口コミはまだモックを使用（将来 shop_reviews テーブルに移行）
   const reviews = shopReviews[id] ?? [];
   const avgRating = reviews.length
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length

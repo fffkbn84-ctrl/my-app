@@ -2,11 +2,39 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { createClient } from "@/lib/supabase/server";
 
 /* ────────────────────────────────────────────────────────────
-   モックデータ（後でSupabaseに差し替え）
+   Supabaseからデータ取得
 ──────────────────────────────────────────────────────────── */
-const counselors = {
+async function getCounselor(id: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("counselors")
+    .select(`
+      id, name, name_kana, area, address, bio, message, specialties,
+      years_of_experience, success_count, fee, qualifications,
+      agencies!inner(id, name)
+    `)
+    .eq("id", id)
+    .single();
+  return data;
+}
+
+async function getCounselorReviews(counselorId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("reviews")
+    .select("id, rating, body, source_type, created_at")
+    .eq("counselor_id", counselorId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+/* ────────────────────────────────────────────────────────────
+   旧モックデータ（フォールバック用 — Supabaseにデータがない場合）
+──────────────────────────────────────────────────────────── */
+const _counselorsFallback = {
   "1": {
     id: "1",
     name: "田中 美咲",
@@ -307,6 +335,24 @@ const reviews = [
 ];
 
 /* ────────────────────────────────────────────────────────────
+   型
+──────────────────────────────────────────────────────────── */
+type ReviewRow = {
+  id: string;
+  rating: number;
+  body: string;
+  source_type: "face_to_face" | "proxy";
+  created_at: string;
+  // 旧モック互換
+  title?: string;
+  text?: string;
+  author?: string;
+  date?: string;
+  verified?: boolean;
+  counselorId?: string;
+};
+
+/* ────────────────────────────────────────────────────────────
    コンポーネント
 ──────────────────────────────────────────────────────────── */
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
@@ -351,13 +397,51 @@ export default async function CounselorDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const counselor = counselors[id as keyof typeof counselors];
-  if (!counselor) notFound();
 
-  const counselorReviews = reviews.filter((r) => r.counselorId === id);
+  // Supabaseから取得
+  const dbCounselor = await getCounselor(id);
+  const dbReviews = await getCounselorReviews(id);
+
+  if (!dbCounselor) notFound();
+
+  // UI用に整形
+  const agency = dbCounselor.agencies as { id: string; name: string };
+  const counselor = {
+    id: dbCounselor.id,
+    name: dbCounselor.name,
+    nameKana: dbCounselor.name_kana ?? "",
+    agency: agency.name,
+    agencyId: agency.id,
+    area: dbCounselor.area ?? "",
+    address: dbCounselor.address ?? "",
+    specialties: dbCounselor.specialties ?? [],
+    yearsExp: dbCounselor.years_of_experience ?? 0,
+    successCount: dbCounselor.success_count ?? 0,
+    fee: dbCounselor.fee ?? "無料",
+    bio: dbCounselor.bio ?? "",
+    message: dbCounselor.message ?? "",
+    qualifications: dbCounselor.qualifications ?? [],
+    nextAvailable: "近日公開",
+  };
+
+  const counselorReviews: ReviewRow[] = dbReviews.map((r) => ({
+    id: r.id,
+    rating: r.rating,
+    body: r.body,
+    source_type: r.source_type,
+    created_at: r.created_at,
+    title: r.body.slice(0, 20) + "…",
+    text: r.body,
+    author: r.source_type === "proxy" ? "（代理掲載）" : "利用者",
+    date: r.created_at.slice(0, 7).replace("-", "年") + "月",
+    verified: r.source_type === "face_to_face",
+    counselorId: id,
+  }));
+
   const avgRating =
-    counselorReviews.reduce((sum, r) => sum + r.rating, 0) /
-    counselorReviews.length;
+    counselorReviews.length > 0
+      ? counselorReviews.reduce((sum, r) => sum + r.rating, 0) / counselorReviews.length
+      : 0;
 
   return (
     <>
