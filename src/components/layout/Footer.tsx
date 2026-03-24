@@ -95,7 +95,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/30">
-            © 2024 ふたりへ. All rights reserved.
+            © 2026 ふたりへ. All rights reserved.
           </p>
           <p
             className="text-xs tracking-widest text-white/20"
