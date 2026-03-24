@@ -40,14 +40,23 @@ async function getCounselor(id: string): Promise<CounselorRow | null> {
   return (data as any) as CounselorRow | null;
 }
 
-async function getCounselorReviews(counselorId: string) {
+type ReviewDbRow = {
+  id: string;
+  rating: number;
+  body: string;
+  source_type: "face_to_face" | "proxy";
+  created_at: string;
+};
+
+async function getCounselorReviews(counselorId: string): Promise<ReviewDbRow[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("reviews")
     .select("id, rating, body, source_type, created_at")
     .eq("counselor_id", counselorId)
     .order("created_at", { ascending: false });
-  return data ?? [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data ?? []) as any[]) as ReviewDbRow[];
 }
 
 /* ────────────────────────────────────────────────────────────
