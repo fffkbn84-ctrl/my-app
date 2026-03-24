@@ -13,21 +13,21 @@ import ReviewForm from "./ReviewForm";
   3. ユーザーへのメールに /reviews/new?token=XXXX を記載
 ──────────────────────────────────────────────────────────── */
 const MOCK_TOKENS: Record<string, ReviewToken> = {
-  "TKN-2024-DEMO1": {
-    token: "TKN-2024-DEMO1",
+  "TKN-2026-DEMO1": {
+    token: "TKN-2026-DEMO1",
     counselorId: "1",
     counselorName: "田中 美咲",
     agencyName: "ブライダルサロン エクラン",
-    meetingDate: "2024-12-01",
+    meetingDate: "2026-03-10",
     expiresAt: "2099-01-01T00:00:00Z", // デモ用に無期限
     used: false,
   },
-  "TKN-2024-DEMO2": {
-    token: "TKN-2024-DEMO2",
+  "TKN-2026-DEMO2": {
+    token: "TKN-2026-DEMO2",
     counselorId: "2",
     counselorName: "佐藤 あかり",
     agencyName: "マリーナ結婚相談所",
-    meetingDate: "2024-11-28",
+    meetingDate: "2026-03-15",
     expiresAt: "2099-01-01T00:00:00Z",
     used: false,
   },
@@ -36,7 +36,7 @@ const MOCK_TOKENS: Record<string, ReviewToken> = {
     counselorId: "1",
     counselorName: "田中 美咲",
     agencyName: "ブライダルサロン エクラン",
-    meetingDate: "2024-10-15",
+    meetingDate: "2026-02-20",
     expiresAt: "2099-01-01T00:00:00Z",
     used: true, // 投稿済み
   },
@@ -143,7 +143,7 @@ function TokenInputForm({
             setCode(e.target.value);
             setStatus("idle");
           }}
-          placeholder="例：TKN-2024-XXXXX"
+          placeholder="例：TKN-2026-XXXXX"
           className={`w-full px-4 py-3.5 text-sm border rounded-xl focus:outline-none transition-colors duration-150 tracking-wider font-mono bg-white placeholder:text-muted placeholder:font-sans placeholder:tracking-normal ${
             status === "error"
               ? "border-rose/50 focus:border-rose/70"
@@ -197,7 +197,7 @@ function TokenInputForm({
       <div className="mt-8 pt-6 border-t border-light">
         <p className="text-xs text-muted mb-2">デモ用の認証コード（開発環境のみ）</p>
         <div className="flex flex-wrap gap-2">
-          {["TKN-2024-DEMO1", "TKN-2024-DEMO2"].map((t) => (
+          {["TKN-2026-DEMO1", "TKN-2026-DEMO2"].map((t) => (
             <button
               key={t}
               onClick={() => setCode(t)}
