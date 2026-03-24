@@ -7,18 +7,37 @@ import { createClient } from "@/lib/supabase/server";
 /* ────────────────────────────────────────────────────────────
    Supabaseからデータ取得
 ──────────────────────────────────────────────────────────── */
-async function getCounselor(id: string) {
+type CounselorRow = {
+  id: string;
+  name: string;
+  name_kana: string | null;
+  area: string | null;
+  address: string | null;
+  bio: string | null;
+  message: string | null;
+  specialties: string[] | null;
+  years_of_experience: number | null;
+  success_count: number | null;
+  fee: string | null;
+  qualifications: string[] | null;
+  agency_id: string;
+  agencies: { id: string; name: string };
+};
+
+async function getCounselor(id: string): Promise<CounselorRow | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("counselors")
     .select(`
       id, name, name_kana, area, address, bio, message, specialties,
       years_of_experience, success_count, fee, qualifications,
+      agency_id,
       agencies!inner(id, name)
     `)
     .eq("id", id)
     .single();
-  return data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any) as CounselorRow | null;
 }
 
 async function getCounselorReviews(counselorId: string) {
