@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import RevealObserver from "@/components/ui/RevealObserver";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -95,6 +96,9 @@ export default function HomePage() {
       <Header />
 
       <main>
+        {/* スクロールrevealオブザーバー（クライアント） */}
+        <RevealObserver />
+
         {/* ═══════════════════════════════════════════════════
             HERO — futarive-v4.html 準拠
         ═══════════════════════════════════════════════════ */}
@@ -163,80 +167,225 @@ export default function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            サービスの特徴
+            MARQUEE — futarive-v4.html 準拠
         ═══════════════════════════════════════════════════ */}
-        <section className="py-24 md:py-32 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
-                Why futarini
-              </p>
-              <h2
-                className="text-3xl md:text-4xl text-ink"
-                style={{ fontFamily: "var(--font-mincho)" }}
-              >
-                ふたりへが選ばれる理由
-              </h2>
+        <div className="marquee-wrap">
+          <div className="mi">
+            {/* 2セット並べてシームレスループ */}
+            {[0, 1].map((i) => (
+              <span key={i} style={{ display: "contents" }}>
+                <span className="mqi">面談済み口コミだけ<span className="mqd">·</span></span>
+                <span className="mqi">カウンセラーの顔が見える<span className="mqd">·</span></span>
+                <span className="mqi">予約まで完結<span className="mqd">·</span></span>
+                <span className="mqi">関係を育てている2人のために<span className="mqd">·</span></span>
+                <span className="mqi">デートにおすすめのお店<span className="mqd">·</span></span>
+                <span className="mqi">プロポーズの場所を探す<span className="mqd">·</span></span>
+                <span className="mqi">成婚後もふたりへ<span className="mqd">·</span></span>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            VISION — futarive-v4.html 準拠
+        ═══════════════════════════════════════════════════ */}
+        <section className="vision-sec">
+          <div className="vision-inner">
+            <div className="vision-eyebrow">our belief</div>
+            <p className="vision-quote reveal">
+              世の中のレビューサイトは、<br />
+              <em>関係が出来上がった人たちのため</em>にある。<br /><br />
+              ふたりへは、<em>今まさに関係を作っている</em><br />あなたたちのためにある。
+            </p>
+            <p className="vision-sub reveal rd1">
+              不安なまま相談所に飛び込まなくていい。お見合いの場所に迷わなくていい。そのそばに、ずっといます。
+            </p>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            JOURNEY — ふたりの旅程 / futarive-v4.html 準拠
+        ═══════════════════════════════════════════════════ */}
+        <section className="journey-sec">
+          <div className="journey-inner">
+            <div className="sec-label reveal">what we offer</div>
+            <h2 className="sec-h reveal">
+              ふたりの旅程、ぜんぶ。
+              <span className="sec-h-jp">出会いの準備から、ずっと先まで</span>
+            </h2>
+            <p className="sec-sub reveal">
+              今は相談所とデート・婚活準備のお店から。ふたりの関係が育つにつれて、使える場所が広がっていきます。
+            </p>
+
+            {/* Phase タイムライン */}
+            <div className="phase-row reveal">
+              <div className="phase-item">
+                <div className="phase-stage">Phase 1 — 今すぐ</div>
+                <div className="phase-name">出会いの準備</div>
+                <div className="phase-cats">
+                  <div className="phase-cat launch">結婚相談所・カウンセラー</div>
+                  <div className="phase-cat launch">婚活向け美容室</div>
+                  <div className="phase-cat launch">ネイル・眉毛サロン</div>
+                  <div className="phase-cat launch">フォトスタジオ</div>
+                </div>
+              </div>
+              <div className="phase-item">
+                <div className="phase-stage">Phase 2 — 近日</div>
+                <div className="phase-name">出会い・デート</div>
+                <div className="phase-cats">
+                  <div className="phase-cat">お見合いのカフェ・ラウンジ</div>
+                  <div className="phase-cat">デート1回目・2回目のお店</div>
+                  <div className="phase-cat">ディナー・夜景スポット</div>
+                  <div className="phase-cat">ドライブコース</div>
+                </div>
+                <div className="phase-soon">coming soon</div>
+              </div>
+              <div className="phase-item">
+                <div className="phase-stage">Phase 3 — 将来</div>
+                <div className="phase-name">ふたりになる</div>
+                <div className="phase-cats">
+                  <div className="phase-cat">プロポーズスポット</div>
+                  <div className="phase-cat">婚約指輪</div>
+                  <div className="phase-cat">前撮り・フォト婚</div>
+                  <div className="phase-cat">ふたりの旅行先</div>
+                </div>
+                <div className="phase-soon">coming soon</div>
+              </div>
+              <div className="phase-item">
+                <div className="phase-stage">Phase 4 — その先も</div>
+                <div className="phase-name">ふたりで生きる</div>
+                <div className="phase-cats">
+                  <div className="phase-cat">新居・インテリア</div>
+                  <div className="phase-cat">夫婦でのレストラン</div>
+                  <div className="phase-cat">記念日の宿</div>
+                  <div className="phase-cat">ふたりの旅</div>
+                </div>
+                <div className="phase-soon">coming soon</div>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  num: "01",
-                  title: "面談者だけの\nリアルな口コミ",
-                  desc: "ふたりへ経由で面談した方のみが投稿できる仕組み。広告ではなく、実際に体験した人の声だけを集めています。",
-                  icon: (
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" strokeWidth="1.5">
-                      <path d="M14 3C7.9 3 3 7.9 3 14s4.9 11 11 11 11-4.9 11-11S20.1 3 14 3z" />
-                      <path d="M10 13l3 3 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: "02",
-                  title: "カウンセラー個人を\n指名して予約",
-                  desc: "相談所単位ではなく、カウンセラー個人のプロフィールと口コミを見て比較。気に入った方を直接予約できます。",
-                  icon: (
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" strokeWidth="1.5">
-                      <circle cx="14" cy="10" r="5" />
-                      <path d="M4 24c0-5.5 4.5-10 10-10s10 4.5 10 10" strokeLinecap="round" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: "03",
-                  title: "完全無料で\n何度でも相談",
-                  desc: "ユーザー登録・面談予約・口コミ投稿はすべて無料。あなたに合うカウンセラーが見つかるまで、じっくり探せます。",
-                  icon: (
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" strokeWidth="1.5">
-                      <circle cx="14" cy="14" r="10" />
-                      <path d="M14 8v6l4 2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ),
-                },
-              ].map((feature) => (
-                <div
-                  key={feature.num}
-                  className="group p-8 rounded-2xl border border-light hover:border-accent/30 hover:shadow-lg transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4 mb-6">
-                    <span
-                      className="text-3xl text-light leading-none select-none"
-                      style={{ fontFamily: "var(--font-serif)" }}
-                    >
-                      {feature.num}
-                    </span>
-                    <div className="mt-1">{feature.icon}</div>
-                  </div>
-                  <h3
-                    className="text-lg text-ink mb-3 whitespace-pre-line leading-snug"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-mid leading-relaxed">{feature.desc}</p>
+            {/* カテゴリカード 6枚 */}
+            <div className="cat-grid reveal">
+
+              {/* ct-1: 相談所・カウンセラー */}
+              <div className="cat-card">
+                <div className="cat-thumb ct-1">
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <circle cx="28" cy="20" r="10" stroke="#C8A97A" strokeWidth="1.5" fill="rgba(200,169,122,.1)" />
+                    <path d="M8 48c0-11.046 8.954-20 20-20s20 8.954 20 20" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity=".5" />
+                  </svg>
                 </div>
-              ))}
+                <div className="cat-body">
+                  <div className="cat-type">相談所・カウンセラー</div>
+                  <div className="cat-name">担当者を見て、選ぶ</div>
+                  <div className="cat-desc">面談した人だけが書けるレビューで、カウンセラーの人となりがわかる。</div>
+                  <div className="cat-review-note crn-strict">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M5 1L1 2.5v3c0 2.5 1.71 4.84 4 5.5 2.29-.66 4-3 4-5.5v-3L5 1z" stroke="#C8A97A" strokeWidth=".9" fill="rgba(200,169,122,.1)" />
+                    </svg>
+                    面談完了者のみ口コミ可
+                  </div>
+                </div>
+              </div>
+
+              {/* ct-2: カフェ・レストラン */}
+              <div className="cat-card">
+                <div className="cat-thumb ct-2">
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <path d="M12 20h28l-3 22H15L12 20z" stroke="#7A9E87" strokeWidth="1.5" fill="rgba(122,158,135,.1)" strokeLinejoin="round" />
+                    <path d="M40 24h4a4 4 0 010 8h-4" stroke="#7A9E87" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M20 14c0-3 4-3 4-6M28 14c0-3 4-3 4-6" stroke="#7A9E87" strokeWidth="1.3" strokeLinecap="round" opacity=".5" />
+                  </svg>
+                </div>
+                <div className="cat-body">
+                  <div className="cat-type">カフェ・レストラン</div>
+                  <div className="cat-name">お見合い・デートのお店</div>
+                  <div className="cat-desc">お見合いの場所選びから、デート1回目・2回目・記念日まで。シーンに合ったお店を口コミで選べる。</div>
+                  <div className="cat-review-note crn-open">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l3 3 4-4" stroke="#7A9E87" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    利用後なら誰でも口コミ可
+                  </div>
+                </div>
+              </div>
+
+              {/* ct-3: ヘア・ネイル・眉 */}
+              <div className="cat-card">
+                <div className="cat-thumb ct-3">
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <circle cx="24" cy="22" r="9" stroke="#B8906A" strokeWidth="1.5" fill="rgba(184,144,106,.1)" />
+                    <circle cx="24" cy="22" r="4" stroke="#B8906A" strokeWidth="1.5" fill="none" opacity=".4" />
+                    <path d="M30 28l10 10" stroke="#B8906A" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="cat-body">
+                  <div className="cat-type">ヘア・ネイル・眉</div>
+                  <div className="cat-name">婚活準備のビューティ</div>
+                  <div className="cat-desc">「婚活で使いたい」と伝えやすいサロンだけを掲載。プロに整えてもらって自信を持って。</div>
+                  <div className="cat-review-note crn-open">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l3 3 4-4" stroke="#7A9E87" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    利用後なら誰でも口コミ可
+                  </div>
+                </div>
+              </div>
+
+              {/* ct-4: プロポーズ */}
+              <div className="cat-card">
+                <div className="cat-thumb ct-4">
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <path d="M28 10l3 8h8l-6.5 5 2.5 8L28 26l-7 5 2.5-8L17 18h8z" stroke="#6B8FBF" strokeWidth="1.5" fill="rgba(107,143,191,.1)" strokeLinejoin="round" />
+                    <circle cx="28" cy="34" r="8" stroke="#6B8FBF" strokeWidth="1.5" fill="none" opacity=".4" />
+                    <path d="M24 40l8-8" stroke="#6B8FBF" strokeWidth="1.3" strokeLinecap="round" opacity=".5" />
+                  </svg>
+                </div>
+                <div className="cat-body">
+                  <div className="cat-type">プロポーズ（準備中）</div>
+                  <div className="cat-name">最高の瞬間の場所を</div>
+                  <div className="cat-desc">プロポーズにおすすめのレストラン・ホテル・スポット。あの瞬間を完璧にしたい。</div>
+                  <div className="cat-review-note crn-soon">coming soon</div>
+                </div>
+              </div>
+
+              {/* ct-5: 旅行・おでかけ（coming soon overlay） */}
+              <div className="cat-card">
+                <div className="cat-thumb ct-5">
+                  <div className="cat-soon-overlay">
+                    <span className="cat-soon-label">coming soon</span>
+                  </div>
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <path d="M12 36L28 14l16 22H12z" stroke="#C4877A" strokeWidth="1.5" fill="rgba(196,135,122,.1)" strokeLinejoin="round" />
+                    <circle cx="28" cy="40" r="6" stroke="#C4877A" strokeWidth="1.5" fill="none" opacity=".5" />
+                  </svg>
+                </div>
+                <div className="cat-body">
+                  <div className="cat-type">旅行・おでかけ（準備中）</div>
+                  <div className="cat-name">ふたりで行く旅先</div>
+                  <div className="cat-desc">カップル・婚約中・新婚旅行。関係の節目ごとに使えるおすすめの旅先。</div>
+                  <div className="cat-review-note crn-soon">coming soon</div>
+                </div>
+              </div>
+
+              {/* ct-6: 記念日・アニバーサリー（coming soon overlay） */}
+              <div className="cat-card">
+                <div className="cat-thumb ct-6">
+                  <div className="cat-soon-overlay">
+                    <span className="cat-soon-label">coming soon</span>
+                  </div>
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <path d="M14 44V22l14-12 14 12v22H34V32H22v12H14z" stroke="#8FA88A" strokeWidth="1.5" fill="rgba(143,168,138,.1)" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="cat-body">
+                  <div className="cat-type">記念日・アニバーサリー（準備中）</div>
+                  <div className="cat-name">大切な日をもっと特別に</div>
+                  <div className="cat-desc">付き合った記念日、結婚記念日。ふたりの節目を彩るレストランや宿。</div>
+                  <div className="cat-review-note crn-soon">coming soon</div>
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
