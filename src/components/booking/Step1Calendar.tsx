@@ -3,14 +3,31 @@
 import { useState } from "react";
 
 /* ────────────────────────────────────────────────────────────
-   モックデータ：空き枠がある日付（後でSupabase に差し替え）
+   空き日付を今日から動的生成（後でSupabase に差し替え）
 ──────────────────────────────────────────────────────────── */
-const AVAILABLE_DATES = new Set([
-  "2025-01-08", "2025-01-09", "2025-01-10",
-  "2025-01-14", "2025-01-15", "2025-01-16", "2025-01-17",
-  "2025-01-21", "2025-01-22", "2025-01-24",
-  "2025-01-28", "2025-01-29", "2025-01-30",
-]);
+function generateAvailableDates(): Set<string> {
+  const dates = new Set<string>();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // 明日から90日間で、火・水・木・金・土曜を空き枠として生成（約60%）
+  for (let i = 1; i <= 90; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dow = d.getDay(); // 0=日, 6=土
+    if (dow === 0) continue; // 日曜は除く
+    // seedで間引き（全部埋めるとリアルじゃないので）
+    const seed = d.getDate() + d.getMonth() * 31;
+    if (seed % 5 === 0) continue;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    dates.add(`${yyyy}-${mm}-${dd}`);
+  }
+  return dates;
+}
+
+const AVAILABLE_DATES = generateAvailableDates();
 
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 

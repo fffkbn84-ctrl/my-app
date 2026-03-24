@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { BookingState, BookingUserInfo, Slot } from "@/types/booking";
 import Step1Calendar from "./Step1Calendar";
 import Step2Slots from "./Step2Slots";
@@ -101,6 +101,31 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
   });
   const [isComplete, setIsComplete] = useState(false);
 
+  // ブラウザバック時にlocked枠を解放するためのref
+  const lockedSlotRef = useRef<Slot | null>(null);
+
+  // TODO: Supabase実装時はここでslots.status='open'に戻すAPI呼び出し
+  const releaseLockedSlot = useCallback(() => {
+    if (lockedSlotRef.current) {
+      // console.log("スロット解放:", lockedSlotRef.current.id);
+      lockedSlotRef.current = null;
+    }
+  }, []);
+
+  // ページ離脱・ブラウザバック時の解放
+  useEffect(() => {
+    const handlePopState = () => releaseLockedSlot();
+    const handleBeforeUnload = () => releaseLockedSlot();
+
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      releaseLockedSlot(); // アンマウント時も解放
+    };
+  }, [releaseLockedSlot]);
+
   const goToStep = useCallback((step: BookingState["step"]) => {
     setState((prev) => ({ ...prev, step }));
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -112,6 +137,8 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
   }, [goToStep]);
 
   const handleSlotSelect = useCallback((slot: Slot) => {
+    // TODO: Supabase実装時はここで slots.status='locked' に更新
+    lockedSlotRef.current = slot;
     setState((prev) => ({ ...prev, selectedSlot: slot }));
     goToStep(3);
   }, [goToStep]);
@@ -121,7 +148,8 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
   }, []);
 
   const handleConfirm = useCallback(() => {
-    // TODO: Supabase で予約確定 API を呼ぶ
+    // TODO: Supabase で slots.status='booked' に更新する排他制御API呼び出し
+    lockedSlotRef.current = null; // 確定済みなので解放不要
     setIsComplete(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
