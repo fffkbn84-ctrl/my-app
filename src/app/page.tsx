@@ -96,93 +96,68 @@ export default function HomePage() {
 
       <main>
         {/* ═══════════════════════════════════════════════════
-            HERO
+            HERO — futarive-v4.html 準拠
         ═══════════════════════════════════════════════════ */}
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-pale pt-16">
-          {/* 背景装飾 */}
-          <div
-            className="absolute inset-0 opacity-[0.04] pointer-events-none"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 20% 50%, var(--accent) 0%, transparent 50%), radial-gradient(circle at 80% 20%, var(--rose) 0%, transparent 40%)",
-            }}
-          />
+        <section className="hero">
+          {/* グリッドパターン背景 */}
+          <div className="hero-grid" />
 
-          <div className="relative max-w-4xl mx-auto px-6 text-center">
-            <p className="text-xs tracking-[0.3em] text-muted uppercase mb-8">
-              Marriage Counselor Review &amp; Booking
-            </p>
-
-            <h1
-              className="text-4xl md:text-6xl lg:text-7xl leading-tight tracking-wide text-ink mb-8"
-              style={{ fontFamily: "var(--font-mincho)" }}
-            >
-              出会いの前に、
-              <br />
-              <span style={{ color: "var(--accent)" }}>カウンセラー</span>を選ぶ。
+          {/* 左カラム */}
+          <div className="hero-left">
+            <div className="hero-tag">marriage counseling, reimagined</div>
+            <h1 className="hero-h1">
+              カウンセラーを見てから、<br />選べる結婚相談所。
+              <span className="hero-h1-en">The counselor comes first.</span>
             </h1>
-
-            <p className="text-base md:text-lg text-mid leading-relaxed max-w-xl mx-auto mb-12">
-              面談した人だけが書けるリアルな口コミ。
-              <br />
-              あなたにぴったりのカウンセラーを見つけて、
-              <br className="hidden md:block" />
-              今すぐ無料面談を予約しましょう。
+            <p className="hero-sub">
+              面談した人だけが書けるレビューと、担当者の顔・経歴が最初から見えるサービスです。<br /><br />
+              お見合いやデートのお店情報も、ここで。<br />出会いから、ずっと先まで一緒にいます。
             </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/counselors"
-                className="inline-flex items-center gap-2 px-8 py-4 bg-accent text-white rounded-full text-sm tracking-wide hover:opacity-90 transition-all duration-300 hover:-translate-y-0.5"
-                style={{ boxShadow: "0 8px 32px rgba(200,169,122,0.3)" }}
-              >
-                カウンセラーを探す
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                >
-                  <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-              <Link
-                href="/about"
-                className="inline-flex items-center gap-2 px-8 py-4 border border-light text-mid rounded-full text-sm tracking-wide hover:border-ink hover:text-ink transition-all duration-300"
-              >
-                サービスについて
-              </Link>
-            </div>
-
-            {/* 実績 */}
-            <div className="mt-20 flex flex-wrap items-center justify-center gap-12">
-              {[
-                { value: "2,400+", label: "登録カウンセラー" },
-                { value: "8,700+", label: "口コミ件数" },
-                { value: "98%", label: "満足度" },
-              ].map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <p
-                    className="text-3xl md:text-4xl text-ink mb-1"
-                    style={{ fontFamily: "var(--font-serif)" }}
-                  >
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-muted tracking-wide">{stat.label}</p>
-                </div>
-              ))}
+            <div className="hero-actions">
+              <Link href="/counselors" className="btn btn-dark">相談所を探す</Link>
+              <Link href="/shops" className="btn btn-outline">お見合い・デートのお店</Link>
             </div>
           </div>
 
-          {/* スクロールインジケーター */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted">
-            <p className="text-xs tracking-[0.2em]">SCROLL</p>
-            <div className="w-px h-12 bg-light relative overflow-hidden">
-              <div
-                className="absolute inset-x-0 top-0 h-6 bg-accent animate-[scrollLine_2s_ease-in-out_infinite]"
-              />
+          {/* 右カラム — フローティングカード */}
+          <div className="hero-right">
+            {/* fc-main: カウンセラーレビューカード */}
+            <div className="fc fc-main">
+              <div className="fc-p">
+                <div className="fc-av">
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <circle cx="11" cy="8" r="4" fill="#C8A97A" opacity=".6" />
+                    <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="#C8A97A" strokeWidth="1.2" fill="none" opacity=".4" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="fc-nm">田中 美紀 カウンセラー</div>
+                  <div className="fc-or">ブライダルハウス東京 · 銀座</div>
+                </div>
+                <div className="fc-vf">✓ 面談済み</div>
+              </div>
+              <div className="fc-stars">★★★★★</div>
+              <p className="fc-txt">最初の相談で「この人なら任せられる」と思えました。押しつけがましくなく、でもちゃんと考えてくれている。</p>
+            </div>
+
+            {/* fc-stat: 統計カード */}
+            <div className="fc fc-stat">
+              <div className="fc-num">98%</div>
+              <div className="fc-lbl">予約完了率</div>
+              <div className="fc-bar">
+                <div className="fc-fill" />
+              </div>
+            </div>
+
+            {/* fc-scene: 婚活シーンカード */}
+            <div className="fc fc-scene">
+              <div className="scene-title">婚活の流れ、ぜんぶ</div>
+              <div className="scene-tags">
+                <span className="sc-tag hi">婚活準備（美容）</span>
+                <span className="sc-tag hi">お見合いの場所</span>
+                <span className="sc-tag">デート1回目・2回目</span>
+                <span className="sc-tag">プロポーズ</span>
+              </div>
             </div>
           </div>
         </section>
