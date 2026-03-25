@@ -318,6 +318,13 @@ npm run lint
 
 ## 現在の実装状況（2026-03-25 時点）
 
+### 作業ブランチ
+
+現在のメイン作業ブランチ: **`claude/redesign-hero-section-BThOA`**
+（以降の作業はすべてこのブランチで行う）
+
+---
+
 ### 技術スタック（実装確認済み）
 
 | カテゴリ | 技術 | バージョン |
@@ -337,7 +344,7 @@ npm run lint
 #### ページ・ルート
 | ページ | パス | 状態 |
 |---|---|---|
-| トップページ | `/` | ✅ 完全実装（全8セクション） |
+| トップページ | `/` | ✅ 完全実装（全6セクション） |
 | カウンセラー一覧 | `/counselors` | ✅ 実装済（モックデータ6名） |
 | カウンセラー詳細 | `/counselors/[id]` | ✅ 実装済 |
 | 予約フロー | `/booking/[counselorId]` | ✅ 4ステップ実装済 |
@@ -347,7 +354,7 @@ npm run lint
 | カウンセラー口コミ投稿 | `/reviews/new` | ✅ 認証ゲート付き実装済 |
 
 #### コンポーネント
-- `Header.tsx` / `Footer.tsx` — グローバルレイアウト
+- `Header.tsx` / `Footer.tsx` — グローバルレイアウト（Footerは4カラムグリッドデザイン）
 - `RevealObserver.tsx` — スクロールアニメーション（IntersectionObserver）
 - `CounselorSearch.tsx` — 検索・フィルター・カード表示
 - `BookingFlow.tsx` + `Step1Calendar` / `Step2Slots` / `Step3Form` / `Step4Confirm` — 予約フロー4ステップ
@@ -361,15 +368,26 @@ npm run lint
 - `supabase/schema.sql` — DBスキーマ（ENUM・テーブル・インデックス・リレーション）
 - `src/lib/mock/shops.ts` — お店モックデータ
 
-#### トップページ実装セクション
-1. HERO — グリッド背景・フローティングカード3枚・CTAボタン
+#### トップページ実装セクション（現在6セクション）
+1. HERO — グリッド背景・フローティングカード3枚・CTAボタン（redesign済み）
 2. MARQUEE — 無限スクロール黒帯
 3. VISION — ビジョン引用（黒背景）
 4. JOURNEY — フェーズタイムライン + カテゴリカード6枚
-5. 注目のカウンセラー — カウンセラーカード3枚
-6. 口コミセクション — 口コミカード3件
-7. ご利用の流れ — 4ステップ説明
-8. CTA — 最終CV
+5. 注目のカウンセラー — カウンセラーカード横スクロール
+6. CTA — 最終CV（黒背景・グロー装飾付き）
+
+> **削除済みセクション：** 口コミセクション（旧6番）・ご利用の流れ（旧7番）は削除した。
+
+#### globals.cssのCSSクラス構成
+- ヒーロー系: `.hero`, `.hero-grid`, `.hero-tag`, `.hero-h1`, `.hero-sub`, `.hero-actions`, `.hero-right`, `.fc-*`, `.scene-*`
+- ボタン系: `.btn`, `.btn-dark`, `.btn-outline`, `.btn-wh`, `.btn-gl`
+- 共通: `.sec-label`, `.sec-h`, `.sec-sub`, `.wrap`, `.reveal`, `.rd1`〜`.rd3`
+- マーキー: `.marquee-wrap`, `.mi`, `.mqi`, `.mqd`
+- ビジョン: `.vision-sec`, `.vision-inner`, `.vision-eyebrow`, `.vision-quote`, `.vision-sub`
+- ジャーニー: `.journey-sec`, `.journey-inner`, `.phase-*`, `.cat-*`, `.crn-*`
+- ロゴ: `.logo`, `.logo-ja`, `.logo-sep`, `.logo-en`, `.logo-dot`
+- CTA: `.cta-sec`, `.cta-o1`, `.cta-o2`, `.cta-inner`, `.cta-ey`, `.cta-h`, `.cta-en`, `.cta-d`, `.cta-btns`
+- フッター: `footer`, `.ft-grid`, `.ft-desc`, `.ft-col`, `.ft-bottom`
 
 ---
 
