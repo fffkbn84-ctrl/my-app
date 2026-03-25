@@ -380,18 +380,10 @@ export default function HomePage() {
         >
           {/* セクションヘッダー */}
           <div className="counselor-inner">
-            <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
-              find your counselor
-            </p>
-            <h2
-              className="text-3xl md:text-4xl text-ink"
-              style={{ fontFamily: "var(--font-mincho)", marginBottom: 8 }}
-            >
+            <div className="sec-label">find your counselor</div>
+            <h2 className="sec-h">
               担当者を見て、選ぶ。
-              <span
-                className="block text-sm text-mid font-normal mt-2 leading-relaxed"
-                style={{ fontFamily: "var(--font-sans)" }}
-              >
+              <span className="sec-h-jp">
                 面談した人だけが書けるレビューで、カウンセラーの人となりがわかります
               </span>
             </h2>
