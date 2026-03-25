@@ -394,7 +394,7 @@ export default async function CounselorDetailPage({
                 {counselor.agency}
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 16 }}>
                 <div className="d-avatar">
                   {counselor.photoUrl ? (
                     <img src={counselor.photoUrl} alt={counselor.name} />
@@ -412,6 +412,44 @@ export default async function CounselorDetailPage({
                 </div>
               </div>
 
+              {/* 星評価 + 口コミ件数 */}
+              <div className="d-rating-row">
+                <div className="d-stars">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <svg key={star} width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 2.1.7-4L2.2 5.7l4-.6z"
+                        fill={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(255,255,255,.18)"}
+                        stroke={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(255,255,255,.18)"}
+                        strokeWidth=".5"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  ))}
+                </div>
+                <span className="d-rating-num">{avgRating.toFixed(1)}</span>
+                <span className="d-rating-sep" />
+                {/* コメントアイコン（独自作成） */}
+                <span className="d-review-badge">
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                    <path
+                      d="M1.5 1.5h10a.8.8 0 01.8.8v6a.8.8 0 01-.8.8H8L6.5 11 5 9.1H1.5a.8.8 0 01-.8-.8v-6a.8.8 0 01.8-.8z"
+                      stroke="rgba(255,255,255,.55)"
+                      strokeWidth="1.1"
+                      fill="rgba(255,255,255,.06)"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M3.5 4.8h6M3.5 6.6h4"
+                      stroke="rgba(255,255,255,.4)"
+                      strokeWidth=".9"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  {counselorReviews.length}件
+                </span>
+              </div>
+
               <div className="d-tags">
                 {counselor.specialties.map((s, i) => (
                   <span key={s} className={`d-tag${i === 0 ? " featured" : ""}`}>{s}</span>
@@ -419,14 +457,6 @@ export default async function CounselorDetailPage({
               </div>
 
               <div className="d-stats">
-                <div className="d-stat-item">
-                  <div className="d-stat-num">{avgRating.toFixed(1)}</div>
-                  <div className="d-stat-label">評価</div>
-                </div>
-                <div className="d-stat-item">
-                  <div className="d-stat-num">{counselorReviews.length}</div>
-                  <div className="d-stat-label">口コミ件数</div>
-                </div>
                 <div className="d-stat-item">
                   <div className="d-stat-num">{counselor.successCount}</div>
                   <div className="d-stat-label">成婚実績</div>
