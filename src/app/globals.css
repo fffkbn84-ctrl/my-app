@@ -498,7 +498,7 @@ a {
   gap: 20px;
 }
 @media (max-width: 900px) { .cat-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .cat-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .cat-grid { grid-template-columns: repeat(2, 1fr); } }
 
 .cat-card {
   border-radius: 14px;
