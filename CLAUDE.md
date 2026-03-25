@@ -313,3 +313,88 @@ npm run lint
 - Supabase Authはメールリンク認証（Magic Link）を使う
 - パスワード認証は実装しない
 - 予約時のメールアドレスとMagic Linkを紐づける
+
+---
+
+## 現在の実装状況（2026-03-25 時点）
+
+### 技術スタック（実装確認済み）
+
+| カテゴリ | 技術 | バージョン |
+|---|---|---|
+| フレームワーク | Next.js (App Router) | 16.2.1 |
+| 言語 | TypeScript | ^5 |
+| UI | React | 19.2.4 |
+| スタイリング | Tailwind CSS | ^4 |
+| DB/Auth | Supabase (PostgreSQL) | - |
+| Supabase SDK | @supabase/supabase-js | ^2.100.0 |
+| SSR連携 | @supabase/ssr | ^0.9.0 |
+
+---
+
+### 完了済みの機能
+
+#### ページ・ルート
+| ページ | パス | 状態 |
+|---|---|---|
+| トップページ | `/` | ✅ 完全実装（全8セクション） |
+| カウンセラー一覧 | `/counselors` | ✅ 実装済（モックデータ6名） |
+| カウンセラー詳細 | `/counselors/[id]` | ✅ 実装済 |
+| 予約フロー | `/booking/[counselorId]` | ✅ 4ステップ実装済 |
+| お店一覧 | `/shops` | ✅ 実装済（モックデータ6店） |
+| お店詳細 | `/shops/[id]` | ✅ 完全実装（口コミ表示含む） |
+| お店口コミ投稿 | `/shops/[id]/review` | ✅ 実装済 |
+| カウンセラー口コミ投稿 | `/reviews/new` | ✅ 認証ゲート付き実装済 |
+
+#### コンポーネント
+- `Header.tsx` / `Footer.tsx` — グローバルレイアウト
+- `RevealObserver.tsx` — スクロールアニメーション（IntersectionObserver）
+- `CounselorSearch.tsx` — 検索・フィルター・カード表示
+- `BookingFlow.tsx` + `Step1Calendar` / `Step2Slots` / `Step3Form` / `Step4Confirm` — 予約フロー4ステップ
+- `ShopSearch.tsx` — お店検索・フィルター
+- `ReviewGate.tsx` / `ReviewForm.tsx` — 口コミ認証・投稿フォーム
+
+#### インフラ・設計
+- `src/types/database.ts` — Supabase型定義（9テーブル分）
+- `src/types/booking.ts` / `review.ts` — 予約・口コミ専用型
+- `src/lib/supabase/client.ts` / `server.ts` — ブラウザ/サーバー/管理者クライアント
+- `supabase/schema.sql` — DBスキーマ（ENUM・テーブル・インデックス・リレーション）
+- `src/lib/mock/shops.ts` — お店モックデータ
+
+#### トップページ実装セクション
+1. HERO — グリッド背景・フローティングカード3枚・CTAボタン
+2. MARQUEE — 無限スクロール黒帯
+3. VISION — ビジョン引用（黒背景）
+4. JOURNEY — フェーズタイムライン + カテゴリカード6枚
+5. 注目のカウンセラー — カウンセラーカード3枚
+6. 口コミセクション — 口コミカード3件
+7. ご利用の流れ — 4ステップ説明
+8. CTA — 最終CV
+
+---
+
+### 未完了の機能
+
+| 機能 | パス | 状態 |
+|---|---|---|
+| 統括管理画面 | `/admin` | ❌ 未実装 |
+| 相談所管理画面 | `/admin/agency` | ❌ 未実装 |
+| コラム一覧・詳細 | `/columns` | ❌ 未実装（リンクのみ） |
+| 成婚エピソード | `/episodes` | ❌ 未実装（リンクのみ） |
+| Supabase実データ接続 | — | ⚠️ モックデータのまま |
+| Magic Link認証 | — | ⚠️ 設計済み・未接続 |
+| ダブルブッキング排他制御 | — | ⚠️ 設計済み・未接続 |
+| Supabase Realtime（枠同期） | — | ⚠️ 設計済み・未接続 |
+| RLSポリシー設定 | — | ⚠️ スキーマのみ・ポリシー未設定 |
+
+---
+
+### 次にやること（推奨順）
+
+1. **Supabase実データ接続** — モックデータをSupabaseクエリに置き換え
+2. **RLSポリシー設定** — 各テーブルのRow Level Security設定
+3. **Magic Link認証フロー** — 予約メール送信・口コミURL発行の実装
+4. **ダブルブッキング排他制御** — `slots` テーブルの `locked` 状態管理 + pg_cron設定
+5. **Supabase Realtime** — 予約枠のリアルタイム同期
+6. **管理画面** — 統括（口コミ代理入力）・相談所（カレンダー・返信）
+7. **コラム・成婚エピソード** — 記事一覧・詳細ページ
