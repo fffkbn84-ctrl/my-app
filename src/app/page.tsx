@@ -110,7 +110,8 @@ export default function HomePage() {
           <div className="hero-left">
             <div className="hero-tag">marriage counseling, reimagined</div>
             <h1 className="hero-h1">
-              カウンセラーを見てから、<br />選べる結婚相談所。
+              <span style={{ display: "block" }}>カウンセラーを見てから、</span>
+              <span style={{ display: "block" }}>選べる結婚相談所。</span>
               <span className="hero-h1-en">The counselor comes first.</span>
             </h1>
             <p className="hero-sub">
@@ -121,6 +122,7 @@ export default function HomePage() {
               <Link href="/counselors" className="btn btn-dark">相談所を探す</Link>
               <Link href="/shops" className="btn btn-outline">お見合い・デートのお店</Link>
             </div>
+            <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", marginTop: "12px" }}>✓ 無料で使えます・登録不要</p>
           </div>
 
           {/* 右カラム — フローティングカード */}
@@ -242,7 +244,7 @@ export default function HomePage() {
               </div>
               <div className="phase-item">
                 <div className="phase-stage">Phase 3 — 将来</div>
-                <div className="phase-name">ふたりになる</div>
+                <div className="phase-name">大切な時</div>
                 <div className="phase-cats">
                   <div className="phase-cat">プロポーズスポット</div>
                   <div className="phase-cat">婚約指輪</div>
@@ -253,7 +255,7 @@ export default function HomePage() {
               </div>
               <div className="phase-item">
                 <div className="phase-stage">Phase 4 — その先も</div>
-                <div className="phase-name">ふたりで生きる</div>
+                <div className="phase-name">共に生きる</div>
                 <div className="phase-cats">
                   <div className="phase-cat">新居・インテリア</div>
                   <div className="phase-cat">夫婦でのレストラン</div>
