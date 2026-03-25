@@ -416,3 +416,93 @@ npm run lint
 5. **Supabase Realtime** — 予約枠のリアルタイム同期
 6. **管理画面** — 統括（口コミ代理入力）・相談所（カレンダー・返信）
 7. **コラム・成婚エピソード** — 記事一覧・詳細ページ
+
+---
+
+## アップデート履歴（2026-03-25 追記）
+
+### 追加されたセクション（トップページ）
+
+トップページのセクション構成が **6 → 8セクション** に拡張された。
+
+| # | セクション | 変更 |
+|---|---|---|
+| 1 | HERO | 変更なし |
+| 2 | MARQUEE | 変更なし |
+| 3 | VISION | 変更なし |
+| 4 | JOURNEY | カテゴリカードをクリッカブル化（後述） |
+| 5 | 注目のカウンセラー | マージン・ヘッダースタイル修正（後述） |
+| **6** | **ふたりへが選んだお店** | **新規追加** |
+| **7** | **成婚エピソード** | **新規追加** |
+| 8 | CTA | 変更なし |
+
+---
+
+### 追加されたファイル
+
+#### モックデータ
+- `src/lib/mock/places-home.ts` — お店セクション用モックデータ
+  - `PlaceHome` / `BadgeType`（`"certified" | "agency"`）/ `PlaceTabCategory` / `ThumbVariant` 型
+  - `placesHomeData`（4件）・`placeTabs`（5タブ）
+- `src/lib/mock/episodes.ts` — 成婚エピソード用モックデータ
+  - `Episode` / `EpisodeThumbVariant` 型
+  - `episodesData`（3件）
+
+#### コンポーネント
+- `src/components/home/PlacesSection.tsx` — `'use client'`
+  - タブフィルター（`useState`）+ ドラッグスクロール（`useRef` + `useEffect`）
+  - サブコンポーネント: `PlaceThumb`・`PlaceBadge`・`Stars`
+- `src/components/home/EpisodesSection.tsx` — Server Component
+  - サブコンポーネント: `EpisodeThumb`・`CoupleAvatars`・`EpisodeCard`
+  - featured カードは `grid-row: 1/3`（`.ep-card-ft`）
+
+---
+
+### 修正された既存機能
+
+#### 注目のカウンセラー セクション
+- セクションヘッダーのパディングを `px-[22px] md:px-12`（Tailwind） → `.counselor-inner` CSS クラスに変更
+  - `max-width: 768px` メディアクエリで `places-inner` と同じアプローチに統一
+- スクロールラッパーも同様に `.counselor-scroll` へパディングを移動
+- セクションラベル・見出しを `sec-label` + `sec-h` + `sec-h-jp` クラスに統一
+  - 他セクション（what we offer / selected places）と表記スタイルを揃えた
+
+#### JOURNEY カテゴリカード（6枚）
+- アクティブな3枚を `<div>` → `<Link>` に変更
+  - ct-1（相談所・カウンセラー）→ `#counselors`
+  - ct-2（カフェ・レストラン）→ `#places`
+  - ct-3（ヘア・ネイル・眉）→ `#places`
+- coming soon カード（ct-4〜6）はリンクなし・無反応のまま
+- `.cat-card` に `text-decoration: none; color: inherit; display: block` を追加
+
+#### お店バッジ仕様変更
+- `listed`（掲載店）バッジを**廃止**
+  - `BadgeType` から `"listed"` を削除
+  - `PlaceBadge` のマップから `listed` を削除
+  - 凡例から「掲載店」バッジを削除
+  - `globals.css` の `.rt-listed` / `.rt-listed::before` を削除
+- `sec-h-jp` テキスト変更：
+  - 旧: `取材済み・相談所おすすめ・口コミで集まったお店を掲載しています`
+  - 新: `取材済み・相談所おすすめのお店を掲載しています`
+
+---
+
+### globals.css 追加CSSクラス（このセッションで追加）
+
+- カウンセラー: `.counselor-inner`、`.counselor-scroll`（レスポンシブパディング）
+- お店: `.places-sec`、`.places-inner`、`.place-tabs`、`.pt-btn`、`.places-scroll`、`.places-track`、`.place-card`、`.place-thumb`、`.pt-cafe`/`.pt-rest`/`.pt-hair`/`.pt-photo`、`.pt-body`/`.pt-stage`/`.pt-name`/`.pt-loc`/`.pt-bottom`/`.pt-rating`/`.pt-stars`/`.pt-cnt`/`.pt-review-type`
+- バッジ: `.rt-certified`、`.rt-agency`（`.rt-listed` は廃止）
+- エピソード: `.ep-sec`、`.ep-inner`、`.ep-grid`、`.ep-card`、`.ep-card-ft`、`.ep-thumb`、`.et-1`/`.et-2`/`.et-3`、`.ep-body`、`.ep-tag-row`、`.ep-atag`、`.ep-period`、`.ep-title`、`.ep-excerpt`、`.ep-footer`、`.ep-couple`、`.ep-avs`、`.ep-av`、`.ep-couple-l`、`.ep-link`
+
+---
+
+### ビジネスルール変更点
+
+#### お店バッジ（最新）
+
+| badge_type | 表示 | 色 |
+|---|---|---|
+| `certified` | ふたりへ取材済み | ゴールド（--accent） |
+| `agency` | 相談所おすすめ | ブルー（--blue） |
+| ~~`listed`~~ | ~~掲載店~~ | ~~廃止~~ |
+
