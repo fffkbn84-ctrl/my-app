@@ -24,6 +24,7 @@ const counselors = {
     bio: "大学卒業後、IT企業で5年間働いた後、結婚相談所のカウンセラーに転身。自身の婚活経験を活かし、特にキャリア女性の婚活をサポートしています。\n\n「婚活は自分を知ること」をモットーに、価値観の整理から始めて、本当にご縁のある方との出会いをお手伝いします。焦らず、でも着実に。一人ひとりに向き合った丁寧なサポートが強みです。",
     message: "初めての婚活で不安な方も、何度かチャレンジしてうまくいかない方も、まずは気軽にお話しに来てください。あなたのペースに合わせて、一緒に考えていきましょう。",
     qualifications: ["婚活カウンセラー資格", "メンタルヘルス・マネジメント検定"],
+    photoUrl: undefined,
   },
   "2": {
     id: "2",
@@ -42,6 +43,7 @@ const counselors = {
     bio: "離婚経験のある方やシングルペアレントの婚活を12年間専門にサポート。再婚に対する不安や葛藤を誰よりも深く理解できるカウンセラーを目指しています。\n\n「過去は変えられないけれど、未来は一緒に作れる」という信念のもと、一人ひとりの事情に寄り添いながら、新しいご縁づくりをお手伝いします。",
     message: "バツイチ・シングルだからこそ見えてくる、本当に大切なものがあります。遠慮なく、まず話しに来てください。",
     qualifications: ["婚活カウンセラー資格", "家族相談士", "心理カウンセラー"],
+    photoUrl: undefined,
   },
   "3": {
     id: "3",
@@ -60,6 +62,7 @@ const counselors = {
     bio: "横浜生まれ・横浜育ちのカウンセラー。神奈川・東京エリアの婚活事情を知り尽くしており、特に20代の婚活初心者のサポートを得意としています。\n\n「焦る必要はない、でも後悔はしてほしくない」という思いから、タイミングと縁を大切にした婚活スタイルを提案。笑顔が多い面談を心がけています。",
     message: "婚活って難しそう…と思っている方ほど、ぜひ一度来てみてください。一緒に楽しく進めましょう！",
     qualifications: ["婚活カウンセラー資格", "ブライダルコーディネーター"],
+    photoUrl: undefined,
   },
   "4": {
     id: "4",
@@ -78,6 +81,7 @@ const counselors = {
     bio: "大阪を拠点に10年間、30〜40代の婚活を専門にサポート。年齢へのコンプレックスを抱えて来られる方が多いですが、「年齢は武器になる」という考え方でポジティブな婚活スタイルを提案しています。\n\n豊富な人生経験を持つ大人の婚活だからこそ、深い価値観のすり合わせから始めることを大切にしています。",
     message: "30代・40代からの婚活を何百人もサポートしてきました。年齢を言い訳にしない婚活、一緒に始めましょう。",
     qualifications: ["婚活カウンセラー資格", "キャリアコンサルタント"],
+    photoUrl: undefined,
   },
   "5": {
     id: "5",
@@ -96,6 +100,7 @@ const counselors = {
     bio: "名古屋・東海エリアの婚活市場を熟知したカウンセラー。地元での安定した生活を重視する方や、転勤族の悩みを抱える方のサポートを得意としています。\n\n公務員・教員・看護師など安定職の方との成婚実績が豊富で、職種特有の働き方や価値観を理解した上でマッチングの提案ができます。",
     message: "地元・名古屋での幸せな結婚を本気で目指す方、一緒に頑張りましょう。実績と経験で全力サポートします。",
     qualifications: ["婚活カウンセラー資格", "ファイナンシャルプランナー3級"],
+    photoUrl: undefined,
   },
   "6": {
     id: "6",
@@ -114,6 +119,7 @@ const counselors = {
     bio: "ニューヨーク在住5年の経験を持つバイリンガルカウンセラー。帰国子女・海外在住経験者・外国籍の方など、グローバルなバックグラウンドを持つ方の婚活を専門にサポートしています。\n\n日英両語対応可能で、文化的背景の異なるカップルのマッチングにも定評があります。「ボーダーレスな愛の形」を信じて活動中。",
     message: "海外経験があることでかえって婚活に悩んでいる方、その経験は必ず強みになります。一緒に証明しましょう。",
     qualifications: ["婚活カウンセラー資格", "TOEIC 990点", "米国ブライダルコンサルタント認定"],
+    photoUrl: undefined,
   },
 };
 
@@ -388,8 +394,23 @@ export default async function CounselorDetailPage({
                 {counselor.agency}
               </div>
 
-              <div className="d-name">{counselor.name}</div>
-              <div className="d-role">婚活カウンセラー · {counselor.area}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 20 }}>
+                <div className="d-avatar">
+                  {counselor.photoUrl ? (
+                    <img src={counselor.photoUrl} alt={counselor.name} />
+                  ) : (
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                      <circle cx="20" cy="15" r="8" fill="#C8A97A" opacity=".6" />
+                      <path d="M4 38c0-8.837 7.163-16 16-16s16 7.163 16 16"
+                        stroke="#C8A97A" strokeWidth="1.5" fill="none" opacity=".4" />
+                    </svg>
+                  )}
+                </div>
+                <div>
+                  <div className="d-name">{counselor.name}</div>
+                  <div className="d-role">婚活カウンセラー · {counselor.area}</div>
+                </div>
+              </div>
 
               <div className="d-tags">
                 {counselor.specialties.map((s, i) => (
