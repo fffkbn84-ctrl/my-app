@@ -558,13 +558,14 @@ a {
 }
 .cat-desc { font-size: 11px; color: var(--muted); line-height: 1.8; }
 .cat-review-note {
-  font-size: 10px;
+  font-size: 9px;
   margin-top: 10px;
-  padding: 5px 10px;
+  padding: 4px 8px;
   border-radius: 20px;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
+  white-space: nowrap;
 }
 .crn-open  { background: var(--gpale); color: var(--green); }
 .crn-strict { background: var(--adim); color: var(--accent); }

@@ -335,6 +335,9 @@ export default function HomePage() {
               {/* ct-4: プロポーズ */}
               <div className="cat-card">
                 <div className="cat-thumb ct-4">
+                  <div className="cat-soon-overlay">
+                    <span className="cat-soon-label">coming soon</span>
+                  </div>
                   <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
                     <path d="M28 10l3 8h8l-6.5 5 2.5 8L28 26l-7 5 2.5-8L17 18h8z" stroke="#6B8FBF" strokeWidth="1.5" fill="rgba(107,143,191,.1)" strokeLinejoin="round" />
                     <circle cx="28" cy="34" r="8" stroke="#6B8FBF" strokeWidth="1.5" fill="none" opacity=".4" />
