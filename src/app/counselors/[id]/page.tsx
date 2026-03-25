@@ -597,31 +597,40 @@ export default async function CounselorDetailPage({
                   </div>
 
                   {/* 口コミ一覧 */}
-                  <div className="space-y-4">
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     {counselorReviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="bg-white rounded-2xl p-6 border border-light"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <StarRating rating={review.rating} />
-                            <h3 className="text-sm font-medium text-ink mt-2">{review.title}</h3>
-                          </div>
-                          <div className="text-right shrink-0 ml-3">
-                            <p className="text-xs text-muted">{review.date}</p>
-                            {review.verified && (
-                              <span className="inline-flex items-center gap-1 text-xs text-green mt-1">
-                                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
-                                  <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
-                                </svg>
-                                面談済み
-                              </span>
-                            )}
-                          </div>
+                      <div key={review.id} className="rv-card">
+
+                        {/* 上段: 日付 / 面談済みバッジ */}
+                        <div className="rv-meta">
+                          <span className="rv-date">{review.date}</span>
+                          {review.verified && (
+                            <span className="rv-verified">
+                              <svg width="11" height="11" viewBox="0 0 10 10" fill="currentColor">
+                                <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
+                              </svg>
+                              面談済み口コミ
+                            </span>
+                          )}
                         </div>
-                        <p className="text-sm text-mid leading-relaxed">{review.text}</p>
-                        <p className="text-xs text-muted mt-3">{review.author}</p>
+
+                        {/* 星 + 数値 */}
+                        <div className="rv-stars-row">
+                          <StarRating rating={review.rating} size={17} />
+                          <span className="rv-rating-num">{review.rating}.0</span>
+                        </div>
+
+                        {/* タイトル */}
+                        <p className="rv-title">{review.title}</p>
+
+                        {/* 本文 */}
+                        <p className="rv-text">{review.text}</p>
+
+                        {/* フッター: 投稿者 */}
+                        <div className="rv-footer">
+                          <span className="rv-author">{review.author}</span>
+                        </div>
+
                       </div>
                     ))}
                   </div>
