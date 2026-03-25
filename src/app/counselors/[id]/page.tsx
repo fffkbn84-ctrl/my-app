@@ -364,295 +364,288 @@ export default async function CounselorDetailPage({
       <Header />
 
       <main className="pt-16">
-        {/* ─── パンくずリスト ─── */}
-        <div className="bg-pale border-b border-light">
-          <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-xs text-muted">
-            <Link href="/" className="hover:text-ink transition-colors">
-              トップ
-            </Link>
-            <span>/</span>
-            <Link href="/counselors" className="hover:text-ink transition-colors">
-              カウンセラー一覧
-            </Link>
-            <span>/</span>
-            <span className="text-ink">{counselor.name}</span>
+        {/* ═══════════════════════════════════════════════════
+            ヒーローストリップ（黒背景）
+        ═══════════════════════════════════════════════════ */}
+        <div className="hero-strip">
+          <div className="detail-hero">
+
+            {/* 左: パンくず・バッジ・名前・タグ・統計 */}
+            <div>
+              <div className="d-breadcrumb">
+                <Link href="/">トップ</Link>
+                <span>/</span>
+                <Link href="/counselors">カウンセラー一覧</Link>
+                <span>/</span>
+                <span>{counselor.name}</span>
+              </div>
+
+              <div className="d-agency-badge">
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M5 1L1 2.5v3c0 2.5 1.71 4.84 4 5.5 2.29-.66 4-3 4-5.5v-3L5 1z"
+                    stroke="var(--accent)" strokeWidth=".9" fill="rgba(200,169,122,.15)" />
+                </svg>
+                {counselor.agency}
+              </div>
+
+              <div className="d-name">{counselor.name}</div>
+              <div className="d-role">婚活カウンセラー · {counselor.area}</div>
+
+              <div className="d-tags">
+                {counselor.specialties.map((s, i) => (
+                  <span key={s} className={`d-tag${i === 0 ? " featured" : ""}`}>{s}</span>
+                ))}
+              </div>
+
+              <div className="d-stats">
+                <div className="d-stat-item">
+                  <div className="d-stat-num">{avgRating.toFixed(1)}</div>
+                  <div className="d-stat-label">評価</div>
+                </div>
+                <div className="d-stat-item">
+                  <div className="d-stat-num">{counselorReviews.length}</div>
+                  <div className="d-stat-label">口コミ件数</div>
+                </div>
+                <div className="d-stat-item">
+                  <div className="d-stat-num">{counselor.successCount}</div>
+                  <div className="d-stat-label">成婚実績</div>
+                </div>
+                <div className="d-stat-item">
+                  <div className="d-stat-num">{counselor.yearsExp}</div>
+                  <div className="d-stat-label">経験年数</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 右: 予約カード（PCのみ） */}
+            <div className="d-book-card">
+              <div className="d-book-card-title">初回面談を予約する</div>
+              <div className="d-book-card-sub">次の空き: {counselor.nextAvailable}</div>
+              <div className="d-price-row">
+                <span className="d-price-label">面談料金</span>
+                <span className="d-price">¥0</span>
+                <span className="d-price-free">完全無料</span>
+              </div>
+              <Link
+                href={`/booking/${counselor.id}`}
+                className="block w-full text-center py-4 rounded-xl text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90"
+                style={{ background: "var(--accent)", boxShadow: "0 6px 20px rgba(200,169,122,0.35)" }}
+              >
+                空き日時を確認する
+              </Link>
+              <p className="d-book-note">当日キャンセル可 · 登録不要</p>
+            </div>
+
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-6 py-10 md:py-14">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* ─────────────────────────────────────────────────
-                左カラム: プロフィール（PC時スティッキー）
-            ───────────────────────────────────────────────── */}
-            <aside className="lg:col-span-1">
-              <div className="lg:sticky lg:top-28 space-y-5">
-                {/* プロフィールカード */}
-                <div className="bg-white rounded-2xl border border-light overflow-hidden">
-                  {/* アバター */}
-                  <div className="aspect-square bg-pale flex items-center justify-center">
-                    <div
-                      className="w-32 h-32 rounded-full flex items-center justify-center text-5xl text-white"
-                      style={{ background: "var(--accent)", fontFamily: "var(--font-mincho)" }}
-                    >
-                      {counselor.name.slice(-1)}
-                    </div>
+        {/* ═══════════════════════════════════════════════════
+            コンテンツエリア（2カラム）
+        ═══════════════════════════════════════════════════ */}
+        <div className="detail-body">
+          <div className="wrap">
+            <div className="detail-grid">
+
+              {/* ── 左カラム: プロフィール・メッセージ・口コミ ── */}
+              <div style={{ minWidth: 0 }}>
+
+                {/* プロフィール */}
+                <section style={{ marginBottom: 48 }}>
+                  <h2
+                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
+                    style={{ fontFamily: "var(--font-mincho)" }}
+                  >
+                    プロフィール
+                  </h2>
+
+                  {/* バイオグラフィ */}
+                  <div style={{ marginBottom: 28 }}>
+                    {counselor.bio.split("\n\n").map((paragraph, i) => (
+                      <p key={i} className="text-sm text-mid leading-relaxed" style={{ marginBottom: 12 }}>
+                        {paragraph}
+                      </p>
+                    ))}
                   </div>
 
-                  <div className="p-6">
-                    <h1
-                      className="text-2xl text-ink mb-0.5"
+                  {/* 2カラムグリッド */}
+                  <div className="d-profile-grid">
+                    <div className="d-profile-item">
+                      <div className="d-profile-key">専門分野</div>
+                      <div className="d-profile-val">{counselor.specialties.join(" · ")}</div>
+                    </div>
+                    <div className="d-profile-item">
+                      <div className="d-profile-key">エリア</div>
+                      <div className="d-profile-val">{counselor.area}</div>
+                    </div>
+                    <div className="d-profile-item">
+                      <div className="d-profile-key">経験年数</div>
+                      <div className="d-profile-val">{counselor.yearsExp}年</div>
+                    </div>
+                    <div className="d-profile-item">
+                      <div className="d-profile-key">成婚実績</div>
+                      <div className="d-profile-val">{counselor.successCount}組</div>
+                    </div>
+                    {counselor.qualifications.length > 0 && (
+                      <div className="d-profile-item" style={{ gridColumn: "1 / -1" }}>
+                        <div className="d-profile-key">資格・認定</div>
+                        <div className="d-profile-val">{counselor.qualifications.join(" / ")}</div>
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                {/* メッセージ */}
+                <section style={{ marginBottom: 48 }}>
+                  <h2
+                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
+                    style={{ fontFamily: "var(--font-mincho)" }}
+                  >
+                    カウンセラーからのメッセージ
+                  </h2>
+                  <div className="d-message">
+                    <p className="d-message-text">&ldquo;{counselor.message}&rdquo;</p>
+                    <p className="d-message-author">— {counselor.name}</p>
+                  </div>
+                </section>
+
+                {/* 口コミ */}
+                <section>
+                  <div className="flex items-end justify-between mb-6 pb-3 border-b border-light">
+                    <h2
+                      className="text-lg text-ink"
                       style={{ fontFamily: "var(--font-mincho)" }}
                     >
-                      {counselor.name}
-                    </h1>
-                    <p className="text-xs text-muted mb-1">{counselor.nameKana}</p>
-                    <p className="text-sm text-mid mb-4">{counselor.agency}</p>
+                      口コミ・評価
+                    </h2>
+                    <span className="text-xs text-muted">{counselorReviews.length}件</span>
+                  </div>
 
-                    {/* 評価 */}
-                    <div className="flex items-center gap-2 mb-5 pb-5 border-b border-light">
-                      <StarRating rating={Math.round(avgRating)} size={16} />
-                      <span className="text-lg font-medium text-ink">
-                        {avgRating.toFixed(1)}
-                      </span>
-                      <span className="text-sm text-muted">
-                        ({counselorReviews.length}件)
-                      </span>
-                    </div>
-
-                    {/* 数字 */}
-                    <div className="grid grid-cols-3 gap-3 mb-5">
-                      {[
-                        { value: `${counselor.yearsExp}年`, label: "経験年数" },
-                        { value: `${counselor.successCount}組`, label: "成婚実績" },
-                        { value: "無料", label: "面談料金" },
-                      ].map((stat) => (
-                        <div key={stat.label} className="text-center">
-                          <p
-                            className="text-base text-ink"
-                            style={{ fontFamily: "var(--font-serif)" }}
-                          >
-                            {stat.value}
-                          </p>
-                          <p className="text-xs text-muted mt-0.5">{stat.label}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* エリア */}
-                    <div className="flex items-center gap-2 text-sm text-mid mb-5">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
-                        <circle cx="7" cy="6" r="1.5" />
-                      </svg>
-                      {counselor.area}
-                    </div>
-
-                    {/* 専門タグ */}
-                    <div className="flex flex-wrap gap-1.5">
-                      {counselor.specialties.map((s) => (
-                        <span
-                          key={s}
-                          className="text-xs px-2.5 py-1 rounded-full border text-accent"
-                          style={{ borderColor: "color-mix(in srgb, var(--accent) 30%, transparent)" }}
+                  {/* 評価サマリー */}
+                  <div className="bg-pale rounded-2xl p-6 mb-6">
+                    <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                      <div className="text-center md:w-32 shrink-0">
+                        <p
+                          className="text-5xl text-ink leading-none mb-2"
+                          style={{ fontFamily: "var(--font-serif)" }}
                         >
-                          {s}
-                        </span>
-                      ))}
+                          {avgRating.toFixed(1)}
+                        </p>
+                        <StarRating rating={Math.round(avgRating)} size={16} />
+                        <p className="text-xs text-muted mt-1">{counselorReviews.length}件の評価</p>
+                      </div>
+                      <div className="flex-1 space-y-2 w-full">
+                        <RatingBar label="話しやすさ" value={4.9} />
+                        <RatingBar label="専門知識" value={4.8} />
+                        <RatingBar label="提案力" value={4.7} />
+                        <RatingBar label="サポート" value={4.9} />
+                      </div>
                     </div>
+                    <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
+                      ※ ふたりへ経由で面談した方のみ投稿できます
+                    </p>
+                  </div>
+
+                  {/* 口コミ一覧 */}
+                  <div className="space-y-4">
+                    {counselorReviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="bg-white rounded-2xl p-6 border border-light"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <StarRating rating={review.rating} />
+                            <h3 className="text-sm font-medium text-ink mt-2">{review.title}</h3>
+                          </div>
+                          <div className="text-right shrink-0 ml-3">
+                            <p className="text-xs text-muted">{review.date}</p>
+                            {review.verified && (
+                              <span className="inline-flex items-center gap-1 text-xs text-green mt-1">
+                                <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+                                  <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
+                                </svg>
+                                面談済み
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-sm text-mid leading-relaxed">{review.text}</p>
+                        <p className="text-xs text-muted mt-3">{review.author}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+              </div>
+
+              {/* ── 右カラム: スティッキーサイドバー ── */}
+              <aside style={{ alignSelf: "start", position: "sticky", top: "72px" }}>
+
+                {/* 予約カード */}
+                <div
+                  className="bg-white rounded-2xl border border-light overflow-hidden"
+                  style={{ marginBottom: 20 }}
+                >
+                  <div style={{ padding: "24px 24px 0" }}>
+                    <p className="text-xs text-muted mb-2">次の空き枠</p>
+                    <p
+                      className="text-sm text-ink mb-5"
+                      style={{ fontFamily: "var(--font-mincho)" }}
+                    >
+                      {counselor.nextAvailable}
+                    </p>
+                    <div className="d-price-row" style={{ marginBottom: 20 }}>
+                      <span className="d-price-label">面談料金</span>
+                      <span className="d-price">¥0</span>
+                      <span className="d-price-free">完全無料</span>
+                    </div>
+                  </div>
+                  <div style={{ padding: "0 24px 24px" }}>
+                    <Link
+                      href={`/booking/${counselor.id}`}
+                      className="block w-full text-center py-4 rounded-xl text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90"
+                      style={{ background: "var(--accent)", boxShadow: "0 6px 20px rgba(200,169,122,0.3)" }}
+                    >
+                      無料面談を予約する
+                    </Link>
+                    <p className="d-book-note">当日キャンセル可 · 登録不要</p>
                   </div>
                 </div>
 
-                {/* 予約CTA */}
-                <div className="bg-pale rounded-2xl border border-light p-5">
-                  <p className="text-xs text-muted mb-3">次の空き枠</p>
+                {/* 相談所情報カード */}
+                <div className="bg-white rounded-2xl border border-light p-6">
                   <p
-                    className="text-sm text-ink mb-4"
+                    className="text-xs text-muted uppercase tracking-wider mb-4"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                  >
+                    所属相談所
+                  </p>
+                  <p
+                    className="text-base text-ink mb-2"
                     style={{ fontFamily: "var(--font-mincho)" }}
                   >
-                    {counselor.nextAvailable}
+                    {counselor.agency}
+                  </p>
+                  <p className="text-xs text-muted flex items-start gap-1.5 mb-4 leading-relaxed">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ marginTop: 2, flexShrink: 0 }}>
+                      <path d="M6 1C3.8 1 2 2.8 2 5c0 3 4 6 4 6s4-3 4-6c0-2.2-1.8-4-4-4z" />
+                      <circle cx="6" cy="5" r="1.5" />
+                    </svg>
+                    {counselor.address}
                   </p>
                   <Link
-                    href={`/booking/${counselor.id}`}
-                    className="block w-full text-center px-6 py-3.5 bg-accent text-white rounded-xl text-sm tracking-wide hover:opacity-90 transition-all duration-200"
-                    style={{ boxShadow: "0 6px 20px rgba(200,169,122,0.3)" }}
+                    href={`/shops/${counselor.agencyId}`}
+                    className="text-xs text-accent hover:opacity-70 transition-opacity flex items-center gap-1"
                   >
-                    無料面談を予約する
+                    相談所の詳細を見る
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M2 5h6M5 2l3 3-3 3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </Link>
-                  <p className="text-xs text-muted text-center mt-3">
-                    完全無料・当日キャンセル可
-                  </p>
-                </div>
-              </div>
-            </aside>
-
-            {/* ─────────────────────────────────────────────────
-                右カラム: 詳細情報
-            ───────────────────────────────────────────────── */}
-            <div className="lg:col-span-2 space-y-10">
-              {/* カウンセラーからのメッセージ */}
-              <section>
-                <h2
-                  className="text-lg text-ink mb-4 pb-3 border-b border-light"
-                  style={{ fontFamily: "var(--font-mincho)" }}
-                >
-                  カウンセラーからのメッセージ
-                </h2>
-                <div
-                  className="bg-pale rounded-2xl p-6 border-l-4 text-sm text-mid leading-relaxed"
-                  style={{ borderLeftColor: "var(--accent)" }}
-                >
-                  <p className="italic">&ldquo;{counselor.message}&rdquo;</p>
-                </div>
-              </section>
-
-              {/* プロフィール */}
-              <section>
-                <h2
-                  className="text-lg text-ink mb-4 pb-3 border-b border-light"
-                  style={{ fontFamily: "var(--font-mincho)" }}
-                >
-                  プロフィール
-                </h2>
-                <div className="space-y-4">
-                  {counselor.bio.split("\n\n").map((paragraph, i) => (
-                    <p key={i} className="text-sm text-mid leading-relaxed">
-                      {paragraph}
-                    </p>
-                  ))}
                 </div>
 
-                {counselor.qualifications.length > 0 && (
-                  <div className="mt-5 pt-5 border-t border-light">
-                    <p className="text-xs text-muted uppercase tracking-wide mb-3">
-                      資格・認定
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {counselor.qualifications.map((q) => (
-                        <span
-                          key={q}
-                          className="text-xs px-3 py-1.5 rounded-full bg-pale border border-light text-mid"
-                        >
-                          {q}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
+              </aside>
 
-              {/* 口コミ */}
-              <section>
-                <div className="flex items-end justify-between mb-4 pb-3 border-b border-light">
-                  <h2
-                    className="text-lg text-ink"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    口コミ・評価
-                  </h2>
-                  <span className="text-xs text-muted">
-                    {counselorReviews.length}件
-                  </span>
-                </div>
-
-                {/* 評価サマリー */}
-                <div className="bg-pale rounded-2xl p-6 mb-6">
-                  <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                    <div className="text-center md:w-32 shrink-0">
-                      <p
-                        className="text-5xl text-ink leading-none mb-2"
-                        style={{ fontFamily: "var(--font-serif)" }}
-                      >
-                        {avgRating.toFixed(1)}
-                      </p>
-                      <StarRating rating={Math.round(avgRating)} size={16} />
-                      <p className="text-xs text-muted mt-1">
-                        {counselorReviews.length}件の評価
-                      </p>
-                    </div>
-                    <div className="flex-1 space-y-2 w-full">
-                      <RatingBar label="話しやすさ" value={4.9} />
-                      <RatingBar label="専門知識" value={4.8} />
-                      <RatingBar label="提案力" value={4.7} />
-                      <RatingBar label="サポート" value={4.9} />
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
-                    ※ ふたりへ経由で面談した方のみ投稿できます
-                  </p>
-                </div>
-
-                {/* 口コミ一覧 */}
-                <div className="space-y-4">
-                  {counselorReviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="bg-white rounded-2xl p-6 border border-light"
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <StarRating rating={review.rating} />
-                          <h3 className="text-sm font-medium text-ink mt-2">
-                            {review.title}
-                          </h3>
-                        </div>
-                        <div className="text-right shrink-0 ml-3">
-                          <p className="text-xs text-muted">{review.date}</p>
-                          {review.verified && (
-                            <span className="inline-flex items-center gap-1 text-xs text-green mt-1">
-                              <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
-                                <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
-                              </svg>
-                              面談済み
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-mid leading-relaxed">
-                        {review.text}
-                      </p>
-                      <p className="text-xs text-muted mt-3">{review.author}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              {/* 相談所情報 */}
-              <section>
-                <h2
-                  className="text-lg text-ink mb-4 pb-3 border-b border-light"
-                  style={{ fontFamily: "var(--font-mincho)" }}
-                >
-                  所属相談所
-                </h2>
-                <div className="bg-pale rounded-2xl p-6 border border-light">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p
-                        className="text-base text-ink mb-1"
-                        style={{ fontFamily: "var(--font-mincho)" }}
-                      >
-                        {counselor.agency}
-                      </p>
-                      <p className="text-xs text-muted flex items-center gap-1 mt-1">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                          <path d="M6 1C3.8 1 2 2.8 2 5c0 3 4 6 4 6s4-3 4-6c0-2.2-1.8-4-4-4z" />
-                          <circle cx="6" cy="5" r="1.5" />
-                        </svg>
-                        {counselor.address}
-                      </p>
-                    </div>
-                    <Link
-                      href={`/shops/${counselor.agencyId}`}
-                      className="text-xs text-accent hover:opacity-70 transition-opacity flex items-center gap-1 shrink-0"
-                    >
-                      詳細を見る
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <path d="M2 5h6M5 2l3 3-3 3" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </Link>
-                  </div>
-                </div>
-              </section>
             </div>
           </div>
         </div>
