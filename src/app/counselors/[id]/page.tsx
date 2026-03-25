@@ -430,7 +430,7 @@ export default async function CounselorDetailPage({
                 <span className="d-rating-num">{avgRating.toFixed(1)}</span>
                 <span className="d-rating-sep" />
                 {/* コメントアイコン（独自作成） */}
-                <span className="d-review-badge">
+                <Link href="#reviews" className="d-review-badge">
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                     <path
                       d="M1.5 1.5h10a.8.8 0 01.8.8v6a.8.8 0 01-.8.8H8L6.5 11 5 9.1H1.5a.8.8 0 01-.8-.8v-6a.8.8 0 01.8-.8z"
@@ -447,7 +447,7 @@ export default async function CounselorDetailPage({
                     />
                   </svg>
                   {counselorReviews.length}件
-                </span>
+                </Link>
               </div>
 
               <div className="d-tags">
@@ -560,7 +560,7 @@ export default async function CounselorDetailPage({
                 </section>
 
                 {/* 口コミ */}
-                <section>
+                <section id="reviews">
                   <div className="flex items-end justify-between mb-6 pb-3 border-b border-light">
                     <h2
                       className="text-lg text-ink"
