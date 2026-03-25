@@ -246,7 +246,7 @@ export default function HomePage() {
             <div className="cat-grid reveal">
 
               {/* ct-1: 相談所・カウンセラー */}
-              <div className="cat-card">
+              <Link href="#counselors" className="cat-card">
                 <div className="cat-thumb ct-1">
                   <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
                     <circle cx="28" cy="20" r="10" stroke="#C8A97A" strokeWidth="1.5" fill="rgba(200,169,122,.1)" />
@@ -264,10 +264,10 @@ export default function HomePage() {
                     面談完了者のみ口コミ可
                   </div>
                 </div>
-              </div>
+              </Link>
 
               {/* ct-2: カフェ・レストラン */}
-              <div className="cat-card">
+              <Link href="#places" className="cat-card">
                 <div className="cat-thumb ct-2">
                   <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
                     <path d="M12 20h28l-3 22H15L12 20z" stroke="#7A9E87" strokeWidth="1.5" fill="rgba(122,158,135,.1)" strokeLinejoin="round" />
@@ -286,10 +286,10 @@ export default function HomePage() {
                     利用後なら誰でも口コミ可
                   </div>
                 </div>
-              </div>
+              </Link>
 
               {/* ct-3: ヘア・ネイル・眉 */}
-              <div className="cat-card">
+              <Link href="#places" className="cat-card">
                 <div className="cat-thumb ct-3">
                   <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
                     <circle cx="24" cy="22" r="9" stroke="#B8906A" strokeWidth="1.5" fill="rgba(184,144,106,.1)" />
@@ -308,7 +308,7 @@ export default function HomePage() {
                     利用後なら誰でも口コミ可
                   </div>
                 </div>
-              </div>
+              </Link>
 
               {/* ct-4: プロポーズ */}
               <div className="cat-card">
