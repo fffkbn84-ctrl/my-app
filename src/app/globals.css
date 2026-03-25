@@ -540,6 +540,140 @@ a {
   justify-content: center;
   position: relative;
 }
+/* ═══════════════════════════════════════════════════
+   ふたりへが選んだお店 セクション
+═══════════════════════════════════════════════════ */
+.places-sec {
+  padding: 100px 0;
+  background: var(--pale);
+  overflow: hidden;
+}
+.places-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 48px 0;
+}
+@media (max-width: 768px) {
+  .places-inner { padding: 0 22px; }
+}
+.place-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  margin-bottom: 40px;
+}
+.pt-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .1em;
+  padding: 9px 20px;
+  border-radius: 40px;
+  border: 1px solid var(--light);
+  background: white;
+  color: var(--mid);
+  cursor: pointer;
+  transition: all .3s;
+  -webkit-tap-highlight-color: transparent;
+}
+.pt-btn.on,
+.pt-btn:hover {
+  background: var(--black);
+  color: white;
+  border-color: var(--black);
+}
+.places-scroll {
+  overflow-x: auto;
+  padding: 4px 48px 32px;
+  scrollbar-width: none;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+.places-scroll::-webkit-scrollbar { display: none; }
+@media (max-width: 768px) {
+  .places-scroll { padding: 4px 22px 32px; }
+}
+.places-track {
+  display: flex;
+  gap: 16px;
+  width: max-content;
+}
+.place-card {
+  width: 240px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all .4s cubic-bezier(.16,1,.3,1);
+}
+.place-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 24px 64px rgba(0,0,0,.1);
+}
+.place-thumb {
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.pt-cafe  { background: linear-gradient(135deg,#EDE0D4,#D4C4B0); }
+.pt-hair  { background: linear-gradient(135deg,#D8E4D8,#C0D4C2); }
+.pt-nail  { background: linear-gradient(135deg,#E8D8EE,#D4C0E2); }
+.pt-brow  { background: linear-gradient(135deg,#E8E8D8,#D4D4C0); }
+.pt-photo { background: linear-gradient(135deg,#D8DCE4,#C4C8D4); }
+.pt-rest  { background: linear-gradient(135deg,#E4DCDC,#D0C4C4); }
+.pt-body  { padding: 16px 18px 20px; }
+.pt-stage {
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 5px;
+  font-family: 'DM Sans', sans-serif;
+}
+.pt-name {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+.pt-loc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.pt-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pt-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pt-stars {
+  color: var(--accent);
+  font-size: 11px;
+  letter-spacing: .5px;
+}
+.pt-cnt {
+  font-size: 10px;
+  color: var(--muted);
+}
+.pt-review-type {
+  font-size: 9px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+/* ジャーニーセクション カードグラデーション */
 .ct-1 { background: linear-gradient(135deg,#EDE0D4,#D4C4B0); }
 .ct-2 { background: linear-gradient(135deg,#D8E4D8,#C0D4C2); }
 .ct-3 { background: linear-gradient(135deg,#E4E0D8,#D0C8BC); }
@@ -763,3 +897,169 @@ footer {
   color: var(--muted);
   font-family: 'DM Sans';
 }
+
+/* ═══════════════════════════════════════════════════
+   お店バッジタイプ
+═══════════════════════════════════════════════════ */
+.rt-certified {
+  background: var(--adim);
+  color: var(--accent);
+  border: 1px solid rgba(200,169,122,.3);
+}
+.rt-certified::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.rt-agency {
+  background: var(--bpale);
+  color: var(--blue);
+  border: 1px solid rgba(107,143,191,.3);
+}
+.rt-agency::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--blue);
+}
+.rt-listed {
+  background: var(--pale);
+  color: var(--muted);
+  border: 1px solid var(--light);
+}
+.rt-listed::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--light);
+}
+
+/* ─────────────────────────────────────────────────────────
+   成婚エピソード セクション
+───────────────────────────────────────────────────────── */
+.ep-sec { padding: 120px 0; }
+.ep-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+@media (max-width: 768px) {
+  .ep-inner { padding: 0 22px; }
+}
+.ep-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 900px) {
+  .ep-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .ep-grid { grid-template-columns: 1fr; }
+}
+.ep-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: all .4s cubic-bezier(.16,1,.3,1);
+  cursor: pointer;
+}
+.ep-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 56px rgba(0,0,0,.09);
+}
+.ep-card-ft { grid-row: 1/3; }
+@media (max-width: 900px) {
+  .ep-card-ft { grid-row: auto; }
+}
+.ep-thumb {
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.et-1 { background: linear-gradient(135deg,#EDE0D4,#D4C4B0); }
+.et-2 { background: linear-gradient(135deg,#D4DDE8,#C0CCDA); }
+.et-3 { background: linear-gradient(135deg,#D8E4D8,#C4D4C4); }
+.ep-body { padding: 20px 22px 24px; }
+.ep-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ep-atag {
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--adim);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .06em;
+}
+.ep-period {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+}
+.ep-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--black);
+  margin-bottom: 10px;
+}
+.ep-card:not(.ep-card-ft) .ep-title { font-size: 13px; }
+.ep-excerpt {
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+.ep-card:not(.ep-card-ft) .ep-excerpt { display: none; }
+.ep-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ep-couple {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.ep-avs { display: flex; }
+.ep-av {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: var(--pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -7px;
+}
+.ep-av:first-child { margin-left: 0; }
+.ep-couple-l { font-size: 10px; color: var(--muted); }
+.ep-link {
+  font-size: 10px;
+  color: var(--accent);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'DM Sans', sans-serif;
+  transition: gap .3s;
+}
+.ep-link:hover { gap: 8px; }

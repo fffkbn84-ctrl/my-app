@@ -2,6 +2,8 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
+import PlacesSection from "@/components/home/PlacesSection";
+import EpisodesSection from "@/components/home/EpisodesSection";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -571,6 +573,16 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ═══════════════════════════════════════════════════
+            ふたりへが選んだお店
+        ═══════════════════════════════════════════════════ */}
+        <PlacesSection />
+
+        {/* ═══════════════════════════════════════════════════
+            成婚エピソード
+        ═══════════════════════════════════════════════════ */}
+        <EpisodesSection />
 
         {/* ═══════════════════════════════════════════════════
             CTA
