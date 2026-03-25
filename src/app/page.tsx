@@ -14,6 +14,9 @@ const featuredCounselors = [
     id: "1",
     name: "田中 美咲",
     agency: "ブライダルサロン エクラン",
+    area: "東京・渋谷",
+    access: "渋谷駅 徒歩3分",
+    parking: false,
     specialties: ["初婚", "30代", "キャリア女性"],
     rating: 4.9,
     reviewCount: 47,
@@ -24,6 +27,9 @@ const featuredCounselors = [
     id: "2",
     name: "佐藤 あかり",
     agency: "マリーナ結婚相談所",
+    area: "東京・銀座",
+    access: "銀座駅 徒歩2分",
+    parking: false,
     specialties: ["再婚", "バツあり", "子持ち"],
     rating: 4.8,
     reviewCount: 32,
@@ -34,6 +40,9 @@ const featuredCounselors = [
     id: "3",
     name: "山本 花子",
     agency: "ローズブライダル",
+    area: "神奈川・横浜",
+    access: "みなとみらい駅 徒歩5分",
+    parking: true,
     specialties: ["20代", "初婚", "地方在住"],
     rating: 4.7,
     reviewCount: 58,
@@ -454,8 +463,11 @@ export default function HomePage() {
                         </svg>
                       </div>
 
-                      {/* 名前・相談所・経験年数 */}
+                      {/* 名前・エリア・相談所・経験年数 */}
                       <div>
+                        <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2, letterSpacing: ".06em" }}>
+                          {counselor.area}
+                        </div>
                         <div
                           style={{
                             fontFamily: "var(--font-sans)",
@@ -520,6 +532,39 @@ export default function HomePage() {
                         }}
                       >
                         「{counselor.intro}」
+                      </div>
+
+                      {/* アクセス情報 */}
+                      <div
+                        style={{
+                          padding: "9px 11px",
+                          background: "var(--pale)",
+                          borderRadius: 8,
+                          marginBottom: 12,
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 5,
+                        }}
+                      >
+                        {/* 駅・徒歩 */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "var(--mid)" }}>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <rect x="1" y="2" width="10" height="7" rx="1.5" stroke="var(--mid)" strokeWidth="1"/>
+                            <path d="M3 9v1.5M9 9v1.5" stroke="var(--mid)" strokeWidth="1" strokeLinecap="round"/>
+                            <path d="M1 5.5h10" stroke="var(--mid)" strokeWidth=".8" opacity=".5"/>
+                            <circle cx="3.5" cy="7" r=".8" fill="var(--mid)"/>
+                            <circle cx="8.5" cy="7" r=".8" fill="var(--mid)"/>
+                          </svg>
+                          {counselor.access}
+                        </div>
+                        {/* 駐車場 */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "var(--mid)" }}>
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <rect x="1" y="1" width="10" height="10" rx="2" stroke="var(--mid)" strokeWidth="1"/>
+                            <path d="M4.5 8.5V3.5h2a1.5 1.5 0 010 3H4.5" stroke="var(--mid)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                          {counselor.parking ? "駐車場あり" : "駐車場なし"}
+                        </div>
                       </div>
 
                       {/* 評価・口コミ数 */}
