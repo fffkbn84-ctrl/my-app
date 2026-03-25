@@ -38,32 +38,6 @@ const featuredCounselors = [
   },
 ];
 
-const recentReviews = [
-  {
-    id: "1",
-    counselorName: "田中 美咲",
-    rating: 5,
-    text: "面談前は緊張していましたが、田中さんの温かい雰囲気ですぐにリラックスできました。私の話をしっかり聞いてくれて、押しつけがましさが全くなかったのが印象的でした。",
-    author: "30代・女性",
-    date: "2024年11月",
-  },
-  {
-    id: "2",
-    counselorName: "佐藤 あかり",
-    rating: 5,
-    text: "バツイチということで不安でしたが、佐藤さんは経験談も交えながら現実的なアドバイスをくださいました。同じ境遇の方を多く支援されているので、心強かったです。",
-    author: "30代・女性",
-    date: "2024年10月",
-  },
-  {
-    id: "3",
-    counselorName: "山本 花子",
-    rating: 4,
-    text: "婚活自体が初めてで何もわからない状態でしたが、流れを丁寧に説明してもらえました。焦らせることなく進めてもらえたのが一番良かったです。",
-    author: "20代・女性",
-    date: "2024年10月",
-  },
-];
 
 /* ────────────────────────────────────────────────────────────
    StarRating コンポーネント
@@ -376,167 +350,22 @@ export default function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            口コミ
-        ═══════════════════════════════════════════════════ */}
-        <section className="py-24 md:py-32 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
-                Real Reviews
-              </p>
-              <h2
-                className="text-3xl md:text-4xl text-ink mb-4"
-                style={{ fontFamily: "var(--font-mincho)" }}
-              >
-                面談者のリアルな声
-              </h2>
-              <p className="text-sm text-mid">
-                すべて実際に面談を経験した方からの口コミです
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {recentReviews.map((review) => (
-                <div
-                  key={review.id}
-                  className="bg-pale rounded-2xl p-7 border border-light/50"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <StarRating rating={review.rating} />
-                    <span className="text-xs text-muted">{review.date}</span>
-                  </div>
-
-                  <p className="text-sm text-ink leading-relaxed mb-5">
-                    &ldquo;{review.text}&rdquo;
-                  </p>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-light">
-                    <div>
-                      <p className="text-xs text-muted">カウンセラー</p>
-                      <p
-                        className="text-sm text-ink"
-                        style={{ fontFamily: "var(--font-mincho)" }}
-                      >
-                        {review.counselorName}
-                      </p>
-                    </div>
-                    <p className="text-xs text-muted">{review.author}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
-            ご利用の流れ
-        ═══════════════════════════════════════════════════ */}
-        <section className="py-24 md:py-32 bg-ink text-white">
-          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
-                How it works
-              </p>
-              <h2
-                className="text-3xl md:text-4xl text-white"
-                style={{ fontFamily: "var(--font-mincho)" }}
-              >
-                ご利用の流れ
-              </h2>
-            </div>
-
-            <div className="space-y-4">
-              {[
-                {
-                  step: "01",
-                  title: "カウンセラーを探す",
-                  desc: "専門分野・エリア・口コミ評価から、あなたに合うカウンセラーを比較できます。",
-                },
-                {
-                  step: "02",
-                  title: "無料面談を予約する",
-                  desc: "気に入ったカウンセラーのカレンダーから、空いている日時を選んで予約。リアルタイムで空き状況を確認できます。",
-                },
-                {
-                  step: "03",
-                  title: "面談を受ける",
-                  desc: "相談所に訪問して面談。ふたりへ経由の予約であることを伝えるだけでOKです。",
-                },
-                {
-                  step: "04",
-                  title: "口コミを投稿する",
-                  desc: "面談後に専用URLと認証コードが届きます。リアルな感想を書いて、次の方の婚活をサポートしましょう。",
-                },
-              ].map((item) => (
-                <div
-                  key={item.step}
-                  className="flex items-start gap-6 p-6 rounded-2xl border border-white/10 hover:border-accent/30 transition-colors duration-300"
-                >
-                  <span
-                    className="text-4xl text-white/10 leading-none shrink-0 select-none"
-                    style={{ fontFamily: "var(--font-serif)" }}
-                  >
-                    {item.step}
-                  </span>
-                  <div>
-                    <h3
-                      className="text-lg text-white mb-2"
-                      style={{ fontFamily: "var(--font-mincho)" }}
-                    >
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
             CTA
         ═══════════════════════════════════════════════════ */}
-        <section className="py-24 md:py-32 bg-pale">
-          <div className="max-w-3xl mx-auto px-6 text-center">
-            <p
-              className="text-sm text-muted tracking-widest mb-6"
-              style={{ fontFamily: "var(--font-serif)" }}
-            >
-              futarini
-            </p>
-            <h2
-              className="text-3xl md:text-5xl text-ink leading-tight mb-6"
-              style={{ fontFamily: "var(--font-mincho)" }}
-            >
-              今まさに、関係を
-              <br />
-              作っているふたりへ。
+        <section className="cta-sec">
+          <div className="cta-o1" />
+          <div className="cta-o2" />
+          <div className="cta-inner">
+            <div className="cta-ey">start from here</div>
+            <h2 className="cta-h">
+              いいカウンセラーに<br />出会えると、変わります。
+              <span className="cta-en">Good counselor. Good start.</span>
             </h2>
-            <p className="text-sm md:text-base text-mid leading-relaxed mb-12">
-              婚活の最初の一歩は、信頼できるカウンセラーとの出会いから。
-              <br />
-              リアルな口コミをもとに、あなたにぴったりの相談所を見つけましょう。
-            </p>
-            <Link
-              href="/counselors"
-              className="inline-flex items-center gap-3 px-10 py-4 bg-accent text-white rounded-full text-sm tracking-wide hover:opacity-90 transition-all duration-300 hover:-translate-y-0.5"
-              style={{ boxShadow: "0 12px 40px rgba(200,169,122,0.35)" }}
-            >
-              無料で始める
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              >
-                <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-            <p className="mt-5 text-xs text-muted">
-              登録無料・面談予約無料・口コミ投稿無料
-            </p>
+            <p className="cta-d">まずは口コミを読むだけでも。予約は、準備できてからで大丈夫。</p>
+            <div className="cta-btns">
+              <Link href="#counselors" className="btn btn-wh">相談所を探す</Link>
+              <Link href="#places" className="btn btn-gl">お見合い・デートのお店</Link>
+            </div>
           </div>
         </section>
       </main>

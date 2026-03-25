@@ -2,108 +2,51 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-ink text-white/70">
-      <div className="max-w-6xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          {/* ブランド */}
-          <div className="md:col-span-1">
-            <Link href="/" className="block mb-4">
-              <span
-                className="text-2xl tracking-widest text-white"
-                style={{ fontFamily: "var(--font-mincho)" }}
-              >
-                ふたりへ
-              </span>
-            </Link>
-            <p className="text-sm leading-relaxed text-white/50">
-              今まさに関係を作っている
-              <br />
-              ふたりのためのサービス。
-            </p>
-          </div>
-
-          {/* サービス */}
-          <div>
-            <h3 className="text-xs tracking-widest uppercase mb-5 text-white/40">
-              Service
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { label: "カウンセラーを探す", href: "/counselors" },
-                { label: "お店を探す", href: "/shops" },
-                { label: "口コミを書く", href: "/reviews/new" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm hover:text-white transition-colors duration-200"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* コンテンツ */}
-          <div>
-            <h3 className="text-xs tracking-widest uppercase mb-5 text-white/40">
-              Contents
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { label: "コラム", href: "/columns" },
-                { label: "成婚エピソード", href: "/episodes" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm hover:text-white transition-colors duration-200"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* 会社情報 */}
-          <div>
-            <h3 className="text-xs tracking-widest uppercase mb-5 text-white/40">
-              Company
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { label: "サービスについて", href: "/about" },
-                { label: "ご利用規約", href: "/terms" },
-                { label: "プライバシーポリシー", href: "/privacy" },
-                { label: "相談所の方へ", href: "/for-agencies" },
-                { label: "お問い合わせ", href: "/contact" },
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm hover:text-white transition-colors duration-200"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+    <footer>
+      <div className="ft-grid">
+        <div>
+          <Link href="/" className="logo" style={{ display: "inline-flex", marginBottom: "12px" }}>
+            <span className="logo-ja">ふたりへ</span>
+            <span className="logo-sep" />
+            <span className="logo-en">futarive</span>
+            <span className="logo-dot" />
+          </Link>
+          <p className="ft-desc">関係を育てているふたりのための場所。婚活中から、ずっと先まで。</p>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/30">
-            © 2026 ふたりへ. All rights reserved.
-          </p>
-          <p
-            className="text-xs tracking-widest text-white/20"
-            style={{ fontFamily: "var(--font-serif)" }}
-          >
-            futarini
-          </p>
+        <div className="ft-col">
+          <h5>相談所</h5>
+          <ul>
+            <li><Link href="#">相談所を探す</Link></li>
+            <li><Link href="#">カウンセラーから探す</Link></li>
+            <li><Link href="#">エリアから探す</Link></li>
+          </ul>
         </div>
+
+        <div className="ft-col">
+          <h5>お店・スポット</h5>
+          <ul>
+            <li><Link href="#">お見合いのカフェ・ラウンジ</Link></li>
+            <li><Link href="#">デートにおすすめ</Link></li>
+            <li><Link href="#">ビューティ（ヘア・ネイル・眉）</Link></li>
+            <li><Link href="#">フォトスタジオ</Link></li>
+          </ul>
+        </div>
+
+        <div className="ft-col">
+          <h5>ふたりへについて</h5>
+          <ul>
+            <li><Link href="#">このサービスについて</Link></li>
+            <li><Link href="#">口コミの信頼性</Link></li>
+            <li><Link href="#">コラム</Link></li>
+            <li><Link href="#">掲載のご相談</Link></li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="ft-bottom">
+        <p>© 2025 ふたりへ. All rights reserved.</p>
+        <p>プライバシーポリシー　|　利用規約</p>
       </div>
     </footer>
   );
