@@ -73,3 +73,8 @@ a {
   0%   { transform: translateY(-100%); }
   100% { transform: translateY(200%); }
 }
+
+/* カウンセラー横スクロール */
+.counselor-scroll::-webkit-scrollbar {
+  display: none;
+}
