@@ -396,110 +396,204 @@ export default function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            注目のカウンセラー
+            注目のカウンセラー（横スクロール）
         ═══════════════════════════════════════════════════ */}
-        <section className="py-24 md:py-32 bg-pale">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="text-xs tracking-[0.3em] text-accent uppercase mb-3">
-                  Featured Counselors
-                </p>
-                <h2
-                  className="text-3xl md:text-4xl text-ink"
-                  style={{ fontFamily: "var(--font-mincho)" }}
-                >
-                  注目のカウンセラー
-                </h2>
-              </div>
-              <Link
-                href="/counselors"
-                className="hidden md:flex items-center gap-1 text-sm text-mid hover:text-ink transition-colors duration-200"
+        <section
+          id="counselors"
+          style={{ background: "var(--pale)", padding: "100px 0", overflow: "hidden" }}
+        >
+          {/* セクションヘッダー */}
+          <div className="max-w-[1080px] mx-auto px-[22px] pb-7 md:px-12 md:pb-9">
+            <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
+              find your counselor
+            </p>
+            <h2
+              className="text-3xl md:text-4xl text-ink"
+              style={{ fontFamily: "var(--font-mincho)", marginBottom: 8 }}
+            >
+              担当者を見て、選ぶ。
+              <span
+                className="block text-sm text-mid font-normal mt-2 leading-relaxed"
+                style={{ fontFamily: "var(--font-sans)" }}
               >
-                すべて見る
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M3 7h8M7 3l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-            </div>
+                面談した人だけが書けるレビューで、カウンセラーの人となりがわかります
+              </span>
+            </h2>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredCounselors.map((counselor) => (
-                <Link
-                  key={counselor.id}
-                  href={`/counselors/${counselor.id}`}
-                  className="group bg-white rounded-2xl overflow-hidden border border-light hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                >
-                  {/* アバタープレースホルダー */}
-                  <div className="aspect-[4/3] bg-pale flex items-center justify-center relative">
+          {/* 横スクロールトラック */}
+          <div
+            className="counselor-scroll px-[22px] pb-7 pt-1 md:px-12 md:pb-9"
+            style={{ overflowX: "auto", scrollbarWidth: "none", cursor: "grab", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+          >
+            <div style={{ display: "flex", gap: 16, width: "max-content" }}>
+              {featuredCounselors.map((counselor, i) => {
+                const avatarThemes = [
+                  { bg: "linear-gradient(135deg,#F5E8D8,#EDD8C0)", color: "#C8A97A" },
+                  { bg: "linear-gradient(135deg,#D8E8F5,#C0D4ED)", color: "#6B8FBF" },
+                  { bg: "linear-gradient(135deg,#D8F5E8,#C0EDD4)", color: "#7A9E87" },
+                ];
+                const av = avatarThemes[i % avatarThemes.length];
+
+                return (
+                  <Link
+                    key={counselor.id}
+                    href={`/counselors/${counselor.id}`}
+                    className="group hover:-translate-y-[7px] hover:shadow-[0_28px_72px_rgba(0,0,0,.1)]"
+                    style={{
+                      width: 262,
+                      flexShrink: 0,
+                      background: "white",
+                      borderRadius: 14,
+                      border: "1px solid var(--light)",
+                      overflow: "hidden",
+                      transition: "all .4s cubic-bezier(.16,1,.3,1)",
+                      display: "block",
+                    }}
+                  >
+                    {/* カード上部：アバター＋基本情報 */}
                     <div
-                      className="w-24 h-24 rounded-full flex items-center justify-center text-3xl text-white"
-                      style={{ background: "var(--accent)", fontFamily: "var(--font-mincho)" }}
+                      style={{
+                        padding: "22px 20px 16px",
+                        borderBottom: "1px solid var(--pale)",
+                        display: "flex",
+                        gap: 12,
+                      }}
                     >
-                      {counselor.name.slice(-1)}
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-                  </div>
+                      {/* SVGアバター */}
+                      <div
+                        style={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: "50%",
+                          background: av.bg,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="9" r="5" fill={av.color} opacity=".6" />
+                          <path
+                            d="M3 22c0-4.971 4.029-9 9-9s9 4.029 9 9"
+                            stroke={av.color}
+                            strokeWidth="1.2"
+                            fill="none"
+                            opacity=".4"
+                          />
+                        </svg>
+                      </div>
 
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-2">
+                      {/* 名前・相談所・経験年数 */}
                       <div>
-                        <h3
-                          className="text-lg text-ink"
-                          style={{ fontFamily: "var(--font-mincho)" }}
+                        <div
+                          style={{
+                            fontFamily: "var(--font-sans)",
+                            fontWeight: 400,
+                            fontSize: 15,
+                            marginBottom: 3,
+                            color: "var(--ink)",
+                          }}
                         >
                           {counselor.name}
-                        </h3>
-                        <p className="text-xs text-muted mt-0.5">{counselor.agency}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 justify-end mb-0.5">
-                          <StarRating rating={Math.round(counselor.rating)} />
-                          <span className="text-xs font-medium text-ink">{counselor.rating}</span>
                         </div>
-                        <p className="text-xs text-muted">{counselor.reviewCount}件</p>
+                        <div style={{ fontSize: 11, color: "var(--muted)" }}>
+                          {counselor.agency}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 9,
+                            color: "var(--accent)",
+                            background: "rgba(200,169,122,0.12)",
+                            padding: "2px 9px",
+                            borderRadius: 20,
+                            display: "inline-block",
+                            marginTop: 5,
+                          }}
+                        >
+                          経験 {counselor.yearsExp}年
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-1.5 my-3">
-                      {counselor.specialties.map((s) => (
-                        <span
-                          key={s}
-                          className="text-xs px-2.5 py-1 rounded-full border text-accent"
-                          style={{ borderColor: "color-mix(in srgb, var(--accent) 30%, transparent)" }}
-                        >
-                          {s}
+                    {/* カード下部：タグ・引用・評価・CTA */}
+                    <div style={{ padding: "16px 20px 20px" }}>
+                      {/* 専門タグ */}
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
+                        {counselor.specialties.map((s) => (
+                          <span
+                            key={s}
+                            style={{
+                              fontSize: 10,
+                              padding: "3px 9px",
+                              borderRadius: 20,
+                              border: "1px solid var(--light)",
+                              color: "var(--mid)",
+                            }}
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* 自己紹介引用 */}
+                      <div
+                        style={{
+                          fontSize: 11,
+                          color: "var(--ink)",
+                          lineHeight: 1.9,
+                          padding: "10px 12px",
+                          background: "var(--pale)",
+                          borderRadius: 6,
+                          borderLeft: "2px solid var(--accent)",
+                          marginBottom: 12,
+                        }}
+                      >
+                        「{counselor.intro}」
+                      </div>
+
+                      {/* 評価・口コミ数 */}
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: 12,
+                        }}
+                      >
+                        <span style={{ color: "var(--accent)", fontSize: 11, letterSpacing: ".5px" }}>
+                          {"★".repeat(Math.round(counselor.rating))}
                         </span>
-                      ))}
-                    </div>
+                        <span style={{ fontSize: 10, color: "var(--muted)" }}>
+                          口コミ {counselor.reviewCount}件
+                        </span>
+                      </div>
 
-                    <p className="text-xs text-mid leading-relaxed line-clamp-2">
-                      {counselor.intro}
-                    </p>
-
-                    <div className="mt-4 pt-4 border-t border-light flex items-center justify-between">
-                      <span className="text-xs text-muted">
-                        経験 {counselor.yearsExp}年
-                      </span>
-                      <span className="text-xs text-accent flex items-center gap-1">
+                      {/* 予約ボタン */}
+                      <button
+                        className="hover:!bg-[var(--accent)]"
+                        style={{
+                          width: "100%",
+                          padding: 11,
+                          background: "var(--black)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: 8,
+                          fontFamily: "var(--font-sans)",
+                          fontSize: 10,
+                          letterSpacing: ".16em",
+                          textTransform: "uppercase",
+                          cursor: "pointer",
+                          transition: "all .3s",
+                        }}
+                      >
                         面談を予約する
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                          <path d="M2 6h8M6 2l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
+                      </button>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-8 text-center md:hidden">
-              <Link
-                href="/counselors"
-                className="inline-flex items-center gap-2 px-6 py-3 border border-light rounded-full text-sm text-mid hover:border-ink hover:text-ink transition-all duration-200"
-              >
-                すべてのカウンセラーを見る
-              </Link>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>

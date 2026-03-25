@@ -81,6 +81,11 @@ a {
   0%   { transform: translateY(-100%); }
   100% { transform: translateY(200%); }
 }
+
+/* カウンセラー横スクロール */
+.counselor-scroll::-webkit-scrollbar {
+  display: none;
+}
 @keyframes gDrift {
   from { transform: translate(0, 0); }
   to   { transform: translate(20px, 10px); }
