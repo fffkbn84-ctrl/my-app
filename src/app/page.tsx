@@ -22,6 +22,8 @@ const featuredCounselors = [
     reviewCount: 47,
     yearsExp: 8,
     intro: "一人ひとりの価値観を大切に、焦らず本当のご縁を一緒に探します。",
+    monthlyFee: "29,800",
+    campaign: { label: "春の婚活キャンペーン", detail: "4/30までのご入会で入会金10%オフ" },
   },
   {
     id: "2",
@@ -35,6 +37,8 @@ const featuredCounselors = [
     reviewCount: 32,
     yearsExp: 12,
     intro: "再婚・シングルの方に寄り添い、新しい幸せへの第一歩をサポートします。",
+    monthlyFee: "24,800",
+    campaign: null,
   },
   {
     id: "3",
@@ -48,6 +52,8 @@ const featuredCounselors = [
     reviewCount: 58,
     yearsExp: 5,
     intro: "婚活が初めての方でも安心。一緒に理想のパートナーを見つけましょう。",
+    monthlyFee: "19,800",
+    campaign: { label: "20代限定キャンペーン", detail: "初回面談後ご入会で入会金半額" },
   },
 ];
 
@@ -566,6 +572,43 @@ export default function HomePage() {
                           {counselor.parking ? "駐車場あり" : "駐車場なし"}
                         </div>
                       </div>
+
+                      {/* 月会費 */}
+                      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 10 }}>
+                        <span style={{ fontSize: 10, color: "var(--muted)" }}>月会費</span>
+                        <span
+                          style={{
+                            fontFamily: "var(--font-serif)",
+                            fontSize: 18,
+                            color: "var(--ink)",
+                            letterSpacing: "-.02em",
+                          }}
+                        >
+                          ¥{counselor.monthlyFee}
+                        </span>
+                        <span style={{ fontSize: 10, color: "var(--muted)" }}>〜/月</span>
+                      </div>
+
+                      {/* キャンペーンバナー */}
+                      {counselor.campaign && (
+                        <div
+                          style={{
+                            background: "rgba(200,169,122,0.1)",
+                            border: "1px solid rgba(200,169,122,0.3)",
+                            borderRadius: 8,
+                            padding: "8px 11px",
+                            marginBottom: 12,
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                          }}
+                        >
+                          <div style={{ fontSize: 9, color: "var(--accent)", fontWeight: 600, letterSpacing: ".06em" }}>
+                            {counselor.campaign.label}
+                          </div>
+                          <div style={{ fontSize: 10, color: "var(--ink)" }}>{counselor.campaign.detail}</div>
+                        </div>
+                      )}
 
                       {/* 評価・口コミ数 */}
                       <div

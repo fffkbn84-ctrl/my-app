@@ -25,6 +25,15 @@ const counselors = {
     message: "初めての婚活で不安な方も、何度かチャレンジしてうまくいかない方も、まずは気軽にお話しに来てください。あなたのペースに合わせて、一緒に考えていきましょう。",
     qualifications: ["婚活カウンセラー資格", "メンタルヘルス・マネジメント検定"],
     photoUrl: undefined,
+    monthlyFee: "29,800",
+    campaign: { label: "春の婚活キャンペーン", detail: "4/30までのご入会で入会金10%オフ", expiry: "〜2026-04-30" },
+    pricing: {
+      plans: [
+        { name: "スタンダード", enrollment: 100000, monthly: 19800, matchmaking: 5000, success: 200000 },
+        { name: "プレミアム", featured: true, enrollment: 150000, monthly: 29800, matchmaking: null, success: 200000, notes: "お見合い料込み" },
+      ],
+      note: "※ 料金はすべて税込です。初回面談・見学は無料。詳細はカウンセラーにご確認ください。",
+    },
   },
   "2": {
     id: "2",
@@ -44,6 +53,15 @@ const counselors = {
     message: "バツイチ・シングルだからこそ見えてくる、本当に大切なものがあります。遠慮なく、まず話しに来てください。",
     qualifications: ["婚活カウンセラー資格", "家族相談士", "心理カウンセラー"],
     photoUrl: undefined,
+    monthlyFee: "24,800",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "ベーシック", enrollment: 80000, monthly: 16800, matchmaking: 3000, success: 150000 },
+        { name: "フルサポート", featured: true, enrollment: 120000, monthly: 24800, matchmaking: null, success: 180000, notes: "お見合い料・活動サポート費込み" },
+      ],
+      note: "※ 料金はすべて税込です。初回面談は無料。再婚専門プランについてはご相談ください。",
+    },
   },
   "3": {
     id: "3",
@@ -63,6 +81,15 @@ const counselors = {
     message: "婚活って難しそう…と思っている方ほど、ぜひ一度来てみてください。一緒に楽しく進めましょう！",
     qualifications: ["婚活カウンセラー資格", "ブライダルコーディネーター"],
     photoUrl: undefined,
+    monthlyFee: "19,800",
+    campaign: { label: "20代限定キャンペーン", detail: "初回面談後ご入会で入会金半額", expiry: "〜2026-05-31" },
+    pricing: {
+      plans: [
+        { name: "スタンダード", enrollment: 80000, monthly: 19800, matchmaking: 3000, success: 150000 },
+        { name: "プレミアム", featured: true, enrollment: 100000, monthly: 29800, matchmaking: null, success: 150000, notes: "お見合い料込み" },
+      ],
+      note: "※ 料金はすべて税込です。初回面談は無料。20代の方は入会金優遇あり。",
+    },
   },
   "4": {
     id: "4",
@@ -82,6 +109,15 @@ const counselors = {
     message: "30代・40代からの婚活を何百人もサポートしてきました。年齢を言い訳にしない婚活、一緒に始めましょう。",
     qualifications: ["婚活カウンセラー資格", "キャリアコンサルタント"],
     photoUrl: undefined,
+    monthlyFee: "26,800",
+    campaign: { label: "大人の婚活応援キャンペーン", detail: "35歳以上の方は入会金20%オフ", expiry: "〜2026-06-30" },
+    pricing: {
+      plans: [
+        { name: "スタンダード", enrollment: 120000, monthly: 19800, matchmaking: 5000, success: 200000 },
+        { name: "プレミアム", featured: true, enrollment: 180000, monthly: 26800, matchmaking: null, success: 200000, notes: "お見合い料・プロフィール作成込み" },
+      ],
+      note: "※ 料金はすべて税込です。初回面談は無料。年齢に応じた優遇プランあり。",
+    },
   },
   "5": {
     id: "5",
@@ -101,6 +137,15 @@ const counselors = {
     message: "地元・名古屋での幸せな結婚を本気で目指す方、一緒に頑張りましょう。実績と経験で全力サポートします。",
     qualifications: ["婚活カウンセラー資格", "ファイナンシャルプランナー3級"],
     photoUrl: undefined,
+    monthlyFee: "22,800",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "スタンダード", enrollment: 100000, monthly: 22800, matchmaking: 3000, success: 180000 },
+        { name: "安定職応援プラン", featured: true, enrollment: 80000, monthly: 22800, matchmaking: null, success: 180000, notes: "公務員・教員・看護師限定" },
+      ],
+      note: "※ 料金はすべて税込です。初回面談は無料。安定職の方への優遇プランあり。",
+    },
   },
   "6": {
     id: "6",
@@ -120,6 +165,15 @@ const counselors = {
     message: "海外経験があることでかえって婚活に悩んでいる方、その経験は必ず強みになります。一緒に証明しましょう。",
     qualifications: ["婚活カウンセラー資格", "TOEIC 990点", "米国ブライダルコンサルタント認定"],
     photoUrl: undefined,
+    monthlyFee: "34,800",
+    campaign: { label: "グローバル婚活スタートキャンペーン", detail: "英語カウンセリング初回無料", expiry: "〜2026-05-31" },
+    pricing: {
+      plans: [
+        { name: "スタンダード", enrollment: 150000, monthly: 24800, matchmaking: 5000, success: 250000 },
+        { name: "グローバルプラン", featured: true, enrollment: 200000, monthly: 34800, matchmaking: null, success: 250000, notes: "英語対応・海外マッチング込み" },
+      ],
+      note: "※ 料金はすべて税込です。初回面談は無料（日英対応可）。",
+    },
   },
 };
 
@@ -491,6 +545,27 @@ export default async function CounselorDetailPage({
         </div>
 
         {/* ═══════════════════════════════════════════════════
+            キャンペーンバー
+        ═══════════════════════════════════════════════════ */}
+        {counselor.campaign && (
+          <div className="d-campaign-bar">
+            <div className="d-campaign-inner">
+              <div className="d-campaign-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 2.1.7-4L2.2 5.7l4-.6z"
+                    fill="var(--accent)" stroke="var(--accent)" strokeWidth=".5" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div>
+                <div className="d-campaign-label">{counselor.campaign.label}</div>
+                <div className="d-campaign-detail">{counselor.campaign.detail}</div>
+              </div>
+              <div className="d-campaign-expiry">{counselor.campaign.expiry}</div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════
             コンテンツエリア（2カラム）
         ═══════════════════════════════════════════════════ */}
         <div className="detail-body">
@@ -543,6 +618,62 @@ export default async function CounselorDetailPage({
                       </div>
                     )}
                   </div>
+                </section>
+
+                {/* 料金表 */}
+                <section style={{ marginBottom: 48 }}>
+                  <h2
+                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
+                    style={{ fontFamily: "var(--font-mincho)" }}
+                  >
+                    料金プラン
+                  </h2>
+                  <div className="pricing-grid">
+                    {counselor.pricing.plans.map((plan) => (
+                      <div key={plan.name} className={`pricing-card${plan.featured ? " featured" : ""}`}>
+                        <div className="pricing-card-head">
+                          <div className="pricing-plan-name">{plan.name}</div>
+                          {plan.featured && <div className="pricing-popular">人気</div>}
+                        </div>
+                        <div className="pricing-items">
+                          <div className="pricing-item">
+                            <div className="pricing-item-label">入会金</div>
+                            <div className="pricing-item-val">
+                              ¥{plan.enrollment.toLocaleString()}<small>（税込）</small>
+                            </div>
+                          </div>
+                          <div className="pricing-item">
+                            <div className="pricing-item-label">月会費</div>
+                            <div className="pricing-item-val">
+                              ¥{plan.monthly.toLocaleString()}<small>/月</small>
+                            </div>
+                          </div>
+                          <div className="pricing-item">
+                            <div className="pricing-item-label">お見合い料</div>
+                            {plan.matchmaking !== null ? (
+                              <div className="pricing-item-val">
+                                ¥{plan.matchmaking.toLocaleString()}<small>/回</small>
+                              </div>
+                            ) : (
+                              <div className="pricing-item-val free">無料</div>
+                            )}
+                          </div>
+                          <div className="pricing-item">
+                            <div className="pricing-item-label">成婚料</div>
+                            <div className="pricing-item-val">
+                              ¥{plan.success.toLocaleString()}<small>（税込）</small>
+                            </div>
+                          </div>
+                        </div>
+                        {plan.notes && (
+                          <div style={{ padding: "12px 20px", fontSize: 11, color: "var(--mid)", borderTop: "1px solid rgba(0,0,0,.06)" }}>
+                            {plan.notes}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="pricing-note">{counselor.pricing.note}</p>
                 </section>
 
                 {/* メッセージ */}
@@ -661,14 +792,10 @@ export default async function CounselorDetailPage({
                     </div>
                   </div>
                   <div style={{ padding: "0 24px 24px" }}>
-                    <Link
-                      href={`/booking/${counselor.id}`}
-                      className="block w-full text-center py-4 rounded-xl text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90"
-                      style={{ background: "var(--accent)", boxShadow: "0 6px 20px rgba(200,169,122,0.3)" }}
-                    >
+                    <Link href={`/booking/${counselor.id}`} className="cta-book-main">
                       無料面談を予約する
                     </Link>
-                    <p className="d-book-note">当日キャンセル可 · 登録不要</p>
+                    <p className="cta-book-main-note">当日キャンセル可 · 登録不要 · 完全無料</p>
                   </div>
                 </div>
 
@@ -712,12 +839,12 @@ export default async function CounselorDetailPage({
       </main>
 
       {/* モバイル用固定フッターCTA */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-light p-4">
-        <Link
-          href={`/booking/${counselor.id}`}
-          className="block w-full text-center px-6 py-3.5 bg-accent text-white rounded-xl text-sm tracking-wide hover:opacity-90 transition-all duration-200"
-        >
-          無料面談を予約する
+      <div className="cta-mobile-bar">
+        <div style={{ fontSize: 11, color: "var(--mid)", marginBottom: 2 }}>
+          次の空き: {counselor.nextAvailable}
+        </div>
+        <Link href={`/booking/${counselor.id}`} className="cta-mobile-btn">
+          無料面談を予約する — 完全無料
         </Link>
       </div>
 
