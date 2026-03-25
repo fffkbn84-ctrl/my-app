@@ -238,6 +238,25 @@ a {
   border-color: var(--ink);
   transform: translateY(-2px);
 }
+.btn-wh {
+  background: white;
+  color: var(--black);
+}
+.btn-wh:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+}
+.btn-gl {
+  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.65);
+  border: 1px solid rgba(255,255,255,.14);
+}
+.btn-gl:hover {
+  background: rgba(255,255,255,.14);
+  color: white;
+  transform: translateY(-2px);
+}
 
 /* ── Floating cards ── */
 .hero-right {
@@ -575,3 +594,172 @@ a {
 .crn-open  { background: var(--gpale); color: var(--green); }
 .crn-strict { background: var(--adim); color: var(--accent); }
 .crn-soon  { background: var(--pale); color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════
+   LOGO
+═══════════════════════════════════════════════════ */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.logo-ja {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px;
+  letter-spacing: .1em;
+  color: var(--ink);
+}
+.logo-sep {
+  width: 1px;
+  height: 14px;
+  background: var(--light);
+}
+.logo-en {
+  font-family: 'DM Serif Display', serif;
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--muted);
+  font-style: italic;
+}
+.logo-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════
+   CTA セクション
+═══════════════════════════════════════════════════ */
+.cta-sec {
+  background: var(--black);
+  padding: 140px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-o1 {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  left: -100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,169,122,.09), transparent 70%);
+  pointer-events: none;
+}
+.cta-o2 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  bottom: -100px;
+  right: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(122,158,135,.07), transparent 70%);
+  pointer-events: none;
+}
+.cta-inner {
+  position: relative;
+  z-index: 1;
+}
+.cta-ey {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+.cta-h {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(26px, 4.2vw, 52px);
+  color: white;
+  line-height: 1.45;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.cta-en {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: clamp(13px, 1.8vw, 20px);
+  color: rgba(255,255,255,.3);
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 44px;
+}
+.cta-d {
+  font-size: 13px;
+  color: rgba(255,255,255,.38);
+  margin-bottom: 44px;
+  line-height: 2;
+}
+.cta-btns {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ═══════════════════════════════════════════════════
+   フッター
+═══════════════════════════════════════════════════ */
+footer {
+  padding: 72px 56px 40px;
+  border-top: 1px solid var(--pale);
+}
+.ft-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 52px;
+  margin-bottom: 52px;
+}
+@media (max-width: 900px) {
+  .ft-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 480px) {
+  .ft-grid { grid-template-columns: 1fr; }
+}
+.ft-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 2;
+  margin-top: 14px;
+}
+.ft-col h5 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 16px;
+  font-weight: 400;
+}
+.ft-col ul {
+  list-style: none;
+}
+.ft-col li {
+  margin-bottom: 11px;
+}
+.ft-col a {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .3s;
+}
+.ft-col a:hover {
+  color: var(--accent);
+}
+.ft-bottom {
+  border-top: 1px solid var(--pale);
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.ft-bottom p {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'DM Sans';
+}
