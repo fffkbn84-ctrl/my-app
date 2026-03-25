@@ -83,6 +83,20 @@ a {
 }
 
 /* カウンセラー横スクロール */
+.counselor-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 48px 36px;
+}
+@media (max-width: 768px) {
+  .counselor-inner { padding: 0 22px 28px; }
+}
+.counselor-scroll {
+  padding: 4px 48px 36px;
+}
+@media (max-width: 768px) {
+  .counselor-scroll { padding: 4px 22px 28px; }
+}
 .counselor-scroll::-webkit-scrollbar {
   display: none;
 }

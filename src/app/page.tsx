@@ -379,7 +379,7 @@ export default function HomePage() {
           style={{ background: "var(--pale)", padding: "100px 0", overflow: "hidden" }}
         >
           {/* セクションヘッダー */}
-          <div className="max-w-[1080px] mx-auto px-[22px] pb-7 md:px-12 md:pb-9">
+          <div className="counselor-inner">
             <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
               find your counselor
             </p>
@@ -399,7 +399,7 @@ export default function HomePage() {
 
           {/* 横スクロールトラック */}
           <div
-            className="counselor-scroll px-[22px] pb-7 pt-1 md:px-12 md:pb-9"
+            className="counselor-scroll"
             style={{ overflowX: "auto", scrollbarWidth: "none", cursor: "grab", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
           >
             <div style={{ display: "flex", gap: 16, width: "max-content" }}>
