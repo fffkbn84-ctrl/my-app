@@ -79,7 +79,6 @@ function PlaceBadge({ type }: { type: PlaceHome["badgeType"] }) {
   const map = {
     certified: { cls: "rt-certified", label: "取材済み" },
     agency:    { cls: "rt-agency",    label: "相談所おすすめ" },
-    listed:    { cls: "rt-listed",    label: "掲載店" },
   } as const;
   const { cls, label } = map[type];
   return <span className={`pt-review-type ${cls}`}>{label}</span>;
@@ -150,7 +149,7 @@ export default function PlacesSection() {
         <h2 className="sec-h">
           ふたりへが選んだお店
           <span className="sec-h-jp">
-            取材済み・相談所おすすめ・口コミで集まったお店を掲載しています
+            取材済み・相談所おすすめのお店を掲載しています
           </span>
         </h2>
         <p className="sec-sub" style={{ marginBottom: 0 }}>
@@ -162,9 +161,6 @@ export default function PlacesSection() {
           </span>
           <span className="pt-review-type rt-agency" style={{ fontSize: 10, padding: "5px 12px" }}>
             相談所おすすめ
-          </span>
-          <span className="pt-review-type rt-listed" style={{ fontSize: 10, padding: "5px 12px" }}>
-            掲載店
           </span>
         </div>
         <div className="place-tabs">

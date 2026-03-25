@@ -4,7 +4,7 @@
    型定義は src/lib/mock/shops.ts の BadgeType を流用
 ──────────────────────────────────────────────────────────── */
 
-export type BadgeType = "certified" | "agency" | "listed";
+export type BadgeType = "certified" | "agency";
 export type PlaceTabCategory = "all" | "omiai" | "date" | "beauty" | "photo";
 
 /**

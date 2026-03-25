@@ -944,19 +944,6 @@ footer {
   border-radius: 50%;
   background: var(--blue);
 }
-.rt-listed {
-  background: var(--pale);
-  color: var(--muted);
-  border: 1px solid var(--light);
-}
-.rt-listed::before {
-  content: '';
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--light);
-}
 
 /* ─────────────────────────────────────────────────────────
    成婚エピソード セクション
