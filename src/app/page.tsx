@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ColumnsSection from "@/components/columns/ColumnsSection";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -492,6 +493,11 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ═══════════════════════════════════════════════════
+            コラム
+        ═══════════════════════════════════════════════════ */}
+        <ColumnsSection />
 
         {/* ═══════════════════════════════════════════════════
             CTA
