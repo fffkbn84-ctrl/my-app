@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
 import PlacesSection from "@/components/home/PlacesSection";
 import EpisodesSection from "@/components/home/EpisodesSection";
+import ColumnsSection from "@/components/home/ColumnsSection";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -575,6 +576,11 @@ export default function HomePage() {
             成婚エピソード
         ═══════════════════════════════════════════════════ */}
         <EpisodesSection />
+
+        {/* ═══════════════════════════════════════════════════
+            コラム
+        ═══════════════════════════════════════════════════ */}
+        <ColumnsSection />
 
         {/* ═══════════════════════════════════════════════════
             CTA
