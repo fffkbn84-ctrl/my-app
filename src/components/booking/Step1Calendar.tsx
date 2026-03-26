@@ -264,7 +264,7 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
         <div className="mb-7">
           <p
             className="text-[13px] mb-3.5 tracking-[0.05em]"
-            style={{ color: "var(--mid)" }}
+            style={{ color: "rgba(255,255,255,0.5)" }}
           >
             空き時間を選ぶ
           </p>
@@ -331,10 +331,10 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
           disabled={!canProceed}
           className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide transition-all duration-200"
           style={{
-            background: canProceed ? "var(--black)" : "var(--light)",
+            background: canProceed ? "var(--accent)" : "rgba(255,255,255,0.1)",
             color: "white",
             cursor: canProceed ? "pointer" : "not-allowed",
-            boxShadow: canProceed ? "0 4px 16px rgba(14,14,14,0.15)" : "none",
+            boxShadow: canProceed ? "0 4px 20px rgba(200,169,122,0.35)" : "none",
           }}
         >
           次へ：情報を入力

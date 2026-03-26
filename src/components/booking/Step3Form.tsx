@@ -3,9 +3,6 @@
 import { useState } from "react";
 import type { BookingUserInfo } from "@/types/booking";
 
-/* ────────────────────────────────────────────────────────────
-   都道府県リスト
-──────────────────────────────────────────────────────────── */
 const PREFECTURES = [
   "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
   "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
@@ -16,9 +13,6 @@ const PREFECTURES = [
   "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
 ];
 
-/* ────────────────────────────────────────────────────────────
-   Props
-──────────────────────────────────────────────────────────── */
 interface Props {
   userInfo: BookingUserInfo;
   onChange: (info: BookingUserInfo) => void;
@@ -26,9 +20,6 @@ interface Props {
   onBack: () => void;
 }
 
-/* ────────────────────────────────────────────────────────────
-   バリデーション
-──────────────────────────────────────────────────────────── */
 function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, string>> {
   const errors: Partial<Record<keyof BookingUserInfo, string>> = {};
   if (!info.fullName.trim()) errors.fullName = "お名前を入力してください";
@@ -36,7 +27,7 @@ function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, 
   else if (!/^[ァ-ヶー\s]+$/.test(info.fullNameKana)) errors.fullNameKana = "カタカナで入力してください";
   if (!info.age.trim()) errors.age = "年齢を入力してください";
   else if (!/^\d+$/.test(info.age) || Number(info.age) < 18 || Number(info.age) > 99)
-    errors.age = "18〜99の半角数字で入力してください";
+    errors.age = "18〜99の数字で入力してください";
   if (!info.prefecture) errors.prefecture = "居住地を選択してください";
   if (!info.email.trim()) errors.email = "メールアドレスを入力してください";
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) errors.email = "正しい形式で入力してください";
@@ -44,9 +35,7 @@ function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, 
   return errors;
 }
 
-/* ────────────────────────────────────────────────────────────
-   フィールドコンポーネント
-──────────────────────────────────────────────────────────── */
+/* ラベルコンポーネント */
 function Field({
   label,
   required,
@@ -59,10 +48,15 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-6">
-      <label className="block text-xs mb-2 tracking-[0.08em]" style={{ color: "var(--ink)" }}>
+    <div className="mb-5">
+      <label
+        className="block text-xs mb-2 tracking-[0.08em]"
+        style={{ color: "rgba(255,255,255,0.7)" }}
+      >
         {label}
-        {required && <span className="ml-1" style={{ color: "var(--rose)" }}>*</span>}
+        {required && (
+          <span className="ml-1" style={{ color: "var(--rose)" }}>*</span>
+        )}
       </label>
       {children}
       {error && (
@@ -72,14 +66,12 @@ function Field({
   );
 }
 
+/* 入力フィールド共通スタイル */
 const inputBase =
-  "w-full py-3.5 px-[18px] border rounded-[10px] text-sm outline-none transition-all duration-300";
-const inputStyle = `${inputBase} border-light focus:border-accent bg-white placeholder:text-muted text-ink`;
-const inputErrorStyle = `${inputBase} border-rose/50 focus:border-rose/70 bg-white placeholder:text-muted text-ink`;
+  "w-full py-3.5 px-4 rounded-xl text-sm outline-none transition-all duration-200 bg-white text-ink";
+const inputNormal = `${inputBase} border border-transparent focus:border-accent/50`;
+const inputError  = `${inputBase} border border-rose/60`;
 
-/* ────────────────────────────────────────────────────────────
-   Step3Form
-──────────────────────────────────────────────────────────── */
 export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props) {
   const [errors, setErrors] = useState<Partial<Record<keyof BookingUserInfo, string>>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -108,7 +100,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
             placeholder="田中 花子"
             value={userInfo.fullName}
             onChange={(e) => update("fullName", e.target.value)}
-            className={errors.fullName ? inputErrorStyle : inputStyle}
+            className={errors.fullName ? inputError : inputNormal}
           />
         </Field>
         <Field label="フリガナ" required error={errors.fullNameKana}>
@@ -117,7 +109,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
             placeholder="タナカ ハナコ"
             value={userInfo.fullNameKana}
             onChange={(e) => update("fullNameKana", e.target.value)}
-            className={errors.fullNameKana ? inputErrorStyle : inputStyle}
+            className={errors.fullNameKana ? inputError : inputNormal}
           />
         </Field>
       </div>
@@ -132,15 +124,19 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
             max="99"
             value={userInfo.age}
             onChange={(e) => update("age", e.target.value)}
-            className={errors.age ? inputErrorStyle : inputStyle}
+            className={errors.age ? inputError : inputNormal}
           />
         </Field>
         <Field label="居住地" required error={errors.prefecture}>
           <select
             value={userInfo.prefecture}
             onChange={(e) => update("prefecture", e.target.value)}
-            className={`${errors.prefecture ? inputErrorStyle : inputStyle} appearance-none`}
-            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23A0A0A0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 14px center" }}
+            className={`${errors.prefecture ? inputError : inputNormal} appearance-none`}
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23A0A0A0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 14px center",
+            }}
           >
             <option value="">選択してください</option>
             {PREFECTURES.map((p) => (
@@ -157,9 +153,9 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
           placeholder="hanako@example.com"
           value={userInfo.email}
           onChange={(e) => update("email", e.target.value)}
-          className={errors.email ? inputErrorStyle : inputStyle}
+          className={errors.email ? inputError : inputNormal}
         />
-        <p className="text-[11px] mt-1.5 leading-[1.7]" style={{ color: "var(--muted)" }}>
+        <p className="text-[11px] mt-1.5 leading-[1.7]" style={{ color: "rgba(255,255,255,0.3)" }}>
           予約確認メールを送ります。
         </p>
       </Field>
@@ -167,34 +163,35 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
       {/* 面談形式 */}
       <Field label="面談形式" required error={errors.meetingFormat}>
         <div className="flex flex-col gap-2.5">
-          {(["対面", "オンライン"] as const).map((fmt) => (
-            <div
-              key={fmt}
-              onClick={() => update("meetingFormat", fmt)}
-              className="flex items-center gap-3 py-3.5 px-[18px] border rounded-[10px] cursor-pointer transition-all duration-300"
-              style={{
-                border: userInfo.meetingFormat === fmt
-                  ? "1px solid var(--accent)"
-                  : "1px solid var(--light)",
-                background: userInfo.meetingFormat === fmt
-                  ? "var(--accent-dim)"
-                  : "white",
-              }}
-            >
-              <input
-                type="radio"
-                name="meetingFormat"
-                value={fmt}
-                checked={userInfo.meetingFormat === fmt}
-                onChange={() => update("meetingFormat", fmt)}
-                className="w-[18px] h-[18px]"
-                style={{ accentColor: "var(--accent)" }}
-              />
-              <span className="text-[13px]" style={{ color: "var(--ink)" }}>
-                {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
-              </span>
-            </div>
-          ))}
+          {(["対面", "オンライン"] as const).map((fmt) => {
+            const selected = userInfo.meetingFormat === fmt;
+            return (
+              <div
+                key={fmt}
+                onClick={() => update("meetingFormat", fmt)}
+                className="flex items-center gap-3 py-3.5 px-4 rounded-xl cursor-pointer transition-all duration-200"
+                style={{
+                  border: selected
+                    ? "1px solid var(--accent)"
+                    : "1px solid rgba(255,255,255,0.12)",
+                  background: selected ? "rgba(200,169,122,0.12)" : "rgba(255,255,255,0.04)",
+                }}
+              >
+                <input
+                  type="radio"
+                  name="meetingFormat"
+                  value={fmt}
+                  checked={selected}
+                  onChange={() => update("meetingFormat", fmt)}
+                  className="w-[18px] h-[18px]"
+                  style={{ accentColor: "var(--accent)" }}
+                />
+                <span className="text-[13px]" style={{ color: "rgba(255,255,255,0.85)" }}>
+                  {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </Field>
 
@@ -205,7 +202,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
           placeholder="任意。事前に伝えることで、より充実した面談になります。"
           value={userInfo.message}
           onChange={(e) => update("message", e.target.value)}
-          className={`${inputStyle} resize-y min-h-[100px] leading-[1.8]`}
+          className={`${inputNormal} resize-y min-h-[100px] leading-[1.8]`}
         />
       </Field>
 
@@ -215,7 +212,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
           type="button"
           onClick={onBack}
           className="flex items-center gap-1.5 text-sm transition-colors duration-200"
-          style={{ color: "var(--mid)" }}
+          style={{ color: "rgba(255,255,255,0.4)" }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -226,8 +223,8 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
           type="submit"
           className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90"
           style={{
-            background: "var(--black)",
-            boxShadow: "0 4px 16px rgba(14,14,14,0.15)",
+            background: "var(--accent)",
+            boxShadow: "0 4px 20px rgba(200,169,122,0.35)",
           }}
         >
           内容を確認する

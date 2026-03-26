@@ -3,9 +3,6 @@
 import { useState } from "react";
 import type { Slot, BookingUserInfo } from "@/types/booking";
 
-/* ────────────────────────────────────────────────────────────
-   Props
-──────────────────────────────────────────────────────────── */
 interface Props {
   counselorName: string;
   agencyName: string;
@@ -17,13 +14,10 @@ interface Props {
 
 function formatDateJa(dateStr: string) {
   const d = new Date(dateStr + "T00:00:00");
-  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${weekdays[d.getDay()]}）`;
+  const w = ["日", "月", "火", "水", "木", "金", "土"];
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${w[d.getDay()]}）`;
 }
 
-/* ────────────────────────────────────────────────────────────
-   Step4Confirm
-──────────────────────────────────────────────────────────── */
 export default function Step4Confirm({
   counselorName,
   agencyName,
@@ -36,26 +30,27 @@ export default function Step4Confirm({
 
   const handleConfirm = async () => {
     setLoading(true);
-    // TODO: Supabase で slots.status = 'booked' に更新
     await new Promise((r) => setTimeout(r, 1200));
     onConfirm();
   };
+
+  const meetingLabel =
+    userInfo.meetingFormat === "対面"
+      ? "対面（カウンセラーオフィス）"
+      : userInfo.meetingFormat === "オンライン"
+      ? "オンライン（Zoom）"
+      : slot.meetingType ?? "対面";
 
   return (
     <div>
       {/* カウンセラーカード */}
       <div
-        className="flex items-center gap-3.5 p-5 rounded-xl mb-5"
-        style={{
-          background: "white",
-          border: "1px solid var(--pale)",
-        }}
+        className="flex items-center gap-3.5 p-5 rounded-xl mb-4"
+        style={{ background: "white" }}
       >
         <div
           className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-          style={{
-            background: "linear-gradient(135deg, #F5E8D8, #EDD8C0)",
-          }}
+          style={{ background: "linear-gradient(135deg, #F5E8D8, #EDD8C0)" }}
         >
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
             <circle cx="14" cy="10" r="5" fill="#C8A97A" opacity=".6" />
@@ -80,53 +75,34 @@ export default function Step4Confirm({
 
       {/* 予約詳細カード */}
       <div
-        className="rounded-2xl mb-5"
-        style={{
-          padding: "28px",
-          background: "var(--pale)",
-        }}
+        className="rounded-2xl mb-4"
+        style={{ background: "var(--pale)", padding: "24px 28px" }}
       >
-        {/* 日時 */}
-        <div
-          className="flex justify-between items-center py-3"
-          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
-        >
-          <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>日時</span>
-          <span className="text-sm" style={{ color: "var(--black)" }}>
-            {formatDateJa(slot.date)} {slot.startTime}〜
-          </span>
-        </div>
-        {/* 形式 */}
-        <div
-          className="flex justify-between items-center py-3"
-          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
-        >
-          <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>形式</span>
-          <span className="text-sm" style={{ color: "var(--black)" }}>
-            {userInfo.meetingFormat || slot.meetingType || "対面"}
-          </span>
-        </div>
-        {/* 所要時間 */}
-        <div
-          className="flex justify-between items-center py-3"
-          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
-        >
-          <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>所要時間</span>
-          <span className="text-sm" style={{ color: "var(--black)" }}>約60分</span>
-        </div>
-        {/* 費用 */}
-        <div className="flex justify-between items-center py-3">
-          <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>費用</span>
-          <span className="text-sm" style={{ color: "var(--green)" }}>無料</span>
-        </div>
+        {[
+          { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
+          { key: "形式", val: meetingLabel },
+          { key: "所要時間", val: "約60分" },
+          { key: "お名前", val: userInfo.fullName || "—" },
+        ].map(({ key, val }, i, arr) => (
+          <div
+            key={key}
+            className="flex justify-between items-center py-3"
+            style={{
+              borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,.05)" : "none",
+            }}
+          >
+            <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>{key}</span>
+            <span className="text-sm" style={{ color: "var(--black)" }}>{val}</span>
+          </div>
+        ))}
       </div>
 
       {/* グリーンnotice */}
       <div
-        className="flex gap-2.5 items-start rounded-[10px] mb-7 text-xs leading-[1.8]"
+        className="flex gap-2.5 items-start rounded-xl mb-7 text-xs leading-[1.8]"
         style={{
           padding: "16px 20px",
-          background: "var(--green-pale)",
+          background: "rgba(122,158,135,0.12)",
           color: "var(--green)",
         }}
       >
@@ -162,8 +138,8 @@ export default function Step4Confirm({
           type="button"
           onClick={onBack}
           disabled={loading}
-          className="flex items-center gap-1.5 text-sm transition-colors duration-200 disabled:opacity-50"
-          style={{ color: "var(--mid)" }}
+          className="flex items-center gap-1.5 text-sm transition-colors duration-200 disabled:opacity-40"
+          style={{ color: "rgba(255,255,255,0.4)" }}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -174,10 +150,10 @@ export default function Step4Confirm({
           type="button"
           onClick={handleConfirm}
           disabled={loading}
-          className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90 disabled:opacity-70"
+          className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
           style={{
             background: "var(--accent)",
-            boxShadow: loading ? "none" : "0 4px 16px rgba(200,169,122,0.35)",
+            boxShadow: loading ? "none" : "0 4px 20px rgba(200,169,122,0.35)",
           }}
         >
           {loading ? (

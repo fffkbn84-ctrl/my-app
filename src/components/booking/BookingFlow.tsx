@@ -6,18 +6,12 @@ import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
 import Step4Confirm from "./Step4Confirm";
 
-/* ────────────────────────────────────────────────────────────
-   Props
-──────────────────────────────────────────────────────────── */
 interface Props {
   counselorId: string;
   counselorName: string;
   agencyName: string;
 }
 
-/* ────────────────────────────────────────────────────────────
-   初期状態
-──────────────────────────────────────────────────────────── */
 const initialUserInfo: BookingUserInfo = {
   fullName: "",
   fullNameKana: "",
@@ -28,9 +22,6 @@ const initialUserInfo: BookingUserInfo = {
   message: "",
 };
 
-/* ────────────────────────────────────────────────────────────
-   ステップ定義
-──────────────────────────────────────────────────────────── */
 const STEPS = [
   { num: 1, label: "日時を選ぶ" },
   { num: 2, label: "情報を入力" },
@@ -39,11 +30,11 @@ const STEPS = [
 ];
 
 /* ────────────────────────────────────────────────────────────
-   ステップインジケーター
+   ステップインジケーター（暗背景対応）
 ──────────────────────────────────────────────────────────── */
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="relative flex items-start justify-center py-10 mb-12">
+    <div className="relative flex items-start justify-center py-10 mb-10">
       {/* connecting line */}
       <div
         className="absolute z-0 h-px"
@@ -52,32 +43,52 @@ function StepIndicator({ current }: { current: number }) {
           left: "50%",
           transform: "translateX(-50%)",
           width: "60%",
-          background: "var(--light)",
+          background: "rgba(255,255,255,0.15)",
         }}
       />
-      {STEPS.map((step) => (
-        <div key={step.num} className="flex-1 flex flex-col items-center gap-2 relative z-10">
-          <div
-            className="w-10 h-10 rounded-full border flex items-center justify-center text-base transition-all duration-300"
-            style={{
-              fontFamily: "var(--font-serif)",
-              ...(step.num < current
-                ? { background: "var(--accent)", borderColor: "var(--accent)", color: "white" }
-                : step.num === current
-                ? { background: "var(--black)", borderColor: "var(--black)", color: "white" }
-                : { background: "white", borderColor: "var(--light)", color: "var(--muted)" }),
-            }}
-          >
-            {step.num}
+      {STEPS.map((step) => {
+        const isDone = step.num < current;
+        const isActive = step.num === current;
+        return (
+          <div key={step.num} className="flex-1 flex flex-col items-center gap-2 relative z-10">
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center text-base transition-all duration-300"
+              style={{
+                fontFamily: "var(--font-serif)",
+                ...(isDone
+                  ? {
+                      background: "var(--accent)",
+                      border: "1px solid var(--accent)",
+                      color: "white",
+                    }
+                  : isActive
+                  ? {
+                      background: "transparent",
+                      border: "1.5px solid white",
+                      color: "white",
+                    }
+                  : {
+                      background: "transparent",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                      color: "rgba(255,255,255,0.3)",
+                    }),
+              }}
+            >
+              {step.num}
+            </div>
+            <span
+              className="text-[11px] tracking-[0.08em] whitespace-nowrap"
+              style={{
+                color: isDone || isActive
+                  ? "rgba(255,255,255,0.9)"
+                  : "rgba(255,255,255,0.3)",
+              }}
+            >
+              {step.label}
+            </span>
           </div>
-          <span
-            className="text-[11px] tracking-[0.08em] whitespace-nowrap"
-            style={{ color: step.num <= current ? "var(--black)" : "var(--muted)" }}
-          >
-            {step.label}
-          </span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -96,19 +107,17 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
   const lockedSlotRef = useRef<Slot | null>(null);
 
   const releaseLockedSlot = useCallback(() => {
-    if (lockedSlotRef.current) {
-      lockedSlotRef.current = null;
-    }
+    if (lockedSlotRef.current) lockedSlotRef.current = null;
   }, []);
 
   useEffect(() => {
-    const handlePopState = () => releaseLockedSlot();
-    const handleBeforeUnload = () => releaseLockedSlot();
-    window.addEventListener("popstate", handlePopState);
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    const onPop = () => releaseLockedSlot();
+    const onUnload = () => releaseLockedSlot();
+    window.addEventListener("popstate", onPop);
+    window.addEventListener("beforeunload", onUnload);
     return () => {
-      window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("beforeunload", onUnload);
       releaseLockedSlot();
     };
   }, [releaseLockedSlot]);
@@ -118,7 +127,6 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Step1: 日時選択 → meetingFormatをスロットのタイプで初期化
   const handleDateTimeNext = useCallback(
     (date: string, slot: Slot) => {
       lockedSlotRef.current = slot;
@@ -126,10 +134,7 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
         ...prev,
         selectedDate: date,
         selectedSlot: slot,
-        userInfo: {
-          ...prev.userInfo,
-          meetingFormat: slot.meetingType ?? "",
-        },
+        userInfo: { ...prev.userInfo, meetingFormat: slot.meetingType ?? "" },
       }));
       goToStep(2);
     },
@@ -149,7 +154,6 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
     <div className="mx-auto px-5 sm:px-8 py-10" style={{ maxWidth: "720px" }}>
       <StepIndicator current={state.step} />
 
-      {/* Step 1: 日時を選ぶ */}
       {state.step === 1 && (
         <Step1DateTime
           counselorId={counselorId}
@@ -158,8 +162,6 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
           onNext={handleDateTimeNext}
         />
       )}
-
-      {/* Step 2: 情報を入力 */}
       {state.step === 2 && (
         <Step3Form
           userInfo={state.userInfo}
@@ -168,8 +170,6 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
           onBack={() => goToStep(1)}
         />
       )}
-
-      {/* Step 3: 内容を確認 */}
       {state.step === 3 && state.selectedSlot && (
         <Step4Confirm
           counselorName={counselorName}
@@ -180,8 +180,6 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
           onBack={() => goToStep(2)}
         />
       )}
-
-      {/* Step 4: 予約完了 */}
       {state.step === 4 && state.selectedSlot && (
         <CompletionScreen
           counselorName={counselorName}
@@ -198,8 +196,8 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
 ──────────────────────────────────────────────────────────── */
 function formatDateJa(dateStr: string) {
   const d = new Date(dateStr + "T00:00:00");
-  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${weekdays[d.getDay()]}）`;
+  const w = ["日", "月", "火", "水", "木", "金", "土"];
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${w[d.getDay()]}）`;
 }
 
 function CompletionScreen({
@@ -213,7 +211,6 @@ function CompletionScreen({
 }) {
   return (
     <div className="text-center py-12">
-      {/* 円形チェックSVG */}
       <svg
         width="72"
         height="72"
@@ -221,55 +218,60 @@ function CompletionScreen({
         fill="none"
         style={{ margin: "0 auto 28px", display: "block" }}
       >
-        <circle cx="36" cy="36" r="34" stroke="var(--accent)" strokeWidth="1.5" fill="rgba(200,169,122,.06)" />
-        <path d="M22 36l10 10 18-20" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle
+          cx="36"
+          cy="36"
+          r="34"
+          stroke="var(--accent)"
+          strokeWidth="1.5"
+          fill="rgba(200,169,122,.08)"
+        />
+        <path
+          d="M22 36l10 10 18-20"
+          stroke="var(--accent)"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
 
       <h2
-        className="text-[28px] mb-3 tracking-[0.06em]"
-        style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
+        className="text-[28px] mb-3 tracking-[0.06em] text-white"
+        style={{ fontFamily: "var(--font-mincho)" }}
       >
         予約が完了しました
       </h2>
-      <p
-        className="text-sm leading-loose mb-9"
-        style={{ color: "var(--mid)" }}
-      >
+      <p className="text-sm leading-loose mb-9" style={{ color: "var(--muted)" }}>
         確認メールをお送りしました。
         <br />
         ゆっくり準備して、当日いらしてください。
       </p>
 
-      {/* 予約情報 */}
       <div
         className="rounded-2xl text-left mb-7"
-        style={{
-          background: "var(--pale)",
-          padding: "24px 28px",
-        }}
+        style={{ background: "rgba(255,255,255,0.06)", padding: "24px 28px" }}
       >
-        <div
-          className="flex justify-between py-2.5"
-          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
-        >
-          <span className="text-xs" style={{ color: "var(--mid)" }}>カウンセラー</span>
-          <span className="text-[13px]" style={{ color: "var(--black)" }}>
-            {counselorName}（{agencyName}）
-          </span>
-        </div>
-        <div
-          className="flex justify-between py-2.5"
-          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
-        >
-          <span className="text-xs" style={{ color: "var(--mid)" }}>日時</span>
-          <span className="text-[13px]" style={{ color: "var(--black)" }}>
-            {formatDateJa(slot.date)} {slot.startTime}〜
-          </span>
-        </div>
-        <div className="flex justify-between py-2.5">
-          <span className="text-xs" style={{ color: "var(--mid)" }}>費用</span>
-          <span className="text-[13px]" style={{ color: "var(--green)" }}>無料</span>
-        </div>
+        {[
+          { key: "カウンセラー", val: `${counselorName}（${agencyName}）` },
+          { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
+          { key: "費用", val: "無料", green: true },
+        ].map(({ key, val, green }, i, arr) => (
+          <div
+            key={key}
+            className="flex justify-between py-2.5"
+            style={{
+              borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,.07)" : "none",
+            }}
+          >
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{key}</span>
+            <span
+              className="text-[13px]"
+              style={{ color: green ? "var(--green)" : "rgba(255,255,255,0.85)" }}
+            >
+              {val}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
