@@ -506,3 +506,110 @@ npm run lint
 | `agency` | 相談所おすすめ | ブルー（--blue） |
 | ~~`listed`~~ | ~~掲載店~~ | ~~廃止~~ |
 
+---
+
+## アップデート履歴（2026-03-26 追記）
+
+### 追加・修正された機能（このセッション）
+
+#### カウンセラー詳細ページ（`/counselors/[id]`）の強化
+
+##### ① キャンペーンバー
+- ヒーローストリップと本文エリアの間に `.d-campaign-bar` を追加
+- `campaign` フィールドが `null` でない場合のみ表示
+- 表示内容: 星アイコン・キャンペーン名（`label`）・詳細（`detail`）・有効期限（`expiry`）
+
+##### ② 料金プラン表
+- 左カラムの「プロフィール」と「カウンセラーからのメッセージ」の間に挿入
+- `.pricing-grid` / `.pricing-card` / `.pricing-card.featured` クラスで実装
+- 各プランに入会金・月会費・お見合い料・成婚料を表示
+- `matchmaking: null` の場合は「無料」バッジ（`.pricing-item-val.free`）を表示
+- `featured: true` のプランは強調（ゴールドアクセント）・「人気」バッジ付き
+- プラン注釈（`notes`）・全体注釈（`note`）も表示
+
+##### ③ サイドバーCTAボタン強化
+- 旧: Tailwindインラインスタイルの `<Link>` ボタン
+- 新: `.cta-book-main` クラスで大きく目立つボタンに変更
+- 補足テキストも `.cta-book-main-note`（当日キャンセル可・登録不要・完全無料）
+
+##### ④ モバイル固定フッターCTA強化
+- 旧: `lg:hidden fixed` Tailwindクラス
+- 新: `.cta-mobile-bar` / `.cta-mobile-btn` CSS クラスに変更
+- 次の空き枠日時も合わせて表示
+
+#### トップページ カウンセラーカード（`/`）の強化
+
+- `monthlyFee` フィールドを `featuredCounselors` に追加（例: `"29,800"`）
+- `campaign` フィールドを `featuredCounselors` に追加（`null` または `{ label, detail }`）
+- カード内に月会費（DM Serif Display フォントで大きく表示）を追加
+- キャンペーンバナー（ゴールドボーダー）をカード内に差し込み（`campaign: null` の場合は非表示）
+
+---
+
+### モックデータ変更点
+
+#### `src/app/counselors/[id]/page.tsx` — 全6カウンセラーに追加
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `monthlyFee` | `string` | 月会費（例: `"29,800"`） |
+| `campaign` | `{ label, detail, expiry } \| null` | キャンペーン情報 |
+| `pricing` | `{ plans: Plan[], note: string }` | 料金プラン一覧 |
+
+#### `src/app/page.tsx` — `featuredCounselors` に追加
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `monthlyFee` | `string` | 月会費 |
+| `campaign` | `{ label, detail } \| null` | キャンペーン情報 |
+
+---
+
+### globals.css 追加CSSクラス（2026-03-26 追加）
+
+- キャンペーンバー: `.d-campaign-bar`、`.d-campaign-inner`、`.d-campaign-icon`、`.d-campaign-label`、`.d-campaign-detail`、`.d-campaign-expiry`
+- 料金表: `.pricing-grid`、`.pricing-card`、`.pricing-card.featured`、`.pricing-card-head`、`.pricing-plan-name`、`.pricing-popular`、`.pricing-items`、`.pricing-item`、`.pricing-item-label`、`.pricing-item-val`、`.pricing-item-val small`、`.pricing-item-val.free`、`.pricing-note`
+- CTAボタン: `.cta-book-main`、`.cta-book-main::before`、`.cta-book-main:hover`、`.cta-book-main-note`
+- モバイルCTA: `.cta-mobile-bar`、`.cta-mobile-btn`、`.cta-mobile-btn:hover`
+
+---
+
+### 現在の実装状況（2026-03-26 時点）
+
+#### トップページ セクション構成（計8セクション）
+
+| # | セクション | 状態 |
+|---|---|---|
+| 1 | HERO | ✅ |
+| 2 | MARQUEE | ✅ |
+| 3 | VISION | ✅ |
+| 4 | JOURNEY（カテゴリカード6枚・一部クリッカブル） | ✅ |
+| 5 | 注目のカウンセラー（月会費・キャンペーン表示付き） | ✅ |
+| 6 | ふたりへが選んだお店（タブフィルター・ドラッグスクロール） | ✅ |
+| 7 | 成婚エピソード（featured カード付き） | ✅ |
+| 8 | コラム | ✅ |
+| 9 | CTA | ✅ |
+
+#### カウンセラー詳細ページ（`/counselors/[id]`）構成
+
+```
+Header
+main.pt-16
+  .hero-strip（黒背景）
+    .detail-hero
+      左: パンくず → 相談所バッジ → アバター+名前 → 星評価+口コミ件数リンク → タグ → 統計
+      右: 予約カード（PCのみ / .d-book-card）
+  .d-campaign-bar（campainがある場合のみ）
+  .detail-body
+    .wrap
+      .detail-grid
+        左カラム:
+          プロフィール（bio + .d-profile-grid）
+          料金プラン（.pricing-grid）
+          メッセージ（.d-message）
+          口コミ・評価（id="reviews" / .rv-card リスト）
+        右カラム（sticky top:72px）:
+          予約カード（.cta-book-main ボタン）
+          相談所情報カード
+.cta-mobile-bar（モバイル固定フッター）
+Footer
+```
+
