@@ -31,60 +31,20 @@ const STEPS = [
 ];
 
 /* ────────────────────────────────────────────────────────────
-   ステップインジケーター（白背景対応）
+   ステップインジケーター
 ──────────────────────────────────────────────────────────── */
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="relative flex items-start justify-center py-10 mb-10">
-      {/* connecting line */}
-      <div
-        className="absolute z-0 h-px"
-        style={{
-          top: "calc(40px + 40px)",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "60%",
-          background: "var(--light)",
-        }}
-      />
+    <div className="step-indicator">
       {STEPS.map((step) => {
         const isDone = step.num < current;
         const isActive = step.num === current;
         return (
-          <div key={step.num} className="flex-1 flex flex-col items-center gap-2 relative z-10">
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-base transition-all duration-300"
-              style={{
-                fontFamily: "var(--font-serif)",
-                ...(isDone
-                  ? {
-                      background: "var(--accent)",
-                      border: "1px solid var(--accent)",
-                      color: "white",
-                    }
-                  : isActive
-                  ? {
-                      background: "var(--black)",
-                      border: "1.5px solid var(--black)",
-                      color: "white",
-                    }
-                  : {
-                      background: "transparent",
-                      border: "1px solid var(--light)",
-                      color: "var(--muted)",
-                    }),
-              }}
-            >
+          <div key={step.num} className="step-item">
+            <div className={`step-dot${isDone ? " done" : isActive ? " active" : ""}`}>
               {step.num}
             </div>
-            <span
-              className="text-[11px] tracking-[0.08em] whitespace-nowrap"
-              style={{
-                color: isDone || isActive ? "var(--ink)" : "var(--muted)",
-              }}
-            >
-              {step.label}
-            </span>
+            <span className="step-label">{step.label}</span>
           </div>
         );
       })}
@@ -150,7 +110,7 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
   }, [goToStep]);
 
   return (
-    <div className="mx-auto px-5 sm:px-8 py-10" style={{ maxWidth: "720px" }}>
+    <div className="booking-wrap pb-16">
       <StepIndicator current={state.step} />
 
       {state.step === 1 && (
@@ -212,7 +172,7 @@ function CompletionScreen({
   slot: Slot;
 }) {
   return (
-    <div className="text-center py-12">
+    <div className="bk-done-wrap">
       <svg
         width="72"
         height="72"
@@ -220,78 +180,36 @@ function CompletionScreen({
         fill="none"
         style={{ margin: "0 auto 28px", display: "block" }}
       >
-        <circle
-          cx="36"
-          cy="36"
-          r="34"
-          stroke="#C8A97A"
-          strokeWidth="1.5"
-          fill="rgba(200,169,122,.06)"
-        />
-        <path
-          d="M22 36l10 10 18-20"
-          stroke="var(--accent)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <circle cx="36" cy="36" r="34" stroke="#C8A97A" strokeWidth="1.5" fill="rgba(200,169,122,.06)" />
+        <path d="M22 36l10 10 18-20" stroke="#C8A97A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
 
-      <h2
-        className="text-[28px] mb-3 tracking-[0.06em]"
-        style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
-      >
-        予約が完了しました
-      </h2>
-      <p className="text-sm leading-loose mb-9" style={{ color: "var(--mid)" }}>
+      <h2 className="bk-done-title">予約が完了しました</h2>
+      <p className="bk-done-sub">
         確認メールをお送りしました。
         <br />
         ゆっくり準備して、当日いらしてください。
       </p>
 
-      <div
-        className="rounded-2xl text-left mb-7"
-        style={{ background: "var(--pale)", border: "1px solid var(--light)", padding: "24px 28px" }}
-      >
+      <div className="bk-done-info">
         {[
           { key: "カウンセラー", val: `${counselorName}（${agencyName}）` },
           { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
           { key: "費用", val: "無料", green: true },
-        ].map(({ key, val, green }, i, arr) => (
-          <div
-            key={key}
-            className="flex justify-between py-2.5"
-            style={{
-              borderBottom: i < arr.length - 1 ? "1px solid var(--light)" : "none",
-            }}
-          >
-            <span className="text-xs" style={{ color: "var(--mid)" }}>{key}</span>
-            <span
-              className="text-[13px]"
-              style={{ color: green ? "var(--green)" : "var(--ink)" }}
-            >
-              {val}
-            </span>
+        ].map(({ key, val, green }) => (
+          <div key={key} className="bk-done-row">
+            <span className="bk-done-key">{key}</span>
+            <span className="bk-done-val" style={green ? { color: "var(--green)" } : undefined}>{val}</span>
           </div>
         ))}
       </div>
 
       {/* ボタン */}
       <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
-        <Link
-          href={`/counselors/${counselorId}`}
-          className="flex items-center justify-center gap-2 rounded-full transition-all duration-300 hover:-translate-y-0.5"
-          style={{ padding: "14px 32px", background: "white", color: "var(--ink)", border: "1px solid var(--light)", fontSize: "12px", fontFamily: "'DM Sans', sans-serif", letterSpacing: ".16em", textTransform: "uppercase", textDecoration: "none" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--ink)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--light)"; }}
-        >
+        <Link href={`/counselors/${counselorId}`} className="bk-btn bk-btn-secondary">
           カウンセラーページに戻る
         </Link>
-        <Link
-          href="/"
-          className="flex items-center justify-center gap-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent"
-          style={{ padding: "14px 32px", background: "var(--black)", color: "white", fontSize: "12px", fontFamily: "'DM Sans', sans-serif", letterSpacing: ".16em", textTransform: "uppercase", textDecoration: "none" }}
-        >
+        <Link href="/" className="bk-btn bk-btn-primary">
           トップに戻る
         </Link>
       </div>

@@ -35,43 +35,6 @@ function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, 
   return errors;
 }
 
-/* ラベルコンポーネント */
-function Field({
-  label,
-  required,
-  error,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="mb-5">
-      <label
-        className="block text-xs mb-2 tracking-[0.08em]"
-        style={{ color: "var(--ink)" }}
-      >
-        {label}
-        {required && (
-          <span className="ml-1" style={{ color: "var(--rose)" }}>*</span>
-        )}
-      </label>
-      {children}
-      {error && (
-        <p className="text-xs mt-1.5" style={{ color: "var(--rose)" }}>{error}</p>
-      )}
-    </div>
-  );
-}
-
-/* 入力フィールド共通スタイル */
-const inputBase =
-  "w-full py-3.5 px-[18px] rounded-[10px] text-sm outline-none transition-all duration-200 bg-white";
-const inputNormal = `${inputBase} border border-[var(--light)] focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_rgba(200,169,122,.1)]`;
-const inputError  = `${inputBase} border border-[var(--rose)] focus:border-[var(--rose)]`;
-
 export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props) {
   const [errors, setErrors] = useState<Partial<Record<keyof BookingUserInfo, string>>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -90,33 +53,42 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
     if (Object.keys(errs).length === 0) onNext();
   };
 
+  const errStyle = { borderColor: "var(--rose)" };
+
   return (
     <form onSubmit={handleSubmit} noValidate>
       {/* お名前 / フリガナ */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label="お名前" required error={errors.fullName}>
+      <div className="bk-form-row">
+        <div className="bk-form-group">
+          <label className="bk-form-label">お名前<span>*</span></label>
           <input
             type="text"
             placeholder="田中 花子"
             value={userInfo.fullName}
             onChange={(e) => update("fullName", e.target.value)}
-            className={errors.fullName ? inputError : inputNormal}
+            className="bk-form-input"
+            style={errors.fullName ? errStyle : undefined}
           />
-        </Field>
-        <Field label="フリガナ" required error={errors.fullNameKana}>
+          {errors.fullName && <p className="bk-form-hint" style={{ color: "var(--rose)" }}>{errors.fullName}</p>}
+        </div>
+        <div className="bk-form-group">
+          <label className="bk-form-label">フリガナ<span>*</span></label>
           <input
             type="text"
             placeholder="タナカ ハナコ"
             value={userInfo.fullNameKana}
             onChange={(e) => update("fullNameKana", e.target.value)}
-            className={errors.fullNameKana ? inputError : inputNormal}
+            className="bk-form-input"
+            style={errors.fullNameKana ? errStyle : undefined}
           />
-        </Field>
+          {errors.fullNameKana && <p className="bk-form-hint" style={{ color: "var(--rose)" }}>{errors.fullNameKana}</p>}
+        </div>
       </div>
 
       {/* 年齢 / 居住地 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label="年齢" required error={errors.age}>
+      <div className="bk-form-row">
+        <div className="bk-form-group">
+          <label className="bk-form-label">年齢<span>*</span></label>
           <input
             type="number"
             placeholder="32"
@@ -124,15 +96,19 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
             max="99"
             value={userInfo.age}
             onChange={(e) => update("age", e.target.value)}
-            className={errors.age ? inputError : inputNormal}
+            className="bk-form-input"
+            style={errors.age ? errStyle : undefined}
           />
-        </Field>
-        <Field label="居住地" required error={errors.prefecture}>
+          {errors.age && <p className="bk-form-hint" style={{ color: "var(--rose)" }}>{errors.age}</p>}
+        </div>
+        <div className="bk-form-group">
+          <label className="bk-form-label">居住地<span>*</span></label>
           <select
             value={userInfo.prefecture}
             onChange={(e) => update("prefecture", e.target.value)}
-            className={`${errors.prefecture ? inputError : inputNormal} appearance-none`}
+            className="bk-form-select"
             style={{
+              ...(errors.prefecture ? errStyle : {}),
               backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23A0A0A0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: "right 14px center",
@@ -143,39 +119,38 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
               <option key={p} value={p}>{p}</option>
             ))}
           </select>
-        </Field>
+          {errors.prefecture && <p className="bk-form-hint" style={{ color: "var(--rose)" }}>{errors.prefecture}</p>}
+        </div>
       </div>
 
       {/* メールアドレス */}
-      <Field label="メールアドレス" required error={errors.email}>
+      <div className="bk-form-group">
+        <label className="bk-form-label">メールアドレス<span>*</span></label>
         <input
           type="email"
           placeholder="hanako@example.com"
           value={userInfo.email}
           onChange={(e) => update("email", e.target.value)}
-          className={errors.email ? inputError : inputNormal}
+          className="bk-form-input"
+          style={errors.email ? errStyle : undefined}
         />
-        <p className="text-[11px] mt-1.5 leading-[1.7]" style={{ color: "var(--muted)" }}>
-          予約確認メールを送ります。
-        </p>
-      </Field>
+        {errors.email
+          ? <p className="bk-form-hint" style={{ color: "var(--rose)" }}>{errors.email}</p>
+          : <p className="bk-form-hint">予約確認メールを送ります。</p>
+        }
+      </div>
 
       {/* 面談形式 */}
-      <Field label="面談形式" required error={errors.meetingFormat}>
-        <div className="flex flex-col gap-2.5">
+      <div className="bk-form-group">
+        <label className="bk-form-label">面談形式<span>*</span></label>
+        <div className="bk-form-radio-group">
           {(["対面", "オンライン"] as const).map((fmt) => {
             const selected = userInfo.meetingFormat === fmt;
             return (
               <div
                 key={fmt}
                 onClick={() => update("meetingFormat", fmt)}
-                className="flex items-center gap-3 py-3.5 px-4 rounded-xl cursor-pointer transition-all duration-200"
-                style={{
-                  border: selected
-                    ? "1px solid var(--accent)"
-                    : "1px solid var(--light)",
-                  background: selected ? "rgba(200,169,122,0.08)" : "var(--pale)",
-                }}
+                className={`bk-form-radio${selected ? " selected" : ""}`}
               >
                 <input
                   type="radio"
@@ -183,57 +158,43 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
                   value={fmt}
                   checked={selected}
                   onChange={() => update("meetingFormat", fmt)}
-                  className="w-[18px] h-[18px]"
-                  style={{ accentColor: "var(--accent)" }}
                 />
-                <span className="text-[13px]" style={{ color: "var(--ink)" }}>
+                <span className="bk-form-radio-label">
                   {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
                 </span>
               </div>
             );
           })}
         </div>
-      </Field>
+        {errors.meetingFormat && <p className="bk-form-hint" style={{ color: "var(--rose)", marginTop: "8px" }}>{errors.meetingFormat}</p>}
+      </div>
 
       {/* 事前に伝えたいこと */}
-      <Field label="事前に伝えたいこと">
+      <div className="bk-form-group">
+        <label className="bk-form-label">事前に伝えたいこと</label>
         <textarea
           rows={4}
           placeholder="任意。事前に伝えることで、より充実した面談になります。"
           value={userInfo.message}
           onChange={(e) => update("message", e.target.value)}
-          className={`${inputNormal} resize-y min-h-[100px] leading-[1.8]`}
+          className="bk-form-textarea"
         />
-      </Field>
+      </div>
 
       {/* ナビボタン */}
-      <div className="pt-4 pb-8 space-y-3">
-        <button
-          type="submit"
-          className="w-full flex items-center justify-center gap-2.5 py-5 rounded-full text-[15px] tracking-widest text-white transition-all duration-200 hover:opacity-90"
-          style={{
-            background: "var(--accent)",
-            boxShadow: "0 6px 28px rgba(200,169,122,0.4)",
-          }}
-        >
+      <div className="step-nav">
+        <button type="button" onClick={onBack} className="bk-btn bk-btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          戻る
+        </button>
+        <button type="submit" className="bk-btn bk-btn-accent bk-btn-lg">
           内容を確認する
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M9 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex items-center gap-1.5 text-sm transition-colors duration-200"
-            style={{ color: "var(--muted)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            戻る
-          </button>
-        </div>
       </div>
     </form>
   );

@@ -41,17 +41,20 @@ export default function Step4Confirm({
       ? "オンライン（Zoom）"
       : slot.meetingType ?? "対面";
 
+  const rows = [
+    { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
+    { key: "形式", val: meetingLabel },
+    { key: "所要時間", val: "約60分" },
+    { key: "お名前", val: userInfo.fullName || "—" },
+    { key: "メール", val: userInfo.email || "—" },
+    { key: "費用", val: "無料", green: true },
+  ];
+
   return (
     <div>
       {/* カウンセラーカード */}
-      <div
-        className="flex items-center gap-3.5 p-5 rounded-xl mb-4"
-        style={{ background: "white" }}
-      >
-        <div
-          className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: "linear-gradient(135deg, #F5E8D8, #EDD8C0)" }}
-        >
+      <div className="bk-confirm-counselor">
+        <div className="bk-confirm-av">
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
             <circle cx="14" cy="10" r="5" fill="#C8A97A" opacity=".6" />
             <path
@@ -64,50 +67,25 @@ export default function Step4Confirm({
           </svg>
         </div>
         <div>
-          <p className="text-[15px]" style={{ color: "var(--black)" }}>
-            {counselorName} カウンセラー
-          </p>
-          <p className="text-[11px] mt-0.5" style={{ color: "var(--muted)" }}>
-            {agencyName}
-          </p>
+          <p className="bk-confirm-name">{counselorName} カウンセラー</p>
+          <p className="bk-confirm-org">{agencyName}</p>
         </div>
       </div>
 
       {/* 予約詳細カード */}
-      <div
-        className="rounded-2xl mb-4"
-        style={{ background: "var(--pale)", padding: "24px 28px" }}
-      >
-        {[
-          { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
-          { key: "形式", val: meetingLabel },
-          { key: "所要時間", val: "約60分" },
-          { key: "お名前", val: userInfo.fullName || "—" },
-          { key: "メール", val: userInfo.email || "—" },
-          { key: "費用", val: "無料", green: true },
-        ].map(({ key, val, green }, i, arr) => (
-          <div
-            key={key}
-            className="flex justify-between items-center py-3"
-            style={{
-              borderBottom: i < arr.length - 1 ? "1px solid rgba(0,0,0,.05)" : "none",
-            }}
-          >
-            <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>{key}</span>
-            <span className="text-sm" style={{ color: green ? "var(--green)" : "var(--black)" }}>{val}</span>
+      <div className="bk-confirm-card">
+        {rows.map(({ key, val, green }) => (
+          <div key={key} className="bk-confirm-row">
+            <span className="bk-confirm-key">{key}</span>
+            <span className="bk-confirm-val" style={green ? { color: "var(--green)" } : undefined}>
+              {val}
+            </span>
           </div>
         ))}
       </div>
 
       {/* グリーンnotice */}
-      <div
-        className="flex gap-2.5 items-start rounded-xl mb-7 text-xs leading-[1.8]"
-        style={{
-          padding: "16px 20px",
-          background: "rgba(122,158,135,0.12)",
-          color: "var(--green)",
-        }}
-      >
+      <div className="bk-confirm-notice">
         <svg
           width="18"
           height="18"
@@ -135,16 +113,23 @@ export default function Step4Confirm({
       </div>
 
       {/* ナビボタン */}
-      <div className="pb-8 space-y-3">
+      <div className="step-nav">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={loading}
+          className="bk-btn bk-btn-secondary"
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          戻る
+        </button>
         <button
           type="button"
           onClick={handleConfirm}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2.5 py-5 rounded-full text-[15px] tracking-widest text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
-          style={{
-            background: "var(--accent)",
-            boxShadow: loading ? "none" : "0 6px 28px rgba(200,169,122,0.4)",
-          }}
+          className="bk-btn bk-btn-accent bk-btn-lg"
         >
           {loading ? (
             <>
@@ -160,20 +145,6 @@ export default function Step4Confirm({
             </>
           )}
         </button>
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={onBack}
-            disabled={loading}
-            className="flex items-center gap-1.5 text-sm transition-colors duration-200 disabled:opacity-40"
-            style={{ color: "var(--muted)" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            戻る
-          </button>
-        </div>
       </div>
     </div>
   );
