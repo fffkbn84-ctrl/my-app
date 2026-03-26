@@ -4,6 +4,19 @@ import { useState } from "react";
 import type { BookingUserInfo } from "@/types/booking";
 
 /* ────────────────────────────────────────────────────────────
+   都道府県リスト
+──────────────────────────────────────────────────────────── */
+const PREFECTURES = [
+  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+  "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+  "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+  "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+  "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+  "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
+
+/* ────────────────────────────────────────────────────────────
    Props
 ──────────────────────────────────────────────────────────── */
 interface Props {
@@ -18,20 +31,16 @@ interface Props {
 ──────────────────────────────────────────────────────────── */
 function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, string>> {
   const errors: Partial<Record<keyof BookingUserInfo, string>> = {};
-
-  if (!info.lastName.trim()) errors.lastName = "姓を入力してください";
-  if (!info.firstName.trim()) errors.firstName = "名を入力してください";
-  if (!info.lastNameKana.trim()) errors.lastNameKana = "姓（フリガナ）を入力してください";
-  else if (!/^[ァ-ヶー]+$/.test(info.lastNameKana)) errors.lastNameKana = "カタカナで入力してください";
-  if (!info.firstNameKana.trim()) errors.firstNameKana = "名（フリガナ）を入力してください";
-  else if (!/^[ァ-ヶー]+$/.test(info.firstNameKana)) errors.firstNameKana = "カタカナで入力してください";
+  if (!info.fullName.trim()) errors.fullName = "お名前を入力してください";
+  if (!info.fullNameKana.trim()) errors.fullNameKana = "フリガナを入力してください";
+  else if (!/^[ァ-ヶー\s]+$/.test(info.fullNameKana)) errors.fullNameKana = "カタカナで入力してください";
+  if (!info.age.trim()) errors.age = "年齢を入力してください";
+  else if (!/^\d+$/.test(info.age) || Number(info.age) < 18 || Number(info.age) > 99)
+    errors.age = "18〜99の半角数字で入力してください";
+  if (!info.prefecture) errors.prefecture = "居住地を選択してください";
   if (!info.email.trim()) errors.email = "メールアドレスを入力してください";
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) errors.email = "正しい形式で入力してください";
-  if (!info.phone.trim()) errors.phone = "電話番号を入力してください";
-  else if (!/^[\d\-+() ]+$/.test(info.phone)) errors.phone = "正しい形式で入力してください";
-  if (!info.birthYear || !info.birthMonth || !info.birthDay) errors.birthYear = "生年月日を入力してください";
-  if (!info.gender) errors.gender = "性別を選択してください";
-
+  if (!info.meetingFormat) errors.meetingFormat = "面談形式を選択してください";
   return errors;
 }
 
@@ -50,22 +59,23 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <label className="block text-xs text-mid mb-1.5">
+    <div className="mb-6">
+      <label className="block text-xs mb-2 tracking-[0.08em]" style={{ color: "var(--ink)" }}>
         {label}
-        {required && <span className="text-rose ml-1">*</span>}
+        {required && <span className="ml-1" style={{ color: "var(--rose)" }}>*</span>}
       </label>
       {children}
-      {error && <p className="text-xs text-rose mt-1">{error}</p>}
+      {error && (
+        <p className="text-xs mt-1.5" style={{ color: "var(--rose)" }}>{error}</p>
+      )}
     </div>
   );
 }
 
-const inputClass =
-  "w-full px-4 py-3 text-sm border border-light rounded-xl focus:outline-none focus:border-accent/60 bg-white placeholder:text-muted transition-colors duration-150";
-
-const inputErrorClass =
-  "w-full px-4 py-3 text-sm border border-rose/50 rounded-xl focus:outline-none focus:border-rose/70 bg-white placeholder:text-muted transition-colors duration-150";
+const inputBase =
+  "w-full py-3.5 px-[18px] border rounded-[10px] text-sm outline-none transition-all duration-300";
+const inputStyle = `${inputBase} border-light focus:border-accent bg-white placeholder:text-muted text-ink`;
+const inputErrorStyle = `${inputBase} border-rose/50 focus:border-rose/70 bg-white placeholder:text-muted text-ink`;
 
 /* ────────────────────────────────────────────────────────────
    Step3Form
@@ -88,187 +98,142 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
     if (Object.keys(errs).length === 0) onNext();
   };
 
-  const years = Array.from({ length: 60 }, (_, i) => String(new Date().getFullYear() - 20 - i));
-  const months = Array.from({ length: 12 }, (_, i) => String(i + 1));
-  const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
-
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-muted hover:text-ink transition-colors mb-6"
-      >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M9 11L5 7l4-4" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        日時を変更する
-      </button>
-
-      <h2
-        className="text-xl md:text-2xl text-ink mb-1"
-        style={{ fontFamily: "var(--font-mincho)" }}
-      >
-        ご利用者情報を入力してください
-      </h2>
-      <p className="text-sm text-muted mb-8">
-        入力いただいた情報はカウンセラーへの連絡に使用します
-      </p>
-
-      <div className="space-y-5">
-        {/* 氏名 */}
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="姓" required error={errors.lastName}>
-            <input
-              type="text"
-              placeholder="山田"
-              value={userInfo.lastName}
-              onChange={(e) => update("lastName", e.target.value)}
-              className={errors.lastName ? inputErrorClass : inputClass}
-            />
-          </Field>
-          <Field label="名" required error={errors.firstName}>
-            <input
-              type="text"
-              placeholder="花子"
-              value={userInfo.firstName}
-              onChange={(e) => update("firstName", e.target.value)}
-              className={errors.firstName ? inputErrorClass : inputClass}
-            />
-          </Field>
-        </div>
-
-        {/* フリガナ */}
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="姓（フリガナ）" required error={errors.lastNameKana}>
-            <input
-              type="text"
-              placeholder="ヤマダ"
-              value={userInfo.lastNameKana}
-              onChange={(e) => update("lastNameKana", e.target.value)}
-              className={errors.lastNameKana ? inputErrorClass : inputClass}
-            />
-          </Field>
-          <Field label="名（フリガナ）" required error={errors.firstNameKana}>
-            <input
-              type="text"
-              placeholder="ハナコ"
-              value={userInfo.firstNameKana}
-              onChange={(e) => update("firstNameKana", e.target.value)}
-              className={errors.firstNameKana ? inputErrorClass : inputClass}
-            />
-          </Field>
-        </div>
-
-        {/* メール */}
-        <Field label="メールアドレス" required error={errors.email}>
+      {/* お名前 / フリガナ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="お名前" required error={errors.fullName}>
           <input
-            type="email"
-            placeholder="hanako@example.com"
-            value={userInfo.email}
-            onChange={(e) => update("email", e.target.value)}
-            className={errors.email ? inputErrorClass : inputClass}
+            type="text"
+            placeholder="田中 花子"
+            value={userInfo.fullName}
+            onChange={(e) => update("fullName", e.target.value)}
+            className={errors.fullName ? inputErrorStyle : inputStyle}
           />
         </Field>
-
-        {/* 電話 */}
-        <Field label="電話番号" required error={errors.phone}>
+        <Field label="フリガナ" required error={errors.fullNameKana}>
           <input
-            type="tel"
-            placeholder="090-1234-5678"
-            value={userInfo.phone}
-            onChange={(e) => update("phone", e.target.value)}
-            className={errors.phone ? inputErrorClass : inputClass}
-          />
-        </Field>
-
-        {/* 生年月日 */}
-        <Field label="生年月日" required error={errors.birthYear}>
-          <div className="flex items-center gap-2">
-            <select
-              value={userInfo.birthYear}
-              onChange={(e) => update("birthYear", e.target.value)}
-              className={`flex-1 px-3 py-3 text-sm border rounded-xl focus:outline-none focus:border-accent/60 bg-white transition-colors duration-150 ${
-                errors.birthYear ? "border-rose/50" : "border-light"
-              }`}
-            >
-              <option value="">年</option>
-              {years.map((y) => <option key={y} value={y}>{y}</option>)}
-            </select>
-            <select
-              value={userInfo.birthMonth}
-              onChange={(e) => update("birthMonth", e.target.value)}
-              className="w-20 px-3 py-3 text-sm border border-light rounded-xl focus:outline-none focus:border-accent/60 bg-white"
-            >
-              <option value="">月</option>
-              {months.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
-            <select
-              value={userInfo.birthDay}
-              onChange={(e) => update("birthDay", e.target.value)}
-              className="w-20 px-3 py-3 text-sm border border-light rounded-xl focus:outline-none focus:border-accent/60 bg-white"
-            >
-              <option value="">日</option>
-              {days.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-          </div>
-        </Field>
-
-        {/* 性別 */}
-        <Field label="性別" required error={errors.gender}>
-          <div className="flex gap-3">
-            {(["female", "male"] as const).map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => update("gender", g)}
-                className={`flex-1 py-3 text-sm rounded-xl border transition-all duration-150 ${
-                  userInfo.gender === g
-                    ? "border-accent bg-accent text-white"
-                    : "border-light hover:border-accent/40 text-mid"
-                }`}
-              >
-                {g === "female" ? "女性" : "男性"}
-              </button>
-            ))}
-          </div>
-        </Field>
-
-        {/* 質問・メモ（任意） */}
-        <Field label="カウンセラーへの質問・相談内容（任意）">
-          <textarea
-            rows={4}
-            placeholder="事前に相談したいことがあればご記入ください（任意）"
-            value={userInfo.message}
-            onChange={(e) => update("message", e.target.value)}
-            className={`${inputClass} resize-none`}
+            type="text"
+            placeholder="タナカ ハナコ"
+            value={userInfo.fullNameKana}
+            onChange={(e) => update("fullNameKana", e.target.value)}
+            className={errors.fullNameKana ? inputErrorStyle : inputStyle}
           />
         </Field>
       </div>
 
-      {/* プライバシーポリシー */}
-      <p className="text-xs text-muted mt-6 leading-relaxed">
-        「次へ進む」をクリックすることで、
-        <a href="/privacy" className="underline hover:text-ink">プライバシーポリシー</a>
-        および
-        <a href="/terms" className="underline hover:text-ink">利用規約</a>
-        に同意したものとみなされます。
-      </p>
+      {/* 年齢 / 居住地 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="年齢" required error={errors.age}>
+          <input
+            type="number"
+            placeholder="32"
+            min="18"
+            max="99"
+            value={userInfo.age}
+            onChange={(e) => update("age", e.target.value)}
+            className={errors.age ? inputErrorStyle : inputStyle}
+          />
+        </Field>
+        <Field label="居住地" required error={errors.prefecture}>
+          <select
+            value={userInfo.prefecture}
+            onChange={(e) => update("prefecture", e.target.value)}
+            className={`${errors.prefecture ? inputErrorStyle : inputStyle} appearance-none`}
+            style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23A0A0A0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 14px center" }}
+          >
+            <option value="">選択してください</option>
+            {PREFECTURES.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </Field>
+      </div>
 
-      <div className="flex gap-3 mt-8">
+      {/* メールアドレス */}
+      <Field label="メールアドレス" required error={errors.email}>
+        <input
+          type="email"
+          placeholder="hanako@example.com"
+          value={userInfo.email}
+          onChange={(e) => update("email", e.target.value)}
+          className={errors.email ? inputErrorStyle : inputStyle}
+        />
+        <p className="text-[11px] mt-1.5 leading-[1.7]" style={{ color: "var(--muted)" }}>
+          予約確認メールを送ります。
+        </p>
+      </Field>
+
+      {/* 面談形式 */}
+      <Field label="面談形式" required error={errors.meetingFormat}>
+        <div className="flex flex-col gap-2.5">
+          {(["対面", "オンライン"] as const).map((fmt) => (
+            <div
+              key={fmt}
+              onClick={() => update("meetingFormat", fmt)}
+              className="flex items-center gap-3 py-3.5 px-[18px] border rounded-[10px] cursor-pointer transition-all duration-300"
+              style={{
+                border: userInfo.meetingFormat === fmt
+                  ? "1px solid var(--accent)"
+                  : "1px solid var(--light)",
+                background: userInfo.meetingFormat === fmt
+                  ? "var(--accent-dim)"
+                  : "white",
+              }}
+            >
+              <input
+                type="radio"
+                name="meetingFormat"
+                value={fmt}
+                checked={userInfo.meetingFormat === fmt}
+                onChange={() => update("meetingFormat", fmt)}
+                className="w-[18px] h-[18px]"
+                style={{ accentColor: "var(--accent)" }}
+              />
+              <span className="text-[13px]" style={{ color: "var(--ink)" }}>
+                {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Field>
+
+      {/* 事前に伝えたいこと */}
+      <Field label="事前に伝えたいこと">
+        <textarea
+          rows={4}
+          placeholder="任意。事前に伝えることで、より充実した面談になります。"
+          value={userInfo.message}
+          onChange={(e) => update("message", e.target.value)}
+          className={`${inputStyle} resize-y min-h-[100px] leading-[1.8]`}
+        />
+      </Field>
+
+      {/* ナビボタン */}
+      <div className="flex items-center justify-between pt-4 pb-8">
         <button
           type="button"
           onClick={onBack}
-          className="flex-1 py-3.5 border border-light text-mid rounded-xl text-sm hover:border-ink hover:text-ink transition-all duration-200"
+          className="flex items-center gap-1.5 text-sm transition-colors duration-200"
+          style={{ color: "var(--mid)" }}
         >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
           戻る
         </button>
         <button
           type="submit"
-          className="flex-[2] py-3.5 bg-accent text-white rounded-xl text-sm tracking-wide hover:opacity-90 transition-opacity duration-200"
-          style={{ boxShadow: "0 4px 16px rgba(200,169,122,0.3)" }}
+          className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90"
+          style={{
+            background: "var(--black)",
+            boxShadow: "0 4px 16px rgba(14,14,14,0.15)",
+          }}
         >
-          確認画面へ
+          内容を確認する
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
       </div>
     </form>

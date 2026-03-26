@@ -10,16 +10,12 @@ export interface Slot {
 }
 
 export interface BookingUserInfo {
-  lastName: string;
-  firstName: string;
-  lastNameKana: string;
-  firstNameKana: string;
+  fullName: string;
+  fullNameKana: string;
+  age: string;
+  prefecture: string;
   email: string;
-  phone: string;
-  birthYear: string;
-  birthMonth: string;
-  birthDay: string;
-  gender: "female" | "male" | "";
+  meetingFormat: "対面" | "オンライン" | "";
   message: string;
 }
 

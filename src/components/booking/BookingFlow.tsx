@@ -19,21 +19,17 @@ interface Props {
    初期状態
 ──────────────────────────────────────────────────────────── */
 const initialUserInfo: BookingUserInfo = {
-  lastName: "",
-  firstName: "",
-  lastNameKana: "",
-  firstNameKana: "",
+  fullName: "",
+  fullNameKana: "",
+  age: "",
+  prefecture: "",
   email: "",
-  phone: "",
-  birthYear: "",
-  birthMonth: "",
-  birthDay: "",
-  gender: "",
+  meetingFormat: "",
   message: "",
 };
 
 /* ────────────────────────────────────────────────────────────
-   ステップ定義（4ステップ）
+   ステップ定義
 ──────────────────────────────────────────────────────────── */
 const STEPS = [
   { num: 1, label: "日時を選ぶ" },
@@ -52,7 +48,7 @@ function StepIndicator({ current }: { current: number }) {
       <div
         className="absolute z-0 h-px"
         style={{
-          top: "calc(40px / 2 + 40px)",
+          top: "calc(40px + 40px)",
           left: "50%",
           transform: "translateX(-50%)",
           width: "60%",
@@ -76,9 +72,7 @@ function StepIndicator({ current }: { current: number }) {
           </div>
           <span
             className="text-[11px] tracking-[0.08em] whitespace-nowrap"
-            style={{
-              color: step.num <= current ? "var(--black)" : "var(--muted)",
-            }}
+            style={{ color: step.num <= current ? "var(--black)" : "var(--muted)" }}
           >
             {step.label}
           </span>
@@ -99,21 +93,17 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
     userInfo: initialUserInfo,
   });
 
-  // ブラウザバック時にlocked枠を解放するためのref
   const lockedSlotRef = useRef<Slot | null>(null);
 
-  // TODO: Supabase実装時はここでslots.status='open'に戻すAPI呼び出し
   const releaseLockedSlot = useCallback(() => {
     if (lockedSlotRef.current) {
       lockedSlotRef.current = null;
     }
   }, []);
 
-  // ページ離脱・ブラウザバック時の解放
   useEffect(() => {
     const handlePopState = () => releaseLockedSlot();
     const handleBeforeUnload = () => releaseLockedSlot();
-
     window.addEventListener("popstate", handlePopState);
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
@@ -128,12 +118,19 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Step1: 日時（日付＋時間枠）を選んで次へ
+  // Step1: 日時選択 → meetingFormatをスロットのタイプで初期化
   const handleDateTimeNext = useCallback(
     (date: string, slot: Slot) => {
-      // TODO: Supabase実装時はここで slots.status='locked' に更新
       lockedSlotRef.current = slot;
-      setState((prev) => ({ ...prev, selectedDate: date, selectedSlot: slot }));
+      setState((prev) => ({
+        ...prev,
+        selectedDate: date,
+        selectedSlot: slot,
+        userInfo: {
+          ...prev.userInfo,
+          meetingFormat: slot.meetingType ?? "",
+        },
+      }));
       goToStep(2);
     },
     [goToStep]
@@ -144,16 +141,12 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
   }, []);
 
   const handleConfirm = useCallback(() => {
-    // TODO: Supabase で slots.status='booked' に更新する排他制御API呼び出し
     lockedSlotRef.current = null;
     goToStep(4);
   }, [goToStep]);
 
   return (
-    <div
-      className="mx-auto px-5 sm:px-8 py-10"
-      style={{ maxWidth: "720px" }}
-    >
+    <div className="mx-auto px-5 sm:px-8 py-10" style={{ maxWidth: "720px" }}>
       <StepIndicator current={state.step} />
 
       {/* Step 1: 日時を選ぶ */}
@@ -190,7 +183,11 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
 
       {/* Step 4: 予約完了 */}
       {state.step === 4 && state.selectedSlot && (
-        <CompletionScreen counselorName={counselorName} slot={state.selectedSlot} />
+        <CompletionScreen
+          counselorName={counselorName}
+          agencyName={agencyName}
+          slot={state.selectedSlot}
+        />
       )}
     </div>
   );
@@ -199,81 +196,80 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
 /* ────────────────────────────────────────────────────────────
    予約完了画面（Step 4）
 ──────────────────────────────────────────────────────────── */
-function CompletionScreen({ counselorName, slot }: { counselorName: string; slot: Slot }) {
+function formatDateJa(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${weekdays[d.getDay()]}）`;
+}
+
+function CompletionScreen({
+  counselorName,
+  agencyName,
+  slot,
+}: {
+  counselorName: string;
+  agencyName: string;
+  slot: Slot;
+}) {
   return (
     <div className="text-center py-12">
-      {/* チェックアイコン */}
-      <div
-        className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8"
-        style={{ background: "color-mix(in srgb, var(--accent) 15%, transparent)" }}
+      {/* 円形チェックSVG */}
+      <svg
+        width="72"
+        height="72"
+        viewBox="0 0 72 72"
+        fill="none"
+        style={{ margin: "0 auto 28px", display: "block" }}
       >
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="var(--accent)" strokeWidth="2">
-          <path d="M6 16l7 7 13-13" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
+        <circle cx="36" cy="36" r="34" stroke="var(--accent)" strokeWidth="1.5" fill="rgba(200,169,122,.06)" />
+        <path d="M22 36l10 10 18-20" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
 
       <h2
-        className="text-3xl mb-3 tracking-[0.06em]"
+        className="text-[28px] mb-3 tracking-[0.06em]"
         style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
       >
-        ご予約が完了しました
+        予約が完了しました
       </h2>
       <p
         className="text-sm leading-loose mb-9"
         style={{ color: "var(--mid)" }}
       >
-        ご登録いただいたメールアドレスに確認メールを送信しました。
+        確認メールをお送りしました。
         <br />
-        当日はどうぞよろしくお願いします。
+        ゆっくり準備して、当日いらしてください。
       </p>
 
-      {/* 予約サマリー */}
+      {/* 予約情報 */}
       <div
-        className="rounded-2xl p-6 text-left mb-7"
-        style={{ background: "var(--pale)" }}
+        className="rounded-2xl text-left mb-7"
+        style={{
+          background: "var(--pale)",
+          padding: "24px 28px",
+        }}
       >
         <div
-          className="flex justify-between py-2.5 border-b"
-          style={{ borderColor: "rgba(0,0,0,.05)" }}
+          className="flex justify-between py-2.5"
+          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
         >
           <span className="text-xs" style={{ color: "var(--mid)" }}>カウンセラー</span>
-          <span
-            className="text-sm"
-            style={{ color: "var(--black)", fontFamily: "var(--font-mincho)" }}
-          >
-            {counselorName}
+          <span className="text-[13px]" style={{ color: "var(--black)" }}>
+            {counselorName}（{agencyName}）
           </span>
         </div>
         <div
-          className="flex justify-between py-2.5 border-b"
-          style={{ borderColor: "rgba(0,0,0,.05)" }}
+          className="flex justify-between py-2.5"
+          style={{ borderBottom: "1px solid rgba(0,0,0,.05)" }}
         >
           <span className="text-xs" style={{ color: "var(--mid)" }}>日時</span>
-          <span className="text-sm" style={{ color: "var(--black)" }}>
-            {slot.date} {slot.startTime}〜{slot.endTime}
+          <span className="text-[13px]" style={{ color: "var(--black)" }}>
+            {formatDateJa(slot.date)} {slot.startTime}〜
           </span>
         </div>
         <div className="flex justify-between py-2.5">
-          <span className="text-xs" style={{ color: "var(--mid)" }}>面談料金</span>
-          <span className="text-sm" style={{ color: "var(--black)" }}>無料</span>
+          <span className="text-xs" style={{ color: "var(--mid)" }}>費用</span>
+          <span className="text-[13px]" style={{ color: "var(--green)" }}>無料</span>
         </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <a
-          href="/"
-          className="px-6 py-3 border rounded-full text-sm transition-all duration-200 hover:border-ink hover:text-ink"
-          style={{ borderColor: "var(--light)", color: "var(--mid)" }}
-        >
-          トップへ戻る
-        </a>
-        <a
-          href="/counselors"
-          className="px-6 py-3 rounded-full text-sm text-white hover:opacity-90 transition-opacity duration-200"
-          style={{ background: "var(--accent)" }}
-        >
-          他のカウンセラーを見る
-        </a>
       </div>
     </div>
   );
