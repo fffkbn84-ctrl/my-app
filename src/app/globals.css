@@ -12,7 +12,9 @@
   --pale:   #F0EEEB;
   --white:  #FAFAF8;
   --accent: #C8A97A;
+  --accent-dim: rgba(200, 169, 122, 0.08);
   --green:  #7A9E87;
+  --green-pale: rgba(122, 158, 135, 0.1);
   --rose:   #C4877A;
   --blue:   #6B8FBF;
 }

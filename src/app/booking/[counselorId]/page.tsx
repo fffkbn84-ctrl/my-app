@@ -31,18 +31,22 @@ export default async function BookingPage({
       <Header />
       <main className="pt-16 min-h-screen bg-white">
         {/* ページヘッダー */}
-        <div className="border-b border-light bg-pale">
-          <div className="max-w-2xl mx-auto px-6 py-6">
-            <p className="text-xs tracking-[0.2em] text-accent uppercase mb-1">
-              Booking
-            </p>
-            <h1
-              className="text-xl text-ink"
-              style={{ fontFamily: "var(--font-mincho)" }}
-            >
-              無料面談の予約
-            </h1>
-          </div>
+        <div className="max-w-3xl mx-auto px-8 pt-12 pb-0">
+          <p
+            className="text-xs tracking-[0.2em] uppercase mb-3"
+            style={{ color: "var(--accent)" }}
+          >
+            reservation
+          </p>
+          <h1
+            className="text-3xl mb-2"
+            style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
+          >
+            面談を予約する
+          </h1>
+          <p className="text-sm" style={{ color: "var(--mid)" }}>
+            {counselor.name} · {counselor.agency}
+          </p>
         </div>
 
         <BookingFlow

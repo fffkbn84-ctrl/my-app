@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { Slot } from "@/types/booking";
 
 /* ────────────────────────────────────────────────────────────
    空き日付を今日から動的生成（後でSupabase に差し替え）
@@ -10,13 +11,11 @@ function generateAvailableDates(): Set<string> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 明日から90日間で、火・水・木・金・土曜を空き枠として生成（約60%）
   for (let i = 1; i <= 90; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
-    const dow = d.getDay(); // 0=日, 6=土
-    if (dow === 0) continue; // 日曜は除く
-    // seedで間引き（全部埋めるとリアルじゃないので）
+    const dow = d.getDay();
+    if (dow === 0) continue;
     const seed = d.getDate() + d.getMonth() * 31;
     if (seed % 5 === 0) continue;
     const yyyy = d.getFullYear();
@@ -28,12 +27,7 @@ function generateAvailableDates(): Set<string> {
 }
 
 const AVAILABLE_DATES = generateAvailableDates();
-
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
-
-function formatYM(year: number, month: number) {
-  return `${year}年${month + 1}月`;
-}
 
 function pad2(n: number) {
   return String(n).padStart(2, "0");
@@ -43,22 +37,63 @@ function toKey(year: number, month: number, day: number) {
   return `${year}-${pad2(month + 1)}-${pad2(day)}`;
 }
 
+function formatYM(year: number, month: number) {
+  return `${year}年${month + 1}月`;
+}
+
+/* ────────────────────────────────────────────────────────────
+   時間スロット生成（後で Supabase Realtime に差し替え）
+──────────────────────────────────────────────────────────── */
+const MEETING_TYPES = ["対面", "対面", "対面", "オンライン", "対面", "オンライン", "対面", "対面"] as const;
+
+function generateSlots(date: string): Slot[] {
+  const times = [
+    ["10:00", "11:00"],
+    ["11:00", "12:00"],
+    ["13:00", "14:00"],
+    ["14:00", "15:00"],
+    ["15:00", "16:00"],
+    ["16:00", "17:00"],
+    ["17:00", "18:00"],
+    ["18:00", "19:00"],
+  ];
+
+  const seed = parseInt(date.replace(/-/g, "").slice(-2), 10);
+
+  return times.map(([start, end], i) => {
+    let status: Slot["status"] = "open";
+    if ((seed + i) % 5 === 0) status = "booked";
+    else if ((seed + i) % 7 === 0) status = "locked";
+    return {
+      id: `${date}-${start}`,
+      date,
+      startTime: start,
+      endTime: end,
+      status,
+      meetingType: MEETING_TYPES[i % MEETING_TYPES.length],
+    };
+  });
+}
+
 /* ────────────────────────────────────────────────────────────
    Props
 ──────────────────────────────────────────────────────────── */
 interface Props {
   counselorId: string;
   selectedDate: string | null;
-  onSelect: (date: string) => void;
+  selectedSlot: Slot | null;
+  onNext: (date: string, slot: Slot) => void;
 }
 
 /* ────────────────────────────────────────────────────────────
-   Step1Calendar
+   Step1DateTime — カレンダー＋時間スロット
 ──────────────────────────────────────────────────────────── */
-export default function Step1Calendar({ selectedDate, onSelect }: Props) {
+export default function Step1DateTime({ selectedDate: initDate, selectedSlot: initSlot, onNext }: Props) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [selectedDate, setSelectedDate] = useState<string | null>(initDate);
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(initSlot);
 
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -80,60 +115,95 @@ export default function Step1Calendar({ selectedDate, onSelect }: Props) {
     return d < t;
   };
 
-  // 6行分のセル
+  const isToday = (day: number) => {
+    const t = new Date();
+    return viewYear === t.getFullYear() && viewMonth === t.getMonth() && day === t.getDate();
+  };
+
   const cells: (number | null)[] = [
     ...Array(firstDay).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ];
   while (cells.length % 7 !== 0) cells.push(null);
 
+  const handleDateClick = (key: string) => {
+    setSelectedDate(key);
+    setSelectedSlot(null);
+  };
+
+  const slots = selectedDate ? generateSlots(selectedDate) : [];
+  const canProceed = selectedDate !== null && selectedSlot !== null;
+
   return (
     <div>
-      <h2
-        className="text-xl md:text-2xl text-ink mb-2"
-        style={{ fontFamily: "var(--font-mincho)" }}
+      {/* カレンダー */}
+      <div
+        className="mb-6 overflow-hidden"
+        style={{
+          background: "white",
+          border: "1px solid var(--pale)",
+          borderRadius: "16px",
+        }}
       >
-        面談日を選んでください
-      </h2>
-      <p className="text-sm text-muted mb-8">空き枠がある日付が選択できます</p>
-
-      {/* カレンダーナビ */}
-      <div className="bg-white rounded-2xl border border-light overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-light">
+        {/* カレンダーヘッダー */}
+        <div
+          className="flex items-center justify-between px-6 py-5"
+          style={{ borderBottom: "1px solid var(--pale)" }}
+        >
           <button
             onClick={prevMonth}
-            className="p-2 rounded-full hover:bg-pale transition-colors duration-150"
             aria-label="前の月"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
+            style={{ border: "1px solid var(--light)", background: "white" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--ink)";
+              (e.currentTarget as HTMLElement).style.background = "var(--pale)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--light)";
+              (e.currentTarget as HTMLElement).style.background = "white";
+            }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M10 12L6 8l4-4" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 4L6 8l4 4" stroke="#2A2A2A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <h3
-            className="text-base text-ink"
-            style={{ fontFamily: "var(--font-mincho)" }}
+          <span
+            className="text-xl"
+            style={{ fontFamily: "var(--font-serif)", color: "var(--black)" }}
           >
             {formatYM(viewYear, viewMonth)}
-          </h3>
+          </span>
           <button
             onClick={nextMonth}
-            className="p-2 rounded-full hover:bg-pale transition-colors duration-150"
             aria-label="次の月"
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
+            style={{ border: "1px solid var(--light)", background: "white" }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--ink)";
+              (e.currentTarget as HTMLElement).style.background = "var(--pale)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--light)";
+              (e.currentTarget as HTMLElement).style.background = "white";
+            }}
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4l4 4-4 4" stroke="#2A2A2A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
 
-        {/* 曜日ヘッダー */}
-        <div className="grid grid-cols-7 border-b border-light">
+        {/* 曜日ラベル */}
+        <div className="grid grid-cols-7 gap-1 px-5 pt-4 pb-2">
           {WEEKDAYS.map((wd, i) => (
             <div
               key={wd}
-              className={`py-2 text-center text-xs font-medium ${
-                i === 0 ? "text-rose" : i === 6 ? "text-blue" : "text-muted"
-              }`}
+              className="text-center text-[10px] tracking-[0.12em] py-1"
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                color: i === 0 ? "var(--rose)" : i === 6 ? "var(--blue)" : "var(--muted)",
+              }}
             >
               {wd}
             </div>
@@ -141,49 +211,46 @@ export default function Step1Calendar({ selectedDate, onSelect }: Props) {
         </div>
 
         {/* 日付グリッド */}
-        <div className="grid grid-cols-7">
+        <div className="grid grid-cols-7 gap-1 px-5 pb-5">
           {cells.map((day, idx) => {
-            if (!day) return <div key={`empty-${idx}`} className="h-12" />;
+            if (!day) return <div key={`empty-${idx}`} className="aspect-square" />;
 
             const key = toKey(viewYear, viewMonth, day);
             const past = isPast(day);
             const available = AVAILABLE_DATES.has(key);
             const selected = selectedDate === key;
+            const today = isToday(day);
+            const canSelect = available && !past;
             const weekday = (firstDay + day - 1) % 7;
             const isSun = weekday === 0;
             const isSat = weekday === 6;
 
-            const canSelect = available && !past;
+            let textColor = "var(--ink)";
+            if (!selected) {
+              if (today) textColor = "var(--accent)";
+              else if (isSun) textColor = "var(--rose)";
+              else if (isSat) textColor = "var(--blue)";
+            }
+            if (past || !available) textColor = "var(--light)";
 
             return (
               <button
                 key={key}
-                onClick={() => canSelect && onSelect(key)}
+                onClick={() => canSelect && handleDateClick(key)}
                 disabled={!canSelect}
-                className={`h-12 flex flex-col items-center justify-center gap-0.5 text-sm transition-all duration-150 relative
-                  ${selected
-                    ? "bg-accent text-white"
-                    : canSelect
-                    ? "hover:bg-pale cursor-pointer"
-                    : "cursor-default"
-                  }
-                  ${past || !available ? "opacity-30" : ""}
-                `}
+                className="aspect-square rounded-full flex flex-col items-center justify-center gap-0.5 text-[13px] transition-all duration-200 relative"
+                style={{
+                  background: selected ? "var(--black)" : "transparent",
+                  color: selected ? "white" : textColor,
+                  cursor: canSelect ? "pointer" : "default",
+                }}
               >
-                <span
-                  className={
-                    !selected && isSun ? "text-rose" :
-                    !selected && isSat ? "text-blue" :
-                    !selected ? "text-ink" : ""
-                  }
-                >
-                  {day}
-                </span>
+                <span className={today && !selected ? "font-medium" : ""}>{day}</span>
                 {/* 空き枠ドット */}
-                {available && !past && !selected && (
+                {available && !past && (
                   <span
-                    className="w-1 h-1 rounded-full"
-                    style={{ background: "var(--accent)" }}
+                    className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ background: selected ? "white" : "var(--accent)" }}
                   />
                 )}
               </button>
@@ -192,16 +259,92 @@ export default function Step1Calendar({ selectedDate, onSelect }: Props) {
         </div>
       </div>
 
-      {/* 凡例 */}
-      <div className="flex items-center gap-5 mt-4 text-xs text-muted">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-accent" />
-          空き枠あり
+      {/* 時間スロット */}
+      {selectedDate && (
+        <div className="mb-7">
+          <p
+            className="text-[13px] mb-3.5 tracking-[0.05em]"
+            style={{ color: "var(--mid)" }}
+          >
+            空き時間を選ぶ
+          </p>
+          <div
+            className="grid gap-2.5"
+            style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
+          >
+            {slots.map((slot) => {
+              const unavailable = slot.status !== "open";
+              const isSelected = selectedSlot?.id === slot.id;
+
+              return (
+                <button
+                  key={slot.id}
+                  onClick={() => !unavailable && setSelectedSlot(slot)}
+                  disabled={unavailable}
+                  className="py-3 px-2 text-center rounded-[10px] border transition-all duration-300"
+                  style={{
+                    border: isSelected
+                      ? "1px solid var(--black)"
+                      : unavailable
+                      ? "1px solid var(--pale)"
+                      : "1px solid var(--light)",
+                    background: isSelected ? "var(--black)" : "white",
+                    cursor: unavailable ? "default" : "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!unavailable && !isSelected) {
+                      (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)";
+                      (e.currentTarget as HTMLElement).style.background = "var(--accent-dim)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!unavailable && !isSelected) {
+                      (e.currentTarget as HTMLElement).style.borderColor = "var(--light)";
+                      (e.currentTarget as HTMLElement).style.background = "white";
+                    }
+                  }}
+                >
+                  <span
+                    className="block text-[13px] mb-0.5"
+                    style={{
+                      color: isSelected ? "white" : unavailable ? "var(--light)" : "var(--ink)",
+                    }}
+                  >
+                    {slot.startTime}
+                  </span>
+                  <span
+                    className="text-[10px]"
+                    style={{
+                      color: isSelected ? "rgba(255,255,255,.6)" : "var(--muted)",
+                    }}
+                  >
+                    {unavailable ? "満席" : slot.meetingType}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-light" />
-          空き枠なし
-        </div>
+      )}
+
+      {/* 次へボタン */}
+      <div className="flex justify-end pt-4 pb-8">
+        <button
+          onClick={() => canProceed && onNext(selectedDate!, selectedSlot!)}
+          disabled={!canProceed}
+          className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide transition-all duration-200"
+          style={{
+            background: canProceed ? "var(--black)" : "var(--light)",
+            color: "white",
+            cursor: canProceed ? "pointer" : "not-allowed",
+            boxShadow: canProceed ? "0 4px 16px rgba(14,14,14,0.15)" : "none",
+          }}
+        >
+          次へ：情報を入力
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
       </div>
     </div>
   );

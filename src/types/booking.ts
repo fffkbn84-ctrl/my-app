@@ -6,6 +6,7 @@ export interface Slot {
   startTime: string;  // "HH:MM"
   endTime: string;
   status: SlotStatus;
+  meetingType?: "対面" | "オンライン";
 }
 
 export interface BookingUserInfo {
