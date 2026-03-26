@@ -111,7 +111,7 @@ export default function HomePage() {
               お見合いやデートのお店情報も、ここで。<br />出会いから、ずっと先まで一緒にいます。
             </p>
             <div className="hero-actions">
-              <Link href="/counselors" className="btn btn-dark">相談所を探す</Link>
+              <Link href="/search" className="btn btn-dark">相談所を探す</Link>
               <Link href="/shops" className="btn btn-outline">お見合い・デートのお店</Link>
             </div>
             <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", marginTop: "12px" }}>✓ 無料で使えます・登録不要</p>
@@ -684,7 +684,7 @@ export default function HomePage() {
             </h2>
             <p className="cta-d">まずは口コミを読むだけでも。予約は、準備できてからで大丈夫。</p>
             <div className="cta-btns">
-              <Link href="#counselors" className="btn btn-wh">相談所を探す</Link>
+              <Link href="/search" className="btn btn-wh">相談所を探す</Link>
               <Link href="#places" className="btn btn-gl">お見合い・デートのお店</Link>
             </div>
           </div>
