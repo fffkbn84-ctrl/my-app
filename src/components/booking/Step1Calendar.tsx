@@ -325,16 +325,16 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
       )}
 
       {/* 次へボタン */}
-      <div className="flex justify-end pt-4 pb-8">
+      <div className="pt-4 pb-8">
         <button
           onClick={() => canProceed && onNext(selectedDate!, selectedSlot!)}
           disabled={!canProceed}
-          className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide transition-all duration-200"
+          className="w-full flex items-center justify-center gap-2.5 py-5 rounded-full text-[15px] tracking-widest transition-all duration-200"
           style={{
             background: canProceed ? "var(--accent)" : "rgba(255,255,255,0.1)",
             color: "white",
             cursor: canProceed ? "pointer" : "not-allowed",
-            boxShadow: canProceed ? "0 4px 20px rgba(200,169,122,0.35)" : "none",
+            boxShadow: canProceed ? "0 6px 28px rgba(200,169,122,0.4)" : "none",
           }}
         >
           次へ：情報を入力

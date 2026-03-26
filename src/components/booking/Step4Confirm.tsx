@@ -83,7 +83,9 @@ export default function Step4Confirm({
           { key: "形式", val: meetingLabel },
           { key: "所要時間", val: "約60分" },
           { key: "お名前", val: userInfo.fullName || "—" },
-        ].map(({ key, val }, i, arr) => (
+          { key: "メール", val: userInfo.email || "—" },
+          { key: "費用", val: "無料", green: true },
+        ].map(({ key, val, green }, i, arr) => (
           <div
             key={key}
             className="flex justify-between items-center py-3"
@@ -92,7 +94,7 @@ export default function Step4Confirm({
             }}
           >
             <span className="text-xs tracking-[0.08em]" style={{ color: "var(--mid)" }}>{key}</span>
-            <span className="text-sm" style={{ color: "var(--black)" }}>{val}</span>
+            <span className="text-sm" style={{ color: green ? "var(--green)" : "var(--black)" }}>{val}</span>
           </div>
         ))}
       </div>
@@ -133,27 +135,15 @@ export default function Step4Confirm({
       </div>
 
       {/* ナビボタン */}
-      <div className="flex items-center justify-between pb-8">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={loading}
-          className="flex items-center gap-1.5 text-sm transition-colors duration-200 disabled:opacity-40"
-          style={{ color: "rgba(255,255,255,0.4)" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          戻る
-        </button>
+      <div className="pb-8 space-y-3">
         <button
           type="button"
           onClick={handleConfirm}
           disabled={loading}
-          className="flex items-center gap-2 px-8 py-4 rounded-full text-sm tracking-wide text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2.5 py-5 rounded-full text-[15px] tracking-widest text-white transition-all duration-200 hover:opacity-90 disabled:opacity-60"
           style={{
             background: "var(--accent)",
-            boxShadow: loading ? "none" : "0 4px 20px rgba(200,169,122,0.35)",
+            boxShadow: loading ? "none" : "0 6px 28px rgba(200,169,122,0.4)",
           }}
         >
           {loading ? (
@@ -170,6 +160,20 @@ export default function Step4Confirm({
             </>
           )}
         </button>
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={loading}
+            className="flex items-center gap-1.5 text-sm transition-colors duration-200 disabled:opacity-40"
+            style={{ color: "rgba(255,255,255,0.35)" }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            戻る
+          </button>
+        </div>
       </div>
     </div>
   );
