@@ -25,7 +25,7 @@ export default async function BookingPage({
       <Header />
       <main
         className="pt-16 min-h-screen"
-        style={{ background: "var(--black)" }}
+        style={{ background: "var(--white)" }}
       >
         {/* ページヘッダー */}
         <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-0">
@@ -43,12 +43,12 @@ export default async function BookingPage({
             </span>
           </div>
           <h1
-            className="text-3xl sm:text-4xl mb-2 text-white"
-            style={{ fontFamily: "var(--font-mincho)" }}
+            className="text-3xl sm:text-4xl mb-2"
+            style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
           >
             面談を予約する
           </h1>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>
+          <p className="text-sm" style={{ color: "var(--mid)" }}>
             {counselor.name}カウンセラー · {counselor.agency}
           </p>
         </div>

@@ -264,11 +264,11 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
         <div className="mb-7">
           <p
             className="text-[13px] mb-3.5 tracking-[0.05em]"
-            style={{ color: "rgba(255,255,255,0.5)" }}
+            style={{ color: "var(--mid)" }}
           >
             空き時間を選ぶ
           </p>
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+          <div className="grid grid-cols-4 gap-2.5">
             {slots.map((slot) => {
               const unavailable = slot.status !== "open";
               const isSelected = selectedSlot?.id === slot.id;
@@ -331,8 +331,8 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
           disabled={!canProceed}
           className="w-full flex items-center justify-center gap-2.5 py-5 rounded-full text-[15px] tracking-widest transition-all duration-200"
           style={{
-            background: canProceed ? "var(--accent)" : "rgba(255,255,255,0.1)",
-            color: "white",
+            background: canProceed ? "var(--accent)" : "var(--light)",
+            color: canProceed ? "white" : "var(--muted)",
             cursor: canProceed ? "pointer" : "not-allowed",
             boxShadow: canProceed ? "0 6px 28px rgba(200,169,122,0.4)" : "none",
           }}

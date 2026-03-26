@@ -166,7 +166,7 @@ export default function Step4Confirm({
             onClick={onBack}
             disabled={loading}
             className="flex items-center gap-1.5 text-sm transition-colors duration-200 disabled:opacity-40"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            style={{ color: "var(--muted)" }}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

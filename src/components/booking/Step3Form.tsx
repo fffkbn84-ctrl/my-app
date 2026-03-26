@@ -51,7 +51,7 @@ function Field({
     <div className="mb-5">
       <label
         className="block text-xs mb-2 tracking-[0.08em]"
-        style={{ color: "rgba(255,255,255,0.45)" }}
+        style={{ color: "var(--mid)" }}
       >
         {label}
         {required && (
@@ -155,7 +155,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
           onChange={(e) => update("email", e.target.value)}
           className={errors.email ? inputError : inputNormal}
         />
-        <p className="text-[11px] mt-1.5 leading-[1.7]" style={{ color: "rgba(255,255,255,0.3)" }}>
+        <p className="text-[11px] mt-1.5 leading-[1.7]" style={{ color: "var(--muted)" }}>
           予約確認メールを送ります。
         </p>
       </Field>
@@ -173,8 +173,8 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
                 style={{
                   border: selected
                     ? "1px solid var(--accent)"
-                    : "1px solid rgba(255,255,255,0.12)",
-                  background: selected ? "rgba(200,169,122,0.12)" : "rgba(255,255,255,0.04)",
+                    : "1px solid var(--light)",
+                  background: selected ? "rgba(200,169,122,0.08)" : "var(--pale)",
                 }}
               >
                 <input
@@ -186,7 +186,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
                   className="w-[18px] h-[18px]"
                   style={{ accentColor: "var(--accent)" }}
                 />
-                <span className="text-[13px]" style={{ color: "rgba(255,255,255,0.85)" }}>
+                <span className="text-[13px]" style={{ color: "var(--ink)" }}>
                   {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
                 </span>
               </div>
@@ -226,7 +226,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
             type="button"
             onClick={onBack}
             className="flex items-center gap-1.5 text-sm transition-colors duration-200"
-            style={{ color: "rgba(255,255,255,0.35)" }}
+            style={{ color: "var(--muted)" }}
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

@@ -30,7 +30,7 @@ const STEPS = [
 ];
 
 /* ────────────────────────────────────────────────────────────
-   ステップインジケーター（暗背景対応）
+   ステップインジケーター（白背景対応）
 ──────────────────────────────────────────────────────────── */
 function StepIndicator({ current }: { current: number }) {
   return (
@@ -43,7 +43,7 @@ function StepIndicator({ current }: { current: number }) {
           left: "50%",
           transform: "translateX(-50%)",
           width: "60%",
-          background: "rgba(255,255,255,0.15)",
+          background: "var(--light)",
         }}
       />
       {STEPS.map((step) => {
@@ -64,13 +64,13 @@ function StepIndicator({ current }: { current: number }) {
                   : isActive
                   ? {
                       background: "transparent",
-                      border: "1.5px solid white",
-                      color: "white",
+                      border: "1.5px solid var(--black)",
+                      color: "var(--black)",
                     }
                   : {
                       background: "transparent",
-                      border: "1px solid rgba(255,255,255,0.2)",
-                      color: "rgba(255,255,255,0.3)",
+                      border: "1px solid var(--light)",
+                      color: "var(--muted)",
                     }),
               }}
             >
@@ -79,9 +79,7 @@ function StepIndicator({ current }: { current: number }) {
             <span
               className="text-[11px] tracking-[0.08em] whitespace-nowrap"
               style={{
-                color: isDone || isActive
-                  ? "rgba(255,255,255,0.9)"
-                  : "rgba(255,255,255,0.3)",
+                color: isDone || isActive ? "var(--ink)" : "var(--muted)",
               }}
             >
               {step.label}
@@ -222,9 +220,9 @@ function CompletionScreen({
           cx="36"
           cy="36"
           r="34"
-          stroke="var(--accent)"
+          stroke="#C8A97A"
           strokeWidth="1.5"
-          fill="rgba(200,169,122,.08)"
+          fill="rgba(200,169,122,.06)"
         />
         <path
           d="M22 36l10 10 18-20"
@@ -236,12 +234,12 @@ function CompletionScreen({
       </svg>
 
       <h2
-        className="text-[28px] mb-3 tracking-[0.06em] text-white"
-        style={{ fontFamily: "var(--font-mincho)" }}
+        className="text-[28px] mb-3 tracking-[0.06em]"
+        style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
       >
         予約が完了しました
       </h2>
-      <p className="text-sm leading-loose mb-9" style={{ color: "var(--muted)" }}>
+      <p className="text-sm leading-loose mb-9" style={{ color: "var(--mid)" }}>
         確認メールをお送りしました。
         <br />
         ゆっくり準備して、当日いらしてください。
@@ -249,7 +247,7 @@ function CompletionScreen({
 
       <div
         className="rounded-2xl text-left mb-7"
-        style={{ background: "rgba(255,255,255,0.06)", padding: "24px 28px" }}
+        style={{ background: "var(--pale)", border: "1px solid var(--light)", padding: "24px 28px" }}
       >
         {[
           { key: "カウンセラー", val: `${counselorName}（${agencyName}）` },
@@ -260,13 +258,13 @@ function CompletionScreen({
             key={key}
             className="flex justify-between py-2.5"
             style={{
-              borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,.07)" : "none",
+              borderBottom: i < arr.length - 1 ? "1px solid var(--light)" : "none",
             }}
           >
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{key}</span>
+            <span className="text-xs" style={{ color: "var(--mid)" }}>{key}</span>
             <span
               className="text-[13px]"
-              style={{ color: green ? "var(--green)" : "rgba(255,255,255,0.85)" }}
+              style={{ color: green ? "var(--green)" : "var(--ink)" }}
             >
               {val}
             </span>
