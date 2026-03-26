@@ -613,3 +613,144 @@ main.pt-16
 Footer
 ```
 
+
+---
+
+## アップデート履歴（2026-03-26 追記 — 予約フロー redesign）
+
+### 作業ブランチ
+
+`claude/redesign-hero-section-BThOA-2NYfC`
+
+---
+
+### 予約フロー（`/booking/[counselorId]`）の完全リデザイン
+
+#### ページ構成
+
+```
+Header
+main（bg: var(--white)）
+  .section-head（padding: 60px 0 40px）
+    eyebrow "RESERVATION"（DM Sans / var(--accent)）
+    h1 "面談を予約する"（DM Serif Display / clamp(28px,4vw,48px)）
+    p カウンセラー名 · 相談所名（var(--mid)）
+  .booking-wrap（max-width: 720px / padding: 0 32px）
+    .step-indicator（4ステップ）
+    各ステップのパネル（Step1〜4）
+Footer
+```
+
+#### 4ステップ構成
+
+| Step | コンポーネント | 内容 |
+|---|---|---|
+| 1 | `Step1Calendar.tsx` | カレンダー日付選択 ＋ 時間スロット選択 |
+| 2 | `Step3Form.tsx` | 利用者情報入力フォーム |
+| 3 | `Step4Confirm.tsx` | 予約内容確認 |
+| 4 | `CompletionScreen`（BookingFlow内） | 予約完了画面 |
+
+---
+
+### CSS クラス体系（globals.css 追加）
+
+#### レイアウト
+- `.booking-wrap` — max-width: 720px、margin: 0 auto、padding: 0 32px（600px以下: 20px）
+
+#### ステップインジケーター
+- `.step-indicator` — `::before` で横線（var(--light)）
+- `.step-item` — 各ステップのコンテナ
+- `.step-dot` — デフォルト白丸、`.done` → var(--accent)塗り、`.active` → var(--black)塗り
+- `.step-label` — `.step-dot.active + .step-label` セレクターで色変更
+
+#### カレンダー
+- `.calendar-wrap` — white bg、pale border、16px radius
+- `.cal-header` / `.cal-month` / `.cal-nav`
+- `.cal-grid` / `.cal-days-header` / `.cal-day-label`
+- `.cal-days` / `.cal-day`（`.past` / `.has-slot` / `.selected` / `.today` 修飾子）
+
+#### 時間スロット
+- `.bk-time-slots` — 4列グリッド（480px以下: 3列）
+- `.time-slot`（`.selected` / `.unavailable` 修飾子）
+- `.ts-time` / `.ts-type`
+
+#### フォーム
+- `.bk-form-group` / `.bk-form-label` / `.bk-form-hint`
+- `.bk-form-input` / `.bk-form-select` / `.bk-form-textarea`
+  - border: 1px solid var(--light)、focus時: var(--accent) + shadow
+- `.bk-form-row` — 2列グリッド（480px以下: 1列）
+- `.bk-form-radio-group` / `.bk-form-radio`（`.selected`）/ `.bk-form-radio-label`
+
+#### 確認画面
+- `.bk-confirm-counselor` / `.bk-confirm-av` / `.bk-confirm-name` / `.bk-confirm-org`
+- `.bk-confirm-card` / `.bk-confirm-row` / `.bk-confirm-key` / `.bk-confirm-val`
+- `.bk-confirm-notice` — var(--green-pale) 背景
+
+#### 完了画面
+- `.bk-done-wrap` / `.bk-done-title` / `.bk-done-sub`
+- `.bk-done-info` / `.bk-done-row` / `.bk-done-key` / `.bk-done-val`
+
+#### ナビゲーション
+- `.step-nav` — `justify-content: space-between`（戻る ← → 次へ）
+- `.step-nav.single` — `justify-content: flex-end`（Step1: 次へボタンのみ）
+
+#### ボタン（既存 `.btn` との衝突を避け `.bk-btn-*` プレフィックス）
+- `.bk-btn` — base（rounded-full / DM Sans / uppercase）
+- `.bk-btn-primary` — var(--black) 背景、hover: var(--accent)
+- `.bk-btn-secondary` — white 背景、var(--light) border
+- `.bk-btn-accent` — var(--accent) 背景
+- `.bk-btn-lg` — padding: 18px 40px / font-size: 13px
+
+---
+
+### 完了画面（Step 4）の内容
+
+- チェックマーク SVG アイコン（circle stroke: #C8A97A / fill: rgba(200,169,122,.06)）
+- 予約情報カード（カウンセラー名・日時・費用"無料"）
+- ボタン2つ横並び: 「カウンセラーページに戻る」（`.bk-btn-secondary`） / 「トップに戻る」（`.bk-btn-primary`）
+- 最下部テキスト: 「面談後、口コミを書いていただけると次の方の参考になります。」
+
+---
+
+### 型定義（`src/types/booking.ts`）
+
+```ts
+export type SlotStatus = "open" | "locked" | "booked";
+
+export interface Slot {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: SlotStatus;
+  meetingType?: "対面" | "オンライン";
+}
+
+export interface BookingUserInfo {
+  fullName: string;
+  fullNameKana: string;
+  age: string;
+  prefecture: string;
+  email: string;
+  meetingFormat: "対面" | "オンライン" | "";
+  message: string;
+}
+
+export interface BookingState {
+  step: 1 | 2 | 3 | 4;
+  selectedDate: string | null;
+  selectedSlot: Slot | null;
+  userInfo: BookingUserInfo;
+}
+```
+
+---
+
+### 実装上の注意点
+
+- `BookingFlow.tsx` はスロットロック管理（`lockedSlotRef`）とブラウザバック時の解放処理（`popstate` / `beforeunload`）を実装済み
+- `BookingState.step` の各値は: 1=日時選択、2=情報入力、3=内容確認、4=完了
+- フォームバリデーション: `validate()` 関数でリアルタイム（submit後）検証
+- 都道府県セレクト: 47都道府県を `PREFECTURES` 配列で管理
+- 時間スロット・空き日付はモックデータ。後でSupabase Realtimeに差し替え予定
+- `Step1Calendar.tsx` の `counselorId` prop は現状未使用（Supabase接続時に使用予定）
