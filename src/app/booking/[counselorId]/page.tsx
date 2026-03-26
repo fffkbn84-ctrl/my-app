@@ -28,7 +28,7 @@ export default async function BookingPage({
         style={{ background: "var(--black)" }}
       >
         {/* ページヘッダー */}
-        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-10 sm:pt-12 pb-0">
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-0">
           {/* eyebrow — RESERVATION */}
           <div className="flex items-center gap-3 mb-4">
             <span
