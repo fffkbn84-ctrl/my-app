@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import Link from "next/link";
 import type { BookingState, BookingUserInfo, Slot } from "@/types/booking";
 import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
@@ -63,9 +64,9 @@ function StepIndicator({ current }: { current: number }) {
                     }
                   : isActive
                   ? {
-                      background: "transparent",
+                      background: "var(--black)",
                       border: "1.5px solid var(--black)",
-                      color: "var(--black)",
+                      color: "white",
                     }
                   : {
                       background: "transparent",
@@ -180,6 +181,7 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
       )}
       {state.step === 4 && state.selectedSlot && (
         <CompletionScreen
+          counselorId={counselorId}
           counselorName={counselorName}
           agencyName={agencyName}
           slot={state.selectedSlot}
@@ -199,10 +201,12 @@ function formatDateJa(dateStr: string) {
 }
 
 function CompletionScreen({
+  counselorId,
   counselorName,
   agencyName,
   slot,
 }: {
+  counselorId: string;
   counselorName: string;
   agencyName: string;
   slot: Slot;
@@ -271,6 +275,30 @@ function CompletionScreen({
           </div>
         ))}
       </div>
+
+      {/* ボタン */}
+      <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+        <Link
+          href={`/counselors/${counselorId}`}
+          className="flex items-center justify-center gap-2 rounded-full transition-all duration-300 hover:-translate-y-0.5"
+          style={{ padding: "14px 32px", background: "white", color: "var(--ink)", border: "1px solid var(--light)", fontSize: "12px", fontFamily: "'DM Sans', sans-serif", letterSpacing: ".16em", textTransform: "uppercase", textDecoration: "none" }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--ink)"; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "var(--light)"; }}
+        >
+          カウンセラーページに戻る
+        </Link>
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:bg-accent"
+          style={{ padding: "14px 32px", background: "var(--black)", color: "white", fontSize: "12px", fontFamily: "'DM Sans', sans-serif", letterSpacing: ".16em", textTransform: "uppercase", textDecoration: "none" }}
+        >
+          トップに戻る
+        </Link>
+      </div>
+
+      <p style={{ fontSize: "12px", color: "var(--muted)", textAlign: "center", marginTop: "32px", lineHeight: 2 }}>
+        面談後、口コミを書いていただけると次の方の参考になります。
+      </p>
     </div>
   );
 }

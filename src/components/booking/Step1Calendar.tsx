@@ -268,7 +268,7 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
           >
             空き時間を選ぶ
           </p>
-          <div className="grid grid-cols-4 gap-2.5">
+          <div className="booking-slots-grid">
             {slots.map((slot) => {
               const unavailable = slot.status !== "open";
               const isSelected = selectedSlot?.id === slot.id;

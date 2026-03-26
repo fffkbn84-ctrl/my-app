@@ -28,27 +28,21 @@ export default async function BookingPage({
         style={{ background: "var(--white)" }}
       >
         {/* ページヘッダー */}
-        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-20 sm:pt-24 pb-0">
-          {/* eyebrow — RESERVATION */}
-          <div className="flex items-center gap-3 mb-4">
-            <span
-              className="block w-8 h-px"
-              style={{ background: "var(--accent)" }}
-            />
-            <span
-              className="text-[11px] tracking-[0.2em] uppercase"
-              style={{ color: "var(--accent)" }}
-            >
-              Reservation
-            </span>
+        <div className="max-w-3xl mx-auto px-5 sm:px-8" style={{ padding: "60px 0 40px" }}>
+          <div
+            className="flex items-center gap-3 mb-3"
+            style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--accent)" }}
+          >
+            <span className="block" style={{ width: "20px", height: "1px", background: "var(--accent)", flexShrink: 0 }} />
+            reservation
           </div>
           <h1
-            className="text-3xl sm:text-4xl mb-2"
-            style={{ fontFamily: "var(--font-mincho)", color: "var(--black)" }}
+            className="mb-2.5"
+            style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(28px, 4vw, 48px)", lineHeight: 1.15, letterSpacing: "-.02em", color: "var(--black)" }}
           >
             面談を予約する
           </h1>
-          <p className="text-sm" style={{ color: "var(--mid)" }}>
+          <p style={{ fontSize: "13px", color: "var(--mid)", lineHeight: 2 }}>
             {counselor.name}カウンセラー · {counselor.agency}
           </p>
         </div>

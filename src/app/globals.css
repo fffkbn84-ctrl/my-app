@@ -1453,3 +1453,13 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   transition: opacity .2s;
 }
 .cta-mobile-btn:hover { opacity: .9; }
+
+/* 予約フロー: 時間スロットグリッド（4列、480px未満は3列） */
+.booking-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 480px) {
+  .booking-slots-grid { grid-template-columns: repeat(3, 1fr); }
+}

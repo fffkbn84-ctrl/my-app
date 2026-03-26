@@ -51,7 +51,7 @@ function Field({
     <div className="mb-5">
       <label
         className="block text-xs mb-2 tracking-[0.08em]"
-        style={{ color: "var(--mid)" }}
+        style={{ color: "var(--ink)" }}
       >
         {label}
         {required && (
@@ -68,9 +68,9 @@ function Field({
 
 /* 入力フィールド共通スタイル */
 const inputBase =
-  "w-full py-3.5 px-4 rounded-xl text-sm outline-none transition-all duration-200 bg-white text-ink";
-const inputNormal = `${inputBase} border border-transparent focus:border-accent/50`;
-const inputError  = `${inputBase} border border-rose/60`;
+  "w-full py-3.5 px-[18px] rounded-[10px] text-sm outline-none transition-all duration-200 bg-white";
+const inputNormal = `${inputBase} border border-[var(--light)] focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_rgba(200,169,122,.1)]`;
+const inputError  = `${inputBase} border border-[var(--rose)] focus:border-[var(--rose)]`;
 
 export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props) {
   const [errors, setErrors] = useState<Partial<Record<keyof BookingUserInfo, string>>>({});
