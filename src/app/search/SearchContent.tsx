@@ -484,7 +484,7 @@ export default function SearchContent() {
         style={{
           background: "var(--pale)",
           borderBottom: "1px solid var(--light)",
-          padding: "56px 0 40px",
+          padding: "88px 0 40px",
         }}
       >
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px" }}>
