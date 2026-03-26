@@ -149,10 +149,20 @@ export default function HomePage() {
                 </svg>
               </Link>
               <Link
-                href="/about"
+                href="/search"
                 className="inline-flex items-center gap-2 px-8 py-4 border border-light text-mid rounded-full text-sm tracking-wide hover:border-ink hover:text-ink transition-all duration-300"
               >
-                サービスについて
+                相談所を探す
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M2 14V7L8 2l6 5v7h-4V9H6v5H2z" strokeLinejoin="round" strokeLinecap="round" />
+                </svg>
               </Link>
             </div>
 
