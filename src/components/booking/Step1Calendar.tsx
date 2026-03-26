@@ -268,10 +268,7 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
           >
             空き時間を選ぶ
           </p>
-          <div
-            className="grid gap-2.5"
-            style={{ gridTemplateColumns: "repeat(4, 1fr)" }}
-          >
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
             {slots.map((slot) => {
               const unavailable = slot.status !== "open";
               const isSelected = selectedSlot?.id === slot.id;

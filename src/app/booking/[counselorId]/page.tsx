@@ -31,7 +31,7 @@ export default async function BookingPage({
       <Header />
       <main className="pt-16 min-h-screen bg-white">
         {/* ページヘッダー */}
-        <div className="max-w-3xl mx-auto px-8 pt-12 pb-0">
+        <div className="max-w-3xl mx-auto px-5 sm:px-8 pt-10 sm:pt-12 pb-0">
           <p
             className="text-xs tracking-[0.2em] uppercase mb-3"
             style={{ color: "var(--accent)" }}

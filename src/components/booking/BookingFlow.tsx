@@ -151,7 +151,7 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
 
   return (
     <div
-      className="mx-auto px-8 py-10"
+      className="mx-auto px-5 sm:px-8 py-10"
       style={{ maxWidth: "720px" }}
     >
       <StepIndicator current={state.step} />
