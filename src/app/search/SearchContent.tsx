@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AGENCIES, COUNSELORS, type Counselor, type Agency } from "@/lib/data";
 
@@ -31,14 +31,17 @@ function StarRating({ rating, size = 11 }: { rating: number; size?: number }) {
    カウンセラーカード
 ──────────────────────────────────────────────────────────── */
 function CounselorCard({ c }: { c: Counselor }) {
+  const router = useRouter();
   return (
     <div
+      onClick={() => router.push(`/counselors/${c.id}`)}
       style={{
         background: "var(--white)",
         border: "1px solid var(--light)",
         borderRadius: 14,
         overflow: "hidden",
         transition: "transform .25s, box-shadow .25s",
+        cursor: "pointer",
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
@@ -205,6 +208,7 @@ function CounselorCard({ c }: { c: Counselor }) {
             fontFamily: "var(--font-sans)",
             transition: "opacity .2s",
           }}
+          onClick={(e) => e.stopPropagation()}
           onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = ".8")}
           onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "1")}
         >
