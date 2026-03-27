@@ -295,3 +295,91 @@ npm run lint
 - コンポーネントの配置とレイアウト
 
 **デザインから勝手に変更・改善しないこと。変更が必要な場合は必ず確認を取る。**
+
+---
+
+## 実装済み機能（2026-03-27 時点）
+
+### ブランチ構成
+
+| ブランチ | 内容 | Vercelプレビュー |
+|---|---|---|
+| `claude/redesign-hero-section-BThOA-2NYfC` | トップページリデザイン + 検索機能 | `my-app-git-claude-redesign-hero-13ddd6-fffkbn84-4095s-projects.vercel.app` |
+| `claude/search-agencies-counselors-8OKis` | 検索機能のベースブランチ | — |
+
+**作業ブランチ：** 新機能はすべて `claude/search-agencies-counselors-8OKis` で開発し、`claude/redesign-hero-section-BThOA-2NYfC` にも同期プッシュする。新しいブランチは原則作成しない。
+
+---
+
+### 検索・一覧機能（`/search`）
+
+**ファイル：**
+- `src/app/search/page.tsx` — サーバーコンポーネント。`<Suspense>` で `SearchContent` をラップ
+- `src/app/search/SearchContent.tsx` — `'use client'`。タブ切替・フィルタリング・カード表示
+- `src/lib/data.ts` — モックデータ（`AGENCIES` 5件 / `COUNSELORS` 6件）。将来Supabase移行予定
+
+**機能：**
+- タブ切替（カウンセラーから探す / 相談所から探す）
+- URL params対応：`?tab=agency`、`?tab=counselor`、`?agency={id}`（相談所詳細からの遷移用）
+- カウンセラーフィルター：テキスト検索・エリア・得意分野・料金帯・オンライントグル・ソート
+- 相談所フィルター：テキスト検索・エリア・種別・料金帯・ソート
+- カウンセラーカード全体クリックで `/counselors/{id}` に遷移（`useRouter` + `stopPropagation`）
+- 「面談を予約する」ボタンは独立してクリック可能
+
+**実装上の注意：**
+- `useSearchParams` を使うため `'use client'` + `<Suspense>` 必須
+- カードクリックは `<Link>` ネストを避けるため `onClick={() => router.push(...)}` を使用
+- ページヘッダーの `padding-top: 88px`（固定ヘッダー64px + 余白）
+
+---
+
+### 相談所詳細ページ（`/agencies/[id]`）
+
+**ファイル：** `src/app/agencies/[id]/page.tsx`
+
+**機能：**
+- `generateStaticParams()` で全相談所IDを静的生成
+- ヒーロー：グラデーション背景、パンくずリスト、種別タグ、相談所名（Shippori Mincho）
+- プランカード：人気バッジ、料金内訳テーブル
+- 在籍カウンセラー：横スクロール表示（`scrollbarWidth: none`）
+- アクセス情報：pale背景のkey/valueリスト
+- 口コミ：SVGアバター、「面談済み」バッジ
+- 固定フッターCTA：`/search?tab=counselor&agency={id}` へ遷移
+
+**params の取り方（Next.js 16）：**
+```typescript
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+```
+
+---
+
+### データ構造（`src/lib/data.ts`）
+
+```typescript
+type Agency = {
+  id: number; name: string; area: string; type: string[];
+  plans: Plan[]; rating: number; reviewCount: number;
+  description: string; features: string[]; gradient: string;
+  counselorIds: number[]; access: string; hours: string;
+  holiday: string; reviews: AgencyReview[];
+};
+
+type Counselor = {
+  id: number; name: string; kana: string; agencyId: number;
+  agencyName: string; area: string; role: string; experience: number;
+  tags: string[]; rating: number; reviewCount: number; online: boolean;
+  minAdmission: number; monthlyFrom: number; gradient: string;
+  svgColor: string; message: string;
+};
+```
+
+---
+
+### トップページ修正
+
+- `claude/redesign-hero-section-BThOA-2NYfC` の `page.tsx`：「相談所を探す」ボタンを `/search` に変更
+- フッター（`src/components/layout/Footer.tsx`）の相談所セクションリンクを更新：
+  - 相談所を探す → `/search?tab=agency`
+  - カウンセラーから探す → `/search`
+  - エリアから探す → `/search`
