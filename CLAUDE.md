@@ -298,459 +298,88 @@ npm run lint
 
 ---
 
-## 認証・ユーザー設計
+## 実装済み機能（2026-03-27 時点）
 
-- 閲覧・検索: 登録不要・完全無料
-- 予約する: メールアドレスのみ必須（パスワードなし）
-- 口コミ投稿: 予約完了メールに記載の専用URLから認証
-- アカウント: 予約後に任意で作成可能
+### ブランチ構成
 
-### 口コミ認証フロー
-予約 → 面談完了 → ふたりへからメール送信
-→ メール内の専用URL → 口コミ投稿画面
-
-### Supabase設計方針
-- Supabase Authはメールリンク認証（Magic Link）を使う
-- パスワード認証は実装しない
-- 予約時のメールアドレスとMagic Linkを紐づける
-
----
-
-## 現在の実装状況（2026-03-25 時点）
-
-### 作業ブランチ
-
-現在のメイン作業ブランチ: **`claude/redesign-hero-section-BThOA`**
-（以降の作業はすべてこのブランチで行う）
-
----
-
-### 技術スタック（実装確認済み）
-
-| カテゴリ | 技術 | バージョン |
+| ブランチ | 内容 | Vercelプレビュー |
 |---|---|---|
-| フレームワーク | Next.js (App Router) | 16.2.1 |
-| 言語 | TypeScript | ^5 |
-| UI | React | 19.2.4 |
-| スタイリング | Tailwind CSS | ^4 |
-| DB/Auth | Supabase (PostgreSQL) | - |
-| Supabase SDK | @supabase/supabase-js | ^2.100.0 |
-| SSR連携 | @supabase/ssr | ^0.9.0 |
+| `claude/redesign-hero-section-BThOA-2NYfC` | トップページリデザイン + 検索機能 | `my-app-git-claude-redesign-hero-13ddd6-fffkbn84-4095s-projects.vercel.app` |
+| `claude/search-agencies-counselors-8OKis` | 検索機能のベースブランチ | — |
+
+**作業ブランチ：** 新機能はすべて `claude/search-agencies-counselors-8OKis` で開発し、`claude/redesign-hero-section-BThOA-2NYfC` にも同期プッシュする。新しいブランチは原則作成しない。
 
 ---
 
-### 完了済みの機能
+### 検索・一覧機能（`/search`）
 
-#### ページ・ルート
-| ページ | パス | 状態 |
-|---|---|---|
-| トップページ | `/` | ✅ 完全実装（全6セクション） |
-| カウンセラー一覧 | `/counselors` | ✅ 実装済（モックデータ6名） |
-| カウンセラー詳細 | `/counselors/[id]` | ✅ 実装済 |
-| 予約フロー | `/booking/[counselorId]` | ✅ 4ステップ実装済 |
-| お店一覧 | `/shops` | ✅ 実装済（モックデータ6店） |
-| お店詳細 | `/shops/[id]` | ✅ 完全実装（口コミ表示含む） |
-| お店口コミ投稿 | `/shops/[id]/review` | ✅ 実装済 |
-| カウンセラー口コミ投稿 | `/reviews/new` | ✅ 認証ゲート付き実装済 |
+**ファイル：**
+- `src/app/search/page.tsx` — サーバーコンポーネント。`<Suspense>` で `SearchContent` をラップ
+- `src/app/search/SearchContent.tsx` — `'use client'`。タブ切替・フィルタリング・カード表示
+- `src/lib/data.ts` — モックデータ（`AGENCIES` 5件 / `COUNSELORS` 6件）。将来Supabase移行予定
 
-#### コンポーネント
-- `Header.tsx` / `Footer.tsx` — グローバルレイアウト（Footerは4カラムグリッドデザイン）
-- `RevealObserver.tsx` — スクロールアニメーション（IntersectionObserver）
-- `CounselorSearch.tsx` — 検索・フィルター・カード表示
-- `BookingFlow.tsx` + `Step1Calendar` / `Step2Slots` / `Step3Form` / `Step4Confirm` — 予約フロー4ステップ
-- `ShopSearch.tsx` — お店検索・フィルター
-- `ReviewGate.tsx` / `ReviewForm.tsx` — 口コミ認証・投稿フォーム
+**機能：**
+- タブ切替（カウンセラーから探す / 相談所から探す）
+- URL params対応：`?tab=agency`、`?tab=counselor`、`?agency={id}`（相談所詳細からの遷移用）
+- カウンセラーフィルター：テキスト検索・エリア・得意分野・料金帯・オンライントグル・ソート
+- 相談所フィルター：テキスト検索・エリア・種別・料金帯・ソート
+- カウンセラーカード全体クリックで `/counselors/{id}` に遷移（`useRouter` + `stopPropagation`）
+- 「面談を予約する」ボタンは独立してクリック可能
 
-#### インフラ・設計
-- `src/types/database.ts` — Supabase型定義（9テーブル分）
-- `src/types/booking.ts` / `review.ts` — 予約・口コミ専用型
-- `src/lib/supabase/client.ts` / `server.ts` — ブラウザ/サーバー/管理者クライアント
-- `supabase/schema.sql` — DBスキーマ（ENUM・テーブル・インデックス・リレーション）
-- `src/lib/mock/shops.ts` — お店モックデータ
-
-#### トップページ実装セクション（現在6セクション）
-1. HERO — グリッド背景・フローティングカード3枚・CTAボタン（redesign済み）
-2. MARQUEE — 無限スクロール黒帯
-3. VISION — ビジョン引用（黒背景）
-4. JOURNEY — フェーズタイムライン + カテゴリカード6枚
-5. 注目のカウンセラー — カウンセラーカード横スクロール
-6. CTA — 最終CV（黒背景・グロー装飾付き）
-
-> **削除済みセクション：** 口コミセクション（旧6番）・ご利用の流れ（旧7番）は削除した。
-
-#### globals.cssのCSSクラス構成
-- ヒーロー系: `.hero`, `.hero-grid`, `.hero-tag`, `.hero-h1`, `.hero-sub`, `.hero-actions`, `.hero-right`, `.fc-*`, `.scene-*`
-- ボタン系: `.btn`, `.btn-dark`, `.btn-outline`, `.btn-wh`, `.btn-gl`
-- 共通: `.sec-label`, `.sec-h`, `.sec-sub`, `.wrap`, `.reveal`, `.rd1`〜`.rd3`
-- マーキー: `.marquee-wrap`, `.mi`, `.mqi`, `.mqd`
-- ビジョン: `.vision-sec`, `.vision-inner`, `.vision-eyebrow`, `.vision-quote`, `.vision-sub`
-- ジャーニー: `.journey-sec`, `.journey-inner`, `.phase-*`, `.cat-*`, `.crn-*`
-- ロゴ: `.logo`, `.logo-ja`, `.logo-sep`, `.logo-en`, `.logo-dot`
-- CTA: `.cta-sec`, `.cta-o1`, `.cta-o2`, `.cta-inner`, `.cta-ey`, `.cta-h`, `.cta-en`, `.cta-d`, `.cta-btns`
-- フッター: `footer`, `.ft-grid`, `.ft-desc`, `.ft-col`, `.ft-bottom`
+**実装上の注意：**
+- `useSearchParams` を使うため `'use client'` + `<Suspense>` 必須
+- カードクリックは `<Link>` ネストを避けるため `onClick={() => router.push(...)}` を使用
+- ページヘッダーの `padding-top: 88px`（固定ヘッダー64px + 余白）
 
 ---
 
-### 未完了の機能
-
-| 機能 | パス | 状態 |
-|---|---|---|
-| 統括管理画面 | `/admin` | ❌ 未実装 |
-| 相談所管理画面 | `/admin/agency` | ❌ 未実装 |
-| コラム一覧・詳細 | `/columns` | ❌ 未実装（リンクのみ） |
-| 成婚エピソード | `/episodes` | ❌ 未実装（リンクのみ） |
-| Supabase実データ接続 | — | ⚠️ モックデータのまま |
-| Magic Link認証 | — | ⚠️ 設計済み・未接続 |
-| ダブルブッキング排他制御 | — | ⚠️ 設計済み・未接続 |
-| Supabase Realtime（枠同期） | — | ⚠️ 設計済み・未接続 |
-| RLSポリシー設定 | — | ⚠️ スキーマのみ・ポリシー未設定 |
-
----
-
-### 次にやること（推奨順）
-
-1. **Supabase実データ接続** — モックデータをSupabaseクエリに置き換え
-2. **RLSポリシー設定** — 各テーブルのRow Level Security設定
-3. **Magic Link認証フロー** — 予約メール送信・口コミURL発行の実装
-4. **ダブルブッキング排他制御** — `slots` テーブルの `locked` 状態管理 + pg_cron設定
-5. **Supabase Realtime** — 予約枠のリアルタイム同期
-6. **管理画面** — 統括（口コミ代理入力）・相談所（カレンダー・返信）
-7. **コラム・成婚エピソード** — 記事一覧・詳細ページ
-
----
-
-## アップデート履歴（2026-03-25 追記）
-
-### 追加されたセクション（トップページ）
-
-トップページのセクション構成が **6 → 8セクション** に拡張された。
-
-| # | セクション | 変更 |
-|---|---|---|
-| 1 | HERO | 変更なし |
-| 2 | MARQUEE | 変更なし |
-| 3 | VISION | 変更なし |
-| 4 | JOURNEY | カテゴリカードをクリッカブル化（後述） |
-| 5 | 注目のカウンセラー | マージン・ヘッダースタイル修正（後述） |
-| **6** | **ふたりへが選んだお店** | **新規追加** |
-| **7** | **成婚エピソード** | **新規追加** |
-| 8 | CTA | 変更なし |
-
----
-
-### 追加されたファイル
-
-#### モックデータ
-- `src/lib/mock/places-home.ts` — お店セクション用モックデータ
-  - `PlaceHome` / `BadgeType`（`"certified" | "agency"`）/ `PlaceTabCategory` / `ThumbVariant` 型
-  - `placesHomeData`（4件）・`placeTabs`（5タブ）
-- `src/lib/mock/episodes.ts` — 成婚エピソード用モックデータ
-  - `Episode` / `EpisodeThumbVariant` 型
-  - `episodesData`（3件）
-
-#### コンポーネント
-- `src/components/home/PlacesSection.tsx` — `'use client'`
-  - タブフィルター（`useState`）+ ドラッグスクロール（`useRef` + `useEffect`）
-  - サブコンポーネント: `PlaceThumb`・`PlaceBadge`・`Stars`
-- `src/components/home/EpisodesSection.tsx` — Server Component
-  - サブコンポーネント: `EpisodeThumb`・`CoupleAvatars`・`EpisodeCard`
-  - featured カードは `grid-row: 1/3`（`.ep-card-ft`）
-
----
-
-### 修正された既存機能
-
-#### 注目のカウンセラー セクション
-- セクションヘッダーのパディングを `px-[22px] md:px-12`（Tailwind） → `.counselor-inner` CSS クラスに変更
-  - `max-width: 768px` メディアクエリで `places-inner` と同じアプローチに統一
-- スクロールラッパーも同様に `.counselor-scroll` へパディングを移動
-- セクションラベル・見出しを `sec-label` + `sec-h` + `sec-h-jp` クラスに統一
-  - 他セクション（what we offer / selected places）と表記スタイルを揃えた
-
-#### JOURNEY カテゴリカード（6枚）
-- アクティブな3枚を `<div>` → `<Link>` に変更
-  - ct-1（相談所・カウンセラー）→ `#counselors`
-  - ct-2（カフェ・レストラン）→ `#places`
-  - ct-3（ヘア・ネイル・眉）→ `#places`
-- coming soon カード（ct-4〜6）はリンクなし・無反応のまま
-- `.cat-card` に `text-decoration: none; color: inherit; display: block` を追加
-
-#### お店バッジ仕様変更
-- `listed`（掲載店）バッジを**廃止**
-  - `BadgeType` から `"listed"` を削除
-  - `PlaceBadge` のマップから `listed` を削除
-  - 凡例から「掲載店」バッジを削除
-  - `globals.css` の `.rt-listed` / `.rt-listed::before` を削除
-- `sec-h-jp` テキスト変更：
-  - 旧: `取材済み・相談所おすすめ・口コミで集まったお店を掲載しています`
-  - 新: `取材済み・相談所おすすめのお店を掲載しています`
-
----
-
-### globals.css 追加CSSクラス（このセッションで追加）
-
-- カウンセラー: `.counselor-inner`、`.counselor-scroll`（レスポンシブパディング）
-- お店: `.places-sec`、`.places-inner`、`.place-tabs`、`.pt-btn`、`.places-scroll`、`.places-track`、`.place-card`、`.place-thumb`、`.pt-cafe`/`.pt-rest`/`.pt-hair`/`.pt-photo`、`.pt-body`/`.pt-stage`/`.pt-name`/`.pt-loc`/`.pt-bottom`/`.pt-rating`/`.pt-stars`/`.pt-cnt`/`.pt-review-type`
-- バッジ: `.rt-certified`、`.rt-agency`（`.rt-listed` は廃止）
-- エピソード: `.ep-sec`、`.ep-inner`、`.ep-grid`、`.ep-card`、`.ep-card-ft`、`.ep-thumb`、`.et-1`/`.et-2`/`.et-3`、`.ep-body`、`.ep-tag-row`、`.ep-atag`、`.ep-period`、`.ep-title`、`.ep-excerpt`、`.ep-footer`、`.ep-couple`、`.ep-avs`、`.ep-av`、`.ep-couple-l`、`.ep-link`
-
----
-
-### ビジネスルール変更点
-
-#### お店バッジ（最新）
-
-| badge_type | 表示 | 色 |
-|---|---|---|
-| `certified` | ふたりへ取材済み | ゴールド（--accent） |
-| `agency` | 相談所おすすめ | ブルー（--blue） |
-| ~~`listed`~~ | ~~掲載店~~ | ~~廃止~~ |
-
----
-
-## アップデート履歴（2026-03-26 追記）
-
-### 追加・修正された機能（このセッション）
-
-#### カウンセラー詳細ページ（`/counselors/[id]`）の強化
-
-##### ① キャンペーンバー
-- ヒーローストリップと本文エリアの間に `.d-campaign-bar` を追加
-- `campaign` フィールドが `null` でない場合のみ表示
-- 表示内容: 星アイコン・キャンペーン名（`label`）・詳細（`detail`）・有効期限（`expiry`）
-
-##### ② 料金プラン表
-- 左カラムの「プロフィール」と「カウンセラーからのメッセージ」の間に挿入
-- `.pricing-grid` / `.pricing-card` / `.pricing-card.featured` クラスで実装
-- 各プランに入会金・月会費・お見合い料・成婚料を表示
-- `matchmaking: null` の場合は「無料」バッジ（`.pricing-item-val.free`）を表示
-- `featured: true` のプランは強調（ゴールドアクセント）・「人気」バッジ付き
-- プラン注釈（`notes`）・全体注釈（`note`）も表示
-
-##### ③ サイドバーCTAボタン強化
-- 旧: Tailwindインラインスタイルの `<Link>` ボタン
-- 新: `.cta-book-main` クラスで大きく目立つボタンに変更
-- 補足テキストも `.cta-book-main-note`（当日キャンセル可・登録不要・完全無料）
-
-##### ④ モバイル固定フッターCTA強化
-- 旧: `lg:hidden fixed` Tailwindクラス
-- 新: `.cta-mobile-bar` / `.cta-mobile-btn` CSS クラスに変更
-- 次の空き枠日時も合わせて表示
-
-#### トップページ カウンセラーカード（`/`）の強化
-
-- `monthlyFee` フィールドを `featuredCounselors` に追加（例: `"29,800"`）
-- `campaign` フィールドを `featuredCounselors` に追加（`null` または `{ label, detail }`）
-- カード内に月会費（DM Serif Display フォントで大きく表示）を追加
-- キャンペーンバナー（ゴールドボーダー）をカード内に差し込み（`campaign: null` の場合は非表示）
-
----
-
-### モックデータ変更点
-
-#### `src/app/counselors/[id]/page.tsx` — 全6カウンセラーに追加
-| フィールド | 型 | 説明 |
-|---|---|---|
-| `monthlyFee` | `string` | 月会費（例: `"29,800"`） |
-| `campaign` | `{ label, detail, expiry } \| null` | キャンペーン情報 |
-| `pricing` | `{ plans: Plan[], note: string }` | 料金プラン一覧 |
-
-#### `src/app/page.tsx` — `featuredCounselors` に追加
-| フィールド | 型 | 説明 |
-|---|---|---|
-| `monthlyFee` | `string` | 月会費 |
-| `campaign` | `{ label, detail } \| null` | キャンペーン情報 |
-
----
-
-### globals.css 追加CSSクラス（2026-03-26 追加）
-
-- キャンペーンバー: `.d-campaign-bar`、`.d-campaign-inner`、`.d-campaign-icon`、`.d-campaign-label`、`.d-campaign-detail`、`.d-campaign-expiry`
-- 料金表: `.pricing-grid`、`.pricing-card`、`.pricing-card.featured`、`.pricing-card-head`、`.pricing-plan-name`、`.pricing-popular`、`.pricing-items`、`.pricing-item`、`.pricing-item-label`、`.pricing-item-val`、`.pricing-item-val small`、`.pricing-item-val.free`、`.pricing-note`
-- CTAボタン: `.cta-book-main`、`.cta-book-main::before`、`.cta-book-main:hover`、`.cta-book-main-note`
-- モバイルCTA: `.cta-mobile-bar`、`.cta-mobile-btn`、`.cta-mobile-btn:hover`
-
----
-
-### 現在の実装状況（2026-03-26 時点）
-
-#### トップページ セクション構成（計8セクション）
-
-| # | セクション | 状態 |
-|---|---|---|
-| 1 | HERO | ✅ |
-| 2 | MARQUEE | ✅ |
-| 3 | VISION | ✅ |
-| 4 | JOURNEY（カテゴリカード6枚・一部クリッカブル） | ✅ |
-| 5 | 注目のカウンセラー（月会費・キャンペーン表示付き） | ✅ |
-| 6 | ふたりへが選んだお店（タブフィルター・ドラッグスクロール） | ✅ |
-| 7 | 成婚エピソード（featured カード付き） | ✅ |
-| 8 | コラム | ✅ |
-| 9 | CTA | ✅ |
-
-#### カウンセラー詳細ページ（`/counselors/[id]`）構成
-
-```
-Header
-main.pt-16
-  .hero-strip（黒背景）
-    .detail-hero
-      左: パンくず → 相談所バッジ → アバター+名前 → 星評価+口コミ件数リンク → タグ → 統計
-      右: 予約カード（PCのみ / .d-book-card）
-  .d-campaign-bar（campainがある場合のみ）
-  .detail-body
-    .wrap
-      .detail-grid
-        左カラム:
-          プロフィール（bio + .d-profile-grid）
-          料金プラン（.pricing-grid）
-          メッセージ（.d-message）
-          口コミ・評価（id="reviews" / .rv-card リスト）
-        右カラム（sticky top:72px）:
-          予約カード（.cta-book-main ボタン）
-          相談所情報カード
-.cta-mobile-bar（モバイル固定フッター）
-Footer
-```
-
-
----
-
-## アップデート履歴（2026-03-26 追記 — 予約フロー redesign）
-
-### 作業ブランチ
-
-`claude/redesign-hero-section-BThOA-2NYfC`
-
----
-
-### 予約フロー（`/booking/[counselorId]`）の完全リデザイン
-
-#### ページ構成
-
-```
-Header
-main（bg: var(--white)）
-  .section-head（padding: 60px 0 40px）
-    eyebrow "RESERVATION"（DM Sans / var(--accent)）
-    h1 "面談を予約する"（DM Serif Display / clamp(28px,4vw,48px)）
-    p カウンセラー名 · 相談所名（var(--mid)）
-  .booking-wrap（max-width: 720px / padding: 0 32px）
-    .step-indicator（4ステップ）
-    各ステップのパネル（Step1〜4）
-Footer
-```
-
-#### 4ステップ構成
-
-| Step | コンポーネント | 内容 |
-|---|---|---|
-| 1 | `Step1Calendar.tsx` | カレンダー日付選択 ＋ 時間スロット選択 |
-| 2 | `Step3Form.tsx` | 利用者情報入力フォーム |
-| 3 | `Step4Confirm.tsx` | 予約内容確認 |
-| 4 | `CompletionScreen`（BookingFlow内） | 予約完了画面 |
-
----
-
-### CSS クラス体系（globals.css 追加）
-
-#### レイアウト
-- `.booking-wrap` — max-width: 720px、margin: 0 auto、padding: 0 32px（600px以下: 20px）
-
-#### ステップインジケーター
-- `.step-indicator` — `::before` で横線（var(--light)）
-- `.step-item` — 各ステップのコンテナ
-- `.step-dot` — デフォルト白丸、`.done` → var(--accent)塗り、`.active` → var(--black)塗り
-- `.step-label` — `.step-dot.active + .step-label` セレクターで色変更
-
-#### カレンダー
-- `.calendar-wrap` — white bg、pale border、16px radius
-- `.cal-header` / `.cal-month` / `.cal-nav`
-- `.cal-grid` / `.cal-days-header` / `.cal-day-label`
-- `.cal-days` / `.cal-day`（`.past` / `.has-slot` / `.selected` / `.today` 修飾子）
-
-#### 時間スロット
-- `.bk-time-slots` — 4列グリッド（480px以下: 3列）
-- `.time-slot`（`.selected` / `.unavailable` 修飾子）
-- `.ts-time` / `.ts-type`
-
-#### フォーム
-- `.bk-form-group` / `.bk-form-label` / `.bk-form-hint`
-- `.bk-form-input` / `.bk-form-select` / `.bk-form-textarea`
-  - border: 1px solid var(--light)、focus時: var(--accent) + shadow
-- `.bk-form-row` — 2列グリッド（480px以下: 1列）
-- `.bk-form-radio-group` / `.bk-form-radio`（`.selected`）/ `.bk-form-radio-label`
-
-#### 確認画面
-- `.bk-confirm-counselor` / `.bk-confirm-av` / `.bk-confirm-name` / `.bk-confirm-org`
-- `.bk-confirm-card` / `.bk-confirm-row` / `.bk-confirm-key` / `.bk-confirm-val`
-- `.bk-confirm-notice` — var(--green-pale) 背景
-
-#### 完了画面
-- `.bk-done-wrap` / `.bk-done-title` / `.bk-done-sub`
-- `.bk-done-info` / `.bk-done-row` / `.bk-done-key` / `.bk-done-val`
-
-#### ナビゲーション
-- `.step-nav` — `justify-content: space-between`（戻る ← → 次へ）
-- `.step-nav.single` — `justify-content: flex-end`（Step1: 次へボタンのみ）
-
-#### ボタン（既存 `.btn` との衝突を避け `.bk-btn-*` プレフィックス）
-- `.bk-btn` — base（rounded-full / DM Sans / uppercase）
-- `.bk-btn-primary` — var(--black) 背景、hover: var(--accent)
-- `.bk-btn-secondary` — white 背景、var(--light) border
-- `.bk-btn-accent` — var(--accent) 背景
-- `.bk-btn-lg` — padding: 18px 40px / font-size: 13px
-
----
-
-### 完了画面（Step 4）の内容
-
-- チェックマーク SVG アイコン（circle stroke: #C8A97A / fill: rgba(200,169,122,.06)）
-- 予約情報カード（カウンセラー名・日時・費用"無料"）
-- ボタン2つ横並び: 「カウンセラーページに戻る」（`.bk-btn-secondary`） / 「トップに戻る」（`.bk-btn-primary`）
-- 最下部テキスト: 「面談後、口コミを書いていただけると次の方の参考になります。」
-
----
-
-### 型定義（`src/types/booking.ts`）
-
-```ts
-export type SlotStatus = "open" | "locked" | "booked";
-
-export interface Slot {
-  id: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: SlotStatus;
-  meetingType?: "対面" | "オンライン";
-}
-
-export interface BookingUserInfo {
-  fullName: string;
-  fullNameKana: string;
-  age: string;
-  prefecture: string;
-  email: string;
-  meetingFormat: "対面" | "オンライン" | "";
-  message: string;
-}
-
-export interface BookingState {
-  step: 1 | 2 | 3 | 4;
-  selectedDate: string | null;
-  selectedSlot: Slot | null;
-  userInfo: BookingUserInfo;
-}
+### 相談所詳細ページ（`/agencies/[id]`）
+
+**ファイル：** `src/app/agencies/[id]/page.tsx`
+
+**機能：**
+- `generateStaticParams()` で全相談所IDを静的生成
+- ヒーロー：グラデーション背景、パンくずリスト、種別タグ、相談所名（Shippori Mincho）
+- プランカード：人気バッジ、料金内訳テーブル
+- 在籍カウンセラー：横スクロール表示（`scrollbarWidth: none`）
+- アクセス情報：pale背景のkey/valueリスト
+- 口コミ：SVGアバター、「面談済み」バッジ
+- 固定フッターCTA：`/search?tab=counselor&agency={id}` へ遷移
+
+**params の取り方（Next.js 16）：**
+```typescript
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 ```
 
 ---
 
-### 実装上の注意点
+### データ構造（`src/lib/data.ts`）
 
-- `BookingFlow.tsx` はスロットロック管理（`lockedSlotRef`）とブラウザバック時の解放処理（`popstate` / `beforeunload`）を実装済み
-- `BookingState.step` の各値は: 1=日時選択、2=情報入力、3=内容確認、4=完了
-- フォームバリデーション: `validate()` 関数でリアルタイム（submit後）検証
-- 都道府県セレクト: 47都道府県を `PREFECTURES` 配列で管理
-- 時間スロット・空き日付はモックデータ。後でSupabase Realtimeに差し替え予定
-- `Step1Calendar.tsx` の `counselorId` prop は現状未使用（Supabase接続時に使用予定）
+```typescript
+type Agency = {
+  id: number; name: string; area: string; type: string[];
+  plans: Plan[]; rating: number; reviewCount: number;
+  description: string; features: string[]; gradient: string;
+  counselorIds: number[]; access: string; hours: string;
+  holiday: string; reviews: AgencyReview[];
+};
+
+type Counselor = {
+  id: number; name: string; kana: string; agencyId: number;
+  agencyName: string; area: string; role: string; experience: number;
+  tags: string[]; rating: number; reviewCount: number; online: boolean;
+  minAdmission: number; monthlyFrom: number; gradient: string;
+  svgColor: string; message: string;
+};
+```
+
+---
+
+### トップページ修正
+
+- `claude/redesign-hero-section-BThOA-2NYfC` の `page.tsx`：「相談所を探す」ボタンを `/search` に変更
+- フッター（`src/components/layout/Footer.tsx`）の相談所セクションリンクを更新：
+  - 相談所を探す → `/search?tab=agency`
+  - カウンセラーから探す → `/search`
+  - エリアから探す → `/search`

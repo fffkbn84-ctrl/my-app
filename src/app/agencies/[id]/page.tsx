@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { AGENCIES, COUNSELORS, type Agency, type Counselor } from "@/lib/data";
+import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, type Agency, type Counselor } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
    ユーティリティ
@@ -231,6 +231,36 @@ export default async function AgencyDetailPage({
               {agency.name}
             </h1>
 
+            {/* キャンペーンバナー */}
+            {agency.campaign && (
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  background: "rgba(200,169,122,.15)",
+                  border: "1px solid rgba(200,169,122,.35)",
+                  borderRadius: 8,
+                  padding: "8px 16px",
+                  marginBottom: 24,
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                  <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
+                </svg>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--accent)",
+                    letterSpacing: ".06em",
+                    fontFamily: "Noto Sans JP, sans-serif",
+                  }}
+                >
+                  {agency.campaign}
+                </span>
+              </div>
+            )}
+
             {/* 統計 */}
             <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
               {[
@@ -263,6 +293,108 @@ export default async function AgencyDetailPage({
         </section>
 
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px" }}>
+          {/* ═══ ギャラリー ═══ */}
+          {agency.photos.length > 0 && (() => {
+            const visiblePhotos = agency.photos.slice(0, PLAN_PHOTO_LIMITS[agency.plan]);
+            return (
+              <section style={{ padding: "56px 0 0" }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: ".28em",
+                    color: "var(--accent)",
+                    textTransform: "uppercase",
+                    marginBottom: 8,
+                    fontFamily: "DM Sans, sans-serif",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "inline-block",
+                      width: 18,
+                      height: 1,
+                      background: "var(--accent)",
+                      verticalAlign: "middle",
+                    }}
+                  />
+                  Gallery
+                </p>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-mincho)",
+                    fontSize: 26,
+                    color: "var(--ink)",
+                    fontWeight: 400,
+                    marginBottom: 20,
+                  }}
+                >
+                  フォトギャラリー
+                </h2>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                    gap: 12,
+                  }}
+                >
+                  {visiblePhotos.map((photo, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        height: 180,
+                        background: photo.bg,
+                        borderRadius: 10,
+                        position: "relative",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      {/* カメラアイコン（プレースホルダー） */}
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" opacity={0.35}>
+                        <path
+                          d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9l-6-6z"
+                          stroke="var(--ink)"
+                          strokeWidth="1.2"
+                          fill="none"
+                        />
+                        <circle cx="12" cy="13" r="3" stroke="var(--ink)" strokeWidth="1.2" fill="none" />
+                        <path d="M9 3v4h6" stroke="var(--ink)" strokeWidth="1.2" strokeLinecap="round" />
+                      </svg>
+                      {/* キャプション */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          padding: "20px 12px 10px",
+                          background: "linear-gradient(to top, rgba(0,0,0,.35), transparent)",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: "rgba(255,255,255,.9)",
+                            letterSpacing: ".04em",
+                            fontFamily: "Noto Sans JP, sans-serif",
+                          }}
+                        >
+                          {photo.caption}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
+
           {/* ═══ 料金プラン ═══ */}
           <section style={{ padding: "56px 0 0" }}>
             <p
