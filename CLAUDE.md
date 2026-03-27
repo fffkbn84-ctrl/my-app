@@ -298,45 +298,6 @@ npm run lint
 
 ---
 
-## ブランチ sync ルール（必ず守ること）
-
-### sync 前に必ず差分を確認する
-
-`claude/search-agencies-counselors-8OKis` → `claude/redesign-hero-section-BThOA-2NYfC` へファイルをコピーする前に、**必ず以下を実行して redesign ブランチ側に独自の変更がないか確認する：**
-
-```bash
-git diff origin/claude/redesign-hero-section-BThOA-2NYfC -- <対象ファイル>
-```
-
-差分がある場合は上書きせず、内容を確認した上でユーザーに判断を仰ぐこと。
-
----
-
-### ファイルの「所有権」
-
-#### search ブランチが正（redesign に同期してよい）
-
-| ファイル | 備考 |
-|---|---|
-| `src/lib/data.ts` | モックデータ・型定義 |
-| `src/app/search/` | 検索・一覧ページ全体 |
-| `src/app/agencies/[id]/page.tsx` | 相談所詳細ページ |
-| `src/components/ui/` | 汎用UIコンポーネント |
-
-#### redesign ブランチが正（search ブランチで**上書き禁止**）
-
-| ファイル | 備考 |
-|---|---|
-| `src/app/counselors/[id]/page.tsx` | リデザイン済みの洗練されたUI |
-| `src/app/page.tsx` | トップページ（リデザイン版） |
-| `src/app/globals.css` | Tailwind v4 テーマ設定 |
-| `src/components/layout/` | ヘッダー・フッター等 |
-| `src/app/booking/` | 予約フロー |
-
-#### 両ブランチに変更がある場合
-
-上書きせず、手動でマージするかユーザーに確認を取ること。
-
 ---
 
 ## 実装済み機能（2026-03-27 時点）
@@ -345,10 +306,10 @@ git diff origin/claude/redesign-hero-section-BThOA-2NYfC -- <対象ファイル>
 
 | ブランチ | 内容 | Vercelプレビュー |
 |---|---|---|
-| `claude/redesign-hero-section-BThOA-2NYfC` | メイン開発ブランチ（全機能統合） | `my-app-git-claude-redesign-hero-7d6ffc-fffkbn84-4095s-projects.vercel.app` |
-| `claude/search-agencies-counselors-8OKis` | 検索機能ベースブランチ（開発元） | — |
+| `claude/redesign-hero-section-BThOA-2NYfC` | **唯一の開発ブランチ** | `my-app-git-claude-redesign-hero-7d6ffc-fffkbn84-4095s-projects.vercel.app` |
+| `claude/search-agencies-counselors-8OKis` | アーカイブ（参照のみ・push 不要） | — |
 
-**作業ブランチ：** 新機能はすべて `claude/search-agencies-counselors-8OKis` で開発し、`claude/redesign-hero-section-BThOA-2NYfC` にも同期プッシュする。新しいブランチは原則作成しない。
+**作業ブランチ：** `claude/redesign-hero-section-BThOA-2NYfC` のみ。すべての開発・コミット・プッシュはこのブランチで行う。他ブランチへの同期は不要。新しいブランチは原則作成しない。
 
 ---
 
@@ -484,6 +445,6 @@ type Counselor = {
 - サーバーコンポーネントのページファイルに直接書くと、ビルドは通っても **ランタイムエラー** になる
 - 解決策：イベントハンドラーを含むコンポーネントを別ファイルに `'use client'` として切り出し、サーバー側でデータを解決してから props で渡す
 
-**ブランチ sync での上書きミス**
-- redesign ブランチに独自の洗練されたファイルがある場合、search ブランチのファイルで上書きすると失う
-- sync 前に必ず `git diff` で差分確認。迷ったらユーザーに確認を取る
+**開発ブランチは `claude/redesign-hero-section-BThOA-2NYfC` 一本**
+- `claude/search-agencies-counselors-8OKis` はアーカイブ扱い。参照のみ可、push 不要
+- 他ブランチへの sync は行わない
