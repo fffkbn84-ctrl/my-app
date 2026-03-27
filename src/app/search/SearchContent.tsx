@@ -246,17 +246,20 @@ function CounselorCard({ c }: { c: Counselor }) {
    相談所カード
 ──────────────────────────────────────────────────────────── */
 function AgencyCard({ a }: { a: Agency }) {
+  const router = useRouter();
   const minAdmission = Math.min(...a.plans.map((p) => p.admission));
   const counselorCount = COUNSELORS.filter((c) => c.agencyId === a.id).length;
 
   return (
     <div
+      onClick={() => router.push(`/agencies/${a.id}`)}
       style={{
         background: "var(--white)",
         border: "1px solid var(--light)",
         borderRadius: 14,
         overflow: "hidden",
         transition: "transform .25s, box-shadow .25s",
+        cursor: "pointer",
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
@@ -373,6 +376,7 @@ function AgencyCard({ a }: { a: Agency }) {
             color: "var(--accent)",
             letterSpacing: ".04em",
           }}
+          onClick={(e) => e.stopPropagation()}
         >
           詳細を見る
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.4">
