@@ -52,6 +52,26 @@ function CounselorCard({ c }: { c: Counselor }) {
         (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
       }}
     >
+      {/* キャンペーンバナー */}
+      {c.campaign && (
+        <div
+          style={{
+            background: "rgba(200,169,122,.12)",
+            borderBottom: "1px solid rgba(200,169,122,.25)",
+            padding: "7px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
+          </svg>
+          <span style={{ fontSize: 11, color: "var(--accent)", letterSpacing: ".04em" }}>
+            {c.campaign}
+          </span>
+        </div>
+      )}
       {/* トップ */}
       <div
         style={{
@@ -247,6 +267,26 @@ function AgencyCard({ a }: { a: Agency }) {
         (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
       }}
     >
+      {/* キャンペーンバナー */}
+      {a.campaign && (
+        <div
+          style={{
+            background: "rgba(200,169,122,.12)",
+            borderBottom: "1px solid rgba(200,169,122,.25)",
+            padding: "7px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+            <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
+          </svg>
+          <span style={{ fontSize: 11, color: "var(--accent)", letterSpacing: ".04em" }}>
+            {a.campaign}
+          </span>
+        </div>
+      )}
       {/* サムネイル */}
       <div
         style={{

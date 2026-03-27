@@ -19,6 +19,18 @@ export type AgencyReview = {
   date: string;
 };
 
+export type AgencyPhoto = {
+  caption: string;
+  bg: string; /* CSSグラデーション（本番はSupabase Storage URL に差し替え） */
+};
+
+/* 掲載プラン別写真上限（顧客には非表示） */
+export const PLAN_PHOTO_LIMITS: Record<"premium" | "standard" | "fast", number> = {
+  premium: 5,
+  standard: 3,
+  fast: 1,
+};
+
 export type Agency = {
   id: number;
   name: string;
@@ -35,6 +47,11 @@ export type Agency = {
   hours: string;
   holiday: string;
   reviews: AgencyReview[];
+  campaign?: string;
+  /** 掲載プラン（顧客には非表示） */
+  plan: "premium" | "standard" | "fast";
+  /** 写真一覧。表示上限は plan に応じて PLAN_PHOTO_LIMITS で制御 */
+  photos: AgencyPhoto[];
 };
 
 export type Counselor = {
@@ -55,6 +72,7 @@ export type Counselor = {
   gradient: string;
   svgColor: string;
   message: string;
+  campaign?: string;
 };
 
 export const AGENCIES: Agency[] = [
@@ -80,6 +98,15 @@ export const AGENCIES: Agency[] = [
       { id: "rv1", user: "S.K さん（33歳）", rating: 5, text: "押しつけられることなく、自分のペースで決められました。", date: "2025年1月" },
       { id: "rv2", user: "M.T さん（29歳）", rating: 5, text: "職種への理解があるカウンセラーさんで安心でした。", date: "2025年2月" },
     ],
+    campaign: "初回面談料 無料キャンペーン実施中",
+    plan: "premium",
+    photos: [
+      { caption: "エントランス", bg: "linear-gradient(135deg,#E8D8C8,#D4C4B0)" },
+      { caption: "面談室", bg: "linear-gradient(135deg,#F0E8DC,#E0D0C0)" },
+      { caption: "ラウンジ", bg: "linear-gradient(135deg,#DDD0C0,#CCC0B0)" },
+      { caption: "カウンセリングルーム", bg: "linear-gradient(135deg,#EAE0D8,#D8CCB8)" },
+      { caption: "資格・認定証", bg: "linear-gradient(135deg,#E4D8CC,#D0C4B0)" },
+    ],
   },
   {
     id: 2,
@@ -102,6 +129,13 @@ export const AGENCIES: Agency[] = [
     reviews: [
       { id: "rv3", user: "K.M さん（28歳）", rating: 5, text: "急かされることなく、自分の希望が整理できた感じ。", date: "2025年3月" },
     ],
+    plan: "standard",
+    photos: [
+      { caption: "エントランス", bg: "linear-gradient(135deg,#C8DCC8,#B8CEB8)" },
+      { caption: "面談スペース", bg: "linear-gradient(135deg,#D4E4D4,#C0D4C0)" },
+      { caption: "AI診断コーナー", bg: "linear-gradient(135deg,#BCDCBC,#A8CCA8)" },
+      { caption: "ラウンジ", bg: "linear-gradient(135deg,#CCE0CC,#B8D0B8)" },
+    ],
   },
   {
     id: 3,
@@ -122,6 +156,14 @@ export const AGENCIES: Agency[] = [
     holiday: "月・火曜定休",
     reviews: [
       { id: "rv4", user: "M.K さん（39歳）", rating: 5, text: "再婚でも全く気にせず話してくれた。最初からリラックスできた。", date: "2025年1月" },
+    ],
+    campaign: "5月限定 入会金20,000円割引",
+    plan: "standard",
+    photos: [
+      { caption: "完全個室の面談室", bg: "linear-gradient(135deg,#DCC8E8,#C8B0DC)" },
+      { caption: "エントランス", bg: "linear-gradient(135deg,#E4D0EC,#D0BCE0)" },
+      { caption: "カウンセラー紹介ボード", bg: "linear-gradient(135deg,#D8C4E4,#C4B0D8)" },
+      { caption: "ラウンジ", bg: "linear-gradient(135deg,#E0CCEC,#CCB8E0)" },
     ],
   },
   {
@@ -145,6 +187,15 @@ export const AGENCIES: Agency[] = [
     reviews: [
       { id: "rv5", user: "Y.N さん（34歳）", rating: 5, text: "15年のキャリア。話の引き出しが多く、アドバイスが的確。", date: "2025年2月" },
     ],
+    campaign: "ご成婚実績 累計1,000組突破記念 入会金半額",
+    plan: "premium",
+    photos: [
+      { caption: "エントランス", bg: "linear-gradient(135deg,#FEF0B0,#FDE480)" },
+      { caption: "ロビー", bg: "linear-gradient(135deg,#FDF0A0,#FDE070)" },
+      { caption: "面談室A", bg: "linear-gradient(135deg,#FEECB0,#FDDE80)" },
+      { caption: "面談室B", bg: "linear-gradient(135deg,#FEF4C0,#FDE890)" },
+      { caption: "成婚記念コーナー", bg: "linear-gradient(135deg,#FDF2A8,#FDE878)" },
+    ],
   },
   {
     id: 5,
@@ -165,6 +216,11 @@ export const AGENCIES: Agency[] = [
     holiday: "なし",
     reviews: [
       { id: "rv6", user: "A.R さん（28歳）", rating: 5, text: "同世代感覚で話せた。自分のペースを一緒に考えてくれた。", date: "2025年1月" },
+    ],
+    plan: "fast",
+    photos: [
+      { caption: "オンライン面談の様子", bg: "linear-gradient(135deg,#C8DDF8,#B0CCEE)" },
+      { caption: "事務所エントランス", bg: "linear-gradient(135deg,#D4E4FC,#C0D8F4)" },
     ],
   },
 ];
@@ -188,6 +244,7 @@ export const COUNSELORS: Counselor[] = [
     gradient: "linear-gradient(135deg,#F5E8D8,#EDD8C0)",
     svgColor: "#C8A97A",
     message: "まずあなたの話をじっくり聞くことを大切にしています。",
+    campaign: "初回面談料 無料",
   },
   {
     id: 2,
@@ -207,6 +264,7 @@ export const COUNSELORS: Counselor[] = [
     gradient: "linear-gradient(135deg,#D8EAE0,#C0D8CA)",
     svgColor: "#7A9E87",
     message: "男性目線から率直なアドバイスをします。",
+    campaign: "初回面談料 無料",
   },
   {
     id: 3,
@@ -245,6 +303,7 @@ export const COUNSELORS: Counselor[] = [
     gradient: "linear-gradient(135deg,#E8D8EE,#D4C0E2)",
     svgColor: "#9B7AB5",
     message: "再婚でも全く気にせず話せる環境をつくります。",
+    campaign: "5月限定 入会金20,000円割引",
   },
   {
     id: 5,
@@ -264,6 +323,7 @@ export const COUNSELORS: Counselor[] = [
     gradient: "linear-gradient(135deg,#FEF3C7,#FDE68A)",
     svgColor: "#B8860B",
     message: "15年のキャリアで積み上げた知識でサポートします。",
+    campaign: "入会金半額キャンペーン実施中",
   },
   {
     id: 6,
