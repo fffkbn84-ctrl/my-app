@@ -298,14 +298,55 @@ npm run lint
 
 ---
 
+## ブランチ sync ルール（必ず守ること）
+
+### sync 前に必ず差分を確認する
+
+`claude/search-agencies-counselors-8OKis` → `claude/redesign-hero-section-BThOA-2NYfC` へファイルをコピーする前に、**必ず以下を実行して redesign ブランチ側に独自の変更がないか確認する：**
+
+```bash
+git diff origin/claude/redesign-hero-section-BThOA-2NYfC -- <対象ファイル>
+```
+
+差分がある場合は上書きせず、内容を確認した上でユーザーに判断を仰ぐこと。
+
+---
+
+### ファイルの「所有権」
+
+#### search ブランチが正（redesign に同期してよい）
+
+| ファイル | 備考 |
+|---|---|
+| `src/lib/data.ts` | モックデータ・型定義 |
+| `src/app/search/` | 検索・一覧ページ全体 |
+| `src/app/agencies/[id]/page.tsx` | 相談所詳細ページ |
+| `src/components/ui/` | 汎用UIコンポーネント |
+
+#### redesign ブランチが正（search ブランチで**上書き禁止**）
+
+| ファイル | 備考 |
+|---|---|
+| `src/app/counselors/[id]/page.tsx` | リデザイン済みの洗練されたUI |
+| `src/app/page.tsx` | トップページ（リデザイン版） |
+| `src/app/globals.css` | Tailwind v4 テーマ設定 |
+| `src/components/layout/` | ヘッダー・フッター等 |
+| `src/app/booking/` | 予約フロー |
+
+#### 両ブランチに変更がある場合
+
+上書きせず、手動でマージするかユーザーに確認を取ること。
+
+---
+
 ## 実装済み機能（2026-03-27 時点）
 
 ### ブランチ構成
 
 | ブランチ | 内容 | Vercelプレビュー |
 |---|---|---|
-| `claude/redesign-hero-section-BThOA-2NYfC` | トップページリデザイン + 検索機能 | `my-app-git-claude-redesign-hero-13ddd6-fffkbn84-4095s-projects.vercel.app` |
-| `claude/search-agencies-counselors-8OKis` | 検索機能のベースブランチ | — |
+| `claude/redesign-hero-section-BThOA-2NYfC` | メイン開発ブランチ（全機能統合） | `my-app-git-claude-redesign-hero-7d6ffc-fffkbn84-4095s-projects.vercel.app` |
+| `claude/search-agencies-counselors-8OKis` | 検索機能ベースブランチ（開発元） | — |
 
 **作業ブランチ：** 新機能はすべて `claude/search-agencies-counselors-8OKis` で開発し、`claude/redesign-hero-section-BThOA-2NYfC` にも同期プッシュする。新しいブランチは原則作成しない。
 
@@ -324,7 +365,9 @@ npm run lint
 - カウンセラーフィルター：テキスト検索・エリア・得意分野・料金帯・オンライントグル・ソート
 - 相談所フィルター：テキスト検索・エリア・種別・料金帯・ソート
 - カウンセラーカード全体クリックで `/counselors/{id}` に遷移（`useRouter` + `stopPropagation`）
-- 「面談を予約する」ボタンは独立してクリック可能
+- 相談所カード全体クリックで `/agencies/{id}` に遷移（同上）
+- 「面談を予約する」「詳細を見る」ボタンは `stopPropagation` で独立してクリック可能
+- キャンペーンバナー（`campaign` フィールド）対応
 
 **実装上の注意：**
 - `useSearchParams` を使うため `'use client'` + `<Suspense>` 必須
@@ -340,17 +383,49 @@ npm run lint
 **機能：**
 - `generateStaticParams()` で全相談所IDを静的生成
 - ヒーロー：グラデーション背景、パンくずリスト、種別タグ、相談所名（Shippori Mincho）
-- プランカード：人気バッジ、料金内訳テーブル
+- ヒーロー内：星評価 + 口コミ件数（`#reviews` へのアンカーリンク）
+- キャンペーンバナー（`campaign` フィールド）
+- セクション順：特徴 → 経営方針 → ギャラリー → 料金プラン → 在籍カウンセラー → アクセス → 口コミ
+- 「この相談所の特徴」タグ一覧
+- 「経営方針・ご挨拶」テキストブロック（`policy` フィールド、なければ `description` を使用）
+- フォトギャラリー：プラン別表示枚数制限（`PLAN_PHOTO_LIMITS`）、顧客にはプラン名非表示
+- 料金プランカード：人気バッジ、料金内訳テーブル
 - 在籍カウンセラー：横スクロール表示（`scrollbarWidth: none`）
-- アクセス情報：pale背景のkey/valueリスト
-- 口コミ：SVGアバター、「面談済み」バッジ
+- アクセス情報：所在地（`address`）・アクセス・営業時間・定休日 + Google マップ埋め込み
+- 口コミ（`id="reviews"`）：SVGアバター、「面談済み」バッジ
 - 固定フッターCTA：`/search?tab=counselor&agency={id}` へ遷移
+- ページトップへ戻るボタン（`ScrollToTopButton`）
 
 **params の取り方（Next.js 16）：**
 ```typescript
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 ```
+
+---
+
+### カウンセラー詳細ページ（`/counselors/[id]`）
+
+**ファイル：** `src/app/counselors/[id]/page.tsx`（redesign ブランチで構築・**上書き禁止**）
+
+**デザイン：** リデザイン済みの洗練されたレイアウト
+
+**機能：**
+- ヒーロー：グラデーション背景、アバター、氏名、エリア
+- ヒーロー内：星評価 + `#reviews` アンカーリンク、成婚実績・経験年数の統計
+- キャンペーンバー（`campaign.label` / `campaign.detail` / `campaign.expiry`）
+- 2カラムレイアウト（左：プロフィール・料金プラン・口コミ、右：サイドバー）
+- 料金プランカード（`pricing.plans`）
+- 口コミ一覧（`id="reviews"`）：評価サマリー・バー付き
+- 右サイドバー：予約CTA（PC）、所属相談所カード
+- 所属相談所：`AgencyCardBlock` コンポーネントで検索一覧と同形式のカード表示（全体クリック可）
+- モバイル固定フッターCTA
+- ページトップへ戻るボタン（`ScrollToTopButton`）
+
+**所属相談所のデータ連携：**
+- サーバー側で `AGENCIES.find(a => a.id === Number(counselor.agencyId))` を解決
+- `AgencyCardBlock`（`src/components/ui/AgencyCardBlock.tsx`）は `'use client'` コンポーネント
+- 該当する AGENCIES データがない場合はシンプルなフォールバック表示
 
 ---
 
@@ -361,25 +436,54 @@ type Agency = {
   id: number; name: string; area: string; type: string[];
   plans: Plan[]; rating: number; reviewCount: number;
   description: string; features: string[]; gradient: string;
-  counselorIds: number[]; access: string; hours: string;
-  holiday: string; reviews: AgencyReview[];
+  counselorIds: number[]; access: string; address: string;
+  hours: string; holiday: string; reviews: AgencyReview[];
+  campaign?: string;
+  policy?: string;        // 経営方針・ご挨拶テキスト
+  plan: "premium" | "standard" | "fast";  // 掲載プラン（顧客非表示）
+  photos: AgencyPhoto[];  // ギャラリー写真
 };
+
+// 掲載プランごとの写真表示上限
+const PLAN_PHOTO_LIMITS = { premium: 5, standard: 3, fast: 1 };
 
 type Counselor = {
   id: number; name: string; kana: string; agencyId: number;
   agencyName: string; area: string; role: string; experience: number;
   tags: string[]; rating: number; reviewCount: number; online: boolean;
   minAdmission: number; monthlyFrom: number; gradient: string;
-  svgColor: string; message: string;
+  svgColor: string; message: string; campaign?: string;
 };
 ```
 
 ---
 
-### トップページ修正
+### 共通コンポーネント（`src/components/ui/`）
+
+| ファイル | 内容 |
+|---|---|
+| `ScrollToTopButton.tsx` | `'use client'`。スムーズスクロールでページトップへ戻るボタン |
+| `AgencyCardBlock.tsx` | `'use client'`。相談所カード（検索一覧と同形式・全体クリック可）。カウンセラー詳細の所属相談所欄で使用 |
+
+---
+
+### トップページ・フッター修正
 
 - `claude/redesign-hero-section-BThOA-2NYfC` の `page.tsx`：「相談所を探す」ボタンを `/search` に変更
 - フッター（`src/components/layout/Footer.tsx`）の相談所セクションリンクを更新：
   - 相談所を探す → `/search?tab=agency`
   - カウンセラーから探す → `/search`
   - エリアから探す → `/search`
+
+---
+
+### 技術的な注意事項（過去の失敗から）
+
+**サーバーコンポーネントでイベントハンドラーは使えない**
+- `onMouseEnter` / `onMouseLeave` 等は `'use client'` コンポーネントにのみ書く
+- サーバーコンポーネントのページファイルに直接書くと、ビルドは通っても **ランタイムエラー** になる
+- 解決策：イベントハンドラーを含むコンポーネントを別ファイルに `'use client'` として切り出し、サーバー側でデータを解決してから props で渡す
+
+**ブランチ sync での上書きミス**
+- redesign ブランチに独自の洗練されたファイルがある場合、search ブランチのファイルで上書きすると失う
+- sync 前に必ず `git diff` で差分確認。迷ったらユーザーに確認を取る
