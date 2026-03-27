@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, type Agency, type Counselor } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
@@ -935,6 +936,8 @@ export default async function AgencyDetailPage({
           </section>
         </div>
       </main>
+
+      <ScrollToTopButton />
 
       {/* ═══ 固定フッターボタン ═══ */}
       <div
