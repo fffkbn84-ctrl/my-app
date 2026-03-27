@@ -261,11 +261,43 @@ export default async function AgencyDetailPage({
               </div>
             )}
 
+            {/* 星評価 + 口コミ件数（アンカーリンク） */}
+            <a
+              href="#reviews"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 28,
+                textDecoration: "none",
+              }}
+            >
+              <StarRating rating={agency.rating} size={16} />
+              <span
+                style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: 20,
+                  color: "var(--ink)",
+                }}
+              >
+                {agency.rating}
+              </span>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--accent)",
+                  borderBottom: "1px solid var(--accent)",
+                  paddingBottom: 1,
+                  letterSpacing: ".02em",
+                }}
+              >
+                {agency.reviewCount}件のレビューを見る
+              </span>
+            </a>
+
             {/* 統計 */}
             <div style={{ display: "flex", gap: 40, flexWrap: "wrap" }}>
               {[
-                { label: "口コミ評価", value: String(agency.rating), unit: "" },
-                { label: "口コミ件数", value: String(agency.reviewCount), unit: "件" },
                 { label: "在籍カウンセラー", value: String(counselors.length), unit: "名" },
               ].map((stat) => (
                 <div key={stat.label}>
@@ -293,6 +325,123 @@ export default async function AgencyDetailPage({
         </section>
 
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px" }}>
+          {/* ═══ 特徴 ═══ */}
+          <section style={{ padding: "48px 0 0" }}>
+            <p
+              style={{
+                fontSize: 11,
+                letterSpacing: ".28em",
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                marginBottom: 8,
+                fontFamily: "DM Sans, sans-serif",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 18,
+                  height: 1,
+                  background: "var(--accent)",
+                  verticalAlign: "middle",
+                }}
+              />
+              Features
+            </p>
+            <h2
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: 26,
+                color: "var(--ink)",
+                fontWeight: 400,
+                marginBottom: 20,
+              }}
+            >
+              この相談所の特徴
+            </h2>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {agency.features.map((f) => (
+                <span
+                  key={f}
+                  style={{
+                    fontSize: 11,
+                    color: "var(--mid)",
+                    border: "1px solid var(--light)",
+                    borderRadius: 20,
+                    padding: "5px 12px",
+                  }}
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
+          </section>
+
+          {/* ═══ 経営方針・メッセージ ═══ */}
+          {(agency.policy || agency.description) && (
+            <section style={{ padding: "48px 0 0" }}>
+              <p
+                style={{
+                  fontSize: 11,
+                  letterSpacing: ".28em",
+                  color: "var(--accent)",
+                  textTransform: "uppercase",
+                  marginBottom: 8,
+                  fontFamily: "DM Sans, sans-serif",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: 18,
+                    height: 1,
+                    background: "var(--accent)",
+                    verticalAlign: "middle",
+                  }}
+                />
+                Our Policy
+              </p>
+              <h2
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: 26,
+                  color: "var(--ink)",
+                  fontWeight: 400,
+                  marginBottom: 20,
+                }}
+              >
+                経営方針・ご挨拶
+              </h2>
+
+              <div
+                style={{
+                  background: "var(--pale)",
+                  borderRadius: 12,
+                  padding: "28px 32px",
+                  borderLeft: "3px solid var(--accent)",
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "var(--ink)",
+                    lineHeight: 2,
+                    fontFamily: "Noto Sans JP, sans-serif",
+                  }}
+                >
+                  {agency.policy ?? agency.description}
+                </p>
+              </div>
+            </section>
+          )}
+
           {/* ═══ ギャラリー ═══ */}
           {agency.photos.length > 0 && (() => {
             const visiblePhotos = agency.photos.slice(0, PLAN_PHOTO_LIMITS[agency.plan]);
@@ -516,62 +665,6 @@ export default async function AgencyDetailPage({
             </div>
           </section>
 
-          {/* ═══ 特徴 ═══ */}
-          <section style={{ padding: "48px 0 0" }}>
-            <p
-              style={{
-                fontSize: 11,
-                letterSpacing: ".28em",
-                color: "var(--accent)",
-                textTransform: "uppercase",
-                marginBottom: 8,
-                fontFamily: "DM Sans, sans-serif",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <span
-                style={{
-                  display: "inline-block",
-                  width: 18,
-                  height: 1,
-                  background: "var(--accent)",
-                  verticalAlign: "middle",
-                }}
-              />
-              Features
-            </p>
-            <h2
-              style={{
-                fontFamily: "var(--font-mincho)",
-                fontSize: 26,
-                color: "var(--ink)",
-                fontWeight: 400,
-                marginBottom: 20,
-              }}
-            >
-              この相談所の特徴
-            </h2>
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {agency.features.map((f) => (
-                <span
-                  key={f}
-                  style={{
-                    fontSize: 11,
-                    color: "var(--mid)",
-                    border: "1px solid var(--light)",
-                    borderRadius: 20,
-                    padding: "5px 12px",
-                  }}
-                >
-                  {f}
-                </span>
-              ))}
-            </div>
-          </section>
-
           {/* ═══ 在籍カウンセラー（横スクロール） ═══ */}
           <section style={{ padding: "56px 0 0" }}>
             <p
@@ -672,12 +765,14 @@ export default async function AgencyDetailPage({
                 display: "flex",
                 flexDirection: "column",
                 gap: 0,
+                marginBottom: 24,
               }}
             >
               {[
+                { key: "所在地", val: agency.address },
+                { key: "アクセス", val: agency.access },
                 { key: "営業時間", val: agency.hours },
                 { key: "定休日", val: agency.holiday },
-                { key: "アクセス", val: agency.access },
               ].map((row, i, arr) => (
                 <div
                   key={row.key}
@@ -704,10 +799,30 @@ export default async function AgencyDetailPage({
                 </div>
               ))}
             </div>
+
+            {/* Google マップ */}
+            <div
+              style={{
+                borderRadius: 12,
+                overflow: "hidden",
+                border: "1px solid var(--light)",
+                height: 320,
+              }}
+            >
+              <iframe
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(agency.address)}&output=embed&hl=ja&z=16`}
+                width="100%"
+                height="100%"
+                style={{ border: 0, display: "block" }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`${agency.name} の地図`}
+              />
+            </div>
           </section>
 
           {/* ═══ 口コミ ═══ */}
-          <section style={{ padding: "56px 0 100px" }}>
+          <section id="reviews" style={{ padding: "56px 0 100px" }}>
             <p
               style={{
                 fontSize: 11,

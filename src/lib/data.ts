@@ -44,10 +44,13 @@ export type Agency = {
   gradient: string;
   counselorIds: number[];
   access: string;
+  address: string;
   hours: string;
   holiday: string;
   reviews: AgencyReview[];
   campaign?: string;
+  /** 相談所が個別に記載する経営方針・メッセージ */
+  policy?: string;
   /** 掲載プラン（顧客には非表示） */
   plan: "premium" | "standard" | "fast";
   /** 写真一覧。表示上限は plan に応じて PLAN_PHOTO_LIMITS で制御 */
@@ -92,6 +95,7 @@ export const AGENCIES: Agency[] = [
     gradient: "linear-gradient(135deg,#EDE0D4,#D4C4B0)",
     counselorIds: [1, 2],
     access: "東銀座駅 徒歩3分",
+    address: "東京都中央区銀座4丁目",
     hours: "10:00〜20:00",
     holiday: "火曜定休",
     reviews: [
@@ -99,6 +103,7 @@ export const AGENCIES: Agency[] = [
       { id: "rv2", user: "M.T さん（29歳）", rating: 5, text: "職種への理解があるカウンセラーさんで安心でした。", date: "2025年2月" },
     ],
     campaign: "初回面談料 無料キャンペーン実施中",
+    policy: "「焦らず、急かさず、あなたのペースで」をモットーに、一人ひとりに寄り添ったカウンセリングを行っています。初回面談では婚活の悩みや理想のパートナー像をじっくりお聞きし、無理のないペースで活動を進めていただけるようサポートします。IT・医療・公務員など多様な職種のご成婚実績を持ち、おひとりおひとりのライフスタイルに合わせたご提案が当所の強みです。",
     plan: "premium",
     photos: [
       { caption: "エントランス", bg: "linear-gradient(135deg,#E8D8C8,#D4C4B0)" },
@@ -124,8 +129,10 @@ export const AGENCIES: Agency[] = [
     gradient: "linear-gradient(135deg,#D8E4D8,#C0D4C2)",
     counselorIds: [3],
     access: "渋谷駅 徒歩5分",
+    address: "東京都渋谷区渋谷2丁目",
     hours: "11:00〜21:00",
     holiday: "水曜定休",
+    policy: "データと感性の両輪でパートナー探しをサポートします。AI相性診断はあくまでも出会いのきっかけ。大切なのは実際にお会いしたときの「感じ」だと私たちは考えています。20〜30代の方が多く活動されており、同世代の価値観を大切にしながらも、長期的なパートナーシップを見据えたアドバイスを心がけています。",
     reviews: [
       { id: "rv3", user: "K.M さん（28歳）", rating: 5, text: "急かされることなく、自分の希望が整理できた感じ。", date: "2025年3月" },
     ],
@@ -152,8 +159,10 @@ export const AGENCIES: Agency[] = [
     gradient: "linear-gradient(135deg,#E8D8EE,#D4C0E2)",
     counselorIds: [4],
     access: "梅田駅 徒歩4分",
+    address: "大阪府大阪市北区梅田1丁目",
     hours: "10:00〜19:00",
     holiday: "月・火曜定休",
+    policy: "再婚・バツイチの方も、初婚の方と全く同じ目線でお迎えします。過去のご結婚歴を気にすることなく、「今のあなた」を大切に考えてくれるパートナーを一緒に探しましょう。40代の方のご成婚実績も豊富で、ライフステージに応じた柔軟なサポートが当所の誇りです。完全個室でのカウンセリングで、プライバシーにも配慮しています。",
     reviews: [
       { id: "rv4", user: "M.K さん（39歳）", rating: 5, text: "再婚でも全く気にせず話してくれた。最初からリラックスできた。", date: "2025年1月" },
     ],
@@ -182,8 +191,10 @@ export const AGENCIES: Agency[] = [
     gradient: "linear-gradient(135deg,#FEF3C7,#FDE68A)",
     counselorIds: [5],
     access: "栄駅 徒歩3分",
+    address: "愛知県名古屋市中区栄3丁目",
     hours: "10:00〜20:00",
     holiday: "木曜定休",
+    policy: "創業15年・成婚実績1,000組以上の実績が私たちの自信です。名古屋・愛知エリア最大級のネットワークを活かし、地元に根ざした出会いをご提供しています。一時的なブームに流されず、長く安定した関係を築けるパートナーを真剣にお探しの方を全力でサポートします。経験豊富なカウンセラーが、婚活の全過程で的確なアドバイスをお届けします。",
     reviews: [
       { id: "rv5", user: "Y.N さん（34歳）", rating: 5, text: "15年のキャリア。話の引き出しが多く、アドバイスが的確。", date: "2025年2月" },
     ],
@@ -212,8 +223,10 @@ export const AGENCIES: Agency[] = [
     gradient: "linear-gradient(135deg,#DBEAFE,#BFDBFE)",
     counselorIds: [6],
     access: "新宿駅 徒歩7分（オンライン対応）",
+    address: "東京都新宿区新宿3丁目",
     hours: "9:00〜22:00",
     holiday: "なし",
+    policy: "住んでいる場所に関係なく、全国どこからでも本格的な婚活ができる環境を提供しています。IT・クリエイター・フリーランスなど、柔軟な働き方をされている方の婚活実績が豊富です。オンラインだからこそできる「隙間時間を活用した婚活スタイル」を一緒に作りましょう。ビデオ通話での面談は、通勤時間や移動コストを気にすることなく参加できます。",
     reviews: [
       { id: "rv6", user: "A.R さん（28歳）", rating: 5, text: "同世代感覚で話せた。自分のペースを一緒に考えてくれた。", date: "2025年1月" },
     ],
