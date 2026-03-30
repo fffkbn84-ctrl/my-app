@@ -8,6 +8,7 @@ interface Props {
   agencyName: string;
   slot: Slot;
   userInfo: BookingUserInfo;
+  showCounselorRow?: boolean;
   onConfirm: () => void;
   onBack: () => void;
 }
@@ -23,6 +24,7 @@ export default function Step4Confirm({
   agencyName,
   slot,
   userInfo,
+  showCounselorRow = false,
   onConfirm,
   onBack,
 }: Props) {
@@ -42,6 +44,7 @@ export default function Step4Confirm({
       : slot.meetingType ?? "対面";
 
   const rows = [
+    ...(showCounselorRow ? [{ key: "担当カウンセラー", val: counselorName }] : []),
     { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
     { key: "形式", val: meetingLabel },
     { key: "所要時間", val: "約60分" },

@@ -954,7 +954,7 @@ export default async function AgencyDetailPage({
       >
         <div style={{ maxWidth: 480, margin: "0 auto", pointerEvents: "auto" }}>
           <Link
-            href={`/search?tab=counselor&agency=${agency.id}`}
+            href={`/counselors/booking?agencyId=${agency.id}`}
             style={{
               display: "flex",
               alignItems: "center",
