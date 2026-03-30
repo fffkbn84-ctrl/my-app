@@ -354,7 +354,7 @@ npm run lint
 - 在籍カウンセラー：横スクロール表示（`scrollbarWidth: none`）
 - アクセス情報：所在地（`address`）・アクセス・営業時間・定休日 + Google マップ埋め込み
 - 口コミ（`id="reviews"`）：SVGアバター、「面談済み」バッジ
-- 固定フッターCTA：`/search?tab=counselor&agency={id}` へ遷移
+- 固定フッターCTA：`/counselors/booking?agencyId={id}` へ遷移（相談所起点の予約フロー）
 - ページトップへ戻るボタン（`ScrollToTopButton`）
 
 **params の取り方（Next.js 16）：**
@@ -448,3 +448,47 @@ type Counselor = {
 **開発ブランチは `claude/redesign-hero-section-BThOA-2NYfC` 一本**
 - `claude/search-agencies-counselors-8OKis` はアーカイブ扱い。参照のみ可、push 不要
 - 他ブランチへの sync は行わない
+
+---
+
+## 実装済み機能（2026-03-30 追記）
+
+### 相談所起点の予約フロー（`/counselors/booking`）
+
+**背景：** 相談所詳細ページからカウンセラーを選んで予約できる新フロー。
+既存の `/booking/[counselorId]`（カウンセラー詳細から直接予約する4ステップ）は変更しない。
+
+**新規ファイル：**
+- `src/app/counselors/booking/page.tsx` — サーバーコンポーネント。`searchParams` から `agencyId` を取得し、`AGENCIES`/`COUNSELORS` データを解決して `AgencyBookingFlow` に渡す
+- `src/components/booking/AgencyBookingFlow.tsx` — `'use client'`。5ステップフロー全体を管理
+
+**変更ファイル：**
+- `src/components/booking/Step4Confirm.tsx` — `showCounselorRow?: boolean` prop 追加（担当カウンセラー行の表示制御）
+- `src/app/agencies/[id]/page.tsx` — 固定フッターCTA遷移先を `/counselors/booking?agencyId={id}` に変更
+
+**5ステップの構成：**
+
+| Step | 内容 | 実装 |
+|---|---|---|
+| 1 | カウンセラーを選ぶ | `CounselorSelectStep`：「指名なし」ボタン + 相談所所属カウンセラーカード一覧 |
+| 2 | 日時を選ぶ | 既存 `Step1Calendar` + `SelectedCounselorBanner`（「変更する」でStep1へ戻る） |
+| 3 | 情報を入力 | 既存 `Step3Form` |
+| 4 | 内容を確認 | 既存 `Step4Confirm`（`showCounselorRow=true` で担当カウンセラー行を表示） |
+| 5 | 予約完了 | `AgencyCompletionScreen`：指名あり→カウンセラー詳細リンク、指名なし→相談所詳細リンク |
+
+**状態管理（`AgencyBookingFlow`）：**
+```typescript
+state = {
+  step: 1 | 2 | 3 | 4 | 5,
+  selectedCounselorId: number | null,  // null = 指名なし
+  selectedDate: string | null,
+  selectedSlot: Slot | null,
+  userInfo: BookingUserInfo | null,
+}
+```
+- `selectedCounselorId: null` = 指名なし（カウンセラー未指定で予約）
+- Step1の選択UI内では `"none"` 文字列をセンチネル値として使い、`onNext` 時に `null` に変換
+
+**URL設計：**
+- 相談所詳細 `/agencies/1` → フッターCTA → `/counselors/booking?agencyId=1`
+- カウンセラー詳細 `/counselors/3` → サイドバーCTA → `/booking/3`（既存フロー・変更なし）
