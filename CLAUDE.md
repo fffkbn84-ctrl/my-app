@@ -295,3 +295,60 @@ npm run lint
 - コンポーネントの配置とレイアウト
 
 **デザインから勝手に変更・改善しないこと。変更が必要な場合は必ず確認を取る。**
+
+---
+
+## 実装済み機能ログ
+
+### 口コミ投稿フロー（2026-03-31 実装）
+
+**URL:** `/reviews/new?token={認証トークン}`
+
+**関連ファイル：**
+
+| ファイル | 役割 |
+|---|---|
+| `src/app/reviews/new/page.tsx` | ページ本体（サーバーコンポーネント） |
+| `src/components/reviews/ReviewGate.tsx` | 認証ゲート・完了画面（クライアント） |
+| `src/components/reviews/ReviewForm.tsx` | 口コミ投稿フォーム（クライアント） |
+| `src/types/review.ts` | 型定義（ReviewToken / ReviewCategoryRatings / ReviewDraft） |
+| `src/app/globals.css` | `--adim` CSS変数・`.star-input` スタイル追加 |
+
+**画面フロー：**
+
+```
+STEP 1（tokenなし）  →  認証ゲート画面
+                         シールドSVG + 認証コード入力
+                         モック: 何か入力して「確認する」→ フォームへ
+
+STEP 2（認証済み）   →  口コミ投稿フォーム
+                         ① 総合評価（CSS-only 星・5段階）
+                         ② 項目別評価（話しやすさ/押しつけのなさ/提案・アドバイスの質/また相談したいか）
+                         ③ よかった点タグ（8個・toggle）
+                         ④ 面談の感想 textarea（50文字以上必須）
+                         ⑤ 面談後の状況（4択ラジオ）
+                         ⑥ 投稿者情報（年代・職業、任意・匿名）
+                         投稿ボタン：①未選択 or ④50文字未満で disabled
+
+STEP 3（投稿完了）   →  完了画面
+                         グリーン円チェックアイコン
+                         「カウンセラーページに戻る」「トップに戻る」
+```
+
+**モックトークン（開発用）：**
+
+| トークン | カウンセラー | 状態 |
+|---|---|---|
+| `TKN-2026-DEMO1` | 田中 美紀 / ブライダルハウス東京 | 有効 |
+| `TKN-2026-DEMO2` | 佐藤 あかり / マリーナ結婚相談所 | 有効 |
+| `TKN-USED-001` | 田中 美紀 / ブライダルハウス東京 | 使用済み |
+
+**Supabase連携時の TODO：**
+- `ReviewGate.tsx` の `verifyToken()` を Supabase RPC `verify_review_token(token)` に差し替え
+- `ReviewForm.tsx` の `handleSubmit` で `reviews` テーブルへ INSERT（`source_type = 'face_to_face'`）
+- トークンを使用済み（`used = true`）に更新
+
+**CSS設計メモ：**
+- `--adim`（`rgba(200,169,122,0.08)`）= アクセントカラーの薄いベタ塗り。バッジ背景・セクション区切り線・選択タグ背景に使用
+- CSS-only星評価は DOM順 `input[5]→label[5]→…→input[1]→label[1]` + `flex-direction: row-reverse` で実現。`input:checked ~ label` セレクターで選択済み星を塗りつぶす
+
