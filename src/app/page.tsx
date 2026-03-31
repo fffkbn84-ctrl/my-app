@@ -188,80 +188,189 @@ export default function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            サービスの特徴
+            Why Futarini
         ═══════════════════════════════════════════════════ */}
         <section className="py-24 md:py-32 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
+          <div className="max-w-2xl mx-auto px-6">
+            <div className="text-center mb-12">
               <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
-                Why futarini
+                WHY FUTARINI
               </p>
               <h2
-                className="text-3xl md:text-4xl text-ink"
-                style={{ fontFamily: "var(--font-mincho)" }}
+                className="text-ink"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "clamp(28px, 4vw, 48px)",
+                }}
               >
                 ふたりへが選ばれる理由
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  num: "01",
-                  title: "面談者だけの\nリアルな口コミ",
-                  desc: "ふたりへ経由で面談した方のみが投稿できる仕組み。広告ではなく、実際に体験した人の声だけを集めています。",
-                  icon: (
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" strokeWidth="1.5">
-                      <path d="M14 3C7.9 3 3 7.9 3 14s4.9 11 11 11 11-4.9 11-11S20.1 3 14 3z" />
-                      <path d="M10 13l3 3 6-6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: "02",
-                  title: "カウンセラー個人を\n指名して予約",
-                  desc: "相談所単位ではなく、カウンセラー個人のプロフィールと口コミを見て比較。気に入った方を直接予約できます。",
-                  icon: (
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" strokeWidth="1.5">
-                      <circle cx="14" cy="10" r="5" />
-                      <path d="M4 24c0-5.5 4.5-10 10-10s10 4.5 10 10" strokeLinecap="round" />
-                    </svg>
-                  ),
-                },
-                {
-                  num: "03",
-                  title: "完全無料で\n何度でも相談",
-                  desc: "ユーザー登録・面談予約・口コミ投稿はすべて無料。あなたに合うカウンセラーが見つかるまで、じっくり探せます。",
-                  icon: (
-                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="var(--accent)" strokeWidth="1.5">
-                      <circle cx="14" cy="14" r="10" />
-                      <path d="M14 8v6l4 2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ),
-                },
-              ].map((feature) => (
-                <div
-                  key={feature.num}
-                  className="group p-8 rounded-2xl border border-light hover:border-accent/30 hover:shadow-lg transition-all duration-300"
+            {/* カード 01 */}
+            <div
+              style={{
+                background: "white",
+                border: "1px solid var(--border, var(--light))",
+                borderRadius: "16px",
+                padding: "28px 32px",
+                marginBottom: "16px",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: "48px",
+                    color: "var(--accent)",
+                    opacity: 0.25,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}
                 >
-                  <div className="flex items-start gap-4 mb-6">
-                    <span
-                      className="text-3xl text-light leading-none select-none"
-                      style={{ fontFamily: "var(--font-serif)" }}
-                    >
-                      {feature.num}
-                    </span>
-                    <div className="mt-1">{feature.icon}</div>
-                  </div>
-                  <h3
-                    className="text-lg text-ink mb-3 whitespace-pre-line leading-snug"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    {feature.title}
-                  </h3>
-                  <p className="text-sm text-mid leading-relaxed">{feature.desc}</p>
-                </div>
-              ))}
+                  01
+                </span>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <path d="M14 2L3 7v9c0 6.3 4.5 12.2 11 13.9 6.5-1.7 11-7.6 11-13.9V7L14 2z" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)"/>
+                  <path d="M9 14l4 4 7-8" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3
+                className="text-ink mb-3"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "20px",
+                  fontWeight: 500,
+                }}
+              >
+                面談者だけのリアルな口コミ
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "var(--mid)",
+                  lineHeight: 2,
+                }}
+              >
+                ふたりへ経由で面談した方のみが投稿できる仕組み。
+                広告ではなく、実際に体験した人の声だけを集めています。
+              </p>
+            </div>
+
+            {/* カード 02 */}
+            <div
+              style={{
+                background: "white",
+                border: "1px solid var(--border, var(--light))",
+                borderRadius: "16px",
+                padding: "28px 32px",
+                marginBottom: "16px",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: "48px",
+                    color: "var(--accent)",
+                    opacity: 0.25,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}
+                >
+                  02
+                </span>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="10" r="5" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)"/>
+                  <path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#C8A97A" strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+                </svg>
+              </div>
+              <h3
+                className="text-ink mb-3"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "20px",
+                  fontWeight: 500,
+                }}
+              >
+                カウンセラー個人を指名して予約
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "var(--mid)",
+                  lineHeight: 2,
+                }}
+              >
+                相談所単位ではなく、カウンセラー個人のプロフィールと
+                口コミを見て比較。気に入った方を直接予約できます。
+              </p>
+            </div>
+
+            {/* カード 03 */}
+            <div
+              style={{
+                background: "white",
+                border: "1px solid var(--border, var(--light))",
+                borderRadius: "16px",
+                padding: "28px 32px",
+                marginBottom: "16px",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: "48px",
+                    color: "var(--accent)",
+                    opacity: 0.25,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}
+                >
+                  03
+                </span>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="11" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)"/>
+                  <path d="M14 8v6l4 2" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3
+                className="text-ink mb-3"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "20px",
+                  fontWeight: 500,
+                }}
+              >
+                完全無料で何度でも相談
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "var(--mid)",
+                  lineHeight: 2,
+                }}
+              >
+                ユーザー登録・面談予約・口コミ投稿はすべて無料。
+                あなたに合うカウンセラーが見つかるまで、じっくり探せます。
+              </p>
+            </div>
+
+            {/* ボタン */}
+            <div className="text-center mt-8">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 px-8 py-4 border border-light text-mid rounded-full text-sm tracking-wide hover:border-ink hover:text-ink transition-all duration-300"
+              >
+                サービスについてもっと知りたい
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
             </div>
           </div>
         </section>
