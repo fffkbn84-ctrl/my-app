@@ -613,3 +613,96 @@ main.pt-16
 Footer
 ```
 
+---
+
+## アップデート履歴（2026-03-31 追記）
+
+### 作業ブランチ変更
+
+- 今回の作業ブランチ: **`claude/redesign-hero-section-BThOA`**
+  - Vercelプレビュー: `my-app-git-claude-redesign-hero-***.vercel.app`
+  - 変更は `claude/replace-belief-section-xJqey` で一度コミット後、`claude/redesign-hero-section-BThOA` に手動で移植した
+
+---
+
+### 変更内容
+
+#### トップページ —「our belief」セクションを「Why Futarini」に置き換え（`src/app/page.tsx`）
+
+##### 置き換え前
+- セクション名: `vision-sec`（`our belief`）
+- 内容: ビジョン引用テキスト（黒背景）
+
+##### 置き換え後
+- eyebrow: `WHY FUTARINI`
+- 見出し: `ふたりへが選ばれる理由`（Shippori Mincho、`clamp(28px, 4vw, 48px)`）
+- 背景: 白（`bg-white`）
+- 最大幅: `max-w-2xl mx-auto`
+
+##### カード仕様（3枚・縦並び）
+
+| 項目 | 値 |
+|---|---|
+| background | white |
+| border | `1px solid var(--border, var(--light))` |
+| border-radius | 16px |
+| padding | 28px 32px |
+| margin-bottom | 16px |
+
+番号スタイル:
+- font: DM Serif Display
+- size: 48px
+- color: `var(--accent)`
+- opacity: 0.25
+
+カードタイトル:
+- font: Shippori Mincho
+- size: 20px
+- weight: 500
+
+本文:
+- font: Noto Sans JP
+- size: 13px
+- color: `var(--mid)`
+- line-height: 2
+
+##### 各カード内容
+
+| # | アイコンイメージ | タイトル |
+|---|---|---|
+| 01 | シールド（認証） | 面談者だけのリアルな口コミ |
+| 02 | 人物（カウンセラー） | カウンセラー個人を指名して予約 |
+| 03 | 時計（無料） | 完全無料で何度でも相談 |
+
+##### セクション下部ボタン
+- テキスト: 「サービスについてもっと知りたい」
+- スタイル: 白背景・枠線ボタン（`border border-light text-mid rounded-full`）
+- 遷移先: `/about`
+
+---
+
+### 新規ファイル
+
+#### `src/app/about/page.tsx`
+- `/about` へのリンク先として新規作成
+- 現在は「準備中」のプレースホルダーページ
+- Header / Footer を含む最小構成
+
+---
+
+### 現在の実装状況（2026-03-31 時点）
+
+#### トップページ セクション構成（`claude/redesign-hero-section-BThOA` ブランチ）
+
+| # | セクション | 状態 |
+|---|---|---|
+| 1 | HERO | ✅ |
+| 2 | MARQUEE | ✅ |
+| 3 | **WHY FUTARINI**（旧: VISION / our belief） | ✅ 今回置き換え |
+| 4 | JOURNEY（カテゴリカード6枚・一部クリッカブル） | ✅ |
+| 5 | 注目のカウンセラー（月会費・キャンペーン表示付き） | ✅ |
+| 6 | ふたりへが選んだお店（タブフィルター・ドラッグスクロール） | ✅ |
+| 7 | 成婚エピソード（featured カード付き） | ✅ |
+| 8 | コラム | ✅ |
+| 9 | CTA | ✅ |
+
