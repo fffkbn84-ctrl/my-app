@@ -181,19 +181,190 @@ export default function HomePage() {
         </div>
 
         {/* ═══════════════════════════════════════════════════
-            VISION — futarive-v4.html 準拠
+            Why Futarini
         ═══════════════════════════════════════════════════ */}
-        <section className="vision-sec">
-          <div className="vision-inner">
-            <div className="vision-eyebrow">our belief</div>
-            <p className="vision-quote reveal">
-              世の中のレビューサイトは、<br />
-              <em>関係が出来上がった人たちのため</em>にある。<br /><br />
-              ふたりへは、<em>今まさに関係を作っている</em><br />あなたたちのためにある。
-            </p>
-            <p className="vision-sub reveal rd1">
-              不安なまま相談所に飛び込まなくていい。お見合いの場所に迷わなくていい。そのそばに、ずっといます。
-            </p>
+        <section className="py-24 md:py-32 bg-white">
+          <div className="max-w-2xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <p className="text-xs tracking-[0.3em] text-accent uppercase mb-4">
+                WHY FUTARINI
+              </p>
+              <h2
+                className="text-ink"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "clamp(28px, 4vw, 48px)",
+                }}
+              >
+                ふたりへが選ばれる理由
+              </h2>
+            </div>
+
+            {/* カード 01 */}
+            <div
+              style={{
+                background: "white",
+                border: "1px solid var(--border, var(--light))",
+                borderRadius: "16px",
+                padding: "28px 32px",
+                marginBottom: "16px",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: "48px",
+                    color: "var(--accent)",
+                    opacity: 0.25,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}
+                >
+                  01
+                </span>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <path d="M14 2L3 7v9c0 6.3 4.5 12.2 11 13.9 6.5-1.7 11-7.6 11-13.9V7L14 2z" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)"/>
+                  <path d="M9 14l4 4 7-8" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3
+                className="text-ink mb-3"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "20px",
+                  fontWeight: 500,
+                }}
+              >
+                面談者だけのリアルな口コミ
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "var(--mid)",
+                  lineHeight: 2,
+                }}
+              >
+                ふたりへ経由で面談した方のみが投稿できる仕組み。
+                広告ではなく、実際に体験した人の声だけを集めています。
+              </p>
+            </div>
+
+            {/* カード 02 */}
+            <div
+              style={{
+                background: "white",
+                border: "1px solid var(--border, var(--light))",
+                borderRadius: "16px",
+                padding: "28px 32px",
+                marginBottom: "16px",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: "48px",
+                    color: "var(--accent)",
+                    opacity: 0.25,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}
+                >
+                  02
+                </span>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="10" r="5" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)"/>
+                  <path d="M4 26c0-5.523 4.477-10 10-10s10 4.477 10 10" stroke="#C8A97A" strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+                </svg>
+              </div>
+              <h3
+                className="text-ink mb-3"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "20px",
+                  fontWeight: 500,
+                }}
+              >
+                カウンセラー個人を指名して予約
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "var(--mid)",
+                  lineHeight: 2,
+                }}
+              >
+                相談所単位ではなく、カウンセラー個人のプロフィールと
+                口コミを見て比較。気に入った方を直接予約できます。
+              </p>
+            </div>
+
+            {/* カード 03 */}
+            <div
+              style={{
+                background: "white",
+                border: "1px solid var(--border, var(--light))",
+                borderRadius: "16px",
+                padding: "28px 32px",
+                marginBottom: "16px",
+              }}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontSize: "48px",
+                    color: "var(--accent)",
+                    opacity: 0.25,
+                    lineHeight: 1,
+                    userSelect: "none",
+                  }}
+                >
+                  03
+                </span>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <circle cx="14" cy="14" r="11" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)"/>
+                  <path d="M14 8v6l4 2" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3
+                className="text-ink mb-3"
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "20px",
+                  fontWeight: 500,
+                }}
+              >
+                完全無料で何度でも相談
+              </h3>
+              <p
+                style={{
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "var(--mid)",
+                  lineHeight: 2,
+                }}
+              >
+                ユーザー登録・面談予約・口コミ投稿はすべて無料。
+                あなたに合うカウンセラーが見つかるまで、じっくり探せます。
+              </p>
+            </div>
+
+            {/* ボタン */}
+            <div className="text-center mt-8">
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-2 px-8 py-4 border border-light text-mid rounded-full text-sm tracking-wide hover:border-ink hover:text-ink transition-all duration-300"
+              >
+                サービスについてもっと知りたい
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 
