@@ -27,7 +27,15 @@ function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
   );
 }
 
-function CategoryIcon({ category, svgColor, size = 64 }: { category: string; svgColor: string; size?: number }) {
+function CategoryIcon({
+  category,
+  svgColor,
+  size = 56,
+}: {
+  category: string;
+  svgColor: string;
+  size?: number;
+}) {
   const props = {
     width: size,
     height: size,
@@ -113,17 +121,15 @@ function BadgeChip({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
       <span
-        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full"
+        className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
         style={{
           background: "rgba(200,169,122,.12)",
           color: "var(--accent)",
           border: "1px solid rgba(200,169,122,.3)",
-          fontFamily: "var(--font-sans)",
         }}
       >
         <span
-          className="rounded-full shrink-0"
-          style={{ width: 5, height: 5, background: "var(--accent)", display: "inline-block" }}
+          style={{ width: 5, height: 5, background: "var(--accent)", borderRadius: "50%", display: "inline-block", flexShrink: 0 }}
         />
         ふたりへ取材済み
       </span>
@@ -132,17 +138,15 @@ function BadgeChip({ badge }: { badge: Place["badge"] }) {
   if (badge === "agency") {
     return (
       <span
-        className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full"
+        className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
         style={{
           background: "rgba(107,143,191,.12)",
           color: "var(--blue)",
           border: "1px solid rgba(107,143,191,.3)",
-          fontFamily: "var(--font-sans)",
         }}
       >
         <span
-          className="rounded-full shrink-0"
-          style={{ width: 5, height: 5, background: "var(--blue)", display: "inline-block" }}
+          style={{ width: 5, height: 5, background: "var(--blue)", borderRadius: "50%", display: "inline-block", flexShrink: 0 }}
         />
         相談所おすすめ
       </span>
@@ -150,7 +154,7 @@ function BadgeChip({ badge }: { badge: Place["badge"] }) {
   }
   return (
     <span
-      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full"
+      className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full"
       style={{
         background: "rgba(160,160,160,.1)",
         color: "var(--muted)",
@@ -158,8 +162,7 @@ function BadgeChip({ badge }: { badge: Place["badge"] }) {
       }}
     >
       <span
-        className="rounded-full shrink-0"
-        style={{ width: 5, height: 5, background: "var(--muted)", display: "inline-block" }}
+        style={{ width: 5, height: 5, background: "var(--muted)", borderRadius: "50%", display: "inline-block", flexShrink: 0 }}
       />
       掲載店
     </span>
@@ -168,7 +171,7 @@ function BadgeChip({ badge }: { badge: Place["badge"] }) {
 
 function PersonAvatar() {
   return (
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" className="shrink-0">
       <circle cx="18" cy="18" r="18" fill="var(--pale)" />
       <circle cx="18" cy="14" r="6" stroke="var(--muted)" strokeWidth="1.4" fill="none" />
       <path
@@ -179,19 +182,6 @@ function PersonAvatar() {
         fill="none"
       />
     </svg>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs uppercase tracking-wide" style={{ color: "var(--muted)" }}>
-        {label}
-      </span>
-      <span className="text-sm" style={{ color: "var(--ink)" }}>
-        {value}
-      </span>
-    </div>
   );
 }
 
@@ -217,275 +207,293 @@ export default async function PlaceDetailPage({
       <Header />
 
       <main className="pt-16">
-        {/* ─── ヒーローエリア ─── */}
-        <div style={{ background: place.gradient }}>
-          {/* パンくず */}
-          <div className="max-w-6xl mx-auto px-6 pt-6 pb-0">
-            <div className="flex items-center gap-1.5 flex-wrap" style={{ fontSize: 11, color: "rgba(0,0,0,.45)" }}>
-              <Link href="/" className="hover:opacity-70 transition-opacity">ふたりへ</Link>
-              <span>/</span>
-              <Link href="/places" className="hover:opacity-70 transition-opacity">お店を探す</Link>
-              <span>/</span>
-              <span style={{ color: "rgba(0,0,0,.65)" }}>{place.name}</span>
-            </div>
-          </div>
-
-          {/* ヒーロー本体 */}
-          <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col items-center text-center gap-5">
-            {/* バッジ */}
-            <BadgeChip badge={place.badge} />
-
-            {/* カテゴリSVGアイコン */}
-            <div
-              className="rounded-2xl flex items-center justify-center"
-              style={{
-                width: 96,
-                height: 96,
-                background: "rgba(255,255,255,.55)",
-                backdropFilter: "blur(4px)",
-              }}
-            >
-              <CategoryIcon category={place.category} svgColor={place.svgColor} size={56} />
-            </div>
-
-            {/* お店名 */}
-            <h1
-              style={{
-                fontFamily: "var(--font-mincho)",
-                fontSize: "clamp(24px, 4vw, 44px)",
-                color: "var(--black)",
-                lineHeight: 1.25,
-              }}
-            >
-              {place.name}
-            </h1>
-
-            {/* カテゴリ・エリア・シーン */}
-            <div className="flex flex-wrap justify-center gap-2">
-              <span
-                className="text-xs px-3 py-1 rounded-full"
-                style={{ background: "rgba(0,0,0,.08)", color: "var(--ink)" }}
-              >
-                {place.category}
-              </span>
-              <span
-                className="text-xs px-3 py-1 rounded-full"
-                style={{ background: "rgba(0,0,0,.08)", color: "var(--ink)" }}
-              >
-                {place.area}
-              </span>
-              {place.scenes.map((scene) => (
-                <span
-                  key={scene}
-                  className="text-xs px-3 py-1 rounded-full"
-                  style={{
-                    background: "rgba(200,169,122,.15)",
-                    color: "var(--accent)",
-                    border: "1px solid rgba(200,169,122,.25)",
-                  }}
-                >
-                  {scene}
-                </span>
-              ))}
-            </div>
-
-            {/* 評価・口コミ件数 */}
-            <div className="flex items-center gap-4">
-              <div className="text-center">
-                <p
-                  className="leading-none mb-1"
-                  style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "var(--black)" }}
-                >
-                  {avgRating.toFixed(1)}
-                </p>
-                <StarRating rating={Math.round(avgRating)} size={13} />
-              </div>
-              <div
-                className="w-px self-stretch"
-                style={{ background: "rgba(0,0,0,.15)" }}
-              />
-              <div className="text-center">
-                <p
-                  className="leading-none mb-1"
-                  style={{ fontFamily: "var(--font-serif)", fontSize: 28, color: "var(--black)" }}
-                >
-                  {place.reviewCount}
-                </p>
-                <p className="text-xs" style={{ color: "rgba(0,0,0,.5)" }}>口コミ</p>
-              </div>
-            </div>
+        {/* ─── パンくずリスト ─── */}
+        <div className="bg-pale border-b border-light">
+          <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-xs text-muted">
+            <Link href="/" className="hover:text-ink transition-colors">
+              トップ
+            </Link>
+            <span>/</span>
+            <Link href="/places" className="hover:text-ink transition-colors">
+              お店を探す
+            </Link>
+            <span>/</span>
+            <span className="text-ink">{place.name}</span>
           </div>
         </div>
 
-        {/* ─── 2カラムレイアウト ─── */}
         <div className="max-w-6xl mx-auto px-6 py-10 md:py-14">
-          <div
-            className="flex flex-col gap-10"
-            style={{ alignItems: "flex-start" }}
-          >
-            {/* ラッパー: PC時はflex-row */}
-            <div className="w-full flex flex-col lg:flex-row gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 
-              {/* ─── 左カラム: メインコンテンツ ─── */}
-              <div className="flex-1 min-w-0 space-y-10">
+            {/* ─────────────────────────────────────────────────
+                左カラム: 店舗カード（PC時スティッキー）
+            ───────────────────────────────────────────────── */}
+            <aside className="lg:col-span-1">
+              <div className="lg:sticky lg:top-28 space-y-5">
 
-                {/* ① 基本情報グリッド */}
-                <section>
-                  <h2
-                    className="text-lg pb-3 mb-5 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)", color: "var(--ink)" }}
-                  >
-                    基本情報
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
-                    <InfoRow label="エリア" value={place.area} />
-                    <InfoRow label="アクセス" value={place.access} />
-                    <InfoRow label="営業時間" value={place.hours} />
-                    <InfoRow label="定休日" value={place.holiday} />
-                    <InfoRow label="価格帯" value={place.priceRange} />
-                    <div className="flex flex-col gap-1">
-                      <span className="text-xs uppercase tracking-wide" style={{ color: "var(--muted)" }}>
-                        こんなシーンに
-                      </span>
-                      <div className="flex flex-wrap gap-1.5 mt-0.5">
-                        {place.scenes.map((scene) => (
-                          <span
-                            key={scene}
-                            className="text-xs px-3 py-1 rounded-full"
-                            style={{
-                              background: "rgba(200,169,122,.1)",
-                              color: "var(--accent)",
-                              border: "1px solid rgba(200,169,122,.25)",
-                            }}
-                          >
-                            {scene}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* ② 特徴タグ */}
-                <section>
-                  <h2
-                    className="text-lg pb-3 mb-5 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)", color: "var(--ink)" }}
-                  >
-                    特徴・設備
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {place.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="text-xs rounded-full"
-                        style={{
-                          border: "1px solid var(--light)",
-                          color: "var(--mid)",
-                          padding: "5px 12px",
-                          borderRadius: 20,
-                          fontSize: 11,
-                        }}
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-
-                {/* ③ お店からのメッセージ */}
-                <section>
-                  <h2
-                    className="text-lg pb-3 mb-5 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)", color: "var(--ink)" }}
-                  >
-                    お店について
-                  </h2>
+                {/* 店舗カード */}
+                <div className="bg-white rounded-2xl border border-light overflow-hidden">
+                  {/* グラデーション＋アイコンエリア（カウンセラーのアバターに相当） */}
                   <div
-                    className="rounded-2xl p-6 text-sm leading-relaxed"
-                    style={{
-                      background: "var(--pale)",
-                      borderLeft: "3px solid var(--accent)",
-                      color: "var(--mid)",
-                    }}
+                    className="aspect-square flex items-center justify-center"
+                    style={{ background: place.gradient }}
                   >
-                    {place.description}
-                  </div>
-                </section>
-
-                {/* ④ 口コミセクション */}
-                <section>
-                  <div className="flex items-end justify-between pb-3 mb-5 border-b border-light">
-                    <div>
-                      <p
-                        className="text-xs uppercase tracking-widest mb-0.5"
-                        style={{ color: "var(--muted)" }}
-                      >
-                        reviews
-                      </p>
-                      <h2
-                        className="text-lg"
-                        style={{ fontFamily: "var(--font-mincho)", color: "var(--ink)" }}
-                      >
-                        口コミ・評価
-                      </h2>
-                    </div>
-                    <span className="text-xs" style={{ color: "var(--muted)" }}>
-                      {place.reviews.length}件
-                    </span>
-                  </div>
-
-                  {/* 口コミスコアカード */}
-                  <div className="rounded-2xl p-6 mb-6" style={{ background: "var(--pale)" }}>
-                    <div className="flex items-center gap-6">
-                      <div className="text-center shrink-0">
-                        <p
-                          className="leading-none mb-2"
-                          style={{ fontFamily: "var(--font-serif)", fontSize: 48, color: "var(--ink)" }}
-                        >
-                          {avgRating.toFixed(1)}
-                        </p>
-                        <StarRating rating={Math.round(avgRating)} size={16} />
-                        <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
-                          {place.reviews.length}件の評価
-                        </p>
-                      </div>
-                    </div>
-                    <p
-                      className="text-xs mt-4 pt-4"
+                    <div
+                      className="rounded-2xl flex items-center justify-center"
                       style={{
-                        color: "var(--muted)",
-                        borderTop: "1px solid var(--light)",
+                        width: 96,
+                        height: 96,
+                        background: "rgba(255,255,255,.55)",
+                        backdropFilter: "blur(4px)",
                       }}
                     >
-                      ※ 口コミはふたりへ経由で利用した方のみ投稿できます
-                    </p>
+                      <CategoryIcon
+                        category={place.category}
+                        svgColor={place.svgColor}
+                        size={56}
+                      />
+                    </div>
                   </div>
 
-                  {/* 口コミ一覧 */}
-                  <div className="space-y-4">
-                    {place.reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="rounded-2xl p-6"
-                        style={{
-                          background: "white",
-                          border: "1px solid var(--light)",
-                        }}
+                  <div className="p-6">
+                    {/* バッジ */}
+                    <div className="mb-3">
+                      <BadgeChip badge={place.badge} />
+                    </div>
+
+                    {/* 店舗名 */}
+                    <h1
+                      className="text-2xl text-ink mb-1"
+                      style={{ fontFamily: "var(--font-mincho)" }}
+                    >
+                      {place.name}
+                    </h1>
+                    <p className="text-sm text-mid mb-1">{place.category}</p>
+                    <p className="text-xs text-muted mb-4">{place.area}</p>
+
+                    {/* 評価 */}
+                    <div className="flex items-center gap-2 mb-5 pb-5 border-b border-light">
+                      <StarRating rating={Math.round(avgRating)} size={16} />
+                      <span className="text-lg font-medium text-ink">
+                        {avgRating.toFixed(1)}
+                      </span>
+                      <span className="text-sm text-muted">
+                        ({place.reviews.length}件)
+                      </span>
+                    </div>
+
+                    {/* 数字 */}
+                    <div className="grid grid-cols-2 gap-3 mb-5">
+                      <div className="text-center">
+                        <p
+                          className="text-base text-ink"
+                          style={{ fontFamily: "var(--font-serif)" }}
+                        >
+                          {place.priceRange.split("〜")[0]}〜
+                        </p>
+                        <p className="text-xs text-muted mt-0.5">価格帯</p>
+                      </div>
+                      <div className="text-center">
+                        <p
+                          className="text-base text-ink"
+                          style={{ fontFamily: "var(--font-serif)" }}
+                        >
+                          {place.reviewCount}件
+                        </p>
+                        <p className="text-xs text-muted mt-0.5">口コミ</p>
+                      </div>
+                    </div>
+
+                    {/* アクセス */}
+                    <div className="flex items-center gap-2 text-sm text-mid mb-5">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
+                        <circle cx="7" cy="6" r="1.5" />
+                      </svg>
+                      {place.access}
+                    </div>
+
+                    {/* シーンタグ */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {place.scenes.map((scene) => (
+                        <span
+                          key={scene}
+                          className="text-xs px-2.5 py-1 rounded-full border text-accent"
+                          style={{ borderColor: "color-mix(in srgb, var(--accent) 30%, transparent)" }}
+                        >
+                          {scene}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* アクションカード */}
+                <div className="bg-pale rounded-2xl border border-light p-5 space-y-3">
+                  <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full text-center px-6 py-3.5 bg-accent text-white rounded-xl text-sm tracking-wide hover:opacity-90 transition-all duration-200"
+                    style={{ boxShadow: "0 6px 20px rgba(200,169,122,0.3)" }}
+                  >
+                    お店のサイトを見る
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                      <path
+                        d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
+                        stroke="white"
+                        strokeWidth="1.3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </a>
+                  <Link
+                    href="/reviews/new"
+                    className="block w-full text-center px-6 py-3.5 rounded-xl text-sm tracking-wide hover:opacity-80 transition-all duration-200"
+                    style={{ border: "1.5px solid var(--light)", color: "var(--ink)" }}
+                  >
+                    口コミを書く
+                  </Link>
+                  <p className="text-xs text-muted text-center">
+                    口コミはふたりへ経由で利用した方のみ投稿できます
+                  </p>
+                </div>
+
+              </div>
+            </aside>
+
+            {/* ─────────────────────────────────────────────────
+                右カラム: 詳細情報
+            ───────────────────────────────────────────────── */}
+            <div className="lg:col-span-2 space-y-10">
+
+              {/* お店について */}
+              <section>
+                <h2
+                  className="text-lg text-ink mb-4 pb-3 border-b border-light"
+                  style={{ fontFamily: "var(--font-mincho)" }}
+                >
+                  お店について
+                </h2>
+                <div
+                  className="bg-pale rounded-2xl p-6 border-l-4 text-sm text-mid leading-relaxed"
+                  style={{ borderLeftColor: "var(--accent)" }}
+                >
+                  {place.description}
+                </div>
+              </section>
+
+              {/* 基本情報 */}
+              <section>
+                <h2
+                  className="text-lg text-ink mb-4 pb-3 border-b border-light"
+                  style={{ fontFamily: "var(--font-mincho)" }}
+                >
+                  基本情報
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                  {[
+                    { label: "エリア", value: place.area },
+                    { label: "アクセス", value: place.access },
+                    { label: "営業時間", value: place.hours },
+                    { label: "定休日", value: place.holiday },
+                    { label: "価格帯", value: place.priceRange },
+                  ].map(({ label, value }) => (
+                    <div key={label} className="flex flex-col gap-1">
+                      <span className="text-xs uppercase tracking-wide text-muted">
+                        {label}
+                      </span>
+                      <span className="text-sm text-ink">{value}</span>
+                    </div>
+                  ))}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs uppercase tracking-wide text-muted">
+                      こんなシーンに
+                    </span>
+                    <div className="flex flex-wrap gap-1.5 mt-0.5">
+                      {place.scenes.map((scene) => (
+                        <span
+                          key={scene}
+                          className="text-xs px-2.5 py-1 rounded-full border text-accent"
+                          style={{ borderColor: "color-mix(in srgb, var(--accent) 30%, transparent)" }}
+                        >
+                          {scene}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* 特徴・設備 */}
+              <section>
+                <h2
+                  className="text-lg text-ink mb-4 pb-3 border-b border-light"
+                  style={{ fontFamily: "var(--font-mincho)" }}
+                >
+                  特徴・設備
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {place.features.map((feature) => (
+                    <span
+                      key={feature}
+                      className="text-xs rounded-full border border-light text-mid"
+                      style={{ padding: "5px 12px" }}
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </section>
+
+              {/* 口コミ */}
+              <section>
+                <div className="flex items-end justify-between mb-4 pb-3 border-b border-light">
+                  <h2
+                    className="text-lg text-ink"
+                    style={{ fontFamily: "var(--font-mincho)" }}
+                  >
+                    口コミ・評価
+                  </h2>
+                  <span className="text-xs text-muted">{place.reviews.length}件</span>
+                </div>
+
+                {/* 評価サマリー */}
+                <div className="bg-pale rounded-2xl p-6 mb-6">
+                  <div className="flex items-center gap-6">
+                    <div className="text-center shrink-0">
+                      <p
+                        className="text-5xl text-ink leading-none mb-2"
+                        style={{ fontFamily: "var(--font-serif)" }}
                       >
-                        <div className="flex items-start gap-3 mb-3">
-                          <PersonAvatar />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2 flex-wrap">
-                              <p className="text-sm font-medium" style={{ color: "var(--ink)" }}>
-                                {review.user}
-                              </p>
-                              <p className="text-xs" style={{ color: "var(--muted)" }}>
-                                {review.date}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <StarRating rating={review.rating} size={12} />
+                        {avgRating.toFixed(1)}
+                      </p>
+                      <StarRating rating={Math.round(avgRating)} size={16} />
+                      <p className="text-xs text-muted mt-1">
+                        {place.reviews.length}件の評価
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
+                    ※ 口コミはふたりへ経由で利用した方のみ投稿できます
+                  </p>
+                </div>
+
+                {/* 口コミ一覧 */}
+                <div className="space-y-4">
+                  {place.reviews.map((review) => (
+                    <div
+                      key={review.id}
+                      className="bg-white rounded-2xl p-6 border border-light"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <PersonAvatar />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <p className="text-sm font-medium text-ink">{review.user}</p>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <p className="text-xs text-muted">{review.date}</p>
                               <span
                                 className="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5"
                                 style={{
@@ -500,154 +508,23 @@ export default async function PlaceDetailPage({
                               </span>
                             </div>
                           </div>
+                          <div className="mt-1">
+                            <StarRating rating={review.rating} size={12} />
+                          </div>
                         </div>
-                        <p className="text-sm leading-relaxed" style={{ color: "var(--mid)" }}>
-                          {review.text}
-                        </p>
                       </div>
-                    ))}
-                  </div>
-                </section>
-              </div>
-
-              {/* ─── 右カラム: スティッキーサイドバー ─── */}
-              <aside className="w-full lg:w-[340px] shrink-0">
-                <div className="lg:sticky space-y-4" style={{ top: 72 }}>
-                  {/* ① お店情報カード */}
-                  <div
-                    className="rounded-2xl space-y-5"
-                    style={{
-                      padding: 28,
-                      background: "white",
-                      border: "1px solid var(--light)",
-                    }}
-                  >
-                    {/* 価格帯 */}
-                    <div>
-                      <p className="text-xs uppercase tracking-wide mb-1" style={{ color: "var(--muted)" }}>
-                        価格帯
-                      </p>
-                      <p
-                        style={{
-                          fontFamily: "var(--font-serif)",
-                          fontSize: 24,
-                          color: "var(--ink)",
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {place.priceRange}
-                      </p>
+                      <p className="text-sm text-mid leading-relaxed">{review.text}</p>
                     </div>
-
-                    <div className="space-y-3">
-                      {/* お店のサイトを見るボタン */}
-                      <a
-                        href="#"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full rounded-xl text-sm tracking-wide transition-all duration-200 hover:opacity-90"
-                        style={{
-                          padding: "14px 24px",
-                          background: "var(--accent)",
-                          color: "white",
-                          boxShadow: "0 6px 20px rgba(200,169,122,0.3)",
-                        }}
-                      >
-                        お店のサイトを見る
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path
-                            d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
-                            stroke="white"
-                            strokeWidth="1.3"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </a>
-
-                      {/* 口コミを書くボタン */}
-                      <Link
-                        href="/reviews/new"
-                        className="flex items-center justify-center w-full rounded-xl text-sm tracking-wide transition-all duration-200 hover:opacity-80"
-                        style={{
-                          padding: "14px 24px",
-                          background: "transparent",
-                          color: "var(--ink)",
-                          border: "1.5px solid var(--light)",
-                        }}
-                      >
-                        口コミを書く
-                      </Link>
-                    </div>
-
-                    {/* 注記 */}
-                    <p
-                      className="text-center"
-                      style={{ fontSize: 11, color: "var(--muted)" }}
-                    >
-                      口コミはふたりへ経由で利用した方のみ投稿できます
-                    </p>
-                  </div>
-
-                  {/* ② 基本情報ミニカード */}
-                  <div
-                    className="rounded-xl space-y-3.5"
-                    style={{
-                      background: "var(--pale)",
-                      padding: 20,
-                    }}
-                  >
-                    <div className="flex items-start gap-2.5">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 shrink-0">
-                        <circle cx="7" cy="7" r="5.5" />
-                        <path d="M7 4v3.5l2 1.5" />
-                      </svg>
-                      <div>
-                        <p className="text-xs mb-0.5" style={{ color: "var(--muted)" }}>営業時間</p>
-                        <p className="text-xs" style={{ color: "var(--ink)" }}>{place.hours}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 shrink-0">
-                        <rect x="2" y="3" width="10" height="9" rx="1.5" />
-                        <path d="M5 2v2M9 2v2M2 7h10" />
-                      </svg>
-                      <div>
-                        <p className="text-xs mb-0.5" style={{ color: "var(--muted)" }}>定休日</p>
-                        <p className="text-xs" style={{ color: "var(--ink)" }}>{place.holiday}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2.5">
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round" className="mt-0.5 shrink-0">
-                        <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
-                        <circle cx="7" cy="6" r="1.5" />
-                      </svg>
-                      <div>
-                        <p className="text-xs mb-0.5" style={{ color: "var(--muted)" }}>アクセス</p>
-                        <p className="text-xs" style={{ color: "var(--ink)" }}>{place.access}</p>
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              </aside>
+              </section>
+
             </div>
           </div>
         </div>
       </main>
 
       <Footer />
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .place-sidebar-sticky {
-            position: sticky;
-            top: 72px;
-          }
-          .place-layout-right {
-            width: 340px;
-          }
-        }
-      `}</style>
     </>
   );
 }
