@@ -1,4 +1,4 @@
-/* 口コミ投稿フォームの型定義 */
+/* 口コミ投稿フローの型定義 */
 
 export interface ReviewToken {
   token: string;
@@ -10,18 +10,20 @@ export interface ReviewToken {
   used: boolean;
 }
 
-export interface ReviewRatings {
-  overall: number;      // 総合 1-5
-  friendliness: number; // 話しやすさ
-  expertise: number;    // 専門知識
-  proposal: number;     // 提案力
-  support: number;      // サポート
+export interface ReviewCategoryRatings {
+  friendliness: number;  // 話しやすさ
+  noPressure: number;    // 押しつけのなさ
+  adviceQuality: number; // 提案・アドバイスの質
+  wouldReturn: number;   // また相談したいか
 }
 
 export interface ReviewDraft {
   token: string;
-  ratings: ReviewRatings;
-  title: string;
-  body: string;
-  authorLabel: string; // "30代・女性" など（表示用・匿名）
+  overallRating: number;            // 1–5
+  categoryRatings: ReviewCategoryRatings;
+  goodTags: string[];               // よかった点タグ
+  body: string;                     // 面談の感想
+  afterStatus: string;              // 面談後の状況
+  ageGroup: string;                 // 年代（任意）
+  occupation: string;               // 職業（任意）
 }

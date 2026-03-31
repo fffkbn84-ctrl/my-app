@@ -12,6 +12,7 @@
   --pale:   #F0EEEB;
   --white:  #FAFAF8;
   --accent: #C8A97A;
+  --adim:   rgba(200, 169, 122, 0.08);
   --green:  #7A9E87;
   --rose:   #C4877A;
   --blue:   #6B8FBF;
@@ -72,4 +73,33 @@ a {
 @keyframes scrollLine {
   0%   { transform: translateY(-100%); }
   100% { transform: translateY(200%); }
+}
+
+/* ─────────────────────────────────────────────────────────
+   口コミフォーム — CSS-only 星評価（全体評価）
+───────────────────────────────────────────────────────── */
+.star-input {
+  display: flex;
+  gap: 8px;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+.star-input input {
+  display: none;
+}
+.star-input label {
+  font-size: 36px;
+  color: var(--light);
+  cursor: pointer;
+  transition: color .2s, transform .2s;
+  line-height: 1;
+  user-select: none;
+}
+.star-input label:hover,
+.star-input label:hover ~ label,
+.star-input input:checked ~ label {
+  color: var(--accent);
+}
+.star-input label:hover {
+  transform: scale(1.2);
 }
