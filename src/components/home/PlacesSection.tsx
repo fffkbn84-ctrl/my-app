@@ -19,6 +19,8 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
     cafe:           "pt-cafe",
     lounge:         "pt-rest",
     hair:           "pt-hair",
+    nail:           "pt-nail",
+    brow:           "pt-brow",
     "photo-studio": "pt-photo",
   };
 
@@ -57,6 +59,18 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
         <path d="M23 21l14-8M23 31l14 8" stroke="#7A9E87" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     ),
+    nail: (
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <rect x="16" y="14" width="20" height="26" rx="4" stroke="#B88FC8" strokeWidth="1.5" fill="rgba(184,143,200,.1)" />
+        <path d="M20 22h12M20 28h8" stroke="#B88FC8" strokeWidth="1.2" strokeLinecap="round" opacity=".6" />
+      </svg>
+    ),
+    brow: (
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <path d="M14 24c4-4 10-4 14-2s10 3 14-1" stroke="#A89878" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+        <path d="M14 30c4-4 10-4 14-2s10 3 14-1" stroke="#A89878" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity=".4" />
+      </svg>
+    ),
     "photo-studio": (
       <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
         <rect x="8" y="16" width="36" height="26" rx="3" stroke="#6B8FBF" strokeWidth="1.5" fill="rgba(107,143,191,.1)" />
@@ -78,6 +92,7 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
    バッジ
 ──────────────────────────────────────────────────────────── */
 function PlaceBadge({ type }: { type: PlaceHome["badgeType"] }) {
+  if (type === "listed") return null;
   const map = {
     certified: { cls: "rt-certified", label: "取材済み" },
     agency:    { cls: "rt-agency",    label: "相談所おすすめ" },
