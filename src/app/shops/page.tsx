@@ -15,7 +15,7 @@ export default function ShopsPage() {
 
       <main className="pt-16">
         {/* ページヘッダー */}
-        <section className="bg-pale py-14 md:py-20 border-b border-light">
+        <section className="bg-pale border-b border-light" style={{ paddingTop: 88, paddingBottom: 48 }}>
           <div className="max-w-6xl mx-auto px-6">
             <p className="text-xs tracking-[0.3em] text-accent uppercase mb-3">
               PLACES

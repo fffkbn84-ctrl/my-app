@@ -1,12 +1,16 @@
 "use client";
 
-import { useState, useMemo, type ReactNode } from "react";
+import { useState, useMemo, useEffect, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   placesHomeData,
   type PlaceHome,
   type ThumbVariant,
 } from "@/lib/mock/places-home";
+import Pagination from "@/components/ui/Pagination";
+import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+
+const ITEMS_PER_PAGE = 8;
 
 /* ────────────────────────────────────────────────────────────
    フィルター定義
@@ -237,6 +241,7 @@ export default function ShopSearch() {
   const [category, setCategory] = useState("すべて");
   const [area, setArea]         = useState("すべて");
   const [query, setQuery]       = useState("");
+  const [page, setPage]         = useState(1);
 
   const filtered = useMemo(() => {
     return placesHomeData.filter((p) => {
@@ -247,6 +252,11 @@ export default function ShopSearch() {
       return matchB && matchC && matchA && matchQ;
     });
   }, [badge, category, area, query]);
+
+  /* フィルター変更時にページをリセット */
+  useEffect(() => { setPage(1); }, [badge, category, area, query]);
+
+  const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const selectStyle: React.CSSProperties = {
     padding: "9px 12px",
@@ -335,11 +345,19 @@ export default function ShopSearch() {
 
         {/* ── カードグリッド ── */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filtered.map((place) => (
-              <ShopCard key={place.id} place={place} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {paged.map((place) => (
+                <ShopCard key={place.id} place={place} />
+              ))}
+            </div>
+            <Pagination
+              page={page}
+              total={filtered.length}
+              perPage={ITEMS_PER_PAGE}
+              onChange={setPage}
+            />
+          </>
         ) : (
           <div
             style={{
@@ -354,5 +372,6 @@ export default function ShopSearch() {
         )}
       </div>
     </section>
+    <ScrollToTopButton />
   );
 }

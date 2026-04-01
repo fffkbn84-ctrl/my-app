@@ -4,6 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AGENCIES, COUNSELORS, type Counselor, type Agency } from "@/lib/data";
+import Pagination from "@/components/ui/Pagination";
+import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+
+const ITEMS_PER_PAGE = 12;
 
 /* ────────────────────────────────────────────────────────────
    ユーティリティ
@@ -449,6 +453,10 @@ export default function SearchContent() {
   const [aPrice, setAPrice] = useState("");
   const [aSort, setASort] = useState("rating");
 
+  /* ページネーション */
+  const [cPage, setCPage] = useState(1);
+  const [aPage, setAPage] = useState(1);
+
   /* URL param変化に追従 */
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -457,6 +465,10 @@ export default function SearchContent() {
     else if (tab === "counselor") setActiveTab("counselor");
     setCAgencyId(agency);
   }, [searchParams]);
+
+  /* フィルター変更時にページをリセット */
+  useEffect(() => { setCPage(1); }, [cQuery, cArea, cSpecialty, cPrice, cOnline, cSort, cAgencyId]);
+  useEffect(() => { setAPage(1); }, [aQuery, aArea, aType, aPrice, aSort, activeTab]);
 
   /* カウンセラーフィルタリング */
   const filteredCounselors = useMemo(() => {
@@ -752,11 +764,11 @@ export default function SearchContent() {
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
                 gap: 20,
-                paddingBottom: 80,
+                paddingBottom: 32,
               }}
             >
               {filteredCounselors.length > 0 ? (
-                filteredCounselors.map((c) => <CounselorCard key={c.id} c={c} />)
+                filteredCounselors.slice((cPage - 1) * ITEMS_PER_PAGE, cPage * ITEMS_PER_PAGE).map((c) => <CounselorCard key={c.id} c={c} />)
               ) : (
                 <div
                   style={{
@@ -773,6 +785,12 @@ export default function SearchContent() {
                 </div>
               )}
             </div>
+            <Pagination
+              page={cPage}
+              total={filteredCounselors.length}
+              perPage={ITEMS_PER_PAGE}
+              onChange={setCPage}
+            />
           </>
         )}
 
@@ -853,11 +871,11 @@ export default function SearchContent() {
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
                 gap: 20,
-                paddingBottom: 80,
+                paddingBottom: 32,
               }}
             >
               {filteredAgencies.length > 0 ? (
-                filteredAgencies.map((a) => <AgencyCard key={a.id} a={a} />)
+                filteredAgencies.slice((aPage - 1) * ITEMS_PER_PAGE, aPage * ITEMS_PER_PAGE).map((a) => <AgencyCard key={a.id} a={a} />)
               ) : (
                 <div
                   style={{
@@ -874,9 +892,16 @@ export default function SearchContent() {
                 </div>
               )}
             </div>
+            <Pagination
+              page={aPage}
+              total={filteredAgencies.length}
+              perPage={ITEMS_PER_PAGE}
+              onChange={setAPage}
+            />
           </>
         )}
       </div>
+      <ScrollToTopButton />
     </div>
   );
 }
