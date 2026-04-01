@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { shops } from "@/lib/mock/shops";
-import type { BadgeType } from "@/lib/mock/shops";
+import { placesHomeData } from "@/lib/mock/places-home";
+import type { BadgeType } from "@/lib/mock/places-home";
 
 /* ────────────────────────────────────────────────────────────
    モック口コミ
@@ -11,16 +11,16 @@ import type { BadgeType } from "@/lib/mock/shops";
 const shopReviews: Record<string, {
   id: string; rating: number; title: string; text: string; author: string; date: string; situation: string;
 }[]> = {
-  "1": [
+  "5": [
     { id: "r1", rating: 5, title: "お見合いに完璧な空間でした", text: "個室で周りを気にせず話せました。スタッフの方々も気を利かせてくれて、程よいタイミングで席を外してくれました。料理も美味しく、会話が弾みました。初対面でも緊張しにくい雰囲気です。", author: "30代・女性", date: "2026年2月", situation: "お見合い" },
     { id: "r2", rating: 5, title: "雰囲気が最高、リピート確定", text: "ソムリエのいるフレンチで、ワインの話をしながら自然に打ち解けられました。2回目のデートで利用しましたが、相手にも喜んでもらえました。少し値段は張りますが、特別な日にふさわしいお店です。", author: "30代・男性", date: "2026年1月", situation: "2回目以降のデート" },
     { id: "r3", rating: 4, title: "予約必須ですが価値あり", text: "人気店なので予約が取りづらいですが、それだけの価値はあります。個室は少し狭いですが、二人でゆっくり話すには十分。お料理のクオリティが高くデート全体の満足度が上がりました。", author: "20代・女性", date: "2025年12月", situation: "初デート" },
   ],
-  "2": [
+  "6": [
     { id: "r4", rating: 5, title: "初デートにちょうどいい距離感", text: "銀座の和カフェで、落ち着いた雰囲気がちょうどよかったです。お茶とお菓子を楽しみながら自然に話が進みました。コースではなく単品で頼めるので、時間調整がしやすいのも良かった。", author: "30代・女性", date: "2026年2月", situation: "初デート" },
     { id: "r5", rating: 4, title: "和の雰囲気でリラックスできた", text: "抹茶スイーツが美味しく、話題にもなりました。個室は2組限定なので早めの予約がベターです。スタッフの対応も丁寧で、婚活慣れした様子が感じられました。", author: "40代・女性", date: "2026年1月", situation: "お見合い" },
   ],
-  "5": [
+  "9": [
     { id: "r6", rating: 5, title: "特別感が最高。プロポーズにも", text: "鉄板焼きの目の前でのパフォーマンスが会話のきっかけになりました。個室でプロポーズしたのですが、スタッフの方が花を用意してくれて感動しました。一生の思い出になりました。", author: "30代・男性", date: "2026年3月", situation: "プロポーズ" },
     { id: "r7", rating: 5, title: "大切な人との食事に間違いない", text: "値段は高いですが、それ以上の体験ができます。シェフの技術を見ながら自然と会話が弾みます。お見合い2回目のデートで利用しましたが、相手の評価がぐっと上がりました（笑）。", author: "30代・男性", date: "2026年2月", situation: "2回目以降のデート" },
   ],
@@ -57,14 +57,15 @@ export default async function ShopDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const shop = shops.find((s) => s.id === id);
-  if (!shop) notFound();
+  const shopData = placesHomeData.find((s) => s.id === id);
+  if (!shopData) notFound();
+  const shop = shopData;
 
   const reviews = shopReviews[id] ?? [];
   const avgRating = reviews.length
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : null;
-  const badge = BADGE_CONFIG[shop.badge];
+  const badge = BADGE_CONFIG[shop.badgeType];
 
   return (
     <>
@@ -92,7 +93,12 @@ export default async function ShopDetailPage({
                 {/* お店カード */}
                 <div className="bg-white rounded-2xl border border-light overflow-hidden">
                   <div className="aspect-video bg-pale flex items-center justify-center">
-                    <div className="text-6xl opacity-20 select-none">🍽</div>
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" opacity="0.15">
+                      <path d="M16 8v12c0 4 3 7 7 7v13" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M24 8v32" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M32 8c0 0 0 8-4 11v21" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
+                      <path d="M16 8c0 0 0 6 0 10" stroke="var(--ink)" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
                   </div>
 
                   <div className="p-6">
@@ -100,7 +106,7 @@ export default async function ShopDetailPage({
                       className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full mb-3"
                       style={{ color: badge.color, background: badge.bg }}
                     >
-                      {shop.badge === "certified" && (
+                      {shop.badgeType === "certified" && (
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
                           <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
                         </svg>
@@ -117,7 +123,7 @@ export default async function ShopDetailPage({
                         <path d="M5.5 1C3.6 1 2 2.6 2 4.5c0 2.8 3.5 5.5 3.5 5.5S9 7.3 9 4.5C9 2.6 7.4 1 5.5 1z" />
                         <circle cx="5.5" cy="4.5" r="1.2" />
                       </svg>
-                      {shop.area}
+                      {shop.location}
                     </p>
 
                     {avgRating !== null && (
@@ -130,8 +136,8 @@ export default async function ShopDetailPage({
 
                     <div className="space-y-2 mb-4">
                       {[
-                        { label: "カテゴリ", value: shop.category },
-                        { label: "価格帯",   value: shop.priceRange },
+                        { label: "カテゴリ", value: shop.categoryLabel },
+                        ...(shop.priceRange ? [{ label: "価格帯", value: shop.priceRange }] : []),
                       ].map((item) => (
                         <div key={item.label} className="flex justify-between text-sm">
                           <span className="text-muted text-xs">{item.label}</span>
@@ -141,7 +147,7 @@ export default async function ShopDetailPage({
                     </div>
 
                     <div className="flex flex-wrap gap-1.5">
-                      {shop.tags.map((tag) => (
+                      {shop.features.map((tag) => (
                         <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-pale text-muted">
                           {tag}
                         </span>
@@ -176,9 +182,9 @@ export default async function ShopDetailPage({
                 <h2 className="text-lg text-ink mb-4 pb-3 border-b border-light" style={{ fontFamily: "var(--font-mincho)" }}>
                   お店について
                 </h2>
-                <p className="text-sm text-mid leading-relaxed">{shop.intro}</p>
+                <p className="text-sm text-mid leading-relaxed">{shop.description}</p>
 
-                {shop.badge === "certified" && (
+                {shop.badgeType === "certified" && (
                   <div
                     className="mt-5 p-4 rounded-xl border-l-4 bg-pale text-xs text-mid leading-relaxed"
                     style={{ borderLeftColor: "var(--accent)" }}

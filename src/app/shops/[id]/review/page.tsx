@@ -4,7 +4,7 @@ import { useState, use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
-import { shops } from "@/lib/mock/shops";
+import { placesHomeData } from "@/lib/mock/places-home";
 
 /* ────────────────────────────────────────────────────────────
    定数
@@ -97,7 +97,7 @@ export default function ShopReviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const shop = shops.find((s) => s.id === id);
+  const shop = placesHomeData.find((s) => s.id === id);
   if (!shop) notFound();
 
   const [data, setData] = useState<FormData>({
@@ -192,11 +192,13 @@ export default function ShopReviewPage({
 
             {/* お店情報バナー */}
             <div className="flex items-center gap-3 p-4 bg-pale rounded-2xl border border-light mb-8">
-              <div className="w-10 h-10 rounded-xl bg-white border border-light flex items-center justify-center text-xl shrink-0">
-                🍽
+              <div className="w-10 h-10 rounded-xl bg-white border border-light flex items-center justify-center shrink-0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 11l19-9-9 19-2-8-8-2z" />
+                </svg>
               </div>
               <div>
-                <p className="text-xs text-muted">{shop.area} · {shop.category}</p>
+                <p className="text-xs text-muted">{shop.location} · {shop.categoryLabel}</p>
                 <p className="text-base text-ink" style={{ fontFamily: "var(--font-mincho)" }}>
                   {shop.name}
                 </p>
