@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   placesHomeData,
   placeTabs,
@@ -99,11 +100,13 @@ function Stars({ rating }: { rating: number }) {
    PlacesSection
 ──────────────────────────────────────────────────────────── */
 export default function PlacesSection() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<PlaceTabCategory>("all");
   const scrollRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const dragDistance = useRef(0);
 
   const filtered =
     activeTab === "all"
@@ -117,6 +120,7 @@ export default function PlacesSection() {
 
     const onMouseDown = (e: MouseEvent) => {
       isDragging.current = true;
+      dragDistance.current = 0;
       startX.current = e.pageX - el.offsetLeft;
       scrollLeft.current = el.scrollLeft;
       el.style.cursor = "grabbing";
@@ -125,7 +129,9 @@ export default function PlacesSection() {
       if (!isDragging.current) return;
       e.preventDefault();
       const x = e.pageX - el.offsetLeft;
-      el.scrollLeft = scrollLeft.current - (x - startX.current);
+      const delta = x - startX.current;
+      dragDistance.current = Math.abs(delta);
+      el.scrollLeft = scrollLeft.current - delta;
     };
     const onMouseUp = () => {
       isDragging.current = false;
@@ -179,12 +185,26 @@ export default function PlacesSection() {
       <div className="places-scroll" ref={scrollRef} id="pScroll">
         <div className="places-track">
           {filtered.map((place) => (
-            <div key={place.id} className="place-card">
+            <div
+              key={place.id}
+              className="place-card"
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                if (dragDistance.current > 6) return;
+                router.push(`/places/${place.id}`);
+              }}
+            >
               <PlaceThumb variant={place.thumbVariant} />
               <div className="pt-body">
                 <div className="pt-stage">{place.stage}</div>
                 <div className="pt-name">{place.name}</div>
-                <div className="pt-loc">📍 {place.location}</div>
+                <div className="pt-loc" style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="var(--muted)" strokeWidth="1.5">
+                    <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
+                    <circle cx="7" cy="6" r="1.5" />
+                  </svg>
+                  {place.location}
+                </div>
                 <div className="pt-bottom">
                   <div className="pt-rating">
                     <Stars rating={place.rating} />
