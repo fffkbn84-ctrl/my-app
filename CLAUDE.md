@@ -665,3 +665,92 @@ token なし → AuthGate（手動コード入力画面）
 - 遷移先: `/search`
 - スタイル: `.btn .btn-outline`（`globals.css` 既存クラス）
 - 配置: 中央揃え・`margin-top: 32px`
+
+---
+
+## 実装済み機能（2026-04-01 追記③）
+
+### お店検索ページのデザイン刷新 ＋ データ統合
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+#### データソース統合
+
+- `src/lib/mock/shops.ts`（8件）を **削除**し、`src/lib/mock/places-home.ts` に一本化
+- `PlaceHome` 型を拡張：`description`, `features`, `categoryLabel`, `areaLabel`, `priceRange?` を追加
+- `BadgeType` を `"certified" | "agency" | "listed"` に拡張
+- `ThumbVariant` に `"nail"` / `"brow"` を追加
+- データ件数：4件 → **12件**（旧 shops.ts の8件を ID `"5"`〜`"12"` として統合）
+- 影響ファイルの import を全て `places-home.ts` に変更：
+  - `src/app/shops/[id]/page.tsx`
+  - `src/app/shops/[id]/review/page.tsx`
+
+#### お店検索ページ（`/shops`）のリデザイン
+
+**ファイル：**
+- `src/app/shops/page.tsx` — ヘッダーの `paddingTop: 88`（固定ヘッダー分）を設定
+- `src/components/shops/ShopSearch.tsx` — `'use client'`。完全書き直し
+
+**機能：**
+- バッジタブフィルター：「すべて」「取材済み」「相談所おすすめ」（`listed` は非表示）
+- カテゴリ・エリア select フィルター
+- SVGアイコン付きテキスト検索
+- バッジ凡例（取材済み・相談所おすすめの説明）
+- 件数表示
+- 2カラムグリッド（デスクトップ）
+- カード全体クリックで `/places/[id]` に遷移
+- 200px サムネイル（カテゴリ別 SVG アイコン）＋ バッジオーバーレイ
+- `ITEMS_PER_PAGE = 8` でページネーション
+
+**お店カテゴリ SVG アイコン（`PlaceThumb`）：**
+カフェ / レストラン / 美容室 / ネイルサロン / 眉毛サロン / フォトスタジオ
+
+#### トップページ：「ふたりへが選んだお店」セクション更新
+
+**ファイル：** `src/components/home/PlacesSection.tsx`
+
+- `nail` / `brow` の `gradientClass` と SVG アイコンを追加（ビルドエラー防止）
+- `badge_type="listed"` の場合は `PlaceBadge` で `null` を返すよう修正
+- セクション末尾に「すべて見る → /shops」リンクボタンを追加
+
+---
+
+### 共通 UI：Pagination コンポーネント
+
+**ファイル：** `src/components/ui/Pagination.tsx`
+
+```typescript
+interface PaginationProps {
+  page: number;
+  total: number;
+  perPage: number;
+  onChange: (page: number) => void;
+}
+```
+
+**仕様：**
+- 総ページ数が1以下のときは `null`（非表示）
+- 現在ページ周辺のみ番号を表示し、離れたページは `…` で省略
+- 前/次ボタン（SVG矢印）、端では `opacity: 0.3` + `disabled`
+- アクティブページ：黒背景・白テキスト
+- ホバー：`--accent` カラーのボーダー
+
+---
+
+### 検索・一覧ページのページネーション＋トップ戻りボタン追加
+
+**対象：** カウンセラー・相談所検索（`/search`）、お店検索（`/shops`）
+
+**ファイル：**
+- `src/app/search/SearchContent.tsx`
+- `src/components/shops/ShopSearch.tsx`（上記で記載済み）
+
+**変更内容（SearchContent.tsx）：**
+- `ITEMS_PER_PAGE = 12`
+- `cPage` / `aPage` state を追加
+- フィルター変更時に `useEffect` でページを 1 にリセット
+- カウンセラー・相談所グリッドを `.slice()` でページ分割
+- 各グリッド下に `<Pagination>` を配置
+- ページ末尾に `<ScrollToTopButton />` を追加
+
+**技術的注意：** `<ScrollToTopButton />` は `return` のルートに並列で置けない。必ず `<>...</>` フラグメントでラップすること（未対応だとTurbopackが「Expression expected」でビルドエラーになる）。
