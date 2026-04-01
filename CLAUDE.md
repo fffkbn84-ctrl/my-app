@@ -625,3 +625,43 @@ token なし → AuthGate（手動コード入力画面）
 | `claude/create-shop-detail-page-ySpfq` | `src/lib/mock/places.ts` のモックデータ型 |
 
 `claude/replace-belief-section-xJqey` は旧ベースからの変更のためデザインシステムと競合、非適用。
+
+---
+
+## 実装済み機能（2026-04-01 追記②）
+
+### トップページ：カウンセラーセクション修正 ＋「もっと見てみる」ボタン追加
+
+**ブランチ：** `integration/redesign-with-all-features`
+**ファイル：** `src/app/page.tsx`、`src/app/globals.css`
+
+#### カウンセラーセクションのリデザイン
+
+- グリッドレイアウト（3カラム）→ **横スクロール**（262px固定幅カード）に変更
+- アバターを名前の末尾1文字（文字アバター）→ **SVGパーソンアイコン**に変更
+- カードごとにアバター背景グラデーションを変更：
+  - 1枚目: `linear-gradient(135deg,#F5E8D8,#EDD8C0)` ゴールド系
+  - 2枚目: `linear-gradient(135deg,#D8E8F5,#C0D4ED)` ブルー系
+  - 3枚目: `linear-gradient(135deg,#D8F5E8,#C0EDD4)` グリーン系
+- カード構造を参照デザイン（`c-top` / `c-body`）に準拠して再実装
+- セクションヘッダーを `find your counselor` ラベル＋日本語サブテキスト付きに更新
+- `globals.css` に `.counselor-scroll::-webkit-scrollbar { display: none; }` を追加
+
+#### 「もっと見てみる」ボタン
+
+横スクロールカード列の直下（`</section>` の直前）に追加。
+
+```tsx
+<div style={{ textAlign: "center", marginTop: 32 }}>
+  <Link href="/search" className="btn btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+    もっと見てみる
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </Link>
+</div>
+```
+
+- 遷移先: `/search`
+- スタイル: `.btn .btn-outline`（`globals.css` 既存クラス）
+- 配置: 中央揃え・`margin-top: 32px`
