@@ -492,3 +492,136 @@ state = {
 **URL設計：**
 - 相談所詳細 `/agencies/1` → フッターCTA → `/counselors/booking?agencyId=1`
 - カウンセラー詳細 `/counselors/3` → サイドバーCTA → `/booking/3`（既存フロー・変更なし）
+
+---
+
+## 実装済み機能（2026-04-01 追記）
+
+### 作業ブランチ
+
+| ブランチ | 内容 |
+|---|---|
+| `integration/redesign-with-all-features` | **現在の統合開発ブランチ** |
+| `claude/redesign-hero-section-BThOA-2NYfC` | 統合元ベース（デザインシステム確定版） |
+
+**Vercelプレビュー（ベース）：** `my-app-git-claude-redesign-hero-13ddd6-fffkbn84-4095s-projects.vercel.app`
+
+---
+
+### デザインシステム（`src/app/globals.css`）
+
+`claude/redesign-hero-section-BThOA-2NYfC` で確立した CSS クラス群。全詳細ページで共通使用。
+
+| クラス | 用途 |
+|---|---|
+| `.hero-strip` | 詳細ページ上部の黒背景ヒーローストリップ |
+| `.detail-hero` | ヒーロー内 2カラムグリッド（左：情報、右：CTAカード） |
+| `.d-breadcrumb` / `.d-agency-badge` | パンくず・バッジ |
+| `.d-name` / `.d-role` / `.d-tags` / `.d-stats` | 名前・役割・タグ・統計 |
+| `.d-book-card` | PC右側の予約/アクションカード（`@media max-width:899px` で非表示） |
+| `.d-price-row` / `.d-price` / `.d-price-free` | 価格表示 |
+| `.detail-body` / `.detail-grid` | コンテンツエリア 2カラムグリッド |
+| `.d-profile-grid` / `.d-profile-item` | 基本情報 2列グリッド |
+| `.d-message` | 左ボーダー付きメッセージ/説明カード |
+| `.rv-card` / `.rv-meta` / `.rv-verified` / `.rv-stars-row` | 口コミカード一式 |
+| `.cta-book-main` / `.cta-book-main-note` | サイドバー予約ボタン（グロー付き） |
+| `.cta-mobile-bar` / `.cta-mobile-btn` | モバイル固定フッターCTA |
+| `.rt-certified` / `.rt-agency` | お店バッジ（丸ドット付き） |
+| `.d-campaign-bar` / `.d-campaign-inner` | キャンペーンバナー（ヒーロー下） |
+| `.pricing-grid` / `.pricing-card` | 料金プランカード |
+
+---
+
+### お店詳細ページ（`/places/[id]`）
+
+**ファイル：**
+- `src/app/places/[id]/page.tsx` — サーバーコンポーネント
+- `src/lib/mock/places.ts` — 6店舗のモックデータ（将来 Supabase に差し替え）
+
+**デザインの特徴：**
+- `.hero-strip` を応用：黒背景ではなく各店舗の `gradient` を背景に使用
+- パンくず文字色は `rgba(0,0,0,.4)`（明るい背景に合わせて黒系）
+- カウンセラーのアバター円 → お店カテゴリ SVG アイコンに置き換え（80px 円形・すりガラス風）
+- `.d-stats` で「口コミ件数」「平均評価」を表示
+- `.d-book-card`（PC）/ `.cta-mobile-bar`（モバイル）に「お店のサイトを見る」「口コミを書く」
+
+**カテゴリ SVG アイコン：** カフェ / 美容室 / ネイルサロン / 眉毛サロン / フォトスタジオ / レストラン
+
+**モックデータ型：**
+```typescript
+type Place = {
+  id: number; name: string; category: string; stage: string;
+  area: string; badge: "certified" | "agency" | "listed";
+  gradient: string; svgColor: string;
+  rating: number; reviewCount: number; priceRange: string;
+  hours: string; holiday: string; access: string;
+  description: string; features: string[]; scenes: string[];
+  reviews: PlaceReview[];
+};
+```
+
+**確認URL（統合ブランチのVercelプレビューで）：**
+- `/places/1` カフェ ソワレ
+- `/places/2` ヘアサロン ルーシュ
+- `/places/3` ネイル ブルーム
+- `/places/4` Arch eyebrow studio
+- `/places/5` スタジオ クラリス
+- `/places/6` リストランテ イル フィオーレ
+
+---
+
+### 口コミ投稿フロー（`/reviews/new`）
+
+**ファイル：**
+- `src/app/reviews/new/page.tsx` — サーバーコンポーネント。`searchParams.token` を受け取り `ReviewGate` に渡す
+- `src/components/reviews/ReviewGate.tsx` — `'use client'`。認証ゲート全体を管理
+- `src/components/reviews/ReviewForm.tsx` — `'use client'`。口コミ入力フォーム
+- `src/types/review.ts` — `ReviewToken` 型定義
+
+**認証フロー：**
+```
+URL に ?token=XXX → 自動検証（ローディング表示）
+  → 有効 → ReviewForm 表示
+  → 無効 → エラーメッセージ → 手動コード入力へ
+token なし → AuthGate（手動コード入力画面）
+  → 検証OK → ReviewForm 表示
+投稿完了 → SuccessScreen
+```
+
+**デモトークン（開発確認用）：**
+
+| トークン | 状態 |
+|---|---|
+| `TKN-2026-DEMO1` | 有効（田中 美紀 / ブライダルハウス東京） |
+| `TKN-2026-DEMO2` | 有効（佐藤 あかり / マリーナ結婚相談所） |
+| `TKN-USED-001` | 使用済みエラー確認用 |
+
+**確認URL：**
+- `/reviews/new` → 認証コード入力画面
+- `/reviews/new?token=TKN-2026-DEMO1` → 自動認証してフォーム表示
+- `/reviews/new?token=TKN-USED-001` → 使用済みエラー表示
+
+---
+
+### トップページ：お店カードのタップ遷移
+
+**ファイル：** `src/components/home/PlacesSection.tsx`
+
+**変更内容：**
+- `place-card` に `onClick` を追加 → `router.push('/places/${id}')` で詳細ページへ
+- ドラッグスクロールと区別するため `dragDistance` を計測（6px超はドラッグ判定・遷移スキップ）
+- `📍` 絵文字をSVGの位置アイコンに変更
+
+---
+
+### 統合ブランチの構成
+
+`integration/redesign-with-all-features` は以下を統合したブランチ：
+
+| 元ブランチ | 取り込んだ内容 |
+|---|---|
+| `claude/redesign-hero-section-BThOA-2NYfC` | ベース全体（デザインシステム・counselors詳細・booking フロー等） |
+| `claude/create-review-flow-1Cki3` | `/reviews/new` 口コミ投稿フロー |
+| `claude/create-shop-detail-page-ySpfq` | `src/lib/mock/places.ts` のモックデータ型 |
+
+`claude/replace-belief-section-xJqey` は旧ベースからの変更のためデザインシステムと競合、非適用。
