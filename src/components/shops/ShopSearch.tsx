@@ -271,6 +271,7 @@ export default function ShopSearch() {
   };
 
   return (
+    <>
     <section style={{ padding: "32px 0 80px" }}>
       <div style={{ maxWidth: 1080, margin: "0 auto", padding: "0 24px" }}>
 
@@ -373,5 +374,6 @@ export default function ShopSearch() {
       </div>
     </section>
     <ScrollToTopButton />
+    </>
   );
 }
