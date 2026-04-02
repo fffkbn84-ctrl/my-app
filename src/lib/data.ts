@@ -76,6 +76,8 @@ export type Counselor = {
   svgColor: string;
   message: string;
   campaign?: string;
+  /** 婚活タイプ診断で相性の良いタイプID */
+  diagnosisTypes?: string[];
 };
 
 export const AGENCIES: Agency[] = [
@@ -258,6 +260,7 @@ export const COUNSELORS: Counselor[] = [
     svgColor: "#C8A97A",
     message: "まずあなたの話をじっくり聞くことを大切にしています。",
     campaign: "初回面談料 無料",
+    diagnosisTypes: ["calm", "self"],
   },
   {
     id: 2,
@@ -278,6 +281,7 @@ export const COUNSELORS: Counselor[] = [
     svgColor: "#7A9E87",
     message: "男性目線から率直なアドバイスをします。",
     campaign: "初回面談料 無料",
+    diagnosisTypes: ["strategy", "support"],
   },
   {
     id: 3,
@@ -297,6 +301,7 @@ export const COUNSELORS: Counselor[] = [
     gradient: "linear-gradient(135deg,#E8EEF0,#D0DFE4)",
     svgColor: "#6B8FBF",
     message: "急かされることなく、自分の希望が整理できる場をつくります。",
+    diagnosisTypes: ["calm", "self"],
   },
   {
     id: 4,
@@ -317,6 +322,7 @@ export const COUNSELORS: Counselor[] = [
     svgColor: "#9B7AB5",
     message: "再婚でも全く気にせず話せる環境をつくります。",
     campaign: "5月限定 入会金20,000円割引",
+    diagnosisTypes: ["restart", "calm"],
   },
   {
     id: 5,
@@ -337,6 +343,7 @@ export const COUNSELORS: Counselor[] = [
     svgColor: "#B8860B",
     message: "15年のキャリアで積み上げた知識でサポートします。",
     campaign: "入会金半額キャンペーン実施中",
+    diagnosisTypes: ["strategy", "support"],
   },
   {
     id: 6,
@@ -356,5 +363,6 @@ export const COUNSELORS: Counselor[] = [
     gradient: "linear-gradient(135deg,#DBEAFE,#BFDBFE)",
     svgColor: "#3B82F6",
     message: "同世代感覚で話せる環境を大切にしています。",
+    diagnosisTypes: ["online", "self"],
   },
 ];

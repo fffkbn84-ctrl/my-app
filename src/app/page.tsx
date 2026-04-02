@@ -115,6 +115,29 @@ export default function HomePage() {
               <Link href="/shops" className="btn btn-outline">お見合い・デートのお店</Link>
             </div>
             <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", marginTop: "12px" }}>✓ 無料で使えます・登録不要</p>
+
+            {/* 診断カード */}
+            <Link
+              href="/diagnosis"
+              className="diagnosis-hero-card"
+            >
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ flexShrink: 0 }}>
+                <circle cx="16" cy="16" r="13" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)" />
+                <path d="M16 8v2M16 22v2M8 16h2M22 16h2" stroke="#C8A97A" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
+                <path d="M20 12l-5 4-3 5 5-4 3-5z" stroke="#C8A97A" strokeWidth="1.3" strokeLinejoin="round" fill="rgba(200,169,122,.2)" />
+              </svg>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", letterSpacing: ".1em", marginBottom: 4 }}>
+                  約5分 · 無料
+                </div>
+                <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "white", letterSpacing: ".05em" }}>
+                  あなたに合うカウンセラータイプを診断する
+                </div>
+              </div>
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
+                <path d="M4 10h12M10 4l6 6-6 6" stroke="#C8A97A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
           </div>
 
           {/* 右カラム — フローティングカード */}

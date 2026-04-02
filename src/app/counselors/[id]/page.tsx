@@ -6,6 +6,7 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
 import { AGENCIES, COUNSELORS } from "@/lib/data";
+import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -425,6 +426,8 @@ export default async function CounselorDetailPage({
 
   const matchedAgency = AGENCIES.find((a) => a.id === Number(counselor.agencyId));
   const agencyCounselorCount = COUNSELORS.filter((c) => c.agencyId === Number(counselor.agencyId)).length;
+  const matchedCounselorData = COUNSELORS.find((c) => c.id === Number(id));
+  const diagnosisTypeIds = matchedCounselorData?.diagnosisTypes ?? [];
 
   return (
     <>
@@ -519,6 +522,38 @@ export default async function CounselorDetailPage({
                   <span key={s} className={`d-tag${i === 0 ? " featured" : ""}`}>{s}</span>
                 ))}
               </div>
+
+              {/* 診断タイプバッジ */}
+              {diagnosisTypeIds.length > 0 && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,.4)", letterSpacing: ".08em", marginBottom: 6 }}>
+                    相性の良い診断タイプ:
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    {diagnosisTypeIds.map((tid) => {
+                      const dt = DIAGNOSIS_TYPES[tid as DiagnosisTypeId];
+                      if (!dt) return null;
+                      return (
+                        <span
+                          key={tid}
+                          style={{
+                            background: dt.gradient,
+                            fontSize: 10,
+                            padding: "3px 10px",
+                            borderRadius: 20,
+                            color: "var(--black)",
+                            fontFamily: "Noto Sans JP, sans-serif",
+                            fontWeight: 400,
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          {dt.name}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="d-stats">
                 <div className="d-stat-item">
