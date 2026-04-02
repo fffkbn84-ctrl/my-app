@@ -938,6 +938,101 @@ export default async function AgencyDetailPage({
               ))}
             </div>
           </section>
+
+          {/* ═══ 予約コーナー ═══ */}
+          <section style={{ padding: "0 0 72px" }}>
+            <div
+              style={{
+                background: "var(--white)",
+                border: "1px solid var(--light)",
+                borderRadius: 20,
+                overflow: "hidden",
+                maxWidth: 560,
+                margin: "0 auto",
+              }}
+            >
+              {/* ヘッダー */}
+              <div
+                style={{
+                  padding: "28px 28px 0",
+                  borderBottom: "1px solid var(--pale)",
+                  paddingBottom: 20,
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 11,
+                    letterSpacing: ".2em",
+                    textTransform: "uppercase",
+                    color: "var(--accent)",
+                    fontFamily: "DM Sans, sans-serif",
+                    marginBottom: 6,
+                  }}
+                >
+                  reservation
+                </p>
+                <h2
+                  style={{
+                    fontFamily: "var(--font-mincho)",
+                    fontSize: 20,
+                    fontWeight: 500,
+                    color: "var(--ink)",
+                  }}
+                >
+                  無料面談を予約する
+                </h2>
+              </div>
+
+              {/* 料金 */}
+              <div style={{ padding: "20px 28px 0" }}>
+                <div className="d-price-row" style={{ marginBottom: 0 }}>
+                  <span className="d-price-label">面談料金</span>
+                  <span className="d-price">¥0</span>
+                  <span className="d-price-free">完全無料</span>
+                </div>
+              </div>
+
+              {/* CTAボタン */}
+              <div style={{ padding: "20px 28px" }}>
+                <Link
+                  href={`/counselors/booking?agencyId=${agency.id}`}
+                  className="cta-book-main"
+                >
+                  カウンセラーを選んで予約する
+                </Link>
+                {/* キャンセルポリシー */}
+                <p
+                  style={{
+                    marginTop: 14,
+                    fontSize: 12,
+                    color: "var(--muted)",
+                    lineHeight: 1.7,
+                    display: "flex",
+                    gap: 8,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    style={{ flexShrink: 0, marginTop: 2 }}
+                  >
+                    <circle cx="7" cy="7" r="6" stroke="var(--muted)" strokeWidth="1.2" />
+                    <path
+                      d="M7 6v4M7 4.5v.5"
+                      stroke="var(--muted)"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  {agency.cancelPolicy ?? "当日キャンセル可 · 登録不要 · 完全無料"}
+                </p>
+              </div>
+            </div>
+          </section>
+
         </div>
       </main>
 

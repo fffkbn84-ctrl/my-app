@@ -55,6 +55,12 @@ export type Agency = {
   plan: "premium" | "standard" | "fast";
   /** 写真一覧。表示上限は plan に応じて PLAN_PHOTO_LIMITS で制御 */
   photos: AgencyPhoto[];
+  /**
+   * キャンセルポリシー。
+   * 相談所ごとに異なる場合はここを上書きする。
+   * 未設定時は予約コーナーでデフォルト文言を表示する。
+   */
+  cancelPolicy?: string;
 };
 
 export type Counselor = {
@@ -76,6 +82,12 @@ export type Counselor = {
   svgColor: string;
   message: string;
   campaign?: string;
+  /**
+   * キャンセルポリシー。
+   * 将来的に相談所ごとのポリシーをカウンセラー詳細にも表示する際はここを参照する。
+   * 未設定時は所属相談所の cancelPolicy にフォールバックする想定。
+   */
+  cancelPolicy?: string;
   /** 婚活タイプ診断で相性の良いタイプID */
   diagnosisTypes?: string[];
 };
@@ -104,6 +116,7 @@ export const AGENCIES: Agency[] = [
       { id: "rv1", user: "S.K さん（33歳）", rating: 5, text: "押しつけられることなく、自分のペースで決められました。", date: "2025年1月" },
       { id: "rv2", user: "M.T さん（29歳）", rating: 5, text: "職種への理解があるカウンセラーさんで安心でした。", date: "2025年2月" },
     ],
+    cancelPolicy: "面談日の前日23:59までキャンセル無料。当日キャンセルも可（初回のみ）。",
     campaign: "初回面談料 無料キャンペーン実施中",
     policy: "「焦らず、急かさず、あなたのペースで」をモットーに、一人ひとりに寄り添ったカウンセリングを行っています。初回面談では婚活の悩みや理想のパートナー像をじっくりお聞きし、無理のないペースで活動を進めていただけるようサポートします。IT・医療・公務員など多様な職種のご成婚実績を持ち、おひとりおひとりのライフスタイルに合わせたご提案が当所の強みです。",
     plan: "premium",
@@ -134,6 +147,7 @@ export const AGENCIES: Agency[] = [
     address: "東京都渋谷区渋谷2丁目",
     hours: "11:00〜21:00",
     holiday: "水曜定休",
+    cancelPolicy: "面談日の24時間前までキャンセル無料。それ以降のキャンセルはご連絡ください。",
     policy: "データと感性の両輪でパートナー探しをサポートします。AI相性診断はあくまでも出会いのきっかけ。大切なのは実際にお会いしたときの「感じ」だと私たちは考えています。20〜30代の方が多く活動されており、同世代の価値観を大切にしながらも、長期的なパートナーシップを見据えたアドバイスを心がけています。",
     reviews: [
       { id: "rv3", user: "K.M さん（28歳）", rating: 5, text: "急かされることなく、自分の希望が整理できた感じ。", date: "2025年3月" },
@@ -168,6 +182,7 @@ export const AGENCIES: Agency[] = [
     reviews: [
       { id: "rv4", user: "M.K さん（39歳）", rating: 5, text: "再婚でも全く気にせず話してくれた。最初からリラックスできた。", date: "2025年1月" },
     ],
+    cancelPolicy: "キャンセルは面談日前日まで承ります。当日の急なご事情もお気軽にご相談ください。",
     campaign: "5月限定 入会金20,000円割引",
     plan: "standard",
     photos: [
@@ -200,6 +215,7 @@ export const AGENCIES: Agency[] = [
     reviews: [
       { id: "rv5", user: "Y.N さん（34歳）", rating: 5, text: "15年のキャリア。話の引き出しが多く、アドバイスが的確。", date: "2025年2月" },
     ],
+    cancelPolicy: "無断キャンセルはご遠慮ください。前日までのご連絡で何度でも日程変更可能です。",
     campaign: "ご成婚実績 累計1,000組突破記念 入会金半額",
     plan: "premium",
     photos: [
@@ -232,6 +248,7 @@ export const AGENCIES: Agency[] = [
     reviews: [
       { id: "rv6", user: "A.R さん（28歳）", rating: 5, text: "同世代感覚で話せた。自分のペースを一緒に考えてくれた。", date: "2025年1月" },
     ],
+    cancelPolicy: "オンライン面談のため当日キャンセル・日程変更も柔軟に対応します。お気軽にどうぞ。",
     plan: "fast",
     photos: [
       { caption: "オンライン面談の様子", bg: "linear-gradient(135deg,#C8DDF8,#B0CCEE)" },
