@@ -89,8 +89,8 @@ a {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(200,169,122,.25);
+  background: var(--pale);
+  border: 1px solid rgba(200,169,122,.35);
   border-radius: 16px;
   padding: 20px 24px;
   margin-top: 28px;
@@ -99,7 +99,7 @@ a {
   text-decoration: none;
 }
 .diagnosis-hero-card:hover {
-  background: rgba(255,255,255,.1);
+  background: var(--adim);
 }
 
 /* カウンセラー横スクロール */

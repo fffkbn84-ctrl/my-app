@@ -127,10 +127,10 @@ export default function HomePage() {
                 <path d="M20 12l-5 4-3 5 5-4 3-5z" stroke="#C8A97A" strokeWidth="1.3" strokeLinejoin="round" fill="rgba(200,169,122,.2)" />
               </svg>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,.5)", letterSpacing: ".1em", marginBottom: 4 }}>
+                <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".1em", marginBottom: 4 }}>
                   約5分 · 無料
                 </div>
-                <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "white", letterSpacing: ".05em" }}>
+                <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "var(--black)", letterSpacing: ".05em" }}>
                   あなたに合うカウンセラータイプを診断する
                 </div>
               </div>
