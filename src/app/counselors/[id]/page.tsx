@@ -439,12 +439,15 @@ export default async function CounselorDetailPage({
 
             {/* 左: パンくず・バッジ・名前・タグ・統計 */}
             <div>
-              <div className="d-breadcrumb">
-                <Link href="/">トップ</Link>
-                <span>/</span>
-                <Link href="/counselors">カウンセラー一覧</Link>
-                <span>/</span>
-                <span>{counselor.name}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 0 }}>
+                <div className="d-breadcrumb">
+                  <Link href="/">トップ</Link>
+                  <span>/</span>
+                  <Link href="/counselors">カウンセラー一覧</Link>
+                  <span>/</span>
+                  <span>{counselor.name}</span>
+                </div>
+                <SaveButton type="counselor" id={counselor.id} variant="dark" />
               </div>
 
               <div className="d-agency-badge">
@@ -531,9 +534,6 @@ export default async function CounselorDetailPage({
 
             {/* 右: 予約カード（PCのみ） */}
             <div className="d-book-card">
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                <SaveButton type="counselor" id={counselor.id} variant="dark" />
-              </div>
               <div className="d-book-card-title">初回面談を予約する</div>
               <div className="d-book-card-sub">次の空き: {counselor.nextAvailable}</div>
               <div className="d-price-row">
