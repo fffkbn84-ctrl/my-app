@@ -131,7 +131,7 @@ export default function HomePage() {
                   約5分 · 無料
                 </div>
                 <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "var(--black)", letterSpacing: ".05em" }}>
-                  あなたに合う<span className="diagnosis-br" />カウンセラータイプを診断する
+                  あなたに合う担当タイプ、<span className="diagnosis-br" />婚活スタイルを診断する
                 </div>
               </div>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
