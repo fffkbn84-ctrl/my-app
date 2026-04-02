@@ -882,3 +882,71 @@ featured: boolean          # 一覧ページで大きく表示するか
 
 `src/lib/mock/columns.ts` の `ColumnArticle` 型に `slug?: string` を追加。
 `slug` が設定されたカードは `ColumnsSection` で `<Link href="/columns/[slug]">` としてレンダリングされ、タップで詳細ページへ遷移する。`slug` 未設定のカードは従来通り `<div>` 表示（後方互換性あり）。
+
+---
+
+## 実装済み機能（2026-04-02 追記⑤）
+
+### モバイル用ボトムナビゲーション ＋ マイページ
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+---
+
+#### ボトムナビゲーション（`src/components/layout/BottomNav.tsx`）
+
+**新規ファイル：** `src/components/layout/BottomNav.tsx` — `'use client'`
+
+**表示条件：**
+- モバイルのみ（`className="md:hidden"`、768px 以下）
+- `src/app/layout.tsx` の `<body>` 内に追加し、全ページで表示
+
+**ナビ項目（3つ）：**
+
+| ラベル | 遷移先 | アイコン |
+|---|---|---|
+| 担当検索 | `/search` | 人物＋虫眼鏡 SVG |
+| お店検索 | `/shops` | 建物 SVG |
+| マイページ | `/mypage` | 人物 SVG |
+
+**スタイル：**
+- `position: fixed; bottom: 0; height: 60px; z-index: 100`
+- `background: rgba(250,250,248,.95)` + `backdrop-filter: blur(20px)`
+- `padding-bottom: env(safe-area-inset-bottom)`（iPhone ホームインジケータ対応）
+- アクティブ項目：`color: var(--accent)`、非アクティブ：`color: var(--muted)`
+- アクティブ判定：`usePathname()` で `pathname.startsWith(item.href)` を使用
+
+**変更ファイル：**
+- `src/app/layout.tsx` — `import BottomNav` を追加し `<body>` 内に `<BottomNav />` を配置
+- `src/app/globals.css` — `@media (max-width: 767px) { main { padding-bottom: calc(60px + env(safe-area-inset-bottom)) } }` を追加（コンテンツがボトムナビに隠れないよう）
+
+---
+
+#### マイページ（`src/app/mypage/page.tsx`）
+
+**新規ファイル：** `src/app/mypage/page.tsx` — Server Component
+
+**状態：** Supabase 未連携のため、ログイン前の状態のみ表示
+
+**ページ構成（最大幅 480px・中央寄せ）：**
+
+1. **ヘッダー：** eyebrow「MY PAGE」＋見出し「マイページ」（Shippori Mincho）
+
+2. **ログイン促進カード：**
+   - `background: var(--black)`、`border-radius: 20px`
+   - 鍵アイコン SVG（accent色）
+   - テキスト：「ログイン・会員登録すると使えるようになります」（Shippori Mincho / 18px / 白）
+   - ボタン2つ（縦並び）：
+     - 「ログイン」— accent背景、黒文字、`border-radius: 50px`
+     - 「新規会員登録（無料）」— 白背景、ink文字
+   - 両ボタンとも `href="#"` で仮置き（**Supabase Auth 実装後に差し替え**）
+
+3. **機能紹介リスト：**
+   - `background: white; border: 1px solid var(--border); border-radius: 16px`
+   - 各項目に accent色 SVG アイコン ＋ 説明テキスト ＋「準備中」バッジ（`var(--pale)` 背景）
+   - ① お気に入りのカウンセラー・相談所を保存（ブックマーク SVG）
+   - ② 共感したエピソードを保存（ハート SVG）
+   - ③ 予約履歴の確認・キャンセル（カレンダー SVG）
+   - ④ 口コミ投稿履歴（メモ SVG）
+
+**デザインルール遵守：** 絵文字なし・SVG アイコンのみ使用。カラーはすべて CSS 変数。
