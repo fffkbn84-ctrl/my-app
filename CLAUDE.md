@@ -802,3 +802,83 @@ interface PaginationProps {
 **技術的注意：**
 - 両ページともサーバーコンポーネントだが、`SaveButton`（`'use client'`）を import してそのまま使える
 - `useSaved` フックは `'use client'` ディレクティブが必要（`localStorage` はサーバー側に存在しないため、`useEffect` 内でのみアクセス）
+
+---
+
+## 実装済み機能（2026-04-02 追記④）
+
+### コラム一覧・詳細ページ（`/columns`・`/columns/[slug]`）
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+**新規ファイル：**
+- `content/columns/good-counselor-traits.mdx` — サンプル記事（取材レポート）
+- `content/columns/omiai-cafe-tokyo.mdx` — サンプル記事（お見合い準備）
+- `content/columns/date-plan-by-stage.mdx` — サンプル記事（デートプラン）
+- `src/lib/columns.ts` — MDX読み込みユーティリティ（3関数）
+- `src/app/columns/page.tsx` — 一覧ページ（Server Component）
+- `src/app/columns/ColumnsClient.tsx` — カテゴリフィルタ（`'use client'`）
+- `src/app/columns/[slug]/page.tsx` — 詳細ページ（SEO・JSON-LD・静的生成）
+- `src/app/columns/[slug]/ShareButtons.tsx` — SNSシェアボタン（`'use client'`）
+
+**変更ファイル：**
+- `src/lib/mock/columns.ts` — `ColumnArticle` 型に `slug?: string` を追加し、3件に MDX スラグを設定
+- `src/components/home/ColumnsSection.tsx` — `slug` ありのカードを `<Link>` でラップ
+
+#### データ構造（`content/columns/*.mdx` フロントマター）
+
+```yaml
+title: string
+description: string
+category: "取材レポート" | "お見合い準備" | "デートプラン"
+author: string
+authorInitial: string      # アバター表示用イニシャル
+authorColor: string        # アバター背景色（hex）
+publishedAt: "YYYY-MM-DD"
+readTime: number           # 分数
+thumbnail: string          # CSSグラデーション文字列
+tags: string[]
+featured: boolean          # 一覧ページで大きく表示するか
+```
+
+#### `src/lib/columns.ts` ユーティリティ関数
+
+| 関数 | 返り値 |
+|---|---|
+| `getAllColumns()` | 全記事のメタデータ一覧（publishedAt 降順） |
+| `getColumnBySlug(slug)` | 特定記事のメタデータ + MDX本文 |
+| `getFeaturedColumns()` | `featured: true` の記事一覧 |
+
+**Supabase移行方針：** 3関数のインターフェースを統一してあるため、移行時は `src/lib/columns.ts` の中身だけ差し替えればページコンポーネントは変更不要。
+
+#### 一覧ページ（`/columns`）の構成
+
+- カテゴリフィルタータブ：「すべて」「取材レポート」「お見合い準備」「デートプラン」
+- `featured: true` の記事は大カード（`grid-row: 1/3`）で左側に表示
+- 記事カード：グラデーションサムネイル・カテゴリタグ・タイトル・著者アバター・投稿日・読了時間
+- レスポンシブ：PC = 5fr / 3fr 2カラム、モバイル = 1カラム
+
+#### 詳細ページ（`/columns/[slug]`）のSEO対応
+
+- `generateMetadata` で OGP・Twitter Card を動的生成
+- `<script type="application/ld+json">` で Article スキーマの構造化データを出力（headline / description / author / publisher / datePublished / keywords）
+- `generateStaticParams` で全記事を静的ビルド（SSG）
+
+**詳細ページの構成：**
+- パンくず：「ふたりへ > コラム > {category}」（各階層 Link）
+- グラデーションサムネイル（240px）：カテゴリタグ（左下）・読了時間（右下）
+- 記事ヘッダー：カテゴリタグ・タイトル（Shippori Mincho）・著者アバター・投稿日・読了時間
+- MDXコンテンツ（`.mdx-content` カスタムCSS：p / h2 / h3 / blockquote / ul / li）
+- タグ一覧（クリックで `/columns?tag={tag}` へ遷移）
+- SNSシェアボタン：「Xでシェア」「リンクをコピー」（コピー後テキスト変化）
+- 著者プロフィールカード（pale背景・丸アバター）
+- 関連記事2件（同カテゴリの他記事）
+
+#### コラム追加方法
+
+`content/columns/` に `.mdx` ファイルを追加するだけで一覧・詳細ページに自動反映。
+
+#### トップページとの連携
+
+`src/lib/mock/columns.ts` の `ColumnArticle` 型に `slug?: string` を追加。
+`slug` が設定されたカードは `ColumnsSection` で `<Link href="/columns/[slug]">` としてレンダリングされ、タップで詳細ページへ遷移する。`slug` 未設定のカードは従来通り `<div>` 表示（後方互換性あり）。
