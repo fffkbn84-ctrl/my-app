@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import SaveButton from "@/components/ui/SaveButton";
 import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, type Agency, type Counselor } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
@@ -185,18 +186,21 @@ export default async function AgencyDetailPage({
           }}
         >
           <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px 40px" }}>
-            {/* パンくず */}
-            <p style={{ fontSize: 11, color: "rgba(0,0,0,.4)", marginBottom: 24 }}>
-              <Link href="/" style={{ color: "inherit" }}>
-                ふたりへ
-              </Link>
-              {" > "}
-              <Link href="/search?tab=agency" style={{ color: "inherit" }}>
-                相談所を探す
-              </Link>
-              {" > "}
-              <span>{agency.name}</span>
-            </p>
+            {/* パンくず + 保存ボタン */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+              <p style={{ fontSize: 11, color: "rgba(0,0,0,.4)" }}>
+                <Link href="/" style={{ color: "inherit" }}>
+                  ふたりへ
+                </Link>
+                {" > "}
+                <Link href="/search?tab=agency" style={{ color: "inherit" }}>
+                  相談所を探す
+                </Link>
+                {" > "}
+                <span>{agency.name}</span>
+              </p>
+              <SaveButton type="agency" id={String(agency.id)} variant="light" />
+            </div>
 
             {/* 種別タグ */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>

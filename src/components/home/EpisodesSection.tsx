@@ -87,7 +87,11 @@ function ArrowIcon() {
 ──────────────────────────────────────────────────────────── */
 function EpisodeCard({ episode }: { episode: Episode }) {
   return (
-    <div className={`ep-card${episode.featured ? " ep-card-ft" : ""}`}>
+    <Link
+      href={`/episodes/${episode.id}`}
+      className={`ep-card${episode.featured ? " ep-card-ft" : ""}`}
+      style={{ display: "block", textDecoration: "none", color: "inherit" }}
+    >
       <EpisodeThumb variant={episode.thumbVariant} featured={episode.featured} />
       <div className="ep-body">
         <div className="ep-tag-row">
@@ -103,12 +107,12 @@ function EpisodeCard({ episode }: { episode: Episode }) {
             <CoupleAvatars variant={episode.thumbVariant} />
             <span className="ep-couple-l">{episode.coupleLabel}</span>
           </div>
-          <Link href={episode.agencyHref} className="ep-link">
-            相談所を見る <ArrowIcon />
-          </Link>
+          <span className="ep-link">
+            続きを読む <ArrowIcon />
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 

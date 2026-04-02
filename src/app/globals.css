@@ -1572,4 +1572,41 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .bk-btn-secondary:not(:disabled):hover { border-color: var(--ink); transform: translateY(-2px); }
 .bk-btn-accent { background: var(--accent); color: white; }
 .bk-btn-accent:not(:disabled):hover { background: #B8956A; transform: translateY(-2px); }
+
+/* ── エピソード詳細ページ ──────────────────────────────── */
+.ep-detail-av {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ep-story {
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 2.2;
+  margin-bottom: 24px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+}
+.ep-quote {
+  padding: 24px 28px;
+  background: var(--pale);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  line-height: 2;
+  color: var(--black);
+  margin: 32px 0;
+}
+.ep-story-tag {
+  font-size: 11px;
+  padding: 5px 14px;
+  border: 1px solid var(--light);
+  border-radius: 20px;
+  color: var(--mid);
+}
 .bk-btn-lg { padding: 18px 40px; font-size: 13px; }

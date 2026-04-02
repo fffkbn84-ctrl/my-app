@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
+import SaveButton from "@/components/ui/SaveButton";
 import { AGENCIES, COUNSELORS } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
@@ -530,6 +531,9 @@ export default async function CounselorDetailPage({
 
             {/* 右: 予約カード（PCのみ） */}
             <div className="d-book-card">
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                <SaveButton type="counselor" id={counselor.id} variant="dark" />
+              </div>
               <div className="d-book-card-title">初回面談を予約する</div>
               <div className="d-book-card-sub">次の空き: {counselor.nextAvailable}</div>
               <div className="d-price-row">
