@@ -274,8 +274,10 @@ export default async function DiagnosisResultPage({
               </p>
             )}
 
+            {/* TODO: Supabase連携後、/search に ?type={typeId} パラメータを追加して
+                      診断タイプでカウンセラーをフィルタリングできるようにする */}
             <Link
-              href={`/search?type=${typeId}`}
+              href="/search"
               className="btn btn-primary"
               style={{ display: "block", textAlign: "center", marginTop: 16 }}
             >
