@@ -943,45 +943,13 @@ export default async function AgencyDetailPage({
 
       <ScrollToTopButton />
 
-      {/* ═══ 固定フッターボタン ═══ */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 40,
-          padding: "16px 24px",
-          background: "linear-gradient(to top, rgba(250,250,248,1) 60%, rgba(250,250,248,0))",
-          pointerEvents: "none",
-        }}
-      >
-        <div style={{ maxWidth: 480, margin: "0 auto", pointerEvents: "auto" }}>
-          <Link
-            href={`/counselors/booking?agencyId=${agency.id}`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              width: "100%",
-              padding: "15px 24px",
-              background: "var(--black)",
-              color: "var(--white)",
-              borderRadius: 50,
-              fontSize: 14,
-              letterSpacing: ".08em",
-              fontFamily: "var(--font-sans)",
-              boxShadow: "0 8px 32px rgba(14,14,14,.3)",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="9" r="5" stroke="currentColor" strokeWidth="1.4" />
-              <path d="M3 22c0-4.971 4.029-9 9-9s9 4.029 9 9" stroke="currentColor" strokeWidth="1.4" />
-            </svg>
-            無料面談を予約する
-          </Link>
-        </div>
+      {/* モバイル用固定CTA — 右端浮遊ボタン */}
+      <div className="cta-mobile-bar">
+        <Link href={`/counselors/booking?agencyId=${agency.id}`} className="cta-mobile-btn">
+          <span>無料</span>
+          <span>面談</span>
+          <span>予約</span>
+        </Link>
       </div>
 
       <Footer />
