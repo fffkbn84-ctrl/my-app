@@ -439,23 +439,23 @@ export default async function CounselorDetailPage({
 
             {/* 左: パンくず・バッジ・名前・タグ・統計 */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 0 }}>
-                <div className="d-breadcrumb">
-                  <Link href="/">トップ</Link>
-                  <span>/</span>
-                  <Link href="/counselors">カウンセラー一覧</Link>
-                  <span>/</span>
-                  <span>{counselor.name}</span>
-                </div>
-                <SaveButton type="counselor" id={counselor.id} variant="dark" />
+              <div className="d-breadcrumb">
+                <Link href="/">トップ</Link>
+                <span>/</span>
+                <Link href="/counselors">カウンセラー一覧</Link>
+                <span>/</span>
+                <span>{counselor.name}</span>
               </div>
 
-              <div className="d-agency-badge">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path d="M5 1L1 2.5v3c0 2.5 1.71 4.84 4 5.5 2.29-.66 4-3 4-5.5v-3L5 1z"
-                    stroke="var(--accent)" strokeWidth=".9" fill="rgba(200,169,122,.15)" />
-                </svg>
-                {counselor.agency}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="d-agency-badge">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M5 1L1 2.5v3c0 2.5 1.71 4.84 4 5.5 2.29-.66 4-3 4-5.5v-3L5 1z"
+                      stroke="var(--accent)" strokeWidth=".9" fill="rgba(200,169,122,.15)" />
+                  </svg>
+                  {counselor.agency}
+                </div>
+                <SaveButton type="counselor" id={counselor.id} variant="dark" />
               </div>
 
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 16 }}>
