@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { Metadata } from "next";
+import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
 
 export const metadata: Metadata = {
   title: "マイページ | ふたりへ",
@@ -6,6 +8,28 @@ export const metadata: Metadata = {
 };
 
 const featureItems = [
+  {
+    label: "診断タイプ・婚活スタイルの確認",
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="9" r="7" stroke="#C8A97A" strokeWidth="1.3" fill="none" />
+        <path
+          d="M9 5v1M9 12v1M5 9h1M12 9h1"
+          stroke="#C8A97A"
+          strokeWidth="1.1"
+          strokeLinecap="round"
+          opacity=".5"
+        />
+        <path
+          d="M11 7l-2.5 2-1.5 2.5 2.5-2 1.5-2.5z"
+          stroke="#C8A97A"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          fill="rgba(200,169,122,.2)"
+        />
+      </svg>
+    ),
+  },
   {
     label: "お気に入りのカウンセラー・相談所を保存",
     icon: (
@@ -268,6 +292,149 @@ export default function MyPage() {
             </div>
           ))}
         </div>
+
+        {/* ────────────────────────────────────────
+            診断結果の履歴プレビュー
+            TODO: Supabase Auth 実装後、ログイン済みユーザーの
+                  diagnosis_results テーブルから取得して表示する。
+                  未ログイン時はこのプレビュー表示を維持する。
+        ──────────────────────────────────────── */}
+        <div style={{ marginTop: 24 }}>
+          <p
+            style={{
+              fontSize: 11,
+              letterSpacing: ".12em",
+              color: "var(--accent)",
+              fontFamily: "'DM Sans', sans-serif",
+              marginBottom: 12,
+            }}
+          >
+            DIAGNOSIS HISTORY
+          </p>
+
+          {/* 履歴カード一覧（将来: ログイン後に実結果を表示） */}
+          <div
+            style={{
+              background: "white",
+              border: "1px solid var(--border)",
+              borderRadius: "16px",
+              overflow: "hidden",
+            }}
+          >
+            {/* サンプル表示（全6タイプのプレビュー） */}
+            {Object.values(DIAGNOSIS_TYPES).slice(0, 3).map((dt, i, arr) => (
+              <div
+                key={dt.id}
+                style={{
+                  padding: "16px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
+                  opacity: 0.45,
+                  filter: "blur(3px)",
+                  userSelect: "none",
+                  pointerEvents: "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: dt.gradient,
+                    flexShrink: 0,
+                  }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      fontSize: 14,
+                      color: "var(--black)",
+                      marginBottom: 2,
+                    }}
+                  >
+                    {dt.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--muted)" }}>
+                    {dt.subtitle}
+                  </div>
+                </div>
+                <div
+                  style={{
+                    fontSize: 10,
+                    color: "var(--muted)",
+                    fontFamily: "'DM Sans', sans-serif",
+                    flexShrink: 0,
+                  }}
+                >
+                  ----/--/--
+                </div>
+              </div>
+            ))}
+
+            {/* ログイン促進オーバーレイ */}
+            <div
+              style={{
+                padding: "20px",
+                background: "var(--pale)",
+                borderTop: "1px solid var(--border)",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "var(--mid)",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 300,
+                  marginBottom: 12,
+                  lineHeight: 1.7,
+                }}
+              >
+                ログインすると、過去の診断結果を
+                <br />
+                いつでも確認できます。
+              </p>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                {/* TODO: Supabase Auth 実装後に href を差し替え */}
+                <a
+                  href="#"
+                  style={{
+                    fontSize: 12,
+                    padding: "9px 20px",
+                    borderRadius: 24,
+                    background: "var(--black)",
+                    color: "white",
+                    fontFamily: "'DM Sans', sans-serif",
+                    letterSpacing: ".05em",
+                    textDecoration: "none",
+                  }}
+                >
+                  ログイン
+                </a>
+                <Link
+                  href="/diagnosis"
+                  style={{
+                    fontSize: 12,
+                    padding: "9px 20px",
+                    borderRadius: 24,
+                    background: "white",
+                    color: "var(--ink)",
+                    border: "1px solid var(--light)",
+                    fontFamily: "'DM Sans', sans-serif",
+                    letterSpacing: ".05em",
+                    textDecoration: "none",
+                  }}
+                >
+                  診断する
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   );
