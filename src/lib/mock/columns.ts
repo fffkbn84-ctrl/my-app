@@ -11,6 +11,8 @@ export type ColumnThumbVariant = "t1" | "t2" | "t3";
 
 export interface ColumnArticle {
   id: string;
+  /** MDXファイルのslug。指定時はカードタップで詳細ページへ遷移 */
+  slug?: string;
   /** タグラベル（例: "取材レポート"） */
   tag: string;
   title: string;
@@ -33,6 +35,7 @@ export interface ColumnArticle {
 export const columnsData: ColumnArticle[] = [
   {
     id: "1",
+    slug: "good-counselor-traits",
     featured: true,
     tag: "取材レポート",
     title: "全国47都道府県の結婚相談所を取材して気づいた、「いいカウンセラー」の共通点",
@@ -44,6 +47,7 @@ export const columnsData: ColumnArticle[] = [
   },
   {
     id: "2",
+    slug: "omiai-cafe-tokyo",
     featured: false,
     tag: "お見合い準備",
     title: "お見合いに使いたい東京カフェ、スタッフが実際に行ってみた12選",
@@ -56,6 +60,7 @@ export const columnsData: ColumnArticle[] = [
   },
   {
     id: "3",
+    slug: "date-plan-by-stage",
     featured: false,
     tag: "デートプラン",
     title: "1回目・2回目・3回目、それぞれのデートで使えるお店の選び方",

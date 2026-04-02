@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { columnsData, type ColumnArticle, type ColumnThumbVariant } from "@/lib/mock/columns";
 
 /* ────────────────────────────────────────────────────────────
@@ -40,8 +41,8 @@ function ColumnThumb({ variant }: { variant: ColumnThumbVariant }) {
    カードコンポーネント
 ──────────────────────────────────────────────────────────── */
 function ColumnCard({ article }: { article: ColumnArticle }) {
-  return (
-    <div className={`col-card${article.featured ? " col-card-featured" : ""}`}>
+  const inner = (
+    <>
       <div className={`col-thumb col-${article.thumbVariant}`}>
         <ColumnThumb variant={article.thumbVariant} />
       </div>
@@ -66,6 +67,24 @@ function ColumnCard({ article }: { article: ColumnArticle }) {
           {article.readTime && <span>{article.readTime}</span>}
         </div>
       </div>
+    </>
+  );
+
+  if (article.slug) {
+    return (
+      <Link
+        href={`/columns/${article.slug}`}
+        className={`col-card${article.featured ? " col-card-featured" : ""}`}
+        style={{ textDecoration: "none", display: "block" }}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={`col-card${article.featured ? " col-card-featured" : ""}`}>
+      {inner}
     </div>
   );
 }
