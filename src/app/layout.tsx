@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import BottomNav from "@/components/layout/BottomNav";
 
 export const metadata: Metadata = {
   title: "ふたりへ — カウンセラーの口コミで選ぶ結婚相談所",
@@ -25,6 +26,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         {children}
+        <BottomNav />
       </body>
     </html>
   );

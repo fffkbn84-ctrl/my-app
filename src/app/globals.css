@@ -1610,3 +1610,12 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   color: var(--mid);
 }
 .bk-btn-lg { padding: 18px 40px; font-size: 13px; }
+
+/* ─────────────────────────────────────────────────────────
+   ボトムナビゲーション — モバイル下部余白
+───────────────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  main {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+}
