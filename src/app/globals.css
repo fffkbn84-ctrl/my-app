@@ -101,6 +101,13 @@ a {
 .diagnosis-hero-card:hover {
   background: var(--adim);
 }
+/* 診断カード内 モバイル専用改行 */
+.diagnosis-br {
+  display: none;
+}
+@media (max-width: 900px) {
+  .diagnosis-br { display: block; }
+}
 
 /* カウンセラー横スクロール */
 .counselor-inner {

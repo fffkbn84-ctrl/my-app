@@ -102,13 +102,13 @@ export default function HomePage() {
           <div className="hero-left">
             <div className="hero-tag">marriage counseling, reimagined</div>
             <h1 className="hero-h1">
-              <span style={{ display: "block" }}>カウンセラーを見てから、</span>
-              <span style={{ display: "block" }}>選べる結婚相談所。</span>
+              <span style={{ display: "block" }}>担当者を自分で選んで</span>
+              <span style={{ display: "block" }}>予約までここで完結</span>
               <span className="hero-h1-en">The counselor comes first.</span>
             </h1>
             <p className="hero-sub">
-              面談した人だけが書けるレビューと、担当者の顔・経歴が最初から見えるサービスです。<br /><br />
-              お見合いやデートのお店情報も、ここで。<br />出会いから、ずっと先まで一緒にいます。
+              面談した人だけが書ける口コミと、担当者の顔・経歴が最初から見えるサービスです。<br /><br />
+              お見合いやデート、婚活準備のための美容のお店の情報も、ここで。<br />出会いから、ずっと先まで一緒にいます。
             </p>
             <div className="hero-actions">
               <Link href="/search" className="btn btn-dark">相談所を探す</Link>
@@ -131,7 +131,7 @@ export default function HomePage() {
                   約5分 · 無料
                 </div>
                 <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "var(--black)", letterSpacing: ".05em" }}>
-                  あなたに合うカウンセラータイプを診断する
+                  あなたに合う<span className="diagnosis-br" />カウンセラータイプを診断する
                 </div>
               </div>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
