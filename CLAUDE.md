@@ -950,3 +950,79 @@ featured: boolean          # 一覧ページで大きく表示するか
    - ④ 口コミ投稿履歴（メモ SVG）
 
 **デザインルール遵守：** 絵文字なし・SVG アイコンのみ使用。カラーはすべて CSS 変数。
+
+---
+
+## 実装済み機能（2026-04-02 追記⑥）
+
+### モバイルCTAをボトムナビと被らない右端浮遊ボタンに変更
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+**背景：** ボトムナビゲーション（`BottomNav`）追加後、カウンセラー・相談所・お店詳細ページの固定フッターCTAがボトムナビに被って見えなくなっていた。
+
+**変更ファイル：**
+- `src/app/globals.css` — `.cta-mobile-bar` / `.cta-mobile-btn` を全面刷新
+- `src/app/counselors/[id]/page.tsx` — CTAのHTML簡略化
+- `src/app/agencies/[id]/page.tsx` — インラインスタイルの固定フッターをクラス化
+- `src/app/places/[id]/page.tsx` — CTAのHTML簡略化
+
+**新しいCTA仕様：**
+
+| 項目 | 変更前 | 変更後 |
+|---|---|---|
+| 位置 | `bottom: 0; left: 0; right: 0`（全幅バー） | `bottom: calc(60px + env(safe-area-inset-bottom) + 12px); right: 16px`（右端浮遊） |
+| 形状 | 横幅いっぱいの帯 | 72×72px 四角ボタン（`border-radius: 16px`） |
+| テキスト | 「無料面談を予約する — 完全無料」1行 | 「無料 / 面談 / 予約」縦3行（お店は「サイトを / 見る」2行） |
+| z-index | 50 | 90 |
+| shadow | `0 6px 24px rgba(200,169,122,.4)` | `0 4px 20px rgba(200,169,122,.5), 0 1px 4px rgba(0,0,0,.12)` |
+| hover | `opacity: .9` | `opacity: .9; transform: translateY(-2px)` |
+
+相談所詳細ページは以前インラインスタイルで独自実装されていたため、同クラスに統一した。
+
+---
+
+### 相談所詳細ページに予約コーナーを追加 ＋ キャンセルポリシー対応
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+#### 予約コーナー（`/agencies/[id]`）
+
+**挿入位置：** 口コミセクション（`id="reviews"`）直後、`<ScrollToTopButton />` 直前
+
+**デザイン：**
+- `border: 1px solid var(--light); border-radius: 20px` のカード（最大幅560px・中央寄せ）
+- 「reservation」eyebrow（accent色・letter-spacing）＋「無料面談を予約する」（Shippori Mincho）
+- 面談料金 ¥0 + 完全無料バッジ（`.d-price-row` クラス使用でカウンセラーページと統一）
+- CTAボタン：「カウンセラーを選んで予約する」→ `/counselors/booking?agencyId={id}`（`.cta-book-main` クラス）
+- `ⓘ` SVGアイコン付きのキャンセルポリシーテキスト
+
+#### `cancelPolicy` フィールド
+
+**`src/lib/data.ts`** に以下を追加：
+
+```typescript
+// Agency 型
+cancelPolicy?: string;  // 相談所ごとのキャンセルポリシー
+
+// Counselor 型
+cancelPolicy?: string;  // 将来: 所属相談所の cancelPolicy にフォールバックする想定
+```
+
+**表示ロジック：**
+```tsx
+{agency.cancelPolicy ?? "当日キャンセル可 · 登録不要 · 完全無料"}
+```
+`cancelPolicy` が未設定の場合はデフォルト文言を表示。
+
+**各相談所のキャンセルポリシー設定値：**
+
+| 相談所 | cancelPolicy |
+|---|---|
+| ブライダルハウス東京 | 面談日の前日23:59までキャンセル無料。当日キャンセルも可（初回のみ）。 |
+| リーガルウェディング | 面談日の24時間前までキャンセル無料。それ以降のキャンセルはご連絡ください。 |
+| シンプリーマリッジ | キャンセルは面談日前日まで承ります。当日の急なご事情もお気軽にご相談ください。 |
+| ハッピーロードサロン | 無断キャンセルはご遠慮ください。前日までのご連絡で何度でも日程変更可能です。 |
+| コトブキ相談センター | オンライン面談のため当日キャンセル・日程変更も柔軟に対応します。 |
+
+**将来の展開：** `Counselor` 型にも `cancelPolicy?` を追加済み。カウンセラー詳細ページの「当日キャンセル可 · 登録不要 · 完全無料」テキストを、将来的に `counselor.cancelPolicy ?? agency.cancelPolicy ?? デフォルト` の順でフォールバックする実装に切り替えやすい設計にしてある。
