@@ -626,18 +626,16 @@ export default async function PlaceDetailPage({
         </div>
       </main>
 
-      {/* モバイル用固定フッターCTA */}
+      {/* モバイル用固定CTA — 右端浮遊ボタン */}
       <div className="cta-mobile-bar">
-        <div style={{ fontSize: 11, color: "var(--mid)", marginBottom: 2 }}>
-          {place.priceRange} · {place.access}
-        </div>
         <a
           href="#"
           target="_blank"
           rel="noopener noreferrer"
           className="cta-mobile-btn"
         >
-          お店のサイトを見る
+          <span>サイトを</span>
+          <span>見る</span>
         </a>
       </div>
 

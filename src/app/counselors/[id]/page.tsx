@@ -868,13 +868,12 @@ export default async function CounselorDetailPage({
         <ScrollToTopButton />
       </main>
 
-      {/* モバイル用固定フッターCTA */}
+      {/* モバイル用固定CTA — 右端浮遊ボタン */}
       <div className="cta-mobile-bar">
-        <div style={{ fontSize: 11, color: "var(--mid)", marginBottom: 2 }}>
-          次の空き: {counselor.nextAvailable}
-        </div>
         <Link href={`/booking/${counselor.id}`} className="cta-mobile-btn">
-          無料面談を予約する — 完全無料
+          <span>無料</span>
+          <span>面談</span>
+          <span>予約</span>
         </Link>
       </div>
 
