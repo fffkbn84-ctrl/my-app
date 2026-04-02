@@ -754,3 +754,51 @@ interface PaginationProps {
 - ページ末尾に `<ScrollToTopButton />` を追加
 
 **技術的注意：** `<ScrollToTopButton />` は `return` のルートに並列で置けない。必ず `<>...</>` フラグメントでラップすること（未対応だとTurbopackが「Expression expected」でビルドエラーになる）。
+
+---
+
+## 実装済み機能（2026-04-02 追記）
+
+### 成婚エピソード詳細ページ（`/episodes/[id]`）
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+**新規ファイル：**
+- `src/app/episodes/[id]/page.tsx` — サーバーコンポーネント。`generateStaticParams` で3件静的生成
+- `src/components/episodes/SympathyButton.tsx` — `'use client'`。共感ボタン（押下でカウント+1・accent色に変化）
+
+**変更ファイル：**
+- `src/lib/mock/episodes.ts` — `Episode` 型を拡張：`agencyId`, `counselorId`, `year`, `person1`, `person2`, `story`, `quote`, `tags`, `sympathyCount`, `gradient` を追加。全3件のデータに反映
+- `src/components/home/EpisodesSection.tsx` — カード全体を `<Link href="/episodes/{id}">` でラップ。ネストlink回避のため内側の「相談所を見る」Linkを削除し「続きを読む」テキストに変更
+- `src/app/globals.css` — `.ep-detail-av` / `.ep-story` / `.ep-quote` / `.ep-story-tag` クラスを追加
+
+**詳細ページの構成：**
+- ヒーロー：グラデーション背景・カップルSVGアバター・ハートSVG・相談所バッジ・タイトル（Shippori Mincho）
+- 本文：ストーリー段落（`ep-story`）・引用ブロック（`ep-quote`）・タグ（`ep-story-tag`）
+- 共感ボタン：ローカルstateのみ（Supabase連携後にDB保存へ切り替え）
+- 担当相談所・カウンセラーへのリンクカード（2カラム）
+- 他の2件エピソードカード（`Other Stories`）
+
+---
+
+### 保存ボタン（カウンセラー・相談所詳細）
+
+**新規ファイル：**
+- `src/hooks/useSaved.ts` — `localStorage` で保存状態を永続化。`useSaved(type, id)` → `{ saved, toggle }` を返す。Supabase連携時はDB読み書きに差し替え
+- `src/components/ui/SaveButton.tsx` — `'use client'`。`dark`（黒背景）/ `light`（明るい背景）variant対応。hover時ツールチップ表示
+
+**ボタンのデザイン：**
+
+| 状態 | スタイル |
+|---|---|
+| 未保存（dark） | `background: rgba(255,255,255,.08)`, `border: rgba(255,255,255,.2)`, 白アイコン |
+| 未保存（light） | `background: rgba(255,255,255,.5)`, `border: rgba(0,0,0,.15)`, inkアイコン |
+| 保存済み（共通） | `background: var(--adim)`, `border: var(--accent)`, accentアイコン（塗りつぶし） |
+
+**配置：**
+- カウンセラー詳細（`/counselors/[id]`）：ヒーローの所属相談所名バッジ行の右端（`justify-content: space-between`）→ モバイルでも常に表示
+- 相談所詳細（`/agencies/[id]`）：ヒーローのパンくずリスト行の右端（同）
+
+**技術的注意：**
+- 両ページともサーバーコンポーネントだが、`SaveButton`（`'use client'`）を import してそのまま使える
+- `useSaved` フックは `'use client'` ディレクティブが必要（`localStorage` はサーバー側に存在しないため、`useEffect` 内でのみアクセス）
