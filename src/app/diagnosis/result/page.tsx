@@ -285,7 +285,26 @@ export default async function DiagnosisResultPage({
             </Link>
           </div>
 
-          {/* ⑤ SNSシェア */}
+          {/* ⑤ あとから見返したい人向けリンク */}
+          {/* TODO: Supabase Auth 実装後、マイページの登録・ログイン画面（/mypage/register 等）に差し替え */}
+          <div style={{ textAlign: "center", marginBottom: 20 }}>
+            <Link
+              href="/mypage"
+              style={{
+                fontSize: 13,
+                color: "var(--accent)",
+                fontFamily: "Noto Sans JP, sans-serif",
+                fontWeight: 300,
+                letterSpacing: "0.03em",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
+            >
+              あとから見返したい人はこちら（無料）
+            </Link>
+          </div>
+
+          {/* ⑥ SNSシェア */}
           <div style={{ textAlign: "center", marginBottom: 24 }}>
             <a
               href={twitterUrl}
@@ -313,7 +332,7 @@ export default async function DiagnosisResultPage({
             </a>
           </div>
 
-          {/* ⑥ もう一度診断する */}
+          {/* ⑦ もう一度診断する */}
           <div style={{ textAlign: "center" }}>
             <Link
               href="/diagnosis"

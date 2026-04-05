@@ -45,7 +45,7 @@ export type DiagnosisType = {
 export const QUESTIONS: DiagnosisQuestion[] = [
   {
     id: 1,
-    text: "婚活を始めた理由に近いのは？",
+    text: "今のあなたの気持ちに一番近いのは？",
     options: [
       { label: "焦りはないけど、そろそろ本気で考えたい", scores: { calm: 2, self: 1 } },
       { label: "周囲の結婚ラッシュで少し焦っている", scores: { support: 1, anxiety: 2 } as DiagnosisScores },

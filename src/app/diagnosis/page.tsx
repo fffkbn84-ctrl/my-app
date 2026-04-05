@@ -93,7 +93,7 @@ export default function DiagnosisPage() {
               あなたに合う、カウンセラータイプ診断
             </h1>
             <p style={{ fontSize: 13, color: "var(--muted)", fontWeight: 300 }}>
-              8つの質問に答えるだけ。約5分で診断できます。
+              8つの質問に答えるだけ。1〜3分で診断できます。
             </p>
           </div>
 

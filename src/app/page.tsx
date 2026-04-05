@@ -128,7 +128,7 @@ export default function HomePage() {
               </svg>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".1em", marginBottom: 4 }}>
-                  約5分 · 無料
+                  サクッと1~3分 · 無料
                 </div>
                 <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "var(--black)", letterSpacing: ".05em" }}>
                   あなたに合う担当タイプ、<span className="diagnosis-br" />婚活スタイルを診断する
