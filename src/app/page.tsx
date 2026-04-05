@@ -111,8 +111,8 @@ export default function HomePage() {
               お見合いやデート、婚活準備のための美容のお店の情報も、ここで。<br />出会いから、ずっと先まで一緒にいます。
             </p>
             <div className="hero-actions">
-              <Link href="/search" className="btn btn-dark">相談所を探す</Link>
-              <Link href="/shops" className="btn btn-outline">お見合い・デートのお店</Link>
+              <Link href="/search" className="btn btn-dark">カウンセラーを探す</Link>
+              <Link href="/shops" className="btn btn-outline">ふたりのお店を探す</Link>
             </div>
             <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", marginTop: "12px" }}>✓ 無料で使えます・登録不要</p>
 
