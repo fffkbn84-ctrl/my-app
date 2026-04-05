@@ -784,27 +784,21 @@ a {
 }
 .logo-ja {
   font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
   font-size: 18px;
   letter-spacing: .1em;
   color: var(--ink);
 }
 .logo-sep {
-  width: 1px;
-  height: 14px;
-  background: var(--light);
+  color: var(--accent);
+  margin: 0 6px;
 }
 .logo-en {
-  font-family: 'DM Serif Display', serif;
-  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 200;
+  font-size: 15px;
   letter-spacing: .08em;
   color: var(--muted);
-  font-style: italic;
-}
-.logo-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--accent);
 }
 
 /* ═══════════════════════════════════════════════════

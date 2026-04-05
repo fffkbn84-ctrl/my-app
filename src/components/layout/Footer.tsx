@@ -7,9 +7,8 @@ export default function Footer() {
         <div>
           <Link href="/" className="logo" style={{ display: "inline-flex", marginBottom: "12px" }}>
             <span className="logo-ja">ふたりへ</span>
-            <span className="logo-sep" />
+            <span className="logo-sep">·</span>
             <span className="logo-en">futarive</span>
-            <span className="logo-dot" />
           </Link>
           <p className="ft-desc">関係を育てているふたりのための場所。婚活中から、ずっと先まで。</p>
         </div>

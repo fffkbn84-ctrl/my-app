@@ -5,12 +5,24 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-light">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* ロゴ */}
-        <Link href="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center">
           <span
             className="text-xl tracking-widest text-ink"
-            style={{ fontFamily: "var(--font-mincho)" }}
+            style={{ fontFamily: "var(--font-mincho)", fontWeight: 500 }}
           >
             ふたりへ
+          </span>
+          <span style={{ color: "var(--accent)", margin: "0 6px" }}>·</span>
+          <span
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 200,
+              fontSize: "17px",
+              color: "var(--muted)",
+              letterSpacing: ".08em",
+            }}
+          >
+            futarive
           </span>
         </Link>
 
