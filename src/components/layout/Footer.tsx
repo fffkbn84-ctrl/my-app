@@ -35,7 +35,7 @@ export default function Footer() {
         <div className="ft-col">
           <h5>ふたりへについて</h5>
           <ul>
-            <li><Link href="#">このサービスについて</Link></li>
+            <li><Link href="/about">このサービスについて</Link></li>
             <li><Link href="#">口コミの信頼性</Link></li>
             <li><Link href="#">コラム</Link></li>
             <li><Link href="#">掲載のご相談</Link></li>
