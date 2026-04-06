@@ -209,14 +209,29 @@ export default function HomePage() {
         <section className="vision-sec">
           <div className="vision-inner">
             <div className="vision-eyebrow">our belief</div>
-            <p className="vision-quote reveal">
-              世の中のレビューサイトは、<br />
-              <em>関係が出来上がった人たちのため</em>にある。<br /><br />
-              ふたりへは、<em>今まさに関係を作っている</em><br />あなたたちのためにある。
+            <p className="vision-main-copy reveal">
+              選ぶ自由と、頑張れる場所を。
             </p>
             <p className="vision-sub reveal rd1">
-              不安なまま相談所に飛び込まなくていい。お見合いの場所に迷わなくていい。そのそばに、ずっといます。
+              「世の中のレビューサイトは、<br />
+              関係が出来上がった人たちのためにある」<br />
+              <br />
+              「<span style={{ color: "var(--accent)" }}>ふたりへ</span>は　今まさに関係を作っている<br />
+              あなたたちのためにある」<br />
+              <br />
+              「不安なまま相談所に飛び込まなくていい<br />
+              お見合いのカフェも　婚活前の美容も<br />
+              デートのお店も　迷わない<br />
+              そのそばに、ずっといます」
             </p>
+            <div className="vision-btn-wrap reveal rd2">
+              <Link href="/about" className="vision-btn">
+                このサービスについてもっと知る
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 
