@@ -814,19 +814,10 @@ export default function AboutPage() {
               gap: 16,
             }}
           >
-            <Link href="/search" className="btn btn-primary" style={{ minWidth: 240 }}>
+            <Link href="/search" className="btn btn-wh" style={{ minWidth: 240 }}>
               カウンセラーを探す
             </Link>
-            <Link
-              href="/shops"
-              className="btn"
-              style={{
-                minWidth: 240,
-                background: "transparent",
-                border: "1px solid rgba(255,255,255,.3)",
-                color: "white",
-              }}
-            >
+            <Link href="/shops" className="btn btn-gl" style={{ minWidth: 240 }}>
               ふたりのお店を探す
             </Link>
           </div>
