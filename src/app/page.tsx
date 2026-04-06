@@ -213,16 +213,16 @@ export default function HomePage() {
               選ぶ自由と、頑張れる場所を。
             </p>
             <p className="vision-sub reveal rd1">
-              「世の中のレビューサイトは、<br />
-              関係が出来上がった人たちのためにある」<br />
+              世の中のレビューサイトは、<br />
+              関係が出来上がった人たちのためにある<br />
               <br />
-              「<span style={{ color: "var(--accent)" }}>ふたりへ</span>は　今まさに関係を作っている<br />
-              あなたたちのためにある」<br />
+              <span style={{ color: "var(--accent)" }}>ふたりへ</span>は　今まさに関係を作っている<br />
+              あなたたちのためにある<br />
               <br />
-              「不安なまま相談所に飛び込まなくていい<br />
+              不安なまま相談所に飛び込まなくていい<br />
               お見合いのカフェも　婚活前の美容も<br />
               デートのお店も　迷わない<br />
-              そのそばに、ずっといます」
+              そのそばに、ずっといます
             </p>
             <div className="vision-btn-wrap reveal rd2">
               <Link href="/about" className="vision-btn">
