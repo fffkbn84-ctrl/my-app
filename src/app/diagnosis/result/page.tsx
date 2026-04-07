@@ -5,59 +5,61 @@ import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { COUNSELORS } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
-   タイプ別SVGシンボル
+   サブカード定義
 ──────────────────────────────────────────────────────────── */
-function TypeSymbol({ typeId }: { typeId: DiagnosisTypeId }) {
-  switch (typeId) {
-    case "calm":
-      return (
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="32" stroke="#C8A97A" strokeWidth="1.5" fill="rgba(200,169,122,.08)" />
-          <path d="M22 36c0-7.732 6.268-14 14-14s14 6.268 14 14" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M28 42c2 3 12 3 16 0" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      );
-    case "self":
-      return (
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="32" stroke="#7A9E87" strokeWidth="1.5" fill="rgba(122,158,135,.08)" />
-          <circle cx="36" cy="30" r="10" stroke="#7A9E87" strokeWidth="1.5" fill="none" />
-          <path d="M20 52c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="#7A9E87" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        </svg>
-      );
-    case "support":
-      return (
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="32" stroke="#6B8FBF" strokeWidth="1.5" fill="rgba(107,143,191,.08)" />
-          <path d="M24 44V32a12 12 0 0124 0v12" stroke="#6B8FBF" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M20 44h32" stroke="#6B8FBF" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      );
-    case "strategy":
-      return (
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="32" stroke="#B8860B" strokeWidth="1.5" fill="rgba(184,134,11,.08)" />
-          <path d="M22 50l8-14 8 6 12-20" stroke="#B8860B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-    case "online":
-      return (
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="32" stroke="#9B7AB5" strokeWidth="1.5" fill="rgba(155,122,181,.08)" />
-          <rect x="20" y="26" width="32" height="22" rx="3" stroke="#9B7AB5" strokeWidth="1.5" fill="none" />
-          <path d="M28 48v4M44 48v4M24 52h24" stroke="#9B7AB5" strokeWidth="1.5" strokeLinecap="round" />
-          <circle cx="36" cy="37" r="5" stroke="#9B7AB5" strokeWidth="1.3" fill="none" />
-        </svg>
-      );
-    case "restart":
-      return (
-        <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-          <circle cx="36" cy="36" r="32" stroke="#C4877A" strokeWidth="1.5" fill="rgba(196,135,122,.08)" />
-          <path d="M24 36a12 12 0 1112-12" stroke="#C4877A" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-          <path d="M36 18l-4-4 4-4" stroke="#C4877A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-  }
+type SubCardDef = {
+  key: "cafe" | "beauty" | "column";
+  title: string;
+  sub: string;
+  href: string;
+  icon: React.ReactNode;
+};
+
+const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
+  cafe: {
+    key: "cafe",
+    title: "お見合い・デートのお店",
+    sub: "沈黙しない場所を、知っている",
+    href: "/shops",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M6 10h16v10a3 3 0 01-3 3H9a3 3 0 01-3-3V10z" stroke="#C8A97A" strokeWidth="1.3" fill="none" />
+        <path d="M10 10V8a4 4 0 018 0v2" stroke="#C8A97A" strokeWidth="1.3" strokeLinecap="round" />
+        <path d="M22 12h2a2 2 0 010 4h-2" stroke="#C8A97A" strokeWidth="1.3" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  beauty: {
+    key: "beauty",
+    title: "婚活準備の美容室・サロン",
+    sub: "第一印象は、作れる",
+    href: "/shops?category=beauty",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="10" r="5" stroke="#C4877A" strokeWidth="1.3" fill="none" />
+        <path d="M6 24c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="#C4877A" strokeWidth="1.3" strokeLinecap="round" fill="none" />
+        <path d="M19 6l3-3M22 9l-2-2" stroke="#C4877A" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  column: {
+    key: "column",
+    title: "婚活コラムを読む",
+    sub: "整えてから、進もう",
+    href: "/columns",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+        <path d="M7 4h10l5 5v15H7V4z" stroke="#6B8FBF" strokeWidth="1.3" strokeLinejoin="round" fill="none" />
+        <path d="M17 4v5h5M10 13h8M10 17h5" stroke="#6B8FBF" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+};
+
+function getSubCards(subRoute: "cafe" | "beauty" | "counselor"): [SubCardDef, SubCardDef] {
+  if (subRoute === "beauty") return [SUB_CARDS.beauty, SUB_CARDS.cafe];
+  if (subRoute === "counselor") return [SUB_CARDS.cafe, SUB_CARDS.column];
+  return [SUB_CARDS.cafe, SUB_CARDS.beauty]; // cafe (default)
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -69,166 +71,195 @@ export default async function DiagnosisResultPage({
   searchParams: Promise<{ type?: string }>;
 }) {
   const { type } = await searchParams;
-  const typeId = (type as DiagnosisTypeId) || "calm";
-  const diagType = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.calm;
+  const typeId = (type as DiagnosisTypeId) || "C";
+  const diagType = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
 
-  // counselorTagsに一致するカウンセラーを最大2件取得
-  const matchedCounselors = COUNSELORS.filter((c) =>
-    c.diagnosisTypes?.some((t) => t === typeId)
+  // typeに合うカウンセラーを最大2件取得
+  const matchedCounselors = COUNSELORS.filter(
+    (c) => c.diagnosisType === typeId
   ).slice(0, 2);
 
+  const [subCard1, subCard2] = getSubCards(diagType.subRoute);
+
   const shareText = encodeURIComponent(
-    `私の婚活タイプは「${diagType.name}」でした。#ふたりへ`
+    `私は${diagType.name}でした。\n#ふたりへ診断 #婚活`
   );
   const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}`;
 
   return (
     <>
       <Header />
-      <main style={{ minHeight: "100vh", background: "var(--white)", paddingTop: 80 }}>
+      <main
+        style={{
+          minHeight: "100vh",
+          background: "var(--white)",
+          paddingTop: 64,
+          paddingBottom: 80,
+        }}
+      >
+        <div style={{ maxWidth: 480, margin: "0 auto" }}>
 
-        {/* ═══ 結果ヒーロー ═══ */}
-        <div
-          style={{
-            background: diagType.gradient,
-            padding: "56px 32px 48px",
-            textAlign: "center",
-          }}
-        >
+          {/* ══════════════════════════════════
+              ① ヒーロー
+          ══════════════════════════════════ */}
           <div
             style={{
-              maxWidth: 560,
-              margin: "0 auto",
+              background: diagType.gradient,
+              padding: "52px 28px 60px",
             }}
           >
+            {/* パンくず */}
             <div
               style={{
                 fontSize: 11,
-                letterSpacing: "0.15em",
-                color: "var(--mid)",
-                fontFamily: "DM Serif Display, serif",
-                marginBottom: 16,
+                color: "rgba(0,0,0,.35)",
+                marginBottom: 24,
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
               }}
             >
-              診断結果
+              <Link href="/" style={{ color: "inherit" }}>ふたりへ</Link>
+              <span>/</span>
+              <span>診断結果</span>
             </div>
 
-            <div style={{ marginBottom: 24, display: "flex", justifyContent: "center" }}>
-              <TypeSymbol typeId={typeId} />
-            </div>
-
+            {/* タイプ名 */}
             <h1
               style={{
                 fontFamily: "Shippori Mincho, serif",
-                fontSize: "clamp(28px, 5vw, 48px)",
+                fontSize: "clamp(26px, 5vw, 42px)",
                 fontWeight: 400,
                 color: "var(--black)",
                 letterSpacing: "0.05em",
                 lineHeight: 1.3,
-                marginBottom: 12,
+                marginBottom: 10,
               }}
             >
               {diagType.name}
             </h1>
+
+            {/* label */}
             <p
               style={{
                 fontSize: 16,
                 color: "var(--ink)",
-                letterSpacing: "0.03em",
+                marginBottom: 20,
+                letterSpacing: "0.02em",
               }}
             >
-              {diagType.subtitle}
+              {diagType.label}
             </p>
-          </div>
-        </div>
 
-        {/* ═══ 結果詳細 ═══ */}
-        <div style={{ maxWidth: 560, margin: "0 auto", padding: "40px 24px 80px" }}>
-
-          {/* ① タイプ説明 */}
-          <p
-            style={{
-              fontSize: 15,
-              color: "var(--ink)",
-              lineHeight: 2.2,
-              marginBottom: 28,
-            }}
-          >
-            {diagType.description}
-          </p>
-
-          {/* ② タグ */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 32 }}>
-            {diagType.tags.map((tag) => (
-              <span
-                key={tag}
-                style={{
-                  fontSize: 12,
-                  padding: "6px 14px",
-                  borderRadius: 20,
-                  background: diagType.gradient,
-                  color: "var(--ink)",
-                  fontFamily: "Noto Sans JP, sans-serif",
-                  fontWeight: 300,
-                  letterSpacing: "0.03em",
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* ③ カウンセラーへのアドバイス */}
-          <div
-            className="ep-quote"
-            style={{
-              marginBottom: 36,
-              borderRadius: "0 8px 8px 0",
-            }}
-          >
-            <p style={{ fontSize: 14, color: "var(--ink)", lineHeight: 2, fontWeight: 300 }}>
-              {diagType.advice}
-            </p>
-          </div>
-
-          {/* ④ 相性の良いカウンセラー */}
-          <div
-            style={{
-              background: "var(--pale)",
-              borderRadius: 16,
-              padding: 24,
-              marginBottom: 36,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                letterSpacing: "0.12em",
-                color: "var(--accent)",
-                fontFamily: "DM Serif Display, serif",
-                marginBottom: 16,
-              }}
-            >
-              このタイプに相性の良いカウンセラー
+            {/* description 箇条書き */}
+            <div style={{ marginBottom: 20, display: "flex", flexDirection: "column", gap: 8 }}>
+              {diagType.description.map((d, i) => (
+                <div
+                  key={i}
+                  style={{
+                    borderLeft: `2px solid ${diagType.color}`,
+                    paddingLeft: 12,
+                    paddingTop: 4,
+                    paddingBottom: 4,
+                    fontSize: 14,
+                    color: "var(--ink)",
+                    lineHeight: 1.7,
+                    fontWeight: 300,
+                  }}
+                >
+                  {d}
+                </div>
+              ))}
             </div>
 
+            {/* タグ */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {diagType.tags.map((tag) => (
+                <span
+                  key={tag}
+                  style={{
+                    fontSize: 11,
+                    padding: "4px 12px",
+                    borderRadius: 20,
+                    background: `${diagType.color}18`,
+                    border: `1px solid ${diagType.color}40`,
+                    color: diagType.color,
+                    fontFamily: "Noto Sans JP, sans-serif",
+                    fontWeight: 400,
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* ══════════════════════════════════
+              ② メインカード（カウンセラー）
+          ══════════════════════════════════ */}
+          <div
+            style={{
+              background: "white",
+              border: `1.5px solid ${diagType.color}4D`,
+              borderRadius: 20,
+              padding: "28px 24px",
+              margin: "-20px 20px 0",
+              position: "relative",
+              zIndex: 1,
+              boxShadow: "0 8px 32px rgba(0,0,0,.08)",
+            }}
+          >
+            {/* eyebrow */}
+            <div
+              style={{
+                fontSize: 9,
+                letterSpacing: ".18em",
+                color: diagType.color,
+                fontFamily: "DM Serif Display, serif",
+                marginBottom: 12,
+              }}
+            >
+              あなたにおすすめの担当者タイプ
+            </div>
+
+            {/* カウンセラータイプ名 */}
+            <div
+              style={{
+                fontFamily: "Shippori Mincho, serif",
+                fontSize: 20,
+                color: "var(--black)",
+                marginBottom: 6,
+              }}
+            >
+              {diagType.counselorType}
+            </div>
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--mid)",
+                lineHeight: 2,
+                marginBottom: 20,
+              }}
+            >
+              {diagType.counselorDesc}
+            </p>
+
+            {/* 区切り線 */}
+            <div style={{ borderBottom: "1px solid var(--pale)", marginBottom: 20 }} />
+
+            {/* カウンセラー一覧 */}
             {matchedCounselors.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
                 {matchedCounselors.map((c) => (
-                  <Link
+                  <div
                     key={c.id}
-                    href={`/counselors/${c.id}`}
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 16,
-                      background: "white",
-                      borderRadius: 12,
-                      padding: "14px 16px",
-                      border: "1px solid var(--border)",
-                      transition: "border-color 0.2s",
+                      gap: 14,
                     }}
                   >
+                    {/* アバター */}
                     <div
                       style={{
                         width: 44,
@@ -246,48 +277,150 @@ export default async function DiagnosisResultPage({
                         <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke={c.svgColor} strokeWidth="1.2" fill="none" opacity=".4" />
                       </svg>
                     </div>
+                    {/* 情報 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontSize: 14,
-                          color: "var(--black)",
-                          fontFamily: "Noto Sans JP, sans-serif",
-                          fontWeight: 400,
-                          marginBottom: 2,
-                        }}
-                      >
+                      <div style={{ fontSize: 14, color: "var(--black)", fontWeight: 400, marginBottom: 2 }}>
                         {c.name}
                       </div>
                       <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 300 }}>
-                        {c.agencyName} · {c.area}
+                        {c.agencyName} · 経験{c.experience}年
                       </div>
                     </div>
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8h10M7 4l4 4-4 4" stroke="var(--accent)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </Link>
+                    {/* 予約ボタン */}
+                    <Link
+                      href={`/booking/${c.id}`}
+                      style={{
+                        fontSize: 11,
+                        padding: "8px 14px",
+                        borderRadius: 50,
+                        background: "var(--black)",
+                        color: "white",
+                        fontFamily: "Noto Sans JP, sans-serif",
+                        fontWeight: 300,
+                        letterSpacing: ".03em",
+                        textDecoration: "none",
+                        flexShrink: 0,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      面談を予約する
+                    </Link>
+                  </div>
                 ))}
               </div>
             ) : (
-              <p style={{ fontSize: 13, color: "var(--muted)", fontWeight: 300 }}>
+              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 16, fontWeight: 300 }}>
                 近日公開予定です。
               </p>
             )}
 
-            {/* TODO: Supabase連携後、/search に ?type={typeId} パラメータを追加して
-                      診断タイプでカウンセラーをフィルタリングできるようにする */}
+            {/* もっと見るリンク */}
+            {/* TODO: Supabase連携後、/search に ?type={typeId} パラメータでフィルタリングできるようにする */}
             <Link
               href="/search"
-              className="btn btn-primary"
-              style={{ display: "block", textAlign: "center", marginTop: 16 }}
+              style={{
+                fontSize: 12,
+                color: diagType.color,
+                fontFamily: "Noto Sans JP, sans-serif",
+                fontWeight: 300,
+                letterSpacing: ".03em",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+              }}
             >
-              すべて見る
+              カウンセラーをもっと見る
             </Link>
           </div>
 
-          {/* ⑤ あとから見返したい人向けリンク */}
+          {/* ══════════════════════════════════
+              ③ 分岐テキスト（タイプA以外）
+          ══════════════════════════════════ */}
+          {typeId !== "A" && (
+            <div style={{ padding: "28px 24px 0" }}>
+              <p
+                style={{
+                  fontFamily: "Shippori Mincho, serif",
+                  fontSize: 15,
+                  color: "var(--ink)",
+                  lineHeight: 1.9,
+                  letterSpacing: ".03em",
+                }}
+              >
+                ただ今は、<br />
+                「誰を選ぶか」で迷いやすい状態でもあります
+              </p>
+            </div>
+          )}
+
+          {/* ══════════════════════════════════
+              ④ サブカード（2枚）
+          ══════════════════════════════════ */}
+          <div
+            style={{
+              padding: "20px 20px 32px",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 12,
+              marginTop: 4,
+            }}
+          >
+            {[subCard1, subCard2].map((card) => (
+              <Link
+                key={card.key}
+                href={card.href}
+                style={{
+                  background: "var(--pale)",
+                  borderRadius: 14,
+                  padding: "18px 16px",
+                  border: "1px solid var(--light)",
+                  cursor: "pointer",
+                  transition: "transform .3s",
+                  textDecoration: "none",
+                  display: "block",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-3px)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
+                }}
+              >
+                <div style={{ marginBottom: 10 }}>{card.icon}</div>
+                <div
+                  style={{
+                    fontFamily: "Noto Sans JP, sans-serif",
+                    fontSize: 13,
+                    color: "var(--black)",
+                    fontWeight: 400,
+                    marginBottom: 6,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {card.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: "var(--muted)",
+                    fontWeight: 300,
+                    lineHeight: 1.6,
+                    marginBottom: 10,
+                  }}
+                >
+                  {card.sub}
+                </div>
+                <span style={{ fontSize: 11, color: "var(--accent)", fontWeight: 300 }}>
+                  見てみる →
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* ══════════════════════════════════
+              ⑤ あとから見返したい人向けリンク
+          ══════════════════════════════════ */}
           {/* TODO: Supabase Auth 実装後、マイページの登録・ログイン画面（/mypage/register 等）に差し替え */}
-          <div style={{ textAlign: "center", marginBottom: 20 }}>
+          <div style={{ textAlign: "center", marginBottom: 20, padding: "0 24px" }}>
             <Link
               href="/mypage"
               style={{
@@ -295,7 +428,7 @@ export default async function DiagnosisResultPage({
                 color: "var(--accent)",
                 fontFamily: "Noto Sans JP, sans-serif",
                 fontWeight: 300,
-                letterSpacing: "0.03em",
+                letterSpacing: ".03em",
                 textDecoration: "underline",
                 textUnderlineOffset: 3,
               }}
@@ -304,8 +437,10 @@ export default async function DiagnosisResultPage({
             </Link>
           </div>
 
-          {/* ⑥ SNSシェア */}
-          <div style={{ textAlign: "center", marginBottom: 24 }}>
+          {/* ══════════════════════════════════
+              ⑥ SNSシェア + もう一度
+          ══════════════════════════════════ */}
+          <div style={{ textAlign: "center", padding: "0 24px 8px" }}>
             <a
               href={twitterUrl}
               target="_blank"
@@ -321,8 +456,9 @@ export default async function DiagnosisResultPage({
                 fontSize: 13,
                 fontFamily: "Noto Sans JP, sans-serif",
                 fontWeight: 300,
-                letterSpacing: "0.03em",
+                letterSpacing: ".03em",
                 textDecoration: "none",
+                marginBottom: 20,
               }}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
@@ -330,23 +466,24 @@ export default async function DiagnosisResultPage({
               </svg>
               Xでシェアする
             </a>
+
+            {/* ⑦ もう一度診断する */}
+            <div>
+              <Link
+                href="/diagnosis"
+                style={{
+                  fontSize: 12,
+                  color: "var(--accent)",
+                  letterSpacing: ".05em",
+                  textDecoration: "underline",
+                  textUnderlineOffset: 3,
+                }}
+              >
+                もう一度診断する
+              </Link>
+            </div>
           </div>
 
-          {/* ⑦ もう一度診断する */}
-          <div style={{ textAlign: "center" }}>
-            <Link
-              href="/diagnosis"
-              style={{
-                fontSize: 12,
-                color: "var(--accent)",
-                letterSpacing: "0.05em",
-                textDecoration: "underline",
-                textUnderlineOffset: 3,
-              }}
-            >
-              もう一度診断する
-            </Link>
-          </div>
         </div>
       </main>
       <Footer />

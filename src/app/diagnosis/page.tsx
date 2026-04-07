@@ -4,13 +4,24 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { QUESTIONS, calculateResult } from "@/lib/diagnosis";
+import { QUESTIONS, DIAGNOSIS_TYPES, DiagnosisTypeId, calculateResult } from "@/lib/diagnosis";
+
+/* タイプ別アクセントカラー */
+const TYPE_COLORS: Record<DiagnosisTypeId, string> = {
+  A: "#B8912A",
+  B: "#8B6240",
+  C: "#2D5A3D",
+  D: "#3D2D5A",
+};
 
 export default function DiagnosisPage() {
   const router = useRouter();
   const [currentQ, setCurrentQ] = useState(0); // 0-indexed
-  const [answers, setAnswers] = useState<Record<number, number>>({});
-  const [selected, setSelected] = useState<number | null>(null);
+  // answers: questionId -> type letter ("A"/"B"/"C"/"D")
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  // answerIndices: questionId -> optionIndex（戻るボタン時のUI復元用）
+  const [answerIndices, setAnswerIndices] = useState<Record<number, number>>({});
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [animating, setAnimating] = useState(false);
 
   const question = QUESTIONS[currentQ];
@@ -18,17 +29,22 @@ export default function DiagnosisPage() {
 
   function handleSelect(optionIndex: number) {
     if (animating) return;
-    setSelected(optionIndex);
+    const optionType = question.options[optionIndex].type;
+    setSelectedIndex(optionIndex);
 
-    const newAnswers = { ...answers, [question.id]: optionIndex };
+    const newAnswers = { ...answers, [question.id]: optionType };
+    const newIndices = { ...answerIndices, [question.id]: optionIndex };
     setAnswers(newAnswers);
+    setAnswerIndices(newIndices);
 
     setTimeout(() => {
       if (currentQ < QUESTIONS.length - 1) {
         setAnimating(true);
         setTimeout(() => {
           setCurrentQ((q: number) => q + 1);
-          setSelected(null);
+          // 次の質問の既回答を復元
+          const nextQ = QUESTIONS[currentQ + 1];
+          setSelectedIndex(newIndices[nextQ.id] ?? null);
           setAnimating(false);
         }, 200);
       } else {
@@ -42,8 +58,9 @@ export default function DiagnosisPage() {
     if (currentQ === 0 || animating) return;
     setAnimating(true);
     setTimeout(() => {
+      const prevQ = QUESTIONS[currentQ - 1];
       setCurrentQ((q: number) => q - 1);
-      setSelected(answers[QUESTIONS[currentQ - 1].id] ?? null);
+      setSelectedIndex(answerIndices[prevQ.id] ?? null);
       setAnimating(false);
     }, 150);
   }
@@ -59,13 +76,8 @@ export default function DiagnosisPage() {
           paddingBottom: "80px",
         }}
       >
-        <div
-          style={{
-            maxWidth: 560,
-            margin: "0 auto",
-            padding: "0 24px",
-          }}
-        >
+        <div style={{ maxWidth: 560, margin: "0 auto", padding: "0 24px" }}>
+
           {/* ページヘッダー */}
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <div
@@ -169,7 +181,10 @@ export default function DiagnosisPage() {
 
             <div>
               {question.options.map((option, i) => {
-                const isSelected = selected === i || answers[question.id] === i;
+                const isSelected =
+                  selectedIndex === i ||
+                  (selectedIndex === null && answerIndices[question.id] === i);
+                const typeColor = TYPE_COLORS[option.type];
                 return (
                   <button
                     key={i}
@@ -181,10 +196,12 @@ export default function DiagnosisPage() {
                       width: "100%",
                       padding: "16px 20px",
                       border: isSelected
-                        ? "1.5px solid var(--accent)"
+                        ? `1.5px solid ${typeColor}`
                         : "1.5px solid var(--light)",
                       borderRadius: 12,
-                      background: isSelected ? "var(--adim)" : "white",
+                      background: isSelected
+                        ? `${typeColor}14` // 8% opacity
+                        : "white",
                       fontFamily: "Noto Sans JP, sans-serif",
                       fontSize: 14,
                       fontWeight: 300,
@@ -196,8 +213,8 @@ export default function DiagnosisPage() {
                     }}
                     onMouseEnter={(e) => {
                       if (!isSelected) {
-                        (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)";
-                        (e.currentTarget as HTMLButtonElement).style.background = "var(--adim)";
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = typeColor;
+                        (e.currentTarget as HTMLButtonElement).style.background = `${typeColor}0D`;
                       }
                     }}
                     onMouseLeave={(e) => {
@@ -216,7 +233,7 @@ export default function DiagnosisPage() {
                         fill="none"
                         style={{ flexShrink: 0, marginLeft: 12 }}
                       >
-                        <circle cx="9" cy="9" r="8" fill="#C8A97A" />
+                        <circle cx="9" cy="9" r="8" fill={typeColor} />
                         <path
                           d="M5.5 9l3 3 4-5"
                           stroke="white"
