@@ -234,10 +234,10 @@ export default function PlacesSection() {
         </div>
       </div>
 
-      <div className="places-inner" style={{ paddingTop: 32, paddingBottom: 0 }}>
+      <div className="places-inner" style={{ paddingTop: 32, paddingBottom: 32 }}>
         <div style={{ textAlign: "center" }}>
-          <Link href="/shops" className="btn btn-outline" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-            すべて見る
+          <Link href="/shops" className="btn-places-dark" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            ふたりのお店を探す
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>

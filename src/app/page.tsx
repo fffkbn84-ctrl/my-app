@@ -7,6 +7,79 @@ import EpisodesSection from "@/components/home/EpisodesSection";
 import ColumnsSection from "@/components/home/ColumnsSection";
 
 /* ────────────────────────────────────────────────────────────
+   ヒーロー 目次カード定義
+──────────────────────────────────────────────────────────── */
+const heroNavItems = [
+  {
+    label: "担当者",
+    href: "#counselors",
+    cls: "hnc-1",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="9" r="5" stroke="white" strokeWidth="1.3" fill="none" opacity=".8" />
+        <path d="M2 24c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity=".6" />
+      </svg>
+    ),
+  },
+  {
+    label: "お店",
+    href: "#places",
+    cls: "hnc-2",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M4 10h18l-1.5 12H5.5L4 10z" stroke="white" strokeWidth="1.3" fill="none" strokeLinejoin="round" opacity=".8" />
+        <path d="M16 14h2a2 2 0 010 4h-2" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity=".6" />
+        <path d="M9 7c0-1.5 2-1.5 2-3M13 7c0-1.5 2-1.5 2-3" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".4" />
+      </svg>
+    ),
+  },
+  {
+    label: "エピソード",
+    href: "#episodes",
+    cls: "hnc-3",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M13 3l2 6h6L16 13l2 6-5-3.5L8 19l2-6-5-4h6z" stroke="white" strokeWidth="1.3" fill="none" strokeLinejoin="round" opacity=".8" />
+      </svg>
+    ),
+  },
+  {
+    label: "診断",
+    href: "/diagnosis",
+    cls: "hnc-4",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="1.3" fill="none" opacity=".7" />
+        <path d="M13 7v2M13 17v2M7 13h2M17 13h2" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
+        <path d="M16 10l-4 3-2 4 4-3 2-4z" stroke="white" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(255,255,255,.15)" />
+      </svg>
+    ),
+  },
+  {
+    label: "コラム",
+    href: "/columns",
+    cls: "hnc-5",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <rect x="4" y="5" width="18" height="16" rx="2" stroke="white" strokeWidth="1.3" fill="none" opacity=".7" />
+        <path d="M8 10h10M8 14h7" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
+      </svg>
+    ),
+  },
+  {
+    label: "サービス",
+    href: "/about",
+    cls: "hnc-6",
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="1.3" fill="none" opacity=".7" />
+        <path d="M13 9v5l3 2" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".6" />
+      </svg>
+    ),
+  },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
 ──────────────────────────────────────────────────────────── */
 const featuredCounselors = [
@@ -92,9 +165,82 @@ export default function HomePage() {
         <RevealObserver />
 
         {/* ═══════════════════════════════════════════════════
-            HERO — futarive-v4.html 準拠
+            ① HERO — Photo background / 中央寄せレイアウト
         ═══════════════════════════════════════════════════ */}
         <section className="hero">
+          {/* 暗オーバーレイ */}
+          <div className="hero-overlay" />
+
+          {/* コンテンツエリア */}
+          <div className="hero-content">
+            {/* eyebrow */}
+            <p className="hero-eyebrow-v5">
+              MARRIAGE COUNSELING, REIMAGINED
+            </p>
+
+            {/* メインコピー */}
+            <h1 className="hero-h1-v5">
+              担当者を自分で選んで
+              <br />
+              予約までここで完結
+              <span className="hero-h1-en-v5">The counselor comes first.</span>
+            </h1>
+
+            {/* 説明文 */}
+            <p className="hero-desc-v5">
+              面談した人だけが書けるレビューで、
+              <br />
+              担当者の顔・経歴が最初から見えます
+            </p>
+
+            {/* 診断バナー */}
+            <Link href="/diagnosis" className="hero-diag-v5">
+              <div className="hero-diag-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="8" stroke="#C8A97A" strokeWidth="1.4" fill="none" />
+                  <path d="M12 6v2M12 16v2M6 12h2M16 12h2" stroke="#C8A97A" strokeWidth="1.2" strokeLinecap="round" opacity=".6" />
+                  <path d="M15 9l-4 3-2 4 4-3 2-4z" stroke="#C8A97A" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(200,169,122,.2)" />
+                </svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="hero-diag-label">1〜3分でサクッと診断 · 無料</div>
+                <div className="hero-diag-title">
+                  あなたに合う担当タイプ、婚活スタイルを診断する
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="#C8A97A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+
+            {/* 目次カード 3×2グリッド */}
+            <div className="hero-nav-grid">
+              {heroNavItems.map((item) => (
+                <Link key={item.label} href={item.href} className={`hero-nav-card ${item.cls}`}>
+                  <div className="hero-nav-overlay" />
+                  <div className="hero-nav-icon">{item.icon}</div>
+                  <span className="hero-nav-label">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* 注記 */}
+            <p className="hero-note">無料で使えます・登録不要</p>
+          </div>
+
+          {/* スクロールインジケーター */}
+          <div className="hero-scroll-ind">
+            <span className="hero-scroll-text">SCROLL</span>
+            <div className="hero-scroll-arrow">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 旧ヒーロー（削除済み） ─── */}
+        <section style={{ display: "none" }}>
           {/* グリッドパターン背景 */}
           <div className="hero-grid" />
 
@@ -204,41 +350,24 @@ export default function HomePage() {
         </div>
 
         {/* ═══════════════════════════════════════════════════
-            VISION — futarive-v4.html 準拠
+            ③ 信頼の数字セクション
         ═══════════════════════════════════════════════════ */}
-        <section className="vision-sec">
-          <div className="vision-inner">
-            <div className="vision-eyebrow">our belief</div>
-            <p className="vision-main-copy reveal">
-              選ぶ自由と、頑張れる場所を。
-            </p>
-            <p className="vision-sub reveal rd1">
-              世の中のレビューサイトは、<br />
-              関係が出来上がった人たちのためにある<br />
-              <br />
-              <span style={{ color: "var(--accent)" }}>ふたりへ</span>は　今まさに関係を作っている<br />
-              あなたたちのためにある<br />
-              <br />
-              不安なまま相談所に飛び込まなくていい<br />
-              お見合いのカフェも　婚活前の美容も<br />
-              デートのお店も　迷わない<br />
-              そのそばに、ずっといます
-            </p>
-            <div className="vision-btn-wrap reveal rd2">
-              <Link href="/about" className="vision-btn">
-                このサービスについてもっと知る
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
+        <div className="stats-sec">
+          {[
+            { num: "247",   lbl: "掲載カウンセラー" },
+            { num: "1,840", lbl: "累計口コミ数" },
+            { num: "98%",   lbl: "面談後認証率" },
+            { num: "無料",  lbl: "ご利用料金" },
+          ].map((s) => (
+            <div key={s.lbl} className="stat-cell">
+              <div className="stat-num">{s.num}</div>
+              <div className="stat-lbl">{s.lbl}</div>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
 
-        {/* ═══════════════════════════════════════════════════
-            JOURNEY — ふたりの旅程 / futarive-v4.html 準拠
-        ═══════════════════════════════════════════════════ */}
-        <section className="journey-sec">
+        {/* JOURNEY — 非表示（新デザインでは削除） */}
+        <section className="journey-sec" style={{ display: "none" }}>
           <div className="journey-inner">
             <div className="sec-label reveal">what we offer</div>
             <h2 className="sec-h reveal">
@@ -426,22 +555,23 @@ export default function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            注目のカウンセラー（横スクロール）
+            ④ カウンセラーセクション — Photo background
         ═══════════════════════════════════════════════════ */}
-        <section
-          id="counselors"
-          style={{ background: "var(--pale)", padding: "100px 0", overflow: "hidden" }}
-        >
-          {/* セクションヘッダー */}
-          <div className="counselor-inner">
-            <div className="sec-label">find your counselor</div>
-            <h2 className="sec-h">
-              担当者を見て、選ぶ。
-              <span className="sec-h-jp">
-                面談した人だけが書けるレビューで、カウンセラーの人となりがわかります
-              </span>
-            </h2>
-          </div>
+        <section id="counselors" className="counselors-photo-sec">
+          {/* 半透明オーバーレイ */}
+          <div className="counselors-photo-overlay" />
+
+          <div className="counselors-photo-inner">
+            {/* セクションヘッダー */}
+            <div className="counselor-inner">
+              <div className="sec-label reveal">FIND YOUR COUNSELOR</div>
+              <h2 className="sec-h reveal reveal-delay-1">
+                担当者を見て、選ぶ。
+                <span className="sec-h-jp">
+                  面談した人だけが書けるレビューで、カウンセラーの人となりがわかります
+                </span>
+              </h2>
+            </div>
 
           {/* 横スクロールトラック */}
           <div
@@ -696,7 +826,7 @@ export default function HomePage() {
           <div style={{ textAlign: "center", marginTop: 32 }}>
             <Link
               href="/search"
-              className="btn btn-outline"
+              className="btn btn-outline reveal reveal-delay-2"
               style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
             >
               もっと見てみる
@@ -705,39 +835,171 @@ export default function HomePage() {
               </svg>
             </Link>
           </div>
+          </div>{/* /counselors-photo-inner */}
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            ふたりへが選んだお店
+            ⑤ 口コミピックアップ
+        ═══════════════════════════════════════════════════ */}
+        <div className="reviews-pickup">
+          <div className="reviews-pickup-inner">
+            <div className="sec-label reveal">REAL REVIEWS</div>
+            <h2 className="sec-h reveal reveal-delay-1">
+              面談した人だけが書ける
+              <span className="sec-h-jp">すべての口コミは面談完了後に認証されます</span>
+            </h2>
+
+            <div className="review-card-list">
+              {/* 口コミ 1 */}
+              <div className="review-card-item reveal reveal-delay-2">
+                <div className="review-card-head">
+                  <div className="review-av-wrap">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                      <circle cx="10" cy="7" r="4" fill="var(--accent)" opacity=".5" />
+                      <path d="M2 18c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="var(--accent)" strokeWidth="1.2" fill="none" opacity=".35" />
+                    </svg>
+                  </div>
+                  <div className="review-meta">
+                    <div className="review-name">S.K さん（32歳）</div>
+                    <div className="review-counselor-line">田中 美紀 カウンセラー</div>
+                  </div>
+                  <div className="review-date-stars">
+                    <span className="review-date">2025年11月</span>
+                    <span className="review-stars">★★★★★</span>
+                  </div>
+                </div>
+                <p className="review-body">
+                  「初回面談で『入会を急かされないかな』と心配でしたが、まず話を聞いてもらえて安心しました。自分でも気づいていなかった理想のパートナー像が見えてきた気がします。」
+                </p>
+                <div className="review-verified-badge">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5l3 3 4-4" stroke="var(--forest)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  面談完了済み
+                </div>
+              </div>
+
+              {/* 口コミ 2 */}
+              <div className="review-card-item reveal reveal-delay-3">
+                <div className="review-card-head">
+                  <div className="review-av-wrap">
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                      <circle cx="10" cy="7" r="4" fill="var(--accent)" opacity=".5" />
+                      <path d="M2 18c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="var(--accent)" strokeWidth="1.2" fill="none" opacity=".35" />
+                    </svg>
+                  </div>
+                  <div className="review-meta">
+                    <div className="review-name">M.T さん（28歳）</div>
+                    <div className="review-counselor-line">佐藤 綾乃 カウンセラー</div>
+                  </div>
+                  <div className="review-date-stars">
+                    <span className="review-date">2025年10月</span>
+                    <span className="review-stars">★★★★★</span>
+                  </div>
+                </div>
+                <p className="review-body">
+                  「口コミを読んで予約したのですが、本当に口コミ通りの方でした。仕事との両立について親身に考えてくれる姿勢が伝わってきました。」
+                </p>
+                <div className="review-verified-badge">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5l3 3 4-4" stroke="var(--forest)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  面談完了済み
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════
+            ⑥ ふたりへが選んだお店 — Photo background (dark)
         ═══════════════════════════════════════════════════ */}
         <PlacesSection />
 
         {/* ═══════════════════════════════════════════════════
-            成婚エピソード
+            ⑦ 成婚エピソード（既存を維持）
         ═══════════════════════════════════════════════════ */}
         <EpisodesSection />
 
         {/* ═══════════════════════════════════════════════════
-            コラム
+            ⑧ OUR BELIEF — Photo background
+        ═══════════════════════════════════════════════════ */}
+        <section className="belief-sec">
+          <div className="belief-overlay" />
+          <div className="belief-inner">
+            <div className="vision-eyebrow reveal">our belief</div>
+            <p className="vision-main-copy reveal reveal-delay-1">
+              選ぶ自由と、頑張れる場所を。
+            </p>
+            <p className="vision-sub reveal reveal-delay-2">
+              世の中のレビューサイトは、<br />
+              関係が出来上がった人たちのためにある<br />
+              <br />
+              <span style={{ color: "var(--accent)" }}>ふたりへ</span>は　今まさに関係を作っている<br />
+              あなたたちのためにある<br />
+              <br />
+              不安なまま相談所に飛び込まなくていい<br />
+              お見合いのカフェも　婚活前の美容も<br />
+              デートのお店も　迷わない<br />
+              そのそばに、ずっといます
+            </p>
+            <div className="vision-btn-wrap reveal reveal-delay-3">
+              <Link href="/about" className="vision-btn">
+                このサービスについてもっと知る
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            ⑨ コラム（既存を維持）
         ═══════════════════════════════════════════════════ */}
         <ColumnsSection />
 
         {/* ═══════════════════════════════════════════════════
-            CTA
+            ⑩ CTA — Photo background
         ═══════════════════════════════════════════════════ */}
         <section className="cta-sec">
-          <div className="cta-o1" />
-          <div className="cta-o2" />
+          {/* 暗オーバーレイ */}
+          <div className="cta-overlay" />
           <div className="cta-inner">
-            <div className="cta-ey">start from here</div>
-            <h2 className="cta-h">
-              いいカウンセラーに<br />出会えると、変わります。
-              <span className="cta-en">Good counselor. Good start.</span>
+            <div className="cta-ey reveal">GET STARTED</div>
+            <h2
+              className="reveal reveal-delay-1"
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: "clamp(20px,4vw,24px)",
+                color: "white",
+                lineHeight: 1.6,
+                letterSpacing: ".06em",
+                marginBottom: 32,
+              }}
+            >
+              あなたの婚活を、孤独にしない。
             </h2>
-            <p className="cta-d">まずは口コミを読むだけでも。予約は、準備できてからで大丈夫。</p>
-            <div className="cta-btns">
-              <Link href="/search" className="btn btn-wh">相談所を探す</Link>
-              <Link href="#places" className="btn btn-gl">お見合い・デートのお店</Link>
+            <div className="cta-btns reveal reveal-delay-2">
+              <Link
+                href="/search"
+                className="btn"
+                style={{ background: "white", color: "var(--black)", borderRadius: "50px" }}
+              >
+                カウンセラーを探す
+              </Link>
+              <Link
+                href="/shops"
+                className="btn"
+                style={{
+                  border: "1px solid rgba(255,255,255,.3)",
+                  background: "transparent",
+                  color: "rgba(255,255,255,.7)",
+                  borderRadius: "50px",
+                }}
+              >
+                ふたりのお店を探す
+              </Link>
             </div>
           </div>
         </section>

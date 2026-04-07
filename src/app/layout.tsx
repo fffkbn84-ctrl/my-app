@@ -25,6 +25,19 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
+        {/* 固定縦ライン — 全ページ共通装飾 */}
+        <div className="side-line" aria-hidden="true">
+          <div className="side-line-grad-top" />
+          <span className="side-line-txt">ふたりへ</span>
+          <span className="side-line-sep">·</span>
+          <span className="side-line-en">futarini</span>
+          <div className="side-line-mid" />
+          <span className="side-line-txt">ふたりへ</span>
+          <span className="side-line-sep">·</span>
+          <span className="side-line-en">futarini</span>
+          <div className="side-line-grad-bot" />
+        </div>
+
         {children}
         <BottomNav />
       </body>
