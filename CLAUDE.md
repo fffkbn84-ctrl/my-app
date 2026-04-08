@@ -1478,3 +1478,136 @@ export const metadata = {
     'ふたりへは、担当者を自分の目で選んで納得してから始められる婚活サービスです。面談した人だけが書けるレビューと、カウンセラーへの直接予約を提供しています。',
 }
 ```
+
+---
+
+## 実装済み機能（2026-04-08 追記）
+
+### 婚活タイプ診断リファクタ（4タイプ版）＋ Vercel ビルドエラー修正
+
+**ブランチ：** `integration/redesign-with-all-features`
+
+---
+
+#### 診断システムの4タイプ化（`src/lib/diagnosis.ts`）
+
+6タイプ（calm/self/support/strategy/online/restart）から **4タイプ（A/B/C/D）** に完全リファクタ。
+
+| タイプ | 名称 | color | subRoute |
+|---|---|---|---|
+| A | 慎重分析タイプ | `#B8912A` | `counselor` |
+| B | 自信低下タイプ | `#8B6240` | `beauty` |
+| C | 環境影響タイプ | `#2D5A3D` | `cafe` |
+| D | 直感型 | `#3D2D5A` | `cafe` |
+
+**スコア方式変更：** スコア加算方式 → 各選択肢が直接タイプ文字列を持つ count 方式。
+同点時の優先順位：C > B > A > D
+
+```typescript
+type DiagnosisOption = { label: string; type: DiagnosisTypeId };
+// answers: Record<number, string> — questionId → type letter
+export function calculateResult(answers: Record<number, string>): DiagnosisTypeId
+```
+
+**`Counselor` 型の変更：**
+- `diagnosisTypes?: string[]`（配列）→ `diagnosisType?: string`（単一）
+
+各カウンセラーの設定値：
+
+| カウンセラー | diagnosisType |
+|---|---|
+| 田中 美紀 | `"B"` |
+| 山田 健太郎 | `"A"` |
+| 佐藤 綾乃 | `"C"` |
+| 鈴木 麻衣 | `"B"` |
+| 中村 恵子 | `"A"` |
+| 林 俊介 | `"D"` |
+
+---
+
+#### 診断ページ（`src/app/diagnosis/page.tsx`）
+
+- `answers: Record<number, string>` — questionId → タイプ文字（A/B/C/D）
+- `answerIndices: Record<number, number>` — 戻るボタン時のUI復元用
+- 選択肢ボタン：タイプ別ハイライトカラー（A: `#B8912A` / B: `#8B6240` / C: `#2D5A3D` / D: `#3D2D5A`）
+- Q8 回答後 → `calculateResult` → `/diagnosis/result?type={A|B|C|D}` へ遷移
+
+---
+
+#### 診断結果ページ（`src/app/diagnosis/result/page.tsx`）
+
+Server Component。URL パラメータ `?type=A|B|C|D` でタイプを取得。
+
+**ページ構成：**
+
+| # | 内容 |
+|---|---|
+| ① | ヒーロー：グラデーション背景・タイプ名・label・description・タグ |
+| ② | メインカード（白・overlapping）：担当者タイプ名・説明・マッチカウンセラー最大2件・「もっと見る」リンク |
+| ③ | 分岐テキスト（タイプA以外のみ表示） |
+| ④ | サブカード2枚グリッド（subRouteで分岐: cafe/beauty/counselor） |
+| ⑤ | 「あとから見返したい人はこちら（無料）」→ `/mypage` |
+| ⑥ | Xシェアボタン + 「もう一度診断する」 |
+
+**サブカード分岐ロジック：**
+- `subRoute === "cafe"` → [お見合い・デートのお店, 婚活準備の美容室・サロン]
+- `subRoute === "beauty"` → [婚活準備の美容室・サロン, お見合い・デートのお店]
+- `subRoute === "counselor"` → [お見合い・デートのお店, 婚活コラムを読む]
+
+---
+
+#### Vercel ビルドエラー修正（3件）
+
+**エラー1：** `React.ReactNode` を React 未インポートで使用  
+→ `import type { ReactNode } from 'react'` を追加し、`icon: ReactNode` に変更
+
+**エラー2：** Server Component に `onMouseEnter`/`onMouseLeave`  
+→ `.diagnosis-sub-card` CSSクラスに移動（`globals.css` に追加）。`:hover { transform: translateY(-3px) }` で対応
+
+**エラー3：** `mypage/page.tsx` で `dt.subtitle` を参照（旧6タイプ時のフィールド名）  
+→ `dt.label` に修正（4タイプ版の正しいフィールド名）
+
+```css
+/* globals.css に追加 */
+.diagnosis-sub-card {
+  background: var(--pale);
+  border-radius: 14px;
+  padding: 18px 16px;
+  border: 1px solid var(--light);
+  text-decoration: none;
+  display: block;
+  transition: transform .3s;
+}
+.diagnosis-sub-card:hover { transform: translateY(-3px); }
+```
+
+---
+
+#### マイページ 診断履歴セクション更新（`src/app/mypage/page.tsx`）
+
+- プレビュー円の中にタイプ識別子（A/B/C/D）を表示（視認性向上）
+- コメント「全6タイプ」→「全4タイプ」に修正
+- Supabase連携用スキーマ設計をコード内コメントとして明記：
+
+```sql
+-- diagnosis_results テーブル（Supabase連携時に作成）
+id          UUID PRIMARY KEY DEFAULT gen_random_uuid()
+user_id     UUID REFERENCES auth.users(id) ON DELETE CASCADE
+result_type TEXT NOT NULL CHECK (result_type IN ('A','B','C','D'))
+answers     JSONB NOT NULL  -- Record<number, string>
+created_at  TIMESTAMPTZ DEFAULT now()
+
+-- RLS: ユーザーは自分の行のみ SELECT/INSERT 可
+-- 取得: SELECT * FROM diagnosis_results
+--       WHERE user_id = auth.uid()
+--       ORDER BY created_at DESC LIMIT 20
+```
+
+---
+
+#### ボトムナビゲーションに「ホーム」追加（`src/components/layout/BottomNav.tsx`）
+
+左端に「ホーム」（`/`）を追加。ナビ順序：**ホーム → 担当検索 → お店検索 → マイページ**
+
+- アクティブ判定：`pathname === "/"` のみ（他ページでは非アクティブ）
+- アイコン：家型 SVG（既存アイテムと同スタイル・`currentColor`）
