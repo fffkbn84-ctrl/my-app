@@ -293,12 +293,26 @@ export default function MyPage() {
           ))}
         </div>
 
-        {/* ────────────────────────────────────────
-            診断結果の履歴プレビュー
-            TODO: Supabase Auth 実装後、ログイン済みユーザーの
-                  diagnosis_results テーブルから取得して表示する。
-                  未ログイン時はこのプレビュー表示を維持する。
-        ──────────────────────────────────────── */}
+        {/*
+          ────────────────────────────────────────
+          診断結果の履歴プレビュー
+
+          【Supabase連携時の実装方針】
+          テーブル: diagnosis_results
+            id          UUID PRIMARY KEY DEFAULT gen_random_uuid()
+            user_id     UUID REFERENCES auth.users(id) ON DELETE CASCADE
+            result_type TEXT NOT NULL CHECK (result_type IN ('A','B','C','D'))
+            answers     JSONB NOT NULL  -- Record<number, string>
+            created_at  TIMESTAMPTZ DEFAULT now()
+
+          RLS: ユーザーは自分の行のみ SELECT/INSERT 可
+          取得: SELECT * FROM diagnosis_results
+                WHERE user_id = auth.uid()
+                ORDER BY created_at DESC
+                LIMIT 20
+
+          未ログイン時: このプレビュー表示をそのまま維持する
+          ──────────────────────────────────────── */}
         <div style={{ marginTop: 24 }}>
           <p
             style={{
@@ -312,7 +326,7 @@ export default function MyPage() {
             DIAGNOSIS HISTORY
           </p>
 
-          {/* 履歴カード一覧（将来: ログイン後に実結果を表示） */}
+          {/* 履歴カード（未ログイン時プレビュー／ログイン後は diagnosis_results から取得） */}
           <div
             style={{
               background: "white",
@@ -321,7 +335,7 @@ export default function MyPage() {
               overflow: "hidden",
             }}
           >
-            {/* サンプル表示（全6タイプのプレビュー） */}
+            {/* ぼかしプレビュー（4タイプのうち3件分） */}
             {Object.values(DIAGNOSIS_TYPES).slice(0, 3).map((dt, i, arr) => (
               <div
                 key={dt.id}
@@ -337,6 +351,7 @@ export default function MyPage() {
                   pointerEvents: "none",
                 }}
               >
+                {/* タイプ識別円 */}
                 <div
                   style={{
                     width: 36,
@@ -344,8 +359,17 @@ export default function MyPage() {
                     borderRadius: "50%",
                     background: dt.gradient,
                     flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: dt.color,
                   }}
-                />
+                >
+                  {dt.id}
+                </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div
                     style={{
