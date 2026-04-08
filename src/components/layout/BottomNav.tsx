@@ -5,6 +5,26 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   {
+    label: "ホーム",
+    href: "/",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M3 11.5L12 4l9 7.5V21a1 1 0 01-1 1H5a1 1 0 01-1-1V11.5z"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 22v-7h6v7"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
     label: "担当検索",
     href: "/search",
     icon: (
