@@ -358,7 +358,7 @@ export default function MyPage() {
                     {dt.name}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--muted)" }}>
-                    {dt.subtitle}
+                    {dt.label}
                   </div>
                 </div>
                 <div
