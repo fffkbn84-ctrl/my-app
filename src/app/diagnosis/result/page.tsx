@@ -12,7 +12,7 @@ type SubCardDef = {
   title: string;
   sub: string;
   href: string;
-  icon: React.ReactNode;
+  icon: JSX.Element;
 };
 
 const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
@@ -368,22 +368,7 @@ export default async function DiagnosisResultPage({
               <Link
                 key={card.key}
                 href={card.href}
-                style={{
-                  background: "var(--pale)",
-                  borderRadius: 14,
-                  padding: "18px 16px",
-                  border: "1px solid var(--light)",
-                  cursor: "pointer",
-                  transition: "transform .3s",
-                  textDecoration: "none",
-                  display: "block",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-3px)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
-                }}
+                className="diagnosis-sub-card"
               >
                 <div style={{ marginBottom: 10 }}>{card.icon}</div>
                 <div

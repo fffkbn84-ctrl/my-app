@@ -112,6 +112,19 @@ a {
 @media (max-width: 900px) {
   .diagnosis-br { display: block; }
 }
+/* 診断結果ページ サブカード */
+.diagnosis-sub-card {
+  background: var(--pale);
+  border-radius: 14px;
+  padding: 18px 16px;
+  border: 1px solid var(--light);
+  text-decoration: none;
+  display: block;
+  transition: transform .3s;
+}
+.diagnosis-sub-card:hover {
+  transform: translateY(-3px);
+}
 
 /* カウンセラー横スクロール */
 .counselor-inner {
