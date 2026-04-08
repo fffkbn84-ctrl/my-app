@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -12,7 +13,7 @@ type SubCardDef = {
   title: string;
   sub: string;
   href: string;
-  icon: JSX.Element;
+  icon: ReactNode;
 };
 
 const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
