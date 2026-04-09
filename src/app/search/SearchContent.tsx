@@ -4,6 +4,11 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AGENCIES, COUNSELORS, type Counselor, type Agency } from "@/lib/data";
+
+interface SearchContentProps {
+  counselors?: Counselor[];
+  agencies?: Agency[];
+}
 import Pagination from "@/components/ui/Pagination";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 
@@ -249,10 +254,10 @@ function CounselorCard({ c }: { c: Counselor }) {
 /* ────────────────────────────────────────────────────────────
    相談所カード
 ──────────────────────────────────────────────────────────── */
-function AgencyCard({ a }: { a: Agency }) {
+function AgencyCard({ a, counselors }: { a: Agency; counselors: Counselor[] }) {
   const router = useRouter();
   const minAdmission = Math.min(...a.plans.map((p) => p.admission));
-  const counselorCount = COUNSELORS.filter((c) => c.agencyId === a.id).length;
+  const counselorCount = counselors.filter((c) => c.agencyId === a.id).length;
 
   return (
     <div
@@ -428,7 +433,10 @@ const filterInputStyle: React.CSSProperties = {
 /* ────────────────────────────────────────────────────────────
    メインコンテンツ
 ──────────────────────────────────────────────────────────── */
-export default function SearchContent() {
+export default function SearchContent({
+  counselors = COUNSELORS,
+  agencies = AGENCIES,
+}: SearchContentProps) {
   const searchParams = useSearchParams();
 
   /* タブ初期値（URL param から） */
@@ -472,7 +480,7 @@ export default function SearchContent() {
 
   /* カウンセラーフィルタリング */
   const filteredCounselors = useMemo(() => {
-    let list = [...COUNSELORS];
+    let list = [...counselors];
 
     if (cAgencyId) list = list.filter((c) => c.agencyId === Number(cAgencyId));
 
@@ -506,7 +514,7 @@ export default function SearchContent() {
 
   /* 相談所フィルタリング */
   const filteredAgencies = useMemo(() => {
-    let list = [...AGENCIES];
+    let list = [...agencies];
 
     if (aQuery) {
       const q = aQuery.toLowerCase();
@@ -734,7 +742,7 @@ export default function SearchContent() {
                       background: "rgba(200,169,122,.08)",
                     }}
                   >
-                    {AGENCIES.find((a) => a.id === Number(cAgencyId))?.name ?? ""}
+                    {agencies.find((a) => a.id === Number(cAgencyId))?.name ?? ""}
                   </span>
                   <button
                     onClick={() => setCAgencyId("")}
@@ -875,7 +883,7 @@ export default function SearchContent() {
               }}
             >
               {filteredAgencies.length > 0 ? (
-                filteredAgencies.slice((aPage - 1) * ITEMS_PER_PAGE, aPage * ITEMS_PER_PAGE).map((a) => <AgencyCard key={a.id} a={a} />)
+                filteredAgencies.slice((aPage - 1) * ITEMS_PER_PAGE, aPage * ITEMS_PER_PAGE).map((a) => <AgencyCard key={a.id} a={a} counselors={counselors} />)
               ) : (
                 <div
                   style={{

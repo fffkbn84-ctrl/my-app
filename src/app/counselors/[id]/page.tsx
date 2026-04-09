@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
-import { AGENCIES, COUNSELORS } from "@/lib/data";
+import { AGENCIES, COUNSELORS, getCounselorById, getReviewsByCounselor } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 
 /* ────────────────────────────────────────────────────────────
@@ -416,18 +416,37 @@ export default async function CounselorDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const counselor = counselors[id as keyof typeof counselors];
+
+  // Supabase から取得を試みる（フォールバック: モックデータ）
+  const [supabaseCounselor, supabaseReviews] = await Promise.all([
+    getCounselorById(id),
+    getReviewsByCounselor(id),
+  ]);
+
+  const mockCounselor = counselors[id as keyof typeof counselors];
+  if (!mockCounselor && !supabaseCounselor) notFound();
+
+  // Supabase にデータがある場合はフィールドを上書き（フォールバック: モック）
+  const counselor = mockCounselor
+    ? {
+        ...mockCounselor,
+        bio: supabaseCounselor?.bio ?? mockCounselor.bio,
+        name: supabaseCounselor?.name ?? mockCounselor.name,
+      }
+    : mockCounselor;
   if (!counselor) notFound();
 
-  const counselorReviews = reviews.filter((r) => r.counselorId === id);
+  const mockReviews = reviews.filter((r) => r.counselorId === id);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const counselorReviews = supabaseReviews.length > 0 ? supabaseReviews as any[] : mockReviews;
   const avgRating =
-    counselorReviews.reduce((sum, r) => sum + r.rating, 0) /
+    counselorReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) /
     counselorReviews.length;
 
   const matchedAgency = AGENCIES.find((a) => a.id === Number(counselor.agencyId));
   const agencyCounselorCount = COUNSELORS.filter((c) => c.agencyId === Number(counselor.agencyId)).length;
   const matchedCounselorData = COUNSELORS.find((c) => c.id === Number(id));
-  const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? null;
+  const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? supabaseCounselor?.diagnosis_type ?? null;
 
   return (
     <>

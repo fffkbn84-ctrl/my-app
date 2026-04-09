@@ -236,7 +236,8 @@ function ShopCard({ place }: { place: PlaceHome }) {
 /* ────────────────────────────────────────────────────────────
    ShopSearch（クライアントコンポーネント）
 ──────────────────────────────────────────────────────────── */
-export default function ShopSearch() {
+export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[] } = {}) {
+  const shops = initialShops ?? placesHomeData;
   const [badge, setBadge]       = useState<BadgeFilter>("all");
   const [category, setCategory] = useState("すべて");
   const [area, setArea]         = useState("すべて");
@@ -244,7 +245,7 @@ export default function ShopSearch() {
   const [page, setPage]         = useState(1);
 
   const filtered = useMemo(() => {
-    return placesHomeData.filter((p) => {
+    return shops.filter((p) => {
       const matchB = badge === "all" || p.badgeType === badge;
       const matchC = category === "すべて" || p.categoryLabel === category;
       const matchA = area === "すべて" || p.areaLabel === area;

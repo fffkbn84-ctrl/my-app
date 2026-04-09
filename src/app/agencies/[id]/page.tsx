@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SaveButton from "@/components/ui/SaveButton";
-import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, type Agency, type Counselor } from "@/lib/data";
+import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, getAgencies, type Agency, type Counselor } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
    ユーティリティ
@@ -168,10 +168,18 @@ export default async function AgencyDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const agency: Agency | undefined = AGENCIES.find((a) => a.id === Number(id));
+
+  // Supabase から相談所一覧を取得（フォールバック: モックデータ）
+  const allAgencies = await getAgencies();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabaseAgency = (allAgencies as any[]).find((a) => String(a.id) === id);
+  const mockAgency: Agency | undefined = AGENCIES.find((a) => a.id === Number(id));
+  const agency: Agency | undefined = supabaseAgency
+    ? { ...mockAgency, ...supabaseAgency, id: mockAgency?.id ?? supabaseAgency.id } as Agency
+    : mockAgency;
   if (!agency) notFound();
 
-  const counselors = COUNSELORS.filter((c) => agency.counselorIds.includes(c.id));
+  const counselors = COUNSELORS.filter((c) => agency.counselorIds?.includes(c.id));
 
   return (
     <>

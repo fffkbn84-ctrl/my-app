@@ -5,6 +5,9 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import { episodesData } from "@/lib/mock/episodes";
+import { getEpisodes } from "@/lib/data";
+
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   return episodesData.map((e) => ({ id: String(e.id) }));
@@ -16,10 +19,17 @@ export default async function EpisodeDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const episodeData = episodesData.find((e) => String(e.id) === id);
+
+  // Supabaseから取得を試みる（フォールバック: モックデータ）
+  const allEpisodes = await getEpisodes();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabaseEpisode = (allEpisodes as any[]).find((e) => String(e.id) === id);
+  const mockEpisode = episodesData.find((e) => String(e.id) === id);
+  const episodeData = supabaseEpisode ?? mockEpisode;
   if (!episodeData) notFound();
   const episode = episodeData;
 
+  // 他のエピソード（モックから取得）
   const others = episodesData.filter((e) => String(e.id) !== id).slice(0, 2);
 
   return (

@@ -13,6 +13,7 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          area: string | null;
           description: string | null;
           logo_url: string | null;
           website_url: string | null;
@@ -35,6 +36,12 @@ export interface Database {
           photo_url: string | null;
           specialties: string[] | null;
           years_of_experience: number | null;
+          rating_avg: number | null;
+          review_count: number | null;
+          diagnosis_type: string | null;
+          is_published: boolean | null;
+          quote: string | null;
+          experience_label: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -94,6 +101,10 @@ export interface Database {
           body: string;
           source_type: "face_to_face" | "proxy";
           agency_reply: string | null;
+          is_published: boolean | null;
+          reviewer_age_range: string | null;
+          reviewer_gender: string | null;
+          reviewer_area: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -114,6 +125,15 @@ export interface Database {
           address: string | null;
           photo_url: string | null;
           badge_type: "certified" | "agency" | "listed";
+          rating_avg: number | null;
+          review_count: number | null;
+          stage: string | null;
+          is_published: boolean | null;
+          features: string[] | null;
+          hours: string | null;
+          holiday: string | null;
+          access: string | null;
+          scenes: string[] | null;
           created_at: string;
           updated_at: string;
         };
@@ -146,10 +166,26 @@ export interface Database {
         Row: {
           id: string;
           title: string;
-          slug: string;
-          body: string;
+          slug: string | null;
+          body: string | null;
           thumbnail_url: string | null;
           published_at: string | null;
+          agency_id: string | null;
+          counselor_id: string | null;
+          period: string | null;
+          year: string | null;
+          excerpt: string | null;
+          story: string[] | null;
+          quote: string | null;
+          tags: string[] | null;
+          sympathy_count: number | null;
+          is_published: boolean | null;
+          person1_initial: string | null;
+          person1_age: number | null;
+          person1_color: string | null;
+          person2_initial: string | null;
+          person2_age: number | null;
+          person2_color: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -159,6 +195,20 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["episodes"]["Insert"]>;
+      };
+      diagnosis_results: {
+        Row: {
+          id: string;
+          session_id: string | null;
+          result_type: string;
+          answers: Json | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["diagnosis_results"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["diagnosis_results"]["Insert"]>;
       };
     };
     Views: Record<string, never>;

@@ -1,6 +1,9 @@
 /* ────────────────────────────────────────────────────────────
-   ふたりへ — モックデータ（後でSupabaseに差し替え）
+   ふたりへ — モックデータ（Supabaseフォールバック用）
 ──────────────────────────────────────────────────────────── */
+import { supabase } from '@/lib/supabase'
+import { episodesData } from '@/lib/mock/episodes'
+import { places } from '@/lib/mock/places'
 
 export type Plan = {
   name: string;
@@ -383,3 +386,101 @@ export const COUNSELORS: Counselor[] = [
     diagnosisType: "D",
   },
 ];
+
+/* ────────────────────────────────────────────────────────────
+   Supabase データ取得関数
+──────────────────────────────────────────────────────────── */
+
+// カウンセラー一覧取得
+export async function getCounselors() {
+  const { data, error } = await supabase
+    .from('counselors')
+    .select(`
+      *,
+      agencies(name, area)
+    `)
+    .eq('is_published', true)
+    .order('review_count', { ascending: false })
+  if (error) {
+    console.error('getCounselors error:', error)
+    return COUNSELORS
+  }
+  return data
+}
+
+// カウンセラー詳細取得
+export async function getCounselorById(id: string) {
+  const { data, error } = await supabase
+    .from('counselors')
+    .select(`
+      *,
+      agencies(name, area, description)
+    `)
+    .eq('id', id)
+    .single()
+  if (error) return null
+  return data
+}
+
+// 相談所一覧取得
+export async function getAgencies() {
+  const { data, error } = await supabase
+    .from('agencies')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) return AGENCIES
+  return data
+}
+
+// お店一覧取得
+export async function getShops() {
+  const { data, error } = await supabase
+    .from('shops')
+    .select('*')
+    .eq('is_published', true)
+    .order('review_count', { ascending: false })
+  if (error) return places
+  return data
+}
+
+// 口コミ取得（カウンセラー別）
+export async function getReviewsByCounselor(counselorId: string) {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('counselor_id', counselorId)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+  if (error) return []
+  return data
+}
+
+// エピソード一覧取得
+export async function getEpisodes() {
+  const { data, error } = await supabase
+    .from('episodes')
+    .select(`
+      *,
+      agencies(name),
+      counselors(name)
+    `)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+  if (error) return episodesData
+  return data
+}
+
+// エピソード詳細取得
+export async function getEpisodeById(id: string) {
+  const { data, error } = await supabase
+    .from('episodes')
+    .select(`
+      *,
+      agencies(name),
+      counselors(name)
+    `)
+    .eq('id', id)
+    .single()
+  if (error) return null
+  return data
+}
