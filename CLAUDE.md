@@ -1611,3 +1611,72 @@ created_at  TIMESTAMPTZ DEFAULT now()
 
 - アクティブ判定：`pathname === "/"` のみ（他ページでは非アクティブ）
 - アイコン：家型 SVG（既存アイテムと同スタイル・`currentColor`）
+
+---
+
+## Vercel ビルドエラー修正記録（2026-04-09）
+
+### ブランチ：`integration/redesign-with-all-features`
+
+---
+
+### 修正① TypeScript 型エラー（`ae42d5f` コミットで混入）
+
+**原因：** `getCounselorById` が `select('*, agencies(name, area, description)')` という JOIN クエリを使用していたが、`Database` 型に `Relationships` が未定義のため Supabase SDK v2 の型推論が戻り値を `never` と判断していた。
+
+**症状：**
+- `src/app/counselors/[id]/page.tsx` — `supabaseCounselor?.bio` 等で `Property 'bio' does not exist on type 'never'`
+- `src/app/episodes/[id]/page.tsx` — `.map()` コールバックで `Parameter implicitly has an 'any' type`
+
+**修正内容（`src/lib/data.ts`）：**
+- `getCounselorById` の JOIN を `select('*')` に変更
+- 戻り値型を `Promise<CounselorRow | null>` と明示的に定義
+
+**修正内容（`src/app/episodes/[id]/page.tsx`）：**
+- `.map((para, i) => ...)` → `.map((para: string, i: number) => ...)` に型注釈を追加
+- `.map((tag) => ...)` → `.map((tag: string) => ...)` に型注釈を追加
+
+#### Supabase SDK v2 の型推論に関する重要な注意
+
+`select('*, relatedTable(col1, col2)')` のような JOIN クエリは、`Database` 型に `Relationships` が定義されていないと TypeScript が戻り値を `never` と推論する。
+
+**対処法：**
+1. JOIN を使わず `select('*')` のみにする（推奨）
+2. 関数に明示的な戻り値型注釈 `Promise<RowType | null>` を付ける
+
+---
+
+### 修正② Vercel ランタイムエラー（スクリーンショットのエラー）
+
+#### getCounselors エラー：`column agencies_1.area does not exist`
+
+**原因：** `getCounselors()` で `agencies(name, area)` の JOIN を実行していたが、実際の Supabase `agencies` テーブルに `area` カラムが存在しない（PostgreSQL エラーコード `42703` = undefined_column）。TypeScript 型定義（`database.ts`）には `area` があるが、実際のテーブルに反映されていない。
+
+**修正：** `select('*')` に変更して JOIN を削除。
+
+**今後の注意：** `database.ts` の型定義と実際の Supabase テーブルのカラムが一致しているか、定期的に確認すること。
+
+#### /shops ページ：`TypeError: Cannot read properties of null`
+
+**原因：** `getShops()` が Supabase から `ShopRow[]` を返していたが、`ShopSearch` コンポーネントが期待する `PlaceHome` 型とフィールド構造が全く異なる。`features` フィールドが `null` のため `features.slice()` でクラッシュ。
+
+| `ShopRow`（Supabase） | `PlaceHome`（コンポーネント） |
+|---|---|
+| `badge_type` | `badgeType` |
+| `rating_avg` | `rating` |
+| `review_count` | `reviewCount` |
+| カラムなし | `thumbVariant`, `categoryLabel`, `areaLabel`, `stage`, `location` |
+
+**修正：** `getShops()` が常に `placesHomeData`（モック）を返すように変更。Supabase の `shops` テーブルスキーマを `PlaceHome` 型に整合させた後、Supabase データに切り替える。
+
+**TODO：** `shops` テーブルに `thumb_variant`, `category_label`, `area_label`, `stage`, `location` カラムを追加し、`getShops()` を Supabase データに戻す。
+
+---
+
+### 今後の Supabase 連携時の注意点まとめ
+
+1. **JOIN クエリは使わない**：`select('*, table(col)')` は型推論が壊れやすい。`select('*')` のみ使い、関連テーブルは別途クエリで取得する
+2. **戻り値型を必ず明示する**：`getCounselorById(id: string): Promise<CounselorRow | null>` のように書く
+3. **`database.ts` と実テーブルを同期させる**：型定義にあるカラムが実テーブルにない場合、ビルドは通るがランタイムエラーになる
+4. **Supabase データをコンポーネントに渡す前に型確認**：`as unknown as PlaceHome[]` のような強制キャストは危険。フィールド名・型が一致しているか必ず確認する
+5. **`.map()` コールバックには型注釈を付ける**：`any` 型の配列に対して `.map((item) => ...)` とすると `noImplicitAny` エラーになる
