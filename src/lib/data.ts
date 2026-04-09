@@ -4,6 +4,7 @@
 import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'
 import { places } from '@/lib/mock/places'
+import { placesHomeData } from '@/lib/mock/places-home'
 import type { Database } from '@/types/database'
 
 type CounselorRow = Database['public']['Tables']['counselors']['Row']
@@ -398,10 +399,7 @@ export const COUNSELORS: Counselor[] = [
 export async function getCounselors() {
   const { data, error } = await supabase
     .from('counselors')
-    .select(`
-      *,
-      agencies(name, area)
-    `)
+    .select('*')
     .eq('is_published', true)
     .order('review_count', { ascending: false })
   if (error) {
@@ -433,14 +431,11 @@ export async function getAgencies() {
 }
 
 // お店一覧取得
+// NOTE: Supabase shops テーブルのスキーマは PlaceHome 型と未整合のため
+// 現時点ではモックデータを返す。スキーマ整合後に Supabase データに切り替える。
 export async function getShops() {
-  const { data, error } = await supabase
-    .from('shops')
-    .select('*')
-    .eq('is_published', true)
-    .order('review_count', { ascending: false })
-  if (error) return places
-  return data
+  void places // 将来 Supabase 利用時の参照用
+  return placesHomeData
 }
 
 // 口コミ取得（カウンセラー別）
