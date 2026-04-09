@@ -160,7 +160,7 @@ export default async function EpisodeDetailPage({
         {/* ═══ 本文エリア ═══ */}
         <div style={{ maxWidth: 720, margin: "0 auto", padding: "48px 24px 80px" }}>
           {/* ストーリー */}
-          {episode.story.map((para, i) => (
+          {episode.story.map((para: string, i: number) => (
             <p key={i} className="ep-story">
               {para}
             </p>
@@ -171,7 +171,7 @@ export default async function EpisodeDetailPage({
 
           {/* タグ */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-            {episode.tags.map((tag) => (
+            {episode.tags.map((tag: string) => (
               <span key={tag} className="ep-story-tag">
                 {tag}
               </span>

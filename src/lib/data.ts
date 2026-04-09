@@ -4,6 +4,9 @@
 import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'
 import { places } from '@/lib/mock/places'
+import type { Database } from '@/types/database'
+
+type CounselorRow = Database['public']['Tables']['counselors']['Row']
 
 export type Plan = {
   name: string;
@@ -409,13 +412,10 @@ export async function getCounselors() {
 }
 
 // カウンセラー詳細取得
-export async function getCounselorById(id: string) {
+export async function getCounselorById(id: string): Promise<CounselorRow | null> {
   const { data, error } = await supabase
     .from('counselors')
-    .select(`
-      *,
-      agencies(name, area, description)
-    `)
+    .select('*')
     .eq('id', id)
     .single()
   if (error) return null
