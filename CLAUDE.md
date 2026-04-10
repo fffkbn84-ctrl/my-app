@@ -1680,3 +1680,367 @@ created_at  TIMESTAMPTZ DEFAULT now()
 3. **`database.ts` と実テーブルを同期させる**：型定義にあるカラムが実テーブルにない場合、ビルドは通るがランタイムエラーになる
 4. **Supabase データをコンポーネントに渡す前に型確認**：`as unknown as PlaceHome[]` のような強制キャストは危険。フィールド名・型が一致しているか必ず確認する
 5. **`.map()` コールバックには型注釈を付ける**：`any` 型の配列に対して `.map((item) => ...)` とすると `noImplicitAny` エラーになる
+
+---
+
+---
+
+# futarive-admin — 統括管理画面
+
+> **ふたりへ運営スタッフ専用の管理ダッシュボード。**
+> フロントサイト（`my-app/src/`）とは完全に独立した Next.js アプリとして、
+> `my-app/futarive-admin/` サブディレクトリに格納されている。
+
+---
+
+## 概要・位置づけ
+
+| 項目 | 内容 |
+|---|---|
+| **場所** | `/home/user/my-app/futarive-admin/`（my-app リポジトリのサブディレクトリ） |
+| **ローカル開発ソース** | `/home/user/futarive-admin/`（修正はここで行い、my-app にコピー＆push） |
+| **ブランチ** | `integration/redesign-with-all-features` |
+| **Vercel** | `my-app` プロジェクトとは別に Vercel でデプロイ済み |
+| **権限** | ふたりへ運営（`admin` ロール）専用。Supabase Auth でログイン必須 |
+
+---
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | Next.js 14（App Router）+ TypeScript |
+| スタイリング | Tailwind CSS + グローバル CSS（`app/globals.css`） |
+| DB・認証 | Supabase（フロントサイトと **同一プロジェクト**） |
+| 認証ライブラリ | `@supabase/ssr`（cookie ベース） |
+
+---
+
+## ディレクトリ構成
+
+```
+futarive-admin/
+├── app/
+│   ├── globals.css          # デザインシステム（CSS変数・共通クラス）
+│   ├── layout.tsx           # ルートレイアウト（Google Fonts 読み込み）
+│   ├── page.tsx             # / → /admin へリダイレクト
+│   ├── login/page.tsx       # ログイン画面
+│   └── admin/
+│       ├── layout.tsx       # AdminShell をラップ
+│       ├── page.tsx         # ダッシュボード（統計 + 承認待ち口コミ + 最近の予約）
+│       ├── reviews/
+│       │   ├── page.tsx     # 口コミ管理（承認・却下・代理掲載一覧）
+│       │   └── new/page.tsx # 口コミ代理入力（5ステップ）
+│       ├── agencies/
+│       │   └── page.tsx     # 相談所管理（一覧・新規追加・編集）
+│       ├── counselors/
+│       │   └── page.tsx     # カウンセラー管理（一覧・新規追加・編集・掲載toggle）
+│       ├── shops/
+│       │   └── page.tsx     # お店管理（一覧・掲載toggle）
+│       ├── slots/
+│       │   └── page.tsx     # スロット管理（一覧・新規追加・ステータス変更）
+│       ├── reservations/
+│       │   └── page.tsx     # 予約管理（一覧・詳細表示）
+│       ├── episodes/
+│       │   └── page.tsx     # 成婚エピソード管理（かんばん・新規追加・公開toggle）
+│       └── columns/
+│           └── page.tsx     # コラム管理（一覧・新規追加・編集）
+├── components/
+│   └── AdminShell.tsx       # 共通レイアウト（トップバー + サイドバー + モバイル対応）
+├── lib/
+│   └── supabase/
+│       ├── client.ts        # ブラウザ用クライアント（createBrowserClient）
+│       └── server.ts        # サーバー用クライアント（createServerClient）
+├── middleware.ts             # 認証ゲート（未ログイン → /login へリダイレクト）
+├── supabase/
+│   └── migrations/
+│       └── 002_admin_policies.sql  # RLS ポリシー定義
+└── types/
+    └── database.ts          # Supabase テーブル型定義（参照用。実装時は各ページで独自 interface を使う）
+```
+
+---
+
+## デザインシステム（`app/globals.css`）
+
+### CSS 変数
+
+```css
+:root {
+  --bg:      #F7F4EF;   /* ベージュ背景 */
+  --surface: #FFFFFF;   /* カード・モーダル */
+  --accent:  #A87C2A;   /* ゴールド（ボタン・アクティブ） */
+  --ink:     #1A1612;   /* 本文テキスト */
+  --muted:   #8C8480;   /* 補足テキスト */
+  --border:  #E5E0D8;   /* 罫線・枠線 */
+}
+```
+
+### 共通 CSS クラス一覧
+
+| クラス | 用途 |
+|---|---|
+| `.btn` `.btn-primary` `.btn-ghost` `.btn-danger` `.btn-sm` | ボタン |
+| `.card` | 白背景カード（border-radius: 12px） |
+| `.admin-table` | テーブル共通スタイル |
+| `.badge` `.badge-open` `.badge-locked` `.badge-booked` `.badge-published` `.badge-draft` `.badge-certified` `.badge-agency` `.badge-listed` `.badge-proxy` | バッジ |
+| `.form-label` `.form-input` `.form-select` `.form-textarea` | フォーム部品 |
+| `.modal-overlay` `.modal-box` `.modal-title` | モーダル |
+| `.spinner` | ローディングスピナー |
+| `.step-bar` `.step-item` `.step-circle` `.step-label` | ステップバー（代理入力5ステップ） |
+| `.kanban-col` `.kanban-card` | かんばんレイアウト（エピソード管理） |
+| `.stat-card` `.stat-value` `.stat-label` | 統計カード（ダッシュボード） |
+| `.toggle` `.toggle-slider` | ON/OFF トグルスイッチ |
+| `.warning-banner` | 警告バナー（代理入力の景表法注意） |
+| `.page-header` `.page-title` | ページ上部ヘッダー行 |
+| `.empty-state` | データなし表示 |
+| `.form-grid-2col` | 2カラムグリッド（モバイルで1カラムに崩れる） |
+| `.topbar` `.topbar-logo` `.topbar-menu-btn` `.topbar-site-btn` `.topbar-hide-mobile` | トップバーレイアウト |
+
+### モバイル対応（`@media (max-width: 768px)`）
+
+- サイドバーは非表示 → ハンバーガーメニューで overlay 表示
+- モーダルは下からのボトムシート（`border-radius: 20px 20px 0 0`）
+- `.form-grid-2col`・`.kanban-grid-mobile` は1カラムに崩れる
+- `.topbar-hide-mobile` は非表示になる
+
+---
+
+## 認証・RLS 設計
+
+### ログイン
+
+- Supabase Auth（`signInWithPassword`）
+- cookie ベースのセッション管理（`@supabase/ssr`）
+- `middleware.ts` が全ルートを保護：未ログイン → `/login`、ログイン済みで `/login` → `/admin`
+
+### RLS ポリシー（`supabase/migrations/002_admin_policies.sql`）
+
+- `authenticated` ユーザー：全テーブルに対して SELECT / INSERT / UPDATE / DELETE すべて許可
+- `anon` ユーザー（フロントサイト）：`is_published = true` の行のみ SELECT 可
+
+### 管理者アカウントの作成方法
+
+Supabase ダッシュボード「Authentication > Users > Add User」から作成する。
+コードで作成する場合は `supabase.auth.admin.createUser()`（service role key 必要）。
+
+---
+
+## 実装済みページ詳細
+
+### ダッシュボード（`/admin`）
+
+- 統計カード：承認待ち口コミ数 / 累計口コミ数 / 掲載カウンセラー数 / 今月の予約数
+- クイックアクション：口コミ承認 / 新規代理入力 / スロット追加 / エピソード追加
+- 承認待ち口コミ（最新5件）：承認・却下ボタン付きテーブル
+- 最近の予約（最新5件）：口コミ済みフラグ付きテーブル
+
+---
+
+### 口コミ管理（`/admin/reviews`）
+
+- タブ切替：「承認待ち（face_to_face）」「代理掲載済み（proxy）」
+- 承認待ちタブ：承認 → `is_published = true` に UPDATE / 却下 → DELETE
+- 代理掲載タブ：`source_type = 'proxy'` の口コミ一覧（閲覧専用）
+
+---
+
+### 口コミ代理入力（`/admin/reviews/new`）— 5ステップ
+
+景品表示法対応のため `source_type = 'proxy'` で INSERT。
+
+| Step | 内容 |
+|---|---|
+| 1 | 相談所 → カウンセラー選択（ドロップダウン連動） |
+| 2 | 投稿者属性（年齢層・性別・エリア） |
+| 3 | 評価（星1〜5） |
+| 4 | 本文入力 |
+| 5 | プレビュー + 景表法チェックボックス + 公開フラグ → INSERT |
+
+ページ上部に `.warning-banner`「代理掲載は必ず「代理掲載」バッジを表示します」を表示。
+
+---
+
+### 相談所管理（`/admin/agencies`）
+
+**一覧テーブル：** 名前 / 説明（省略表示）/ WebサイトURL / 登録日 / 編集ボタン
+
+**新規追加（INSERT）：**
+- 入力項目：名前（必須）/ 説明 / WebサイトURL
+- 追加後 → 一覧を自動更新
+
+**編集（UPDATE）：**
+- 更新項目：名前 / 説明 / WebサイトURL
+
+---
+
+### カウンセラー管理（`/admin/counselors`）
+
+**一覧テーブル：** 名前 / 相談所 / エリア / 経験年数 / 口コミ数 / 診断タイプ / 掲載状態トグル / 編集ボタン
+
+**新規追加（INSERT）：**
+- 入力項目：名前（必須）/ 所属相談所（ドロップダウン）/ エリア / bio / quote / 診断タイプ（A/B/C/D）/ 公開フラグ
+- `review_count: 0` で初期化
+
+**編集（UPDATE）：**
+- 所属相談所の変更（`agency_id` の UPDATE）も可能
+
+**掲載 toggle：** 一覧のスイッチで `is_published` を即時 UPDATE
+
+---
+
+### お店管理（`/admin/shops`）
+
+- 一覧テーブル：名前 / 相談所 / カテゴリ / エリア / バッジ / 口コミ数 / 掲載状態トグル
+- 掲載 toggle：`is_published` の即時 UPDATE
+- **新規追加・編集は未実装（TODO）**
+
+---
+
+### スロット管理（`/admin/slots`）
+
+- 一覧テーブル：カウンセラー / 開始日時 / 終了日時 / ステータス（open / locked / booked）
+- ステータス変更：select ドロップダウンで即時 UPDATE
+- 新規追加：カウンセラー選択 + 開始・終了日時を入力して INSERT
+
+---
+
+### 予約管理（`/admin/reservations`）
+
+- 一覧テーブル：面談日時 / ユーザー名 / メール / 電話 / カウンセラー / 口コミ発行状況
+- 行クリックで詳細モーダル（メモ / レビュートークン・コード 含む全フィールド）
+- **編集・削除は未実装（TODO）**
+
+---
+
+### 成婚エピソード管理（`/admin/episodes`）
+
+- かんばんレイアウト：「下書き」列 ↔ 「公開中」列
+- 公開する / 非公開にするボタンで `is_published` を toggle
+- 新規追加：タイトル（必須）/ 相談所 / カウンセラー / 概要（必須）/ 期間 / 成婚年 / 公開フラグ → `slug` 自動生成して INSERT
+
+---
+
+### コラム管理（`/admin/columns`）
+
+- 一覧テーブル：タイトル / スラグ / 公開日時 / 登録日 / 編集ボタン
+- 新規追加：タイトル（必須）/ スラグ（必須）/ 本文 / サムネイルURL / 公開日時 → INSERT
+- 編集：全フィールド UPDATE 可能
+
+---
+
+## Supabase クライアントの使い方
+
+```typescript
+// 'use client' コンポーネント内
+import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()
+const { data, error } = await supabase.from('agencies').select('*')
+```
+
+### 重要な注意事項（過去の失敗から）
+
+1. **`createBrowserClient<Database>()` の Database generic は使わない**
+   - Supabase SDK v2 で型推論が壊れ `.update()` の引数が `never` 型になる
+   - `lib/supabase/client.ts` では generic なしで実装済み
+
+2. **JOIN クエリ `select('*, table(col)')` は型が壊れやすい**
+   - `Database` 型に `Relationships` が未定義だと戻り値が `never` になる
+   - 基本は `select('*')` のみ使い、JOIN 結果は `(row.agencies as { name?: string } | null)?.name` のように取り出す
+
+3. **各ページファイルで独自の interface を定義する**
+   - `types/database.ts` の型を直接インポートして使わない
+   - `database.ts` と実テーブルのカラムが乖離している可能性があるため
+
+4. **CSS の inline style と class の混在に注意**
+   - `style={{ display: 'none' }}` は class ベースの CSS より specificity が高い
+   - モバイル対応は必ず `globals.css` の `@media` ブロックに書く
+
+---
+
+## 作業手順（ローカルで修正してpushする場合）
+
+```bash
+# 1. ローカルソース（/home/user/futarive-admin/）を編集する
+
+# 2. 編集したファイルを my-app リポジトリのサブディレクトリにコピー
+cp /home/user/futarive-admin/app/admin/xxx/page.tsx \
+   /home/user/my-app/futarive-admin/app/admin/xxx/page.tsx
+
+# 3. my-app ディレクトリでコミット＆push
+cd /home/user/my-app
+git add futarive-admin/...
+git commit -m "feat(admin): ..."
+git push -u origin integration/redesign-with-all-features
+```
+
+**なぜこの手順か：** コミット署名サーバーが `my-app` リポジトリのみを許可しているため、
+`/home/user/futarive-admin/` の git リポジトリ単体では署名エラーで push できない。
+必ず `my-app` リポジトリのコンテキストでコミット・push すること。
+
+---
+
+## 今後の実装予定：相談所専用管理画面
+
+> **現在の統括管理画面（futarive-admin）は「ふたりへ運営」専用。**
+> 今後、各相談所スタッフが自社情報・カレンダー・口コミ返信を管理できる
+> **相談所専用管理画面** を実装する予定。
+
+### 想定 URL 構成
+
+```
+/agency-admin/              # 相談所ダッシュボード
+/agency-admin/login         # 相談所ログイン
+/agency-admin/profile       # 自社情報編集（名前・説明・URLなど）
+/agency-admin/counselors    # 自社カウンセラー一覧・編集
+/agency-admin/slots         # カレンダー・スロット管理
+/agency-admin/reservations  # 予約一覧（閲覧のみ）
+/agency-admin/reviews       # 口コミ閲覧・返信（1回のみ）
+```
+
+### 権限設計
+
+| ロール | できること |
+|---|---|
+| `admin`（ふたりへ運営） | 全データ・全機能 |
+| `agency`（相談所） | 自社データのみ CRUD / 口コミへの返信（1回のみ） |
+
+### 実装時の設計ポイント
+
+**Supabase Auth のユーザー管理：**
+- `auth.users` に加え、`admin_users` テーブルで `role` と `agency_id` を管理する
+- 相談所ログイン時に `agency_id` を取得 → クエリの WHERE 条件に使う
+
+```sql
+-- 要追加：admin_users テーブル
+CREATE TABLE admin_users (
+  id         UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role       TEXT NOT NULL CHECK (role IN ('admin', 'agency')),
+  agency_id  UUID REFERENCES agencies(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+**RLS ポリシーの追加：**
+- `agency` ロールは `agency_id` が一致する行のみ操作できるようにする
+- 現在の `002_admin_policies.sql` は `authenticated` 全員を許可しているため、相談所画面実装時に見直しが必要
+
+**口コミ返信：**
+- `reviews` テーブルに `agency_reply` / `agency_replied_at` カラムを追加
+- 返信済みの場合は返信フォームを非表示にする（1回制限）
+
+```sql
+-- 要追加：reviews テーブルへのカラム追加
+ALTER TABLE reviews
+  ADD COLUMN agency_reply TEXT,
+  ADD COLUMN agency_replied_at TIMESTAMPTZ;
+```
+
+**スロット管理とダブルブッキング防止：**
+- Supabase Realtime でスロット状態をリアルタイム同期
+- `status = 'locked'` の5分タイムアウトは pg_cron で自動解放
+- 詳細はこの CLAUDE.md 上部「ダブルブッキング防止」セクション参照
+
+**アプリの配置方針（要検討）：**
+- 案A：`futarive-admin` 内に `/agency-admin/` ルートを追加（シンプル）
+- 案B：別の Next.js アプリとして `my-app/agency-admin/` サブディレクトリに新設（権限分離が明確）
