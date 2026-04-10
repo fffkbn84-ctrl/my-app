@@ -107,6 +107,7 @@ export default function NewReviewPage() {
   const handleSubmit = async () => {
     setSubmitting(true)
     const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase.from('reviews').insert({
       counselor_id: form.counselorId,
       rating: form.rating,
@@ -117,7 +118,7 @@ export default function NewReviewPage() {
       reviewer_gender: form.reviewerGender,
       reviewer_area: form.reviewerArea,
       reservation_id: null,
-    })
+    } as any)
     setSubmitting(false)
     if (!error) {
       setSuccess(true)

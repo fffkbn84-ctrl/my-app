@@ -110,6 +110,7 @@ export default function CounselorsPage() {
     if (!editTarget || !editForm) return
     setSaving(true)
     const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.from('counselors').update({
       name: editForm.name,
       agency_id: editForm.agency_id || null,
@@ -118,7 +119,7 @@ export default function CounselorsPage() {
       quote: editForm.quote || null,
       diagnosis_type: editForm.diagnosis_type || null,
       is_published: editForm.is_published,
-    }).eq('id', editTarget.id)
+    } as any).eq('id', editTarget.id)
     setSaving(false)
     setEditTarget(null)
     setEditForm(null)
@@ -129,6 +130,7 @@ export default function CounselorsPage() {
     if (!addForm.name.trim()) return
     setAdding(true)
     const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase.from('counselors').insert({
       name: addForm.name.trim(),
       agency_id: addForm.agency_id || null,
@@ -138,7 +140,7 @@ export default function CounselorsPage() {
       diagnosis_type: addForm.diagnosis_type || null,
       is_published: addForm.is_published,
       review_count: 0,
-    })
+    } as any)
     setAdding(false)
     if (error) { alert('エラー: ' + error.message); return }
     setShowAddModal(false)

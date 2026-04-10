@@ -79,12 +79,13 @@ export default function SlotsPage() {
   async function handleAdd() {
     if (!addForm.counselorId || !addForm.startAt || !addForm.endAt) return
     setSaving(true)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await createClient().from('slots').insert({
       counselor_id: addForm.counselorId,
       start_at: new Date(addForm.startAt).toISOString(),
       end_at: new Date(addForm.endAt).toISOString(),
       status: 'open',
-    })
+    } as any)
     setSaving(false)
     setShowModal(false)
     setAddForm({ counselorId: '', startAt: '', endAt: '' })

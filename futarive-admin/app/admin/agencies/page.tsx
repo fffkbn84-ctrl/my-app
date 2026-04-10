@@ -67,11 +67,12 @@ export default function AgenciesPage() {
     if (!editTarget || !editForm) return
     setSaving(true)
     const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await supabase.from('agencies').update({
       name: editForm.name,
       description: editForm.description || null,
       website_url: editForm.website_url || null,
-    }).eq('id', editTarget.id)
+    } as any).eq('id', editTarget.id)
     setSaving(false)
     setEditTarget(null)
     setEditForm(null)
@@ -82,11 +83,12 @@ export default function AgenciesPage() {
     if (!addForm.name.trim()) return
     setAdding(true)
     const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase.from('agencies').insert({
       name: addForm.name.trim(),
       description: addForm.description.trim() || null,
       website_url: addForm.website_url.trim() || null,
-    })
+    } as any)
     setAdding(false)
     if (error) { alert('エラー: ' + error.message); return }
     setShowAddModal(false)

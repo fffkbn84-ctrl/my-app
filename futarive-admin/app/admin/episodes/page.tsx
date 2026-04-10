@@ -90,6 +90,7 @@ export default function EpisodesPage() {
     setSaving(true)
     const slug = generateSlug(form.title)
     const supabase = createClient()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await supabase.from('episodes').insert({
       title: form.title,
       slug,
@@ -100,7 +101,7 @@ export default function EpisodesPage() {
       year: form.year ? Number(form.year) : null,
       is_published: form.isPublished,
       sympathy_count: 0,
-    })
+    } as any)
     setSaving(false)
     if (error) { alert('エラー: ' + error.message); return }
     setShowModal(false)

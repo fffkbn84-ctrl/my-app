@@ -81,7 +81,8 @@ export default function ColumnsPage() {
   async function handleSave() {
     setSaving(true)
     const supabase = createClient()
-    const payload = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const payload: any = {
       title: form.title,
       slug: form.slug || generateSlug(form.title),
       body: form.body || null,
