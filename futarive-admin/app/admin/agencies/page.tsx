@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-// AgencyRow type used for local typing
+
 interface AgencyRow {
   id: string
   name: string
@@ -18,10 +18,23 @@ interface EditForm {
   website_url: string
 }
 
+interface AddForm {
+  name: string
+  description: string
+  website_url: string
+}
+
 function IconEdit() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
       <path d="M11 2l3 3-9 9H2v-3l9-9z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+function IconPlus() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -32,6 +45,9 @@ export default function AgenciesPage() {
   const [editTarget, setEditTarget] = useState<AgencyRow | null>(null)
   const [editForm, setEditForm] = useState<EditForm | null>(null)
   const [saving, setSaving] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [addForm, setAddForm] = useState<AddForm>({ name: '', description: '', website_url: '' })
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => { loadAgencies() }, [])
 
@@ -62,10 +78,29 @@ export default function AgenciesPage() {
     loadAgencies()
   }
 
+  async function handleAdd() {
+    if (!addForm.name.trim()) return
+    setAdding(true)
+    const supabase = createClient()
+    const { error } = await supabase.from('agencies').insert({
+      name: addForm.name.trim(),
+      description: addForm.description.trim() || null,
+      website_url: addForm.website_url.trim() || null,
+    })
+    setAdding(false)
+    if (error) { alert('エラー: ' + error.message); return }
+    setShowAddModal(false)
+    setAddForm({ name: '', description: '', website_url: '' })
+    loadAgencies()
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">相談所管理</h1>
+        <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ gap: 6 }}>
+          <IconPlus /> 新規追加
+        </button>
       </div>
 
       <div className="card">
@@ -118,6 +153,52 @@ export default function AgenciesPage() {
           </div>
         )}
       </div>
+
+      {/* Add modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="modal-title">相談所 新規追加</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label className="form-label">名前 <span style={{ color: '#DC2626' }}>*</span></label>
+                <input
+                  className="form-input"
+                  value={addForm.name}
+                  onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="例: ブライダルハウス東京"
+                />
+              </div>
+              <div>
+                <label className="form-label">説明</label>
+                <textarea
+                  className="form-textarea"
+                  value={addForm.description}
+                  onChange={e => setAddForm(f => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  placeholder="相談所の紹介文を入力してください"
+                />
+              </div>
+              <div>
+                <label className="form-label">WebサイトURL</label>
+                <input
+                  className="form-input"
+                  type="url"
+                  value={addForm.website_url}
+                  onChange={e => setAddForm(f => ({ ...f, website_url: e.target.value }))}
+                  placeholder="https://"
+                />
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowAddModal(false); setAddForm({ name: '', description: '', website_url: '' }) }} className="btn btn-ghost">キャンセル</button>
+              <button onClick={handleAdd} className="btn btn-primary" disabled={adding || !addForm.name.trim()}>
+                {adding ? <span className="spinner" style={{ width: 16, height: 16 }} /> : '追加'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit modal */}
       {editTarget && editForm && (

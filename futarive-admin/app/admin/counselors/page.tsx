@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+
 interface CounselorRow {
   id: string
   agency_id: string | null
@@ -16,10 +17,23 @@ interface CounselorRow {
   created_at: string
 }
 
+interface AgencyRow { id: string; name: string }
+
 type CounselorWithAgency = CounselorRow & { agency_name: string }
 
 interface EditForm {
   name: string
+  agency_id: string
+  area: string
+  bio: string
+  quote: string
+  diagnosis_type: string
+  is_published: boolean
+}
+
+interface AddForm {
+  name: string
+  agency_id: string
   area: string
   bio: string
   quote: string
@@ -34,15 +48,31 @@ function IconEdit() {
     </svg>
   )
 }
+function IconPlus() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+    </svg>
+  )
+}
 
 export default function CounselorsPage() {
   const [counselors, setCounselors] = useState<CounselorWithAgency[]>([])
+  const [agencies, setAgencies] = useState<AgencyRow[]>([])
   const [loading, setLoading] = useState(true)
   const [editTarget, setEditTarget] = useState<CounselorWithAgency | null>(null)
   const [editForm, setEditForm] = useState<EditForm | null>(null)
   const [saving, setSaving] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [addForm, setAddForm] = useState<AddForm>({
+    name: '', agency_id: '', area: '', bio: '', quote: '', diagnosis_type: '', is_published: false,
+  })
+  const [adding, setAdding] = useState(false)
 
-  useEffect(() => { loadCounselors() }, [])
+  useEffect(() => {
+    loadCounselors()
+    createClient().from('agencies').select('id, name').order('name').then(({ data }) => setAgencies(data ?? []))
+  }, [])
 
   async function loadCounselors() {
     setLoading(true)
@@ -67,6 +97,7 @@ export default function CounselorsPage() {
     setEditTarget(c)
     setEditForm({
       name: c.name,
+      agency_id: c.agency_id ?? '',
       area: c.area ?? '',
       bio: c.bio ?? '',
       quote: c.quote ?? '',
@@ -81,6 +112,7 @@ export default function CounselorsPage() {
     const supabase = createClient()
     await supabase.from('counselors').update({
       name: editForm.name,
+      agency_id: editForm.agency_id || null,
       area: editForm.area || null,
       bio: editForm.bio || null,
       quote: editForm.quote || null,
@@ -93,10 +125,34 @@ export default function CounselorsPage() {
     loadCounselors()
   }
 
+  async function handleAdd() {
+    if (!addForm.name.trim()) return
+    setAdding(true)
+    const supabase = createClient()
+    const { error } = await supabase.from('counselors').insert({
+      name: addForm.name.trim(),
+      agency_id: addForm.agency_id || null,
+      area: addForm.area.trim() || null,
+      bio: addForm.bio.trim() || null,
+      quote: addForm.quote.trim() || null,
+      diagnosis_type: addForm.diagnosis_type || null,
+      is_published: addForm.is_published,
+      review_count: 0,
+    })
+    setAdding(false)
+    if (error) { alert('エラー: ' + error.message); return }
+    setShowAddModal(false)
+    setAddForm({ name: '', agency_id: '', area: '', bio: '', quote: '', diagnosis_type: '', is_published: false })
+    loadCounselors()
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">カウンセラー管理</h1>
+        <button onClick={() => setShowAddModal(true)} className="btn btn-primary" style={{ gap: 6 }}>
+          <IconPlus /> 新規追加
+        </button>
       </div>
 
       <div className="card">
@@ -162,6 +218,96 @@ export default function CounselorsPage() {
         )}
       </div>
 
+      {/* Add modal */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="modal-title">カウンセラー 新規追加</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label className="form-label">名前 <span style={{ color: '#DC2626' }}>*</span></label>
+                <input
+                  className="form-input"
+                  value={addForm.name}
+                  onChange={e => setAddForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="例: 田中 美紀"
+                />
+              </div>
+              <div>
+                <label className="form-label">所属相談所</label>
+                <select
+                  className="form-select"
+                  value={addForm.agency_id}
+                  onChange={e => setAddForm(f => ({ ...f, agency_id: e.target.value }))}
+                >
+                  <option value="">選択してください</option>
+                  {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="form-label">エリア</label>
+                <input
+                  className="form-input"
+                  value={addForm.area}
+                  onChange={e => setAddForm(f => ({ ...f, area: e.target.value }))}
+                  placeholder="例: 東京・神奈川"
+                />
+              </div>
+              <div>
+                <label className="form-label">プロフィール（bio）</label>
+                <textarea
+                  className="form-textarea"
+                  value={addForm.bio}
+                  onChange={e => setAddForm(f => ({ ...f, bio: e.target.value }))}
+                  rows={3}
+                  placeholder="カウンセラーの紹介文を入力してください"
+                />
+              </div>
+              <div>
+                <label className="form-label">一言コメント（quote）</label>
+                <input
+                  className="form-input"
+                  value={addForm.quote}
+                  onChange={e => setAddForm(f => ({ ...f, quote: e.target.value }))}
+                  placeholder="例: 一緒に理想の相手を見つけましょう"
+                />
+              </div>
+              <div>
+                <label className="form-label">診断タイプ</label>
+                <select
+                  className="form-select"
+                  value={addForm.diagnosis_type}
+                  onChange={e => setAddForm(f => ({ ...f, diagnosis_type: e.target.value }))}
+                >
+                  <option value="">未設定</option>
+                  {['A', 'B', 'C', 'D'].map(t => <option key={t} value={t}>タイプ {t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={addForm.is_published}
+                    onChange={e => setAddForm(f => ({ ...f, is_published: e.target.checked }))}
+                    style={{ accentColor: 'var(--accent)', width: 16, height: 16 }}
+                  />
+                  <span style={{ fontSize: 13 }}>今すぐ公開する</span>
+                </label>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => { setShowAddModal(false); setAddForm({ name: '', agency_id: '', area: '', bio: '', quote: '', diagnosis_type: '', is_published: false }) }}
+                className="btn btn-ghost"
+              >キャンセル</button>
+              <button onClick={handleAdd} className="btn btn-primary" disabled={adding || !addForm.name.trim()}>
+                {adding ? <span className="spinner" style={{ width: 16, height: 16 }} /> : '追加'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit modal */}
       {editTarget && editForm && (
         <div className="modal-overlay">
@@ -171,6 +317,17 @@ export default function CounselorsPage() {
               <div>
                 <label className="form-label">名前</label>
                 <input className="form-input" value={editForm.name} onChange={e => setEditForm(f => f ? { ...f, name: e.target.value } : f)} />
+              </div>
+              <div>
+                <label className="form-label">所属相談所</label>
+                <select
+                  className="form-select"
+                  value={editForm.agency_id}
+                  onChange={e => setEditForm(f => f ? { ...f, agency_id: e.target.value } : f)}
+                >
+                  <option value="">選択してください</option>
+                  {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                </select>
               </div>
               <div>
                 <label className="form-label">エリア</label>
