@@ -245,46 +245,36 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Top bar */}
-      <header style={{
-        position: 'fixed',
-        top: 0, left: 0, right: 0,
-        height: 56,
-        background: 'var(--surface)',
-        borderBottom: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        padding: '0 16px',
-        zIndex: 40,
-        gap: 12,
-      }}>
-        {/* Mobile menu button */}
+      <header className="topbar">
+        {/* Mobile menu button — visible only on mobile via CSS */}
         <button
           onClick={() => setSidebarOpen(v => !v)}
-          className="btn btn-ghost btn-sm"
-          style={{ padding: '6px', display: 'none' }}
-          id="mobile-menu-btn"
+          className="btn btn-ghost btn-sm topbar-menu-btn"
+          style={{ padding: '6px' }}
         >
           {sidebarOpen ? <IconX /> : <IconMenu />}
         </button>
 
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="topbar-logo">
           <span style={{
             fontFamily: 'Shippori Mincho, serif',
             fontWeight: 500,
             fontSize: '18px',
             color: 'var(--ink)',
             letterSpacing: '.1em',
+            whiteSpace: 'nowrap',
           }}>ふたりへ</span>
           <span style={{
             display: 'inline-block',
-            padding: '2px 10px',
+            padding: '2px 8px',
             border: '1px solid var(--accent)',
             borderRadius: '20px',
             fontSize: '10px',
             fontFamily: 'DM Sans, sans-serif',
             color: 'var(--accent)',
-            letterSpacing: '.08em',
+            letterSpacing: '.06em',
+            whiteSpace: 'nowrap',
           }}>統括管理</span>
         </div>
 
@@ -295,26 +285,23 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           href="https://my-app-git-integration-redesign-772ffb-fffkbn84-4095s-projects.vercel.app"
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-ghost btn-sm"
+          className="btn btn-ghost btn-sm topbar-site-btn"
           style={{ gap: 6 }}
         >
           <IconExternal />
-          <span className="topbar-site-label" style={{ fontFamily: 'DM Sans', fontSize: 12 }}>サイトを見る</span>
+          <span className="topbar-hide-mobile" style={{ fontFamily: 'DM Sans', fontSize: 12 }}>サイトを見る</span>
         </a>
 
         {/* Bell */}
-        <button className="btn btn-ghost btn-sm" style={{ padding: '6px', position: 'relative' }}>
+        <button className="btn btn-ghost btn-sm topbar-hide-mobile" style={{ padding: '6px' }}>
           <IconBell />
         </button>
 
-        {/* User + Logout */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="topbar-user-name" style={{ fontSize: '13px', color: 'var(--muted)' }}>ふうか</span>
-          <button onClick={handleLogout} className="btn btn-ghost btn-sm" style={{ gap: 6 }}>
-            <IconLogout />
-            <span className="topbar-logout-label" style={{ fontSize: 12 }}>ログアウト</span>
-          </button>
-        </div>
+        {/* Logout only icon on mobile, full on desktop */}
+        <button onClick={handleLogout} className="btn btn-ghost btn-sm" style={{ gap: 6 }}>
+          <IconLogout />
+          <span className="topbar-hide-mobile" style={{ fontSize: 12 }}>ログアウト</span>
+        </button>
       </header>
 
       <div style={{ display: 'flex', paddingTop: 56, flex: 1 }}>
@@ -371,16 +358,6 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </main>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .sidebar-desktop { display: none !important; }
-          .admin-main { margin-left: 0 !important; padding: 16px !important; }
-          #mobile-menu-btn { display: flex !important; }
-          .topbar-site-label { display: none !important; }
-          .topbar-user-name { display: none !important; }
-          .topbar-logout-label { display: none !important; }
-        }
-      `}</style>
     </div>
   )
 }

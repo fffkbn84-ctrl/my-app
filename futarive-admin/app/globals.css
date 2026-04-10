@@ -411,10 +411,48 @@ body {
 }
 
 /* =====================
+   Topbar layout
+   ===================== */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 56px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 40;
+  gap: 8px;
+  overflow: hidden;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.topbar-menu-btn {
+  display: none; /* hidden on desktop */
+  flex-shrink: 0;
+}
+.topbar-site-btn {
+  flex-shrink: 0;
+}
+
+/* =====================
    Mobile responsive
    ===================== */
 @media (max-width: 768px) {
-  /* Modal: full width on mobile */
+  /* Sidebar */
+  .sidebar-desktop { display: none !important; }
+  .admin-main { margin-left: 0 !important; padding: 16px !important; }
+
+  /* Topbar */
+  .topbar-menu-btn { display: flex; }
+  .topbar-hide-mobile { display: none; }
+
+  /* Modal: sheet from bottom */
   .modal-overlay {
     align-items: flex-end;
     padding: 0;
@@ -425,29 +463,29 @@ body {
     max-height: 92vh;
   }
 
-  /* Stat cards: 2 columns is fine, shrink values */
+  /* Stat cards */
   .stat-value { font-size: 24px; }
 
-  /* Step bar: hide labels on very small screens */
+  /* Step bar */
   .step-label { display: none; }
   .step-circle { width: 28px; height: 28px; font-size: 11px; }
 
   /* Kanban: single column */
   .kanban-grid-mobile { grid-template-columns: 1fr !important; }
 
-  /* Page header: wrap on mobile */
+  /* Page header */
   .page-header { flex-wrap: wrap; gap: 10px; }
   .page-title { font-size: 17px; }
 
-  /* Card: reduce padding */
+  /* Card */
   .card { padding: 14px; }
 
-  /* Warning banner: smaller */
+  /* Warning banner */
   .warning-banner { font-size: 12px; padding: 12px 14px; }
 
-  /* Table: ensure horizontal scroll */
+  /* Table */
   .admin-table { min-width: 560px; }
 
-  /* Form grid: single column */
+  /* Form grid */
   .form-grid-2col { grid-template-columns: 1fr !important; }
 }
