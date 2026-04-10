@@ -236,7 +236,7 @@ export default function NewReviewPage() {
         {step === 2 && (
           <div>
             <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 20 }}>投稿者属性</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div className="form-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               <div>
                 <label className="form-label">年代</label>
                 <select className="form-select" value={form.reviewerAgeRange} onChange={e => updateForm('reviewerAgeRange', e.target.value)}>

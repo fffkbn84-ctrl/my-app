@@ -137,7 +137,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 24 }}>
         <div className="stat-card">
           <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>承認待ち口コミ</div>
           <div className="stat-value" style={{ color: stats.pending > 0 ? '#EA580C' : 'var(--ink)' }}>{stats.pending}</div>

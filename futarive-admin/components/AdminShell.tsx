@@ -299,7 +299,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           style={{ gap: 6 }}
         >
           <IconExternal />
-          <span style={{ fontFamily: 'DM Sans', fontSize: 12 }}>サイトを見る</span>
+          <span className="topbar-site-label" style={{ fontFamily: 'DM Sans', fontSize: 12 }}>サイトを見る</span>
         </a>
 
         {/* Bell */}
@@ -309,10 +309,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
         {/* User + Logout */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>ふうか</span>
+          <span className="topbar-user-name" style={{ fontSize: '13px', color: 'var(--muted)' }}>ふうか</span>
           <button onClick={handleLogout} className="btn btn-ghost btn-sm" style={{ gap: 6 }}>
             <IconLogout />
-            <span style={{ fontSize: 12 }}>ログアウト</span>
+            <span className="topbar-logout-label" style={{ fontSize: 12 }}>ログアウト</span>
           </button>
         </div>
       </header>
@@ -374,8 +374,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <style>{`
         @media (max-width: 768px) {
           .sidebar-desktop { display: none !important; }
-          .admin-main { margin-left: 0 !important; }
+          .admin-main { margin-left: 0 !important; padding: 16px !important; }
           #mobile-menu-btn { display: flex !important; }
+          .topbar-site-label { display: none !important; }
+          .topbar-user-name { display: none !important; }
+          .topbar-logout-label { display: none !important; }
         }
       `}</style>
     </div>

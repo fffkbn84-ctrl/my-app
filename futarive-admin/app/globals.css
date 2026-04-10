@@ -409,3 +409,45 @@ body {
   color: var(--muted);
   font-size: 14px;
 }
+
+/* =====================
+   Mobile responsive
+   ===================== */
+@media (max-width: 768px) {
+  /* Modal: full width on mobile */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-box {
+    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+    max-height: 92vh;
+  }
+
+  /* Stat cards: 2 columns is fine, shrink values */
+  .stat-value { font-size: 24px; }
+
+  /* Step bar: hide labels on very small screens */
+  .step-label { display: none; }
+  .step-circle { width: 28px; height: 28px; font-size: 11px; }
+
+  /* Kanban: single column */
+  .kanban-grid-mobile { grid-template-columns: 1fr !important; }
+
+  /* Page header: wrap on mobile */
+  .page-header { flex-wrap: wrap; gap: 10px; }
+  .page-title { font-size: 17px; }
+
+  /* Card: reduce padding */
+  .card { padding: 14px; }
+
+  /* Warning banner: smaller */
+  .warning-banner { font-size: 12px; padding: 12px 14px; }
+
+  /* Table: ensure horizontal scroll */
+  .admin-table { min-width: 560px; }
+
+  /* Form grid: single column */
+  .form-grid-2col { grid-template-columns: 1fr !important; }
+}

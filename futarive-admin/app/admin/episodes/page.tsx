@@ -125,7 +125,7 @@ export default function EpisodesPage() {
           <div className="spinner" style={{ width: 28, height: 28 }} />
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div className="kanban-grid-mobile" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           {/* Draft column */}
           <div>
             <div style={{ fontSize: 12, fontFamily: 'DM Sans', fontWeight: 600, letterSpacing: '.06em', color: 'var(--muted)', marginBottom: 10, textTransform: 'uppercase' }}>
@@ -176,7 +176,7 @@ export default function EpisodesPage() {
                 <label className="form-label">タイトル <span style={{ color: '#DC2626' }}>*</span></label>
                 <input className="form-input" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="例: 迷い続けた私が、やっと決めた日のこと" />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="form-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label className="form-label">相談所</label>
                   <select className="form-select" value={form.agencyId} onChange={e => setForm(f => ({ ...f, agencyId: e.target.value }))}>
@@ -196,7 +196,7 @@ export default function EpisodesPage() {
                 <label className="form-label">概要 <span style={{ color: '#DC2626' }}>*</span>（100文字程度）</label>
                 <textarea className="form-textarea" value={form.excerpt} onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))} rows={3} placeholder="例: 30代で婚活を始めたAさんの体験談。" />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="form-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <div>
                   <label className="form-label">期間（例: 9ヶ月）</label>
                   <input className="form-input" value={form.period} onChange={e => setForm(f => ({ ...f, period: e.target.value }))} placeholder="9ヶ月" />
