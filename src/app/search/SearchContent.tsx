@@ -174,7 +174,7 @@ function CounselorCard({ c }: { c: Counselor }) {
       <div style={{ padding: "16px 20px 20px" }}>
         {/* タグ */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 12 }}>
-          {c.tags.map((tag) => (
+          {(c.tags ?? []).map((tag) => (
             <span
               key={tag}
               style={{
@@ -488,16 +488,16 @@ export default function SearchContent({
       const q = cQuery.toLowerCase();
       list = list.filter(
         (c) =>
-          c.name.includes(q) ||
-          c.kana.includes(q) ||
-          c.agencyName.includes(q) ||
-          c.tags.some((t) => t.includes(q))
+          (c.name ?? '').includes(q) ||
+          (c.kana ?? '').includes(q) ||
+          (c.agencyName ?? '').includes(q) ||
+          (c.tags ?? []).some((t) => t.includes(q))
       );
     }
 
     if (cArea) list = list.filter((c) => c.area.includes(cArea));
 
-    if (cSpecialty) list = list.filter((c) => c.tags.some((t) => t.includes(cSpecialty)));
+    if (cSpecialty) list = list.filter((c) => (c.tags ?? []).some((t) => t.includes(cSpecialty)));
 
     if (cPrice === "low") list = list.filter((c) => c.minAdmission < 80000);
     else if (cPrice === "mid") list = list.filter((c) => c.minAdmission >= 80000 && c.minAdmission < 120000);
