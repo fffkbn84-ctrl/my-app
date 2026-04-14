@@ -273,7 +273,7 @@ export default function HomePage() {
               <Link href="/shops" className="kinda-cat-card kc-pink reveal reveal-delay-1">
                 <div className="kinda-cat-img-area">
                   <Image
-                    src="/images/section-cafe.png"
+                    src="/images/section-cafe2.png"
                     alt="お見合い・デートカフェ"
                     width={400}
                     height={300}
@@ -317,23 +317,14 @@ export default function HomePage() {
 
               {/* Kinda story — みんなの体験談（パステル緑） */}
               <Link href="/episodes" className="kinda-cat-card kc-green reveal reveal-delay-3">
-                <div className="kinda-cat-no-img">
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <path
-                      d="M28 46s-20-12-20-26a12 12 0 0120-9.17A12 12 0 0148 20c0 14-20 26-20 26z"
-                      stroke="#2D7A4A"
-                      strokeWidth="1.5"
-                      fill="rgba(45,122,74,.12)"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M22 22c0-3.314 2.686-6 6-6"
-                      stroke="#2D7A4A"
-                      strokeWidth="1.3"
-                      strokeLinecap="round"
-                      opacity=".5"
-                    />
-                  </svg>
+                <div className="kinda-cat-img-area">
+                  <Image
+                    src="/images/section-story.png"
+                    alt="みんなの体験談"
+                    width={400}
+                    height={300}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </div>
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> story</div>
