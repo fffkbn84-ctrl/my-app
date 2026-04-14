@@ -296,7 +296,7 @@ export default function HomePage() {
               <Link href="/shops" className="kinda-cat-card kc-blue reveal reveal-delay-2">
                 <div className="kinda-cat-img-area">
                   <Image
-                    src="/images/section-beauty.png"
+                    src="/images/section-beauty-n2.png.jpg"
                     alt="美容室・エステ"
                     width={400}
                     height={300}
@@ -319,7 +319,7 @@ export default function HomePage() {
               <Link href="/episodes" className="kinda-cat-card kc-green reveal reveal-delay-3">
                 <div className="kinda-cat-img-area">
                   <Image
-                    src="/images/section-story.png"
+                    src="/images/section-story-new.png.PNG"
                     alt="みんなの体験談"
                     width={400}
                     height={300}
