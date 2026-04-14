@@ -6,6 +6,7 @@ import RevealObserver from "@/components/ui/RevealObserver";
 import PlacesSection from "@/components/home/PlacesSection";
 import EpisodesSection from "@/components/home/EpisodesSection";
 import ColumnsSection from "@/components/home/ColumnsSection";
+import KindaSearchBar from "@/components/home/KindaSearchBar";
 
 /* ────────────────────────────────────────────────────────────
    ヒーロー 目次カード定義
@@ -190,9 +191,10 @@ export default function HomePage() {
             />
             </div>
 
-          {/* 画像下テキスト + ボタン */}
+          {/* 画像下テキスト + 検索バー + ボタン */}
           <div className="hk-bottom">
             <p className="hk-tagline">なんとなく、でいい。一緒に探そう。</p>
+            <KindaSearchBar />
             <div className="hk-actions">
               <Link href="/search" className="hk-btn-accent">
                 カウンセラーを探す
