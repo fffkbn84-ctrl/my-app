@@ -9,30 +9,6 @@ import type { Place } from "@/lib/mock/places";
    サブコンポーネント
 ──────────────────────────────────────────────────────────── */
 
-function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          width={size}
-          height={size}
-          viewBox="0 0 16 16"
-          fill="none"
-        >
-          <path
-            d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 2.1.7-4L2.2 5.7l4-.6z"
-            fill={star <= rating ? "var(--accent)" : "rgba(255,255,255,.18)"}
-            stroke={star <= rating ? "var(--accent)" : "rgba(255,255,255,.18)"}
-            strokeWidth=".5"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
 function StarRatingLight({ rating, size = 14 }: { rating: number; size?: number }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -182,7 +158,7 @@ export default async function PlaceDetailPage({
               <div className="d-breadcrumb" style={{ color: "rgba(0,0,0,.4)" }}>
                 <Link href="/" style={{ color: "rgba(0,0,0,.4)" }}>トップ</Link>
                 <span>/</span>
-                <Link href="/places" style={{ color: "rgba(0,0,0,.4)" }}>お店を探す</Link>
+                <Link href="/shops" style={{ color: "rgba(0,0,0,.4)" }}>お店を探す</Link>
                 <span>/</span>
                 <span style={{ color: "rgba(0,0,0,.65)" }}>{place.name}</span>
               </div>
@@ -194,18 +170,21 @@ export default async function PlaceDetailPage({
 
               {/* アイコン + 店名 */}
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 16 }}>
+                {/* クレイ円形アイコン */}
                 <div
                   style={{
-                    width: 80,
-                    height: 80,
+                    width: 84,
+                    height: 84,
                     borderRadius: "50%",
-                    border: "3px solid rgba(255,255,255,.5)",
-                    background: "rgba(255,255,255,.45)",
-                    backdropFilter: "blur(4px)",
+                    background: "rgba(255,255,255,.6)",
+                    backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(10px)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     flexShrink: 0,
+                    boxShadow:
+                      "inset 0 2px 0 rgba(255,255,255,.95), 0 6px 20px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08)",
                   }}
                 >
                   <CategoryIcon category={place.category} svgColor={place.svgColor} size={44} />
@@ -335,121 +314,79 @@ export default async function PlaceDetailPage({
         </div>
 
         {/* ═══════════════════════════════════════════════════
-            コンテンツエリア（2カラム）
+            コンテンツエリア — クレイ背景
         ═══════════════════════════════════════════════════ */}
-        <div className="detail-body">
+        <div className="detail-body" style={{ background: "#f7f3f0" }}>
           <div className="wrap">
             <div className="detail-grid">
 
-              {/* ── 左カラム: 詳細情報・口コミ ── */}
-              <div style={{ minWidth: 0 }}>
+              {/* ── 左カラム: クレイカード群 ── */}
+              <div style={{ minWidth: 0, display: "flex", flexDirection: "column", gap: 20 }}>
 
                 {/* お店について */}
-                <section style={{ marginBottom: 48 }}>
-                  <h2
-                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    お店について
-                  </h2>
-                  <div className="d-message">
-                    <p className="d-message-text">{place.description}</p>
+                <div className="clay-card">
+                  <h2 className="clay-sec-h">お店について</h2>
+                  <div className="clay-desc-block">
+                    {place.description}
                   </div>
-                </section>
+                </div>
 
                 {/* 基本情報 */}
-                <section style={{ marginBottom: 48 }}>
-                  <h2
-                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    基本情報
-                  </h2>
-                  <div className="d-profile-grid">
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">エリア</div>
-                      <div className="d-profile-val">{place.area}</div>
+                <div className="clay-card">
+                  <h2 className="clay-sec-h">基本情報</h2>
+                  <div className="clay-info-grid">
+                    <div className="clay-info-item">
+                      <div className="clay-info-key">エリア</div>
+                      <div className="clay-info-val">{place.area}</div>
                     </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">アクセス</div>
-                      <div className="d-profile-val">{place.access}</div>
+                    <div className="clay-info-item">
+                      <div className="clay-info-key">アクセス</div>
+                      <div className="clay-info-val">{place.access}</div>
                     </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">営業時間</div>
-                      <div className="d-profile-val">{place.hours}</div>
+                    <div className="clay-info-item">
+                      <div className="clay-info-key">営業時間</div>
+                      <div className="clay-info-val">{place.hours}</div>
                     </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">定休日</div>
-                      <div className="d-profile-val">{place.holiday}</div>
+                    <div className="clay-info-item">
+                      <div className="clay-info-key">定休日</div>
+                      <div className="clay-info-val">{place.holiday}</div>
                     </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">価格帯</div>
-                      <div className="d-profile-val">{place.priceRange}</div>
+                    <div className="clay-info-item">
+                      <div className="clay-info-key">価格帯</div>
+                      <div className="clay-info-val">{place.priceRange}</div>
                     </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">こんなシーンに</div>
-                      <div className="d-profile-val">
+                    <div className="clay-info-item">
+                      <div className="clay-info-key">こんなシーンに</div>
+                      <div className="clay-info-val">
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 4 }}>
                           {place.scenes.map((scene) => (
-                            <span
-                              key={scene}
-                              style={{
-                                fontSize: 11,
-                                padding: "3px 12px",
-                                borderRadius: 20,
-                                background: "var(--adim)",
-                                color: "var(--accent)",
-                              }}
-                            >
-                              {scene}
-                            </span>
+                            <span key={scene} className="clay-scene-tag">{scene}</span>
                           ))}
                         </div>
                       </div>
                     </div>
                   </div>
-                </section>
+                </div>
 
                 {/* 特徴・設備 */}
-                <section style={{ marginBottom: 48 }}>
-                  <h2
-                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    特徴・設備
-                  </h2>
+                <div className="clay-card">
+                  <h2 className="clay-sec-h">特徴・設備</h2>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {place.features.map((feature) => (
-                      <span
-                        key={feature}
-                        style={{
-                          fontSize: 12,
-                          padding: "6px 14px",
-                          borderRadius: 20,
-                          border: "1px solid var(--light)",
-                          color: "var(--mid)",
-                        }}
-                      >
-                        {feature}
-                      </span>
+                      <span key={feature} className="clay-tag">{feature}</span>
                     ))}
                   </div>
-                </section>
+                </div>
 
                 {/* 口コミ */}
-                <section id="reviews">
-                  <div className="flex items-end justify-between mb-6 pb-3 border-b border-light">
-                    <h2
-                      className="text-lg text-ink"
-                      style={{ fontFamily: "var(--font-mincho)" }}
-                    >
-                      口コミ・評価
-                    </h2>
-                    <span className="text-xs text-muted">{place.reviews.length}件</span>
+                <div className="clay-card" id="reviews">
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                    <h2 className="clay-sec-h" style={{ marginBottom: 0 }}>口コミ・評価</h2>
+                    <span style={{ fontSize: 11, color: "var(--muted)" }}>{place.reviews.length}件</span>
                   </div>
 
                   {/* 評価サマリー */}
-                  <div className="bg-pale rounded-2xl p-6 mb-6">
+                  <div className="clay-rating-summary">
                     <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
                       <div style={{ textAlign: "center", flexShrink: 0 }}>
                         <p
@@ -475,7 +412,7 @@ export default async function PlaceDetailPage({
                         color: "var(--muted)",
                         marginTop: 16,
                         paddingTop: 14,
-                        borderTop: "1px solid var(--light)",
+                        borderTop: "1px solid rgba(180,155,135,.15)",
                       }}
                     >
                       ※ 口コミはふたりへ経由で利用した方のみ投稿できます
@@ -483,9 +420,9 @@ export default async function PlaceDetailPage({
                   </div>
 
                   {/* 口コミ一覧 */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                     {place.reviews.map((review) => (
-                      <div key={review.id} className="rv-card">
+                      <div key={review.id} className="clay-rv-card">
                         <div className="rv-meta">
                           <span className="rv-date">{review.date}</span>
                           <span className="rv-verified">
@@ -506,20 +443,17 @@ export default async function PlaceDetailPage({
                       </div>
                     ))}
                   </div>
-                </section>
+                </div>
 
               </div>
 
               {/* ── 右カラム: スティッキーサイドバー ── */}
               <aside style={{ alignSelf: "start", position: "sticky", top: "72px" }}>
 
-                {/* アクションカード */}
-                <div
-                  className="bg-white rounded-2xl border border-light overflow-hidden"
-                  style={{ marginBottom: 20 }}
-                >
+                {/* アクションカード — クレイ */}
+                <div className="clay-sidebar-card" style={{ marginBottom: 16 }}>
                   <div style={{ padding: "24px 24px 0" }}>
-                    <p className="text-xs text-muted mb-2">価格帯</p>
+                    <p className="clay-info-key" style={{ marginBottom: 6 }}>価格帯</p>
                     <p
                       style={{
                         fontFamily: "var(--font-serif)",
@@ -546,11 +480,19 @@ export default async function PlaceDetailPage({
                     </a>
                     <Link
                       href="/reviews/new"
-                      className="block w-full text-center rounded-xl text-sm tracking-wide hover:opacity-80 transition-opacity"
                       style={{
+                        display: "block",
+                        width: "100%",
+                        textAlign: "center",
                         padding: "14px 20px",
-                        border: "1.5px solid var(--light)",
+                        borderRadius: 14,
+                        border: "1.5px solid rgba(180,155,135,.3)",
                         color: "var(--ink)",
+                        fontSize: 13,
+                        letterSpacing: ".04em",
+                        background: "linear-gradient(145deg, #fdf9f5, #f5f0ea)",
+                        boxShadow: "inset 0 1px 0 rgba(255,255,255,.85)",
+                        transition: "opacity .2s",
                       }}
                     >
                       口コミを書く
@@ -561,16 +503,13 @@ export default async function PlaceDetailPage({
                   </div>
                 </div>
 
-                {/* 基本情報ミニカード */}
-                <div
-                  className="rounded-xl"
-                  style={{ background: "var(--pale)", padding: 20 }}
-                >
+                {/* 基本情報ミニカード — クレイ */}
+                <div className="clay-mini-card">
                   {[
                     {
                       icon: (
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round">
+                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
                           <circle cx="7" cy="7" r="5.5" />
                           <path d="M7 4v3.5l2 1.5" />
                         </svg>
@@ -581,7 +520,7 @@ export default async function PlaceDetailPage({
                     {
                       icon: (
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round">
+                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
                           <rect x="2" y="3" width="10" height="9" rx="1.5" />
                           <path d="M5 2v2M9 2v2M2 7h10" />
                         </svg>
@@ -592,7 +531,7 @@ export default async function PlaceDetailPage({
                     {
                       icon: (
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round">
+                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
                           <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
                           <circle cx="7" cy="6" r="1.5" />
                         </svg>
