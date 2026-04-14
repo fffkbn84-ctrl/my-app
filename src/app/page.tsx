@@ -246,7 +246,7 @@ export default function HomePage() {
               <Link href="/shops" className="kinda-cat-card kc-pink reveal reveal-delay-1">
                 <div className="kinda-cat-img-area">
                   <Image
-                    src="/images/section-cafe2.png"
+                    src="/images/section-cafe-pastel.png.PNG"
                     alt="お見合い・デートカフェ"
                     width={400}
                     height={300}

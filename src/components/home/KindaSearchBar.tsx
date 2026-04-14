@@ -18,7 +18,7 @@ const ITEMS = [
     id: 'meet',
     label: 'meet',
     sub: 'お見合い・デート用のカフェ',
-    img: '/images/section-cafe2.png',
+    img: '/images/section-cafe-pastel.png.PNG',
     href: '/shops',
     bg: '#FFF0F3',
   },
