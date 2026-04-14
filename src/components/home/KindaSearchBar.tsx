@@ -18,7 +18,7 @@ const ITEMS = [
     id: 'meet',
     label: 'meet',
     sub: 'お見合い・デート用のカフェ',
-    img: '/images/section-cafe-pastel.png.PNG',
+    img: '/images/section-cafe2.png',
     href: '/shops',
     bg: '#FFF0F3',
   },
@@ -133,7 +133,7 @@ export default function KindaSearchBar() {
                         alt={`Kinda ${item.label}`}
                         width={200}
                         height={150}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: item.id === 'meet' ? 'center top' : 'center center' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </div>
                   ) : (
