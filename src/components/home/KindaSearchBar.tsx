@@ -41,9 +41,21 @@ const ITEMS = [
 
 export default function KindaSearchBar() {
   const [open, setOpen] = useState(false);
+  const [modalBottom, setModalBottom] = useState(0);
   const touchStartY = useRef(0);
 
   const close = () => setOpen(false);
+
+  const openModal = () => {
+    // ヒーローセクションの底辺がビューポート底辺から何px上にあるかを計算
+    const hero = document.querySelector<HTMLElement>('.hero-kinda-new');
+    if (hero) {
+      const heroBottom = hero.getBoundingClientRect().bottom;
+      const vh = window.innerHeight;
+      setModalBottom(Math.max(0, vh - heroBottom));
+    }
+    setOpen(true);
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -57,7 +69,7 @@ export default function KindaSearchBar() {
       {/* 検索バー */}
       <button
         className="ks-bar"
-        onClick={() => setOpen(true)}
+        onClick={openModal}
         type="button"
         aria-label="Kindaカテゴリを選ぶ"
       >
@@ -83,6 +95,7 @@ export default function KindaSearchBar() {
       {/* モーダル（ボトムシート） */}
       <div
         className={`ks-modal${open ? ' is-open' : ''}`}
+        style={{ bottom: `${modalBottom}px` }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         role="dialog"
