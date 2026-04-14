@@ -246,11 +246,11 @@ export default function HomePage() {
               <Link href="/shops" className="kinda-cat-card kc-pink reveal reveal-delay-1">
                 <div className="kinda-cat-img-area">
                   <Image
-                    src="/images/section-cafe2.png"
+                    src="/images/section-cafe-pastel.png.PNG"
                     alt="お見合い・デートカフェ"
                     width={400}
                     height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain", background: "#EDE5DA" }}
                   />
                 </div>
                 <div className="kinda-cat-body">
