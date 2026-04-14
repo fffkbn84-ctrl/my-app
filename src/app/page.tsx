@@ -167,43 +167,39 @@ export default function HomePage() {
         <RevealObserver />
 
         {/* ═══════════════════════════════════════════════════
-            ① HERO — Kinda
+            ① HERO — フルブリード一枚画像
         ═══════════════════════════════════════════════════ */}
-        <section className="hero-kinda">
+        <section className="hero-v3">
 
-          {/* ロゴエリア: Kinda 大 + ふたりへ 横 */}
-          <div className="hk-top">
-            <div className="hk-logo">
-              <span className="hk-logo-main">Kinda</span>
-              <span className="hk-logo-ja">ふたりへ</span>
-            </div>
-            <p className="hk-sub">— 今、関係を築いているふたりへ。</p>
-          </div>
-
-          {/* ヒーロー画像（放射状マスクで四方フェード） */}
-          <div className="hk-img-wrap">
+          {/* 背景画像（引き気味に表示） */}
+          <div className="hv3-bg">
             <Image
               src="/images/hero-couple-top.png"
               alt="カフェでくつろぐカップル"
-              width={900}
-              height={560}
+              fill
               priority
-              style={{ width: "100%", height: "auto", display: "block" }}
+              style={{
+                objectFit: "cover",
+                objectPosition: "center 60%",
+                transform: "scale(0.9)",
+                transformOrigin: "center center",
+              }}
             />
+            <div className="hv3-overlay" aria-hidden="true" />
           </div>
 
-          {/* 画像下テキスト + 検索バー + ボタン */}
-          <div className="hk-bottom">
-            <p className="hk-tagline">なんとなく、でいい。一緒に探そう。</p>
-            <KindaSearchBar />
-            <div className="hk-actions">
-              <Link href="/search" className="hk-btn-accent">
-                カウンセラーを探す
-              </Link>
-              <Link href="/shops" className="hk-btn-ghost">
-                ふたりのお店を探す
-              </Link>
+          {/* Kinda ロゴ + サブテキスト */}
+          <div className="hv3-content">
+            <div className="hv3-logo">
+              <span className="hv3-logo-main">Kinda</span>
+              <span className="hv3-logo-ja">ふたりへ</span>
             </div>
+            <p className="hv3-sub">— 今、関係を築いているふたりへ。</p>
+          </div>
+
+          {/* 検索バー（下部） */}
+          <div className="hv3-search">
+            <KindaSearchBar />
           </div>
 
         </section>
