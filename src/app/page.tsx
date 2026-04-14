@@ -169,10 +169,6 @@ export default function HomePage() {
             ① HERO — Kinda リニューアル v2
         ═══════════════════════════════════════════════════ */}
         <section className="hero-kinda">
-          {/* 装飾オーブ */}
-          <div className="hk-orb hk-orb-1" aria-hidden="true" />
-          <div className="hk-orb hk-orb-2" aria-hidden="true" />
-
           {/* ロゴエリア: Kinda 大 + ふたりへ 横 */}
           <div className="hk-top">
             <div className="hk-logo">

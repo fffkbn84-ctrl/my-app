@@ -2181,7 +2181,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 ═══════════════════════════════════════════════════ */
 .hero-kinda {
   min-height: 100svh;
-  background: #FEFCFA;
+  background: #FEFCFA url('/images/hero-background-street.png') center top / cover no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2261,9 +2261,9 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: relative;
   z-index: 2;
   animation: sIn 1s cubic-bezier(.16,1,.3,1) .45s both;
-  /* 放射状グラデーションで四方から背景に溶け込む */
-  -webkit-mask-image: radial-gradient(ellipse 86% 76% at 50% 36%, black 18%, transparent 100%);
-  mask-image: radial-gradient(ellipse 86% 76% at 50% 36%, black 18%, transparent 100%);
+  /* 放射状グラデーションで四方から街並み背景に溶け込む */
+  -webkit-mask-image: radial-gradient(ellipse 80% 68% at 50% 30%, black 12%, transparent 88%);
+  mask-image: radial-gradient(ellipse 80% 68% at 50% 30%, black 12%, transparent 88%);
 }
 
 .hk-bottom {
