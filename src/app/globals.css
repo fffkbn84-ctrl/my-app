@@ -2445,53 +2445,33 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
    HERO ミニチュア世界観（hero-kinda-new）
 ═══════════════════════════════════════════════════ */
 .hero-kinda-new {
-  background: #F5EEE6;
   min-height: 100svh;
-  padding-top: var(--header-height);
-  padding-bottom: 56px;
   position: relative;
   overflow: hidden;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
 }
 
-/* 背景ミニチュア装飾レイヤー */
-.hkn-bg {
-  position: absolute;
-  inset: 0;
+/* フルブリード画像 */
+.hkn-fill-img {
   z-index: 0;
-  pointer-events: none;
-}
-.hkn-bg-item {
-  position: absolute;
-  opacity: 0.42;
-}
-.hkn-bg-left {
-  width: 220px;
-  left: -20px;
-  top: 50%;
-  transform: translateY(-44%);
-}
-.hkn-bg-right {
-  width: 190px;
-  right: -16px;
-  top: 50%;
-  transform: translateY(-28%);
-}
-.hkn-bg-bl {
-  width: 160px;
-  left: 4px;
-  bottom: 72px;
-  opacity: 0.35;
-}
-@media (max-width: 480px) {
-  .hkn-bg-left  { width: 140px; left: -12px; }
-  .hkn-bg-right { width: 120px; right: -10px; }
-  .hkn-bg-bl    { width: 110px; bottom: 48px; }
 }
 
-/* 中央コンテンツ */
+/* グラデーションオーバーレイ：上は透明、下は暗く */
+.hkn-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(20, 12, 8, 0.62) 100%
+  );
+  pointer-events: none;
+}
+
+/* コンテンツオーバーレイ（画像下部に重ねる） */
 .hkn-inner {
   position: relative;
   z-index: 2;
@@ -2499,10 +2479,10 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px 24px 0;
+  gap: 10px;
+  padding: var(--header-height) 24px calc(env(safe-area-inset-bottom) + 48px);
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   animation: sIn 1s cubic-bezier(.16,1,.3,1) .1s both;
 }
 
@@ -2517,15 +2497,16 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .hkn-logo-main {
   font-family: 'DM Serif Display', serif;
   font-size: clamp(72px, 22vw, 96px);
-  color: #3D2B1F;
+  color: #fff;
   letter-spacing: -.01em;
   line-height: 1;
+  text-shadow: 0 2px 24px rgba(0,0,0,.25);
 }
 .hkn-logo-ja {
   font-family: 'Shippori Mincho', serif;
   font-weight: 400;
   font-size: 13px;
-  color: #9A7A6E;
+  color: rgba(255,255,255,.75);
   letter-spacing: .1em;
   white-space: nowrap;
 }
@@ -2535,7 +2516,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   font-family: 'Shippori Mincho', serif;
   font-style: italic;
   font-size: 13px;
-  color: #9A7A6E;
+  color: rgba(255,255,255,.8);
   letter-spacing: .08em;
   margin-top: -4px;
 }

@@ -171,35 +171,20 @@ export default function HomePage() {
         ═══════════════════════════════════════════════════ */}
         <section className="hero-kinda-new">
 
-          {/* 背景ミニチュア装飾（左右に散らす） */}
-          <div className="hkn-bg" aria-hidden="true">
-            <Image
-              src="/images/section-cafe.png"
-              alt=""
-              width={280}
-              height={280}
-              className="hkn-bg-item hkn-bg-left"
-              style={{ width: "100%", height: "auto" }}
-            />
-            <Image
-              src="/images/section-counseling.png"
-              alt=""
-              width={240}
-              height={240}
-              className="hkn-bg-item hkn-bg-right"
-              style={{ width: "100%", height: "auto" }}
-            />
-            <Image
-              src="/images/section-beauty.png"
-              alt=""
-              width={200}
-              height={200}
-              className="hkn-bg-item hkn-bg-bl"
-              style={{ width: "100%", height: "auto" }}
-            />
-          </div>
+          {/* フルブリード背景画像 */}
+          <Image
+            src="/images/hero-couple-new.png.PNG"
+            alt=""
+            fill
+            priority
+            className="hkn-fill-img"
+            style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
+          />
 
-          {/* 中央コンテンツ */}
+          {/* グラデーションオーバーレイ */}
+          <div className="hkn-overlay" aria-hidden="true" />
+
+          {/* コンテンツ */}
           <div className="hkn-inner">
 
             {/* ロゴ行: Kinda 大 + ふたりへ 小 */}
@@ -210,18 +195,6 @@ export default function HomePage() {
 
             {/* サブテキスト */}
             <p className="hkn-sub">なんとなく、でいい。一緒に探そう。</p>
-
-            {/* メイン画像 */}
-            <div className="hkn-img-wrap">
-              <Image
-                src="/images/hero-couple-new.png.PNG"
-                alt="カフェでくつろぐカップル"
-                width={360}
-                height={360}
-                priority
-                style={{ width: "100%", height: "auto", display: "block" }}
-              />
-            </div>
 
             {/* 検索バー */}
             <KindaSearchBar />
