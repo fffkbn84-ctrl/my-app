@@ -2441,6 +2441,113 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   padding: 80px 0 100px;
 }
 
+/* ═══════════════════════════════════════════════════
+   HERO ミニチュア世界観（hero-kinda-new）
+═══════════════════════════════════════════════════ */
+.hero-kinda-new {
+  background: #F5EEE6;
+  min-height: 100svh;
+  padding-top: var(--header-height);
+  padding-bottom: 56px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 背景ミニチュア装飾レイヤー */
+.hkn-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.hkn-bg-item {
+  position: absolute;
+  opacity: 0.42;
+}
+.hkn-bg-left {
+  width: 220px;
+  left: -20px;
+  top: 50%;
+  transform: translateY(-44%);
+}
+.hkn-bg-right {
+  width: 190px;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-28%);
+}
+.hkn-bg-bl {
+  width: 160px;
+  left: 4px;
+  bottom: 72px;
+  opacity: 0.35;
+}
+@media (max-width: 480px) {
+  .hkn-bg-left  { width: 140px; left: -12px; }
+  .hkn-bg-right { width: 120px; right: -10px; }
+  .hkn-bg-bl    { width: 110px; bottom: 48px; }
+}
+
+/* 中央コンテンツ */
+.hkn-inner {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px 0;
+  width: 100%;
+  max-width: 460px;
+  animation: sIn 1s cubic-bezier(.16,1,.3,1) .1s both;
+}
+
+/* ロゴ: Kinda 大 + ふたりへ 小 */
+.hkn-logo {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+  line-height: 1;
+}
+.hkn-logo-main {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(72px, 22vw, 96px);
+  color: #3D2B1F;
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+.hkn-logo-ja {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 400;
+  font-size: 13px;
+  color: #9A7A6E;
+  letter-spacing: .1em;
+  white-space: nowrap;
+}
+
+/* サブテキスト */
+.hkn-sub {
+  font-family: 'Shippori Mincho', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #9A7A6E;
+  letter-spacing: .08em;
+  margin-top: -4px;
+}
+
+/* メイン画像 — 柔らかいマスクで背景に溶け込む */
+.hkn-img-wrap {
+  width: min(300px, 82vw);
+  margin: 2px 0;
+  -webkit-mask-image: radial-gradient(ellipse 88% 82% at 50% 44%, black 38%, transparent 72%);
+  mask-image: radial-gradient(ellipse 88% 82% at 50% 44%, black 38%, transparent 72%);
+}
+
 .kinda-cats-inner {
   max-width: 1080px;
   margin: 0 auto;

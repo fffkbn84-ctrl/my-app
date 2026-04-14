@@ -65,7 +65,7 @@ export default function KindaSearchBar() {
           <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.3" />
           <path d="M10.5 10.5l2.5 2.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
         </svg>
-        <span className="ks-bar-text">条件やエリアで、出会いを探す…</span>
+        <span className="ks-bar-text">エリアや条件で探す...</span>
         <div className="ks-bar-btn" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 8h10M8 3l5 5-5 5" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />

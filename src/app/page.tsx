@@ -167,39 +167,65 @@ export default function HomePage() {
         <RevealObserver />
 
         {/* ═══════════════════════════════════════════════════
-            ① HERO — フルブリード一枚画像
+            ① HERO — ミニチュア世界観
         ═══════════════════════════════════════════════════ */}
-        <section className="hero-v3">
+        <section className="hero-kinda-new">
 
-          {/* 背景画像（引き気味に表示） */}
-          <div className="hv3-bg">
+          {/* 背景ミニチュア装飾（左右に散らす） */}
+          <div className="hkn-bg" aria-hidden="true">
             <Image
-              src="/images/hero-couple-top.png"
-              alt="カフェでくつろぐカップル"
-              fill
-              priority
-              style={{
-                objectFit: "cover",
-                objectPosition: "center 60%",
-                transform: "scale(0.9)",
-                transformOrigin: "center center",
-              }}
+              src="/images/section-cafe.png"
+              alt=""
+              width={280}
+              height={280}
+              className="hkn-bg-item hkn-bg-left"
+              style={{ width: "100%", height: "auto" }}
             />
-            <div className="hv3-overlay" aria-hidden="true" />
+            <Image
+              src="/images/section-counseling.png"
+              alt=""
+              width={240}
+              height={240}
+              className="hkn-bg-item hkn-bg-right"
+              style={{ width: "100%", height: "auto" }}
+            />
+            <Image
+              src="/images/section-beauty.png"
+              alt=""
+              width={200}
+              height={200}
+              className="hkn-bg-item hkn-bg-bl"
+              style={{ width: "100%", height: "auto" }}
+            />
           </div>
 
-          {/* Kinda ロゴ + サブテキスト */}
-          <div className="hv3-content">
-            <div className="hv3-logo">
-              <span className="hv3-logo-main">Kinda</span>
-              <span className="hv3-logo-ja">ふたりへ</span>
+          {/* 中央コンテンツ */}
+          <div className="hkn-inner">
+
+            {/* ロゴ行: Kinda 大 + ふたりへ 小 */}
+            <div className="hkn-logo">
+              <span className="hkn-logo-main">Kinda</span>
+              <span className="hkn-logo-ja">ふたりへ</span>
             </div>
-            <p className="hv3-sub">— 今、関係を築いているふたりへ。</p>
-          </div>
 
-          {/* 検索バー（下部） */}
-          <div className="hv3-search">
+            {/* サブテキスト */}
+            <p className="hkn-sub">なんとなく、でいい。一緒に探そう。</p>
+
+            {/* メイン画像 */}
+            <div className="hkn-img-wrap">
+              <Image
+                src="/images/hero-couple-top.png"
+                alt="カフェでくつろぐカップル"
+                width={360}
+                height={360}
+                priority
+                style={{ width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+
+            {/* 検索バー */}
             <KindaSearchBar />
+
           </div>
 
         </section>
