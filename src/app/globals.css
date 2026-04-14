@@ -2757,7 +2757,11 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   left: 0;
   right: 0;
   z-index: 200;
-  padding: 12px 20px calc(env(safe-area-inset-bottom) + 36px);
+  /* 常に画面下部2/3以内に収まる + はみ出し時はスクロール */
+  max-height: 70svh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px 20px calc(env(safe-area-inset-bottom) + 20px);
   background: rgba(255,252,250,.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -2780,7 +2784,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   height: 4px;
   background: rgba(0,0,0,.1);
   border-radius: 2px;
-  margin: 0 auto 20px;
+  margin: 0 auto 14px;
 }
 
 /* タイトル */
@@ -2823,7 +2827,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 /* 画像エリア */
 .ks-modal-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/2;
   overflow: hidden;
 }
 .ks-modal-no-img {
@@ -2853,5 +2857,14 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   color: var(--mid);
   margin-top: 4px;
   line-height: 1.6;
+}
+
+/* 小さい画面（iPhone SE等）向けコンパクト調整 */
+@media (max-width: 390px) {
+  .ks-modal-title { font-size: 15px; margin-bottom: 12px; }
+  .ks-modal-grid  { gap: 10px; }
+  .ks-modal-card-body { padding: 8px 10px 8px; }
+  .ks-modal-card-name { font-size: 13px; }
+  .ks-modal-card-sub  { font-size: 10px; margin-top: 2px; line-height: 1.4; }
 }
 
