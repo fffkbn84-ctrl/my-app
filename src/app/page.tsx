@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
@@ -165,76 +166,37 @@ export default function HomePage() {
         <RevealObserver />
 
         {/* ═══════════════════════════════════════════════════
-            ① HERO — Photo background / 中央寄せレイアウト
+            ① HERO — Kinda リニューアル
         ═══════════════════════════════════════════════════ */}
-        <section className="hero">
-          {/* 暗オーバーレイ */}
-          <div className="hero-overlay" />
-
-          {/* コンテンツエリア */}
-          <div className="hero-content">
-            {/* eyebrow */}
-            <p className="hero-eyebrow-v5">
-              MARRIAGE COUNSELING, REIMAGINED
-            </p>
-
-            {/* メインコピー */}
-            <h1 className="hero-h1-v5">
-              担当者を自分で選んで
-              <br />
-              予約までここで完結
-              <span className="hero-h1-en-v5">The counselor comes first.</span>
-            </h1>
-
-            {/* 説明文 */}
-            <p className="hero-desc-v5">
-              面談した人だけが書けるレビューで、
-              <br />
-              担当者の顔・経歴が最初から見えます
-            </p>
-
-            {/* 診断バナー */}
-            <Link href="/diagnosis" className="hero-diag-v5">
-              <div className="hero-diag-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="8" stroke="#C8A97A" strokeWidth="1.4" fill="none" />
-                  <path d="M12 6v2M12 16v2M6 12h2M16 12h2" stroke="#C8A97A" strokeWidth="1.2" strokeLinecap="round" opacity=".6" />
-                  <path d="M15 9l-4 3-2 4 4-3 2-4z" stroke="#C8A97A" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(200,169,122,.2)" />
-                </svg>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="hero-diag-label">1〜3分でサクッと診断 · 無料</div>
-                <div className="hero-diag-title">
-                  あなたに合う担当タイプ、婚活スタイルを診断する
-                </div>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="#C8A97A" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-
-            {/* 目次カード 3×2グリッド */}
-            <div className="hero-nav-grid">
-              {heroNavItems.map((item) => (
-                <Link key={item.label} href={item.href} className={`hero-nav-card ${item.cls}`}>
-                  <div className="hero-nav-overlay" />
-                  <div className="hero-nav-icon">{item.icon}</div>
-                  <span className="hero-nav-label">{item.label}</span>
-                </Link>
-              ))}
-            </div>
-
-            {/* 注記 */}
-            <p className="hero-note">無料で使えます・登録不要</p>
+        <section className="hero-kinda">
+          {/* 画像上テキスト */}
+          <div className="hk-top">
+            <h1 className="hk-logo">Kinda</h1>
+            <p className="hk-sub">— 今、関係を築いているふたりへ。</p>
           </div>
 
-          {/* スクロールインジケーター */}
-          <div className="hero-scroll-ind">
-            <span className="hero-scroll-text">SCROLL</span>
-            <div className="hero-scroll-arrow">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3v10M4 9l4 4 4-4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+          {/* ヒーロー画像 */}
+          <div className="hk-img-wrap">
+            <Image
+              src="/images/hero-couple-cafe.png"
+              alt="カフェでお見合いをするカップル"
+              width={800}
+              height={500}
+              priority
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
+          </div>
+
+          {/* 画像下テキスト + ボタン */}
+          <div className="hk-bottom">
+            <p className="hk-tagline">なんとなく、でいい。一緒に探そう。</p>
+            <div className="hk-actions">
+              <Link href="/search" className="hk-btn-accent">
+                カウンセラーを探す
+              </Link>
+              <Link href="/shops" className="hk-btn-ghost">
+                ふたりのお店を探す
+              </Link>
             </div>
           </div>
         </section>

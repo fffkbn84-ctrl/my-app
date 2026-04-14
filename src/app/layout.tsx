@@ -3,10 +3,10 @@ import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 
 export const metadata: Metadata = {
-  title: "ふたりへ — カウンセラーの口コミで選ぶ結婚相談所",
+  title: "Kinda — 今、関係を築いているふたりへ",
   description:
-    "面談した人だけが書けるリアルな口コミで、あなたにぴったりのカウンセラーを見つけて予約できる結婚相談所マッチングサービス。",
-  keywords: ["結婚相談所", "カウンセラー", "口コミ", "婚活", "予約"],
+    "Kindaは、担当者を自分の目で選んで予約できる婚活サービスです。面談した人だけが書けるリアルな口コミで、あなたにぴったりのカウンセラーを見つけて。",
+  keywords: ["結婚相談所", "カウンセラー", "口コミ", "婚活", "予約", "Kinda"],
 };
 
 export default function RootLayout({
@@ -28,13 +28,13 @@ export default function RootLayout({
         {/* 固定縦ライン — 全ページ共通装飾 */}
         <div className="side-line" aria-hidden="true">
           <div className="side-line-grad-top" />
-          <span className="side-line-txt">ふたりへ</span>
+          <span className="side-line-txt">Kinda</span>
           <span className="side-line-sep">·</span>
-          <span className="side-line-en">futarini</span>
+          <span className="side-line-en">ふたりへ</span>
           <div className="side-line-mid" />
-          <span className="side-line-txt">ふたりへ</span>
+          <span className="side-line-txt">Kinda</span>
           <span className="side-line-sep">·</span>
-          <span className="side-line-en">futarini</span>
+          <span className="side-line-en">ふたりへ</span>
           <div className="side-line-grad-bot" />
         </div>
 
