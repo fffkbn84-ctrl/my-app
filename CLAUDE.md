@@ -2044,3 +2044,80 @@ ALTER TABLE reviews
 **アプリの配置方針（要検討）：**
 - 案A：`futarive-admin` 内に `/agency-admin/` ルートを追加（シンプル）
 - 案B：別の Next.js アプリとして `my-app/agency-admin/` サブディレクトリに新設（権限分離が明確）
+
+---
+
+## 実装済み機能（2026-04-14 追記）
+
+### ブランチ
+
+作業ブランチ：`integration/redesign-with-all-features`（変更なし）
+
+---
+
+### ヒーローセクション フルブリード化（`src/app/page.tsx`、`src/app/globals.css`）
+
+`hero-couple-new.png.PNG`（843×1264px 縦長）1枚でヒーロー全面を表現。
+
+**変更内容：**
+- 背景装飾画像（section-cafe / section-counseling / section-beauty）を削除
+- `.hkn-fill-img`：`<Image fill>` + `object-fit: cover` + `object-position: center 15%` でフルブリード
+- `.hkn-overlay`：下半分に暗いグラデーションオーバーレイ（透明 → 62% 暗）
+- `.hkn-inner`：`align-items: flex-end` でコンテンツを画像下部に配置
+- ロゴ・サブテキストを白色に変更（画像上での可読性確保）
+- 削除したCSS：`.hkn-bg` / `.hkn-bg-item` / `.hkn-bg-left` / `.hkn-bg-right` / `.hkn-bg-bl` / `.hkn-img-wrap`
+
+---
+
+### KindaSearchBar モーダル 改善（`src/components/home/KindaSearchBar.tsx`）
+
+#### 外タップで閉じない問題の修正
+
+**原因：** モーダル・オーバーレイが `.hero-kinda-new`（`overflow: hidden` + stacking context）の DOM 子要素として描画されていたため、iOS Safari でタップイベントが届かなかった。
+
+**修正：** `createPortal(document.body)` でオーバーレイとモーダルを `<body>` 直下にマウント。`useEffect` + `mounted` フラグで SSR 安全に対応。
+
+#### モーダル下端をヒーロー下端に固定
+
+- `openModal()` 内で `.hero-kinda-new` の `getBoundingClientRect().bottom` を取得
+- `modalBottom = Math.max(0, vh - heroBottom)` を計算し `style={{ bottom: \`${modalBottom}px\` }}` でモーダルに適用
+- スクロール位置に関わらずモーダルがヒーロー内に収まる
+
+---
+
+### Kindaカテゴリ 画像差し替え
+
+#### `src/app/page.tsx`（Kindaカテゴリセクション）／`src/components/home/KindaSearchBar.tsx`（検索バーモーダル）
+
+| カード | 旧画像 | 新画像 |
+|---|---|---|
+| Kinda meet | `section-cafe2.png` | `section-cafe-pastel.png.PNG` |
+| Kinda change | `section-beauty.png` | `section-beauty-n2.png.jpg` |
+| Kinda story | `section-story.png` | `section-story-new.png.PNG` |
+
+**Kinda meet の表示調整：**
+- `object-fit: cover` + `object-position: center 35%` でカフェ看板が見える位置に調整
+- 他の3枚カードと同じ表示サイズ・フィル感に統一
+
+---
+
+### Vercel デプロイ連携の確認
+
+- GitHubへのプッシュは正常（ローカルプロキシ経由で `fffkbn84-ctrl/my-app` に届いている）
+- Vercel プレビューURL：`integration-redesign-772ffb-fffkbn84-4095s-projects.vercel.app`
+  - `integration/redesign-with-all-features` ブランチの最新デプロイを参照
+  - CLAUDE.md記載の旧URL（`my-app-git-claude-redesign-hero-13ddd6-...`）は別ブランチ向けのため使用しない
+
+---
+
+### 追加された画像ファイル（`public/images/`）
+
+| ファイル名 | 用途 |
+|---|---|
+| `hero-couple-new.png.PNG` | ヒーローフルブリード画像（現在使用中） |
+| `section-cafe-pastel.png.PNG` | Kinda meet カード画像 |
+| `section-beauty-n2.png.jpg` | Kinda change カード画像 |
+| `section-story-new.png.PNG` | Kinda story カード画像 |
+| `Kinda-belief-background.png.PNG` | 追加済み（未使用） |
+| `ornamental-heartwopal.png.PNG` | 追加済み（未使用） |
+| `ornamental-starfish.png.PNG` | 追加済み（未使用） |
