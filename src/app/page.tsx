@@ -167,35 +167,43 @@ export default function HomePage() {
         <RevealObserver />
 
         {/* ═══════════════════════════════════════════════════
-            ① HERO — フルブリード画像 v3
+            ① HERO — Kinda
         ═══════════════════════════════════════════════════ */}
-        <section className="hero-v3">
+        <section className="hero-kinda">
 
-          {/* 背景画像 */}
-          <div className="hv3-bg">
+          {/* ロゴエリア: Kinda 大 + ふたりへ 横 */}
+          <div className="hk-top">
+            <div className="hk-logo">
+              <span className="hk-logo-main">Kinda</span>
+              <span className="hk-logo-ja">ふたりへ</span>
+            </div>
+            <p className="hk-sub">— 今、関係を築いているふたりへ。</p>
+          </div>
+
+          {/* ヒーロー画像（放射状マスクで四方フェード） */}
+          <div className="hk-img-wrap">
             <Image
               src="/images/hero-couple-top.png"
               alt="カフェでくつろぐカップル"
-              fill
+              width={900}
+              height={560}
               priority
-              style={{ objectFit: "cover", objectPosition: "center" }}
+              style={{ width: "100%", height: "auto", display: "block" }}
             />
-            {/* 白グラデーションオーバーレイ */}
-            <div className="hv3-overlay" aria-hidden="true" />
           </div>
 
-          {/* Kinda ロゴ + サブテキスト（画像に浮遊） */}
-          <div className="hv3-content">
-            <div className="hv3-logo">
-              <span className="hv3-logo-main">Kinda</span>
-              <span className="hv3-logo-ja">ふたりへ</span>
-            </div>
-            <p className="hv3-sub">— 今、関係を築いているふたりへ。</p>
-          </div>
-
-          {/* 検索バー（下部） */}
-          <div className="hv3-search">
+          {/* 画像下テキスト + 検索バー + ボタン */}
+          <div className="hk-bottom">
+            <p className="hk-tagline">なんとなく、でいい。一緒に探そう。</p>
             <KindaSearchBar />
+            <div className="hk-actions">
+              <Link href="/search" className="hk-btn-accent">
+                カウンセラーを探す
+              </Link>
+              <Link href="/shops" className="hk-btn-ghost">
+                ふたりのお店を探す
+              </Link>
+            </div>
           </div>
 
         </section>
