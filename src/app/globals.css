@@ -2177,7 +2177,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .reveal-delay-5 { transition-delay: .5s; }
 
 /* ═══════════════════════════════════════════════════
-   HERO Kinda — 画像中央配置レイアウト
+   HERO Kinda v2 — ロゴ横並び + 画像フェード統合
 ═══════════════════════════════════════════════════ */
 .hero-kinda {
   min-height: 100svh;
@@ -2185,55 +2185,106 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: calc(var(--header-height) + 56px) 24px 80px;
-  gap: 36px;
+  padding: calc(var(--header-height) + 48px) 24px 0;
   position: relative;
   overflow: hidden;
+  text-align: center;
+}
+
+/* 装飾オーブ */
+.hk-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+.hk-orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(212,160,144,.18), transparent 70%);
+  top: -80px; right: -120px;
+  filter: blur(40px);
+}
+.hk-orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(212,160,144,.12), transparent 70%);
+  top: 200px; left: -100px;
+  filter: blur(60px);
 }
 
 .hk-top {
   text-align: center;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 20px;
+  animation: sIn 1s cubic-bezier(.16,1,.3,1) .15s both;
 }
 
+/* ロゴ: Kinda 大 + ふたりへ 小（横並び） */
 .hk-logo {
-  font-family: 'DM Serif Display', serif;
-  font-size: clamp(72px, 12vw, 128px);
-  color: var(--black);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 14px;
   line-height: 1;
+  margin-bottom: 12px;
+}
+.hk-logo-main {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(72px, 13vw, 130px);
+  color: var(--black);
   letter-spacing: -.02em;
-  animation: sIn 1s cubic-bezier(.16,1,.3,1) .15s both;
+}
+.hk-logo-ja {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 400;
+  font-size: clamp(13px, 1.8vw, 18px);
+  color: var(--muted);
+  letter-spacing: .1em;
+  white-space: nowrap;
 }
 
 .hk-sub {
   font-family: 'Shippori Mincho', serif;
-  font-size: clamp(12px, 1.5vw, 15px);
+  font-size: clamp(11px, 1.4vw, 14px);
   color: var(--mid);
-  letter-spacing: .1em;
-  margin-top: 14px;
+  letter-spacing: .12em;
   animation: sIn 1s cubic-bezier(.16,1,.3,1) .3s both;
+  position: relative;
+  z-index: 2;
+  margin-bottom: 32px;
 }
 
+/* ヒーロー画像ラップ（下端をフェードで背景と統合） */
 .hk-img-wrap {
   width: 100%;
-  max-width: 800px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 20px 72px rgba(0,0,0,.1), 0 4px 16px rgba(0,0,0,.06);
+  max-width: 900px;
+  position: relative;
+  z-index: 2;
   animation: sIn 1s cubic-bezier(.16,1,.3,1) .45s both;
+}
+.hk-img-fade {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(to bottom, transparent, #F5EEE6);
+  pointer-events: none;
+  z-index: 3;
 }
 
 .hk-bottom {
   text-align: center;
+  position: relative;
+  z-index: 2;
+  padding-bottom: 64px;
   animation: sIn 1s cubic-bezier(.16,1,.3,1) .6s both;
 }
 
 .hk-tagline {
   font-family: 'Shippori Mincho', serif;
-  font-size: clamp(15px, 2vw, 22px);
+  font-size: clamp(14px, 1.8vw, 20px);
   color: var(--ink);
   letter-spacing: .1em;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .hk-actions {
@@ -2290,3 +2341,110 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   background: rgba(0,0,0,.04);
   transform: translateY(-2px);
 }
+
+/* ═══════════════════════════════════════════════════
+   Kindaカテゴリセクション
+═══════════════════════════════════════════════════ */
+.kinda-cats-sec {
+  background: #F5EEE6;
+  padding: 80px 0 100px;
+}
+
+.kinda-cats-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+@media (max-width: 768px) {
+  .kinda-cats-inner { padding: 0 22px; }
+}
+
+.kinda-cats-hd {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.kinda-cats-ttl {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(22px, 3.2vw, 36px);
+  color: var(--black);
+  letter-spacing: .01em;
+  margin-top: 12px;
+  line-height: 1.3;
+}
+.kinda-cats-ttl em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.kinda-cats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 900px) {
+  .kinda-cats-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+}
+@media (max-width: 480px) {
+  .kinda-cats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+}
+
+.kinda-cat-card {
+  background: rgba(255,255,255,.9);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(212,160,144,.2);
+  transition: all .4s cubic-bezier(.16,1,.3,1);
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.kinda-cat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 56px rgba(212,160,144,.25);
+}
+
+/* 画像エリア（正方形） */
+.kinda-cat-img-area {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FDF0EC, #F8E8E2);
+  position: relative;
+}
+/* 画像なし: プレースホルダー */
+.kinda-cat-no-img {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #F5EEE6, #EDE4DA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kinda-cat-body {
+  padding: 14px 16px 18px;
+}
+.kinda-cat-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--black);
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+.kinda-cat-name em {
+  font-style: italic;
+  color: var(--accent);
+}
+.kinda-cat-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--mid);
+  line-height: 1.8;
+  margin: 0;
+}
+@media (max-width: 480px) {
+  .kinda-cat-body { padding: 10px 12px 14px; }
+  .kinda-cat-name { font-size: 15px; }
+}
+

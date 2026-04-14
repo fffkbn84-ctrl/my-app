@@ -166,25 +166,34 @@ export default function HomePage() {
         <RevealObserver />
 
         {/* ═══════════════════════════════════════════════════
-            ① HERO — Kinda リニューアル
+            ① HERO — Kinda リニューアル v2
         ═══════════════════════════════════════════════════ */}
         <section className="hero-kinda">
-          {/* 画像上テキスト */}
+          {/* 装飾オーブ */}
+          <div className="hk-orb hk-orb-1" aria-hidden="true" />
+          <div className="hk-orb hk-orb-2" aria-hidden="true" />
+
+          {/* ロゴエリア: Kinda 大 + ふたりへ 横 */}
           <div className="hk-top">
-            <h1 className="hk-logo">Kinda</h1>
+            <div className="hk-logo">
+              <span className="hk-logo-main">Kinda</span>
+              <span className="hk-logo-ja">ふたりへ</span>
+            </div>
             <p className="hk-sub">— 今、関係を築いているふたりへ。</p>
           </div>
 
-          {/* ヒーロー画像 */}
+          {/* ヒーロー画像（下端フェードで背景と統合） */}
           <div className="hk-img-wrap">
             <Image
               src="/images/hero-couple-cafe.png"
               alt="カフェでお見合いをするカップル"
-              width={800}
-              height={500}
+              width={900}
+              height={560}
               priority
               style={{ width: "100%", height: "auto", display: "block" }}
             />
+            {/* 下端を背景色にフェード */}
+            <div className="hk-img-fade" aria-hidden="true" />
           </div>
 
           {/* 画像下テキスト + ボタン */}
@@ -197,6 +206,111 @@ export default function HomePage() {
               <Link href="/shops" className="hk-btn-ghost">
                 ふたりのお店を探す
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            ② Kinda カテゴリセクション
+        ═══════════════════════════════════════════════════ */}
+        <section className="kinda-cats-sec">
+          <div className="kinda-cats-inner">
+            {/* ヘッダー */}
+            <div className="kinda-cats-hd reveal">
+              <div className="sec-label">WHAT&apos;S YOUR KINDA</div>
+              <h2 className="kinda-cats-ttl">
+                あなたの「<em>Kinda</em>」はどれですか？
+              </h2>
+            </div>
+
+            {/* 4枚カードグリッド */}
+            <div className="kinda-cats-grid">
+
+              {/* Kinda meet */}
+              <Link href="/search" className="kinda-cat-card reveal">
+                <div className="kinda-cat-img-area">
+                  <Image
+                    src="/images/section-cafe.png"
+                    alt="お見合いカフェ"
+                    width={400}
+                    height={400}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> meet</div>
+                  <p className="kinda-cat-desc">
+                    すてきな担当者で、<br />出会いたい
+                  </p>
+                </div>
+              </Link>
+
+              {/* Kinda talk */}
+              <Link href="/search" className="kinda-cat-card reveal reveal-delay-1">
+                <div className="kinda-cat-img-area">
+                  <Image
+                    src="/images/section-counseling.png"
+                    alt="カウンセリング"
+                    width={400}
+                    height={400}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> talk</div>
+                  <p className="kinda-cat-desc">
+                    みをりの相談、<br />聞いてほしい
+                  </p>
+                </div>
+              </Link>
+
+              {/* Kinda change */}
+              <Link href="/shops" className="kinda-cat-card reveal reveal-delay-2">
+                <div className="kinda-cat-img-area">
+                  <Image
+                    src="/images/section-beauty.png"
+                    alt="ビューティサロン"
+                    width={400}
+                    height={400}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> change</div>
+                  <p className="kinda-cat-desc">
+                    新しいな、<br />自分になりたい
+                  </p>
+                </div>
+              </Link>
+
+              {/* Kinda story — 画像なし（後で追加） */}
+              <Link href="/episodes" className="kinda-cat-card reveal reveal-delay-3">
+                <div className="kinda-cat-no-img">
+                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+                    <path
+                      d="M28 46s-20-12-20-26a12 12 0 0120-9.17A12 12 0 0148 20c0 14-20 26-20 26z"
+                      stroke="var(--accent)"
+                      strokeWidth="1.5"
+                      fill="rgba(212,160,144,.12)"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M22 22c0-3.314 2.686-6 6-6"
+                      stroke="var(--accent)"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      opacity=".4"
+                    />
+                  </svg>
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> story</div>
+                  <p className="kinda-cat-desc">
+                    誰かの話が、<br />聞きたい
+                  </p>
+                </div>
+              </Link>
+
             </div>
           </div>
         </section>

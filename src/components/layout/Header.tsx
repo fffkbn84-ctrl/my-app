@@ -4,8 +4,8 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-light">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* ロゴ */}
-        <Link href="/" className="flex flex-col items-start leading-none">
+        {/* ロゴ: Kinda 大 + ふたりへ 横 */}
+        <Link href="/" className="flex items-baseline gap-2 leading-none">
           <span
             style={{
               fontFamily: "'DM Serif Display', serif",
@@ -21,13 +21,13 @@ export default function Header() {
             style={{
               fontFamily: "var(--font-mincho)",
               fontWeight: 400,
-              fontSize: "9px",
+              fontSize: "10px",
               color: "var(--muted)",
               letterSpacing: ".08em",
-              marginTop: "3px",
+              whiteSpace: "nowrap",
             }}
           >
-            — 今、関係を築いているふたりへ。
+            ふたりへ
           </span>
         </Link>
 
