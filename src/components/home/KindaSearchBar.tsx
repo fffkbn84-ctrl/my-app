@@ -127,13 +127,13 @@ export default function KindaSearchBar() {
                   onClick={close}
                 >
                   {item.img ? (
-                    <div className="ks-modal-img" style={item.id === 'meet' ? { background: '#EDE5DA' } : undefined}>
+                    <div className="ks-modal-img">
                       <Image
                         src={item.img}
                         alt={`Kinda ${item.label}`}
                         width={200}
                         height={150}
-                        style={{ width: '100%', height: '100%', objectFit: item.id === 'meet' ? 'contain' : 'cover' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: item.id === 'meet' ? 'center 35%' : 'center center' }}
                       />
                     </div>
                   ) : (
