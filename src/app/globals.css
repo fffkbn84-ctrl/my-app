@@ -69,7 +69,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: #F5EEE6;
+  background-color: #FEFCFA;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -2181,7 +2181,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 ═══════════════════════════════════════════════════ */
 .hero-kinda {
   min-height: 100svh;
-  background: #F5EEE6;
+  background: #FEFCFA;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2254,21 +2254,16 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   margin-bottom: 32px;
 }
 
-/* ヒーロー画像ラップ（下端をフェードで背景と統合） */
+/* ヒーロー画像ラップ — 放射状マスクで四方フェード */
 .hk-img-wrap {
   width: 100%;
   max-width: 900px;
   position: relative;
   z-index: 2;
   animation: sIn 1s cubic-bezier(.16,1,.3,1) .45s both;
-}
-.hk-img-fade {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 45%;
-  background: linear-gradient(to bottom, transparent, #F5EEE6);
-  pointer-events: none;
-  z-index: 3;
+  /* 放射状グラデーションで四方から背景に溶け込む */
+  -webkit-mask-image: radial-gradient(ellipse 86% 76% at 50% 36%, black 18%, transparent 100%);
+  mask-image: radial-gradient(ellipse 86% 76% at 50% 36%, black 18%, transparent 100%);
 }
 
 .hk-bottom {
@@ -2343,10 +2338,10 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 }
 
 /* ═══════════════════════════════════════════════════
-   Kindaカテゴリセクション
+   Kindaカテゴリセクション（パステル版）
 ═══════════════════════════════════════════════════ */
 .kinda-cats-sec {
-  background: #F5EEE6;
+  background: #FEFCFA;
   padding: 80px 0 100px;
 }
 
@@ -2389,48 +2384,58 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   .kinda-cats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 }
 
+/* カードベース */
 .kinda-cat-card {
-  background: rgba(255,255,255,.9);
   border-radius: 20px;
   overflow: hidden;
-  border: 1px solid rgba(212,160,144,.2);
+  border: 1px solid rgba(0,0,0,.06);
   transition: all .4s cubic-bezier(.16,1,.3,1);
   text-decoration: none;
   color: inherit;
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 .kinda-cat-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 56px rgba(212,160,144,.25);
+  box-shadow: 0 20px 48px rgba(0,0,0,.09);
 }
 
-/* 画像エリア（正方形） */
+/* パステル背景バリアント */
+.kc-yellow { background: #FFFBEC; }
+.kc-pink   { background: #FFF0F3; }
+.kc-blue   { background: #EDF4FF; }
+.kc-green  { background: #F0FAF2; }
+
+/* 画像エリア（4:3） */
 .kinda-cat-img-area {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 4/3;
   overflow: hidden;
-  background: linear-gradient(135deg, #FDF0EC, #F8E8E2);
   position: relative;
 }
+
 /* 画像なし: プレースホルダー */
 .kinda-cat-no-img {
   width: 100%;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #F5EEE6, #EDE4DA);
+  aspect-ratio: 4/3;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #D8F0DC;
 }
 
 .kinda-cat-body {
   padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
 }
 .kinda-cat-name {
   font-family: 'DM Serif Display', serif;
-  font-size: clamp(16px, 2vw, 20px);
+  font-size: clamp(15px, 1.8vw, 18px);
   color: var(--black);
   line-height: 1.2;
-  margin-bottom: 6px;
 }
 .kinda-cat-name em {
   font-style: italic;
@@ -2440,11 +2445,38 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 11px;
   color: var(--mid);
-  line-height: 1.8;
+  line-height: 1.7;
   margin: 0;
+  flex: 1;
 }
+
+/* カード内ボタン */
+.kinda-cat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 50px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  margin-top: 10px;
+  align-self: flex-start;
+  transition: opacity .2s;
+  pointer-events: none; /* 親Linkがクリック処理 */
+}
+
+.kc-btn-yellow { background: #FFE57F; color: #5C4300; }
+.kc-btn-pink   { background: #FFBECE; color: #7A0030; }
+.kc-btn-blue   { background: #AECFFF; color: #003680; }
+.kc-btn-green  { background: #A8DDB5; color: #1A5C2A; }
+
+.kinda-cat-card:hover .kinda-cat-btn { opacity: .75; }
+
 @media (max-width: 480px) {
   .kinda-cat-body { padding: 10px 12px 14px; }
-  .kinda-cat-name { font-size: 15px; }
+  .kinda-cat-name { font-size: 14px; }
+  .kinda-cat-btn { font-size: 10px; padding: 6px 11px; }
 }
 

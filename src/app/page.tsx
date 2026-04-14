@@ -192,9 +192,7 @@ export default function HomePage() {
               priority
               style={{ width: "100%", height: "auto", display: "block" }}
             />
-            {/* 下端を背景色にフェード */}
-            <div className="hk-img-fade" aria-hidden="true" />
-          </div>
+            </div>
 
           {/* 画像下テキスト + ボタン */}
           <div className="hk-bottom">
@@ -226,88 +224,104 @@ export default function HomePage() {
             {/* 4枚カードグリッド */}
             <div className="kinda-cats-grid">
 
-              {/* Kinda meet */}
-              <Link href="/search" className="kinda-cat-card reveal">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-cafe.png"
-                    alt="お見合いカフェ"
-                    width={400}
-                    height={400}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> meet</div>
-                  <p className="kinda-cat-desc">
-                    すてきな担当者で、<br />出会いたい
-                  </p>
-                </div>
-              </Link>
-
-              {/* Kinda talk */}
-              <Link href="/search" className="kinda-cat-card reveal reveal-delay-1">
+              {/* Kinda talk — カウンセラー・相談所（パステル黄） */}
+              <Link href="/search" className="kinda-cat-card kc-yellow reveal">
                 <div className="kinda-cat-img-area">
                   <Image
                     src="/images/section-counseling.png"
-                    alt="カウンセリング"
+                    alt="カウンセラーとの面談"
                     width={400}
-                    height={400}
+                    height={300}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 </div>
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> talk</div>
-                  <p className="kinda-cat-desc">
-                    みをりの相談、<br />聞いてほしい
-                  </p>
+                  <p className="kinda-cat-desc">カウンセラー・相談所</p>
+                  <span className="kinda-cat-btn kc-btn-yellow">
+                    もっと見てみる
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
                 </div>
               </Link>
 
-              {/* Kinda change */}
-              <Link href="/shops" className="kinda-cat-card reveal reveal-delay-2">
+              {/* Kinda meet — お見合い・デートカフェ（パステルピンク） */}
+              <Link href="/shops" className="kinda-cat-card kc-pink reveal reveal-delay-1">
+                <div className="kinda-cat-img-area">
+                  <Image
+                    src="/images/section-cafe.png"
+                    alt="お見合い・デートカフェ"
+                    width={400}
+                    height={300}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> meet</div>
+                  <p className="kinda-cat-desc">お見合い・デートに使えるカフェ</p>
+                  <span className="kinda-cat-btn kc-btn-pink">
+                    探してみる
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+              </Link>
+
+              {/* Kinda change — 美容室・エステ（パステル青） */}
+              <Link href="/shops" className="kinda-cat-card kc-blue reveal reveal-delay-2">
                 <div className="kinda-cat-img-area">
                   <Image
                     src="/images/section-beauty.png"
-                    alt="ビューティサロン"
+                    alt="美容室・エステ"
                     width={400}
-                    height={400}
+                    height={300}
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 </div>
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> change</div>
-                  <p className="kinda-cat-desc">
-                    新しいな、<br />自分になりたい
-                  </p>
+                  <p className="kinda-cat-desc">美容室・エステ</p>
+                  <span className="kinda-cat-btn kc-btn-blue">
+                    探してみる
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
                 </div>
               </Link>
 
-              {/* Kinda story — 画像なし（後で追加） */}
-              <Link href="/episodes" className="kinda-cat-card reveal reveal-delay-3">
+              {/* Kinda story — みんなの体験談（パステル緑） */}
+              <Link href="/episodes" className="kinda-cat-card kc-green reveal reveal-delay-3">
                 <div className="kinda-cat-no-img">
                   <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
                     <path
                       d="M28 46s-20-12-20-26a12 12 0 0120-9.17A12 12 0 0148 20c0 14-20 26-20 26z"
-                      stroke="var(--accent)"
+                      stroke="#2D7A4A"
                       strokeWidth="1.5"
-                      fill="rgba(212,160,144,.12)"
+                      fill="rgba(45,122,74,.12)"
                       strokeLinejoin="round"
                     />
                     <path
                       d="M22 22c0-3.314 2.686-6 6-6"
-                      stroke="var(--accent)"
+                      stroke="#2D7A4A"
                       strokeWidth="1.3"
                       strokeLinecap="round"
-                      opacity=".4"
+                      opacity=".5"
                     />
                   </svg>
                 </div>
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> story</div>
-                  <p className="kinda-cat-desc">
-                    誰かの話が、<br />聞きたい
-                  </p>
+                  <p className="kinda-cat-desc">みんなの体験談</p>
+                  <span className="kinda-cat-btn kc-btn-green">
+                    読んでみる
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
                 </div>
               </Link>
 
