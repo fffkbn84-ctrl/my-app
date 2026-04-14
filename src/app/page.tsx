@@ -250,7 +250,7 @@ export default function HomePage() {
                     alt="お見合い・デートカフェ"
                     width={400}
                     height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center top" }}
                   />
                 </div>
                 <div className="kinda-cat-body">

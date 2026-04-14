@@ -133,7 +133,7 @@ export default function KindaSearchBar() {
                         alt={`Kinda ${item.label}`}
                         width={200}
                         height={150}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: item.id === 'meet' ? 'center top' : 'center center' }}
                       />
                     </div>
                   ) : (
