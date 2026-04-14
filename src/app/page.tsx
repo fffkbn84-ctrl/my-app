@@ -244,13 +244,13 @@ export default function HomePage() {
 
               {/* Kinda meet — お見合い・デートカフェ（パステルピンク） */}
               <Link href="/shops" className="kinda-cat-card kc-pink reveal reveal-delay-1">
-                <div className="kinda-cat-img-area">
+                <div className="kinda-cat-img-area" style={{ background: "#EDE5DA" }}>
                   <Image
                     src="/images/section-cafe-pastel.png.PNG"
                     alt="お見合い・デートカフェ"
                     width={400}
                     height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "contain", background: "#EDE5DA" }}
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
                   />
                 </div>
                 <div className="kinda-cat-body">
