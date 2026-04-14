@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -42,7 +43,10 @@ const ITEMS = [
 export default function KindaSearchBar() {
   const [open, setOpen] = useState(false);
   const [modalBottom, setModalBottom] = useState(0);
+  const [mounted, setMounted] = useState(false);
   const touchStartY = useRef(0);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const close = () => setOpen(false);
 
@@ -85,74 +89,79 @@ export default function KindaSearchBar() {
         </div>
       </button>
 
-      {/* オーバーレイ */}
-      <div
-        className={`ks-overlay${open ? ' is-open' : ''}`}
-        onClick={close}
-        aria-hidden="true"
-      />
+      {mounted && createPortal(
+        <>
+          {/* オーバーレイ */}
+          <div
+            className={`ks-overlay${open ? ' is-open' : ''}`}
+            onClick={close}
+            aria-hidden="true"
+          />
 
-      {/* モーダル（ボトムシート） */}
-      <div
-        className={`ks-modal${open ? ' is-open' : ''}`}
-        style={{ bottom: `${modalBottom}px` }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Kindaカテゴリ選択"
-      >
-        {/* スワイプハンドル */}
-        <div className="ks-modal-handle" aria-hidden="true" />
+          {/* モーダル（ボトムシート） */}
+          <div
+            className={`ks-modal${open ? ' is-open' : ''}`}
+            style={{ bottom: `${modalBottom}px` }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Kindaカテゴリ選択"
+          >
+            {/* スワイプハンドル */}
+            <div className="ks-modal-handle" aria-hidden="true" />
 
-        {/* タイトル */}
-        <p className="ks-modal-title">
-          あなたの<em>Kinda</em>はどれ？
-        </p>
+            {/* タイトル */}
+            <p className="ks-modal-title">
+              あなたの<em>Kinda</em>はどれ？
+            </p>
 
-        {/* 4枚カードグリッド */}
-        <div className="ks-modal-grid">
-          {ITEMS.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="ks-modal-card"
-              style={{ background: item.bg }}
-              onClick={close}
-            >
-              {item.img ? (
-                <div className="ks-modal-img">
-                  <Image
-                    src={item.img}
-                    alt={`Kinda ${item.label}`}
-                    width={200}
-                    height={150}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </div>
-              ) : (
-                <div className="ks-modal-img ks-modal-no-img">
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <path
-                      d="M20 34s-14-8.4-14-18.2a8.4 8.4 0 0114-6.4 8.4 8.4 0 0114 6.4C34 25.6 20 34 20 34z"
-                      stroke="#2D7A4A"
-                      strokeWidth="1.3"
-                      fill="rgba(45,122,74,.1)"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              )}
-              <div className="ks-modal-card-body">
-                <div className="ks-modal-card-name">
-                  <em>Kinda</em> {item.label}
-                </div>
-                <p className="ks-modal-card-sub">{item.sub}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+            {/* 4枚カードグリッド */}
+            <div className="ks-modal-grid">
+              {ITEMS.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="ks-modal-card"
+                  style={{ background: item.bg }}
+                  onClick={close}
+                >
+                  {item.img ? (
+                    <div className="ks-modal-img">
+                      <Image
+                        src={item.img}
+                        alt={`Kinda ${item.label}`}
+                        width={200}
+                        height={150}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="ks-modal-img ks-modal-no-img">
+                      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <path
+                          d="M20 34s-14-8.4-14-18.2a8.4 8.4 0 0114-6.4 8.4 8.4 0 0114 6.4C34 25.6 20 34 20 34z"
+                          stroke="#2D7A4A"
+                          strokeWidth="1.3"
+                          fill="rgba(45,122,74,.1)"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                  <div className="ks-modal-card-body">
+                    <div className="ks-modal-card-name">
+                      <em>Kinda</em> {item.label}
+                    </div>
+                    <p className="ks-modal-card-sub">{item.sub}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </>,
+        document.body
+      )}
     </>
   );
 }

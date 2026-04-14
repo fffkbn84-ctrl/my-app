@@ -214,7 +214,7 @@ export default function HomePage() {
             {/* メイン画像 */}
             <div className="hkn-img-wrap">
               <Image
-                src="/images/hero-couple-top.png"
+                src="/images/hero-couple-new.png.PNG"
                 alt="カフェでくつろぐカップル"
                 width={360}
                 height={360}
