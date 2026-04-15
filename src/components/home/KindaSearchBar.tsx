@@ -120,25 +120,27 @@ export default function KindaSearchBar() {
             <div className="ks-modal-tools">
               <span className="ks-modal-tools-label">気持ちを整理する</span>
               <div className="ks-modal-tools-grid">
-                <Link href="/kinda-note" className="ks-modal-tool-card" style={{ background: '#F0D8D0' }} onClick={close}>
-                  <div className="ks-modal-tool-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <rect x="4" y="3" width="10" height="14" rx="1.5" stroke="#B8806E" strokeWidth="1.2" fill="rgba(184,128,110,.1)"/>
-                      <path d="M7 7h4M7 10h4M7 13h2" stroke="#B8806E" strokeWidth="1.1" strokeLinecap="round"/>
-                      <path d="M13 10l2-2 1 1-2 2-1-1z" stroke="#B8806E" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                <Link href="/kinda-note" className="ks-modal-tool-card" style={{ background: '#EDE8F8' }} onClick={close}>
+                  <div className="ks-modal-tool-img">
+                    <Image
+                      src="/images/section-kinda-note.png.PNG"
+                      alt="Kinda note"
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
                   </div>
                   <div className="ks-modal-tool-name"><em>Kinda</em> note</div>
                   <p className="ks-modal-tool-sub">今の気持ちを整理する</p>
                   <span className="ks-modal-tool-badge">登録不要 · 約2分 · 無料</span>
                 </Link>
                 <Link href="/kinda-type" className="ks-modal-tool-card" style={{ background: '#E8F4E4' }} onClick={close}>
-                  <div className="ks-modal-tool-icon">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path d="M10 16s-7-4.2-7-9.1a4.2 4.2 0 017-3.2 4.2 4.2 0 017 3.2C17 11.8 10 16 10 16z"
-                        stroke="#4A8A5A" strokeWidth="1.2" fill="rgba(74,138,90,.1)" strokeLinejoin="round"/>
-                      <circle cx="10" cy="8" r="2" stroke="#4A8A5A" strokeWidth="1.1"/>
-                    </svg>
+                  <div className="ks-modal-tool-img">
+                    <Image
+                      src="/images/section-kinda-type.png.PNG"
+                      alt="Kinda type"
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
                   </div>
                   <div className="ks-modal-tool-name"><em>Kinda</em> type</div>
                   <p className="ks-modal-tool-sub">合うカウンセラーを見つける</p>
@@ -146,6 +148,9 @@ export default function KindaSearchBar() {
                 </Link>
               </div>
             </div>
+
+            {/* 「自分で選ぶ」ラベル */}
+            <span className="ks-modal-tools-label" style={{ marginTop: 4 }}>自分で選ぶ</span>
 
             {/* 4枚カードグリッド */}
             <div className="ks-modal-grid">

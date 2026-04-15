@@ -241,8 +241,8 @@ export default function HomePage() {
             {/* 6枚カードグリッド（note・type + talk・meet・change・story） */}
             <div className="kinda-cats-grid">
 
-              {/* Kinda note — 気持ちを整理する（ローズ） */}
-              <Link href="/kinda-note" className="kinda-cat-card kc-rose reveal">
+              {/* Kinda note — 気持ちを整理する（パステル紫） */}
+              <Link href="/kinda-note" className="kinda-cat-card kc-purple reveal">
                 <div className="kinda-cat-img-area">
                   <Image
                     src="/images/section-kinda-note.png.PNG"
@@ -255,7 +255,7 @@ export default function HomePage() {
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> note</div>
                   <p className="kinda-cat-desc">今の気持ちを整理する</p>
-                  <span className="kinda-cat-btn kc-btn-rose">
+                  <span className="kinda-cat-btn kc-btn-purple">
                     はじめる
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                       <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
