@@ -3011,3 +3011,154 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   border-top-color: rgba(180,155,135,.15);
 }
 
+/* ═══════════════════════════════════════════════════
+   KINDA NOTE / KINDA TYPE — ヒーロータップゾーン
+═══════════════════════════════════════════════════ */
+
+@keyframes kindaPulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50%       { transform: scale(1.8); opacity: 0.4; }
+}
+@keyframes kindaFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-3px); }
+}
+
+.kinda-tap-zone {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20%;
+  gap: 7px;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 12px;
+}
+.kinda-tap-zone::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 12px;
+  transition: opacity .15s;
+}
+.kinda-tap-zone:active::after {
+  opacity: 0.3;
+  transition: opacity 0s;
+}
+.kinda-tap-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+  animation: kindaPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+.kinda-tap-label {
+  background: rgba(255,255,255,.85);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: #B8806E;
+  white-space: nowrap;
+  animation: kindaFloat 3s ease-in-out infinite;
+  backdrop-filter: blur(4px);
+}
+
+/* kinda-cats 追加カラーバリアント */
+.kc-rose { background: #F0D8D0; }
+.kc-mint { background: #E8F4E4; }
+.kc-btn-rose {
+  background: #E5B5A0;
+  color: #5C1A08;
+}
+.kc-btn-mint {
+  background: #A8D8B5;
+  color: #1A5C2A;
+}
+
+/* kinda-cat no-img placeholder */
+.kinda-cat-no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+}
+
+/* ks-modal ツールカード（Kinda note / Kinda type） */
+.ks-modal-tools {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.ks-modal-tools-label {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .06em;
+  margin-bottom: 10px;
+  display: block;
+}
+.ks-modal-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.ks-modal-tool-card {
+  border-radius: 16px;
+  padding: 13px 12px 12px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: transform .2s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+.ks-modal-tool-card:active { transform: scale(.96); }
+.ks-modal-tool-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.ks-modal-tool-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 14px;
+  color: var(--black);
+  line-height: 1.2;
+}
+.ks-modal-tool-name em {
+  font-style: italic;
+  color: var(--accent);
+}
+.ks-modal-tool-sub {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--mid);
+  line-height: 1.5;
+  margin-top: 1px;
+}
+.ks-modal-tool-badge {
+  display: inline-block;
+  font-size: 9px;
+  color: var(--muted);
+  background: rgba(255,255,255,.6);
+  border-radius: 20px;
+  padding: 2px 8px;
+  margin-top: 4px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .04em;
+}

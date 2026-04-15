@@ -184,6 +184,28 @@ export default function HomePage() {
           {/* グラデーションオーバーレイ */}
           <div className="hkn-overlay" aria-hidden="true" />
 
+          {/* Kinda note タップゾーン */}
+          <Link
+            href="/kinda-note"
+            className="kinda-tap-zone"
+            style={{ left: "8%", top: "15%", width: "28%", height: "35%" }}
+            aria-label="Kinda note — 気持ちを整理する"
+          >
+            <div className="kinda-tap-dot" />
+            <div className="kinda-tap-label">Kinda note</div>
+          </Link>
+
+          {/* Kinda type タップゾーン */}
+          <Link
+            href="/kinda-type"
+            className="kinda-tap-zone"
+            style={{ right: "8%", top: "15%", width: "28%", height: "35%" }}
+            aria-label="Kinda type — 合うカウンセラーを見つける"
+          >
+            <div className="kinda-tap-dot" />
+            <div className="kinda-tap-label">Kinda type</div>
+          </Link>
+
           {/* コンテンツ */}
           <div className="hkn-inner">
 
@@ -216,8 +238,54 @@ export default function HomePage() {
               </h2>
             </div>
 
-            {/* 4枚カードグリッド */}
+            {/* 6枚カードグリッド（note・type + talk・meet・change・story） */}
             <div className="kinda-cats-grid">
+
+              {/* Kinda note — 気持ちを整理する（ローズ） */}
+              <Link href="/kinda-note" className="kinda-cat-card kc-rose reveal">
+                <div className="kinda-cat-img-area">
+                  <div className="kinda-cat-no-img" style={{ background: "linear-gradient(135deg, #F5D5CA, #ECC4B5)" }}>
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                      <rect x="10" y="8" width="22" height="30" rx="3" stroke="#B8806E" strokeWidth="1.5" fill="rgba(184,128,110,.1)"/>
+                      <path d="M16 17h10M16 22h10M16 27h6" stroke="#B8806E" strokeWidth="1.3" strokeLinecap="round"/>
+                      <path d="M30 24l4-4 3 3-4 4-3-3z" stroke="#B8806E" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> note</div>
+                  <p className="kinda-cat-desc">今の気持ちを整理する</p>
+                  <span className="kinda-cat-btn kc-btn-rose">
+                    はじめる
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+              </Link>
+
+              {/* Kinda type — カウンセラーを見つける（ミント） */}
+              <Link href="/kinda-type" className="kinda-cat-card kc-mint reveal reveal-delay-1">
+                <div className="kinda-cat-img-area">
+                  <div className="kinda-cat-no-img" style={{ background: "linear-gradient(135deg, #D5ECD8, #BFD9C8)" }}>
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                      <path d="M24 38s-14-8.4-14-18.2a8.4 8.4 0 0114-6.4 8.4 8.4 0 0114 6.4C38 29.6 24 38 24 38z"
+                        stroke="#4A8A5A" strokeWidth="1.5" fill="rgba(74,138,90,.1)" strokeLinejoin="round"/>
+                      <circle cx="24" cy="22" r="4" stroke="#4A8A5A" strokeWidth="1.3"/>
+                    </svg>
+                  </div>
+                </div>
+                <div className="kinda-cat-body">
+                  <div className="kinda-cat-name"><em>Kinda</em> type</div>
+                  <p className="kinda-cat-desc">合うカウンセラーを見つける</p>
+                  <span className="kinda-cat-btn kc-btn-mint">
+                    診断する
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span>
+                </div>
+              </Link>
 
               {/* Kinda talk — カウンセラー・相談所（パステル黄） */}
               <Link href="/search" className="kinda-cat-card kc-yellow reveal">
