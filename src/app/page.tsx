@@ -249,7 +249,7 @@ export default function HomePage() {
                     alt="Kinda note"
                     width={400}
                     height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", transform: "scale(1.3)", transformOrigin: "center 30%" }}
                   />
                 </div>
                 <div className="kinda-cat-body">

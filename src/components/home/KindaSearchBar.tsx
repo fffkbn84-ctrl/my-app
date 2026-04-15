@@ -126,7 +126,7 @@ export default function KindaSearchBar() {
                       src="/images/section-kinda-note.png.PNG"
                       alt="Kinda note"
                       fill
-                      style={{ objectFit: 'cover' }}
+                      style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.3)', transformOrigin: 'center 30%' }}
                     />
                   </div>
                   <div className="ks-modal-tool-name"><em>Kinda</em> note</div>
