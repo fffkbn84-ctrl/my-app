@@ -2121,3 +2121,115 @@ ALTER TABLE reviews
 | `Kinda-belief-background.png.PNG` | 追加済み（未使用） |
 | `ornamental-heartwopal.png.PNG` | 追加済み（未使用） |
 | `ornamental-starfish.png.PNG` | 追加済み（未使用） |
+| `section-kinda-note.png.PNG` | Kinda note カード画像 |
+| `section-kinda-type.png.PNG` | Kinda type カード画像 |
+
+---
+
+## 実装済み機能（2026-04-15 追記）
+
+### お店詳細ページ クレイモーフィズム リデザイン（`/places/[id]`）
+
+**ブランチ：** `integration/redesign-with-all-features`
+**変更ファイル：** `src/app/places/[id]/page.tsx`、`src/app/globals.css`
+
+#### デザイン方針
+
+「ミニチュアクレイ」世界観。黒背景ヒーローストリップから脱し、温かみのある質感で統一。
+
+- 背景：`#FAF6F2`（ウォームオフホワイト）
+- カード：`box-shadow: inset 0 1.5px 0 rgba(255,255,255,.92), 0 6px 24px rgba(180,155,135,.16)` の多層シャドウでクレイ感を表現
+- 装飾用PNG：`ornamental-heartwopal.png.PNG`（透過）をページ内に配置可能
+
+#### 追加したCSSクラス一覧（`globals.css`）
+
+| クラス | 用途 |
+|---|---|
+| `.clay-card` | メインカード（多層シャドウ・hover lift） |
+| `.clay-sec-h` | セクション見出し（Shippori Mincho・左ボーダー） |
+| `.clay-desc-block` | お店説明テキストブロック（グラデーション背景） |
+| `.clay-info-grid` | 基本情報 2カラムグリッド |
+| `.clay-info-item` / `.clay-info-key` / `.clay-info-val` | 情報アイテム |
+| `.clay-scene-tag` | シーンタグ（丸型・accent色） |
+| `.clay-tag` | 特徴タグ（グラデーション） |
+| `.clay-rating-summary` | 評価サマリーブロック |
+| `.clay-rv-card` | 口コミカード |
+| `.clay-sidebar-card` | サイドバーアクションカード |
+| `.clay-mini-card` | サイドバーミニ情報カード |
+
+---
+
+### Kinda note・Kinda type エントリーポイント追加
+
+**ブランチ：** `integration/redesign-with-all-features`
+**変更ファイル：** `src/app/page.tsx`、`src/components/home/KindaSearchBar.tsx`、`src/app/globals.css`
+
+#### 追加箇所①：ヒーロー画像上のタップゾーン（`src/app/page.tsx`）
+
+`.hero-kinda-new`（`position: relative; overflow: hidden`）内の `.hkn-overlay` 直後に配置。
+
+```tsx
+<Link href="/kinda-note" className="kinda-tap-zone"
+  style={{ left: "8%", top: "15%", width: "28%", height: "35%" }}>
+  <div className="kinda-tap-dot" />
+  <div className="kinda-tap-label">Kinda note</div>
+</Link>
+<Link href="/kinda-type" className="kinda-tap-zone"
+  style={{ right: "8%", top: "15%", width: "28%", height: "35%" }}>
+  <div className="kinda-tap-dot" />
+  <div className="kinda-tap-label">Kinda type</div>
+</Link>
+```
+
+- `.kinda-tap-dot`：白い丸、`kindaPulse` アニメーション（拡縮フェード）
+- `.kinda-tap-label`：すりガラス白背景の小ラベル、`kindaFloat` アニメーション（上下）
+- `::after` で タップ時ホワイトフラッシュ
+
+#### 追加箇所②：KindaSearchBar モーダル（`src/components/home/KindaSearchBar.tsx`）
+
+4カードグリッドの上に2ゾーン構成を追加。
+
+```
+[気持ちを整理する]     ← .ks-modal-tools-label
+  [Kinda note] [Kinda type]  ← .ks-modal-tools-grid（2カラム）
+[自分で選ぶ]          ← .ks-modal-tools-label
+  [talk][meet][change][story] ← .ks-modal-grid（既存4カード）
+```
+
+- ツールカード：`.ks-modal-tool-card` + `.ks-modal-tool-img`（76px高・画像表示）
+- Kinda note 背景：`#EDE8F8`（パステル紫）/ Kinda type 背景：`#E8F4E4`（パステルグリーン）
+
+#### 追加箇所③：Kinda cats カテゴリセクション（`src/app/page.tsx`）
+
+`.kinda-cats-grid` の先頭に2枚追加（計6枚）。
+
+| カード | クラス | 画像 |
+|---|---|---|
+| Kinda note | `kinda-cat-card kc-purple` | `section-kinda-note.png.PNG` |
+| Kinda type | `kinda-cat-card kc-mint` | `section-kinda-type.png.PNG` |
+| Kinda talk | `kinda-cat-card kc-yellow` | `section-counseling.png`（既存） |
+| Kinda meet | `kinda-cat-card kc-pink` | `section-cafe-pastel.png.PNG`（既存） |
+| Kinda change | `kinda-cat-card kc-blue` | `section-beauty-n2.png.jpg`（既存） |
+| Kinda story | `kinda-cat-card kc-green` | `section-story-new.png.PNG`（既存） |
+
+#### 追加されたCSSクラス
+
+| クラス | 用途 |
+|---|---|
+| `@keyframes kindaPulse` | タップゾーンの白ドット拡縮アニメーション |
+| `@keyframes kindaFloat` | ラベルの上下フロートアニメーション |
+| `.kinda-tap-zone` | ヒーロー画像上の絶対配置タップエリア |
+| `.kinda-tap-dot` | パルスする白い丸 |
+| `.kinda-tap-label` | すりガラス風ラベル |
+| `.kc-purple` / `.kc-btn-purple` | パステル紫カラーバリアント（Kinda note用） |
+| `.kc-mint` / `.kc-btn-mint` | パステルグリーンカラーバリアント（Kinda type用） |
+| `.kinda-cat-no-img` | 画像なし時のSVGプレースホルダー（現在未使用） |
+| `.ks-modal-tools` / `.ks-modal-tools-label` / `.ks-modal-tools-grid` | モーダルのツールセクション |
+| `.ks-modal-tool-card` / `.ks-modal-tool-img` / `.ks-modal-tool-name` / `.ks-modal-tool-sub` / `.ks-modal-tool-badge` | モーダルのツールカード一式 |
+
+#### 遷移先（将来実装予定）
+
+| パス | 内容 |
+|---|---|
+| `/kinda-note` | 気持ちを整理するノートツール（未実装） |
+| `/kinda-type` | カウンセラータイプ診断（未実装・`/diagnosis` とは別フロー想定） |
