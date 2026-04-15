@@ -244,13 +244,13 @@ export default function HomePage() {
               {/* Kinda note — 気持ちを整理する（ローズ） */}
               <Link href="/kinda-note" className="kinda-cat-card kc-rose reveal">
                 <div className="kinda-cat-img-area">
-                  <div className="kinda-cat-no-img" style={{ background: "linear-gradient(135deg, #F5D5CA, #ECC4B5)" }}>
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                      <rect x="10" y="8" width="22" height="30" rx="3" stroke="#B8806E" strokeWidth="1.5" fill="rgba(184,128,110,.1)"/>
-                      <path d="M16 17h10M16 22h10M16 27h6" stroke="#B8806E" strokeWidth="1.3" strokeLinecap="round"/>
-                      <path d="M30 24l4-4 3 3-4 4-3-3z" stroke="#B8806E" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </div>
+                  <Image
+                    src="/images/section-kinda-note.png.PNG"
+                    alt="Kinda note"
+                    width={400}
+                    height={300}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </div>
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> note</div>
@@ -267,13 +267,13 @@ export default function HomePage() {
               {/* Kinda type — カウンセラーを見つける（ミント） */}
               <Link href="/kinda-type" className="kinda-cat-card kc-mint reveal reveal-delay-1">
                 <div className="kinda-cat-img-area">
-                  <div className="kinda-cat-no-img" style={{ background: "linear-gradient(135deg, #D5ECD8, #BFD9C8)" }}>
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                      <path d="M24 38s-14-8.4-14-18.2a8.4 8.4 0 0114-6.4 8.4 8.4 0 0114 6.4C38 29.6 24 38 24 38z"
-                        stroke="#4A8A5A" strokeWidth="1.5" fill="rgba(74,138,90,.1)" strokeLinejoin="round"/>
-                      <circle cx="24" cy="22" r="4" stroke="#4A8A5A" strokeWidth="1.3"/>
-                    </svg>
-                  </div>
+                  <Image
+                    src="/images/section-kinda-type.png.PNG"
+                    alt="Kinda type"
+                    width={400}
+                    height={300}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
                 </div>
                 <div className="kinda-cat-body">
                   <div className="kinda-cat-name"><em>Kinda</em> type</div>
