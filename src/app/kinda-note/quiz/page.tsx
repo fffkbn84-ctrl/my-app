@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai";
+type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai" | "kousai" | "multiple";
 
 interface Option {
   id: string;
@@ -188,10 +188,115 @@ const OMIAI_QUESTIONS: Question[] = [
   },
 ];
 
+// ─── kousai ルート（交際中）4問 ──────────────────────────────────────────────
+const KOUSAI_QUESTIONS: Question[] = [
+  {
+    id: "kousai_q1", label: "Q1",
+    text: "最近、相手とどんな時間を過ごしてる？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "楽しい時間が多い" },
+      { id: "b", label: "普通に会ってる感じ" },
+      { id: "c", label: "なんとなくぎこちない" },
+      { id: "d", label: "会うのが少し億劫になってきた" },
+    ],
+  },
+  {
+    id: "kousai_q2", label: "Q2",
+    text: "気になっていることは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "価値観や習慣が違うなと感じた" },
+      { id: "b", label: "会話が盛り上がらないことがある" },
+      { id: "c", label: "相手の気持ちがよくわからない" },
+      { id: "d", label: "自分の気持ちがよくわからない" },
+      { id: "e", label: "このまま進んでいいのか不安" },
+      { id: "f", label: "相手のことが好きで、次のステップに進みたい" },
+      { id: "g", label: "相手が自分をどう思ってるか気になる" },
+      { id: "h", label: "特にない、順調だと思う" },
+    ],
+  },
+  {
+    id: "kousai_q3", label: "Q3",
+    text: "カウンセラーに話したいことは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "相談したいことがあるけど言葉にできない" },
+      { id: "b", label: "相談したいけど指摘されそうで怖い" },
+      { id: "c", label: "何を相談すればいいかわからない" },
+      { id: "d", label: "好きな気持ちをどう伝えるか相談したい" },
+      { id: "e", label: "特にない、自分で整理できてる" },
+    ],
+  },
+  {
+    id: "kousai_q4", label: "Q4",
+    text: "今の気持ちを、そのまま書いてみて。",
+    type: "text", required: false,
+  },
+];
+
+// ─── multiple ルート（複数人）5問 ─────────────────────────────────────────────
+const MULTIPLE_QUESTIONS: Question[] = [
+  {
+    id: "mu_q1", label: "Q1",
+    text: "今、同時に交際している人は何人？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "2人" },
+      { id: "b", label: "3〜4人" },
+      { id: "c", label: "5人以上" },
+      { id: "d", label: "数えるのも疲れた" },
+    ],
+  },
+  {
+    id: "mu_q2", label: "Q2",
+    text: "複数人の中で『この人かも』と思っている人はいる？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "いる" },
+      { id: "b", label: "まだいない" },
+      { id: "c", label: "わからない" },
+    ],
+  },
+  {
+    id: "mu_q3", label: "Q3",
+    text: "今の気持ちに近いのは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "誰かひとりに絞りたいけど決められない" },
+      { id: "b", label: "比べてしまって罪悪感がある" },
+      { id: "c", label: "同時に複数人と会い続けるのが疲れてきた" },
+      { id: "d", label: "もっと合う人がいそうで踏み切れない" },
+      { id: "e", label: "新しいお見合いも続いていて消耗している" },
+      { id: "f", label: "婚活自体しんどくなってきた" },
+      { id: "g", label: "特にしんどくはない、整理したいだけ" },
+    ],
+  },
+  {
+    id: "mu_q4", label: "Q4",
+    text: "カウンセラーに話したいことは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "少し活動のペースを落としたい" },
+      { id: "b", label: "絞り方のアドバイスがほしい" },
+      { id: "c", label: "誰かひとりに決める背中を押してほしい" },
+      { id: "d", label: "まず気持ちを聞いてもらいたい" },
+      { id: "e", label: "何を相談すればいいかわからない" },
+    ],
+  },
+  {
+    id: "mu_q5", label: "Q5",
+    text: "今の気持ちを、そのまま書いてみて。",
+    type: "text", required: false,
+  },
+];
+
 function getRouteQuestions(phase: Phase): Question[] {
   if (phase === "pre") return PRE_QUESTIONS;
   if (phase === "waiting") return WAITING_QUESTIONS;
   if (phase === "omiai") return OMIAI_QUESTIONS;
+  if (phase === "kousai") return KOUSAI_QUESTIONS;
+  if (phase === "multiple") return MULTIPLE_QUESTIONS;
   return [];
 }
 
@@ -263,14 +368,16 @@ export default function KindaNoteQuizPage() {
     }
 
     if (isActiveSub) {
-      if (activeSubSelected === "kousai" || activeSubSelected === "multiple") {
-        // kousai / multiple は後続実装予定
-        router.push(`/kinda-note/result?route=${activeSubSelected}`);
-        return;
-      }
-      // omiai ルートへ遷移
+      // omiai / kousai / multiple いずれのルートへも同じ処理
       setHistory(h => [...h, quizState]);
-      setQuizState({ phase: "omiai", qIndex: 0, answers: {}, freeTexts: {} });
+      setQuizState({ phase: activeSubSelected as Phase, qIndex: 0, answers: {}, freeTexts: {} });
+      return;
+    }
+
+    // multiple Q2「いる」選択時 → kousai ルートに切り替え
+    if (quizState.phase === "multiple" && currentQ?.id === "mu_q2" && currentAnswers[0] === "a") {
+      setHistory(h => [...h, quizState]);
+      setQuizState({ phase: "kousai", qIndex: 0, answers: {}, freeTexts: {} });
       return;
     }
 
@@ -761,6 +868,22 @@ export default function KindaNoteQuizPage() {
                       </button>
                     );
                   })}
+                </div>
+              )}
+
+              {/* multiple Q2「いる」選択時の切り替えバナー */}
+              {quizState.phase === "multiple" && currentQ.id === "mu_q2" && currentAnswers.includes("a") && (
+                <div
+                  style={{
+                    background: "#F0D8D0",
+                    borderRadius: 12,
+                    padding: "12px 16px",
+                    fontSize: 13,
+                    color: "#B8806E",
+                    marginBottom: 16,
+                  }}
+                >
+                  気持ちが動いてきたんだね。交際中の質問に切り替えるね。
                 </div>
               )}
 
