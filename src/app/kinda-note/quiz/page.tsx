@@ -3,40 +3,241 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type Route = "pre" | "waiting" | "active" | null;
+// ─── Types ──────────────────────────────────────────────────────────────────
+type Phase = "q0" | "pre" | "waiting" | "active";
 
-const OPTIONS = [
+interface Option {
+  id: string;
+  label: string;
+}
+
+interface Question {
+  id: string;
+  label: string;
+  text: string;
+  type: "single" | "multi" | "text";
+  options?: Option[];
+  required: boolean;
+}
+
+interface QuizState {
+  phase: Phase;
+  qIndex: number;
+  answers: Record<string, string[]>;
+  freeTexts: Record<string, string>;
+}
+
+// ─── Q0 選択肢 ──────────────────────────────────────────────────────────────
+const Q0_OPTIONS = [
+  { id: "pre",     label: "まだ相談所に入っていない",               sub: "入会前でも使えます" },
+  { id: "waiting", label: "入会したけど、まだお見合いが始まっていない", sub: "活動準備中の方へ" },
+  { id: "active",  label: "活動中（お見合いや交際をしている）",       sub: "今の気持ちを整理しよう" },
+];
+
+// ─── pre ルート（入会前）4問 ─────────────────────────────────────────────────
+const PRE_QUESTIONS: Question[] = [
   {
-    id: "pre" as Route,
-    label: "まだ相談所に入っていない",
-    sub: "入会前でも使えます",
+    id: "pre_q1", label: "Q1",
+    text: "相談所に興味を持ったきっかけは？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "自然な出会いがなかなかない" },
+      { id: "b", label: "真剣に活動したいと思った" },
+      { id: "c", label: "友人や知人に勧められた" },
+      { id: "d", label: "なんとなく気になって" },
+    ],
   },
   {
-    id: "waiting" as Route,
-    label: "入会したけど、まだお見合いが始まっていない",
-    sub: "活動準備中の方へ",
+    id: "pre_q2", label: "Q2",
+    text: "踏み出せていない理由は？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "料金や仕組みがよくわからない" },
+      { id: "b", label: "自分に合うカウンセラーがいるか不安" },
+      { id: "c", label: "本当に相手が見つかるか自信がない" },
+      { id: "d", label: "どんな人が活動しているか想像できない" },
+      { id: "e", label: "相談所に入ることへの抵抗感がある" },
+      { id: "f", label: "特にない、もう少し情報を集めたい" },
+    ],
   },
   {
-    id: "active" as Route,
-    label: "活動中（お見合いや交際をしている）",
-    sub: "今の気持ちを整理しよう",
+    id: "pre_q3", label: "Q3",
+    text: "一緒にいる人と、どんな時間を過ごしたい？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "日常をそのまま共有できる人がいる" },
+      { id: "b", label: "話を聞いてくれる人がそばにいる" },
+      { id: "c", label: "一緒に新しいことに挑戦したい" },
+      { id: "d", label: "特別な日も普通の日も、一緒にいたい" },
+    ],
+  },
+  {
+    id: "pre_q4", label: "Q4",
+    text: "今の気持ちを、そのまま書いてみて。",
+    type: "text", required: false,
   },
 ];
 
+// ─── waiting ルート（お見合い前）4問 ────────────────────────────────────────
+const WAITING_QUESTIONS: Question[] = [
+  {
+    id: "wait_q1", label: "Q1",
+    text: "入会してからどのくらい経つ？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "1ヶ月以内" },
+      { id: "b", label: "1〜3ヶ月" },
+      { id: "c", label: "3〜6ヶ月" },
+      { id: "d", label: "半年以上" },
+    ],
+  },
+  {
+    id: "wait_q2", label: "Q2",
+    text: "今の気持ちに近いのは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "焦りはあるけど、何をすればいいかわからない" },
+      { id: "b", label: "カウンセラーに相談したいけど言い出せない" },
+      { id: "c", label: "自分のプロフィールや条件に問題があるのか気になる" },
+      { id: "d", label: "このまま続けていいのか迷い始めている" },
+      { id: "e", label: "活動自体は続けたい、でも不安" },
+    ],
+  },
+  {
+    id: "wait_q3", label: "Q3",
+    text: "カウンセラーに相談できていない理由は？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "言い返されたり、責められそうで怖い" },
+      { id: "b", label: "自分に問題があると思うと言い出せない" },
+      { id: "c", label: "何を言えばいいかわからない" },
+      { id: "d", label: "気を遣ってしまって本音が言えない" },
+      { id: "e", label: "相談してもどうせ変わらないと思っている" },
+    ],
+  },
+  {
+    id: "wait_q4", label: "Q4",
+    text: "今の気持ちを、そのまま書いてみて。",
+    type: "text", required: false,
+  },
+];
+
+function getRouteQuestions(phase: Phase): Question[] {
+  if (phase === "pre") return PRE_QUESTIONS;
+  if (phase === "waiting") return WAITING_QUESTIONS;
+  return [];
+}
+
+// ─── Component ───────────────────────────────────────────────────────────────
 export default function KindaNoteQuizPage() {
   const router = useRouter();
-  const [selected, setSelected] = useState<Route>(null);
+
+  // Q0 の選択状態（既存実装を維持）
+  const [q0Selected, setQ0Selected] = useState<string | null>(null);
+
+  // クイズフロー状態
+  const [quizState, setQuizState] = useState<QuizState>({
+    phase: "q0",
+    qIndex: 0,
+    answers: {},
+    freeTexts: {},
+  });
+  const [history, setHistory] = useState<QuizState[]>([]);
+
+  // ボタン押し込み状態
   const [nextPressed, setNextPressed] = useState(false);
   const [backPressed, setBackPressed] = useState(false);
 
-  const canProceed = selected !== null;
+  // ─── 派生値 ──────────────────────────────────────────────────────────────
+  const isQ0 = quizState.phase === "q0";
+  const questions = isQ0 ? [] : getRouteQuestions(quizState.phase);
+  const currentQ = isQ0 ? null : questions[quizState.qIndex] ?? null;
+  const currentAnswers = currentQ ? (quizState.answers[currentQ.id] ?? []) : [];
+  const currentText = currentQ ? (quizState.freeTexts[currentQ.id] ?? "") : "";
+  const total = questions.length;
+  const current = quizState.qIndex + 1;
+  const remaining = total - current;
+  const isLastQ = !isQ0 && quizState.qIndex === total - 1;
+  const canProceed = isQ0
+    ? q0Selected !== null
+    : currentQ?.type === "text"
+      ? true
+      : currentAnswers.length > 0;
+  const btnLabel = isLastQ ? "結果を見る" : "つぎへ";
 
+  // ─── ハンドラ ─────────────────────────────────────────────────────────────
   function handleNext() {
     if (!canProceed) return;
-    // TODO: 次のステップへ（各ルートの質問画面）
-    router.push(`/kinda-note/result?route=${selected}`);
+
+    if (isQ0) {
+      if (q0Selected === "active") {
+        // active ルートは後続実装予定
+        router.push("/kinda-note/result?route=active");
+        return;
+      }
+      // pre / waiting ルートへ遷移
+      const nextState: QuizState = {
+        phase: q0Selected as Phase,
+        qIndex: 0,
+        answers: {},
+        freeTexts: {},
+      };
+      setHistory([{ phase: "q0", qIndex: 0, answers: {}, freeTexts: {} }]);
+      setQuizState(nextState);
+      return;
+    }
+
+    if (isLastQ) {
+      // 回答を保存して結果ページへ
+      try {
+        localStorage.setItem("kinda-note-answers", JSON.stringify({
+          phase: quizState.phase,
+          answers: quizState.answers,
+          freeTexts: quizState.freeTexts,
+        }));
+      } catch { /* ignore */ }
+      router.push(`/kinda-note/result?route=${quizState.phase}`);
+      return;
+    }
+
+    // 次の質問へ
+    setHistory(h => [...h, quizState]);
+    setQuizState(s => ({ ...s, qIndex: s.qIndex + 1 }));
   }
 
+  function handleBack() {
+    if (isQ0) {
+      router.push("/kinda-note");
+      return;
+    }
+    if (history.length === 0) {
+      setQuizState({ phase: "q0", qIndex: 0, answers: {}, freeTexts: {} });
+      return;
+    }
+    const prev = history[history.length - 1];
+    setHistory(h => h.slice(0, -1));
+    setQuizState(prev);
+  }
+
+  function handleOptionSelect(optionId: string) {
+    if (!currentQ) return;
+    if (currentQ.type === "single") {
+      setQuizState(s => ({ ...s, answers: { ...s.answers, [currentQ.id]: [optionId] } }));
+    } else {
+      const cur = quizState.answers[currentQ.id] ?? [];
+      const next = cur.includes(optionId)
+        ? cur.filter((id) => id !== optionId)
+        : [...cur, optionId];
+      setQuizState(s => ({ ...s, answers: { ...s.answers, [currentQ.id]: next } }));
+    }
+  }
+
+  function handleTextChange(text: string) {
+    if (!currentQ) return;
+    setQuizState(s => ({ ...s, freeTexts: { ...s.freeTexts, [currentQ.id]: text } }));
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div style={{ background: "#F5EEE6", minHeight: "100vh" }}>
 
@@ -57,7 +258,7 @@ export default function KindaNoteQuizPage() {
         }}
       >
         <button
-          onClick={() => router.push("/kinda-note")}
+          onClick={handleBack}
           aria-label="戻る"
           onMouseDown={() => setBackPressed(true)}
           onMouseUp={() => setBackPressed(false)}
@@ -102,143 +303,319 @@ export default function KindaNoteQuizPage() {
         </span>
       </div>
 
+      {/* プログレスバー（ルート質問画面のみ） */}
+      {!isQ0 && (
+        <div style={{ maxWidth: 480, margin: "0 auto", padding: "14px 24px 0" }}>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
+            <span style={{ fontSize: 11, color: "#B0A090", fontFamily: "'DM Sans', sans-serif" }}>
+              {current} / {total}
+            </span>
+            <div style={{ flex: 1 }} />
+            <span style={{ fontSize: 11, color: "#B0A090", fontFamily: "'DM Sans', sans-serif" }}>
+              {remaining > 0 ? `あと ${remaining} 問` : "最後の質問"}
+            </span>
+          </div>
+          <div style={{ height: 4, background: "#EAE0D8", borderRadius: 2, overflow: "hidden" }}>
+            <div
+              style={{
+                height: "100%",
+                background: "#D4A090",
+                borderRadius: 2,
+                width: `${(current / total) * 100}%`,
+                transition: "width 0.4s cubic-bezier(.16,1,.3,1)",
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* コンテンツ */}
-      <div
-        style={{
-          maxWidth: 480,
-          margin: "0 auto",
-          padding: "32px 24px 80px",
-        }}
-      >
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "28px 24px 80px" }}>
 
-        {/* 質問ラベル */}
-        <span
-          style={{
-            display: "inline-block",
-            fontSize: 11,
-            letterSpacing: "0.16em",
-            color: "#B0A090",
-            fontFamily: "'DM Sans', sans-serif",
-            textTransform: "uppercase",
-            marginBottom: 12,
-          }}
-        >
-          Q0
-        </span>
+        {isQ0 ? (
+          /* ─── Q0 画面（既存の実装をそのまま維持） ─── */
+          <>
+            <span
+              style={{
+                display: "inline-block",
+                fontSize: 11,
+                letterSpacing: "0.16em",
+                color: "#B0A090",
+                fontFamily: "'DM Sans', sans-serif",
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
+              Q0
+            </span>
 
-        {/* 質問文 */}
-        <h1
-          style={{
-            fontFamily: "'Shippori Mincho', serif",
-            fontSize: 22,
-            fontWeight: 500,
-            color: "#3A2E26",
-            lineHeight: 1.7,
-            marginBottom: 28,
-            letterSpacing: "0.03em",
-          }}
-        >
-          今のあなたの状態は？
-        </h1>
+            <h1
+              style={{
+                fontFamily: "'Shippori Mincho', serif",
+                fontSize: 22,
+                fontWeight: 500,
+                color: "#3A2E26",
+                lineHeight: 1.7,
+                marginBottom: 28,
+                letterSpacing: "0.03em",
+              }}
+            >
+              今のあなたの状態は？
+            </h1>
 
-        {/* 選択肢 */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
-          {OPTIONS.map((opt) => {
-            const isSelected = selected === opt.id;
-            return (
-              <button
-                key={opt.id}
-                onClick={() => setSelected(opt.id)}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.transform = "translateY(1px)";
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-                onTouchStart={(e) => {
-                  e.currentTarget.style.transform = "translateY(1px)";
-                }}
-                onTouchEnd={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  background: isSelected ? "#F0D8D0" : "#FDFAF7",
-                  border: `1.5px solid ${isSelected ? "#D4A090" : "#EAE0D8"}`,
-                  borderRadius: 14,
-                  padding: "16px 18px",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  transition:
-                    "background 0.15s, border-color 0.15s, transform 0.08s",
-                }}
-              >
-                {/* ラジオボタン風アイコン */}
-                <div
-                  style={{
-                    flexShrink: 0,
-                    width: 20,
-                    height: 20,
-                    borderRadius: "50%",
-                    border: `2px solid ${isSelected ? "#D4A090" : "#D8D0C8"}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "border-color 0.15s",
-                  }}
-                >
-                  {isSelected && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
+              {Q0_OPTIONS.map((opt) => {
+                const isSel = q0Selected === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setQ0Selected(opt.id)}
+                    onMouseDown={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
+                    onMouseUp={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                    onTouchStart={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
+                    onTouchEnd={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      background: isSel ? "#F0D8D0" : "#FDFAF7",
+                      border: `1.5px solid ${isSel ? "#D4A090" : "#EAE0D8"}`,
+                      borderRadius: 14,
+                      padding: "16px 18px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      width: "100%",
+                      transition: "background 0.15s, border-color 0.15s, transform 0.08s",
+                    }}
+                  >
                     <div
                       style={{
-                        width: 9,
-                        height: 9,
+                        flexShrink: 0,
+                        width: 20,
+                        height: 20,
                         borderRadius: "50%",
-                        background: "#D4A090",
+                        border: `2px solid ${isSel ? "#D4A090" : "#D8D0C8"}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "border-color 0.15s",
                       }}
-                    />
-                  )}
-                </div>
+                    >
+                      {isSel && (
+                        <div style={{ width: 9, height: 9, borderRadius: "50%", background: "#D4A090" }} />
+                      )}
+                    </div>
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: isSel ? "#B8806E" : "#3A2E26",
+                          lineHeight: 1.5,
+                          marginBottom: 2,
+                          transition: "color 0.15s",
+                        }}
+                      >
+                        {opt.label}
+                      </p>
+                      <p style={{ fontSize: 11, color: isSel ? "#C89880" : "#B0A090", transition: "color 0.15s" }}>
+                        {opt.sub}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          /* ─── ルート質問画面（pre / waiting） ─── */
+          currentQ && (
+            <>
+              {/* 質問エリア（装飾画像プレースホルダー付き） */}
+              <div style={{ position: "relative", marginBottom: 24 }}>
+                {/* 右上装飾（画像がなくても崩れない） */}
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 16,
+                    right: -12,
+                    width: 80,
+                    height: 80,
+                    backgroundImage: "url('/images/kinda-note-deco-1.png')",
+                    backgroundSize: "contain",
+                    backgroundRepeat: "no-repeat",
+                    opacity: 0.85,
+                    pointerEvents: "none",
+                  }}
+                />
+                {/* 左下装飾（画像がなくても崩れない） */}
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: 16,
+                    left: -12,
+                    width: 80,
+                    height: 80,
+                    backgroundImage: "url('/images/kinda-note-deco-2.png')",
+                    backgroundSize: "contain",
+                    backgroundRepeat: "no-repeat",
+                    opacity: 0.85,
+                    pointerEvents: "none",
+                  }}
+                />
 
-                {/* テキスト */}
-                <div>
-                  <p
+                <span
+                  style={{
+                    display: "inline-block",
+                    fontSize: 11,
+                    letterSpacing: "0.16em",
+                    color: "#B0A090",
+                    fontFamily: "'DM Sans', sans-serif",
+                    textTransform: "uppercase",
+                    marginBottom: 10,
+                  }}
+                >
+                  {currentQ.label}
+                </span>
+
+                <h2
+                  style={{
+                    fontFamily: "'Shippori Mincho', serif",
+                    fontSize: 20,
+                    fontWeight: 500,
+                    color: "#3A2E26",
+                    lineHeight: 1.7,
+                    marginBottom: currentQ.type === "multi" ? 8 : 0,
+                  }}
+                >
+                  {currentQ.text}
+                </h2>
+
+                {currentQ.type === "multi" && (
+                  <p style={{ fontSize: 12, color: "#B0A090" }}>複数選んでもOK</p>
+                )}
+              </div>
+
+              {/* 選択肢ボタン */}
+              {currentQ.options && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+                  {currentQ.options.map((opt) => {
+                    const isSel = currentAnswers.includes(opt.id);
+                    return (
+                      <button
+                        key={opt.id}
+                        onClick={() => handleOptionSelect(opt.id)}
+                        onMouseDown={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
+                        onMouseUp={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                        onTouchStart={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
+                        onTouchEnd={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          background: isSel ? "#F0D8D0" : "#FDFAF7",
+                          border: `1.5px solid ${isSel ? "#D4A090" : "#EAE0D8"}`,
+                          borderRadius: 14,
+                          padding: "14px 18px",
+                          cursor: "pointer",
+                          textAlign: "left",
+                          width: "100%",
+                          color: isSel ? "#B8806E" : "#3A2E26",
+                          fontSize: 14,
+                          lineHeight: 1.6,
+                          transition: "background 0.15s, border-color 0.15s, color 0.15s, transform 0.08s",
+                        }}
+                      >
+                        {currentQ.type === "single" ? (
+                          /* ラジオアイコン */
+                          <div
+                            style={{
+                              flexShrink: 0,
+                              width: 18,
+                              height: 18,
+                              borderRadius: "50%",
+                              border: `2px solid ${isSel ? "#D4A090" : "#D8D0C8"}`,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {isSel && (
+                              <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#D4A090" }} />
+                            )}
+                          </div>
+                        ) : (
+                          /* チェックボックスアイコン */
+                          <div
+                            style={{
+                              flexShrink: 0,
+                              width: 18,
+                              height: 18,
+                              borderRadius: 4,
+                              border: `2px solid ${isSel ? "#D4A090" : "#D8D0C8"}`,
+                              background: isSel ? "#D4A090" : "transparent",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {isSel && (
+                              <svg width="11" height="8" viewBox="0 0 11 8" fill="none">
+                                <path
+                                  d="M1 4L4 7L10 1"
+                                  stroke="white"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            )}
+                          </div>
+                        )}
+                        <span>{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* テキスト入力（自由記述） */}
+              {currentQ.type === "text" && (
+                <div style={{ marginBottom: 28 }}>
+                  <textarea
+                    value={currentText}
+                    onChange={(e) => handleTextChange(e.target.value)}
+                    placeholder="なんとなくでいい、今どんな感じ？"
                     style={{
+                      width: "100%",
+                      minHeight: 120,
+                      background: "#FDFAF7",
+                      border: "1.5px solid #EAE0D8",
+                      borderRadius: 14,
+                      padding: "14px 16px",
                       fontSize: 14,
-                      fontWeight: 500,
-                      color: isSelected ? "#B8806E" : "#3A2E26",
-                      lineHeight: 1.5,
-                      marginBottom: 2,
-                      transition: "color 0.15s",
+                      color: "#3A2E26",
+                      lineHeight: 1.8,
+                      resize: "vertical",
+                      outline: "none",
+                      fontFamily: "inherit",
                     }}
-                  >
-                    {opt.label}
-                  </p>
-                  <p
-                    style={{
-                      fontSize: 11,
-                      color: isSelected ? "#C89880" : "#B0A090",
-                      transition: "color 0.15s",
-                    }}
-                  >
-                    {opt.sub}
+                  />
+                  <p style={{ fontSize: 11, color: "#B0A090", marginTop: 6 }}>
+                    書かなくてもOKです
                   </p>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+              )}
+            </>
+          )
+        )}
 
-        {/* ナビゲーションボタン */}
+        {/* ─── ナビゲーションボタン（全画面共通） ─── */}
         <div style={{ display: "flex", gap: 10 }}>
-          {/* もどる */}
           <button
-            onClick={() => router.push("/kinda-note")}
+            onClick={handleBack}
             onMouseDown={() => setBackPressed(true)}
             onMouseUp={() => setBackPressed(false)}
             onMouseLeave={() => setBackPressed(false)}
@@ -260,7 +637,6 @@ export default function KindaNoteQuizPage() {
             もどる
           </button>
 
-          {/* つぎへ */}
           <button
             onClick={handleNext}
             disabled={!canProceed}
@@ -279,16 +655,12 @@ export default function KindaNoteQuizPage() {
               fontWeight: 500,
               color: canProceed ? "white" : "#B0A090",
               cursor: canProceed ? "pointer" : "not-allowed",
-              boxShadow:
-                canProceed && !nextPressed
-                  ? "0 4px 0 #B8806E"
-                  : "none",
-              transform:
-                nextPressed && canProceed ? "translateY(2px)" : "translateY(0)",
+              boxShadow: canProceed && !nextPressed ? "0 4px 0 #B8806E" : "none",
+              transform: nextPressed && canProceed ? "translateY(2px)" : "translateY(0)",
               transition: "transform 0.08s, box-shadow 0.08s",
             }}
           >
-            つぎへ
+            {btnLabel}
           </button>
         </div>
 
