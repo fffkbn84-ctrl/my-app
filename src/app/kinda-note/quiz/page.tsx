@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-type Phase = "q0" | "pre" | "waiting" | "active";
+type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai";
 
 interface Option {
   id: string;
@@ -32,6 +32,13 @@ const Q0_OPTIONS = [
   { id: "pre",     label: "まだ相談所に入っていない",               sub: "入会前でも使えます" },
   { id: "waiting", label: "入会したけど、まだお見合いが始まっていない", sub: "活動準備中の方へ" },
   { id: "active",  label: "活動中（お見合いや交際をしている）",       sub: "今の気持ちを整理しよう" },
+];
+
+// ─── active_sub 選択肢 ───────────────────────────────────────────────────────
+const ACTIVE_SUB_OPTIONS = [
+  { id: "omiai",    label: "お見合いをした（初めて会った）",    sub: "お見合いの気持ちを整理しよう" },
+  { id: "kousai",   label: "交際中（2回以上会っている）",       sub: "今の関係について整理する" },
+  { id: "multiple", label: "複数人と同時に迷っている",           sub: "迷いや気持ちを整理する" },
 ];
 
 // ─── pre ルート（入会前）4問 ─────────────────────────────────────────────────
@@ -122,9 +129,69 @@ const WAITING_QUESTIONS: Question[] = [
   },
 ];
 
+// ─── omiai ルート（お見合い済み）5問 ─────────────────────────────────────────
+const OMIAI_QUESTIONS: Question[] = [
+  {
+    id: "omiai_q1", label: "Q1",
+    text: "お見合い、どうだった？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "楽しかった" },
+      { id: "b", label: "普通だった" },
+      { id: "c", label: "少し疲れた" },
+      { id: "d", label: "よくわからなかった" },
+    ],
+  },
+  {
+    id: "omiai_q2", label: "Q2",
+    text: "また会いたいと思う？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "また会いたい" },
+      { id: "b", label: "もう一度なら会えそう" },
+      { id: "c", label: "迷っている" },
+      { id: "d", label: "あまり会いたくない" },
+    ],
+  },
+  {
+    id: "omiai_q3", label: "Q3",
+    text: "会ってみてどんな印象だった？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "思ってたより話しやすかった" },
+      { id: "b", label: "見た目が思ってたのと少し違った" },
+      { id: "c", label: "会話がすごく盛り上がった" },
+      { id: "d", label: "沈黙が気になった" },
+      { id: "e", label: "ドキドキした瞬間があった" },
+      { id: "f", label: "ときめきはなかったけど悪くなかった" },
+      { id: "g", label: "なんとなく違う気がした" },
+      { id: "h", label: "なんか良さそうだった" },
+      { id: "i", label: "特に印象に残らなかった" },
+    ],
+  },
+  {
+    id: "omiai_q4", label: "Q4",
+    text: "カウンセラーに話したいことは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "相談したいことがあるけど言葉にできない" },
+      { id: "b", label: "相談したいけど指摘されそうで怖い" },
+      { id: "c", label: "何を相談すればいいかわからない" },
+      { id: "d", label: "また会いたい気持ちを後押ししてほしい" },
+      { id: "e", label: "特にない、自分で整理できてる" },
+    ],
+  },
+  {
+    id: "omiai_q5", label: "Q5",
+    text: "今の気持ちを、そのまま書いてみて。",
+    type: "text", required: false,
+  },
+];
+
 function getRouteQuestions(phase: Phase): Question[] {
   if (phase === "pre") return PRE_QUESTIONS;
   if (phase === "waiting") return WAITING_QUESTIONS;
+  if (phase === "omiai") return OMIAI_QUESTIONS;
   return [];
 }
 
@@ -144,25 +211,32 @@ export default function KindaNoteQuizPage() {
   });
   const [history, setHistory] = useState<QuizState[]>([]);
 
+  // active_sub の選択状態
+  const [activeSubSelected, setActiveSubSelected] = useState<string | null>(null);
+
   // ボタン押し込み状態
   const [nextPressed, setNextPressed] = useState(false);
   const [backPressed, setBackPressed] = useState(false);
 
   // ─── 派生値 ──────────────────────────────────────────────────────────────
   const isQ0 = quizState.phase === "q0";
-  const questions = isQ0 ? [] : getRouteQuestions(quizState.phase);
-  const currentQ = isQ0 ? null : questions[quizState.qIndex] ?? null;
+  const isActiveSub = quizState.phase === "active_sub";
+  const isSelectionScreen = isQ0 || isActiveSub;
+  const questions = isSelectionScreen ? [] : getRouteQuestions(quizState.phase);
+  const currentQ = isSelectionScreen ? null : questions[quizState.qIndex] ?? null;
   const currentAnswers = currentQ ? (quizState.answers[currentQ.id] ?? []) : [];
   const currentText = currentQ ? (quizState.freeTexts[currentQ.id] ?? "") : "";
   const total = questions.length;
   const current = quizState.qIndex + 1;
   const remaining = total - current;
-  const isLastQ = !isQ0 && quizState.qIndex === total - 1;
+  const isLastQ = !isSelectionScreen && quizState.qIndex === total - 1;
   const canProceed = isQ0
     ? q0Selected !== null
-    : currentQ?.type === "text"
-      ? true
-      : currentAnswers.length > 0;
+    : isActiveSub
+      ? activeSubSelected !== null
+      : currentQ?.type === "text"
+        ? true
+        : currentAnswers.length > 0;
   const btnLabel = isLastQ ? "結果を見る" : "つぎへ";
 
   // ─── ハンドラ ─────────────────────────────────────────────────────────────
@@ -171,8 +245,9 @@ export default function KindaNoteQuizPage() {
 
     if (isQ0) {
       if (q0Selected === "active") {
-        // active ルートは後続実装予定
-        router.push("/kinda-note/result?route=active");
+        // active → active_sub サブ選択画面へ
+        setHistory([{ phase: "q0", qIndex: 0, answers: {}, freeTexts: {} }]);
+        setQuizState({ phase: "active_sub", qIndex: 0, answers: {}, freeTexts: {} });
         return;
       }
       // pre / waiting ルートへ遷移
@@ -184,6 +259,18 @@ export default function KindaNoteQuizPage() {
       };
       setHistory([{ phase: "q0", qIndex: 0, answers: {}, freeTexts: {} }]);
       setQuizState(nextState);
+      return;
+    }
+
+    if (isActiveSub) {
+      if (activeSubSelected === "kousai" || activeSubSelected === "multiple") {
+        // kousai / multiple は後続実装予定
+        router.push(`/kinda-note/result?route=${activeSubSelected}`);
+        return;
+      }
+      // omiai ルートへ遷移
+      setHistory(h => [...h, quizState]);
+      setQuizState({ phase: "omiai", qIndex: 0, answers: {}, freeTexts: {} });
       return;
     }
 
@@ -304,7 +391,7 @@ export default function KindaNoteQuizPage() {
       </div>
 
       {/* プログレスバー（ルート質問画面のみ） */}
-      {!isQ0 && (
+      {!isSelectionScreen && (
         <div style={{ maxWidth: 480, margin: "0 auto", padding: "14px 24px 0" }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontSize: 11, color: "#B0A090", fontFamily: "'DM Sans', sans-serif" }}>
@@ -428,8 +515,104 @@ export default function KindaNoteQuizPage() {
               })}
             </div>
           </>
+        ) : isActiveSub ? (
+          /* ─── active_sub 画面（活動中のサブ選択） ─── */
+          <>
+            <span
+              style={{
+                display: "inline-block",
+                fontSize: 11,
+                letterSpacing: "0.16em",
+                color: "#B0A090",
+                fontFamily: "'DM Sans', sans-serif",
+                textTransform: "uppercase",
+                marginBottom: 12,
+              }}
+            >
+              Q0-2
+            </span>
+
+            <h1
+              style={{
+                fontFamily: "'Shippori Mincho', serif",
+                fontSize: 22,
+                fontWeight: 500,
+                color: "#3A2E26",
+                lineHeight: 1.7,
+                marginBottom: 28,
+                letterSpacing: "0.03em",
+              }}
+            >
+              今の状況を教えてください。
+            </h1>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
+              {ACTIVE_SUB_OPTIONS.map((opt) => {
+                const isSel = activeSubSelected === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setActiveSubSelected(opt.id)}
+                    onMouseDown={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
+                    onMouseUp={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                    onTouchStart={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
+                    onTouchEnd={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 14,
+                      background: isSel ? "#F0D8D0" : "#FDFAF7",
+                      border: `1.5px solid ${isSel ? "#D4A090" : "#EAE0D8"}`,
+                      borderRadius: 14,
+                      padding: "16px 18px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      width: "100%",
+                      transition: "background 0.15s, border-color 0.15s, transform 0.08s",
+                    }}
+                  >
+                    <div
+                      style={{
+                        flexShrink: 0,
+                        width: 20,
+                        height: 20,
+                        borderRadius: "50%",
+                        border: `2px solid ${isSel ? "#D4A090" : "#D8D0C8"}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "border-color 0.15s",
+                      }}
+                    >
+                      {isSel && (
+                        <div style={{ width: 9, height: 9, borderRadius: "50%", background: "#D4A090" }} />
+                      )}
+                    </div>
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 500,
+                          color: isSel ? "#B8806E" : "#3A2E26",
+                          lineHeight: 1.5,
+                          marginBottom: 2,
+                          transition: "color 0.15s",
+                        }}
+                      >
+                        {opt.label}
+                      </p>
+                      <p style={{ fontSize: 11, color: isSel ? "#C89880" : "#B0A090", transition: "color 0.15s" }}>
+                        {opt.sub}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
         ) : (
-          /* ─── ルート質問画面（pre / waiting） ─── */
+          /* ─── ルート質問画面（pre / waiting / omiai） ─── */
           currentQ && (
             <>
               {/* 質問エリア（装飾画像プレースホルダー付き） */}
