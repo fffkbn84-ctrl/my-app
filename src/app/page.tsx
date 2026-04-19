@@ -3,153 +3,184 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
-import PlacesSection from "@/components/home/PlacesSection";
-import EpisodesSection from "@/components/home/EpisodesSection";
-import ColumnsSection from "@/components/home/ColumnsSection";
-import KindaSearchBar from "@/components/home/KindaSearchBar";
 
 /* ────────────────────────────────────────────────────────────
-   ヒーロー 目次カード定義
+   定数（1箇所変更で全体に反映）
 ──────────────────────────────────────────────────────────── */
-const heroNavItems = [
+const HERO_TAGLINE = "なんとなく、いいふたりへ";
+const HERO_IMAGE_SRC = "/images/hero-couple-new.png.PNG";
+
+/* ────────────────────────────────────────────────────────────
+   「もう決まっている方へ」カード定義
+──────────────────────────────────────────────────────────── */
+const DECIDED_CARDS = [
   {
-    label: "担当者",
-    href: "#counselors",
-    cls: "hnc-1",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <circle cx="13" cy="9" r="5" stroke="white" strokeWidth="1.3" fill="none" opacity=".8" />
-        <path d="M2 24c0-6.075 4.925-11 11-11s11 4.925 11 11" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity=".6" />
-      </svg>
-    ),
+    key: "type",
+    href: "/kinda-type",
+    kindaLabel: "type",
+    desc: "診断で、合うカウンセラーが見つかる",
+    img: "/images/section-kinda-type.png.PNG",
+    alt: "Kinda type",
   },
   {
-    label: "お店",
-    href: "#places",
-    cls: "hnc-2",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <path d="M4 10h18l-1.5 12H5.5L4 10z" stroke="white" strokeWidth="1.3" fill="none" strokeLinejoin="round" opacity=".8" />
-        <path d="M16 14h2a2 2 0 010 4h-2" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity=".6" />
-        <path d="M9 7c0-1.5 2-1.5 2-3M13 7c0-1.5 2-1.5 2-3" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".4" />
-      </svg>
-    ),
+    key: "talk",
+    href: "/kinda-talk",
+    kindaLabel: "talk",
+    desc: "カウンセラー・相談所を見る",
+    img: "/images/section-counseling.png",
+    alt: "Kinda talk",
   },
   {
-    label: "エピソード",
-    href: "#episodes",
-    cls: "hnc-3",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <path d="M13 3l2 6h6L16 13l2 6-5-3.5L8 19l2-6-5-4h6z" stroke="white" strokeWidth="1.3" fill="none" strokeLinejoin="round" opacity=".8" />
-      </svg>
-    ),
+    key: "meet",
+    href: "/kinda-meet",
+    kindaLabel: "meet",
+    desc: "お見合いやデートに使いやすい場所を見る",
+    img: "/images/section-cafe-pastel.png.PNG",
+    alt: "Kinda meet",
   },
   {
-    label: "診断",
-    href: "/diagnosis",
-    cls: "hnc-4",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="1.3" fill="none" opacity=".7" />
-        <path d="M13 7v2M13 17v2M7 13h2M17 13h2" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-        <path d="M16 10l-4 3-2 4 4-3 2-4z" stroke="white" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(255,255,255,.15)" />
-      </svg>
-    ),
-  },
-  {
-    label: "コラム",
-    href: "/columns",
-    cls: "hnc-5",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <rect x="4" y="5" width="18" height="16" rx="2" stroke="white" strokeWidth="1.3" fill="none" opacity=".7" />
-        <path d="M8 10h10M8 14h7" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-      </svg>
-    ),
-  },
-  {
-    label: "サービス",
-    href: "/about",
-    cls: "hnc-6",
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <circle cx="13" cy="13" r="9" stroke="white" strokeWidth="1.3" fill="none" opacity=".7" />
-        <path d="M13 9v5l3 2" stroke="white" strokeWidth="1.2" strokeLinecap="round" opacity=".6" />
-      </svg>
-    ),
+    key: "glow",
+    href: "/kinda-glow",
+    kindaLabel: "glow",
+    desc: "美容を整える",
+    img: "/images/section-beauty-n2.png.jpg",
+    alt: "Kinda glow",
   },
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
-   モックデータ（後でSupabaseに差し替え）
+   Kinda story — ダミーデータ
 ──────────────────────────────────────────────────────────── */
-const featuredCounselors = [
+const STORIES = [
   {
     id: "1",
-    name: "田中 美咲",
-    agency: "ブライダルサロン エクラン",
-    area: "東京・渋谷",
-    access: "渋谷駅 徒歩3分",
-    parking: false,
-    specialties: ["初婚", "30代", "キャリア女性"],
-    rating: 4.9,
-    reviewCount: 47,
-    yearsExp: 8,
-    intro: "一人ひとりの価値観を大切に、焦らず本当のご縁を一緒に探します。",
-    monthlyFee: "29,800",
-    campaign: { label: "春の婚活キャンペーン", detail: "4/30までのご入会で入会金10%オフ" },
+    quote:
+      "「最初はなんとなく始めたんです。決めなきゃって焦ってた時に、カウンセラーさんが『急がなくていい』って言ってくれて、肩の力が抜けました」",
+    author: "A.M さん",
+    age: "32歳",
+    status: "6ヶ月で成婚",
   },
   {
     id: "2",
-    name: "佐藤 あかり",
-    agency: "マリーナ結婚相談所",
-    area: "東京・銀座",
-    access: "銀座駅 徒歩2分",
-    parking: false,
-    specialties: ["再婚", "バツあり", "子持ち"],
-    rating: 4.8,
-    reviewCount: 32,
-    yearsExp: 12,
-    intro: "再婚・シングルの方に寄り添い、新しい幸せへの第一歩をサポートします。",
-    monthlyFee: "24,800",
-    campaign: null,
+    quote:
+      "「お見合いの後にいつも迷ってしまって、でもそれを責めずに聞いてくれる人がいました。だから続けられていると思います」",
+    author: "K.T さん",
+    age: "28歳",
+    status: "交際3ヶ月",
   },
-  {
-    id: "3",
-    name: "山本 花子",
-    agency: "ローズブライダル",
-    area: "神奈川・横浜",
-    access: "みなとみらい駅 徒歩5分",
-    parking: true,
-    specialties: ["20代", "初婚", "地方在住"],
-    rating: 4.7,
-    reviewCount: 58,
-    yearsExp: 5,
-    intro: "婚活が初めての方でも安心。一緒に理想のパートナーを見つけましょう。",
-    monthlyFee: "19,800",
-    campaign: { label: "20代限定キャンペーン", detail: "初回面談後ご入会で入会金半額" },
-  },
-];
-
+] as const;
 
 /* ────────────────────────────────────────────────────────────
-   StarRating コンポーネント
+   コラム・インタビュー — ダミーデータ
 ──────────────────────────────────────────────────────────── */
-function StarRating({ rating }: { rating: number }) {
+const ARTICLES = [
+  {
+    id: "tanaka-miki-interview",
+    category: "INTERVIEW #01",
+    title: "「30年間、私が見てきた婚活の本当のこと」",
+    author: "田中 美紀さん",
+    affiliation: "ブライダルハウス東京",
+    slug: "tanaka-miki-interview",
+  },
+  {
+    id: "omiai-chigau-kanjita-toki",
+    category: "COLUMN #01",
+    title: "「お見合いで『違う』と感じた時、どうすべきか」",
+    author: null,
+    affiliation: null,
+    slug: "omiai-chigau-kanjita-toki",
+  },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   共通 SVG — 右矢印
+──────────────────────────────────────────────────────────── */
+function ArrowRight({ color = "currentColor" }: { color?: string }) {
   return (
-    <div className="flex items-center gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <svg
-          key={star}
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill={star <= rating ? "var(--accent)" : "var(--light)"}
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+      <path
+        d="M2 7h10M7 2l5 5-5 5"
+        stroke={color}
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   共通 — Ghost button
+──────────────────────────────────────────────────────────── */
+function GhostButton({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "12px 28px",
+        border: "1px solid var(--light)",
+        borderRadius: 999,
+        fontFamily: "var(--font-sans)",
+        fontSize: 13,
+        color: "var(--mid)",
+        textDecoration: "none",
+        transition: "border-color .2s, color .2s",
+      }}
+    >
+      {children}
+    </Link>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   共通 — セクション区切り + ラベル
+──────────────────────────────────────────────────────────── */
+function SectionLabel({ label, en }: { label: string; en?: string }) {
+  return (
+    <div style={{ textAlign: "center", marginBottom: 32 }}>
+      <div
+        style={{
+          width: 40,
+          height: 1,
+          background: "var(--light)",
+          margin: "0 auto 20px",
+        }}
+      />
+      <p
+        style={{
+          fontFamily: "var(--font-mincho)",
+          fontSize: 20,
+          color: "var(--ink)",
+          letterSpacing: ".05em",
+          marginBottom: en ? 6 : 0,
+        }}
+      >
+        {label}
+      </p>
+      {en && (
+        <p
+          style={{
+            fontFamily: "'DM Serif Display', serif",
+            fontStyle: "italic",
+            fontSize: 14,
+            color: "var(--accent)",
+            letterSpacing: ".04em",
+          }}
         >
-          <path d="M6 1l1.5 3h3.2L8 6.2l.9 3.3L6 7.8l-2.9 1.7.9-3.3L1.3 4h3.2z" />
-        </svg>
-      ))}
+          {en}
+        </p>
+      )}
+      <div
+        style={{
+          width: 40,
+          height: 1,
+          background: "var(--light)",
+          margin: "20px auto 0",
+        }}
+      />
     </div>
   );
 }
@@ -161,992 +192,563 @@ export default function HomePage() {
   return (
     <>
       <Header />
+      <RevealObserver />
 
-      <main>
-        {/* スクロールrevealオブザーバー（クライアント） */}
-        <RevealObserver />
-
-        {/* ═══════════════════════════════════════════════════
-            ① HERO — ミニチュア世界観
-        ═══════════════════════════════════════════════════ */}
-        <section className="hero-kinda-new">
-
-          {/* フルブリード背景画像 */}
-          <Image
-            src="/images/hero-couple-new.png.PNG"
-            alt=""
-            fill
-            priority
-            className="hkn-fill-img"
-            style={{ objectFit: 'cover', objectPosition: 'center 15%' }}
-          />
-
-          {/* グラデーションオーバーレイ */}
-          <div className="hkn-overlay" aria-hidden="true" />
-
-          {/* Kinda note タップゾーン */}
-          <Link
-            href="/kinda-note"
-            className="kinda-tap-zone"
-            style={{ left: "8%", top: "15%", width: "28%", height: "35%" }}
-            aria-label="Kinda note — 気持ちを整理する"
-          >
-            <div className="kinda-tap-dot" />
-            <div className="kinda-tap-label">Kinda note</div>
-          </Link>
-
-          {/* Kinda type タップゾーン */}
-          <Link
-            href="/kinda-type"
-            className="kinda-tap-zone"
-            style={{ right: "8%", top: "15%", width: "28%", height: "35%" }}
-            aria-label="Kinda type — 合うカウンセラーを見つける"
-          >
-            <div className="kinda-tap-dot" />
-            <div className="kinda-tap-label">Kinda type</div>
-          </Link>
-
-          {/* コンテンツ */}
-          <div className="hkn-inner">
-
-            {/* ロゴ行: Kinda 大 + ふたりへ 小 */}
-            <div className="hkn-logo">
-              <span className="hkn-logo-main">Kinda</span>
-              <span className="hkn-logo-ja">ふたりへ</span>
-            </div>
-
-            {/* サブテキスト */}
-            <p className="hkn-sub">なんとなく、でいい。一緒に探そう。</p>
-
-            {/* 検索バー */}
-            <KindaSearchBar />
-
-          </div>
-
-        </section>
+      <main style={{ fontFamily: "var(--font-sans)" }}>
 
         {/* ═══════════════════════════════════════════════════
-            ② Kinda カテゴリセクション
+            A — ヒーロー
         ═══════════════════════════════════════════════════ */}
-        <section className="kinda-cats-sec">
-          <div className="kinda-cats-inner">
-            {/* ヘッダー */}
-            <div className="kinda-cats-hd reveal">
-              <div className="sec-label">WHAT&apos;S YOUR KINDA</div>
-              <h2 className="kinda-cats-ttl">
-                あなたの「<em>Kinda</em>」はどれですか？
-              </h2>
-            </div>
-
-            {/* 6枚カードグリッド（note・type + talk・meet・change・story） */}
-            <div className="kinda-cats-grid">
-
-              {/* Kinda note — 気持ちを整理する（パステル紫） */}
-              <Link href="/kinda-note" className="kinda-cat-card kc-purple reveal">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-kinda-note.png.PNG"
-                    alt="Kinda note"
-                    width={400}
-                    height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", transform: "scale(1.3)", transformOrigin: "center 30%" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> note</div>
-                  <p className="kinda-cat-desc">今の気持ちを整理する</p>
-                  <span className="kinda-cat-btn kc-btn-purple">
-                    はじめる
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-
-              {/* Kinda type — カウンセラーを見つける（ミント） */}
-              <Link href="/kinda-type" className="kinda-cat-card kc-mint reveal reveal-delay-1">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-kinda-type.png.PNG"
-                    alt="Kinda type"
-                    width={400}
-                    height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> type</div>
-                  <p className="kinda-cat-desc">合うカウンセラーを見つける</p>
-                  <span className="kinda-cat-btn kc-btn-mint">
-                    診断する
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-
-              {/* Kinda talk — カウンセラー・相談所（パステル黄） */}
-              <Link href="/search" className="kinda-cat-card kc-yellow reveal">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-counseling.png"
-                    alt="カウンセラーとの面談"
-                    width={400}
-                    height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> talk</div>
-                  <p className="kinda-cat-desc">カウンセラー・相談所</p>
-                  <span className="kinda-cat-btn kc-btn-yellow">
-                    もっと見てみる
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-
-              {/* Kinda meet — お見合い・デートカフェ（パステルピンク） */}
-              <Link href="/shops" className="kinda-cat-card kc-pink reveal reveal-delay-1">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-cafe-pastel.png.PNG"
-                    alt="お見合い・デートカフェ"
-                    width={400}
-                    height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 35%" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> meet</div>
-                  <p className="kinda-cat-desc">お見合い・デートに使えるカフェ</p>
-                  <span className="kinda-cat-btn kc-btn-pink">
-                    探してみる
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-
-              {/* Kinda change — 美容室・エステ（パステル青） */}
-              <Link href="/shops" className="kinda-cat-card kc-blue reveal reveal-delay-2">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-beauty-n2.png.jpg"
-                    alt="美容室・エステ"
-                    width={400}
-                    height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> change</div>
-                  <p className="kinda-cat-desc">美容室・エステ</p>
-                  <span className="kinda-cat-btn kc-btn-blue">
-                    探してみる
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-
-              {/* Kinda story — みんなの体験談（パステル緑） */}
-              <Link href="/episodes" className="kinda-cat-card kc-green reveal reveal-delay-3">
-                <div className="kinda-cat-img-area">
-                  <Image
-                    src="/images/section-story-new.png.PNG"
-                    alt="みんなの体験談"
-                    width={400}
-                    height={300}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </div>
-                <div className="kinda-cat-body">
-                  <div className="kinda-cat-name"><em>Kinda</em> story</div>
-                  <p className="kinda-cat-desc">みんなの体験談</p>
-                  <span className="kinda-cat-btn kc-btn-green">
-                    読んでみる
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </span>
-                </div>
-              </Link>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ─── 旧ヒーロー（削除済み） ─── */}
-        <section style={{ display: "none" }}>
-          {/* グリッドパターン背景 */}
-          <div className="hero-grid" />
-
-          {/* 左カラム */}
-          <div className="hero-left">
-            <div className="hero-tag">marriage counseling, reimagined</div>
-            <h1 className="hero-h1">
-              <span style={{ display: "block" }}>担当者を自分で選んで</span>
-              <span style={{ display: "block" }}>予約までここで完結</span>
-              <span className="hero-h1-en">The counselor comes first.</span>
-            </h1>
-            <p className="hero-sub">
-              面談した人だけが書ける口コミと、担当者の顔・経歴が最初から見えるサービスです。<br /><br />
-              お見合いやデート、婚活準備のための美容のお店の情報も、ここで。<br />出会いから、ずっと先まで一緒にいます。
-            </p>
-            <div className="hero-actions">
-              <Link href="/search" className="btn btn-dark">カウンセラーを探す</Link>
-              <Link href="/shops" className="btn btn-outline">ふたりのお店を探す</Link>
-            </div>
-            <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", marginTop: "12px" }}>✓ 無料で使えます・登録不要</p>
-
-            {/* 診断カード */}
-            <Link
-              href="/diagnosis"
-              className="diagnosis-hero-card"
-            >
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ flexShrink: 0 }}>
-                <circle cx="16" cy="16" r="13" stroke="#C8A97A" strokeWidth="1.3" fill="rgba(200,169,122,.08)" />
-                <path d="M16 8v2M16 22v2M8 16h2M22 16h2" stroke="#C8A97A" strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-                <path d="M20 12l-5 4-3 5 5-4 3-5z" stroke="#C8A97A" strokeWidth="1.3" strokeLinejoin="round" fill="rgba(200,169,122,.2)" />
-              </svg>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".1em", marginBottom: 4 }}>
-                  サクッと1~3分 · 無料
-                </div>
-                <div style={{ fontFamily: "Shippori Mincho, serif", fontSize: 16, color: "var(--black)", letterSpacing: ".05em" }}>
-                  あなたに合う担当タイプ、<span className="diagnosis-br" />婚活スタイルを診断する
-                </div>
-              </div>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M4 10h12M10 4l6 6-6 6" stroke="#C8A97A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-          </div>
-
-          {/* 右カラム — フローティングカード */}
-          <div className="hero-right">
-            {/* fc-main: カウンセラーレビューカード */}
-            <div className="fc fc-main">
-              <div className="fc-p">
-                <div className="fc-av">
-                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                    <circle cx="11" cy="8" r="4" fill="#C8A97A" opacity=".6" />
-                    <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="#C8A97A" strokeWidth="1.2" fill="none" opacity=".4" />
-                  </svg>
-                </div>
-                <div>
-                  <div className="fc-nm">田中 美紀 カウンセラー</div>
-                  <div className="fc-or">ブライダルハウス東京 · 銀座</div>
-                </div>
-                <div className="fc-vf">✓ 面談済み</div>
-              </div>
-              <div className="fc-stars">★★★★★</div>
-              <p className="fc-txt">最初の相談で「この人なら任せられる」と思えました。押しつけがましくなく、でもちゃんと考えてくれている。</p>
-            </div>
-
-            {/* fc-stat: 統計カード */}
-            <div className="fc fc-stat">
-              <div className="fc-num">98%</div>
-              <div className="fc-lbl">予約完了率</div>
-              <div className="fc-bar">
-                <div className="fc-fill" />
-              </div>
-            </div>
-
-            {/* fc-scene: 婚活シーンカード */}
-            <div className="fc fc-scene">
-              <div className="scene-title">婚活の流れ、ぜんぶ</div>
-              <div className="scene-tags">
-                <span className="sc-tag hi">婚活準備（美容）</span>
-                <span className="sc-tag hi">お見合いの場所</span>
-                <span className="sc-tag">デート1回目・2回目</span>
-                <span className="sc-tag">プロポーズ</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
-            MARQUEE — futarive-v4.html 準拠
-        ═══════════════════════════════════════════════════ */}
-        <div className="marquee-wrap">
-          <div className="mi">
-            {/* 2セット並べてシームレスループ */}
-            {[0, 1].map((i) => (
-              <span key={i} style={{ display: "contents" }}>
-                <span className="mqi">面談済み口コミだけ<span className="mqd">·</span></span>
-                <span className="mqi">カウンセラーの顔が見える<span className="mqd">·</span></span>
-                <span className="mqi">予約まで完結<span className="mqd">·</span></span>
-                <span className="mqi">関係を育てている2人のために<span className="mqd">·</span></span>
-                <span className="mqi">デートにおすすめのお店<span className="mqd">·</span></span>
-                <span className="mqi">プロポーズの場所を探す<span className="mqd">·</span></span>
-                <span className="mqi">成婚後もふたりへ<span className="mqd">·</span></span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════
-            ③ 信頼の数字セクション
-        ═══════════════════════════════════════════════════ */}
-        <div className="stats-sec">
-          {[
-            { num: "247",   lbl: "掲載カウンセラー" },
-            { num: "1,840", lbl: "累計口コミ数" },
-            { num: "98%",   lbl: "面談後認証率" },
-            { num: "無料",  lbl: "ご利用料金" },
-          ].map((s) => (
-            <div key={s.lbl} className="stat-cell">
-              <div className="stat-num">{s.num}</div>
-              <div className="stat-lbl">{s.lbl}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* JOURNEY — 非表示（新デザインでは削除） */}
-        <section className="journey-sec" style={{ display: "none" }}>
-          <div className="journey-inner">
-            <div className="sec-label reveal">what we offer</div>
-            <h2 className="sec-h reveal">
-              ふたりの旅程、ぜんぶ。
-              <span className="sec-h-jp">出会いの準備から、ずっと先まで</span>
-            </h2>
-            <p className="sec-sub reveal">
-              今は相談所とデート・婚活準備のお店から。ふたりの関係が育つにつれて、使える場所が広がっていきます。
-            </p>
-
-            {/* Phase タイムライン */}
-            <div className="phase-row reveal">
-              <div className="phase-item">
-                <div className="phase-stage">Phase 1 — 今すぐ</div>
-                <div className="phase-name">出会いの準備</div>
-                <div className="phase-cats">
-                  <div className="phase-cat launch">結婚相談所・カウンセラー</div>
-                  <div className="phase-cat launch">婚活向け美容室</div>
-                  <div className="phase-cat launch">ネイル・眉毛サロン</div>
-                  <div className="phase-cat launch">フォトスタジオ</div>
-                </div>
-              </div>
-              <div className="phase-item">
-                <div className="phase-stage">Phase 2 — 近日</div>
-                <div className="phase-name">出会い・デート</div>
-                <div className="phase-cats">
-                  <div className="phase-cat">お見合いのカフェ・ラウンジ</div>
-                  <div className="phase-cat">デート1回目・2回目のお店</div>
-                  <div className="phase-cat">ディナー・夜景スポット</div>
-                  <div className="phase-cat">ドライブコース</div>
-                </div>
-                <div className="phase-soon">coming soon</div>
-              </div>
-              <div className="phase-item">
-                <div className="phase-stage">Phase 3 — 将来</div>
-                <div className="phase-name">大切な時</div>
-                <div className="phase-cats">
-                  <div className="phase-cat">プロポーズスポット</div>
-                  <div className="phase-cat">婚約指輪</div>
-                  <div className="phase-cat">前撮り・フォト婚</div>
-                  <div className="phase-cat">ふたりの旅行先</div>
-                </div>
-                <div className="phase-soon">coming soon</div>
-              </div>
-              <div className="phase-item">
-                <div className="phase-stage">Phase 4 — その先も</div>
-                <div className="phase-name">共に生きる</div>
-                <div className="phase-cats">
-                  <div className="phase-cat">新居・インテリア</div>
-                  <div className="phase-cat">夫婦でのレストラン</div>
-                  <div className="phase-cat">記念日の宿</div>
-                  <div className="phase-cat">ふたりの旅</div>
-                </div>
-                <div className="phase-soon">coming soon</div>
-              </div>
-            </div>
-
-            {/* カテゴリカード 6枚 */}
-            <div className="cat-grid reveal">
-
-              {/* ct-1: 相談所・カウンセラー */}
-              <Link href="#counselors" className="cat-card">
-                <div className="cat-thumb ct-1">
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <circle cx="28" cy="20" r="10" stroke="#C8A97A" strokeWidth="1.5" fill="rgba(200,169,122,.1)" />
-                    <path d="M8 48c0-11.046 8.954-20 20-20s20 8.954 20 20" stroke="#C8A97A" strokeWidth="1.5" strokeLinecap="round" fill="none" opacity=".5" />
-                  </svg>
-                </div>
-                <div className="cat-body">
-                  <div className="cat-type">相談所・カウンセラー</div>
-                  <div className="cat-name">担当者を見て、選ぶ</div>
-                  <div className="cat-desc">面談した人だけが書けるレビューで、カウンセラーの人となりがわかる。</div>
-                  <div className="cat-review-note crn-strict">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M5 1L1 2.5v3c0 2.5 1.71 4.84 4 5.5 2.29-.66 4-3 4-5.5v-3L5 1z" stroke="#C8A97A" strokeWidth=".9" fill="rgba(200,169,122,.1)" />
-                    </svg>
-                    面談完了者のみ口コミ可
-                  </div>
-                </div>
-              </Link>
-
-              {/* ct-2: カフェ・レストラン */}
-              <Link href="#places" className="cat-card">
-                <div className="cat-thumb ct-2">
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <path d="M12 20h28l-3 22H15L12 20z" stroke="#7A9E87" strokeWidth="1.5" fill="rgba(122,158,135,.1)" strokeLinejoin="round" />
-                    <path d="M40 24h4a4 4 0 010 8h-4" stroke="#7A9E87" strokeWidth="1.5" strokeLinecap="round" />
-                    <path d="M20 14c0-3 4-3 4-6M28 14c0-3 4-3 4-6" stroke="#7A9E87" strokeWidth="1.3" strokeLinecap="round" opacity=".5" />
-                  </svg>
-                </div>
-                <div className="cat-body">
-                  <div className="cat-type">カフェ・レストラン</div>
-                  <div className="cat-name">お見合い・デートのお店</div>
-                  <div className="cat-desc">お見合いの場所選びから、デート1回目・2回目・記念日まで。シーンに合ったお店を口コミで選べる。</div>
-                  <div className="cat-review-note crn-open">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5l3 3 4-4" stroke="#7A9E87" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    利用後なら誰でも口コミ可
-                  </div>
-                </div>
-              </Link>
-
-              {/* ct-3: ヘア・ネイル・眉 */}
-              <Link href="#places" className="cat-card">
-                <div className="cat-thumb ct-3">
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <circle cx="24" cy="22" r="9" stroke="#B8906A" strokeWidth="1.5" fill="rgba(184,144,106,.1)" />
-                    <circle cx="24" cy="22" r="4" stroke="#B8906A" strokeWidth="1.5" fill="none" opacity=".4" />
-                    <path d="M30 28l10 10" stroke="#B8906A" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <div className="cat-body">
-                  <div className="cat-type">ヘア・ネイル・眉</div>
-                  <div className="cat-name">婚活準備のビューティ</div>
-                  <div className="cat-desc">「婚活で使いたい」と伝えやすいサロンだけを掲載。プロに整えてもらって自信を持って。</div>
-                  <div className="cat-review-note crn-open">
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5l3 3 4-4" stroke="#7A9E87" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    利用後なら誰でも口コミ可
-                  </div>
-                </div>
-              </Link>
-
-              {/* ct-4: プロポーズ */}
-              <div className="cat-card">
-                <div className="cat-thumb ct-4">
-                  <div className="cat-soon-overlay">
-                    <span className="cat-soon-label">coming soon</span>
-                  </div>
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <path d="M28 10l3 8h8l-6.5 5 2.5 8L28 26l-7 5 2.5-8L17 18h8z" stroke="#6B8FBF" strokeWidth="1.5" fill="rgba(107,143,191,.1)" strokeLinejoin="round" />
-                    <circle cx="28" cy="34" r="8" stroke="#6B8FBF" strokeWidth="1.5" fill="none" opacity=".4" />
-                    <path d="M24 40l8-8" stroke="#6B8FBF" strokeWidth="1.3" strokeLinecap="round" opacity=".5" />
-                  </svg>
-                </div>
-                <div className="cat-body">
-                  <div className="cat-type">プロポーズ（準備中）</div>
-                  <div className="cat-name">最高の瞬間の場所を</div>
-                  <div className="cat-desc">プロポーズにおすすめのレストラン・ホテル・スポット。あの瞬間を完璧にしたい。</div>
-                  <div className="cat-review-note crn-soon">coming soon</div>
-                </div>
-              </div>
-
-              {/* ct-5: 旅行・おでかけ（coming soon overlay） */}
-              <div className="cat-card">
-                <div className="cat-thumb ct-5">
-                  <div className="cat-soon-overlay">
-                    <span className="cat-soon-label">coming soon</span>
-                  </div>
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <path d="M12 36L28 14l16 22H12z" stroke="#C4877A" strokeWidth="1.5" fill="rgba(196,135,122,.1)" strokeLinejoin="round" />
-                    <circle cx="28" cy="40" r="6" stroke="#C4877A" strokeWidth="1.5" fill="none" opacity=".5" />
-                  </svg>
-                </div>
-                <div className="cat-body">
-                  <div className="cat-type">旅行・おでかけ（準備中）</div>
-                  <div className="cat-name">ふたりで行く旅先</div>
-                  <div className="cat-desc">カップル・婚約中・新婚旅行。関係の節目ごとに使えるおすすめの旅先。</div>
-                  <div className="cat-review-note crn-soon">coming soon</div>
-                </div>
-              </div>
-
-              {/* ct-6: 記念日・アニバーサリー（coming soon overlay） */}
-              <div className="cat-card">
-                <div className="cat-thumb ct-6">
-                  <div className="cat-soon-overlay">
-                    <span className="cat-soon-label">coming soon</span>
-                  </div>
-                  <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
-                    <path d="M14 44V22l14-12 14 12v22H34V32H22v12H14z" stroke="#8FA88A" strokeWidth="1.5" fill="rgba(143,168,138,.1)" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <div className="cat-body">
-                  <div className="cat-type">記念日・アニバーサリー（準備中）</div>
-                  <div className="cat-name">大切な日をもっと特別に</div>
-                  <div className="cat-desc">付き合った記念日、結婚記念日。ふたりの節目を彩るレストランや宿。</div>
-                  <div className="cat-review-note crn-soon">coming soon</div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
-            ④ カウンセラーセクション — Photo background
-        ═══════════════════════════════════════════════════ */}
-        <section id="counselors" className="counselors-photo-sec">
-          {/* 半透明オーバーレイ */}
-          <div className="counselors-photo-overlay" />
-
-          <div className="counselors-photo-inner">
-            {/* セクションヘッダー */}
-            <div className="counselor-inner">
-              <div className="sec-label reveal">FIND YOUR COUNSELOR</div>
-              <h2 className="sec-h reveal reveal-delay-1">
-                担当者を見て、選ぶ。
-                <span className="sec-h-jp">
-                  面談した人だけが書けるレビューで、カウンセラーの人となりがわかります
-                </span>
-              </h2>
-            </div>
-
-          {/* 横スクロールトラック */}
+        <section
+          style={{
+            padding: "32px 24px 48px",
+            background: "#FEFCFA",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+          }}
+        >
+          {/* 画像エリア */}
           <div
-            className="counselor-scroll"
-            style={{ overflowX: "auto", scrollbarWidth: "none", cursor: "grab", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+            style={{
+              width: "100%",
+              maxWidth: 480,
+              aspectRatio: "4/5",
+              borderRadius: 20,
+              overflow: "hidden",
+              boxShadow: "0 8px 40px rgba(0,0,0,.08)",
+              marginBottom: 32,
+              position: "relative",
+              background: "#F5EEE6",
+            }}
           >
-            <div style={{ display: "flex", gap: 16, width: "max-content" }}>
-              {featuredCounselors.map((counselor, i) => {
-                const avatarThemes = [
-                  { bg: "linear-gradient(135deg,#F5E8D8,#EDD8C0)", color: "#C8A97A" },
-                  { bg: "linear-gradient(135deg,#D8E8F5,#C0D4ED)", color: "#6B8FBF" },
-                  { bg: "linear-gradient(135deg,#D8F5E8,#C0EDD4)", color: "#7A9E87" },
-                ];
-                const av = avatarThemes[i % avatarThemes.length];
-
-                return (
-                  <Link
-                    key={counselor.id}
-                    href={`/counselors/${counselor.id}`}
-                    className="group hover:-translate-y-[7px] hover:shadow-[0_28px_72px_rgba(0,0,0,.1)]"
-                    style={{
-                      width: 262,
-                      flexShrink: 0,
-                      background: "white",
-                      borderRadius: 14,
-                      border: "1px solid var(--light)",
-                      overflow: "hidden",
-                      transition: "all .4s cubic-bezier(.16,1,.3,1)",
-                      display: "block",
-                    }}
-                  >
-                    {/* カード上部：アバター＋基本情報 */}
-                    <div
-                      style={{
-                        padding: "22px 20px 16px",
-                        borderBottom: "1px solid var(--pale)",
-                        display: "flex",
-                        gap: 12,
-                      }}
-                    >
-                      {/* SVGアバター */}
-                      <div
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: "50%",
-                          background: av.bg,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                          <circle cx="12" cy="9" r="5" fill={av.color} opacity=".6" />
-                          <path
-                            d="M3 22c0-4.971 4.029-9 9-9s9 4.029 9 9"
-                            stroke={av.color}
-                            strokeWidth="1.2"
-                            fill="none"
-                            opacity=".4"
-                          />
-                        </svg>
-                      </div>
-
-                      {/* 名前・エリア・相談所・経験年数 */}
-                      <div>
-                        <div style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2, letterSpacing: ".06em" }}>
-                          {counselor.area}
-                        </div>
-                        <div
-                          style={{
-                            fontFamily: "var(--font-sans)",
-                            fontWeight: 400,
-                            fontSize: 15,
-                            marginBottom: 3,
-                            color: "var(--ink)",
-                          }}
-                        >
-                          {counselor.name}
-                        </div>
-                        <div style={{ fontSize: 11, color: "var(--muted)" }}>
-                          {counselor.agency}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 9,
-                            color: "var(--accent)",
-                            background: "rgba(200,169,122,0.12)",
-                            padding: "2px 9px",
-                            borderRadius: 20,
-                            display: "inline-block",
-                            marginTop: 5,
-                          }}
-                        >
-                          経験 {counselor.yearsExp}年
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* カード下部：タグ・引用・評価・CTA */}
-                    <div style={{ padding: "16px 20px 20px" }}>
-                      {/* 専門タグ */}
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
-                        {counselor.specialties.map((s) => (
-                          <span
-                            key={s}
-                            style={{
-                              fontSize: 10,
-                              padding: "3px 9px",
-                              borderRadius: 20,
-                              border: "1px solid var(--light)",
-                              color: "var(--mid)",
-                            }}
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* 自己紹介引用 */}
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: "var(--ink)",
-                          lineHeight: 1.9,
-                          padding: "10px 12px",
-                          background: "var(--pale)",
-                          borderRadius: 6,
-                          borderLeft: "2px solid var(--accent)",
-                          marginBottom: 12,
-                        }}
-                      >
-                        「{counselor.intro}」
-                      </div>
-
-                      {/* アクセス情報 */}
-                      <div
-                        style={{
-                          padding: "9px 11px",
-                          background: "var(--pale)",
-                          borderRadius: 8,
-                          marginBottom: 12,
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 5,
-                        }}
-                      >
-                        {/* 駅・徒歩 */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "var(--mid)" }}>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <rect x="1" y="2" width="10" height="7" rx="1.5" stroke="var(--mid)" strokeWidth="1"/>
-                            <path d="M3 9v1.5M9 9v1.5" stroke="var(--mid)" strokeWidth="1" strokeLinecap="round"/>
-                            <path d="M1 5.5h10" stroke="var(--mid)" strokeWidth=".8" opacity=".5"/>
-                            <circle cx="3.5" cy="7" r=".8" fill="var(--mid)"/>
-                            <circle cx="8.5" cy="7" r=".8" fill="var(--mid)"/>
-                          </svg>
-                          {counselor.access}
-                        </div>
-                        {/* 駐車場 */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, color: "var(--mid)" }}>
-                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                            <rect x="1" y="1" width="10" height="10" rx="2" stroke="var(--mid)" strokeWidth="1"/>
-                            <path d="M4.5 8.5V3.5h2a1.5 1.5 0 010 3H4.5" stroke="var(--mid)" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {counselor.parking ? "駐車場あり" : "駐車場なし"}
-                        </div>
-                      </div>
-
-                      {/* 月会費 */}
-                      <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 10 }}>
-                        <span style={{ fontSize: 10, color: "var(--muted)" }}>月会費</span>
-                        <span
-                          style={{
-                            fontFamily: "var(--font-serif)",
-                            fontSize: 18,
-                            color: "var(--ink)",
-                            letterSpacing: "-.02em",
-                          }}
-                        >
-                          ¥{counselor.monthlyFee}
-                        </span>
-                        <span style={{ fontSize: 10, color: "var(--muted)" }}>〜/月</span>
-                      </div>
-
-                      {/* キャンペーンバナー */}
-                      {counselor.campaign && (
-                        <div
-                          style={{
-                            background: "rgba(200,169,122,0.1)",
-                            border: "1px solid rgba(200,169,122,0.3)",
-                            borderRadius: 8,
-                            padding: "8px 11px",
-                            marginBottom: 12,
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                          }}
-                        >
-                          <div style={{ fontSize: 9, color: "var(--accent)", fontWeight: 600, letterSpacing: ".06em" }}>
-                            {counselor.campaign.label}
-                          </div>
-                          <div style={{ fontSize: 10, color: "var(--ink)" }}>{counselor.campaign.detail}</div>
-                        </div>
-                      )}
-
-                      {/* 評価・口コミ数 */}
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: 12,
-                        }}
-                      >
-                        <span style={{ color: "var(--accent)", fontSize: 11, letterSpacing: ".5px" }}>
-                          {"★".repeat(Math.round(counselor.rating))}
-                        </span>
-                        <span style={{ fontSize: 10, color: "var(--muted)" }}>
-                          口コミ {counselor.reviewCount}件
-                        </span>
-                      </div>
-
-                      {/* 予約ボタン */}
-                      <button
-                        className="hover:!bg-[var(--accent)]"
-                        style={{
-                          width: "100%",
-                          padding: 11,
-                          background: "var(--black)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: 8,
-                          fontFamily: "var(--font-sans)",
-                          fontSize: 10,
-                          letterSpacing: ".16em",
-                          textTransform: "uppercase",
-                          cursor: "pointer",
-                          transition: "all .3s",
-                        }}
-                      >
-                        面談を予約する
-                      </button>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
+            <Image
+              src={HERO_IMAGE_SRC}
+              alt=""
+              fill
+              priority
+              style={{ objectFit: "cover", objectPosition: "center 15%" }}
+            />
           </div>
 
-          {/* もっと見てみるボタン */}
-          <div style={{ textAlign: "center", marginTop: 32 }}>
-            <Link
-              href="/search"
-              className="btn btn-outline reveal reveal-delay-2"
-              style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-            >
-              もっと見てみる
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-          </div>
-          </div>{/* /counselors-photo-inner */}
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
-            ⑤ 口コミピックアップ
-        ═══════════════════════════════════════════════════ */}
-        <div className="reviews-pickup">
-          <div className="reviews-pickup-inner">
-            <div className="sec-label reveal">REAL REVIEWS</div>
-            <h2 className="sec-h reveal reveal-delay-1">
-              面談した人だけが書ける
-              <span className="sec-h-jp">すべての口コミは面談完了後に認証されます</span>
-            </h2>
-
-            <div className="review-card-list">
-              {/* 口コミ 1 */}
-              <div className="review-card-item reveal reveal-delay-2">
-                <div className="review-card-head">
-                  <div className="review-av-wrap">
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                      <circle cx="10" cy="7" r="4" fill="var(--accent)" opacity=".5" />
-                      <path d="M2 18c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="var(--accent)" strokeWidth="1.2" fill="none" opacity=".35" />
-                    </svg>
-                  </div>
-                  <div className="review-meta">
-                    <div className="review-name">S.K さん（32歳）</div>
-                    <div className="review-counselor-line">田中 美紀 カウンセラー</div>
-                  </div>
-                  <div className="review-date-stars">
-                    <span className="review-date">2025年11月</span>
-                    <span className="review-stars">★★★★★</span>
-                  </div>
-                </div>
-                <p className="review-body">
-                  「初回面談で『入会を急かされないかな』と心配でしたが、まず話を聞いてもらえて安心しました。自分でも気づいていなかった理想のパートナー像が見えてきた気がします。」
-                </p>
-                <div className="review-verified-badge">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M2 5l3 3 4-4" stroke="var(--forest)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  面談完了済み
-                </div>
-              </div>
-
-              {/* 口コミ 2 */}
-              <div className="review-card-item reveal reveal-delay-3">
-                <div className="review-card-head">
-                  <div className="review-av-wrap">
-                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                      <circle cx="10" cy="7" r="4" fill="var(--accent)" opacity=".5" />
-                      <path d="M2 18c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="var(--accent)" strokeWidth="1.2" fill="none" opacity=".35" />
-                    </svg>
-                  </div>
-                  <div className="review-meta">
-                    <div className="review-name">M.T さん（28歳）</div>
-                    <div className="review-counselor-line">佐藤 綾乃 カウンセラー</div>
-                  </div>
-                  <div className="review-date-stars">
-                    <span className="review-date">2025年10月</span>
-                    <span className="review-stars">★★★★★</span>
-                  </div>
-                </div>
-                <p className="review-body">
-                  「口コミを読んで予約したのですが、本当に口コミ通りの方でした。仕事との両立について親身に考えてくれる姿勢が伝わってきました。」
-                </p>
-                <div className="review-verified-badge">
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M2 5l3 3 4-4" stroke="var(--forest)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  面談完了済み
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════════════
-            ⑥ ふたりへが選んだお店 — Photo background (dark)
-        ═══════════════════════════════════════════════════ */}
-        <PlacesSection />
-
-        {/* ═══════════════════════════════════════════════════
-            ⑦ 成婚エピソード（既存を維持）
-        ═══════════════════════════════════════════════════ */}
-        <EpisodesSection />
-
-        {/* ═══════════════════════════════════════════════════
-            ⑧ OUR BELIEF — Photo background
-        ═══════════════════════════════════════════════════ */}
-        <section className="belief-sec">
-          <div className="belief-overlay" />
-          <div className="belief-inner">
-            <div className="vision-eyebrow reveal">our belief</div>
-            <p className="vision-main-copy reveal reveal-delay-1">
-              選ぶ自由と、頑張れる場所を。
-            </p>
-            <p className="vision-sub reveal reveal-delay-2">
-              世の中のレビューサイトは、<br />
-              関係が出来上がった人たちのためにある<br />
-              <br />
-              <span style={{ color: "var(--accent)" }}>ふたりへ</span>は　今まさに関係を作っている<br />
-              あなたたちのためにある<br />
-              <br />
-              不安なまま相談所に飛び込まなくていい<br />
-              お見合いのカフェも　婚活前の美容も<br />
-              デートのお店も　迷わない<br />
-              そのそばに、ずっといます
-            </p>
-            <div className="vision-btn-wrap reveal reveal-delay-3">
-              <Link href="/about" className="vision-btn">
-                このサービスについてもっと知る
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
-            ⑨ コラム（既存を維持）
-        ═══════════════════════════════════════════════════ */}
-        <ColumnsSection />
-
-        {/* ═══════════════════════════════════════════════════
-            ⑩ CTA — Photo background
-        ═══════════════════════════════════════════════════ */}
-        <section className="cta-sec">
-          {/* 暗オーバーレイ */}
-          <div className="cta-overlay" />
-          <div className="cta-inner">
-            <div className="cta-ey reveal">GET STARTED</div>
-            <h2
-              className="reveal reveal-delay-1"
+          {/* ロゴ行: Kinda 大 + ふたりへ 小 */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "baseline",
+              gap: 10,
+              marginBottom: 16,
+            }}
+          >
+            <span
               style={{
                 fontFamily: "var(--font-mincho)",
-                fontSize: "clamp(20px,4vw,24px)",
-                color: "white",
-                lineHeight: 1.6,
-                letterSpacing: ".06em",
-                marginBottom: 32,
+                fontWeight: 500,
+                fontSize: "clamp(44px, 12vw, 56px)",
+                color: "var(--ink)",
+                letterSpacing: ".04em",
+                lineHeight: 1,
               }}
             >
-              あなたの婚活を、孤独にしない。
-            </h2>
-            <div className="cta-btns reveal reveal-delay-2">
+              Kinda
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontWeight: 400,
+                fontSize: "clamp(14px, 4vw, 18px)",
+                color: "var(--mid)",
+                letterSpacing: ".1em",
+              }}
+            >
+              ふたりへ
+            </span>
+          </div>
+
+          {/* タグライン */}
+          <p
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontStyle: "italic",
+              fontSize: "clamp(16px, 4.5vw, 20px)",
+              color: "var(--ink)",
+              lineHeight: 1.8,
+              textAlign: "center",
+              marginBottom: 32,
+              letterSpacing: ".02em",
+            }}
+          >
+            {HERO_TAGLINE}
+          </p>
+
+          {/* 主CTA */}
+          <Link
+            href="/kinda-note"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "18px 48px",
+              background: "var(--accent)",
+              color: "white",
+              borderRadius: 999,
+              fontFamily: "var(--font-sans)",
+              fontSize: 15,
+              letterSpacing: ".04em",
+              textDecoration: "none",
+              marginBottom: 14,
+              transition: "opacity .2s",
+            }}
+          >
+            Kinda note ではじめる
+            <ArrowRight color="white" />
+          </Link>
+
+          {/* 補足テキスト */}
+          <p
+            style={{
+              fontSize: 12,
+              color: "var(--muted)",
+              textAlign: "center",
+              letterSpacing: ".05em",
+            }}
+          >
+            1分で終わる・会員登録なし
+          </p>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            B — もう決まっている方へ
+        ═══════════════════════════════════════════════════ */}
+        <section
+          style={{
+            padding: "48px 24px 64px",
+            background: "#FEFCFA",
+          }}
+        >
+          {/* ラベル */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              marginBottom: 28,
+            }}
+          >
+            <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--muted)",
+                letterSpacing: ".16em",
+                whiteSpace: "nowrap",
+                fontFamily: "var(--font-sans)",
+              }}
+            >
+              もう決まっている方へ
+            </p>
+            <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
+          </div>
+
+          {/* 2×2 グリッド */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 12,
+              maxWidth: 560,
+              margin: "0 auto",
+            }}
+          >
+            {DECIDED_CARDS.map((card) => (
               <Link
-                href="/search"
-                className="btn"
-                style={{ background: "white", color: "var(--black)", borderRadius: "50px" }}
-              >
-                カウンセラーを探す
-              </Link>
-              <Link
-                href="/shops"
-                className="btn"
+                key={card.key}
+                href={card.href}
                 style={{
-                  border: "1px solid rgba(255,255,255,.3)",
-                  background: "transparent",
-                  color: "rgba(255,255,255,.7)",
-                  borderRadius: "50px",
+                  display: "block",
+                  background: "var(--white)",
+                  borderRadius: 16,
+                  border: "1px solid var(--light)",
+                  overflow: "hidden",
+                  boxShadow: "0 4px 16px rgba(200,169,122,.08)",
+                  textDecoration: "none",
+                  transition: "transform .3s, box-shadow .3s",
                 }}
               >
-                ふたりのお店を探す
+                {/* 画像エリア */}
+                <div
+                  style={{
+                    aspectRatio: "1/1",
+                    background: "#F5EEE6",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  <Image
+                    src={card.img}
+                    alt={card.alt}
+                    fill
+                    style={{ objectFit: "cover" }}
+                  />
+                </div>
+
+                {/* テキストエリア */}
+                <div style={{ padding: "12px 14px 16px" }}>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      fontSize: 16,
+                      color: "var(--ink)",
+                      marginBottom: 6,
+                      letterSpacing: ".03em",
+                    }}
+                  >
+                    Kinda{" "}
+                    <em
+                      style={{
+                        fontStyle: "italic",
+                        color: "var(--accent)",
+                        fontFamily: "'DM Serif Display', serif",
+                      }}
+                    >
+                      {card.kindaLabel}
+                    </em>
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "var(--mid)",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {card.desc}
+                  </p>
+                </div>
               </Link>
-            </div>
+            ))}
           </div>
         </section>
+
+        {/* ═══════════════════════════════════════════════════
+            C — ふたりの物語（Kinda story 抜粋）
+        ═══════════════════════════════════════════════════ */}
+        <section
+          style={{
+            padding: "64px 24px",
+            background: "#FEFCFA",
+          }}
+        >
+          <SectionLabel label="ふたりの物語" en="Kinda story" />
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              maxWidth: 560,
+              margin: "0 auto 32px",
+            }}
+          >
+            {STORIES.map((story) => (
+              <Link
+                key={story.id}
+                href={`/kinda-story/${story.id}`}
+                style={{
+                  display: "block",
+                  background: "var(--white)",
+                  borderRadius: 20,
+                  padding: 24,
+                  border: "1px solid var(--light)",
+                  textDecoration: "none",
+                  transition: "transform .3s, box-shadow .3s",
+                }}
+              >
+                {/* 画像プレースホルダー */}
+                <div
+                  style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 12,
+                    background: "#F5EEE6",
+                    border: "1px solid #EAE0D8",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: 16,
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"
+                      stroke="var(--accent)"
+                      strokeWidth="1.3"
+                      fill="rgba(212,160,144,.12)"
+                    />
+                  </svg>
+                </div>
+
+                {/* 引用文 */}
+                <p
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontStyle: "italic",
+                    fontSize: 17,
+                    color: "var(--ink)",
+                    lineHeight: 1.9,
+                    marginBottom: 14,
+                  }}
+                >
+                  {story.quote}
+                </p>
+
+                {/* 著者情報 */}
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: "var(--mid)",
+                    marginBottom: 12,
+                  }}
+                >
+                  — {story.author}（{story.age}）&nbsp;&nbsp;{story.status}
+                </p>
+
+                {/* 続きを読む */}
+                <div
+                  style={{
+                    textAlign: "right",
+                    fontSize: 11,
+                    color: "var(--accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: 4,
+                  }}
+                >
+                  続きを読む
+                  <ArrowRight color="var(--accent)" />
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* もっと読む */}
+          <div style={{ textAlign: "center" }}>
+            <GhostButton href="/kinda-story">
+              もっと読む
+              <ArrowRight />
+            </GhostButton>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            C' — ふたりを見守る人たち（取材・コラム）
+        ═══════════════════════════════════════════════════ */}
+        <section
+          style={{
+            padding: "64px 24px",
+            background: "#FEFCFA",
+          }}
+        >
+          <SectionLabel label="ふたりを見守る人たち" en="interview & column" />
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              maxWidth: 560,
+              margin: "0 auto 32px",
+            }}
+          >
+            {ARTICLES.map((article) => (
+              <Link
+                key={article.id}
+                href={`/column/${article.slug}`}
+                style={{
+                  display: "block",
+                  background: "var(--white)",
+                  borderRadius: 20,
+                  padding: 24,
+                  border: "1px solid var(--light)",
+                  textDecoration: "none",
+                  transition: "transform .3s, box-shadow .3s",
+                }}
+              >
+                {/* 画像プレースホルダー */}
+                <div
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: 12,
+                    background: "#F5EEE6",
+                    border: "1px solid #EAE0D8",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: 16,
+                    flexShrink: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10,
+                      color: "#B0A090",
+                      fontFamily: "monospace",
+                      textAlign: "center",
+                      padding: "0 8px",
+                    }}
+                  >
+                    [image: {article.slug}]
+                  </span>
+                </div>
+
+                {/* カテゴリタグ */}
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "var(--muted)",
+                    letterSpacing: ".14em",
+                    textTransform: "uppercase",
+                    marginBottom: 10,
+                  }}
+                >
+                  {article.category}
+                </p>
+
+                {/* タイトル */}
+                <p
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontStyle: "italic",
+                    fontSize: 17,
+                    color: "var(--ink)",
+                    lineHeight: 1.7,
+                    marginBottom: 10,
+                  }}
+                >
+                  {article.title}
+                </p>
+
+                {/* 著者（インタビュー記事のみ） */}
+                {article.author && (
+                  <p style={{ fontSize: 12, color: "var(--mid)", marginBottom: 12 }}>
+                    {article.author}
+                    {article.affiliation && `　${article.affiliation}`}
+                  </p>
+                )}
+
+                {/* 読む */}
+                <div
+                  style={{
+                    textAlign: "right",
+                    fontSize: 11,
+                    color: "var(--accent)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    gap: 4,
+                  }}
+                >
+                  読む
+                  <ArrowRight color="var(--accent)" />
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* コラム一覧へ */}
+          <div style={{ textAlign: "center" }}>
+            <GhostButton href="/column">
+              コラム一覧へ
+              <ArrowRight />
+            </GhostButton>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            D — ふたりへについて（Brand Belief）
+        ═══════════════════════════════════════════════════ */}
+        <section
+          style={{
+            padding: "64px 24px",
+            background: "#FAF5EE",
+          }}
+        >
+          {/* ラベル */}
+          <p
+            style={{
+              fontSize: 11,
+              color: "var(--muted)",
+              letterSpacing: ".2em",
+              textTransform: "uppercase",
+              textAlign: "center",
+              marginBottom: 40,
+              fontFamily: "var(--font-sans)",
+            }}
+          >
+            about
+          </p>
+
+          <div
+            style={{
+              maxWidth: 480,
+              margin: "0 auto",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontStyle: "italic",
+                fontSize: 18,
+                color: "var(--ink)",
+                lineHeight: 2.0,
+                marginBottom: 24,
+              }}
+            >
+              <em>既存のレビューサイトは、</em>
+              <br />
+              <em>関係が成立した人のためにある。</em>
+            </p>
+
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontStyle: "italic",
+                fontSize: 18,
+                color: "var(--ink)",
+                lineHeight: 2.0,
+                marginBottom: 24,
+              }}
+            >
+              Kinda ふたりへは、
+              <br />
+              <em>今まさに関係を築いている</em>
+              <br />
+              <em>あなたたちのためにある。</em>
+            </p>
+
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontStyle: "italic",
+                fontSize: 18,
+                color: "var(--ink)",
+                lineHeight: 2.0,
+              }}
+            >
+              不安なまま相談所に
+              <br />
+              飛び込まなくていい。
+              <br />
+              入会前から交際後まで
+              <br />
+              あなたのそばにいます。
+            </p>
+          </div>
+        </section>
+
       </main>
 
       <Footer />

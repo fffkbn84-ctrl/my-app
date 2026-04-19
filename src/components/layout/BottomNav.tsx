@@ -25,43 +25,44 @@ const navItems = [
     ),
   },
   {
-    label: "担当検索",
-    href: "/search",
+    label: "診断",
+    href: "/kinda-note",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="10" cy="8" r="4" stroke="currentColor" strokeWidth="1.4" />
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.4" />
         <path
-          d="M2 20c0-4.418 3.582-8 8-8"
+          d="M12 7v2M12 15v2M7 12h2M15 12h2"
           stroke="currentColor"
-          strokeWidth="1.4"
+          strokeWidth="1.3"
           strokeLinecap="round"
         />
-        <circle cx="18" cy="18" r="4" stroke="currentColor" strokeWidth="1.4" />
         <path
-          d="M21 21l-2-2"
+          d="M14.5 9.5l-3 2.5-1.5 3 3-2.5 1.5-3z"
           stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
         />
       </svg>
     ),
   },
   {
-    label: "お店検索",
-    href: "/shops",
+    label: "相談所",
+    href: "/kinda-talk",
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.4" />
         <path
-          d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+          d="M2 19c0-3.866 3.134-7 7-7"
           stroke="currentColor"
           strokeWidth="1.4"
-          strokeLinejoin="round"
+          strokeLinecap="round"
         />
+        <circle cx="17" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.3" />
         <path
-          d="M9 22V12h6v10"
+          d="M13 19c0-2.761 1.791-5 4-5s4 2.239 4 5"
           stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinejoin="round"
+          strokeWidth="1.3"
+          strokeLinecap="round"
         />
       </svg>
     ),

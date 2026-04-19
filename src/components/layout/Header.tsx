@@ -1,17 +1,49 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import SearchModal from "@/components/search/SearchModal";
 
 export default function Header() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-light">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* ロゴ: Kinda 大 + ふたりへ 横 */}
-        <Link href="/" className="flex items-baseline gap-2 leading-none">
+    <>
+      <header
+        style={{
+          position: "sticky",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          height: 56,
+          background: "rgba(254,252,250,.95)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(0,0,0,.06)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 24px",
+        }}
+      >
+        {/* Logo */}
+        <Link
+          href="/"
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 6,
+            textDecoration: "none",
+          }}
+        >
           <span
             style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: "22px",
-              color: "var(--black)",
-              letterSpacing: "-.01em",
+              fontFamily: "var(--font-mincho)",
+              fontWeight: 500,
+              fontSize: 20,
+              color: "var(--ink)",
+              letterSpacing: ".06em",
               lineHeight: 1,
             }}
           >
@@ -21,8 +53,8 @@ export default function Header() {
             style={{
               fontFamily: "var(--font-mincho)",
               fontWeight: 400,
-              fontSize: "10px",
-              color: "var(--muted)",
+              fontSize: 12,
+              color: "var(--mid)",
               letterSpacing: ".08em",
               whiteSpace: "nowrap",
             }}
@@ -31,60 +63,35 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* ナビゲーション */}
-        <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/counselors"
-            className="text-sm text-mid hover:text-ink transition-colors duration-200 tracking-wide"
-          >
-            カウンセラーを探す
-          </Link>
-          <Link
-            href="/shops"
-            className="text-sm text-mid hover:text-ink transition-colors duration-200 tracking-wide"
-          >
-            お店を探す
-          </Link>
-          <Link
-            href="/columns"
-            className="text-sm text-mid hover:text-ink transition-colors duration-200 tracking-wide"
-          >
-            コラム
-          </Link>
-          <Link
-            href="/episodes"
-            className="text-sm text-mid hover:text-ink transition-colors duration-200 tracking-wide"
-          >
-            成婚エピソード
-          </Link>
-        </nav>
+        {/* Search icon button */}
+        <button
+          onClick={() => setModalOpen(true)}
+          aria-label="さがす"
+          style={{
+            width: 44,
+            height: 44,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--mid)",
+            borderRadius: "50%",
+            transition: "color .2s",
+            WebkitTapHighlightColor: "transparent",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--mid)")}
+        >
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+            <circle cx="9.5" cy="9.5" r="6.5" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M14.5 14.5L19 19" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      </header>
 
-        {/* CTA */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/counselors"
-            className="hidden md:inline-flex items-center px-5 py-2 text-sm bg-accent text-white rounded-full hover:opacity-90 transition-opacity duration-200 tracking-wide"
-          >
-            無料で相談する
-          </Link>
-          {/* モバイルメニューボタン */}
-          <button
-            className="md:hidden p-2 text-ink"
-            aria-label="メニューを開く"
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <path d="M3 5h14M3 10h14M3 15h14" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </header>
+      <SearchModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+    </>
   );
 }
