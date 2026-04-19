@@ -305,7 +305,7 @@ export default function HomePage() {
                 transition: "opacity .2s",
               }}
             >
-              Kinda note で今のあなたが わかる
+              Kinda note で今のあなたがわかる
               <ArrowRight color="white" />
             </Link>
 
