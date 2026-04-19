@@ -197,124 +197,130 @@ export default function HomePage() {
       <main style={{ fontFamily: "var(--font-sans)" }}>
 
         {/* ═══════════════════════════════════════════════════
-            A — ヒーロー
+            A — ヒーロー（フルブリード）
         ═══════════════════════════════════════════════════ */}
         <section
           style={{
-            padding: "32px 24px 48px",
-            background: "#FEFCFA",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            position: "relative",
+            width: "100%",
+            minHeight: "calc(100svh - 56px)",
+            overflow: "hidden",
           }}
         >
-          {/* 画像エリア */}
+          {/* フルブリード背景画像 */}
+          <Image
+            src={HERO_IMAGE_SRC}
+            alt=""
+            fill
+            priority
+            style={{ objectFit: "cover", objectPosition: "center 15%" }}
+          />
+
+          {/* 下側グラデーションオーバーレイ */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(to bottom, transparent 30%, rgba(18,12,8,.68) 80%, rgba(18,12,8,.82) 100%)",
+            }}
+          />
+
+          {/* コンテンツ — 画像下部にオーバーレイ */}
           <div
             style={{
-              width: "100%",
-              maxWidth: 480,
-              aspectRatio: "4/5",
-              borderRadius: 20,
-              overflow: "hidden",
-              boxShadow: "0 8px 40px rgba(0,0,0,.08)",
-              marginBottom: 32,
-              position: "relative",
-              background: "#F5EEE6",
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              padding: "0 24px 36px",
             }}
           >
-            <Image
-              src={HERO_IMAGE_SRC}
-              alt=""
-              fill
-              priority
-              style={{ objectFit: "cover", objectPosition: "center 15%" }}
-            />
-          </div>
-
-          {/* ロゴ行: Kinda 大 + ふたりへ 小 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "baseline",
-              gap: 10,
-              marginBottom: 16,
-            }}
-          >
-            <span
+            {/* ロゴ行 */}
+            <div
               style={{
-                fontFamily: "var(--font-mincho)",
-                fontWeight: 500,
-                fontSize: "clamp(44px, 12vw, 56px)",
-                color: "var(--ink)",
-                letterSpacing: ".04em",
-                lineHeight: 1,
+                display: "flex",
+                alignItems: "baseline",
+                gap: 10,
+                marginBottom: 12,
               }}
             >
-              Kinda
-            </span>
-            <span
+              <span
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontWeight: 500,
+                  fontSize: "clamp(44px, 12vw, 56px)",
+                  color: "white",
+                  lineHeight: 1,
+                }}
+              >
+                Kinda
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontWeight: 400,
+                  fontSize: "clamp(14px, 4vw, 18px)",
+                  color: "rgba(255,255,255,.75)",
+                  letterSpacing: ".1em",
+                }}
+              >
+                ふたりへ
+              </span>
+            </div>
+
+            {/* タグライン */}
+            <p
               style={{
-                fontFamily: "var(--font-mincho)",
-                fontWeight: 400,
-                fontSize: "clamp(14px, 4vw, 18px)",
-                color: "var(--mid)",
-                letterSpacing: ".1em",
+                fontFamily: "'DM Serif Display', serif",
+                fontStyle: "italic",
+                fontSize: "clamp(16px, 4.5vw, 20px)",
+                color: "rgba(255,255,255,.9)",
+                lineHeight: 1.8,
+                marginBottom: 28,
+                letterSpacing: ".02em",
               }}
             >
-              ふたりへ
-            </span>
+              {HERO_TAGLINE}
+            </p>
+
+            {/* 主CTA */}
+            <Link
+              href="/kinda-note"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                padding: "18px 24px",
+                background: "var(--accent)",
+                color: "white",
+                borderRadius: 999,
+                fontFamily: "var(--font-sans)",
+                fontSize: 15,
+                letterSpacing: ".03em",
+                textDecoration: "none",
+                marginBottom: 14,
+                transition: "opacity .2s",
+              }}
+            >
+              Kinda note で今のあなたが わかる
+              <ArrowRight color="white" />
+            </Link>
+
+            {/* 補足テキスト */}
+            <p
+              style={{
+                fontSize: 12,
+                color: "rgba(255,255,255,.55)",
+                textAlign: "center",
+                letterSpacing: ".05em",
+              }}
+            >
+              1分で終わる・会員登録なし
+            </p>
           </div>
-
-          {/* タグライン */}
-          <p
-            style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontStyle: "italic",
-              fontSize: "clamp(16px, 4.5vw, 20px)",
-              color: "var(--ink)",
-              lineHeight: 1.8,
-              textAlign: "center",
-              marginBottom: 32,
-              letterSpacing: ".02em",
-            }}
-          >
-            {HERO_TAGLINE}
-          </p>
-
-          {/* 主CTA */}
-          <Link
-            href="/kinda-note"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "18px 48px",
-              background: "var(--accent)",
-              color: "white",
-              borderRadius: 999,
-              fontFamily: "var(--font-sans)",
-              fontSize: 15,
-              letterSpacing: ".04em",
-              textDecoration: "none",
-              marginBottom: 14,
-              transition: "opacity .2s",
-            }}
-          >
-            Kinda note ではじめる
-            <ArrowRight color="white" />
-          </Link>
-
-          {/* 補足テキスト */}
-          <p
-            style={{
-              fontSize: 12,
-              color: "var(--muted)",
-              textAlign: "center",
-              letterSpacing: ".05em",
-            }}
-          >
-            1分で終わる・会員登録なし
-          </p>
         </section>
 
         {/* ═══════════════════════════════════════════════════
