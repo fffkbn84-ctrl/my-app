@@ -42,6 +42,9 @@ export interface Database {
           is_published: boolean | null;
           quote: string | null;
           experience_label: string | null;
+          catchphrase: string | null;
+          reel_enabled: boolean | null;
+          reel_order: number | null;
           created_at: string;
           updated_at: string;
         };
@@ -51,6 +54,22 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["counselors"]["Insert"]>;
+      };
+      counselor_media: {
+        Row: {
+          id: string;
+          counselor_id: string;
+          media_url: string;
+          media_type: "image" | "video";
+          caption: string | null;
+          display_order: number;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["counselor_media"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["counselor_media"]["Insert"]>;
       };
       slots: {
         Row: {

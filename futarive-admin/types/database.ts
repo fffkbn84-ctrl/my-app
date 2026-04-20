@@ -50,6 +50,9 @@ export interface Database {
           rating_avg: number | null
           review_count: number | null
           diagnosis_type: string | null
+          catchphrase: string | null
+          reel_enabled: boolean
+          reel_order: number
           is_published: boolean
           created_at: string
         }
@@ -73,6 +76,9 @@ export interface Database {
           rating_avg?: number | null
           review_count?: number | null
           diagnosis_type?: string | null
+          catchphrase?: string | null
+          reel_enabled?: boolean
+          reel_order?: number
           is_published?: boolean
           created_at?: string
         }
@@ -96,7 +102,39 @@ export interface Database {
           rating_avg?: number | null
           review_count?: number | null
           diagnosis_type?: string | null
+          catchphrase?: string | null
+          reel_enabled?: boolean
+          reel_order?: number
           is_published?: boolean
+          created_at?: string
+        }
+      }
+      counselor_media: {
+        Row: {
+          id: string
+          counselor_id: string
+          media_url: string
+          media_type: 'image' | 'video'
+          caption: string | null
+          display_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          counselor_id: string
+          media_url: string
+          media_type?: 'image' | 'video'
+          caption?: string | null
+          display_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          counselor_id?: string
+          media_url?: string
+          media_type?: 'image' | 'video'
+          caption?: string | null
+          display_order?: number
           created_at?: string
         }
       }
@@ -420,6 +458,7 @@ export interface Database {
 
 export type AgencyRow = Database['public']['Tables']['agencies']['Row']
 export type CounselorRow = Database['public']['Tables']['counselors']['Row']
+export type CounselorMediaRow = Database['public']['Tables']['counselor_media']['Row']
 export type ReviewRow = Database['public']['Tables']['reviews']['Row']
 export type ReservationRow = Database['public']['Tables']['reservations']['Row']
 export type SlotRow = Database['public']['Tables']['slots']['Row']
