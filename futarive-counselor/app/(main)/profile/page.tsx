@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
+import PhotoCropModal from '@/components/profile/PhotoCropModal'
 import type { Counselor, Agency } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
@@ -32,33 +33,6 @@ function userSpecialties(all: string[] | null | undefined): string[] {
   return (all ?? []).filter(s => !AUTO_TAGS.includes(s))
 }
 
-// 画像を指定最大サイズ以内にブラウザ側でリサイズ（JPG形式で返す）
-async function resizeImage(file: File, maxSize: number): Promise<File> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(file)
-  })
-  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image()
-    image.onload = () => resolve(image)
-    image.onerror = () => reject(new Error('画像を読み込めません'))
-    image.src = dataUrl
-  })
-  const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
-  const w = Math.round(img.width * scale)
-  const h = Math.round(img.height * scale)
-  const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
-  const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, 0, 0, w, h)
-  const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', 0.85))
-  if (!blob) return file
-  return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })
-}
-
 // 経験年数が1年未満なら「新人」タグを付与
 function deriveAutoTags(form: { years_of_experience: string; online: boolean }, agency: Agency | null) {
   const tags: string[] = []
@@ -82,6 +56,7 @@ export default function ProfilePage() {
   const [saveStatus, setSaveStatus] = useState<'saved' | 'dirty' | 'saving'>('saved')
   const [toast, setToast] = useState('')
   const [hydrated, setHydrated] = useState(false)
+  const [cropFile, setCropFile] = useState<File | null>(null)
 
   const [form, setForm] = useState({
     name: '',
@@ -270,8 +245,10 @@ export default function ProfilePage() {
     updateForm(field, form[field].filter((_, i) => i !== idx))
   }
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    // 同じファイルを再選択しても onChange が発火するように input を空にする
+    e.target.value = ''
     if (!file) return
 
     // 形式チェック
@@ -279,28 +256,28 @@ export default function ProfilePage() {
       showToast('JPG / PNG / WebP 形式のみアップロードできます')
       return
     }
-    // サイズチェック（5MBまで許容、1MB超は自動リサイズ）
-    const MAX_BYTES = 5 * 1024 * 1024
+    // サイズチェック
+    const MAX_BYTES = 10 * 1024 * 1024
     if (file.size > MAX_BYTES) {
-      showToast(`ファイルサイズが大きすぎます（${Math.round(file.size / 1024 / 1024)}MB）。5MB以下でお試しください`)
+      showToast(`ファイルサイズが大きすぎます（${Math.round(file.size / 1024 / 1024)}MB）。10MB以下でお試しください`)
       return
     }
+    setCropFile(file)
+  }
 
+  const handleCropConfirm = async (cropped: File) => {
+    setCropFile(null)
     showToast('写真をアップロード中...')
     const supabase = createClient()
-    // カウンセラー行がなければ先に作る
     let c = counselorRef.current
     if (!c?.id) {
       c = await ensureCounselorRow()
       if (!c?.id) return
     }
-    // 1MB超ならブラウザでリサイズしてアップロード
-    const toUpload = file.size > 1024 * 1024 ? await resizeImage(file, 1024) : file
-    const ext = (toUpload.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')
-    const path = `${c.id}/profile-${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('counselor-media').upload(path, toUpload, {
+    const path = `${c.id}/profile-${Date.now()}.jpg`
+    const { error } = await supabase.storage.from('counselor-media').upload(path, cropped, {
       upsert: true,
-      contentType: toUpload.type,
+      contentType: 'image/jpeg',
     })
     if (error) {
       console.error('[photo upload] error', error)
@@ -407,16 +384,23 @@ export default function ProfilePage() {
           <div>
             <label className="kc-label">プロフィール写真</label>
             {form.photo_url && (
-              <div style={{ marginBottom: 10 }}>
+              <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14 }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={form.photo_url} alt="プロフィール" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border)' }} />
+                <img src={form.photo_url} alt="プロフィール" style={{
+                  width: 110, height: 110, borderRadius: '50%', objectFit: 'cover',
+                  border: '3px solid var(--accent-dim)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,.08)',
+                }} />
+                <div style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                  この見え方で<br/>お客様に表示されます
+                </div>
               </div>
             )}
-            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload}
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoSelect}
               style={{ fontSize: '13px', color: 'var(--text-mid)' }} />
             <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 6, lineHeight: 1.7 }}>
-              JPG / PNG / WebP 形式。5MBまで。<br/>
-              大きい画像は自動で1024pxにリサイズされます。
+              JPG / PNG / WebP 形式。10MBまで。<br/>
+              選択後、丸型クロップ画面で位置・サイズを調整できます。
             </p>
           </div>
         </div>
@@ -584,6 +568,14 @@ export default function ProfilePage() {
       </div>
 
       {toast && <div className="kc-toast">{toast}</div>}
+
+      {cropFile && (
+        <PhotoCropModal
+          file={cropFile}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropFile(null)}
+        />
+      )}
     </div>
   )
 }
