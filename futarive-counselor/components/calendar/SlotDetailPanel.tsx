@@ -91,7 +91,7 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
                   <button
                     onClick={() => onDelete(slot.id)}
                     style={{
-                      marginLeft: slot.status !== 'booked' ? 4 : 'auto',
+                      marginLeft: 4,
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
