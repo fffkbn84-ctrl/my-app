@@ -72,19 +72,25 @@ export default function CalendarPage() {
   }, [counselor, year, month, loadSlots])
 
   const handleAddSlot = async (startTime: string, endTime: string) => {
-    if (!counselor) return
+    if (!counselor) { showToast('カウンセラー情報が読み込めていません'); return }
+    if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください'); return }
     setAddingSlot(true)
     const supabase = createClient()
-    const { data: inserted } = await supabase.from('slots').insert({
+    const { data: inserted, error } = await supabase.from('slots').insert({
       counselor_id: counselor.id,
       start_time: startTime,
       end_time: endTime,
       status: 'open',
     }).select().maybeSingle()
+    setAddingSlot(false)
+    if (error) {
+      console.error('[slot add] error', error)
+      showToast(`追加失敗：${error.message}`)
+      return
+    }
     if (inserted) {
       setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_time.localeCompare(b.start_time)))
     }
-    setAddingSlot(false)
     setShowForm(false)
     showToast('予約枠を追加しました')
   }

@@ -1,13 +1,48 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Agency } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
 
-const AREAS = ['東京', '神奈川', '埼玉', '千葉', '大阪', '京都', '兵庫', 'オンライン', 'その他']
+const AREAS = [
+  '全国', 'オンライン',
+  '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
+  '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
+  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県',
+  '岐阜県', '静岡県', '愛知県', '三重県',
+  '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
+  '鳥取県', '島根県', '岡山県', '広島県', '山口県',
+  '徳島県', '香川県', '愛媛県', '高知県',
+  '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
+  'その他',
+]
 const FEE_OPTIONS = ['無料', '3,000円', '5,000円', '10,000円']
+
+const ROOKIE_TAG = '新人'
+const NEW_SHOP_TAG = '新規店舗'
+const ONLINE_TAG = 'オンライン'
+const AUTO_TAGS = [ROOKIE_TAG, NEW_SHOP_TAG, ONLINE_TAG]
+
+// 手入力の得意分野（自動タグを除外）
+function userSpecialties(all: string[] | null | undefined): string[] {
+  return (all ?? []).filter(s => !AUTO_TAGS.includes(s))
+}
+
+// 経験年数が1年未満なら「新人」タグを付与
+function deriveAutoTags(form: { years_of_experience: string; online: boolean }, agency: Agency | null) {
+  const tags: string[] = []
+  if (form.online) tags.push(ONLINE_TAG)
+  const years = form.years_of_experience ? parseInt(form.years_of_experience) : null
+  if (years !== null && years < 1) tags.push(ROOKIE_TAG)
+  if (agency?.created_at) {
+    const opened = new Date(agency.created_at).getTime()
+    const oneYearAgo = Date.now() - 365 * 24 * 60 * 60 * 1000
+    if (opened > oneYearAgo) tags.push(NEW_SHOP_TAG)
+  }
+  return tags
+}
 
 export default function ProfilePage() {
   const [step, setStep] = useState<Step>(1)
@@ -17,9 +52,8 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'dirty' | 'saving'>('saved')
   const [toast, setToast] = useState('')
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [hydrated, setHydrated] = useState(false)
 
-  // フォームステート
   const [form, setForm] = useState({
     name: '',
     name_kana: '',
@@ -39,6 +73,15 @@ export default function ProfilePage() {
   })
   const [chipInput, setChipInput] = useState({ specialties: '', qualifications: '' })
 
+  const counselorRef = useRef<Counselor | null>(null)
+  const formRef = useRef(form)
+  const agenciesRef = useRef<Agency[]>([])
+  const isOwnerRef = useRef(false)
+  useEffect(() => { counselorRef.current = counselor }, [counselor])
+  useEffect(() => { formRef.current = form }, [form])
+  useEffect(() => { agenciesRef.current = agencies }, [agencies])
+  useEffect(() => { isOwnerRef.current = isOwner }, [isOwner])
+
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
@@ -46,7 +89,8 @@ export default function ProfilePage() {
       if (!user) return
 
       const { data: agRows } = await supabase.from('agencies').select('*').eq('owner_user_id', user.id)
-      setIsOwner(!!(agRows && agRows.length > 0))
+      const owns = !!(agRows && agRows.length > 0)
+      setIsOwner(owns)
       setAgencies((agRows as Agency[]) ?? [])
 
       const { data: c } = await supabase.from('counselors').select('*').eq('owner_user_id', user.id).maybeSingle()
@@ -55,77 +99,137 @@ export default function ProfilePage() {
         setForm({
           name: c.name ?? '',
           name_kana: c.name_kana ?? '',
-          agency_id: c.agency_id ?? '',
+          agency_id: c.agency_id ?? (owns ? agRows?.[0]?.id ?? '' : ''),
           area: c.area ?? '',
           years_of_experience: c.years_of_experience != null ? String(c.years_of_experience) : '',
-          online: (c.specialties ?? []).includes('オンライン'),
+          online: (c.specialties ?? []).includes(ONLINE_TAG),
           photo_url: c.photo_url ?? '',
           intro: c.intro ?? '',
           message: c.message ?? '',
-          specialties: (c.specialties ?? []).filter((s: string) => s !== 'オンライン'),
+          specialties: userSpecialties(c.specialties),
           qualifications: c.qualifications ?? [],
           fee: c.fee ?? '',
           success_count: c.success_count != null ? String(c.success_count) : '',
           experience_label: c.experience_label ?? '',
           is_published: c.is_published ?? false,
         })
+      } else if (owns && agRows?.[0]?.id) {
+        // オーナーの初期値：最初の相談所をデフォルト選択
+        setForm(prev => ({ ...prev, agency_id: agRows[0].id }))
       }
       setLoading(false)
+      // 初期ロード直後は dirty にしたくないので1tick後にhydrated
+      setTimeout(() => setHydrated(true), 0)
     }
     load()
   }, [])
 
-  const triggerAutoSave = useCallback(() => {
+  // 自動保存：form変更を2秒デバウンスで保存
+  useEffect(() => {
+    if (!hydrated) return
     setSaveStatus('dirty')
-    if (saveTimerRef.current) clearTimeout(saveTimerRef.current)
-    saveTimerRef.current = setTimeout(() => { handleSave() }, 2000)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form])
-
-  const handleSave = async () => {
-    setSaveStatus('saving')
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-
-    const specialties = [...form.specialties, ...(form.online ? ['オンライン'] : [])]
-
-    const payload = {
-      name: form.name,
-      name_kana: form.name_kana || null,
-      agency_id: form.agency_id || null,
-      area: form.area || null,
-      years_of_experience: form.years_of_experience ? parseInt(form.years_of_experience) : null,
-      photo_url: form.photo_url || null,
-      intro: form.intro || null,
-      message: form.message || null,
-      specialties,
-      qualifications: form.qualifications.length > 0 ? form.qualifications : null,
-      fee: form.fee || null,
-      success_count: form.success_count ? parseInt(form.success_count) : null,
-      experience_label: form.experience_label || null,
-      is_published: form.is_published,
-      owner_user_id: user.id,
-    }
-
-    if (counselor?.id) {
-      await supabase.from('counselors').update(payload).eq('id', counselor.id)
-    } else {
-      const { data: inserted } = await supabase.from('counselors').insert(payload).select().maybeSingle()
-      if (inserted) setCounselor(inserted as Counselor)
-    }
-    setSaveStatus('saved')
-    showToast('保存しました')
-  }
+    const timer = setTimeout(() => { void save() }, 2000)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, hydrated])
 
   const showToast = (msg: string) => {
     setToast(msg)
-    setTimeout(() => setToast(''), 2500)
+    setTimeout(() => setToast(''), 3000)
+  }
+
+  const buildPayload = (userId: string) => {
+    const f = formRef.current
+    const ags = agenciesRef.current
+    const current = counselorRef.current
+    const matchedAgency = ags.find(a => a.id === f.agency_id) ?? ags[0] ?? null
+    const autoTags = deriveAutoTags(f, matchedAgency)
+    const merged = Array.from(new Set([...f.specialties, ...autoTags]))
+
+    // オーナーで agency_id が未設定なら最初の相談所を自動セット
+    const agencyId = f.agency_id
+      || (isOwnerRef.current && ags[0]?.id)
+      || current?.agency_id
+      || null
+
+    return {
+      name: f.name,
+      name_kana: f.name_kana || null,
+      agency_id: agencyId,
+      area: f.area || null,
+      years_of_experience: f.years_of_experience !== '' ? parseInt(f.years_of_experience) : null,
+      photo_url: f.photo_url || null,
+      intro: f.intro || null,
+      message: f.message || null,
+      specialties: merged.length > 0 ? merged : null,
+      qualifications: f.qualifications.length > 0 ? f.qualifications : null,
+      fee: f.fee || null,
+      success_count: f.success_count !== '' ? parseInt(f.success_count) : null,
+      experience_label: f.experience_label || null,
+      is_published: f.is_published,
+      owner_user_id: userId,
+    }
+  }
+
+  // 写真アップロード用に「まず行を作る」処理（INSERTのみ）
+  const ensureCounselorRow = async (): Promise<Counselor | null> => {
+    if (counselorRef.current?.id) return counselorRef.current
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { showToast('ログインが切れています'); return null }
+    const base = buildPayload(user.id)
+    const payload = { ...base, name: base.name || '（未入力）' }
+    const { data, error } = await supabase.from('counselors').insert(payload).select().maybeSingle()
+    if (error) {
+      console.error('[ensureCounselorRow] insert error', error)
+      showToast(`保存に失敗：${error.message}`)
+      return null
+    }
+    if (data) {
+      setCounselor(data as Counselor)
+      return data as Counselor
+    }
+    return null
+  }
+
+  const save = async (): Promise<boolean> => {
+    setSaveStatus('saving')
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      showToast('ログインが切れています')
+      setSaveStatus('dirty')
+      return false
+    }
+    const payload = buildPayload(user.id)
+
+    try {
+      if (counselorRef.current?.id) {
+        const { error } = await supabase.from('counselors').update(payload).eq('id', counselorRef.current.id)
+        if (error) throw error
+      } else {
+        const { data, error } = await supabase.from('counselors').insert(payload).select().maybeSingle()
+        if (error) throw error
+        if (data) setCounselor(data as Counselor)
+      }
+      setSaveStatus('saved')
+      return true
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      console.error('[profile save] error', e)
+      showToast(`保存に失敗：${msg}`)
+      setSaveStatus('dirty')
+      return false
+    }
+  }
+
+  const handleManualSave = async () => {
+    const ok = await save()
+    if (ok) showToast('保存しました')
   }
 
   const updateForm = (key: keyof typeof form, value: unknown) => {
     setForm(prev => ({ ...prev, [key]: value }))
-    triggerAutoSave()
   }
 
   const addChip = (field: 'specialties' | 'qualifications') => {
@@ -140,12 +244,22 @@ export default function ProfilePage() {
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (!file || !counselor?.id) return
+    if (!file) return
     const supabase = createClient()
-    const ext = file.name.split('.').pop()
-    const path = `${counselor.id}/profile.${ext}`
+    // カウンセラー行がなければ先に作る
+    let c = counselorRef.current
+    if (!c?.id) {
+      c = await ensureCounselorRow()
+      if (!c?.id) return
+    }
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `${c.id}/profile-${Date.now()}.${ext}`
     const { error } = await supabase.storage.from('counselor-media').upload(path, file, { upsert: true })
-    if (error) { showToast('アップロードに失敗しました'); return }
+    if (error) {
+      console.error('[photo upload] error', error)
+      showToast(`アップロード失敗：${error.message}`)
+      return
+    }
     const { data: { publicUrl } } = supabase.storage.from('counselor-media').getPublicUrl(path)
     updateForm('photo_url', publicUrl)
     showToast('写真をアップロードしました')
@@ -156,19 +270,24 @@ export default function ProfilePage() {
   }
 
   const STEPS = ['基本', '人となり', '料金と成果', '確認']
+  const selectedAgency = agencies.find(a => a.id === form.agency_id) ?? null
 
   return (
     <div style={{ padding: '28px 24px', maxWidth: 680, paddingBottom: 80 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>PROFILE</div>
       <h1 className="page-title" style={{ marginBottom: 24 }}>プロフィール編集</h1>
 
-      {/* ステップバー */}
       <div className="step-bar" style={{ marginBottom: 32 }}>
         {STEPS.map((label, i) => {
           const n = (i + 1) as Step
           const state = step === n ? 'active' : step > n ? 'done' : ''
           return (
-            <div key={n} className={`step-item ${state}`}>
+            <div
+              key={n}
+              className={`step-item ${state}`}
+              onClick={() => setStep(n)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="step-circle">{step > n ? (
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M2.5 6l2.5 2.5L9.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -180,7 +299,6 @@ export default function ProfilePage() {
         })}
       </div>
 
-      {/* Step 1: 基本 */}
       {step === 1 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
@@ -192,14 +310,19 @@ export default function ProfilePage() {
             <input className="kc-input" value={form.name_kana} onChange={e => updateForm('name_kana', e.target.value)} placeholder="たなか みき" />
           </div>
           <div>
-            <label className="kc-label">所属相談所 <span style={{ color: 'var(--danger)' }}>*</span></label>
+            <label className="kc-label">所属相談所</label>
             {isOwner ? (
               <select className="kc-select" value={form.agency_id} onChange={e => updateForm('agency_id', e.target.value)}>
                 <option value="">選択してください</option>
                 {agencies.map(ag => <option key={ag.id} value={ag.id}>{ag.name}</option>)}
               </select>
+            ) : counselor?.agency_id ? (
+              <input className="kc-input" value={selectedAgency?.name ?? '（所属相談所）'} readOnly style={{ opacity: .7, background: 'var(--bg-elev)' }} />
             ) : (
-              <input className="kc-input" value={agencies[0]?.name ?? ''} readOnly style={{ opacity: .6 }} />
+              <div style={{ padding: '10px 12px', background: 'var(--bg-elev)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                まだ所属相談所が設定されていません。<br/>
+                所属相談所のオーナー、またはふたりへ運営にて設定されます。
+              </div>
             )}
           </div>
           <div>
@@ -212,6 +335,11 @@ export default function ProfilePage() {
           <div>
             <label className="kc-label">経験年数</label>
             <input className="kc-input" type="number" min={0} max={50} value={form.years_of_experience} onChange={e => updateForm('years_of_experience', e.target.value)} placeholder="5" style={{ maxWidth: 120 }} />
+            {form.years_of_experience !== '' && parseInt(form.years_of_experience) < 1 && (
+              <p style={{ fontSize: 11, color: 'var(--accent-deep)', marginTop: 6 }}>
+                ※ 1年未満の場合、プロフィールに「新人」タグが自動で付与されます
+              </p>
+            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <label className="kc-toggle">
@@ -229,13 +357,14 @@ export default function ProfilePage() {
               </div>
             )}
             <input type="file" accept="image/*" onChange={handlePhotoUpload}
-              style={{ fontSize: '13px', color: 'var(--text-mid)' }} disabled={!counselor?.id} />
-            {!counselor?.id && <p style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: 4 }}>先に保存してから写真をアップロードできます</p>}
+              style={{ fontSize: '13px', color: 'var(--text-mid)' }} />
+            <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 4 }}>
+              JPG/PNG形式。1MB以下推奨。
+            </p>
           </div>
         </div>
       )}
 
-      {/* Step 2: 人となり */}
       {step === 2 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
@@ -292,7 +421,6 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Step 3: 料金と成果 */}
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
@@ -317,10 +445,8 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Step 4: 確認 */}
       {step === 4 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* プレビューカード */}
           <div className="kc-card-warm" style={{ padding: 20, borderRadius: 16, border: '1px solid var(--border)' }}>
             <div className="eyebrow" style={{ marginBottom: 12 }}>PREVIEW</div>
             <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
@@ -343,6 +469,9 @@ export default function ProfilePage() {
                 <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                   {form.area && <span className="kc-badge kc-badge-open" style={{ fontSize: 10 }}>{form.area}</span>}
                   {form.online && <span className="kc-badge kc-badge-open" style={{ fontSize: 10 }}>オンライン</span>}
+                  {form.years_of_experience !== '' && parseInt(form.years_of_experience) < 1 && (
+                    <span className="kc-badge kc-badge-urgent" style={{ fontSize: 10 }}>新人</span>
+                  )}
                   {form.fee && <span className="kc-badge kc-badge-booking" style={{ fontSize: 10 }}>{form.fee}</span>}
                 </div>
                 {form.specialties.length > 0 && (
@@ -355,7 +484,6 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* 公開設定 */}
           <div className="kc-card" style={{ padding: 18 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
@@ -371,7 +499,6 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* ナビボタン */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32 }}>
         <button
           onClick={() => setStep(prev => Math.max(1, prev - 1) as Step)}
@@ -387,13 +514,12 @@ export default function ProfilePage() {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
         ) : (
-          <button onClick={handleSave} className="kc-btn kc-btn-primary" disabled={saveStatus === 'saving'}>
+          <button onClick={handleManualSave} className="kc-btn kc-btn-primary" disabled={saveStatus === 'saving'}>
             {saveStatus === 'saving' ? '保存中...' : '保存する'}
           </button>
         )}
       </div>
 
-      {/* 保存状態インジケータ */}
       <div style={{ textAlign: 'center', marginTop: 14 }}>
         {saveStatus === 'saved' && <span style={{ fontSize: 11, color: 'var(--success)' }}>✓ 自動保存済み</span>}
         {saveStatus === 'dirty' && <span style={{ fontSize: 11, color: 'var(--warning)' }}>未保存の変更があります</span>}

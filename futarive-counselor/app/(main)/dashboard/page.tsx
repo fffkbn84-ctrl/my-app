@@ -256,6 +256,7 @@ export default function DashboardPage() {
           <QuickBtn href="/reel" label="リールを編集する" />
           <QuickBtn href="/calendar" label="予約枠を追加する" />
           <QuickBtn href="/profile" label="プロフィールを更新する" />
+          {isOwner && <QuickBtn href="/agency" label="相談所プロフィールを編集する" />}
         </div>
       </div>
     </div>

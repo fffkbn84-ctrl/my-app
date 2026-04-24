@@ -1,9 +1,21 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { logAuthEvent } from '@/lib/supabase/audit'
+
+const AGENCY_ITEM = {
+  href: '/agency',
+  label: '相談所プロフィール',
+  icon: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M2 14V6l6-4 6 4v8" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      <path d="M6 14v-4h4v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  ),
+}
 
 const NAV_ITEMS = [
   {
@@ -64,6 +76,18 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [isOwner, setIsOwner] = useState(false)
+
+  useEffect(() => {
+    const check = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      const { data } = await supabase.from('agencies').select('id').eq('owner_user_id', user.id).limit(1)
+      setIsOwner(!!(data && data.length > 0))
+    }
+    check()
+  }, [])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -107,7 +131,7 @@ export default function Sidebar() {
           <div className="eyebrow" style={{ fontSize: '9px', padding: '0 12px', marginBottom: 8 }}>
             MENU
           </div>
-          {NAV_ITEMS.map(item => (
+          {[...NAV_ITEMS, ...(isOwner ? [AGENCY_ITEM] : [])].map(item => (
             <Link
               key={item.href}
               href={item.href}
