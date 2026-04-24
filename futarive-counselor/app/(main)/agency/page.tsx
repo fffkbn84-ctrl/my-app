@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { describeError } from '@/lib/errors'
 import type { Agency } from '@/lib/types'
 
 export default function AgencyPage() {
@@ -84,7 +85,7 @@ export default function AgencyPage() {
     }).eq('id', id)
     if (error) {
       console.error('[agency save] error', error)
-      showToast(`保存失敗：${error.message}`)
+      showToast(`保存失敗：${describeError(error)}`)
       setSaveStatus('dirty')
       return false
     }
@@ -105,7 +106,7 @@ export default function AgencyPage() {
     }).select().maybeSingle()
     if (error) {
       console.error('[agency create] error', error)
-      showToast(`作成失敗：${error.message}`)
+      showToast(`作成失敗：${describeError(error)}`)
       return
     }
     if (data) {

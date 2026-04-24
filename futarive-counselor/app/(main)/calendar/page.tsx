@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { describeError } from '@/lib/errors'
 import type { Counselor, Slot } from '@/lib/types'
 import MonthGrid from '@/components/calendar/MonthGrid'
 import SlotDetailPanel from '@/components/calendar/SlotDetailPanel'
@@ -85,7 +86,7 @@ export default function CalendarPage() {
     setAddingSlot(false)
     if (error) {
       console.error('[slot add] error', error)
-      showToast(`追加失敗：${error.message}`)
+      showToast(`追加失敗：${describeError(error)}`)
       return
     }
     if (inserted) {

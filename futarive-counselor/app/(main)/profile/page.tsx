@@ -1,7 +1,9 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { describeError } from '@/lib/errors'
 import type { Counselor, Agency } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
@@ -182,7 +184,7 @@ export default function ProfilePage() {
     const { data, error } = await supabase.from('counselors').insert(payload).select().maybeSingle()
     if (error) {
       console.error('[ensureCounselorRow] insert error', error)
-      showToast(`保存に失敗：${error.message}`)
+      showToast(`保存に失敗：${describeError(error)}`)
       return null
     }
     if (data) {
@@ -215,9 +217,8 @@ export default function ProfilePage() {
       setSaveStatus('saved')
       return true
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e)
       console.error('[profile save] error', e)
-      showToast(`保存に失敗：${msg}`)
+      showToast(`保存に失敗：${describeError(e)}`)
       setSaveStatus('dirty')
       return false
     }
@@ -257,7 +258,7 @@ export default function ProfilePage() {
     const { error } = await supabase.storage.from('counselor-media').upload(path, file, { upsert: true })
     if (error) {
       console.error('[photo upload] error', error)
-      showToast(`アップロード失敗：${error.message}`)
+      showToast(`アップロード失敗：${describeError(error)}`)
       return
     }
     const { data: { publicUrl } } = supabase.storage.from('counselor-media').getPublicUrl(path)
@@ -310,7 +311,7 @@ export default function ProfilePage() {
             <input className="kc-input" value={form.name_kana} onChange={e => updateForm('name_kana', e.target.value)} placeholder="たなか みき" />
           </div>
           <div>
-            <label className="kc-label">所属相談所</label>
+            <label className="kc-label">所属相談所 <span style={{ color: 'var(--danger)' }}>*</span></label>
             {isOwner ? (
               <select className="kc-select" value={form.agency_id} onChange={e => updateForm('agency_id', e.target.value)}>
                 <option value="">選択してください</option>
@@ -319,9 +320,18 @@ export default function ProfilePage() {
             ) : counselor?.agency_id ? (
               <input className="kc-input" value={selectedAgency?.name ?? '（所属相談所）'} readOnly style={{ opacity: .7, background: 'var(--bg-elev)' }} />
             ) : (
-              <div style={{ padding: '10px 12px', background: 'var(--bg-elev)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
-                まだ所属相談所が設定されていません。<br/>
-                所属相談所のオーナー、またはふたりへ運営にて設定されます。
+              <div style={{ padding: '14px 16px', background: 'var(--accent-pale)', border: '1px solid var(--accent-dim)', borderRadius: 10, fontSize: 12, color: 'var(--text)', lineHeight: 1.8 }}>
+                <div style={{ fontWeight: 600, color: 'var(--accent-deep)', marginBottom: 6 }}>所属相談所がまだ設定されていません</div>
+                <div style={{ color: 'var(--text-mid)', marginBottom: 10 }}>
+                  プロフィールを保存するには、先に所属相談所を作成してください。<br/>
+                  個人運営の相談所として登録し、ご自身でオーナー兼カウンセラーとして利用できます。
+                </div>
+                <Link href="/agency" className="kc-btn kc-btn-primary kc-btn-sm" style={{ textDecoration: 'none' }}>
+                  相談所プロフィールを作成する
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
               </div>
             )}
           </div>
