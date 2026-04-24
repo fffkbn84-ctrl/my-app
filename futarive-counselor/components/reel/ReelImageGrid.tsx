@@ -64,7 +64,7 @@ function SortableItem({
       <div className="reel-grid-item-overlay">
         <button
           className="reel-grid-item-del"
-          onClick={e => { e.stopPropagation(); onDelete(item.id) }}
+          onClick={e => { e.stopPropagation(); onDelete() }}
           style={{
             background: 'rgba(0,0,0,.55)',
             border: 'none',
