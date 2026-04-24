@@ -87,27 +87,33 @@
 
 /* data-theme="dark" 手動強制 */
 [data-theme="dark"] {
-  --bg: #1A1510;
-  --bg-elev: #231D16;
-  --bg-subtle: #2B231B;
-  --card: #26201A;
-  --card-warm: #2E2620;
-  --card-hover: #332B23;
-  --text-deep: #FAF3E7;
-  --text: #EDE3D2;
-  --text-mid: #B8A890;
-  --text-light: #847561;
-  --text-faint: #5A4E3E;
-  --accent: #D4B988;
-  --accent-deep: #C8A97A;
-  --accent-dim: #5A4830;
-  --accent-pale: #3A2E1F;
-  --border: #3A2F23;
-  --border-mid: #4A3D2E;
-  --border-strong: #5A4A37;
-  --sh-sm: 0 2px 8px rgba(0,0,0,.3);
-  --sh-md: 0 4px 18px rgba(0,0,0,.4);
-  --sh-lg: 0 12px 40px rgba(0,0,0,.5);
+  --bg: #0E0A06;
+  --bg-elev: #15100A;
+  --bg-subtle: #1A140D;
+  --card: #1C1610;
+  --card-warm: #221A12;
+  --card-hover: #2A2016;
+  --text-deep: #F0E8D8;
+  --text: #E4DAC8;
+  --text-mid: #A08868;
+  --text-light: #6B5A42;
+  --text-faint: #3A2F22;
+  --accent: #C8A97A;
+  --accent-deep: #A88858;
+  --accent-dim: #4A3A22;
+  --accent-pale: #2A1E12;
+  --success: #7A9E87;
+  --success-pale: #1E2E22;
+  --warning: #D4A23D;
+  --warning-pale: #2E2510;
+  --danger: #C07A6E;
+  --danger-pale: #2E1A18;
+  --border: #2C2218;
+  --border-mid: #3A2E20;
+  --border-strong: #4A3B28;
+  --sh-sm: 0 2px 8px rgba(0,0,0,.4);
+  --sh-md: 0 4px 18px rgba(0,0,0,.5);
+  --sh-lg: 0 12px 40px rgba(0,0,0,.6);
 }
 
 * {
@@ -659,9 +665,231 @@ body {
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
   z-index: 50;
   gap: 12px;
+}
+
+/* アカウント / 相談所バッジ（トップバー右） */
+.acct-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border-radius: 20px;
+  background: var(--bg);
+  border: 1px solid var(--accent-dim);
+  max-width: 60%;
+}
+.acct-avatar {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--accent-pale);
+  border: 1px solid var(--accent-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.acct-name {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ─── DASHBOARD: コンテキストカード（オーナー用） ─── */
+.ctx-card {
+  border: 1px solid var(--accent-dim);
+  background: linear-gradient(180deg, var(--accent-pale), var(--card));
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  margin-bottom: 24px;
+}
+.ctx-label {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .12em;
+  margin-bottom: 10px;
+}
+.ctx-select-wrap { position: relative; }
+.ctx-select {
+  width: 100%;
+  appearance: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 36px 12px 14px;
+  color: var(--text-deep);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ctx-select-caret {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-mid);
+  pointer-events: none;
+}
+.ctx-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 9px 18px;
+  border: 1px solid var(--accent-dim);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.ctx-add:hover { background: var(--accent-pale); border-color: var(--accent); }
+
+/* ─── DASHBOARD: ビッグ統計カード ─── */
+.stat-big {
+  background: var(--card-warm);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 18px;
+  transition: border-color .15s, transform .15s;
+}
+.stat-big:hover { border-color: var(--accent-dim); }
+.stat-big.urgent { border-color: rgba(192,122,110,.4); }
+.stat-big-label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+.stat-big-value {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--accent);
+  letter-spacing: .02em;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.stat-big-value .unit {
+  font-size: 18px;
+  color: var(--text-mid);
+  font-weight: 400;
+}
+.stat-big.urgent .stat-big-value { color: var(--danger); }
+.stat-big-sub {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--accent);
+  opacity: .85;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* ─── DASHBOARD: ちいさな「しなきゃ」 ─── */
+.todo-card {
+  background: var(--card-warm);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-top: 22px;
+  overflow: hidden;
+}
+.todo-head {
+  padding: 16px 18px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.todo-head-title {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-deep);
+}
+.todo-head-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-mid);
+}
+.todo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  transition: background .15s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.todo-row:first-of-type { border-top: none; }
+.todo-row:hover { background: var(--bg-elev); }
+.todo-tag {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .04em;
+}
+.todo-tag-urgent  { background: rgba(192,122,110,.18); color: #D68E82; }
+.todo-tag-reply   { background: rgba(168,136,88,.15); color: #C8A97A; }
+.todo-tag-booking { background: rgba(122,158,135,.15); color: #9FC1AD; }
+.todo-tag-rec     { background: rgba(168,136,88,.1); color: #A08868; }
+.todo-body {
+  flex: 1;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+}
+.todo-action {
+  flex-shrink: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ─── DASHBOARD: ヒーロー見出し ─── */
+.dash-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .22em;
+  margin-bottom: 12px;
+}
+.dash-hero {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: clamp(28px, 7vw, 38px);
+  line-height: 1.35;
+  color: var(--text-deep);
+  margin-bottom: 14px;
+  letter-spacing: .02em;
+}
+.dash-sub {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 26px;
 }
 
 /* ─── MOBILE BOTTOM NAV ─── */

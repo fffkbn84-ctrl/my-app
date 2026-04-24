@@ -10,6 +10,19 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   if (!user) redirect('/login')
 
+  // 所属相談所名（オーナーなら自分の相談所、そうでなければ counselor.agency_id から解決）
+  let agencyName: string | undefined
+  const { data: ownedAgencies } = await supabase.from('agencies').select('name').eq('owner_user_id', user.id).limit(1)
+  if (ownedAgencies && ownedAgencies.length > 0) {
+    agencyName = ownedAgencies[0].name
+  } else {
+    const { data: c } = await supabase.from('counselors').select('agency_id').eq('owner_user_id', user.id).maybeSingle()
+    if (c?.agency_id) {
+      const { data: ag } = await supabase.from('agencies').select('name').eq('id', c.agency_id).maybeSingle()
+      if (ag?.name) agencyName = ag.name
+    }
+  }
+
   return (
     <div>
       {/* デスクトップ：サイドバー (>=860px) */}
@@ -19,7 +32,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
       {/* モバイル：トップバー (<860px) */}
       <div className="hidden-desktop">
-        <MobileTopBar accountName={user.email?.charAt(0).toUpperCase()} />
+        <MobileTopBar accountName={user.email?.charAt(0).toUpperCase()} agencyName={agencyName} />
       </div>
 
       {/* メインコンテンツ */}
