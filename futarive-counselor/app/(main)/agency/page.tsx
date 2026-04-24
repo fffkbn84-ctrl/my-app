@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
 import type { Agency } from '@/lib/types'
@@ -11,6 +12,7 @@ export default function AgencyPage() {
   const [loading, setLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'saved' | 'dirty' | 'saving'>('saved')
   const [toast, setToast] = useState('')
+  const [savedOnce, setSavedOnce] = useState(false)
   const [hydrated, setHydrated] = useState(false)
 
   const [form, setForm] = useState({
@@ -24,6 +26,14 @@ export default function AgencyPage() {
   useEffect(() => { formRef.current = form }, [form])
   useEffect(() => { selectedIdRef.current = selectedId }, [selectedId])
 
+  const syncFromAgency = (ag: Agency) => {
+    setForm({
+      name: ag.name ?? '',
+      description: ag.description ?? '',
+      website_url: ag.website_url ?? '',
+    })
+  }
+
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
@@ -34,31 +44,17 @@ export default function AgencyPage() {
       setAgencies(list)
       if (list[0]) {
         setSelectedId(list[0].id)
-        setForm({
-          name: list[0].name ?? '',
-          description: list[0].description ?? '',
-          website_url: list[0].website_url ?? '',
-        })
+        syncFromAgency(list[0])
+        setSavedOnce(true)
       }
       setLoading(false)
-      setTimeout(() => setHydrated(true), 0)
+      // 次tickでhydratedを立てる（初期セットで自動保存が走らないように）
+      setTimeout(() => setHydrated(true), 50)
     }
     load()
   }, [])
 
-  // 選択相談所が変わったらフォームを同期
-  useEffect(() => {
-    if (!selectedId) return
-    const ag = agencies.find(a => a.id === selectedId)
-    if (!ag) return
-    setForm({
-      name: ag.name ?? '',
-      description: ag.description ?? '',
-      website_url: ag.website_url ?? '',
-    })
-  }, [selectedId, agencies])
-
-  // 自動保存
+  // 自動保存：form変更を2秒デバウンスで保存
   useEffect(() => {
     if (!hydrated || !selectedId) return
     setSaveStatus('dirty')
@@ -69,7 +65,7 @@ export default function AgencyPage() {
 
   const showToast = (msg: string) => {
     setToast(msg)
-    setTimeout(() => setToast(''), 3000)
+    setTimeout(() => setToast(''), 3500)
   }
 
   const save = async (): Promise<boolean> => {
@@ -89,8 +85,13 @@ export default function AgencyPage() {
       setSaveStatus('dirty')
       return false
     }
-    setAgencies(prev => prev.map(a => a.id === id ? { ...a, name: f.name, description: f.description || null, website_url: f.website_url || null } : a))
+    // agencies の該当行も同期（ただし setForm は呼ばない＝ループ防止）
+    setAgencies(prev => prev.map(a => a.id === id
+      ? { ...a, name: f.name, description: f.description || null, website_url: f.website_url || null }
+      : a
+    ))
     setSaveStatus('saved')
+    setSavedOnce(true)
     return true
   }
 
@@ -113,8 +114,15 @@ export default function AgencyPage() {
       const newAg = data as Agency
       setAgencies(prev => [...prev, newAg])
       setSelectedId(newAg.id)
+      syncFromAgency(newAg)
       showToast('相談所を追加しました')
     }
+  }
+
+  const handleSelectChange = (id: string) => {
+    setSelectedId(id)
+    const ag = agencies.find(a => a.id === id)
+    if (ag) syncFromAgency(ag)
   }
 
   const handleManualSave = async () => {
@@ -150,10 +158,53 @@ export default function AgencyPage() {
       <div className="eyebrow" style={{ marginBottom: 8 }}>AGENCY</div>
       <h1 className="page-title" style={{ marginBottom: 24 }}>相談所プロフィール</h1>
 
+      {/* 保存完了後の次ステップ案内 */}
+      {savedOnce && saveStatus === 'saved' && (
+        <div className="kc-card" style={{
+          padding: 18, marginBottom: 24,
+          background: 'var(--accent-pale)',
+          border: '1px solid var(--accent-dim)',
+          borderRadius: 14,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: 'var(--accent)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l3.5 3.5L13 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: 'Shippori Mincho, serif', fontWeight: 600, fontSize: 14, color: 'var(--text-deep)', marginBottom: 4 }}>
+                相談所プロフィールを保存しました
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7, marginBottom: 12 }}>
+                続いて、あなた自身のカウンセラープロフィールを作成しましょう。<br/>
+                お客様に見ていただく担当者情報を整えます。
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <Link href="/profile" className="kc-btn kc-btn-primary kc-btn-sm" style={{ textDecoration: 'none' }}>
+                  カウンセラープロフィールを作成する
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </Link>
+                <Link href="/dashboard" className="kc-btn kc-btn-ghost kc-btn-sm" style={{ textDecoration: 'none' }}>
+                  ダッシュボードへ
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {agencies.length > 1 && (
         <div style={{ marginBottom: 20 }}>
           <label className="kc-label">編集対象の相談所</label>
-          <select className="kc-select" value={selectedId} onChange={e => setSelectedId(e.target.value)}>
+          <select className="kc-select" value={selectedId} onChange={e => handleSelectChange(e.target.value)}>
             {agencies.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
         </div>

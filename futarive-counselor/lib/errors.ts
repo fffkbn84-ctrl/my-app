@@ -28,6 +28,18 @@ export function describeError(e: unknown): string {
     if (obj.code === '42501' || /row-level security|permission denied/i.test(obj.message ?? '')) {
       return '権限エラー（RLS）。ログインし直すか運営までお問い合わせください。'
     }
+    // Storage: バケット未作成
+    if (/bucket not found/i.test(obj.message ?? '')) {
+      return 'ストレージバケット（counselor-media）が未作成です。Supabase管理画面で作成するか、運営にお問い合わせください。'
+    }
+    // Storage: ファイルサイズ超過
+    if (/payload too large|exceeded/i.test(obj.message ?? '')) {
+      return 'ファイルサイズが大きすぎます。1MB以下の画像をお試しください。'
+    }
+    // Storage: 権限
+    if (obj.code === 'Unauthorized' || /unauthorized/i.test(obj.message ?? '')) {
+      return 'アップロード権限がありません。ログインし直してお試しください。'
+    }
     if (obj.message) return obj.message
     if (obj.details) return obj.details
     try { return JSON.stringify(obj) } catch { return '保存エラー' }

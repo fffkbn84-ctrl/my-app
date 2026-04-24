@@ -32,6 +32,33 @@ function userSpecialties(all: string[] | null | undefined): string[] {
   return (all ?? []).filter(s => !AUTO_TAGS.includes(s))
 }
 
+// 画像を指定最大サイズ以内にブラウザ側でリサイズ（JPG形式で返す）
+async function resizeImage(file: File, maxSize: number): Promise<File> {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error('画像を読み込めません'))
+    image.src = dataUrl
+  })
+  const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
+  const w = Math.round(img.width * scale)
+  const h = Math.round(img.height * scale)
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0, w, h)
+  const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', 0.85))
+  if (!blob) return file
+  return new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' })
+}
+
 // 経験年数が1年未満なら「新人」タグを付与
 function deriveAutoTags(form: { years_of_experience: string; online: boolean }, agency: Agency | null) {
   const tags: string[] = []
@@ -246,6 +273,20 @@ export default function ProfilePage() {
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // 形式チェック
+    if (!/^image\/(jpeg|jpg|png|webp|gif)$/i.test(file.type)) {
+      showToast('JPG / PNG / WebP 形式のみアップロードできます')
+      return
+    }
+    // サイズチェック（5MBまで許容、1MB超は自動リサイズ）
+    const MAX_BYTES = 5 * 1024 * 1024
+    if (file.size > MAX_BYTES) {
+      showToast(`ファイルサイズが大きすぎます（${Math.round(file.size / 1024 / 1024)}MB）。5MB以下でお試しください`)
+      return
+    }
+
+    showToast('写真をアップロード中...')
     const supabase = createClient()
     // カウンセラー行がなければ先に作る
     let c = counselorRef.current
@@ -253,16 +294,21 @@ export default function ProfilePage() {
       c = await ensureCounselorRow()
       if (!c?.id) return
     }
-    const ext = file.name.split('.').pop() || 'jpg'
+    // 1MB超ならブラウザでリサイズしてアップロード
+    const toUpload = file.size > 1024 * 1024 ? await resizeImage(file, 1024) : file
+    const ext = (toUpload.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')
     const path = `${c.id}/profile-${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('counselor-media').upload(path, file, { upsert: true })
+    const { error } = await supabase.storage.from('counselor-media').upload(path, toUpload, {
+      upsert: true,
+      contentType: toUpload.type,
+    })
     if (error) {
       console.error('[photo upload] error', error)
       showToast(`アップロード失敗：${describeError(error)}`)
       return
     }
     const { data: { publicUrl } } = supabase.storage.from('counselor-media').getPublicUrl(path)
-    updateForm('photo_url', publicUrl)
+    updateForm('photo_url', `${publicUrl}?t=${Date.now()}`)
     showToast('写真をアップロードしました')
   }
 
@@ -366,10 +412,11 @@ export default function ProfilePage() {
                 <img src={form.photo_url} alt="プロフィール" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--border)' }} />
               </div>
             )}
-            <input type="file" accept="image/*" onChange={handlePhotoUpload}
+            <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoUpload}
               style={{ fontSize: '13px', color: 'var(--text-mid)' }} />
-            <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 4 }}>
-              JPG/PNG形式。1MB以下推奨。
+            <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 6, lineHeight: 1.7 }}>
+              JPG / PNG / WebP 形式。5MBまで。<br/>
+              大きい画像は自動で1024pxにリサイズされます。
             </p>
           </div>
         </div>
