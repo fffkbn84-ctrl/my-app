@@ -2233,3 +2233,396 @@ ALTER TABLE reviews
 |---|---|
 | `/kinda-note` | 気持ちを整理するノートツール（未実装） |
 | `/kinda-type` | カウンセラータイプ診断（未実装・`/diagnosis` とは別フロー想定） |
+
+---
+
+---
+
+# futarive-counselor — カウンセラー・相談所オーナー向け管理画面
+
+> **各カウンセラー・相談所オーナーが自分のプロフィール・リール・カレンダー・口コミを管理するダッシュボード。**
+> フロントサイト（`my-app/src/`）・統括管理画面（`my-app/futarive-admin/`）とは完全に独立した Next.js 14 アプリとして
+> `my-app/futarive-counselor/` サブディレクトリに格納されている。
+
+---
+
+## 概要・位置づけ
+
+| 項目 | 内容 |
+|---|---|
+| **場所** | `/home/user/my-app/futarive-counselor/`（my-app リポジトリのサブディレクトリ） |
+| **ブランチ** | `claude/counselor-admin-dashboard-ZECfQ`（開発）/ `main`（Vercel デプロイ用） |
+| **Vercel** | `my-app` / `futarive-admin` とは別の独立した Vercel プロジェクト |
+| **Root Directory** | Vercel の Root Directory 設定を `futarive-counselor` に指定してデプロイ |
+| **ポート（ローカル）** | `npm run dev` → `localhost:3001` |
+| **権限** | Supabase Auth でログインしたカウンセラー本人 or 相談所オーナー専用。RLS に任せ、クライアント側に権限ロジックを書かない |
+
+---
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | Next.js 14.2（App Router）+ TypeScript |
+| スタイリング | Tailwind CSS v3 + グローバル CSS（`app/globals.css`） |
+| DB・認証 | Supabase（フロントサイト・futarive-admin と **同一プロジェクト**） |
+| 認証ライブラリ | `@supabase/ssr`（cookie ベース） |
+| DnD | `@dnd-kit/core` + `@dnd-kit/sortable`（リール画像の並び替え） |
+| フォント | Shippori Mincho（タイトル）・DM Sans（数字/ラベル）・Noto Sans JP（本文） |
+
+---
+
+## ディレクトリ構成
+
+```
+futarive-counselor/
+├── app/
+│   ├── globals.css          # デザインシステム（CSS変数・共通クラス）
+│   ├── layout.tsx           # ルートレイアウト（Google Fonts を <link> タグで読み込み）
+│   ├── page.tsx             # / → /dashboard へリダイレクト
+│   ├── (auth)/
+│   │   └── login/page.tsx   # ログイン画面 + パスワードリセット
+│   └── (main)/
+│       ├── layout.tsx       # 認証ガード + シェルレイアウト（Sidebar / MobileTopBar+MobileBottomNav）
+│       ├── dashboard/page.tsx   # ダッシュボード
+│       ├── profile/page.tsx     # プロフィール編集（4ステップ）
+│       ├── reel/page.tsx        # リール編集
+│       ├── calendar/page.tsx    # カレンダー・予約枠管理
+│       └── reviews/page.tsx     # 口コミ一覧・返信
+├── components/
+│   ├── shell/
+│   │   ├── Sidebar.tsx          # デスクトップ固定サイドバー（>=860px）
+│   │   ├── MobileTopBar.tsx     # モバイル固定トップバー（<860px）
+│   │   ├── MobileBottomNav.tsx  # モバイル固定ボトムナビ（<860px）
+│   │   └── SaveBar.tsx          # 固定ボトムセーブバー（saved/dirty/saving）
+│   ├── reel/
+│   │   ├── CatchphraseField.tsx # キャッチコピー入力（20文字制限・プログレスバー）
+│   │   ├── ReelImageGrid.tsx    # @dnd-kit ソータブル画像グリッド
+│   │   ├── CaptionEditor.tsx    # 画像キャプション編集
+│   │   ├── PhonePreview.tsx     # 9:16 iPhoneフレームプレビュー
+│   │   └── ShareSheet.tsx       # X/LINE/URLコピー シェアシート
+│   ├── calendar/
+│   │   ├── MonthGrid.tsx        # 7列月カレンダー・スロットドット表示
+│   │   ├── SlotDetailPanel.tsx  # 選択日のスロット一覧・ステータス変更・削除
+│   │   └── SlotForm.tsx         # 枠追加フォーム（9:00〜20:00、30分刻み）
+│   └── reviews/
+│       ├── ReviewFilters.tsx    # フィルターピル（all/未返信/★4+/★3-）
+│       ├── ReviewCard.tsx       # 口コミカード（展開・返信ボックス）
+│       └── ReplyForm.tsx        # 返信フォーム（2段階確認・下書きlocalStorage保存）
+├── lib/
+│   ├── hooks/
+│   │   ├── useAgencyContext.ts  # オーナー/カウンセラー/両方モードの判定・スコープ管理
+│   │   └── useCurrentCounselor.ts  # IDからカウンセラー情報を取得
+│   └── supabase/
+│       ├── client.ts        # ブラウザ用クライアント（createBrowserClient、generic なし）
+│       ├── server.ts        # SSR用クライアント（createServerClient + cookies）
+│       ├── audit.ts         # 監査ログ（logAuthEvent / logPersonalDataAccess）
+│   └── types.ts             # TypeScript型定義
+├── middleware.ts             # 認証ゲート（未ログイン→/login、ログイン済みで/login→/dashboard）
+├── next.config.mjs           # Supabase Storage の remotePatterns 設定
+├── tailwind.config.ts        # CSS変数バックのカラートークン定義
+├── postcss.config.mjs        # tailwindcss + autoprefixer
+├── package.json
+└── vercel.json
+```
+
+---
+
+## デザインシステム（`app/globals.css`）
+
+### CSS 変数（ライトモード / ダークモード対応）
+
+```css
+:root {
+  --bg:           #FBF7F1;   /* ベージュ背景 */
+  --bg-elev:      #F5EEE6;   /* 一段上がった背景 */
+  --bg-subtle:    #EFE6D8;
+  --card:         #FFFFFF;
+  --card-warm:    #FFFBF4;
+  --text-deep:    #1A130E;
+  --text:         #2E2620;
+  --text-mid:     #6B5D52;
+  --text-light:   #B0A090;
+  --text-faint:   #D4C5B5;
+  --accent:       #C8A97A;   /* ゴールド */
+  --accent-deep:  #A88858;
+  --accent-dim:   #F0E4CF;
+  --accent-pale:  #F9F1E3;
+  --success:      #7A9E87;
+  --warning:      #D4A23D;
+  --danger:       #C07A6E;
+  --border:       #EAE0D0;
+  --sidebar-w:    220px;
+  --topbar-h:     52px;
+  --bottomnav-h:  60px;
+}
+```
+
+ダークモードは `@media (prefers-color-scheme: dark)` + `[data-theme="dark"]` の2系統で制御。
+
+### 共通 CSS クラス一覧
+
+| クラス | 用途 |
+|---|---|
+| `.kc-card` / `.kc-card-warm` | ボーダー・影付きカード |
+| `.kc-btn` `.kc-btn-primary` `.kc-btn-ghost` `.kc-btn-danger` `.kc-btn-sm` | ボタン |
+| `.kc-label` `.kc-input` `.kc-select` `.kc-textarea` | フォーム部品 |
+| `.kc-toggle` / `.kc-toggle-slider` | ON/OFF トグルスイッチ |
+| `.kc-badge` `.kc-badge-open` `.kc-badge-booked` `.kc-badge-locked` `.kc-badge-urgent` `.kc-badge-review` `.kc-badge-booking` | バッジ |
+| `.kc-overlay` / `.kc-modal` / `.kc-modal-title` | モーダル（モバイルはボトムシート） |
+| `.kc-toast` | トースト通知（画面下部） |
+| `.page-title` | Shippori Mincho 22px 見出し |
+| `.section-title` | Shippori Mincho 16px セクション見出し |
+| `.eyebrow` | DM Sans 10px 大文字ラベル（accent色） |
+| `.stat-card` / `.stat-value` / `.stat-label` | 統計カード（ダッシュボード） |
+| `.step-bar` / `.step-item` / `.step-circle` / `.step-label` | ステップバー（プロフィール4ステップ） |
+| `.cal-grid` / `.cal-cell` / `.cal-dots` / `.cal-dot-open/booked/locked` | カレンダー |
+| `.phone-frame` / `.phone-screen` / `.phone-overlay` / `.phone-progress` / `.phone-actions` | iPhoneプレビューフレーム |
+| `.rv-card` / `.rv-meta` / `.rv-stars` / `.rv-reply-box` | 口コミカード |
+| `.save-bar` | 固定ボトムセーブバー |
+| `.kc-main` | メインコンテンツエリア（サイドバー幅分の左padding） |
+
+---
+
+## 認証・RLS 設計
+
+### ログイン
+
+- Supabase Auth（`signInWithPassword`）
+- `@supabase/ssr` で cookie ベースのセッション管理
+- `middleware.ts` が全ルートを保護：未ログイン → `/login`、ログイン済みで `/login` → `/dashboard`
+- ログイン成功・失敗時に `logAuthEvent()` で監査ログを記録
+
+### RLS
+
+- クライアント側には権限ロジックを書かない。DB の RLS に完全委任
+- `counselors` テーブル：`owner_user_id = auth.uid()` の行のみ操作可
+- `agencies` テーブル：`owner_user_id = auth.uid()` の行のみ操作可
+
+### 監査ログ（`lib/supabase/audit.ts`）
+
+```typescript
+logAuthEvent('login_success' | 'login_failure' | 'logout' | 'password_reset_requested')
+logPersonalDataAccess('reservations' | 'reviews', targetId, ownerId)
+// どちらも失敗しても例外を握りつぶし、アプリ動作を妨げない
+// supabase.rpc('log_audit_event', ...) を内部で呼ぶ
+```
+
+---
+
+## ユーザーモード判定（`lib/hooks/useAgencyContext.ts`）
+
+ログインユーザーが「カウンセラー本人」「相談所オーナー」「両方」かを自動判定。
+
+| mode | 条件 | 編集スコープ |
+|---|---|---|
+| `'counselor'` | `counselors.owner_user_id = user.id` のみ | 自分1件 |
+| `'owner'` | `agencies.owner_user_id = user.id` のみ | 相談所所属カウンセラー全員 |
+| `'both'` | 両方あり | 両方 |
+
+`selectedAgencyId`（複数相談所を持つオーナー向け）と `currentCounselorId`（編集対象の切替）を state として保持。
+
+---
+
+## 実装済みページ詳細
+
+### ログイン（`/login`）
+
+- メールアドレス + パスワード認証
+- パスワードリセット（メール送信）をインライン切替で表示
+- ログイン成功 → `logAuthEvent('login_success')` → `/dashboard` へ遷移
+- ログイン失敗 → `logAuthEvent('login_failure', 'failure', { reason: 'invalid_credentials' })`
+
+---
+
+### ダッシュボード（`/dashboard`）
+
+- 統計カード4枚（リール公開数/今月の予約/未返信レビュー/平均評価）
+- 「未返信が urgent（★3以下）」「通常未返信」「リール未公開」を ToDoリスト「ちいさな「しなきゃ」」として表示
+- クイックアクション：レビューに返信 / リール編集 / 予約枠追加 / プロフィール更新
+- オーナーモードの場合：相談所・カウンセラー切替ボタンを表示（UIのみ、現時点は表示切替非連動）
+
+---
+
+### プロフィール編集（`/profile`）
+
+- 4ステップ構成：
+  1. **基本情報**：名前・ふりがな・所属相談所（オーナーはドロップダウン）・エリア・経験年数
+  2. **人となり**：intro テキスト・message テキスト・得意分野（チップ入力）・資格（チップ入力）
+  3. **料金と成果**：相談料・成婚実績件数・経験年数ラベル・プロフィール写真アップロード
+  4. **確認**：入力内容プレビュー + 公開トグル（`is_published`）
+- 各ステップで2秒デバウンス自動保存（`saveStatus: 'saved' | 'dirty' | 'saving'`）
+- 写真は Supabase Storage の `counselor-photos` バケットにアップロード
+- チップ入力：Enter/カンマで追加、×ボタンで削除
+
+---
+
+### リール編集（`/reel`）
+
+- 左カラム：キャッチコピー + 画像グリッド + キャプション編集
+- 右カラム：iPhoneプレビュー（sticky）
+
+**キャッチコピー（`CatchphraseField`）**
+- 20文字制限・プログレスバー（16文字超でオレンジ、20文字で赤）
+- 2秒デバウンス自動保存
+
+**画像グリッド（`ReelImageGrid`）**
+- @dnd-kit でドラッグ&ドロップ並び替え
+- 並び替え後 `display_order` を一括 UPDATE
+- 画像追加：縦横比チェック（ratio > 0.6 で確認ダイアログ）→ Supabase Storage `counselor-media` バケットへアップロード
+- 最大10枚
+
+**iPhoneプレビュー（`PhonePreview`）**
+- 9:16 アスペクト比・iPhone フレーム CSS
+- 上部プログレスセグメント（選択中の画像インデックスと連動）
+- 右側アクション（ハート/コメント/シェア）
+- 下部オーバーレイ：キャッチコピー + キャプション
+- レビューボトムシート（スワイプ風UI）
+- シェアシート（`ShareSheet`：X / LINE / URLコピー）
+
+**公開トグル**
+- `reel_enabled` フィールドを即時 UPDATE
+- トースト通知で「リールを公開しました」「非公開にしました」
+
+---
+
+### カレンダー・予約枠管理（`/calendar`）
+
+- 月カレンダー（`MonthGrid`）：7列グリッド・スロットドット（open=緑/booked=accent/locked=薄灰）・今日ハイライト
+- 日選択 → `SlotDetailPanel`：その日のスロット一覧・ステータス変更 select・削除ボタン
+- 枠追加（`SlotForm`）：開始時刻 select（9:00〜20:00 / 30分刻み）→ 終了時刻自動計算（+1h）→ INSERT
+- 月移動（前月/次月ボタン）で Supabase から該当月のスロットを再取得
+
+---
+
+### 口コミ一覧・返信（`/reviews`）
+
+- フィルターピル：全件 / 未返信 / ★4以上 / ★3以下
+- 未返信件数バッジ付きフィルター
+- カード展開で返信フォーム（`ReplyForm`）を表示
+  - 下書き自動保存：1秒デバウンスで `localStorage` に保存（キー: `kinda_reply_draft_{reviewId}`）
+  - **2段階確認モーダル**：「送信する」→ 確認ダイアログ → 確定送信（1回のみ・取り消し不可）
+  - 返信済みは返信フォームを非表示、返信内容を読み取り専用で表示
+- 口コミ展開時に `logPersonalDataAccess('reviews', id)` で監査ログ記録
+- `handleReply` で二重送信防止チェック（送信前に DB から最新 `agency_reply` を取得）
+
+---
+
+## Supabase クライアントの使い方
+
+```typescript
+// 'use client' コンポーネント内
+import { createClient } from '@/lib/supabase/client'
+const supabase = createClient()  // generic なし（型推論バグ防止）
+
+// サーバーコンポーネント・Server Actions
+import { createClient } from '@/lib/supabase/server'
+const supabase = await createClient()
+```
+
+### 重要な注意事項
+
+1. **`createBrowserClient<Database>()` の Database generic は使わない**
+   - `.update()` の引数が `never` 型になるバグが発生する
+   - `client.ts` は generic なしで実装済み
+
+2. **JOIN クエリ `select('*, table(col)')` は使わない**
+   - `Database` 型に `Relationships` が未定義だと戻り値が `never` になる
+   - 別クエリで取得する（例：counselor 取得後に agency を別途 select）
+
+3. **各ページで独自 interface を定義する**
+   - `lib/types.ts` の型を直接インポートして使うのは OK だが、JOIN 結果などは独自 interface に
+
+4. **Google Fonts は `app/layout.tsx` の `<link>` タグで読み込む**
+   - `globals.css` に `@import url(...)` を書くと Next.js webpack がビルドエラーを出す（解決済み）
+
+5. **`autoprefixer` は `devDependencies` に明示記載が必要**（解決済み）
+
+---
+
+## TypeScript でハマりやすいパターン（過去の失敗から）
+
+### 型の絞り込み後の比較
+
+```tsx
+// NG: slot.status === 'open' のブロック内では TypeScript が 'open' に型絞り込みをする
+{slot.status === 'open' && (
+  <button style={{ marginLeft: slot.status !== 'booked' ? 4 : 'auto' }}>
+  // ↑ slot.status は常に 'open' なので 'booked' との比較は型エラー
+```
+
+```tsx
+// OK: 絞り込み済みなので定数にする
+{slot.status === 'open' && (
+  <button style={{ marginLeft: 4 }}>
+```
+
+### `() => void` 型の props に引数を渡さない
+
+```tsx
+// SortableItem の onDelete は () => void（item.id は外側クロージャで取り込み済み）
+// NG:
+onClick={e => { e.stopPropagation(); onDelete(item.id) }}
+// OK:
+onClick={e => { e.stopPropagation(); onDelete() }}
+```
+
+---
+
+## 環境変数
+
+`.env.local` に以下を設定する：
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+---
+
+## 開発コマンド
+
+```bash
+cd futarive-counselor
+npm install
+npm run dev    # localhost:3001 で起動
+npm run build  # 本番ビルド（型チェック含む）
+```
+
+---
+
+## ブランチと作業手順
+
+**開発ブランチ：** `claude/counselor-admin-dashboard-ZECfQ`
+
+修正・追加は必ず以下の手順で行う：
+
+```bash
+# 1. 開発ブランチで作業・コミット
+git -C /home/user/my-app add futarive-counselor/...
+git -C /home/user/my-app commit -m "fix(counselor): ..."
+git -C /home/user/my-app push -u origin claude/counselor-admin-dashboard-ZECfQ
+
+# 2. main にも cherry-pick（Vercel は main を監視）
+git -C /home/user/my-app checkout main
+git -C /home/user/my-app cherry-pick <commit-hash>
+git -C /home/user/my-app push -u origin main
+git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
+```
+
+**なぜこの手順か：** Vercel の futarive-counselor プロジェクトは `main` ブランチを監視している。開発ブランチで作業し、main への cherry-pick でデプロイを行う。
+
+**git コマンドは必ず `-C /home/user/my-app` で my-app リポジトリのルートから実行する。**
+`futarive-counselor/` ディレクトリ内では `git add` のパス解決がずれてエラーになる。
+
+---
+
+## 今後の実装予定
+
+| 機能 | 概要 |
+|---|---|
+| 複数カウンセラー切替（オーナー向け） | ダッシュボード・リール・プロフィールを `currentCounselorId` に連動させる |
+| Supabase Realtime（カレンダー） | 他デバイスでのスロット変更をリアルタイム反映 |
+| 予約詳細確認 | カレンダー画面から `booked` スロットの予約者情報を表示 |
+| プロフィール写真トリミング | アップロード時にブラウザ内でクロップ UI |
+| 通知機能 | 新規予約・新規口コミ着信時のブラウザ通知 |
