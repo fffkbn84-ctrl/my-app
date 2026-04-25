@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { logAuthEvent } from '@/lib/supabase/audit'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 const NAV_ITEMS = [
   {
@@ -122,6 +123,7 @@ export default function Sidebar() {
 
       {/* フッター */}
       <div className="kc-sidebar-footer">
+        <ThemeToggle variant="sidebar" />
         <button onClick={handleLogout} className="kc-nav-item" style={{ width: '100%' }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 interface MobileTopBarProps {
   title?: string
@@ -39,6 +40,7 @@ export default function MobileTopBar({ title, accountName }: MobileTopBarProps) 
       )}
 
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <ThemeToggle variant="topbar" />
         {accountName && (
           <div style={{
             width: 30,

@@ -125,22 +125,15 @@ export default function CalendarPage() {
       <h1 className="page-title" style={{ marginBottom: 24 }}>予約枠管理</h1>
 
       <div className="kc-card" style={{ padding: 20 }}>
-        {/* カレンダーヘッダー */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* カレンダーヘッダー: モバイルでは縦スタック (CSS で制御) */}
+        <div className="cal-header">
+          <div className="cal-header-nav">
             <button onClick={prevMonth} className="kc-btn kc-btn-ghost kc-btn-sm" style={{ padding: '6px 10px' }}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <span style={{
-              fontFamily: 'DM Sans, sans-serif',
-              fontWeight: 600,
-              fontSize: 16,
-              color: 'var(--text-deep)',
-              minWidth: 80,
-              textAlign: 'center',
-            }}>
+            <span className="cal-header-month">
               {year}年 {MONTH_NAMES[month]}
             </span>
             <button onClick={nextMonth} className="kc-btn kc-btn-ghost kc-btn-sm" style={{ padding: '6px 10px' }}>
@@ -151,7 +144,7 @@ export default function CalendarPage() {
           </div>
 
           <button
-            className="kc-btn kc-btn-ghost kc-btn-sm"
+            className="kc-btn kc-btn-ghost kc-btn-sm cal-header-today"
             onClick={() => { setYear(today.getFullYear()); setMonth(today.getMonth()) }}
           >
             今月

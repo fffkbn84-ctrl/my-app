@@ -13,8 +13,8 @@
   --card-warm: #FFFBF4;
   --card-hover: #F7F2E8;
 
-  /* text */
-  --text-deep: #1A130E;
+  /* text — deep coral brown for titles (温かみのある最高コントラスト) */
+  --text-deep: #4A2A1F;
   --text: #2E2620;
   --text-mid: #6B5D52;
   --text-light: #B0A090;
@@ -116,8 +116,12 @@
   padding: 0;
 }
 
+/* Safari の自動ダーク反転対策: html/body/全レイアウトコンテナに背景色を必ず明示する。
+   未指定だと iPhone のダーク設定下で Safari がページの一部だけ勝手に反転する事故が起きる。 */
 html {
   -webkit-text-size-adjust: 100%;
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
@@ -127,6 +131,12 @@ body {
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.kc-shell {
+  background: var(--bg);
+  min-height: 100vh;
 }
 
 /* ─── SCROLLBAR ─── */
@@ -427,6 +437,36 @@ body {
   .cal-day-num { font-size: 11px; }
   .cal-dot { width: 4px; height: 4px; }
   .cal-cell { padding: 4px 1px; }
+}
+
+/* カレンダーヘッダー: モバイルでは縦スタックして月表示を中央寄せ */
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cal-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cal-header-month {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-deep);
+  min-width: 80px;
+  text-align: center;
+}
+@media (max-width: 560px) {
+  .cal-header { flex-direction: column; align-items: stretch; }
+  .cal-header-nav { justify-content: center; }
+  .cal-header-today {
+    align-self: center;
+  }
 }
 
 /* ─── PHONE FRAME ─── */
