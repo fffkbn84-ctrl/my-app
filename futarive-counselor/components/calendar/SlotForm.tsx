@@ -39,26 +39,42 @@ interface SlotFormProps {
   loading: boolean
   consultationStart?: string | null  // "HH:mm[:ss]"
   consultationEnd?: string | null
+  slotMinutes?: number               // デフォルト所要時間（分）
 }
 
-export default function SlotForm({ date, onAdd, onClose, loading, consultationStart, consultationEnd }: SlotFormProps) {
+function addMinutesHHMM(time: string, deltaMin: number): string {
+  const [h, m] = time.split(':').map(Number)
+  const total = h * 60 + m + deltaMin
+  const hh = Math.floor(total / 60)
+  const mm = total % 60
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+}
+
+export default function SlotForm({ date, onAdd, onClose, loading, consultationStart, consultationEnd, slotMinutes = 60 }: SlotFormProps) {
   // 面談可能時間が無ければ 09:00-20:00 をデフォルトに
   const startMin = toMinutes(consultationStart, 9 * 60)
   const endMin = toMinutes(consultationEnd, 20 * 60)
   const startTimes = buildTimes(startMin, Math.max(startMin, endMin - 30))
   const endTimes = buildTimes(startMin + 30, endMin)
 
-  const [startTime, setStartTime] = useState(startTimes[Math.min(2, startTimes.length - 1)] ?? startTimes[0] ?? '10:00')
-  const [endTime, setEndTime] = useState(endTimes.find(t => t > startTime) ?? endTimes[0] ?? '11:00')
+  const initialStart = startTimes[0] ?? '10:00'
+  const suggestedEnd = addMinutesHHMM(initialStart, slotMinutes)
+  const [startTime, setStartTime] = useState(initialStart)
+  const [endTime, setEndTime] = useState(
+    endTimes.includes(suggestedEnd) ? suggestedEnd : (endTimes.find(t => t > initialStart) ?? endTimes[0] ?? '11:00')
+  )
 
-  // 開始時刻の変更で終了時刻が破綻したら自動補正
+  // 開始時刻が変わったら所要時間ぶん後の終了時刻に自動セット
   useEffect(() => {
-    if (endTime <= startTime) {
+    const suggested = addMinutesHHMM(startTime, slotMinutes)
+    if (endTimes.includes(suggested)) {
+      setEndTime(suggested)
+    } else if (endTime <= startTime) {
       const next = endTimes.find(t => t > startTime)
       if (next) setEndTime(next)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startTime])
+  }, [startTime, slotMinutes])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

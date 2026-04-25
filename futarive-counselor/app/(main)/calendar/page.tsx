@@ -185,11 +185,12 @@ export default function CalendarPage() {
     return agency.closed_weekdays.includes(dow)
   })()
 
-  // 面談可能時間帯で60分スロットを一括生成
+  // 面談可能時間帯で agency 設定の所要時間スロットを一括生成
   const handleBulkGenerate = async () => {
     if (!counselor || !selectedDate) return
     const startStr = (agency?.consultation_start_time ?? '10:00').slice(0, 5)
     const endStr = (agency?.consultation_end_time ?? '19:00').slice(0, 5)
+    const slotMin = agency?.default_slot_minutes ?? 60
     const [sh, sm] = startStr.split(':').map(Number)
     const [eh, em] = endStr.split(':').map(Number)
     const startMin = sh * 60 + sm
@@ -207,16 +208,20 @@ export default function CalendarPage() {
       })
     )
 
-    const toInsert: { counselor_id: string; start_at: string; end_at: string; status: 'open' }[] = []
-    for (let mm = startMin; mm + 60 <= endMin; mm += 60) {
+    const minutesToHHMM = (mm: number) => {
       const h = Math.floor(mm / 60)
       const m = mm % 60
-      const t = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+    }
+
+    const toInsert: { counselor_id: string; start_at: string; end_at: string; status: 'open' }[] = []
+    for (let mm = startMin; mm + slotMin <= endMin; mm += slotMin) {
+      const t = minutesToHHMM(mm)
       if (existingStarts.has(t)) continue
       toInsert.push({
         counselor_id: counselor.id,
         start_at: localDateTimeToIsoStr(selectedDate, t),
-        end_at: localDateTimeToIsoStr(selectedDate, `${String(h + 1).padStart(2, '0')}:${String(m).padStart(2, '0')}`),
+        end_at: localDateTimeToIsoStr(selectedDate, minutesToHHMM(mm + slotMin)),
         status: 'open',
       })
     }
@@ -369,6 +374,7 @@ export default function CalendarPage() {
               loading={addingSlot}
               consultationStart={agency?.consultation_start_time}
               consultationEnd={agency?.consultation_end_time}
+              slotMinutes={agency?.default_slot_minutes ?? 60}
             />
           </div>
         </div>

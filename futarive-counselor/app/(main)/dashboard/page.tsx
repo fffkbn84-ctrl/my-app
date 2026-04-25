@@ -239,9 +239,9 @@ export default function DashboardPage() {
           </div>
           <button className="ctx-add" onClick={() => router.push('/agency')}>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M2 10V4l4-3 4 3v6M5 10V7h2v3" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round"/>
             </svg>
-            カウンセラーを追加
+            相談所プロフィールを編集
           </button>
         </div>
       )}

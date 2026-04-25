@@ -8,6 +8,7 @@ export interface Agency {
   consultation_start_time: string | null  // "HH:mm:ss" or "HH:mm"
   consultation_end_time: string | null
   closed_weekdays: number[] | null         // 0=日 ... 6=土
+  default_slot_minutes: number | null      // 1枠あたりの所要時間（分）
   created_at: string
 }
 

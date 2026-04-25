@@ -23,6 +23,7 @@ export default function AgencyPage() {
     consultation_start_time: '10:00',
     consultation_end_time: '19:00',
     closed_weekdays: [] as number[],
+    default_slot_minutes: 60,
   })
 
   const formRef = useRef(form)
@@ -39,6 +40,7 @@ export default function AgencyPage() {
       consultation_start_time: (ag.consultation_start_time ?? '10:00').slice(0, 5),
       consultation_end_time: (ag.consultation_end_time ?? '19:00').slice(0, 5),
       closed_weekdays: ag.closed_weekdays ?? [],
+      default_slot_minutes: ag.default_slot_minutes ?? 60,
     })
   }
 
@@ -95,6 +97,7 @@ export default function AgencyPage() {
       consultation_start_time: f.consultation_start_time || null,
       consultation_end_time: f.consultation_end_time || null,
       closed_weekdays: f.closed_weekdays.length > 0 ? f.closed_weekdays : null,
+      default_slot_minutes: f.default_slot_minutes || null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -329,6 +332,27 @@ export default function AgencyPage() {
           </div>
           <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
             選択した曜日は予約枠カレンダーで「定休日」として表示されます。
+          </p>
+        </div>
+
+        {/* 1枠あたりの所要時間 */}
+        <div>
+          <label className="kc-label">面談1枠の所要時間</label>
+          <select
+            className="kc-select"
+            style={{ maxWidth: 200 }}
+            value={String(form.default_slot_minutes)}
+            onChange={e => update('default_slot_minutes', Number(e.target.value))}
+          >
+            <option value="30">30分</option>
+            <option value="45">45分</option>
+            <option value="60">60分（1時間）</option>
+            <option value="75">75分</option>
+            <option value="90">90分（1.5時間）</option>
+            <option value="120">120分（2時間）</option>
+          </select>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            予約枠の自動生成と「枠を追加」の終了時刻のデフォルトに使われます。
           </p>
         </div>
       </div>
