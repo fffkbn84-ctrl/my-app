@@ -33,12 +33,12 @@ declare
   v_counselor_name text;
   v_agency_name    text;
 begin
-  select c.name, a.name
+  select counselors.name, agencies.name
     into v_counselor_name, v_agency_name
-  from public.counselors c
-  left join public.agencies a on a.id = c.agency_id
-  where c.invite_token = p_token
-    and c.owner_user_id is null;
+  from public.counselors
+  left join public.agencies on agencies.id = counselors.agency_id
+  where counselors.invite_token = p_token
+    and counselors.owner_user_id is null;
 
   if v_counselor_name is null then
     return json_build_object('valid', false);
