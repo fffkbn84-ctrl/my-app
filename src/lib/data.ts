@@ -97,6 +97,25 @@ export type Counselor = {
   cancelPolicy?: string;
   /** 婚活タイプ診断で相性の良いタイプID（"A" | "B" | "C" | "D"） */
   diagnosisType?: string;
+  /* ───── /kinda-talk リール用フィールド ───── */
+  /** リール1枚目に表示される 20 文字以内のキャッチコピー */
+  catchphrase?: string;
+  /** 自己紹介の本文（個別ページ用） */
+  intro?: string;
+  /** 座右の銘や一言メッセージ */
+  quote?: string;
+  /** 得意分野（既存 tags より具体的なテキスト） */
+  specialties?: string[];
+  /** 資格 */
+  qualifications?: string[];
+  /** 料金（個別ページのテキスト表示用） */
+  fee?: string;
+  /** Kinda type（最大2: 自動診断1 + 手動追加1） */
+  matchingTypes?: string[];
+  /** 営業デモ用ダミーフラグ（true なら "サンプル" バッジ表示） */
+  isDemo?: boolean;
+  /** リール画像（モック段階ではグラデ + キャプションで表現） */
+  reelImages?: { bg: string; caption?: string }[];
 };
 
 export const AGENCIES: Agency[] = [
@@ -285,6 +304,18 @@ export const COUNSELORS: Counselor[] = [
     message: "まずあなたの話をじっくり聞くことを大切にしています。",
     campaign: "初回面談料 無料",
     diagnosisType: "B",
+    catchphrase: "焦らなくていい、話を聞かせて",
+    intro: "結婚相談所のカウンセラーになって11年、約400組の出会いを見てきました。最初の面談で大切にしているのは、あなたが今どんな気持ちでここに来てくれたのかをゆっくり聞くこと。婚活は人生の選択。だから、急がず、誤魔化さず、あなたの言葉を待ちます。",
+    quote: "「結婚は、誰かの理想ではなく、あなたの安心の場所」",
+    specialties: ["30代女性のキャリア両立", "IT・医療職サポート", "傾聴型カウンセリング"],
+    qualifications: ["IBJ認定カウンセラー", "メンタルヘルス・マネジメント検定 II 種"],
+    fee: "入会金 100,000円 / 月会費 18,000円〜",
+    matchingTypes: ["anshin", "jibunjiku"],
+    reelImages: [
+      { bg: "linear-gradient(135deg,#F5E8D8,#EDD8C0)", caption: "焦らなくていい、話を聞かせて" },
+      { bg: "linear-gradient(160deg,#FAEAE5,#F0D8D0)", caption: "あなたのペースで、いっしょに" },
+      { bg: "linear-gradient(135deg,#FAF3DE,#F4E8C4)", caption: "30代女性の婚活、約400組見てきました" },
+    ],
   },
   {
     id: 2,
@@ -306,6 +337,17 @@ export const COUNSELORS: Counselor[] = [
     message: "男性目線から率直なアドバイスをします。",
     campaign: "初回面談料 無料",
     diagnosisType: "A",
+    catchphrase: "回り道はしない、戦略で結婚する",
+    intro: "医師・自営業・経営者の方の婚活を中心にサポート。男性目線で「どうすれば確率が上がるか」を共に考えます。優しさだけでは婚活は終わらない。データと戦略で、ここから半年〜1年での成婚を一緒に目指します。",
+    quote: "「迷ったら、行動で答えを取りに行く」",
+    specialties: ["医師・経営者の婚活", "短期成婚プラン", "男性目線アドバイス"],
+    qualifications: ["IBJ認定カウンセラー", "ファイナンシャルプランナー2級"],
+    fee: "入会金 100,000円 / 月会費 18,000円〜",
+    matchingTypes: ["senryaku", "zenryoku"],
+    reelImages: [
+      { bg: "linear-gradient(135deg,#D8EAE0,#C0D8CA)", caption: "回り道はしない、戦略で結婚する" },
+      { bg: "linear-gradient(160deg,#E0ECF8,#C4D8EC)", caption: "男性目線で確率を上げる" },
+    ],
   },
   {
     id: 3,
@@ -326,6 +368,18 @@ export const COUNSELORS: Counselor[] = [
     svgColor: "#6B8FBF",
     message: "急かされることなく、自分の希望が整理できる場をつくります。",
     diagnosisType: "C",
+    catchphrase: "あなたの軸を、一緒にさがしましょう",
+    intro: "婚活で迷子になっていた方の「自分にとって大切なもの」を一緒に言葉にしてきました。結婚は誰かに合わせる場所ではなく、あなたの価値観を分かち合える人との出会い。12年間で見てきたのは、自分軸を見つけた人ほど、納得のいく結婚にたどり着いているということ。",
+    quote: "「答えは外ではなく、あなたの中にある」",
+    specialties: ["価値観の言語化", "30代の自分探し", "押しつけないカウンセリング"],
+    qualifications: ["IBJ認定カウンセラー", "産業カウンセラー"],
+    fee: "入会金 80,000円 / 月会費 12,000円〜",
+    matchingTypes: ["jibunjiku", "anshin"],
+    reelImages: [
+      { bg: "linear-gradient(135deg,#E8EEF0,#D0DFE4)", caption: "あなたの軸を、一緒にさがしましょう" },
+      { bg: "linear-gradient(160deg,#FAEAE5,#F0D8D0)", caption: "急がない婚活でいい" },
+      { bg: "linear-gradient(135deg,#F0E5D6,#E0D0BC)", caption: "自分の言葉を取り戻す時間" },
+    ],
   },
   {
     id: 4,
@@ -347,6 +401,17 @@ export const COUNSELORS: Counselor[] = [
     message: "再婚でも全く気にせず話せる環境をつくります。",
     campaign: "5月限定 入会金20,000円割引",
     diagnosisType: "B",
+    catchphrase: "もう一度、と決めたあなたへ",
+    intro: "再婚・40代以降の婚活を専門にサポート。一度目で諦めかけた人ほど、本当に大切なものが見えていることが多いと感じています。事情があっても、過去があっても、ここからの幸せは作れる。関西エリアで6年間、新しい出発に立ち会ってきました。",
+    quote: "「過去は変えられないけれど、これからは選べる」",
+    specialties: ["再婚サポート", "40代以降の婚活", "シングルマザー対応"],
+    qualifications: ["IBJ認定カウンセラー", "家族支援専門相談員"],
+    fee: "入会金 80,000円 / 月会費 12,000円〜",
+    matchingTypes: ["restart", "anshin"],
+    reelImages: [
+      { bg: "linear-gradient(135deg,#E8D8EE,#D4C0E2)", caption: "もう一度、と決めたあなたへ" },
+      { bg: "linear-gradient(160deg,#E8F4E4,#C8E0C0)", caption: "過去ごと受け止める場所" },
+    ],
   },
   {
     id: 5,
@@ -368,6 +433,17 @@ export const COUNSELORS: Counselor[] = [
     message: "15年のキャリアで積み上げた知識でサポートします。",
     campaign: "入会金半額キャンペーン実施中",
     diagnosisType: "A",
+    catchphrase: "15年の経験で、確率を上げる",
+    intro: "結婚相談所のカウンセラーになって15年、名古屋エリアで300組以上の成婚を見届けてきました。経験から導き出した「決まる人のパターン」をお伝えします。優しさと厳しさを使い分け、一年以内の成婚を真剣に目指す方を歓迎します。",
+    quote: "「正しい行動は、必ず結果につながる」",
+    specialties: ["短期成婚", "名古屋エリア", "経験豊富なベテラン"],
+    qualifications: ["IBJ認定カウンセラー", "成婚アドバイザー資格"],
+    fee: "入会金 100,000円 / 月会費 14,000円〜",
+    matchingTypes: ["senryaku", "zenryoku"],
+    reelImages: [
+      { bg: "linear-gradient(135deg,#FEF3C7,#FDE68A)", caption: "15年の経験で、確率を上げる" },
+      { bg: "linear-gradient(160deg,#E0ECF8,#C4D8EC)", caption: "名古屋で300組の成婚に立ち会いました" },
+    ],
   },
   {
     id: 6,
@@ -388,6 +464,178 @@ export const COUNSELORS: Counselor[] = [
     svgColor: "#3B82F6",
     message: "同世代感覚で話せる環境を大切にしています。",
     diagnosisType: "D",
+    catchphrase: "同世代だから、わかる温度感で",
+    intro: "20代後半〜30代前半の婚活を中心に、オンラインでの相談を専門にしています。同世代として、価値観や働き方を理解した上でアドバイスしたい。地方在住の方や、仕事が忙しくて店舗に通えない方も大歓迎です。",
+    quote: "「気構えずに、まずは話してみよう」",
+    specialties: ["20代の婚活", "オンライン専門", "IT・クリエイター職"],
+    qualifications: ["IBJ認定カウンセラー"],
+    fee: "入会金 50,000円 / 月会費 10,000円〜",
+    matchingTypes: ["lifestyle", "jibunjiku"],
+    reelImages: [
+      { bg: "linear-gradient(135deg,#DBEAFE,#BFDBFE)", caption: "同世代だから、わかる温度感で" },
+      { bg: "linear-gradient(160deg,#F0E5D6,#E0D0BC)", caption: "オンラインで全国どこからでも" },
+    ],
+  },
+  /* ──────────────────────────────────────────
+     営業デモ用ダミー（is_demo=true）
+     ふうかが他相談所への営業時に「掲載されるとこう見えます」を
+     見せるためのサンプル。カード上に「サンプル」バッジが付く。
+  ────────────────────────────────────────── */
+  {
+    id: 101,
+    name: "藤村 詩織（サンプル）",
+    kana: "ふじむら しおり",
+    agencyId: 1,
+    agencyName: "ブライダルハウス銀座（サンプル）",
+    area: "東京・銀座",
+    role: "シニアブライダルカウンセラー",
+    experience: 15,
+    tags: ["再婚OK", "30〜40代女性", "実績重視"],
+    rating: 4.9,
+    reviewCount: 28,
+    online: true,
+    minAdmission: 110000,
+    monthlyFrom: 18000,
+    gradient: "linear-gradient(135deg,#FAEAE5,#F0D8D0)",
+    svgColor: "#D4A090",
+    message: "（サンプル）あなたのペースで、丁寧に。",
+    catchphrase: "丁寧に、納得のいく出会いを",
+    intro: "（サンプル表示）ブライダルハウス銀座で15年カウンセラーを務めています。30〜40代女性を中心に、再婚や仕事との両立など、人生のステージに合わせたサポートを大切にしています。",
+    quote: "「焦らず、流されず、選ぶ」",
+    specialties: ["再婚サポート", "30〜40代女性", "実績重視"],
+    qualifications: ["IBJ認定カウンセラー"],
+    fee: "入会金 110,000円 / 月会費 18,000円〜",
+    matchingTypes: ["anshin", "restart"],
+    isDemo: true,
+    reelImages: [
+      { bg: "linear-gradient(135deg,#FAEAE5,#F0D8D0)", caption: "丁寧に、納得のいく出会いを" },
+      { bg: "linear-gradient(160deg,#F0E5D6,#E0D0BC)", caption: "15年の実績でサポート" },
+      { bg: "linear-gradient(135deg,#FAF3DE,#F4E8C4)", caption: "再婚も、年齢も、関係なく" },
+    ],
+  },
+  {
+    id: 102,
+    name: "吉岡 結衣（サンプル）",
+    kana: "よしおか ゆい",
+    agencyId: 3,
+    agencyName: "マリッジサポート梅田（サンプル）",
+    area: "大阪・梅田",
+    role: "ブライダルカウンセラー",
+    experience: 8,
+    tags: ["自分軸", "20〜30代", "関西エリア"],
+    rating: 4.8,
+    reviewCount: 19,
+    online: true,
+    minAdmission: 80000,
+    monthlyFrom: 13000,
+    gradient: "linear-gradient(135deg,#E8EEF0,#D0DFE4)",
+    svgColor: "#A0B8D4",
+    message: "（サンプル）自分の軸を、一緒に見つけましょう。",
+    catchphrase: "あなたの「好き」から始めよう",
+    intro: "（サンプル表示）マリッジサポート梅田所属。8年間で「自分が本当は何を求めているのか」を一緒に見つけることを大切にしてきました。",
+    quote: "「好きの輪郭が、相手を引き寄せる」",
+    specialties: ["自分軸の発見", "20〜30代", "関西"],
+    qualifications: ["IBJ認定カウンセラー", "心理カウンセラー資格"],
+    fee: "入会金 80,000円 / 月会費 13,000円〜",
+    matchingTypes: ["jibunjiku"],
+    isDemo: true,
+    reelImages: [
+      { bg: "linear-gradient(135deg,#E8EEF0,#D0DFE4)", caption: "あなたの「好き」から始めよう" },
+      { bg: "linear-gradient(160deg,#FAEAE5,#F0D8D0)", caption: "8年間、自分軸を一緒に探してきました" },
+    ],
+  },
+  {
+    id: 103,
+    name: "山本 健太（サンプル）",
+    kana: "やまもと けんた",
+    agencyId: 5,
+    agencyName: "天神マリッジセンター（サンプル）",
+    area: "福岡・天神",
+    role: "ブライダルカウンセラー",
+    experience: 12,
+    tags: ["戦略派", "データ志向", "男性カウンセラー"],
+    rating: 4.7,
+    reviewCount: 31,
+    online: true,
+    minAdmission: 90000,
+    monthlyFrom: 14000,
+    gradient: "linear-gradient(135deg,#E0ECF8,#C4D8EC)",
+    svgColor: "#A0B8D4",
+    message: "（サンプル）データに基づく戦略で、確実に。",
+    catchphrase: "データで選ぶ、最短の道",
+    intro: "（サンプル表示）天神マリッジセンター所属。12年間蓄積したデータをもとに、確率を上げる行動を一緒に設計します。",
+    quote: "「感情と数字、両方で結婚する」",
+    specialties: ["戦略立案", "データ分析", "男性目線アドバイス"],
+    qualifications: ["IBJ認定カウンセラー", "MBA"],
+    fee: "入会金 90,000円 / 月会費 14,000円〜",
+    matchingTypes: ["senryaku"],
+    isDemo: true,
+    reelImages: [
+      { bg: "linear-gradient(135deg,#E0ECF8,#C4D8EC)", caption: "データで選ぶ、最短の道" },
+      { bg: "linear-gradient(160deg,#D8EAE0,#C0D8CA)", caption: "12年分のデータが、あなたを支える" },
+    ],
+  },
+  {
+    id: 104,
+    name: "中村 さくら（サンプル）",
+    kana: "なかむら さくら",
+    agencyId: 4,
+    agencyName: "栄ブライダルカフェ（サンプル）",
+    area: "名古屋・栄",
+    role: "ブライダルカウンセラー",
+    experience: 5,
+    tags: ["20〜30代", "全力サポート", "明るい"],
+    rating: 4.9,
+    reviewCount: 14,
+    online: false,
+    minAdmission: 70000,
+    monthlyFrom: 11000,
+    gradient: "linear-gradient(135deg,#F5E5E1,#ECC8C5)",
+    svgColor: "#C89090",
+    message: "（サンプル）二人三脚で、本気で婚活します。",
+    catchphrase: "本気のあなたと、本気で走ります",
+    intro: "（サンプル表示）栄ブライダルカフェ所属。5年間、全力で寄り添うことを大切にしてきました。本気で結婚したい人と本気で向き合う、シンプルだけど強いスタンスです。",
+    quote: "「本気は、最強の武器」",
+    specialties: ["全力サポート", "明るい雰囲気", "20〜30代"],
+    qualifications: ["IBJ認定カウンセラー"],
+    fee: "入会金 70,000円 / 月会費 11,000円〜",
+    matchingTypes: ["zenryoku"],
+    isDemo: true,
+    reelImages: [
+      { bg: "linear-gradient(135deg,#F5E5E1,#ECC8C5)", caption: "本気のあなたと、本気で走ります" },
+      { bg: "linear-gradient(160deg,#FAF3DE,#F4E8C4)", caption: "全力で、結婚を一緒に取りに行く" },
+    ],
+  },
+  {
+    id: 105,
+    name: "高橋 玲奈（サンプル）",
+    kana: "たかはし れいな",
+    agencyId: 5,
+    agencyName: "オンライン専門 RING（サンプル）",
+    area: "オンライン",
+    role: "ブライダルカウンセラー",
+    experience: 10,
+    tags: ["オンライン専門", "仕事忙しい人向け", "全国対応"],
+    rating: 4.8,
+    reviewCount: 22,
+    online: true,
+    minAdmission: 60000,
+    monthlyFrom: 11000,
+    gradient: "linear-gradient(135deg,#F0E5D6,#E0D0BC)",
+    svgColor: "#B0A090",
+    message: "（サンプル）忙しい毎日でも、無理なく続けられる婚活を。",
+    catchphrase: "仕事も、婚活も、両立できる",
+    intro: "（サンプル表示）オンライン専門 RING 所属。10年間、忙しい方の婚活をサポート。「仕事を犠牲にしない婚活」を一緒に設計します。",
+    quote: "「無理なく続くことが、いちばんの近道」",
+    specialties: ["オンライン専門", "ライフスタイル両立", "全国対応"],
+    qualifications: ["IBJ認定カウンセラー"],
+    fee: "入会金 60,000円 / 月会費 11,000円〜",
+    matchingTypes: ["lifestyle"],
+    isDemo: true,
+    reelImages: [
+      { bg: "linear-gradient(135deg,#F0E5D6,#E0D0BC)", caption: "仕事も、婚活も、両立できる" },
+      { bg: "linear-gradient(160deg,#E0ECF8,#C4D8EC)", caption: "全国どこからでもオンラインで" },
+    ],
   },
 ];
 

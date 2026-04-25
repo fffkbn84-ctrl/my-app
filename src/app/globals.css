@@ -3161,3 +3161,757 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   font-family: 'DM Sans', sans-serif;
   letter-spacing: .04em;
 }
+
+/* ═════════════════════════════════════════════════════════
+   /kinda-talk — カウンセラー一覧ページ
+   ────────────────────────────────────────────────────────
+   セクション別カラートークン + Safari ダーク自動反転対策
+   + リール表示用クラス群
+   ───────────────────────────────────────────────────────── */
+
+/* Safari の自動ダーク反転を抑止：ライトカラースキームを宣言 */
+:root {
+  color-scheme: light;
+}
+
+/* セクション別カラートークン — data-section で適用 */
+[data-section="note"]  { --section-bg:#FAF5EE; --section-tint:#F0E5D6; --section-deep:#B8956A; }
+[data-section="type"]  { --section-bg:#E0ECF8; --section-tint:#C4D8EC; --section-deep:#5A7FAF; }
+[data-section="talk"]  { --section-bg:#FAF3DE; --section-tint:#F4E8C4; --section-deep:#B89A4A; }
+[data-section="meet"]  { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
+[data-section="glow"]  { --section-bg:#EDE0F4; --section-tint:#DCC5E8; --section-deep:#8A66B0; }
+[data-section="story"] { --section-bg:#E8F4E4; --section-tint:#C8E0C0; --section-deep:#5A8050; }
+
+/* ─── /kinda-talk レイアウト全体 ─── */
+.kt-page {
+  min-height: 100vh;
+  background: #FEFCFA;
+  color: var(--ink);
+}
+
+/* ─── ヒーロー ─── */
+.kt-hero {
+  position: relative;
+  background: var(--section-bg, #FAF3DE);
+  padding: calc(var(--header-height) + 28px) 20px 36px;
+  overflow: hidden;
+}
+.kt-hero-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+}
+.kt-hero-illust {
+  width: clamp(180px, 60vw, 280px);
+  height: clamp(180px, 60vw, 280px);
+  margin: 8px auto 18px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #FFFBF4, #F4E8C4 60%, #ECC8C5);
+  box-shadow: 0 12px 40px rgba(184,154,74,.18), inset 0 1.5px 0 rgba(255,255,255,.92);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kt-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--section-deep, #B89A4A);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.kt-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(28px, 6vw, 42px);
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+.kt-hero-title em {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+  margin: 0 4px;
+}
+.kt-hero-sub {
+  font-size: 13px;
+  color: var(--mid);
+  margin-bottom: 18px;
+}
+.kt-hero-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.15);
+  margin: 18px auto;
+}
+.kt-hero-copy {
+  font-family: Georgia, 'Shippori Mincho', serif;
+  font-style: italic;
+  font-size: clamp(16px, 3.6vw, 20px);
+  line-height: 1.9;
+  color: var(--ink);
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+.kt-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.7);
+  border: 1px solid rgba(212,160,144,.4);
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 12px;
+  color: var(--ink);
+  letter-spacing: .04em;
+  transition: all .2s ease;
+}
+.kt-hero-cta:hover {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+.kt-hero-mytype {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.85);
+  border: 1px solid rgba(212,160,144,.4);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.kt-hero-mytype-label {
+  color: var(--mid);
+  font-size: 11px;
+}
+
+/* ─── ガイドミニ ─── */
+.kt-guide {
+  background: #FEFCFA;
+  padding: 56px 20px 40px;
+}
+.kt-guide-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+.kt-guide-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 auto 12px;
+}
+.kt-guide-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+  margin: 0 auto 12px;
+}
+.kt-guide-text {
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--ink);
+  margin: 16px auto;
+}
+.kt-guide-text + .kt-guide-text {
+  margin-top: 14px;
+}
+.kt-guide-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: .04em;
+}
+
+/* ─── セクション見出し（"在籍カウンセラー" 等） ─── */
+.kt-section-head {
+  text-align: center;
+  padding: 36px 20px 16px;
+}
+.kt-section-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+  margin: 8px auto;
+}
+.kt-section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  color: var(--ink);
+  font-weight: 500;
+  margin: 4px 0;
+}
+.kt-section-title em {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: var(--accent);
+  margin-right: 6px;
+}
+.kt-section-mytype-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--adim);
+  border: 1px solid rgba(212,160,144,.35);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 8px;
+}
+
+/* ─── フィルターバー（sticky） ─── */
+.kt-filter-bar {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 30;
+  background: rgba(254,252,250,.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 0;
+}
+.kt-filter-scroll {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.kt-filter-scroll::-webkit-scrollbar { display: none; }
+.kt-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid var(--light);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  color: var(--mid);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.kt-pill:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.kt-pill.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* ─── リールグリッド ─── */
+.kt-grid-wrap {
+  padding: 16px 16px 56px;
+  background: #FEFCFA;
+}
+.kt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .kt-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+}
+@media (min-width: 1024px) {
+  .kt-grid { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+}
+
+/* ─── リールカード（縦長 9:16） ─── */
+.kt-reel-card {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--pale);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(184,128,110,.06);
+  transition: transform .25s ease, box-shadow .25s ease;
+  border: 1px solid rgba(0,0,0,.04);
+}
+.kt-reel-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184,128,110,.12);
+}
+.kt-reel-card-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.kt-reel-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0) 35%,
+    rgba(0,0,0,.15) 55%,
+    rgba(0,0,0,.55) 88%,
+    rgba(0,0,0,.7) 100%);
+  z-index: 1;
+}
+.kt-reel-card-top {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 3;
+  gap: 6px;
+}
+.kt-reel-card-types {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+.kt-reel-card-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 12px 14px;
+  z-index: 2;
+}
+.kt-reel-catchphrase {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(13px, 3.2vw, 16px);
+  font-weight: 500;
+  color: white;
+  line-height: 1.45;
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.kt-reel-name {
+  font-size: 11px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.kt-reel-meta {
+  font-size: 9.5px;
+  color: rgba(255,255,255,.85);
+  margin-top: 2px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.kt-reel-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: rgba(255,255,255,.95);
+  margin-top: 4px;
+  font-family: 'DM Sans', sans-serif;
+  text-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.kt-reel-card-fav {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.kt-reel-card-fav:hover { background: rgba(0,0,0,.55); }
+.kt-reel-card-fav.is-fav { background: var(--accent); }
+
+/* ─── Kinda type バッジ ─── */
+.kt-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,251,244,.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 999px;
+  padding: 3px 10px 3px 8px;
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  font-weight: 500;
+}
+.kt-type-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── サンプルバッジ ─── */
+.kt-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255,251,244,.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--mid);
+  font-weight: 500;
+}
+
+/* ─── プレースホルダーカード（"Kinda は厳選を続けています"） ─── */
+.kt-grid-tease {
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  border: 1.5px dashed rgba(212,160,144,.4);
+  background: rgba(255,251,244,.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 18px;
+  color: var(--mid);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.kt-grid-tease strong {
+  font-family: 'Shippori Mincho', serif;
+  color: var(--ink);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* ═════════════════════════════════════════════════════════
+   リール全画面モーダル
+   ───────────────────────────────────────────────────────── */
+.kt-reel-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 12, 10, .92);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kt-reel-modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  max-height: 100dvh;
+  background: #1a1410;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 768px) {
+  .kt-reel-modal {
+    max-height: min(900px, calc(100vh - 40px));
+    border-radius: 18px;
+    aspect-ratio: 9 / 16;
+    width: auto;
+    max-width: none;
+    height: auto;
+  }
+}
+.kt-reel-modal-progress {
+  position: absolute;
+  top: env(safe-area-inset-top, 0);
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  padding: 12px;
+  z-index: 10;
+}
+.kt-reel-modal-progress-seg {
+  flex: 1;
+  height: 2.5px;
+  background: rgba(255,255,255,.35);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.kt-reel-modal-progress-fill {
+  width: 0;
+  height: 100%;
+  background: white;
+}
+.kt-reel-modal-progress-seg.is-done .kt-reel-modal-progress-fill { width: 100%; }
+.kt-reel-modal-progress-seg.is-current .kt-reel-modal-progress-fill { width: 100%; }
+.kt-reel-modal-close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0) + 22px);
+  left: 16px;
+  z-index: 12;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.4);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.kt-reel-modal-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: black;
+}
+.kt-reel-modal-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+.kt-reel-modal-tap-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 33%;
+  z-index: 5;
+  cursor: pointer;
+}
+.kt-reel-modal-tap-zone.is-left { left: 0; }
+.kt-reel-modal-tap-zone.is-right { right: 0; }
+.kt-reel-modal-actions {
+  position: absolute;
+  right: 12px;
+  bottom: 38%;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.kt-reel-modal-action {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+.kt-reel-modal-action:hover { transform: scale(1.08); }
+.kt-reel-modal-action.is-active { background: var(--accent); }
+.kt-reel-modal-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0));
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.78));
+  z-index: 6;
+}
+.kt-reel-modal-catchphrase {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px;
+  color: white;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.kt-reel-modal-name {
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.kt-reel-modal-meta {
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  margin-bottom: 14px;
+}
+.kt-reel-modal-cta-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.kt-reel-modal-cta {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.kt-reel-modal-cta.is-primary {
+  background: var(--accent);
+  color: white;
+}
+.kt-reel-modal-cta.is-secondary {
+  background: rgba(255,255,255,.12);
+  color: white;
+  border-color: rgba(255,255,255,.22);
+}
+
+/* ─── 共有シート ─── */
+.kt-share-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0,0,0,.55);
+}
+.kt-share-sheet-inner {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: 18px 18px 0 0;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom, 0));
+}
+.kt-share-sheet-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 14px;
+}
+.kt-share-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.kt-share-sheet-btn {
+  background: var(--pale);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.kt-share-sheet-cancel {
+  width: 100%;
+  margin-top: 14px;
+  background: transparent;
+  border: 1px solid var(--light);
+  border-radius: 999px;
+  padding: 11px;
+  font-size: 13px;
+  color: var(--mid);
+  cursor: pointer;
+}
+
+/* ─── サンプル誘導モーダル ─── */
+.kt-demo-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.kt-demo-modal {
+  background: white;
+  border-radius: 20px;
+  max-width: 360px;
+  width: 100%;
+  padding: 24px 22px;
+  text-align: center;
+}
+.kt-demo-modal-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.kt-demo-modal-text {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+
+/* ─── FAQ ─── */
+.kt-faq {
+  background: var(--pale);
+  padding: 56px 20px;
+}
+.kt-faq-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.kt-faq-item {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.kt-faq-q {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 16px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+}
+.kt-faq-q-icon {
+  flex-shrink: 0;
+  transition: transform .2s ease;
+}
+.kt-faq-item.is-open .kt-faq-q-icon { transform: rotate(45deg); }
+.kt-faq-a {
+  padding: 0 18px 16px;
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.85;
+  display: none;
+}
+.kt-faq-item.is-open .kt-faq-a { display: block; }
+
