@@ -213,11 +213,6 @@ export default function ReelPage() {
     showToast('画像を削除しました')
   }
 
-  const handleOpenPublic = () => {
-    if (!counselor) return
-    window.open(`https://kinda.futarive.jp/counselors/${counselor.id}`, '_blank')
-  }
-
   const handlePublish = async () => {
     if (!counselor) return
     setPublishing(true)
@@ -356,9 +351,6 @@ export default function ReelPage() {
             </span>
           </div>
           <div className="reel-savebar-actions">
-            <button className="reel-savebar-btn ghost" onClick={handleOpenPublic}>
-              実機で確認
-            </button>
             <button className="reel-savebar-btn primary" onClick={handlePublish} disabled={publishing}>
               {publishing ? '公開中…' : reelEnabled ? '変更を公開' : 'リールを公開'}
             </button>
