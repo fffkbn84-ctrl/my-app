@@ -439,12 +439,40 @@ body {
 .phone-frame {
   position: relative;
   width: 100%;
-  max-width: 280px;
+  max-width: 300px;
   aspect-ratio: 9/16;
   background: #111;
-  border-radius: 36px;
+  border-radius: 38px;
   overflow: hidden;
-  box-shadow: 0 0 0 6px #222, 0 24px 60px rgba(0,0,0,.4), 0 8px 20px rgba(0,0,0,.3);
+  box-shadow:
+    0 0 0 5px #1f1a14,
+    0 0 0 6px #2a2118,
+    0 24px 60px rgba(0,0,0,.5),
+    0 8px 20px rgba(0,0,0,.35);
+}
+.phone-page-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  z-index: 11;
+}
+.phone-page-dot {
+  width: 5px; height: 5px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.4);
+}
+.phone-page-dot.active { background: rgba(255,255,255,.95); width: 16px; }
+.phone-catchphrase {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0,0,0,.7);
+  line-height: 1.5;
+  letter-spacing: .02em;
 }
 .phone-screen {
   position: absolute;
@@ -518,14 +546,6 @@ body {
   right: 60px;
   padding: 16px 14px 24px;
   z-index: 10;
-}
-.phone-catchphrase {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  text-shadow: 0 1px 6px rgba(0,0,0,.6);
-  line-height: 1.5;
 }
 .phone-caption {
   font-size: 10px;
@@ -936,6 +956,400 @@ body {
     margin-left: 0;
     padding-top: var(--topbar-h);
     padding-bottom: calc(var(--bottomnav-h) + env(safe-area-inset-bottom));
+  }
+}
+
+/* ─── REEL: HERO ─── */
+.reel-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .22em;
+  margin-bottom: 12px;
+}
+.reel-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: clamp(28px, 7vw, 38px);
+  line-height: 1.35;
+  color: var(--text-deep);
+  margin-bottom: 14px;
+  letter-spacing: .02em;
+}
+.reel-hero-sub {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.9;
+  margin-bottom: 22px;
+}
+
+/* ─── REEL: CATCHPHRASE CARD ─── */
+.cp-card {
+  border: 1px solid var(--accent-dim);
+  background: linear-gradient(180deg, var(--accent-pale), var(--card));
+  border-radius: 16px;
+  padding: 18px 20px 16px;
+  margin-bottom: 22px;
+}
+.cp-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.cp-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .14em;
+}
+.cp-hint {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-mid);
+}
+.cp-textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--text-deep);
+  resize: none;
+  line-height: 1.5;
+  min-height: 64px;
+  padding: 0;
+}
+.cp-meter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.cp-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--bg-elev);
+  overflow: hidden;
+}
+.cp-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width .2s, background .2s;
+}
+.cp-bar-fill.near { background: var(--warning); }
+.cp-bar-fill.over { background: var(--danger); }
+.cp-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.cp-count.near { color: var(--warning); }
+.cp-count.over { color: var(--danger); }
+
+/* ─── REEL: SECTION CARD (画像／キャプション／ことば／公開設定) ─── */
+.reel-section {
+  background: var(--card-warm);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+.reel-section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--text-deep);
+  margin-bottom: 8px;
+}
+.reel-section-desc {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  color: var(--text-mid);
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+
+/* ─── REEL: 9:16 サムネカード ─── */
+.reel-thumbs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.reel-thumb {
+  position: relative;
+  aspect-ratio: 9/16;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2A1F14, #1A130A);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color .2s, transform .2s;
+}
+.reel-thumb:hover { border-color: var(--accent-dim); }
+.reel-thumb.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200,169,122,.25); }
+.reel-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.reel-thumb-num {
+  position: absolute;
+  top: 10px; left: 10px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.15);
+  color: var(--text-deep);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.reel-thumb-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Shippori Mincho', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: rgba(200,169,122,.45);
+  letter-spacing: .04em;
+  pointer-events: none;
+}
+.reel-thumb-caption-pill {
+  position: absolute;
+  left: 10px; right: 10px;
+  bottom: 10px;
+  background: #F4ECDA;
+  color: #1A130A;
+  padding: 8px 11px;
+  border-radius: 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  pointer-events: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.reel-thumb-del {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 3;
+}
+.reel-thumb:hover .reel-thumb-del,
+.reel-thumb.selected .reel-thumb-del { opacity: 1; }
+
+/* 追加スロット（破線） */
+.reel-add {
+  aspect-ratio: 9/16;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  cursor: pointer;
+  background: rgba(200,169,122,.04);
+  color: var(--text-mid);
+  transition: border-color .15s, background .15s;
+}
+.reel-add:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,169,122,.08); }
+.reel-add-text {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.7;
+}
+.reel-add-text-sub {
+  font-size: 10px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* 9:16 ヒントカード */
+.reel-tip {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(200,169,122,.06);
+  border: 1px solid var(--accent-dim);
+  border-radius: 10px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-mid);
+  line-height: 1.8;
+}
+
+/* ─── REEL: キャプションエディタ（選択中の画像） ─── */
+.cap-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  margin-top: 16px;
+}
+.cap-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.cap-head-label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  color: var(--text-mid);
+}
+.cap-head-num {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--text-deep);
+}
+.cap-optional {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 10px;
+  color: var(--text-mid);
+  background: var(--bg-subtle);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: auto;
+}
+.cap-textarea {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--text-deep);
+  resize: vertical;
+  min-height: 56px;
+  outline: none;
+}
+.cap-textarea:focus { border-color: var(--accent-dim); }
+.cap-help {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-mid);
+  line-height: 1.7;
+  margin-top: 10px;
+}
+
+/* ─── REEL: PREVIEW セクション ─── */
+.preview-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: .28em;
+  text-align: center;
+  margin: 28px 0 18px;
+}
+.preview-help {
+  text-align: center;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-mid);
+  line-height: 1.9;
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+
+/* ─── REEL: 固定ボトム保存バー ─── */
+.reel-savebar {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: var(--bottomnav-h);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--bg-elev);
+  border-top: 1px solid var(--border);
+  z-index: 60;
+}
+.reel-savebar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.reel-savebar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 11px;
+  color: var(--text-mid);
+  flex: 1;
+  min-width: 0;
+}
+.reel-savebar-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  flex-shrink: 0;
+}
+.reel-savebar-dot.off { background: var(--text-light); }
+.reel-savebar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.reel-savebar-btn {
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: opacity .15s;
+}
+.reel-savebar-btn.ghost {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.reel-savebar-btn.ghost:hover { background: var(--card); }
+.reel-savebar-btn.primary {
+  background: var(--accent);
+  color: #1A130A;
+  font-weight: 500;
+}
+.reel-savebar-btn.primary:hover { opacity: .9; }
+.reel-savebar-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* デスクトップでは保存バーを上下中央寄せのまま下に固定 */
+@media (min-width: 860px) {
+  .reel-savebar {
+    bottom: 0;
+    left: var(--sidebar-w);
   }
 }
 
