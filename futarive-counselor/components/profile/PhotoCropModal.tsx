@@ -75,8 +75,8 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
     setScale(Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)))
   }
 
-  // 2点間の距離
-  const distance = (t1: Touch, t2: Touch) => {
+  // 2点間の距離（React.Touch / DOM Touch 両対応の最小型）
+  const distance = (t1: { clientX: number; clientY: number }, t2: { clientX: number; clientY: number }) => {
     const dx = t1.clientX - t2.clientX
     const dy = t1.clientY - t2.clientY
     return Math.hypot(dx, dy)
