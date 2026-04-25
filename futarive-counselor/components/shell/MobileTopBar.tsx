@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import ThemeToggle from './ThemeToggle'
 
 interface MobileTopBarProps {
   title?: string
@@ -27,9 +28,12 @@ export default function MobileTopBar({ accountName, agencyName }: MobileTopBarPr
         }}>管理画面</span>
       </Link>
 
-      <div className="acct-badge">
-        <span className="acct-avatar">{(agencyName ?? accountName ?? '?').charAt(0).toUpperCase()}</span>
-        <span className="acct-name">{agencyName ?? accountName ?? ''}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <ThemeToggle compact />
+        <div className="acct-badge">
+          <span className="acct-avatar">{(agencyName ?? accountName ?? '?').charAt(0).toUpperCase()}</span>
+          <span className="acct-name">{agencyName ?? accountName ?? ''}</span>
+        </div>
       </div>
     </header>
   )
