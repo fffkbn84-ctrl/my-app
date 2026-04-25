@@ -35,6 +35,7 @@ export interface Counselor {
   is_published: boolean
   owner_user_id: string | null
   diagnosis_type: string | null
+  invite_token: string | null
   created_at: string
 }
 

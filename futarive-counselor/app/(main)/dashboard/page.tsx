@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import AddCounselorModal from '@/components/dashboard/AddCounselorModal'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -45,6 +46,7 @@ export default function DashboardPage() {
   const [agencyName, setAgencyName] = useState('')
   const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [showAddCounselor, setShowAddCounselor] = useState(false)
 
   // localStorage に永続化するラッパー
   const setContext = (next: string) => {
@@ -100,6 +102,18 @@ export default function DashboardPage() {
     }
     load()
   }, [])
+
+  // カウンセラー追加後の再読み込み
+  const reloadCounselors = async () => {
+    const supabase = createClient()
+    if (agencies.length === 0) return
+    const { data } = await supabase
+      .from('counselors').select('*')
+      .in('agency_id', agencies.map(a => a.id))
+    const next = (data as Counselor[]) ?? []
+    setCounselors(next)
+    await loadStats(supabase, next, context)
+  }
 
   useEffect(() => {
     if (counselors.length === 0) return
@@ -237,13 +251,31 @@ export default function DashboardPage() {
               <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <button className="ctx-add" onClick={() => router.push('/agency')}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 10V4l4-3 4 3v6M5 10V7h2v3" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round"/>
-            </svg>
-            相談所プロフィールを編集
-          </button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button className="ctx-add" onClick={() => router.push('/agency')}>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M2 10V4l4-3 4 3v6M5 10V7h2v3" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" strokeLinecap="round"/>
+              </svg>
+              相談所プロフィールを編集
+            </button>
+            <button className="ctx-add" onClick={() => setShowAddCounselor(true)}>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <circle cx="5" cy="4" r="2" stroke="currentColor" strokeWidth="1.4"/>
+                <path d="M1.5 10c0-1.9 1.6-3.5 3.5-3.5s3.5 1.6 3.5 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                <path d="M9 4v3M7.5 5.5h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              </svg>
+              カウンセラーを追加
+            </button>
+          </div>
         </div>
+      )}
+
+      {showAddCounselor && (
+        <AddCounselorModal
+          agencies={agencies}
+          onClose={() => setShowAddCounselor(false)}
+          onCreated={reloadCounselors}
+        />
       )}
 
       {/* 統計カード（2列） */}
