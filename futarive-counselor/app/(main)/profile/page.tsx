@@ -9,17 +9,32 @@ import type { Counselor, Agency } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
 
-const AREAS = [
-  '全国', 'オンライン',
-  '北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県',
-  '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県',
-  '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県',
-  '岐阜県', '静岡県', '愛知県', '三重県',
-  '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県',
-  '鳥取県', '島根県', '岡山県', '広島県', '山口県',
-  '徳島県', '香川県', '愛媛県', '高知県',
-  '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県',
-  'その他',
+// 活動エリアの選択肢（広域 / エリアまとめ / 都道府県 の3層構造）
+const AREA_GROUPS: { label: string; items: string[] }[] = [
+  { label: '広域・オンライン', items: ['全国', 'オンライン'] },
+  {
+    label: 'エリア（広域）',
+    items: [
+      '首都圏（東京・神奈川・千葉・埼玉）',
+      '関東',
+      '関西（近畿）',
+      '東海',
+      '北陸',
+      '甲信越',
+      '東北',
+      '北海道',
+      '中国',
+      '四国',
+      '九州・沖縄',
+    ],
+  },
+  { label: '北海道・東北', items: ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県'] },
+  { label: '関東', items: ['茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県'] },
+  { label: '中部', items: ['新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県'] },
+  { label: '近畿', items: ['三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県'] },
+  { label: '中国・四国', items: ['鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県'] },
+  { label: '九州・沖縄', items: ['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'] },
+  { label: 'その他', items: ['その他'] },
 ]
 const FEE_OPTIONS = ['無料', '3,000円', '5,000円', '10,000円']
 
@@ -384,7 +399,11 @@ export default function ProfilePage() {
             <label className="kc-label">活動エリア</label>
             <select className="kc-select" value={form.area} onChange={e => updateForm('area', e.target.value)}>
               <option value="">選択してください</option>
-              {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+              {AREA_GROUPS.map(group => (
+                <optgroup key={group.label} label={group.label}>
+                  {group.items.map(a => <option key={a} value={a}>{a}</option>)}
+                </optgroup>
+              ))}
             </select>
           </div>
           <div>
