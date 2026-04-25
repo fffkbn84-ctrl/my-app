@@ -57,6 +57,7 @@ export default function ProfilePage() {
   const [toast, setToast] = useState('')
   const [hydrated, setHydrated] = useState(false)
   const [cropFile, setCropFile] = useState<File | null>(null)
+  const [loadingExisting, setLoadingExisting] = useState(false)
 
   const [form, setForm] = useState({
     name: '',
@@ -245,6 +246,27 @@ export default function ProfilePage() {
     updateForm(field, form[field].filter((_, i) => i !== idx))
   }
 
+  // 既存のプロフィール写真を読み込んでクロップ画面を再度開く
+  const handleEditExistingPhoto = async () => {
+    if (!form.photo_url) return
+    setLoadingExisting(true)
+    try {
+      // クエリパラメータ ?t=... を除いた本体URLを取得
+      const url = form.photo_url.split('?')[0]
+      const res = await fetch(url, { mode: 'cors', cache: 'no-cache' })
+      if (!res.ok) throw new Error(`fetch failed: ${res.status}`)
+      const blob = await res.blob()
+      const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg')
+      const file = new File([blob], `profile-current.${ext}`, { type: blob.type || 'image/jpeg' })
+      setCropFile(file)
+    } catch (e) {
+      console.error('[edit existing] error', e)
+      showToast('既存写真の読み込みに失敗しました。再度ファイルを選択してください')
+    } finally {
+      setLoadingExisting(false)
+    }
+  }
+
   const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     // 同じファイルを再選択しても onChange が発火するように input を空にする
@@ -384,15 +406,28 @@ export default function ProfilePage() {
           <div>
             <label className="kc-label">プロフィール写真</label>
             {form.photo_url && (
-              <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={form.photo_url} alt="プロフィール" style={{
                   width: 110, height: 110, borderRadius: '50%', objectFit: 'cover',
                   border: '3px solid var(--accent-dim)',
                   boxShadow: '0 2px 12px rgba(0,0,0,.08)',
                 }} />
-                <div style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
-                  この見え方で<br/>お客様に表示されます
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, minWidth: 140 }}>
+                  <div style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                    この見え方で<br/>お客様に表示されます
+                  </div>
+                  <button
+                    type="button"
+                    className="kc-btn kc-btn-ghost kc-btn-sm"
+                    onClick={handleEditExistingPhoto}
+                    disabled={loadingExisting}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 9l1-1 5-5 2 2-5 5-1 1H2v-2z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+                    </svg>
+                    {loadingExisting ? '読み込み中…' : '位置・サイズを調整'}
+                  </button>
                 </div>
               </div>
             )}

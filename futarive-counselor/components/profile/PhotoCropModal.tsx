@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-const FRAME_SIZE = 280        // 画面上のクロップフレームサイズ
-const OUTPUT_SIZE = 512       // 最終書き出しサイズ
+const FRAME_SIZE = 280   // 画面上のクロップフレームサイズ
+const OUTPUT_SIZE = 512  // 最終書き出しサイズ
+const MIN_SCALE = 1
+const MAX_SCALE = 4
 
 interface Props {
   file: File
@@ -13,12 +15,23 @@ interface Props {
 
 export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
   const [img, setImg] = useState<HTMLImageElement | null>(null)
-  const [scale, setScale] = useState(1)           // ユーザーズーム倍率（1 = cover）
-  const [pos, setPos] = useState({ x: 0, y: 0 })  // 中心からのオフセット（px）
+  const [scale, setScale] = useState(1)
+  const [pos, setPos] = useState({ x: 0, y: 0 })
   const [processing, setProcessing] = useState(false)
+  const [interacting, setInteracting] = useState(false)
 
-  const dragRef = useRef<{ x: number; y: number; startPosX: number; startPosY: number } | null>(null)
-  const frameRef = useRef<HTMLDivElement>(null)
+  // 操作中の状態を ref で保持（マルチタッチ対応）
+  const stateRef = useRef<{
+    mode: 'none' | 'drag' | 'pinch'
+    startX: number
+    startY: number
+    startPosX: number
+    startPosY: number
+    startDist: number
+    startScale: number
+  }>({
+    mode: 'none', startX: 0, startY: 0, startPosX: 0, startPosY: 0, startDist: 0, startScale: 1,
+  })
 
   // ファイル読み込み
   useEffect(() => {
@@ -33,17 +46,18 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
     return () => URL.revokeObjectURL(url)
   }, [file])
 
-  // cover するためのベーススケール
+  // cover ベーススケール
   const baseScale = img
     ? FRAME_SIZE / Math.min(img.naturalWidth, img.naturalHeight)
     : 1
   const effectiveScale = baseScale * scale
 
   // 画像がフレーム外にはみ出さないよう位置を制限
-  const clamp = (x: number, y: number) => {
+  const clamp = (x: number, y: number, s: number = scale) => {
     if (!img) return { x, y }
-    const dispW = img.naturalWidth * effectiveScale
-    const dispH = img.naturalHeight * effectiveScale
+    const eff = baseScale * s
+    const dispW = img.naturalWidth * eff
+    const dispH = img.naturalHeight * eff
     const maxX = Math.max(0, (dispW - FRAME_SIZE) / 2)
     const maxY = Math.max(0, (dispH - FRAME_SIZE) / 2)
     return {
@@ -57,35 +71,98 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scale, img])
 
-  // ドラッグ（マウス・タッチ共通）
-  const onPointerDown = (clientX: number, clientY: number) => {
-    dragRef.current = { x: clientX, y: clientY, startPosX: pos.x, startPosY: pos.y }
+  const setScaleClamped = (s: number) => {
+    setScale(Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)))
   }
-  const onPointerMove = (clientX: number, clientY: number) => {
-    if (!dragRef.current) return
-    const dx = clientX - dragRef.current.x
-    const dy = clientY - dragRef.current.y
-    setPos(clamp(dragRef.current.startPosX + dx, dragRef.current.startPosY + dy))
-  }
-  const onPointerUp = () => { dragRef.current = null }
 
-  // グローバルイベント登録（フレーム外でも drag を追従させる）
-  useEffect(() => {
-    const move = (e: MouseEvent) => onPointerMove(e.clientX, e.clientY)
-    const up = () => onPointerUp()
-    const tmove = (e: TouchEvent) => {
-      if (e.touches[0]) { e.preventDefault(); onPointerMove(e.touches[0].clientX, e.touches[0].clientY) }
+  // 2点間の距離
+  const distance = (t1: Touch, t2: Touch) => {
+    const dx = t1.clientX - t2.clientX
+    const dy = t1.clientY - t2.clientY
+    return Math.hypot(dx, dy)
+  }
+
+  // タッチ開始
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const t = e.touches[0]
+      stateRef.current = {
+        mode: 'drag',
+        startX: t.clientX, startY: t.clientY,
+        startPosX: pos.x, startPosY: pos.y,
+        startDist: 0, startScale: scale,
+      }
+      setInteracting(true)
+    } else if (e.touches.length === 2) {
+      const [t1, t2] = [e.touches[0], e.touches[1]]
+      stateRef.current = {
+        mode: 'pinch',
+        startX: 0, startY: 0,
+        startPosX: pos.x, startPosY: pos.y,
+        startDist: distance(t1, t2),
+        startScale: scale,
+      }
+      setInteracting(true)
     }
-    const tend = () => onPointerUp()
-    window.addEventListener('mousemove', move)
-    window.addEventListener('mouseup', up)
-    window.addEventListener('touchmove', tmove, { passive: false })
-    window.addEventListener('touchend', tend)
+  }
+
+  // マウス開始
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    stateRef.current = {
+      mode: 'drag',
+      startX: e.clientX, startY: e.clientY,
+      startPosX: pos.x, startPosY: pos.y,
+      startDist: 0, startScale: scale,
+    }
+    setInteracting(true)
+  }
+
+  // ホイールズーム（PC）
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault()
+    const delta = -e.deltaY * 0.002
+    setScaleClamped(scale + delta * scale)
+  }
+
+  // グローバル move/up リスナー
+  useEffect(() => {
+    const onMove = (clientX: number, clientY: number) => {
+      const s = stateRef.current
+      if (s.mode === 'drag') {
+        const dx = clientX - s.startX
+        const dy = clientY - s.startY
+        setPos(clamp(s.startPosX + dx, s.startPosY + dy))
+      }
+    }
+    const onTMove = (e: TouchEvent) => {
+      const s = stateRef.current
+      if (s.mode === 'drag' && e.touches[0]) {
+        e.preventDefault()
+        onMove(e.touches[0].clientX, e.touches[0].clientY)
+      } else if (s.mode === 'pinch' && e.touches.length === 2) {
+        e.preventDefault()
+        const d = distance(e.touches[0], e.touches[1])
+        const ratio = d / s.startDist
+        setScaleClamped(s.startScale * ratio)
+      }
+    }
+    const onUp = () => {
+      stateRef.current.mode = 'none'
+      setInteracting(false)
+    }
+    const onMMove = (e: MouseEvent) => onMove(e.clientX, e.clientY)
+    window.addEventListener('mousemove', onMMove)
+    window.addEventListener('mouseup', onUp)
+    window.addEventListener('touchmove', onTMove, { passive: false })
+    window.addEventListener('touchend', onUp)
+    window.addEventListener('touchcancel', onUp)
     return () => {
-      window.removeEventListener('mousemove', move)
-      window.removeEventListener('mouseup', up)
-      window.removeEventListener('touchmove', tmove)
-      window.removeEventListener('touchend', tend)
+      window.removeEventListener('mousemove', onMMove)
+      window.removeEventListener('mouseup', onUp)
+      window.removeEventListener('touchmove', onTMove)
+      window.removeEventListener('touchend', onUp)
+      window.removeEventListener('touchcancel', onUp)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pos, scale, img])
@@ -100,7 +177,6 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
       const ctx = canvas.getContext('2d')
       if (!ctx) throw new Error('canvas context取得失敗')
 
-      // フレーム範囲に対応する原画ソース矩形を算出
       const sourceSize = FRAME_SIZE / effectiveScale
       const sourceX = img.naturalWidth / 2 - pos.x / effectiveScale - sourceSize / 2
       const sourceY = img.naturalHeight / 2 - pos.y / effectiveScale - sourceSize / 2
@@ -127,35 +203,30 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
     }
   }
 
-  const displayStyle = img ? {
-    width: img.naturalWidth * effectiveScale,
-    height: img.naturalHeight * effectiveScale,
-    transform: `translate(${pos.x}px, ${pos.y}px)`,
-  } : {}
-
   return (
     <div className="kc-overlay" onClick={e => { if (e.target === e.currentTarget) onCancel() }}>
       <div className="kc-modal" style={{ maxWidth: 360, padding: '24px 20px 20px' }}>
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
           <h2 className="kc-modal-title" style={{ margin: 0 }}>写真を調整</h2>
-          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 4 }}>
-            ドラッグで位置、スライダーで拡大を調整できます
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 4, lineHeight: 1.7 }}>
+            ドラッグで位置調整。<br/>
+            ピンチ・ホイール・スライダーで拡大できます。
           </p>
         </div>
 
         {/* クロップエリア */}
         <div style={{ display: 'flex', justifyContent: 'center', margin: '18px 0' }}>
           <div
-            ref={frameRef}
-            onMouseDown={e => { e.preventDefault(); onPointerDown(e.clientX, e.clientY) }}
-            onTouchStart={e => { if (e.touches[0]) onPointerDown(e.touches[0].clientX, e.touches[0].clientY) }}
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onWheel={handleWheel}
             style={{
               position: 'relative',
               width: FRAME_SIZE,
               height: FRAME_SIZE,
               background: '#1a1612',
               overflow: 'hidden',
-              cursor: dragRef.current ? 'grabbing' : 'grab',
+              cursor: interacting ? 'grabbing' : 'grab',
               touchAction: 'none',
               userSelect: 'none',
               borderRadius: 12,
@@ -171,27 +242,29 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
+                  width: img.naturalWidth * effectiveScale,
+                  height: img.naturalHeight * effectiveScale,
                   marginTop: -img.naturalHeight * effectiveScale / 2,
                   marginLeft: -img.naturalWidth * effectiveScale / 2,
+                  transform: `translate(${pos.x}px, ${pos.y}px)`,
                   pointerEvents: 'none',
-                  ...displayStyle,
+                  willChange: 'transform',
                 }}
               />
             )}
-            {/* 丸型オーバーレイマスク */}
+            {/* 丸マスク */}
             <div style={{
-              position: 'absolute',
-              inset: 0,
+              position: 'absolute', inset: 0,
               pointerEvents: 'none',
-              boxShadow: `0 0 0 9999px rgba(0,0,0,.55)`,
+              boxShadow: '0 0 0 9999px rgba(0,0,0,.55)',
               borderRadius: '50%',
               border: '2px solid rgba(255,255,255,.8)',
             }} />
-            {/* 中心のガイド十字 */}
+            {/* 中心ガイド */}
             <div style={{
               position: 'absolute', inset: 0, pointerEvents: 'none',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              opacity: dragRef.current ? 1 : 0,
+              opacity: interacting ? 1 : 0,
               transition: 'opacity .15s',
             }}>
               <div style={{ width: 30, height: 1, background: 'rgba(255,255,255,.6)', position: 'absolute' }} />
@@ -200,33 +273,54 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
           </div>
         </div>
 
-        {/* ズームスライダー */}
+        {/* ズームコントロール */}
         <div style={{ padding: '0 8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle cx="6" cy="6" r="4" stroke="var(--text-mid)" strokeWidth="1.4"/>
-              <path d="M9 9l4 4" stroke="var(--text-mid)" strokeWidth="1.4" strokeLinecap="round"/>
-              <path d="M4 6h4" stroke="var(--text-mid)" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setScaleClamped(scale - 0.25)}
+              aria-label="縮小"
+              style={zoomBtnStyle}
+              disabled={scale <= MIN_SCALE + 0.001}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+              </svg>
+            </button>
             <input
               type="range"
-              min={1}
-              max={3}
+              min={MIN_SCALE}
+              max={MAX_SCALE}
               step={0.01}
               value={scale}
-              onChange={e => setScale(parseFloat(e.target.value))}
+              onChange={e => setScaleClamped(parseFloat(e.target.value))}
               style={{ flex: 1, accentColor: 'var(--accent)' }}
+              aria-label="ズーム"
             />
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle cx="6" cy="6" r="4" stroke="var(--text-mid)" strokeWidth="1.4"/>
-              <path d="M9 9l4 4" stroke="var(--text-mid)" strokeWidth="1.4" strokeLinecap="round"/>
-              <path d="M4 6h4M6 4v4" stroke="var(--text-mid)" strokeWidth="1.4" strokeLinecap="round"/>
-            </svg>
+            <button
+              type="button"
+              onClick={() => setScaleClamped(scale + 0.25)}
+              aria-label="拡大"
+              style={zoomBtnStyle}
+              disabled={scale >= MAX_SCALE - 0.001}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7h8M7 3v8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <div style={{
+            textAlign: 'center', fontSize: 10,
+            fontFamily: 'DM Sans, sans-serif',
+            color: 'var(--text-mid)',
+            marginTop: 6,
+          }}>
+            {scale.toFixed(2)}x
           </div>
         </div>
 
-        {/* アクションボタン */}
-        <div style={{ display: 'flex', gap: 10, marginTop: 22, justifyContent: 'flex-end' }}>
+        {/* アクション */}
+        <div style={{ display: 'flex', gap: 10, marginTop: 18, justifyContent: 'flex-end' }}>
           <button className="kc-btn kc-btn-ghost" onClick={onCancel} disabled={processing}>
             キャンセル
           </button>
@@ -237,4 +331,17 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
       </div>
     </div>
   )
+}
+
+const zoomBtnStyle: React.CSSProperties = {
+  width: 32, height: 32,
+  borderRadius: '50%',
+  border: '1px solid var(--border)',
+  background: 'var(--bg-elev)',
+  color: 'var(--text)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  flexShrink: 0,
 }
