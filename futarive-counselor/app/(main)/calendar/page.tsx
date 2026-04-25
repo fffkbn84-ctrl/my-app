@@ -149,7 +149,11 @@ export default function CalendarPage() {
   }
 
   const selectedSlots = selectedDate
-    ? slots.filter(s => s.start_at.slice(0, 10) === selectedDate)
+    ? slots.filter(s => {
+        const dt = new Date(s.start_at)
+        const local = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+        return local === selectedDate
+      })
     : []
 
   const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']

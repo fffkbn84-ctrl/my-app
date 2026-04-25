@@ -19,10 +19,11 @@ export default function MonthGrid({ year, month, slots, selectedDate, onSelectDa
   const startDow = firstDay.getDay() // 0=Sun
   const daysInMonth = lastDay.getDate()
 
-  // スロットを日付でグループ化
+  // スロットを日付でグループ化（ローカルタイムゾーンの日付で）
   const slotsByDate: Record<string, { open: number; booked: number; locked: number }> = {}
   slots.forEach(s => {
-    const d = s.start_at.slice(0, 10)
+    const dt = new Date(s.start_at)
+    const d = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
     if (!slotsByDate[d]) slotsByDate[d] = { open: 0, booked: 0, locked: 0 }
     slotsByDate[d][s.status]++
   })
