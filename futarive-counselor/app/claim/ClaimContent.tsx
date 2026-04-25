@@ -21,10 +21,12 @@ export default function ClaimContent() {
 
   const [preview, setPreview] = useState<Preview | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authedEmail, setAuthedEmail] = useState<string | null>(null)
   const [mode, setMode] = useState<Mode>('signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [claimingNow, setClaimingNow] = useState(false)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
 
@@ -32,15 +34,9 @@ export default function ClaimContent() {
     const run = async () => {
       const supabase = createClient()
 
-      // 既にログイン済みなら直接 claim を試す
+      // ログイン状態の取得（自動 claim はしない）
       const { data: { user } } = await supabase.auth.getUser()
-      if (user && token) {
-        const { data, error } = await supabase.rpc('claim_counselor_by_token', { p_token: token })
-        if (!error && data?.success) {
-          router.push('/profile')
-          return
-        }
-      }
+      if (user) setAuthedEmail(user.email ?? '(ログイン中)')
 
       if (!token) {
         setPreview({ valid: false })
@@ -58,11 +54,13 @@ export default function ClaimContent() {
       setLoading(false)
     }
     run()
-  }, [token, router])
+  }, [token])
 
-  const claimAndRedirect = async () => {
+  const claimAndRedirect = async (): Promise<boolean> => {
+    setClaimingNow(true)
     const supabase = createClient()
     const { data, error } = await supabase.rpc('claim_counselor_by_token', { p_token: token })
+    setClaimingNow(false)
     if (error) {
       setError(describeError(error))
       return false
@@ -72,6 +70,7 @@ export default function ClaimContent() {
       return false
     }
     router.push('/profile')
+    router.refresh()
     return true
   }
 
@@ -91,24 +90,24 @@ export default function ClaimContent() {
         options: { emailRedirectTo: `${window.location.origin}/claim?token=${token}` },
       })
       if (error) { setError(describeError(error)); setSubmitting(false); return }
-      // メール確認が必要な設定の場合 session は null
       if (!data.session) {
-        setInfo('登録メールを送信しました。受信箱からリンクをタップしてアカウントを有効化してください。')
+        setInfo('登録メールを送信しました。受信箱からリンクをタップしてアカウントを有効化したあと、もう一度この画面に戻って「引き継ぎを実行」を押してください。')
         setSubmitting(false)
         return
       }
-      // 確認不要ですぐログインされた場合は claim へ
-      await claimAndRedirect()
+      setAuthedEmail(data.user?.email ?? email)
+      setSubmitting(false)
+      // セッション確立済みでも自動 claim はしない（ユーザーが明示的にボタンを押す）
     } else {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) {
         setError('メールアドレスまたはパスワードが違うようです')
         setSubmitting(false)
         return
       }
-      await claimAndRedirect()
+      setAuthedEmail(data.user?.email ?? email)
+      setSubmitting(false)
     }
-    setSubmitting(false)
   }
 
   if (loading) {
@@ -162,85 +161,122 @@ export default function ClaimContent() {
             </p>
           </div>
 
-          {/* タブ */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
-            <button
-              type="button"
-              onClick={() => { setMode('signup'); setError(''); setInfo('') }}
-              style={{
-                flex: 1, padding: '8px 12px',
-                borderRadius: 999,
-                border: '1px solid ' + (mode === 'signup' ? 'var(--accent)' : 'var(--border)'),
-                background: mode === 'signup' ? 'var(--accent-pale)' : 'transparent',
-                color: mode === 'signup' ? 'var(--accent-deep)' : 'var(--text-mid)',
+          {authedEmail ? (
+            <>
+              <div style={{
+                padding: '12px 14px',
+                background: 'var(--bg-elev)',
+                border: '1px solid var(--border)',
+                borderRadius: 10,
+                marginBottom: 16,
                 fontSize: 12,
-                cursor: 'pointer',
-              }}
-            >新規登録</button>
-            <button
-              type="button"
-              onClick={() => { setMode('login'); setError(''); setInfo('') }}
-              style={{
-                flex: 1, padding: '8px 12px',
-                borderRadius: 999,
-                border: '1px solid ' + (mode === 'login' ? 'var(--accent)' : 'var(--border)'),
-                background: mode === 'login' ? 'var(--accent-pale)' : 'transparent',
-                color: mode === 'login' ? 'var(--accent-deep)' : 'var(--text-mid)',
-                fontSize: 12,
-                cursor: 'pointer',
-              }}
-            >既にアカウントがある</button>
-          </div>
+                color: 'var(--text-mid)',
+                lineHeight: 1.7,
+              }}>
+                <strong style={{ color: 'var(--text-deep)' }}>{authedEmail}</strong> でログイン済みです。<br/>
+                下のボタンを押すと、このアカウントが <strong>{preview.counselor_name}</strong> さんとして引き継がれます。
+              </div>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 14 }}>
-              <label className="kc-label">メールアドレス</label>
-              <input
-                className="kc-input"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                required
-              />
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <label className="kc-label">
-                パスワード
-                {mode === 'signup' && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-light)' }}>8文字以上</span>}
-              </label>
-              <input
-                className="kc-input"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-                required
-              />
-            </div>
+              {error && (
+                <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 12, lineHeight: 1.7 }}>{error}</p>
+              )}
 
-            {error && (
-              <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 12 }}>{error}</p>
-            )}
-            {info && (
-              <p style={{ fontSize: 12, color: 'var(--success)', marginBottom: 12, lineHeight: 1.7 }}>{info}</p>
-            )}
+              <button
+                onClick={claimAndRedirect}
+                className="kc-btn kc-btn-primary"
+                disabled={claimingNow}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                {claimingNow ? '引き継ぎ中…' : '引き継ぎを実行する'}
+              </button>
 
-            <button
-              type="submit"
-              className="kc-btn kc-btn-primary"
-              disabled={submitting}
-              style={{ width: '100%', justifyContent: 'center' }}
-            >
-              {submitting ? '処理中…' : mode === 'signup' ? '新規登録して引き継ぐ' : 'ログインして引き継ぐ'}
-            </button>
-          </form>
+              <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 14, lineHeight: 1.7, textAlign: 'center' }}>
+                ※ 一度実行すると元に戻せません。
+              </p>
+            </>
+          ) : (
+            <>
+              {/* タブ */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+                <button
+                  type="button"
+                  onClick={() => { setMode('signup'); setError(''); setInfo('') }}
+                  style={{
+                    flex: 1, padding: '8px 12px',
+                    borderRadius: 999,
+                    border: '1px solid ' + (mode === 'signup' ? 'var(--accent)' : 'var(--border)'),
+                    background: mode === 'signup' ? 'var(--accent-pale)' : 'transparent',
+                    color: mode === 'signup' ? 'var(--accent-deep)' : 'var(--text-mid)',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                  }}
+                >新規登録</button>
+                <button
+                  type="button"
+                  onClick={() => { setMode('login'); setError(''); setInfo('') }}
+                  style={{
+                    flex: 1, padding: '8px 12px',
+                    borderRadius: 999,
+                    border: '1px solid ' + (mode === 'login' ? 'var(--accent)' : 'var(--border)'),
+                    background: mode === 'login' ? 'var(--accent-pale)' : 'transparent',
+                    color: mode === 'login' ? 'var(--accent-deep)' : 'var(--text-mid)',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                  }}
+                >既にアカウントがある</button>
+              </div>
 
-          <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 16, lineHeight: 1.7, textAlign: 'center' }}>
-            登録すると、Kinda カウンセラー管理画面の利用規約に同意したものとみなされます。
-          </p>
+              <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: 14 }}>
+                  <label className="kc-label">メールアドレス</label>
+                  <input
+                    className="kc-input"
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: 14 }}>
+                  <label className="kc-label">
+                    パスワード
+                    {mode === 'signup' && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-light)' }}>8文字以上</span>}
+                  </label>
+                  <input
+                    className="kc-input"
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 12 }}>{error}</p>
+                )}
+                {info && (
+                  <p style={{ fontSize: 12, color: 'var(--success)', marginBottom: 12, lineHeight: 1.7 }}>{info}</p>
+                )}
+
+                <button
+                  type="submit"
+                  className="kc-btn kc-btn-primary"
+                  disabled={submitting}
+                  style={{ width: '100%', justifyContent: 'center' }}
+                >
+                  {submitting ? '処理中…' : mode === 'signup' ? '新規登録する' : 'ログインする'}
+                </button>
+              </form>
+
+              <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 16, lineHeight: 1.7, textAlign: 'center' }}>
+                登録すると、Kinda カウンセラー管理画面の利用規約に同意したものとみなされます。
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
