@@ -2626,3 +2626,193 @@ git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
 | 予約詳細確認 | カレンダー画面から `booked` スロットの予約者情報を表示 |
 | プロフィール写真トリミング | アップロード時にブラウザ内でクロップ UI |
 | 通知機能 | 新規予約・新規口コミ着信時のブラウザ通知 |
+
+---
+
+## 実装済み機能（2026-04-25 追記）
+
+futarive-counselor の大規模アップデート。**作業ブランチ：`claude/fix-profile-creation-1clpG`**（main へは未マージ）。
+
+### A. プロフィール編集（/profile）の修正・拡張
+
+#### A-1. 保存系の不具合を全面解消
+- **写真アップロードの「ファイルを選択」が押せない問題**：`disabled={!counselor?.id}` を撤去し、`ensureCounselorRow()` で写真UP前にカウンセラー行を空INSERTする方式に
+- **自動保存が作動しない問題**：`useCallback` + `setTimeout` のクロージャが古い `form` を参照していたバグを修正。`useEffect([form, hydrated])` ベースの2秒デバウンス自動保存に刷新
+- **保存しても反映されない問題**：Supabase の `PostgrestError` は `Error` インスタンスではないため `String(e)` で `[object Object]` になっていた。`lib/errors.ts` に `describeError()` を追加し、エラーコード（23502/23503/23505/42501、Bucket not found 等）に応じた日本語メッセージを返すように
+
+#### A-2. lib/errors.ts（新規）
+全画面で共通利用するエラー説明ヘルパー：
+| code | メッセージ |
+|---|---|
+| 23502 | 「必須項目が未入力です」（agency_id 専用案内も） |
+| 23503 | 「選択した相談所が存在しません」 |
+| 23505 | 「既に登録済みのデータと重複しています」 |
+| 42501 / row-level security | 「権限エラー（RLS）」 |
+| `bucket not found` | 「ストレージバケット（counselor-media）が未作成です」 |
+| payload too large | 「ファイルサイズが大きすぎます」 |
+
+#### A-3. 活動エリアの拡充
+最初は `'東京', '神奈川'…` の9件だけ → 47都道府県＋全国/オンライン/その他に拡張 → さらに `<optgroup>` で **広域エリア**（首都圏/関東/関西（近畿）/東海/北陸/甲信越/東北/北海道/中国/四国/九州・沖縄）を追加。8地方区分（北海道・東北 / 関東 / 中部 / 近畿 / 中国・四国 / 九州・沖縄）でグループラベル化。
+
+#### A-4. 所属相談所のUX改善
+- **オーナー**：所有相談所のドロップダウン
+- **カウンセラー（agency_id 設定済み）**：所属相談所名を読み取り専用で表示
+- **カウンセラー（未割当）**：accent色案内カード＋「相談所プロフィールを作成する」CTA で `/agency` へ誘導（オーナー化を促す）
+
+#### A-5. 経験年数 < 1年で「新人」タグ自動付与
+`deriveAutoTags()` で経験年数<1年なら `新人`、相談所作成<1年なら `新規店舗` タグを `specialties` に自動付与。手動で追加した specialties とマージ（重複は Set で排除）。
+
+#### A-6. プロフィール写真クロップ機能（PhotoCropModal）
+- 写真選択 → 丸型クロップモーダル（Instagram/LINE 風）
+- **タッチドラッグ**で位置調整、**ピンチイン/アウト**でズーム
+- **マウスホイール**ズーム（PC）、**±ボタン**（0.25刻み）
+- 動的 `MIN_SCALE`：画像の縦横比に応じて contain（画像全体が収まる）まで縮小可能
+- `MAX_SCALE` = 4
+- **既存写真の再編集**：プレビュー横の「位置・サイズを調整」ボタンで `photo_url` から fetch → File に変換 → モーダル再起動
+- 出力は 512×512 JPG（品質0.9）。canvas でフレーム範囲のソース矩形を計算
+
+### B. 予約枠カレンダー（/calendar）の修正・機能拡張
+
+#### B-1. 致命的なカラム名ミスマッチを修正
+discovery SQL で実際のスキーマを確認した結果、`slots` テーブルの実カラムは：
+| 想定（コード） | 実際（DB） |
+|---|---|
+| `start_time` | **`start_at`** |
+| `end_time` | **`end_at`** |
+| — | `locked_until` |
+| — | `updated_at` |
+
+→ `lib/types.ts` の Slot 型・select/insert/sort/filter のカラム参照を全置換。これによりカレンダーが常に空表示だった問題と PGRST204 で予約追加失敗していた問題を解消。
+
+#### B-2. タイムゾーンずれ（+9h）の修正
+SlotForm が `2026-04-26T10:00:00`（TZ なし）を送信 → Supabase が UTC 解釈 → JST 表示で `19:00` になる典型バグ。`localDateTimeToIso()` ヘルパーで端末ローカルTZのオフセット付き ISO 文字列（`+09:00`）を生成して送信する方式に。日付グループ化も `slice(0,10)` から `new Date().getDate()` ベースのローカル日付に変更。
+
+#### B-3. オーナー対応
+カウンセラー本人として行を持たないオーナー（agency_id 経由でカウンセラーを所有）の場合、自分が所有する相談所所属の最初のカウンセラーを自動選択して使えるように。
+
+#### B-4. 一括生成・モバイル対応
+- 「**この日の枠を一括生成**」ボタン：面談可能時間内に agency.default_slot_minutes（30/45/60/75/90/120分）でスロットをまとめて作成。既存スロットは重複しないようスキップ
+- カレンダーヘッダーのナビボタンを 560px 以下で縦スタック・中央揃え
+- 「枠を追加」ボタンを凡例の下に独立配置
+- セル padding / フォント / ドットを既存のレスポンシブ値で維持
+- SlotForm の時刻ピッカーを agency の面談可能時間範囲に絞り込み、終了時刻を `start + slotMinutes` に自動セット
+
+### C. 相談所プロフィール（/agency）の機能追加
+
+#### C-1. ループ点滅バグ修正
+保存成功 → `setAgencies` で一覧更新 → `useEffect([selectedId, agencies])` が発火 → `setForm` → `form` 変更で自動保存useEffect が再発火、というループが「未保存／保存済み」の表示をチカチカさせていた。useEffect での form 同期を撤去し、`selectedId` 切替時のみ `syncFromAgency()` を呼ぶ方式に。
+
+#### C-2. 営業情報フィールド追加
+| カラム | 用途 |
+|---|---|
+| `business_hours_text` | 自由記述の営業時間（表示用） |
+| `consultation_start_time` / `consultation_end_time` | 面談可能時間 |
+| `closed_weekdays` smallint[] | 定休日の曜日配列 (0=日..6=土) |
+| `default_slot_minutes` | 1枠あたりの所要時間（30/45/60/75/90/120分） |
+
+UI は曜日ピル選択（タップ切替）。終了が開始より前ならエラー警告。
+
+#### C-3. 保存後の次ステップ案内
+保存完了後、accent色のチェックマーク付きカードで「相談所プロフィールを保存しました」→「続いて、あなた自身のカウンセラープロフィールを作成しましょう」のCTAを表示。
+
+### D. ダッシュボードの全面リデザイン
+
+artifact のダーク × ゴールドデザインに刷新：
+- 上部ストリップ：「Kinda 管理画面」ロゴ + ThemeToggle + Emma 相談所バッジ
+- `DASHBOARD` eyebrow → 巨大明朝見出し「おかえりなさい、〜さん」
+- **コンテキストカード（オーナー限定）**：今表示中ドロップダウン（全体 / カウンセラー個別）+ 「相談所プロフィールを編集」+「カウンセラーを追加」ボタン
+- **2列ビッグ統計**：明朝48px ゴールド数字。リール公開状況 / 今月の予約（先月比）/ 未返信レビュー（うち低評価）/ 平均評価（口コミ件数）
+- **「ちいさな『しなきゃ』」**：色バッジ（返信/予約/推奨）付きタップ可能リンク行
+- **コンテキスト永続化**：選択中のカウンセラーを `localStorage('kinda-dashboard-context')` に保存し、他画面遷移後も復元
+
+### E. リール編集（/reel）の刷新
+
+artifact デザインに合わせて以下を実装：
+- ヒーロー：REEL eyebrow + 明朝大見出し「あなたのリール」+ 説明文
+- **キャッチコピーカード**：accent枠 + pale背景、CATCHPHRASE ラベル + ヒント、ボーダーレス textarea（明朝22px）、ゴールドプログレスバー + N/20 カウンタ
+- **リール画像セクション**：2列の9:16カード（番号バッジ・選択時accent枠・キャプションピル・ホバー削除）。未アップロード時はイタリック明朝のラベル
+- **追加スロット**：破線 + アイコン + 「写真を追加（あと N 枚推奨）」
+- **9:16ヒントカード**：accent淡背景の説明
+- **キャプションエディタ**：「選択中：N枚目 のキャプション + 任意」+ textarea + 説明
+- **ことばセクション（新規）**：bio フィールドにバインド、「大事にしていること・座右の銘」+ 任意 + textarea。1.5秒デバウンス自動保存
+- **公開設定セクション**：reel_enabled トグル
+- **PREVIEW iPhoneフレーム**：ノッチ付き・幅300px・厚みある黒枠＋深い影。画像未選択時は cream グラデ + イタリック明朝 "portrait 9:16 · n/total"。下部に氏名・相談所・★評価・口コミ件数のオーバーレイ。ページドット
+- **PhonePreview のスワイプジェスチャー**：タッチ・マウス両対応。最初の8px移動で水平/垂直の軸ロック、横40px以上で次/前へ
+- **固定ボトム保存バー**：成否ドット + 状態表示 + 「変更を公開」ゴールド primary ボタン（「実機で確認」は不要のため撤去）
+
+### F. カウンセラー招待リンク機能（オーナーが新メンバーを追加）
+
+#### F-1. データベース（005_counselor_invite.sql）
+- `counselors.invite_token uuid` カラム追加
+- `preview_invite(uuid)` RPC：未認証でも相談所名・カウンセラー名をプレビュー
+- `claim_counselor_by_token(uuid)` RPC：認証ユーザーが owner_user_id を引き継ぎ
+- どちらも `security definer` で RLS をバイパス（最小権限の RPC）
+
+#### F-2. AddCounselorModal
+ダッシュボードの「+ カウンセラーを追加」ボタンから起動。氏名 + 所属相談所選択 → counselors INSERT (`owner_user_id=null, invite_token=uuid`) → URL `${origin}/claim?token=UUID` を表示・コピー。
+
+#### F-3. /claim ページ（公開・認証不要）
+- `?token=XXX` でプレビュー表示
+- 新規登録 / 既存ログイン タブ切替
+- **自動 claim を撤去**（オーナー誤クリックでの token 消費を防ぐ）
+- 認証完了後 **「引き継ぎを実行する」ボタンを明示的にクリック** → claim RPC → /profile へ
+- 一度使うと `invite_token = null` になり再利用不可。無効/使用済みは専用エラー画面
+- **middleware.ts** で `/claim` `/signup` を認証不要パスとして許可
+
+### G. テーマシステムの整備
+
+#### G-1. 強制ダーク撤去・3状態切替
+- `<html data-theme="dark">` の強制を撤去
+- `prefers-color-scheme` で OS 設定に自動追従
+- `data-theme` 手動切替（**自動 → ライト → ダーク** の3状態をサイクル）
+- `localStorage('kinda-theme')` に永続化
+- `<head>` 内に **FOUC 防止インラインスクリプト**：マウント前に保存値を反映
+- `components/shell/ThemeToggle.tsx`：サイドバー下部とモバイルトップバー右上に配置（compact 表示対応）
+
+#### G-2. Safari 自動ダーク反転対策
+iPhone 本体ダーク設定で**ライトモードページ**を開くと Safari が部分的にダーク反転する事故を予防：
+- `html` / `body` / `main` / `.kc-main` / `.kc-shell` すべてに `background: var(--bg)` を**明示**
+- これでブラウザは「CSS側で完全に色を制御している」と認識し自動反転を諦める
+
+#### G-3. タイトル色トークンの調整
+ライトモードの `--text-deep` を `#1A130E`（漆黒寄り）→ **`#4A2A1F`**（深いコーラルブラウン）に変更。Kinda の温かみあるトーンに沿わせる。
+
+### H. モバイルトップバー（MobileTopBar）
+
+「Kinda 管理画面」ロゴ + テーマトグル + Emma 相談所バッジの構成。レスポンシブ：
+- **420px 以下**：「管理画面」サブラベル非表示
+- **360px 以下**：Emma バッジのテキスト非表示（アバター円のみ）
+- ThemeToggle に `min-width: 32px` で最小サイズ保証
+
+レイアウト解決のため `kc-topbar-logo`・`kc-topbar-right` クラスに整理し `white-space: nowrap` で縦組み崩れを防止。
+
+### I. SQL マイグレーション（手動実行が必須）
+
+| ファイル | 内容 |
+|---|---|
+| `supabase/migrations/003_counselor_media_bucket.sql` | counselor-media Storage バケット作成 + RLS |
+| `supabase/migrations/004_add_agency_hours.sql` | agencies に営業時間・面談可能時間・定休日・所要時間カラム追加 |
+| `supabase/migrations/005_counselor_invite.sql` | counselors.invite_token + preview_invite/claim_counselor_by_token RPC |
+
+すべて **Supabase ダッシュボード > SQL Editor で手動実行が必要**（ファイルはリポジトリ内の参照用）。drop policy/constraint を含むため Supabase が「destructive operations」警告を出すが冪等化のため安全。
+
+### J. 運用設計上のメモ
+
+#### J-1. Vercel デプロイ
+- futarive-counselor は my-app と別の Vercel プロジェクトとしてデプロイ
+- branches で個別に Preview デプロイされる
+- 連続push時に webhook を取りこぼすことがあり、その場合は**空コミット**（`git commit --allow-empty`）を push して再トリガー
+- デプロイ詳細ページの **Source 欄の git ハッシュ**で実際にビルド中のコミットを確認できる
+
+#### J-2. 本番リリース時の構成（予定）
+| 環境 | URL | 保護 |
+|---|---|---|
+| **本番** | `counselor.futarive.jp`（カスタムドメイン） | 公開 |
+| **プレビュー（PR/branch）** | `xxx-projects.vercel.app` | Vercel Authentication 有効 |
+
+Vercel の Settings → Domains でカスタムドメインを追加し、Settings → Deployment Protection で「Production: Disabled」「Preview: Vercel Authentication」と分けて設定する。
+
+#### J-3. TypeScript の落とし穴（今回ハマったもの）
+- `supabase.from('agencies').select('id')` は戻り値の型推論が壊れて `null` になり `.map(a => a.id)` の `a` が implicit any 化 → `(rows as { id: string }[] | null) ?? []` でキャスト
+- `React.TouchEvent.touches[i]` は `React.Touch` 型で DOM `Touch` より少ないプロパティ → 関数引数は最小型 `{ clientX: number; clientY: number }` で受ける
+- Supabase v2 SDK で `.update()` の引数型が `never` 化する場合は `createBrowserClient<Database>()` の generic を外す
