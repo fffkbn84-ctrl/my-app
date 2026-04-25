@@ -639,6 +639,30 @@ body {
   .save-bar { left: 0; bottom: var(--bottomnav-h); }
 }
 
+/* ─── REEL SAVE BAR (固定: モバイルはbottomnavの上、デスクトップはsidebarの右) ─── */
+.reel-save-bar {
+  position: fixed;
+  bottom: var(--bottomnav-h);
+  left: 0;
+  right: 0;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+@media (min-width: 860px) {
+  .reel-save-bar {
+    bottom: 0;
+    left: var(--sidebar-w);
+    padding: 12px 24px;
+  }
+}
+.reel-save-bar a.kc-btn-ghost { text-decoration: none; }
+
 /* ─── SIDEBAR ─── */
 .kc-sidebar {
   position: fixed;

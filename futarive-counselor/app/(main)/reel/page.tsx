@@ -33,7 +33,6 @@ export default function ReelPage() {
   const [toast, setToast] = useState('')
   const [loading, setLoading] = useState(true)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-  const [showPreview, setShowPreview] = useState(false)
   const cpTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const mottoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -95,7 +94,6 @@ export default function ReelPage() {
     load()
   }, [])
 
-  // キャッチコピーの自動保存（2秒デバウンス）
   const handleCatchphraseChange = useCallback(
     (val: string) => {
       setCatchphrase(val)
@@ -115,7 +113,6 @@ export default function ReelPage() {
     [counselor],
   )
 
-  // ことばの自動保存（2秒デバウンス）
   const handleMottoChange = useCallback(
     (val: string) => {
       setMotto(val)
@@ -146,7 +143,6 @@ export default function ReelPage() {
     showToast(enabled ? 'リールを公開しました' : 'リールを非公開にしました')
   }
 
-  // キャプション保存（2秒デバウンス）
   const captionTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const handleCaptionSave = useCallback((mediaId: string, caption: string) => {
     setMediaList((prev) =>
@@ -162,12 +158,10 @@ export default function ReelPage() {
     }, 2000)
   }, [])
 
-  // 画像アップロード
   const handleUpload = async (file: File) => {
     if (!counselor) return
     setUploading(true)
 
-    // 縦横比チェック
     const img = new Image()
     const objectUrl = URL.createObjectURL(file)
     img.src = objectUrl
@@ -225,7 +219,6 @@ export default function ReelPage() {
     showToast('画像を追加しました')
   }
 
-  // 並び替え
   const handleReorder = async (newOrder: CounselorMedia[]) => {
     setMediaList(newOrder)
     const supabase = createClient()
@@ -239,7 +232,6 @@ export default function ReelPage() {
     )
   }
 
-  // 削除
   const handleDelete = (id: string) => setConfirmDelete(id)
 
   const confirmDoDelete = async () => {
@@ -288,7 +280,7 @@ export default function ReelPage() {
     <div
       style={{
         padding: '28px 24px',
-        paddingBottom: 100,
+        paddingBottom: 130,
         maxWidth: 720,
       }}
     >
@@ -296,10 +288,7 @@ export default function ReelPage() {
         REEL
       </div>
 
-      <h1
-        className="page-title"
-        style={{ fontSize: 28, marginBottom: 14 }}
-      >
+      <h1 className="page-title" style={{ fontSize: 28, marginBottom: 14 }}>
         あなたのリール
       </h1>
 
@@ -311,83 +300,10 @@ export default function ReelPage() {
           marginBottom: 28,
         }}
       >
-        Kinda talk
-        のカウンセラー一覧で、利用者が最初に出会う「あなたの印象」です。
+        Kinda talk のカウンセラー一覧で、利用者が最初に出会う「あなたの印象」です。
         <br />
         3〜5枚で、普段の空気が伝わる順に並べるのがおすすめ。
       </p>
-
-      {/* 公開トグル + プレビュー */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '14px 16px',
-          background: 'var(--card-warm)',
-          border: '1px solid var(--border)',
-          borderRadius: 12,
-          marginBottom: 22,
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <label
-            className="kc-toggle"
-            style={{ flexShrink: 0 }}
-          >
-            <input
-              type="checkbox"
-              checked={reelEnabled}
-              onChange={(e) => handleReelToggle(e.target.checked)}
-            />
-            <span className="kc-toggle-slider" />
-          </label>
-          <div>
-            <div
-              style={{
-                fontSize: 13,
-                color: 'var(--text-deep)',
-                fontWeight: 500,
-              }}
-            >
-              {reelEnabled ? 'リールを公開中' : 'リールは非公開'}
-            </div>
-            <div style={{ fontSize: 11, color: 'var(--text-light)' }}>
-              {reelEnabled
-                ? 'Kinda talk に表示されています'
-                : 'いつでも公開できます'}
-            </div>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className="kc-btn kc-btn-ghost kc-btn-sm"
-          onClick={() => setShowPreview(true)}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect
-              x="2.5"
-              y="1"
-              width="9"
-              height="12"
-              rx="1.5"
-              stroke="currentColor"
-              strokeWidth="1.3"
-            />
-            <circle cx="7" cy="11" r=".7" fill="currentColor" />
-          </svg>
-          プレビュー
-        </button>
-      </div>
 
       {/* 各セクションを縦スタック */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -412,106 +328,107 @@ export default function ReelPage() {
         </div>
 
         <div className="kc-card" style={{ padding: 20 }}>
-          <CaptionEditor
-            selected={selectedMedia}
-            onSave={handleCaptionSave}
-          />
+          <CaptionEditor selected={selectedMedia} onSave={handleCaptionSave} />
         </div>
 
         <div className="kc-card" style={{ padding: 20 }}>
           <MottoField value={motto} onChange={handleMottoChange} />
         </div>
 
-        {/* 保存状態 */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            justifyContent: 'flex-end',
-          }}
-        >
-          {saveStatus === 'saved' && (
-            <span style={{ fontSize: 11, color: 'var(--success)' }}>
-              ✓ 自動保存済み
-            </span>
-          )}
-          {saveStatus === 'dirty' && (
-            <span style={{ fontSize: 11, color: 'var(--warning)' }}>
-              未保存の変更があります
-            </span>
-          )}
-          {saveStatus === 'saving' && (
-            <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>
-              保存中...
-            </span>
-          )}
+        {/* 公開設定カード */}
+        <div className="kc-card" style={{ padding: 20 }}>
+          <h3 className="section-title" style={{ marginBottom: 6 }}>
+            公開設定
+          </h3>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              justifyContent: 'space-between',
+              gap: 14,
+              marginTop: 12,
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: 'var(--text-deep)',
+                }}
+              >
+                リールを Kinda talk で公開する
+              </div>
+              <p
+                style={{
+                  fontSize: 11.5,
+                  color: 'var(--text-mid)',
+                  marginTop: 6,
+                  lineHeight: 1.7,
+                }}
+              >
+                OFF の場合、プロフィールは表示されますがリールは非表示になります
+              </p>
+            </div>
+            <label className="kc-toggle" style={{ flexShrink: 0 }}>
+              <input
+                type="checkbox"
+                checked={reelEnabled}
+                onChange={(e) => handleReelToggle(e.target.checked)}
+              />
+              <span className="kc-toggle-slider" />
+            </label>
+          </div>
+        </div>
+
+        {/* インラインプレビュー */}
+        <div style={{ marginTop: 6 }}>
+          <p
+            className="eyebrow"
+            style={{ textAlign: 'center', marginBottom: 14 }}
+          >
+            PREVIEW
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <PhonePreview
+              catchphrase={catchphrase}
+              mediaList={mediaList}
+              selectedIndex={previewIndex}
+              onSelectIndex={(i) => {
+                setPreviewIndex(i)
+                setSelectedId(mediaList[i]?.id ?? null)
+              }}
+              counselorId={counselor.id}
+              counselorName={counselor.name}
+              agencyName={agency?.name ?? ''}
+              area={counselor.area}
+              ratingAvg={counselor.rating_avg}
+              reviewCount={counselor.review_count}
+              reviews={reviews}
+            />
+          </div>
+          <p
+            style={{
+              textAlign: 'center',
+              fontSize: 11.5,
+              color: 'var(--text-light)',
+              marginTop: 14,
+              lineHeight: 1.7,
+            }}
+          >
+            実際の表示イメージです。
+            <br />
+            スワイプで次の画像に切り替わります。
+          </p>
         </div>
       </div>
 
-      {/* プレビューモーダル: 9:16 iPhoneフレーム */}
-      {showPreview && (
-        <div
-          className="kc-overlay"
-          onClick={() => setShowPreview(false)}
-        >
-          <div
-            className="kc-modal"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: 360, padding: '20px 20px 24px' }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 14,
-              }}
-            >
-              <h2
-                className="kc-modal-title"
-                style={{ margin: 0 }}
-              >
-                プレビュー
-              </h2>
-              <button
-                onClick={() => setShowPreview(false)}
-                aria-label="閉じる"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--text-mid)',
-                }}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 3l10 10M13 3L3 13"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <PhonePreview
-                catchphrase={catchphrase}
-                mediaList={mediaList}
-                selectedIndex={previewIndex}
-                onSelectIndex={(i) => {
-                  setPreviewIndex(i)
-                  setSelectedId(mediaList[i]?.id ?? null)
-                }}
-                counselorId={counselor.id}
-                counselorName={counselor.name}
-                agencyName={agency?.name ?? ''}
-                reviews={reviews}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 固定セーブバー */}
+      <ReelSaveBar
+        status={saveStatus}
+        published={reelEnabled}
+        liveUrl={`https://kinda.futarive.jp/counselors/${counselor.id}`}
+      />
 
       {/* 削除確認モーダル */}
       {confirmDelete && (
@@ -552,6 +469,138 @@ export default function ReelPage() {
       )}
 
       {toast && <div className="kc-toast">{toast}</div>}
+    </div>
+  )
+}
+
+function ReelSaveBar({
+  status,
+  published,
+  liveUrl,
+}: {
+  status: 'saved' | 'dirty' | 'saving'
+  published: boolean
+  liveUrl: string
+}) {
+  return (
+    <div className="reel-save-bar">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          minWidth: 0,
+          flex: 1,
+        }}
+      >
+        {status === 'saving' ? (
+          <>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                border: '2px solid var(--border-mid)',
+                borderTopColor: 'var(--accent)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11.5,
+                color: 'var(--text-mid)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              保存中…
+            </span>
+          </>
+        ) : status === 'dirty' ? (
+          <>
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: 'var(--warning)',
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11.5,
+                color: 'var(--warning)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              未保存の変更があります
+            </span>
+          </>
+        ) : (
+          <>
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: 'var(--success)',
+                flexShrink: 0,
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11.5,
+                color: 'var(--text-mid)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              自動保存済み
+              <span style={{ color: 'var(--text-light)', margin: '0 4px' }}>
+                ·
+              </span>
+              <span
+                style={{
+                  color: published ? 'var(--accent-deep)' : 'var(--text-light)',
+                }}
+              >
+                {published ? '公開中' : '非公開'}
+              </span>
+            </span>
+          </>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+        <a
+          href={liveUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="kc-btn kc-btn-ghost kc-btn-sm"
+        >
+          実機で確認
+        </a>
+        <button
+          type="button"
+          className="kc-btn kc-btn-primary kc-btn-sm"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+          aria-label="変更を公開"
+        >
+          変更を公開
+        </button>
+      </div>
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   )
 }

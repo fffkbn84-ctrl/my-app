@@ -5,25 +5,58 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Agency } from '@/lib/types'
 
+interface ReviewLite {
+  id: string
+  rating: number
+  agency_reply: string | null
+  counselor_id: string
+  author_age_range: string | null
+  author_gender: string | null
+  created_at: string
+}
+
+interface ReservationLite {
+  id: string
+  counselor_id: string
+  user_name: string
+  start_time: string | null
+}
+
+type TodoCategory = 'urgent' | 'review' | 'booking' | 'tip'
+
+interface TodoItem {
+  category: TodoCategory
+  title: string
+  cta: string
+  href: string
+}
+
 interface Stats {
   reelPublished: number
   reelTotal: number
   reservationsThisMonth: number
+  reservationsLastMonth: number
   unrepliedReviews: number
+  unrepliedLow: number
   avgRating: number | null
+  totalReviews: number
 }
 
-interface TodoItem {
-  type: 'urgent' | 'review' | 'booking'
-  label: string
-  sub: string
-  href: string
-}
+const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土']
 
-function getDayString() {
+function formatToday() {
   const d = new Date()
-  const days = ['日', '月', '火', '水', '木', '金', '土']
-  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${days[d.getDay()]}）`
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${WEEKDAYS[d.getDay()]}）`
+}
+
+function maskName(name: string): string {
+  if (!name) return '匿名'
+  // 「佐藤 美穂」→「S.M」風のマスク
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) {
+    return `${parts[0].charAt(0)}.${parts[1].charAt(0)}`
+  }
+  return parts[0].charAt(0) + '.'
 }
 
 export default function DashboardPage() {
@@ -31,8 +64,7 @@ export default function DashboardPage() {
   const [todos, setTodos] = useState<TodoItem[]>([])
   const [counselors, setCounselors] = useState<Counselor[]>([])
   const [agencies, setAgencies] = useState<Agency[]>([])
-  const [selectedAgencyId, setSelectedAgencyId] = useState<string | 'all'>('all')
-  const [currentCounselorId, setCurrentCounselorId] = useState<string | 'all'>('all')
+  const [scopeKey, setScopeKey] = useState<string>('all')
   const [displayName, setDisplayName] = useState('')
   const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -40,10 +72,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
       if (!user) return
 
-      // 相談所オーナーチェック
       const { data: agencyRows } = await supabase
         .from('agencies')
         .select('*')
@@ -55,8 +88,8 @@ export default function DashboardPage() {
         .eq('owner_user_id', user.id)
         .maybeSingle()
 
-      const ownerMode = agencyRows && agencyRows.length > 0
-      setIsOwner(!!ownerMode)
+      const ownerMode = !!agencyRows && agencyRows.length > 0
+      setIsOwner(ownerMode)
       setAgencies((agencyRows as Agency[]) ?? [])
 
       let scopedCounselors: Counselor[] = []
@@ -64,7 +97,10 @@ export default function DashboardPage() {
         const { data: ac } = await supabase
           .from('counselors')
           .select('*')
-          .in('agency_id', (agencyRows as Agency[]).map(a => a.id))
+          .in(
+            'agency_id',
+            (agencyRows as Agency[]).map((a) => a.id),
+          )
         scopedCounselors = (ac as Counselor[]) ?? []
         setDisplayName((agencyRows as Agency[])[0]?.name ?? '')
       } else if (ownCounselor) {
@@ -79,131 +115,384 @@ export default function DashboardPage() {
     load()
   }, [])
 
+  const filteredCounselors =
+    scopeKey === 'all'
+      ? counselors
+      : counselors.filter((c) => c.id === scopeKey)
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const loadStats = async (supabase: any, scopedCounselors: Counselor[]) => {
-    const ids = scopedCounselors.map(c => c.id)
+    const ids = scopedCounselors.map((c) => c.id)
     if (ids.length === 0) {
-      setStats({ reelPublished: 0, reelTotal: 0, reservationsThisMonth: 0, unrepliedReviews: 0, avgRating: null })
+      setStats({
+        reelPublished: 0,
+        reelTotal: 0,
+        reservationsThisMonth: 0,
+        reservationsLastMonth: 0,
+        unrepliedReviews: 0,
+        unrepliedLow: 0,
+        avgRating: null,
+        totalReviews: 0,
+      })
       return
     }
 
-    const reelPublished = scopedCounselors.filter(c => c.reel_enabled).length
+    const reelPublished = scopedCounselors.filter((c) => c.reel_enabled).length
     const reelTotal = scopedCounselors.length
 
     const now = new Date()
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
-    const { count: resCount } = await supabase
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+
+    const { count: thisMonthCount } = await supabase
       .from('reservations')
       .select('id', { count: 'exact', head: true })
       .in('counselor_id', ids)
-      .gte('created_at', monthStart)
+      .gte('created_at', thisMonthStart.toISOString())
+    const { count: lastMonthCount } = await supabase
+      .from('reservations')
+      .select('id', { count: 'exact', head: true })
+      .in('counselor_id', ids)
+      .gte('created_at', lastMonthStart.toISOString())
+      .lt('created_at', thisMonthStart.toISOString())
 
     const { data: reviewRows } = await supabase
       .from('reviews')
-      .select('id, rating, agency_reply')
+      .select(
+        'id,rating,agency_reply,counselor_id,author_age_range,author_gender,created_at',
+      )
       .in('counselor_id', ids)
       .eq('is_published', true)
 
-    const unreplied = (reviewRows ?? []).filter((r: { agency_reply: string | null }) => !r.agency_reply).length
-    const ratings = (reviewRows ?? []).map((r: { rating: number }) => r.rating)
-    const avgRating = ratings.length > 0
-      ? Math.round((ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length) * 10) / 10
-      : null
+    const reviews = (reviewRows ?? []) as ReviewLite[]
+    const unreplied = reviews.filter((r) => !r.agency_reply)
+    const unrepliedLow = unreplied.filter((r) => r.rating <= 3).length
+    const avgRating =
+      reviews.length > 0
+        ? Math.round(
+            (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length) * 10,
+          ) / 10
+        : null
 
-    // todos
+    // 明日の予約 (slots.start_time から)
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    tomorrow.setHours(0, 0, 0, 0)
+    const dayAfter = new Date(tomorrow)
+    dayAfter.setDate(dayAfter.getDate() + 1)
+
+    const { data: tomorrowRes } = await supabase
+      .from('reservations')
+      .select('id,counselor_id,user_name,slot_id,slots(start_time)')
+      .in('counselor_id', ids)
+      .order('created_at', { ascending: false })
+      .limit(20)
+
+    const tomorrowList: ReservationLite[] = ((tomorrowRes ?? []) as Array<
+      ReservationLite & { slots: { start_time: string } | null }
+    >)
+      .map((r) => ({
+        id: r.id,
+        counselor_id: r.counselor_id,
+        user_name: r.user_name,
+        start_time: r.slots?.start_time ?? null,
+      }))
+      .filter((r) => {
+        if (!r.start_time) return false
+        const d = new Date(r.start_time)
+        return d >= tomorrow && d < dayAfter
+      })
+
+    // ToDo を組み立て
     const newTodos: TodoItem[] = []
-    const urgentReviews = (reviewRows ?? []).filter((r: { agency_reply: string | null; rating: number }) => !r.agency_reply && r.rating <= 3)
-    if (urgentReviews.length > 0) {
-      newTodos.push({ type: 'urgent', label: `★3以下の未返信が${urgentReviews.length}件`, sub: '早めの返信がおすすめです', href: '/reviews' })
+
+    // 1) 低評価未返信
+    const lowUnreplied = unreplied
+      .filter((r) => r.rating <= 3)
+      .sort((a, b) => a.rating - b.rating)
+    lowUnreplied.slice(0, 1).forEach((r) => {
+      const age = r.author_age_range ?? ''
+      const ageNum = age.match(/(\d{2})/)?.[1] ?? ''
+      const ageLabel = ageNum ? `${ageNum}歳前後` : ''
+      newTodos.push({
+        category: 'urgent',
+        title: `${maskName('匿名 利用者')}さん${ageLabel ? `（${ageLabel}）` : ''}から★${r.rating}のレビュー — 誠実な返信を書きましょう`,
+        cta: '返信する',
+        href: '/reviews',
+      })
+    })
+
+    // 2) 高評価未返信 1件
+    const highUnreplied = unreplied
+      .filter((r) => r.rating >= 4)
+      .sort((a, b) => b.rating - a.rating)
+    highUnreplied.slice(0, 1).forEach((r) => {
+      const age = r.author_age_range ?? ''
+      const ageNum = age.match(/(\d{2})/)?.[1] ?? ''
+      const ageLabel = ageNum ? `${ageNum}歳前後` : ''
+      newTodos.push({
+        category: 'review',
+        title: `${maskName('匿名 利用者')}さん${ageLabel ? `（${ageLabel}）` : ''}から★${r.rating}のレビュー — 感謝を伝えるチャンス`,
+        cta: '返信する',
+        href: '/reviews',
+      })
+    })
+
+    // 3) 明日の予約
+    tomorrowList.slice(0, 1).forEach((r) => {
+      const t = r.start_time ? new Date(r.start_time) : null
+      const time = t
+        ? `${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`
+        : ''
+      newTodos.push({
+        category: 'booking',
+        title: `明日 ${time}〜 初回面談・${r.user_name}さん`,
+        cta: '詳細',
+        href: '/calendar',
+      })
+    })
+
+    // 4) リール推奨 (3枚未満のカウンセラーがいる場合)
+    const needReel = scopedCounselors.find((c) => c.reel_enabled === false)
+    if (needReel) {
+      newTodos.push({
+        category: 'tip',
+        title: `${needReel.name}さんのリールがまだ非公開です。3〜5枚あると視聴完了率が大きく上がります`,
+        cta: 'リールを編集',
+        href: '/reel',
+      })
     }
-    const normalReviews = (reviewRows ?? []).filter((r: { agency_reply: string | null; rating: number }) => !r.agency_reply && r.rating >= 4)
-    if (normalReviews.length > 0) {
-      newTodos.push({ type: 'review', label: `未返信のレビューが${normalReviews.length}件`, sub: '感謝の返信を届けましょう', href: '/reviews' })
-    }
-    const needReel = scopedCounselors.filter(c => !c.reel_enabled)
-    if (needReel.length > 0) {
-      newTodos.push({ type: 'booking', label: 'リールを公開していないカウンセラーがいます', sub: 'リール画像を追加して集客しましょう', href: '/reel' })
-    }
+
     setTodos(newTodos)
-    setStats({ reelPublished, reelTotal, reservationsThisMonth: resCount ?? 0, unrepliedReviews: unreplied, avgRating })
+    setStats({
+      reelPublished,
+      reelTotal,
+      reservationsThisMonth: thisMonthCount ?? 0,
+      reservationsLastMonth: lastMonthCount ?? 0,
+      unrepliedReviews: unreplied.length,
+      unrepliedLow,
+      avgRating,
+      totalReviews: reviews.length,
+    })
   }
 
   if (loading) {
     return (
-      <div style={{ padding: 32, display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-mid)' }}>
-        <div style={{ width: 18, height: 18, border: '2px solid var(--border-mid)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}/>
+      <div
+        style={{
+          padding: 32,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          color: 'var(--text-mid)',
+        }}
+      >
+        <div
+          style={{
+            width: 18,
+            height: 18,
+            border: '2px solid var(--border-mid)',
+            borderTopColor: 'var(--accent)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+          }}
+        />
         読み込み中...
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     )
   }
 
+  // 表示中ラベル
+  const scopeLabel =
+    scopeKey === 'all'
+      ? `${displayName}・全体のようす`
+      : `${counselors.find((c) => c.id === scopeKey)?.name ?? ''} さん`
+
+  // stat card sub-text
+  const reelSub =
+    stats && stats.reelTotal > 0
+      ? stats.reelPublished === stats.reelTotal
+        ? 'すべて公開中'
+        : `${stats.reelTotal - stats.reelPublished}名 非公開`
+      : '—'
+
+  const resSub = stats
+    ? (() => {
+        const diff = stats.reservationsThisMonth - stats.reservationsLastMonth
+        if (stats.reservationsLastMonth === 0 && diff === 0) return '先月比 ±0'
+        return `先月比 ${diff >= 0 ? '+' : ''}${diff}`
+      })()
+    : ''
+
+  const reviewSub =
+    stats && stats.unrepliedReviews > 0
+      ? stats.unrepliedLow > 0
+        ? `うち${stats.unrepliedLow}件は低評価`
+        : 'すべて高評価です'
+      : 'すべて返信済み'
+
+  const ratingSub =
+    stats && stats.avgRating != null
+      ? `口コミ ${stats.totalReviews}件から`
+      : '口コミ未到着'
+
+  const filteredStats = stats // 表示中フィルタの集計切替は将来課題
+
   return (
-    <div style={{ padding: '32px 28px', maxWidth: 900 }}>
+    <div style={{ padding: '28px 22px', maxWidth: 920 }}>
       {/* ヘッダー */}
-      <div style={{ marginBottom: 32 }}>
-        <div className="eyebrow" style={{ marginBottom: 6 }}>{getDayString()}</div>
-        <h1 className="page-title">
+      <div style={{ marginBottom: 22 }}>
+        <div className="eyebrow" style={{ marginBottom: 10 }}>
+          DASHBOARD
+        </div>
+        <h1
+          className="page-title"
+          style={{
+            fontSize: 28,
+            lineHeight: 1.4,
+            marginBottom: 14,
+          }}
+        >
           おかえりなさい、{displayName} さん
         </h1>
-        {isOwner && counselors.length > 0 && (
-          <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <span style={{ fontSize: '12px', color: 'var(--text-mid)' }}>表示切替：</span>
-            {agencies.map(ag => (
-              <button
-                key={ag.id}
-                onClick={() => setSelectedAgencyId(ag.id)}
-                className="kc-btn kc-btn-ghost kc-btn-sm"
-                style={selectedAgencyId === ag.id ? { borderColor: 'var(--accent)', color: 'var(--accent)' } : {}}
-              >
-                {ag.name}
-              </button>
-            ))}
-            {counselors.map(c => (
-              <button
-                key={c.id}
-                onClick={() => setCurrentCounselorId(c.id)}
-                className="kc-btn kc-btn-ghost kc-btn-sm"
-                style={currentCounselorId === c.id ? { borderColor: 'var(--accent)', color: 'var(--accent)' } : {}}
-              >
-                {c.name}
-              </button>
-            ))}
-          </div>
-        )}
+        <p
+          style={{
+            fontSize: 13,
+            color: 'var(--text-mid)',
+            lineHeight: 1.85,
+          }}
+        >
+          今日 · {formatToday()}。あなたの相談所の全体のようすです。
+        </p>
       </div>
 
-      {/* 統計カード */}
-      {stats && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: 16,
-          marginBottom: 32,
-        }}>
+      {/* 表示切替カード (オーナーモード時のみ) */}
+      {isOwner && counselors.length > 0 && (
+        <div className="kc-card" style={{ padding: 18, marginBottom: 20 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 11,
+                color: 'var(--text-mid)',
+                whiteSpace: 'nowrap',
+                letterSpacing: '.04em',
+              }}
+            >
+              今表示中
+            </span>
+            <div style={{ position: 'relative', flex: 1, minWidth: 220 }}>
+              <select
+                className="kc-select"
+                value={scopeKey}
+                onChange={(e) => setScopeKey(e.target.value)}
+                style={{ paddingRight: 36 }}
+              >
+                <option value="all">{`${displayName}・全体のようす`}</option>
+                {counselors.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} さん
+                  </option>
+                ))}
+              </select>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                style={{
+                  position: 'absolute',
+                  right: 14,
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  pointerEvents: 'none',
+                  color: 'var(--text-mid)',
+                }}
+              >
+                <path
+                  d="M2 4l4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+          <div style={{ marginTop: 10 }}>
+            <Link
+              href="/profile"
+              className="kc-btn kc-btn-ghost kc-btn-sm"
+              style={{ textDecoration: 'none' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path
+                  d="M6 2v8M2 6h8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+              カウンセラーを追加
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* スコープ表示インジケータ (本人モード時) */}
+      {!isOwner && (
+        <p
+          style={{
+            fontSize: 11,
+            color: 'var(--text-mid)',
+            marginBottom: 16,
+          }}
+        >
+          {scopeLabel}
+        </p>
+      )}
+
+      {/* 統計カード 4枚 */}
+      {filteredStats && (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            gap: 12,
+            marginBottom: 24,
+          }}
+        >
           <StatCard
-            value={`${stats.reelPublished}/${stats.reelTotal}`}
-            label="リール公開カウンセラー"
-            icon={<ReelIcon />}
+            label="リール公開状況"
+            value={`${filteredStats.reelPublished}`}
+            unit={`/ ${filteredStats.reelTotal}名`}
+            sub={reelSub}
             href="/reel"
           />
           <StatCard
-            value={String(stats.reservationsThisMonth)}
             label="今月の予約"
-            icon={<CalIcon />}
+            value={String(filteredStats.reservationsThisMonth)}
+            sub={resSub}
             href="/calendar"
           />
           <StatCard
-            value={String(stats.unrepliedReviews)}
             label="未返信レビュー"
-            icon={<MsgIcon />}
+            value={String(filteredStats.unrepliedReviews)}
+            sub={reviewSub}
+            urgent={filteredStats.unrepliedLow > 0}
             href="/reviews"
-            urgent={stats.unrepliedReviews > 0}
           />
           <StatCard
-            value={stats.avgRating !== null ? String(stats.avgRating) : '—'}
             label="平均評価"
-            icon={<StarIcon />}
+            value={filteredStats.avgRating != null ? String(filteredStats.avgRating) : '—'}
+            sub={ratingSub}
             href="/reviews"
           />
         </div>
@@ -211,47 +500,51 @@ export default function DashboardPage() {
 
       {/* ちいさな「しなきゃ」 */}
       {todos.length > 0 && (
-        <div className="kc-card" style={{ padding: '20px 22px', marginBottom: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M7 1v6l3 3" stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round"/>
-              <circle cx="7" cy="7" r="6" stroke="var(--accent)" strokeWidth="1.3"/>
-            </svg>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-deep)', fontFamily: 'Shippori Mincho, serif' }}>
+        <div className="kc-card" style={{ padding: 18, marginBottom: 24 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: 8,
+              marginBottom: 14,
+              padding: '0 4px',
+            }}
+          >
+            <h2
+              className="section-title"
+              style={{
+                fontSize: 17,
+                margin: 0,
+              }}
+            >
               ちいさな「しなきゃ」
+            </h2>
+            <span
+              style={{
+                fontSize: 11,
+                fontFamily: 'DM Sans, sans-serif',
+                color: 'var(--text-mid)',
+              }}
+            >
+              {todos.length}件
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+          <div>
             {todos.map((t, i) => (
-              <Link key={i} href={t.href} style={{ textDecoration: 'none' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  padding: '10px 14px',
-                  background: 'var(--bg-elev)',
-                  borderRadius: 10,
-                  transition: 'background .15s',
-                }}>
-                  <span className={`kc-badge kc-badge-${t.type}`}>{t.type === 'urgent' ? '急ぎ' : t.type === 'review' ? 'レビュー' : '推奨'}</span>
-                  <div>
-                    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-deep)' }}>{t.label}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-mid)', marginTop: 2 }}>{t.sub}</div>
-                  </div>
-                  <svg style={{ marginLeft: 'auto', flexShrink: 0 }} width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M5 3l4 4-4 4" stroke="var(--text-light)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </Link>
+              <TodoRow key={i} item={t} divider={i < todos.length - 1} />
             ))}
           </div>
         </div>
       )}
 
       {/* クイックアクション */}
-      <div className="kc-card" style={{ padding: '20px 22px' }}>
-        <p className="eyebrow" style={{ marginBottom: 14 }}>QUICK ACTION</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+      <div className="kc-card" style={{ padding: '18px 20px' }}>
+        <p className="eyebrow" style={{ marginBottom: 12 }}>
+          QUICK ACTION
+        </p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <QuickBtn href="/reviews" label="レビューに返信する" />
           <QuickBtn href="/reel" label="リールを編集する" />
           <QuickBtn href="/calendar" label="予約枠を追加する" />
@@ -262,65 +555,182 @@ export default function DashboardPage() {
   )
 }
 
-function StatCard({ value, label, icon, href, urgent }: { value: string; label: string; icon: React.ReactNode; href: string; urgent?: boolean }) {
+function StatCard({
+  label,
+  value,
+  unit,
+  sub,
+  href,
+  urgent,
+}: {
+  label: string
+  value: string
+  unit?: string
+  sub?: string
+  href: string
+  urgent?: boolean
+}) {
   return (
-    <Link href={href} style={{ textDecoration: 'none' }}>
-      <div className="stat-card" style={urgent ? { borderColor: 'var(--danger)' } : {}}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-          <div style={{ color: urgent ? 'var(--danger)' : 'var(--accent)', opacity: .8 }}>{icon}</div>
-        </div>
-        <div className="stat-value" style={urgent ? { color: 'var(--danger)' } : {}}>{value}</div>
-        <div className="stat-label">{label}</div>
+    <Link
+      href={href}
+      style={{
+        textDecoration: 'none',
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: 14,
+        padding: '16px 16px 14px',
+        display: 'block',
+        boxShadow: 'var(--sh-sm)',
+      }}
+    >
+      <div
+        style={{
+          fontSize: 11,
+          color: 'var(--text-mid)',
+          marginBottom: 8,
+          letterSpacing: '.02em',
+        }}
+      >
+        {label}
       </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: 6,
+          marginBottom: 6,
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'DM Sans, sans-serif',
+            fontWeight: 600,
+            fontSize: 30,
+            lineHeight: 1,
+            color: urgent ? 'var(--danger)' : 'var(--text-deep)',
+          }}
+        >
+          {value}
+        </span>
+        {unit && (
+          <span
+            style={{
+              fontSize: 12,
+              color: 'var(--text-mid)',
+            }}
+          >
+            {unit}
+          </span>
+        )}
+      </div>
+      {sub && (
+        <div
+          style={{
+            fontSize: 11,
+            color: urgent ? 'var(--danger)' : 'var(--text-light)',
+          }}
+        >
+          {sub}
+        </div>
+      )}
     </Link>
   )
+}
+
+function TodoRow({ item, divider }: { item: TodoItem; divider: boolean }) {
+  const cat = CATEGORY_META[item.category]
+  return (
+    <Link
+      href={item.href}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr auto',
+        alignItems: 'center',
+        gap: 12,
+        padding: '14px 6px',
+        borderBottom: divider ? '1px solid var(--border)' : 'none',
+        textDecoration: 'none',
+      }}
+    >
+      <span
+        style={{
+          fontSize: 10,
+          fontWeight: 500,
+          padding: '4px 10px',
+          borderRadius: 999,
+          background: cat.bg,
+          color: cat.color,
+          whiteSpace: 'nowrap',
+          letterSpacing: '.04em',
+        }}
+      >
+        {cat.label}
+      </span>
+      <p
+        style={{
+          fontSize: 13,
+          color: 'var(--text-deep)',
+          lineHeight: 1.65,
+          margin: 0,
+        }}
+      >
+        {item.title}
+      </p>
+      <span
+        style={{
+          fontSize: 11,
+          color: 'var(--accent-deep)',
+          whiteSpace: 'nowrap',
+          fontWeight: 500,
+        }}
+      >
+        {item.cta} →
+      </span>
+    </Link>
+  )
+}
+
+const CATEGORY_META: Record<
+  TodoCategory,
+  { label: string; bg: string; color: string }
+> = {
+  urgent: {
+    label: '返信',
+    bg: 'var(--danger-pale)',
+    color: 'var(--danger)',
+  },
+  review: {
+    label: '返信',
+    bg: 'var(--accent-pale)',
+    color: 'var(--accent-deep)',
+  },
+  booking: {
+    label: '予約',
+    bg: 'var(--success-pale)',
+    color: 'var(--success)',
+  },
+  tip: {
+    label: '推奨',
+    bg: 'var(--warning-pale)',
+    color: 'var(--warning)',
+  },
 }
 
 function QuickBtn({ href, label }: { href: string; label: string }) {
   return (
-    <Link href={href} style={{ textDecoration: 'none' }}>
-      <div style={{
-        padding: '9px 16px',
+    <Link
+      href={href}
+      style={{
+        textDecoration: 'none',
+        padding: '8px 14px',
         background: 'var(--bg-elev)',
         border: '1px solid var(--border)',
         borderRadius: 50,
-        fontSize: '12px',
+        fontSize: 12,
         color: 'var(--text)',
-        transition: 'background .15s, border-color .15s',
-        cursor: 'pointer',
-      }}>{label}</div>
+      }}
+    >
+      {label}
     </Link>
-  )
-}
-
-function ReelIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect x="2" y="2" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="1.4"/>
-      <circle cx="10" cy="10" r="3.5" stroke="currentColor" strokeWidth="1.4"/>
-      <circle cx="10" cy="10" r="1.2" fill="currentColor"/>
-    </svg>
-  )
-}
-function CalIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect x="2" y="4" width="16" height="14" rx="2.5" stroke="currentColor" strokeWidth="1.4"/>
-      <path d="M6 2v4M14 2v4M2 9h16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-    </svg>
-  )
-}
-function MsgIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M3 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H8l-4 3V14H4a1 1 0 0 1-1-1V4Z" stroke="currentColor" strokeWidth="1.4"/>
-    </svg>
-  )
-}
-function StarIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M10 2l2.4 5H18l-4.4 3.2 1.7 5.2L10 12.5l-5.3 2.9 1.7-5.2L2 7h5.6z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
-    </svg>
   )
 }
