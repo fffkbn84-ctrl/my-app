@@ -47,7 +47,7 @@ export interface Slot {
   id: string
   counselor_id: string
   start_time: string
-  end_time: string
+  end_time: string | null
   status: 'open' | 'locked' | 'booked'
   created_at: string
 }

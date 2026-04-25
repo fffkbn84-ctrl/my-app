@@ -98,14 +98,27 @@ export default function CalendarPage() {
     if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください', 4000); return }
     setAddingSlot(true)
     const supabase = createClient()
-    const payload = {
+    const fullPayload = {
       counselor_id: counselor.id,
       start_time: startTime,
       end_time: endTime,
       status: 'open' as const,
     }
-    console.log('[slot add] payload', payload)
-    const { data: inserted, error } = await supabase.from('slots').insert(payload).select().maybeSingle()
+    console.log('[slot add] payload', fullPayload)
+    let { data: inserted, error } = await supabase.from('slots').insert(fullPayload).select().maybeSingle()
+
+    // DBに end_time カラムが無い場合のフォールバック（PGRST204）
+    if (error && (error.code === 'PGRST204' || /end_time/.test(error.message ?? ''))) {
+      console.warn('[slot add] end_time カラム未対応のためフォールバック', error)
+      const { counselor_id, start_time, status } = fullPayload
+      const retry = await supabase
+        .from('slots')
+        .insert({ counselor_id, start_time, status })
+        .select().maybeSingle()
+      inserted = retry.data
+      error = retry.error
+    }
+
     setAddingSlot(false)
     if (error) {
       console.error('[slot add] full error object', error)
