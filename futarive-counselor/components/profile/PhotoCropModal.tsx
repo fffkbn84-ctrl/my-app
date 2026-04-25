@@ -237,24 +237,30 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
             }}
           >
             {img && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                alt=""
-                src={img.src}
-                draggable={false}
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  width: img.naturalWidth * effectiveScale,
-                  height: img.naturalHeight * effectiveScale,
-                  marginTop: -img.naturalHeight * effectiveScale / 2,
-                  marginLeft: -img.naturalWidth * effectiveScale / 2,
-                  transform: `translate(${pos.x}px, ${pos.y}px)`,
-                  pointerEvents: 'none',
-                  willChange: 'transform',
-                }}
-              />
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'none',
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt=""
+                  src={img.src}
+                  draggable={false}
+                  style={{
+                    width: img.naturalWidth * effectiveScale,
+                    height: img.naturalHeight * effectiveScale,
+                    maxWidth: 'none',
+                    maxHeight: 'none',
+                    flexShrink: 0,
+                    transform: `translate(${pos.x}px, ${pos.y}px)`,
+                    willChange: 'transform',
+                  }}
+                />
+              </div>
             )}
             {/* 丸マスク */}
             <div style={{
