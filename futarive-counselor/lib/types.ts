@@ -4,6 +4,11 @@ export interface Agency {
   description: string | null
   website_url: string | null
   owner_user_id: string | null
+  business_hours_text: string | null
+  consultation_start_time: string | null  // "HH:mm:ss" or "HH:mm"
+  consultation_end_time: string | null
+  closed_weekdays: number[] | null         // 0=日 ... 6=土
+  default_slot_minutes: number | null      // 1枠あたりの所要時間（分）
   created_at: string
 }
 
@@ -30,6 +35,7 @@ export interface Counselor {
   is_published: boolean
   owner_user_id: string | null
   diagnosis_type: string | null
+  invite_token: string | null
   created_at: string
 }
 
@@ -46,10 +52,12 @@ export interface CounselorMedia {
 export interface Slot {
   id: string
   counselor_id: string
-  start_time: string
-  end_time: string
+  start_at: string
+  end_at: string
   status: 'open' | 'locked' | 'booked'
+  locked_until: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface Reservation {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { CounselorMedia } from '@/lib/types'
 import ShareSheet from './ShareSheet'
 
@@ -37,32 +37,95 @@ export default function PhonePreview({
   const [showShare, setShowShare] = useState(false)
   const [showReviews, setShowReviews] = useState(false)
   const [liked, setLiked] = useState(false)
+  const [dragDx, setDragDx] = useState(0)
+  const dragRef = useRef<{ startX: number; startY: number; startTime: number; locked: 'h' | 'v' | null; dx: number } | null>(null)
+  const SWIPE_THRESHOLD = 40
+
+  const handlePointerDown = (clientX: number, clientY: number) => {
+    if (mediaList.length <= 1) return
+    dragRef.current = { startX: clientX, startY: clientY, startTime: Date.now(), locked: null, dx: 0 }
+  }
+  const handlePointerMove = (clientX: number, clientY: number) => {
+    const d = dragRef.current
+    if (!d) return
+    const dx = clientX - d.startX
+    const dy = clientY - d.startY
+    if (!d.locked) {
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+        d.locked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'
+      }
+    }
+    if (d.locked === 'h') {
+      d.dx = dx
+      setDragDx(dx)
+    }
+  }
+  const handlePointerUp = () => {
+    const d = dragRef.current
+    if (!d) { setDragDx(0); return }
+    const dx = d.locked === 'h' ? d.dx : 0
+    dragRef.current = null
+    setDragDx(0)
+    if (dx <= -SWIPE_THRESHOLD && selectedIndex < mediaList.length - 1) {
+      onSelectIndex(selectedIndex + 1)
+    } else if (dx >= SWIPE_THRESHOLD && selectedIndex > 0) {
+      onSelectIndex(selectedIndex - 1)
+    }
+  }
 
   const current = mediaList[selectedIndex]
+  const total = Math.max(mediaList.length, 1)
+  const avgRating = reviews.length
+    ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / reviews.length) * 10) / 10
+    : null
 
   return (
     <>
       <div className="phone-frame">
-        <div className="phone-screen">
+        {/* ノッチ */}
+        <div style={{
+          position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)',
+          width: 80, height: 22, borderRadius: 999, background: '#000', zIndex: 20,
+        }} />
+        <div
+          className="phone-screen"
+          style={{ touchAction: 'pan-y' }}
+          onTouchStart={e => { if (e.touches[0]) handlePointerDown(e.touches[0].clientX, e.touches[0].clientY) }}
+          onTouchMove={e => { if (e.touches[0]) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY) }}
+          onTouchEnd={handlePointerUp}
+          onTouchCancel={handlePointerUp}
+          onMouseDown={e => handlePointerDown(e.clientX, e.clientY)}
+          onMouseMove={e => { if (dragRef.current) handlePointerMove(e.clientX, e.clientY) }}
+          onMouseUp={handlePointerUp}
+          onMouseLeave={handlePointerUp}
+        >
           {/* 背景画像 */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            transform: `translateX(${dragDx}px)`,
+            transition: dragRef.current ? 'none' : 'transform .25s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}>
           {current ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={current.media_url} alt="" className="phone-img" />
+            <img src={current.media_url} alt="" className="phone-img" draggable={false} />
           ) : (
             <div style={{
               width: '100%', height: '100%',
-              background: 'linear-gradient(180deg, var(--bg-subtle) 0%, var(--bg-elev) 100%)',
+              background: 'linear-gradient(180deg, #F4ECDA 0%, #E8DDC2 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexDirection: 'column', gap: 8,
             }}>
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-                <rect x="2" y="2" width="32" height="32" rx="8" stroke="var(--border-strong)" strokeWidth="1.5"/>
-                <path d="M12 24l5-6 4 5 3-3 6 7" stroke="var(--border-strong)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="13" cy="14" r="2" stroke="var(--border-strong)" strokeWidth="1.5"/>
-              </svg>
-              <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>画像を追加してください</span>
+              <span style={{
+                fontFamily: 'Shippori Mincho, serif',
+                fontStyle: 'italic',
+                fontSize: 14,
+                color: 'rgba(60,40,20,.55)',
+                letterSpacing: '.04em',
+              }}>
+                portrait 9:16 · {selectedIndex + 1}/{total}
+              </span>
             </div>
           )}
+          </div>
 
           {/* オーバーレイ */}
           <div className="phone-overlay" />
@@ -136,10 +199,42 @@ export default function PhonePreview({
             <div className="phone-catchphrase">
               {catchphrase || 'キャッチコピーを入力してください'}
             </div>
+            <div style={{
+              fontSize: 10, color: 'rgba(255,255,255,.85)',
+              marginTop: 8, fontFamily: 'Noto Sans JP, sans-serif',
+              textShadow: '0 1px 4px rgba(0,0,0,.5)',
+            }}>
+              {[counselorName, agencyName].filter(Boolean).join(' · ')}
+            </div>
+            {avgRating !== null && (
+              <div style={{
+                fontSize: 10, color: 'rgba(255,255,255,.85)',
+                marginTop: 4, fontFamily: 'DM Sans, sans-serif',
+                textShadow: '0 1px 4px rgba(0,0,0,.5)',
+                display: 'flex', alignItems: 'center', gap: 4,
+              }}>
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="white">
+                  <path d="M5 .8l1.3 2.7H9L7 5.4l.8 2.6L5 6.5 2.2 8 3 5.4 1 3.5h2.7z"/>
+                </svg>
+                {avgRating} · レビュー {reviews.length}件
+              </div>
+            )}
             {current?.caption && (
-              <div className="phone-caption">{current.caption}</div>
+              <div className="phone-caption" style={{ marginTop: 6 }}>{current.caption}</div>
             )}
           </div>
+
+          {/* ページインジケーター */}
+          {mediaList.length > 1 && (
+            <div className="phone-page-dots">
+              {mediaList.map((_, i) => (
+                <div
+                  key={i}
+                  className={`phone-page-dot${i === selectedIndex ? ' active' : ''}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

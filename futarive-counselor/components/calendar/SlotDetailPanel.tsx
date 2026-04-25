@@ -40,8 +40,8 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {slots.map(slot => {
-            const start = new Date(slot.start_time)
-            const end = new Date(slot.end_time)
+            const start = new Date(slot.start_at)
+            const end = new Date(slot.end_at)
             const timeStr = `${start.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })} – ${end.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`
 
             return (

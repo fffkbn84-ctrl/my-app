@@ -19,6 +19,20 @@ import { CSS } from '@dnd-kit/utilities'
 import type { CounselorMedia } from '@/lib/types'
 
 const MAX_IMAGES = 10
+const RECOMMENDED = 5
+
+const PLACEHOLDER_LABELS = [
+  'portrait 9:16',
+  'Emma interior',
+  'tea & notes',
+  'bookshelf',
+  'morning light',
+  'street',
+  'still life',
+  'window',
+  'ceramics',
+  'plants',
+]
 
 interface ReelImageGridProps {
   items: CounselorMedia[]
@@ -30,13 +44,15 @@ interface ReelImageGridProps {
   uploading: boolean
 }
 
-function SortableItem({
+function SortableThumb({
   item,
+  index,
   selected,
   onSelect,
   onDelete,
 }: {
   item: CounselorMedia
+  index: number
   selected: boolean
   onSelect: () => void
   onDelete: () => void
@@ -46,55 +62,40 @@ function SortableItem({
   return (
     <div
       ref={setNodeRef}
+      onClick={onSelect}
+      className={`reel-thumb${selected ? ' selected' : ''}`}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
-        outline: selected ? '2.5px solid var(--accent)' : 'none',
-        outlineOffset: 2,
-        borderRadius: 12,
       }}
-      className="reel-grid-item"
-      onClick={onSelect}
       {...attributes}
       {...listeners}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={item.media_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      <div className="reel-grid-item-overlay">
-        <button
-          className="reel-grid-item-del"
-          onClick={e => { e.stopPropagation(); onDelete() }}
-          style={{
-            background: 'rgba(0,0,0,.55)',
-            border: 'none',
-            borderRadius: '50%',
-            width: 28,
-            height: 28,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 2l8 8M10 2L2 10" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-        </button>
-      </div>
-      {/* 順番バッジ */}
-      <div style={{
-        position: 'absolute',
-        top: 6, left: 6,
-        background: 'rgba(0,0,0,.5)',
-        borderRadius: 6,
-        padding: '1px 6px',
-        fontSize: 9,
-        fontFamily: 'DM Sans, sans-serif',
-        color: 'white',
-      }}>
-        {item.display_order + 1}
-      </div>
+      <div className="reel-thumb-num">{index + 1}</div>
+
+      {item.media_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={item.media_url} alt="" />
+      ) : (
+        <div className="reel-thumb-placeholder">
+          {PLACEHOLDER_LABELS[index % PLACEHOLDER_LABELS.length]}
+        </div>
+      )}
+
+      {item.caption && (
+        <div className="reel-thumb-caption-pill">{item.caption}</div>
+      )}
+
+      <button
+        className="reel-thumb-del"
+        onClick={e => { e.stopPropagation(); onDelete() }}
+        aria-label="削除"
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 2l8 8M10 2L2 10" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </button>
     </div>
   )
 }
@@ -109,7 +110,7 @@ export default function ReelImageGrid({
   uploading,
 }: ReelImageGridProps) {
   const fileRef = useRef<HTMLInputElement>(null)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
@@ -130,42 +131,29 @@ export default function ReelImageGrid({
     e.target.value = ''
   }
 
+  const remaining = Math.max(0, RECOMMENDED - items.length)
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <label className="kc-label" style={{ marginBottom: 0 }}>
-          リール画像
-          <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-light)', fontWeight: 400 }}>
-            推奨 3〜5枚・最大 {MAX_IMAGES} 枚（縦長 9:16 推奨）
-          </span>
-        </label>
-        <span style={{ fontSize: 11, color: 'var(--text-light)', fontFamily: 'DM Sans, sans-serif' }}>
-          {items.length}/{MAX_IMAGES}
-        </span>
-      </div>
-
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={items.map(i => i.id)} strategy={rectSortingStrategy}>
-          <div className="reel-grid">
-            {items.map(item => (
-              <SortableItem
+          <div className="reel-thumbs">
+            {items.map((item, idx) => (
+              <SortableThumb
                 key={item.id}
                 item={item}
+                index={idx}
                 selected={item.id === selectedId}
                 onSelect={() => onSelect(item.id)}
                 onDelete={() => onDelete(item.id)}
               />
             ))}
 
-            {/* 追加スロット */}
             {items.length < MAX_IMAGES && (
-              <div
-                className="reel-add-slot"
-                onClick={() => fileRef.current?.click()}
-              >
+              <div className="reel-add" onClick={() => fileRef.current?.click()}>
                 {uploading ? (
                   <div style={{
-                    width: 20, height: 20,
+                    width: 24, height: 24,
                     border: '2px solid var(--border-mid)',
                     borderTopColor: 'var(--accent)',
                     borderRadius: '50%',
@@ -173,10 +161,15 @@ export default function ReelImageGrid({
                   }}/>
                 ) : (
                   <>
-                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                      <path d="M11 5v12M5 11h12" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"/>
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <path d="M14 6v16M6 14h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
-                    <span style={{ fontSize: 10, color: 'var(--accent)', fontWeight: 500 }}>追加</span>
+                    <div className="reel-add-text">
+                      写真を追加
+                      {remaining > 0 && (
+                        <div className="reel-add-text-sub">（あと{remaining}枚推奨）</div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
@@ -184,6 +177,11 @@ export default function ReelImageGrid({
           </div>
         </SortableContext>
       </DndContext>
+
+      <div className="reel-tip">
+        縦長（9:16）で撮るとリールに余白なく収まります。<br/>
+        iPhone のポートレート写真がそのまま使えます。
+      </div>
 
       <input
         ref={fileRef}
