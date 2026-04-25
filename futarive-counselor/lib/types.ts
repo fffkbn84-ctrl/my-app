@@ -46,10 +46,12 @@ export interface CounselorMedia {
 export interface Slot {
   id: string
   counselor_id: string
-  start_time: string
-  end_time: string | null
+  start_at: string
+  end_at: string
   status: 'open' | 'locked' | 'booked'
+  locked_until: string | null
   created_at: string
+  updated_at: string
 }
 
 export interface Reservation {

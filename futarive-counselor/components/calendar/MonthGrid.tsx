@@ -22,7 +22,7 @@ export default function MonthGrid({ year, month, slots, selectedDate, onSelectDa
   // スロットを日付でグループ化
   const slotsByDate: Record<string, { open: number; booked: number; locked: number }> = {}
   slots.forEach(s => {
-    const d = s.start_time.slice(0, 10)
+    const d = s.start_at.slice(0, 10)
     if (!slotsByDate[d]) slotsByDate[d] = { open: 0, booked: 0, locked: 0 }
     slotsByDate[d][s.status]++
   })

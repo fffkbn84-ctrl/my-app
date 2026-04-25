@@ -33,9 +33,9 @@ export default function CalendarPage() {
       .from('slots')
       .select('*')
       .eq('counselor_id', c.id)
-      .gte('start_time', from)
-      .lte('start_time', to + 'T23:59:59')
-      .order('start_time')
+      .gte('start_at', from)
+      .lte('start_at', to + 'T23:59:59')
+      .order('start_at')
     setSlots((data as Slot[]) ?? [])
   }, [])
 
@@ -98,26 +98,14 @@ export default function CalendarPage() {
     if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください', 4000); return }
     setAddingSlot(true)
     const supabase = createClient()
-    const fullPayload = {
+    const payload = {
       counselor_id: counselor.id,
-      start_time: startTime,
-      end_time: endTime,
+      start_at: startTime,
+      end_at: endTime,
       status: 'open' as const,
     }
-    console.log('[slot add] payload', fullPayload)
-    let { data: inserted, error } = await supabase.from('slots').insert(fullPayload).select().maybeSingle()
-
-    // DBに end_time カラムが無い場合のフォールバック（PGRST204）
-    if (error && (error.code === 'PGRST204' || /end_time/.test(error.message ?? ''))) {
-      console.warn('[slot add] end_time カラム未対応のためフォールバック', error)
-      const { counselor_id, start_time, status } = fullPayload
-      const retry = await supabase
-        .from('slots')
-        .insert({ counselor_id, start_time, status })
-        .select().maybeSingle()
-      inserted = retry.data
-      error = retry.error
-    }
+    console.log('[slot add] payload', payload)
+    const { data: inserted, error } = await supabase.from('slots').insert(payload).select().maybeSingle()
 
     setAddingSlot(false)
     if (error) {
@@ -133,7 +121,7 @@ export default function CalendarPage() {
       setShowForm(false)
       return
     }
-    setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_time.localeCompare(b.start_time)))
+    setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_at.localeCompare(b.start_at)))
     setShowForm(false)
     showToast('予約枠を追加しました')
   }
@@ -161,7 +149,7 @@ export default function CalendarPage() {
   }
 
   const selectedSlots = selectedDate
-    ? slots.filter(s => s.start_time.slice(0, 10) === selectedDate)
+    ? slots.filter(s => s.start_at.slice(0, 10) === selectedDate)
     : []
 
   const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
