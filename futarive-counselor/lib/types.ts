@@ -4,6 +4,10 @@ export interface Agency {
   description: string | null
   website_url: string | null
   owner_user_id: string | null
+  business_hours_text: string | null
+  consultation_start_time: string | null  // "HH:mm:ss" or "HH:mm"
+  consultation_end_time: string | null
+  closed_weekdays: number[] | null         // 0=日 ... 6=土
   created_at: string
 }
 

@@ -8,9 +8,11 @@ interface MonthGridProps {
   slots: Slot[]
   selectedDate: string | null
   onSelectDate: (date: string) => void
+  closedWeekdays?: number[] | null  // 0=Sun..6=Sat
 }
 
-export default function MonthGrid({ year, month, slots, selectedDate, onSelectDate }: MonthGridProps) {
+export default function MonthGrid({ year, month, slots, selectedDate, onSelectDate, closedWeekdays }: MonthGridProps) {
+  const closedSet = new Set(closedWeekdays ?? [])
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -64,16 +66,19 @@ export default function MonthGrid({ year, month, slots, selectedDate, onSelectDa
           const isSelected = dateStr === selectedDate
           const dotData = slotsByDate[dateStr]
           const dow = cellDate.getDay()
+          const isClosed = closedSet.has(dow)
 
           return (
             <div
               key={dateStr}
-              className={`cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`}
+              className={`cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}${isClosed ? ' closed' : ''}`}
               onClick={() => onSelectDate(dateStr)}
+              title={isClosed ? '定休日' : undefined}
             >
               <span className="cal-day-num" style={{
                 color: dow === 0 ? 'var(--danger)' : dow === 6 ? 'var(--accent)' : undefined,
                 fontWeight: isToday ? 700 : undefined,
+                opacity: isClosed ? .4 : 1,
               }}>
                 {day}
               </span>

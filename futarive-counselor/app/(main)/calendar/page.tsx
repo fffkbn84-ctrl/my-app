@@ -3,10 +3,23 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
-import type { Counselor, Slot } from '@/lib/types'
+import type { Counselor, Slot, Agency } from '@/lib/types'
 import MonthGrid from '@/components/calendar/MonthGrid'
 import SlotDetailPanel from '@/components/calendar/SlotDetailPanel'
 import SlotForm from '@/components/calendar/SlotForm'
+
+// "YYYY-MM-DD" + "HH:mm" を端末ローカルTZ ISO 文字列に変換
+function localDateTimeToIsoStr(date: string, time: string): string {
+  const [y, m, d] = date.split('-').map(Number)
+  const [hh, mm] = time.split(':').map(Number)
+  const local = new Date(y, m - 1, d, hh, mm, 0)
+  const tzMin = -local.getTimezoneOffset()
+  const sign = tzMin >= 0 ? '+' : '-'
+  const abs = Math.abs(tzMin)
+  const tzStr = `${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}:${String(abs % 60).padStart(2, '0')}`
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${y}-${pad(m)}-${pad(d)}T${pad(hh)}:${pad(mm)}:00${tzStr}`
+}
 
 export default function CalendarPage() {
   const today = new Date()
@@ -17,9 +30,11 @@ export default function CalendarPage() {
     today.toISOString().slice(0, 10)
   )
   const [counselor, setCounselor] = useState<Counselor | null>(null)
+  const [agency, setAgency] = useState<Agency | null>(null)
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [addingSlot, setAddingSlot] = useState(false)
+  const [bulkGenerating, setBulkGenerating] = useState(false)
   const [toast, setToast] = useState('')
 
   const showToast = (msg: string, durationMs = 2500) => { setToast(msg); setTimeout(() => setToast(''), durationMs) }
@@ -69,6 +84,12 @@ export default function CalendarPage() {
       if (c) {
         setCounselor(c)
         await loadSlots(c, year, month)
+        // 所属相談所もロード（営業時間・定休日を取得）
+        if (c.agency_id) {
+          const { data: ag } = await supabase
+            .from('agencies').select('*').eq('id', c.agency_id).maybeSingle()
+          if (ag) setAgency(ag as Agency)
+        }
       }
       setLoading(false)
     }
@@ -156,6 +177,69 @@ export default function CalendarPage() {
       })
     : []
 
+  // 選択日の曜日が定休日か
+  const isClosedDay = (() => {
+    if (!selectedDate || !agency?.closed_weekdays || agency.closed_weekdays.length === 0) return false
+    const [y, m, d] = selectedDate.split('-').map(Number)
+    const dow = new Date(y, m - 1, d).getDay() // 0=日 ... 6=土
+    return agency.closed_weekdays.includes(dow)
+  })()
+
+  // 面談可能時間帯で60分スロットを一括生成
+  const handleBulkGenerate = async () => {
+    if (!counselor || !selectedDate) return
+    const startStr = (agency?.consultation_start_time ?? '10:00').slice(0, 5)
+    const endStr = (agency?.consultation_end_time ?? '19:00').slice(0, 5)
+    const [sh, sm] = startStr.split(':').map(Number)
+    const [eh, em] = endStr.split(':').map(Number)
+    const startMin = sh * 60 + sm
+    const endMin = eh * 60 + em
+    if (endMin <= startMin) { showToast('面談可能時間が不正です'); return }
+
+    setBulkGenerating(true)
+    const supabase = createClient()
+
+    // 既存のその日のスロット（重複回避）
+    const existingStarts = new Set(
+      selectedSlots.map(s => {
+        const dt = new Date(s.start_at)
+        return `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`
+      })
+    )
+
+    const toInsert: { counselor_id: string; start_at: string; end_at: string; status: 'open' }[] = []
+    for (let mm = startMin; mm + 60 <= endMin; mm += 60) {
+      const h = Math.floor(mm / 60)
+      const m = mm % 60
+      const t = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+      if (existingStarts.has(t)) continue
+      toInsert.push({
+        counselor_id: counselor.id,
+        start_at: localDateTimeToIsoStr(selectedDate, t),
+        end_at: localDateTimeToIsoStr(selectedDate, `${String(h + 1).padStart(2, '0')}:${String(m).padStart(2, '0')}`),
+        status: 'open',
+      })
+    }
+
+    if (toInsert.length === 0) {
+      setBulkGenerating(false)
+      showToast('既にすべての枠が登録されています')
+      return
+    }
+
+    const { data, error } = await supabase.from('slots').insert(toInsert).select()
+    setBulkGenerating(false)
+    if (error) {
+      console.error('[bulk add] error', error)
+      showToast(`一括生成失敗：${describeError(error)}`, 6000)
+      return
+    }
+    if (data) {
+      setSlots(prev => [...prev, ...(data as Slot[])].sort((a, b) => a.start_at.localeCompare(b.start_at)))
+    }
+    showToast(`${toInsert.length}件の枠を生成しました`)
+  }
+
   const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
 
   if (loading) return <div style={{ padding: 32, color: 'var(--text-mid)' }}>読み込み中...</div>
@@ -163,7 +247,12 @@ export default function CalendarPage() {
   return (
     <div style={{ padding: '28px 24px', maxWidth: 700, paddingBottom: 80 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>CALENDAR</div>
-      <h1 className="page-title" style={{ marginBottom: 24 }}>予約枠管理</h1>
+      <h1 className="page-title" style={{ marginBottom: 12 }}>予約枠管理</h1>
+      {agency?.business_hours_text && (
+        <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 18, lineHeight: 1.7 }}>
+          営業時間：{agency.business_hours_text}
+        </p>
+      )}
 
       <div className="kc-card cal-wrap" style={{ padding: 20 }}>
         {/* カレンダーヘッダー */}
@@ -199,6 +288,22 @@ export default function CalendarPage() {
           <LegendDot cls="cal-dot-locked" label="ロック中" />
         </div>
 
+        {/* 定休日バナー */}
+        {isClosedDay && (
+          <div style={{
+            padding: '10px 14px',
+            background: 'var(--warning-pale)',
+            border: '1px solid var(--warning)',
+            borderRadius: 10,
+            fontSize: 12,
+            color: 'var(--text-deep)',
+            marginBottom: 12,
+            lineHeight: 1.7,
+          }}>
+            この日は相談所の <strong>定休日</strong> に設定されています。それでも追加する場合は下記から登録できます。
+          </div>
+        )}
+
         {/* 一括操作ボタン（凡例の下に独立配置） */}
         <div className="cal-actions">
           <button
@@ -211,6 +316,17 @@ export default function CalendarPage() {
             </svg>
             枠を追加
           </button>
+          <button
+            className="kc-btn kc-btn-ghost kc-btn-sm"
+            onClick={handleBulkGenerate}
+            disabled={!selectedDate || bulkGenerating}
+            title="面談可能時間内に60分の空き枠をまとめて作成"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 4h8M2 8h6M2 6h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {bulkGenerating ? '生成中…' : 'この日の枠を一括生成'}
+          </button>
         </div>
 
         <MonthGrid
@@ -219,6 +335,7 @@ export default function CalendarPage() {
           slots={slots}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
+          closedWeekdays={agency?.closed_weekdays}
         />
       </div>
 
@@ -250,6 +367,8 @@ export default function CalendarPage() {
               onAdd={handleAddSlot}
               onClose={() => setShowForm(false)}
               loading={addingSlot}
+              consultationStart={agency?.consultation_start_time}
+              consultationEnd={agency?.consultation_end_time}
             />
           </div>
         </div>

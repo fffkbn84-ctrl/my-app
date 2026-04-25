@@ -415,6 +415,13 @@ main {
 .cal-cell.today { outline: 2px solid var(--accent); outline-offset: -1px; }
 .cal-cell.selected { background: var(--accent-pale); }
 .cal-cell.other-month .cal-day-num { color: var(--text-faint); }
+.cal-cell.closed { background: repeating-linear-gradient(
+  -45deg,
+  transparent,
+  transparent 6px,
+  rgba(168, 136, 88, .06) 6px,
+  rgba(168, 136, 88, .06) 12px
+); }
 .cal-day-num {
   font-size: 12px;
   font-weight: 500;

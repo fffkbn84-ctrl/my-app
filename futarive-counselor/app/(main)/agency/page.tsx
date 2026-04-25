@@ -19,6 +19,10 @@ export default function AgencyPage() {
     name: '',
     description: '',
     website_url: '',
+    business_hours_text: '',
+    consultation_start_time: '10:00',
+    consultation_end_time: '19:00',
+    closed_weekdays: [] as number[],
   })
 
   const formRef = useRef(form)
@@ -31,6 +35,10 @@ export default function AgencyPage() {
       name: ag.name ?? '',
       description: ag.description ?? '',
       website_url: ag.website_url ?? '',
+      business_hours_text: ag.business_hours_text ?? '',
+      consultation_start_time: (ag.consultation_start_time ?? '10:00').slice(0, 5),
+      consultation_end_time: (ag.consultation_end_time ?? '19:00').slice(0, 5),
+      closed_weekdays: ag.closed_weekdays ?? [],
     })
   }
 
@@ -72,24 +80,30 @@ export default function AgencyPage() {
     const id = selectedIdRef.current
     if (!id) return false
     const f = formRef.current
+    if (f.consultation_start_time >= f.consultation_end_time) {
+      showToast('面談可能時間：終了は開始より後にしてください')
+      setSaveStatus('dirty')
+      return false
+    }
     setSaveStatus('saving')
     const supabase = createClient()
-    const { error } = await supabase.from('agencies').update({
+    const payload = {
       name: f.name,
       description: f.description || null,
       website_url: f.website_url || null,
-    }).eq('id', id)
+      business_hours_text: f.business_hours_text || null,
+      consultation_start_time: f.consultation_start_time || null,
+      consultation_end_time: f.consultation_end_time || null,
+      closed_weekdays: f.closed_weekdays.length > 0 ? f.closed_weekdays : null,
+    }
+    const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
       console.error('[agency save] error', error)
       showToast(`保存失敗：${describeError(error)}`)
       setSaveStatus('dirty')
       return false
     }
-    // agencies の該当行も同期（ただし setForm は呼ばない＝ループ防止）
-    setAgencies(prev => prev.map(a => a.id === id
-      ? { ...a, name: f.name, description: f.description || null, website_url: f.website_url || null }
-      : a
-    ))
+    setAgencies(prev => prev.map(a => a.id === id ? { ...a, ...payload } : a))
     setSaveStatus('saved')
     setSavedOnce(true)
     return true
@@ -226,6 +240,96 @@ export default function AgencyPage() {
           <input className="kc-input" type="url" value={form.website_url}
             onChange={e => update('website_url', e.target.value)}
             placeholder="https://example.com" />
+        </div>
+
+        {/* 営業時間（自由記述） */}
+        <div>
+          <label className="kc-label">営業時間（自由記述）</label>
+          <textarea
+            className="kc-textarea"
+            style={{ minHeight: 70 }}
+            value={form.business_hours_text}
+            onChange={e => update('business_hours_text', e.target.value)}
+            placeholder="例：平日 10:00〜19:00 / 土日 10:00〜18:00"
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            お客様向けに表示される営業時間の説明文です。
+          </p>
+        </div>
+
+        {/* 面談可能時間 */}
+        <div>
+          <label className="kc-label">面談可能時間</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <input
+              className="kc-input"
+              type="time"
+              step={1800}
+              value={form.consultation_start_time}
+              onChange={e => update('consultation_start_time', e.target.value)}
+              style={{ maxWidth: 130 }}
+            />
+            <span style={{ color: 'var(--text-mid)' }}>〜</span>
+            <input
+              className="kc-input"
+              type="time"
+              step={1800}
+              value={form.consultation_end_time}
+              onChange={e => update('consultation_end_time', e.target.value)}
+              style={{ maxWidth: 130 }}
+            />
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            予約枠カレンダーの時刻ピッカーがこの範囲に絞られます。
+          </p>
+        </div>
+
+        {/* 定休日 */}
+        <div>
+          <label className="kc-label">定休日</label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[
+              { v: 0, label: '日', danger: true },
+              { v: 1, label: '月' },
+              { v: 2, label: '火' },
+              { v: 3, label: '水' },
+              { v: 4, label: '木' },
+              { v: 5, label: '金' },
+              { v: 6, label: '土', accent: true },
+            ].map(d => {
+              const checked = form.closed_weekdays.includes(d.v)
+              return (
+                <button
+                  key={d.v}
+                  type="button"
+                  onClick={() => {
+                    const next = checked
+                      ? form.closed_weekdays.filter(w => w !== d.v)
+                      : [...form.closed_weekdays, d.v].sort()
+                    update('closed_weekdays', next)
+                  }}
+                  style={{
+                    width: 38, height: 38,
+                    borderRadius: 999,
+                    border: '1px solid ' + (checked ? 'var(--accent)' : 'var(--border)'),
+                    background: checked ? 'var(--accent)' : 'transparent',
+                    color: checked ? '#1A130A' : (d.danger ? 'var(--danger)' : d.accent ? 'var(--accent)' : 'var(--text)'),
+                    fontFamily: 'Noto Sans JP, sans-serif',
+                    fontWeight: 500,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    transition: 'background .15s, border-color .15s',
+                  }}
+                  aria-pressed={checked}
+                >
+                  {d.label}
+                </button>
+              )
+            })}
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            選択した曜日は予約枠カレンダーで「定休日」として表示されます。
+          </p>
         </div>
       </div>
 
