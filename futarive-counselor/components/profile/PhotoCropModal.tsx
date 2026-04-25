@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 
 const FRAME_SIZE = 280   // 画面上のクロップフレームサイズ
 const OUTPUT_SIZE = 512  // 最終書き出しサイズ
-const MIN_SCALE = 1
 const MAX_SCALE = 4
+// 縦横比が極端な画像でも「画像全体を枠に収める」まで小さくできるよう、
+// MIN_SCALE は画像から動的に算出する（min = contain / cover 比 = 短辺/長辺）。
 
 interface Props {
   file: File
@@ -46,9 +47,12 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
     return () => URL.revokeObjectURL(url)
   }, [file])
 
-  // cover ベーススケール
+  // cover ベーススケール（短辺フィット）と、それを基準とした最小スケール（画像全体を枠に収める）
   const baseScale = img
     ? FRAME_SIZE / Math.min(img.naturalWidth, img.naturalHeight)
+    : 1
+  const minScale = img
+    ? Math.min(img.naturalWidth, img.naturalHeight) / Math.max(img.naturalWidth, img.naturalHeight)
     : 1
   const effectiveScale = baseScale * scale
 
@@ -72,7 +76,7 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
   }, [scale, img])
 
   const setScaleClamped = (s: number) => {
-    setScale(Math.max(MIN_SCALE, Math.min(MAX_SCALE, s)))
+    setScale(Math.max(minScale, Math.min(MAX_SCALE, s)))
   }
 
   // 2点間の距離（React.Touch / DOM Touch 両対応の最小型）
@@ -281,7 +285,7 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
               onClick={() => setScaleClamped(scale - 0.25)}
               aria-label="縮小"
               style={zoomBtnStyle}
-              disabled={scale <= MIN_SCALE + 0.001}
+              disabled={scale <= minScale + 0.001}
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3 7h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
@@ -289,7 +293,7 @@ export default function PhotoCropModal({ file, onConfirm, onCancel }: Props) {
             </button>
             <input
               type="range"
-              min={MIN_SCALE}
+              min={minScale}
               max={MAX_SCALE}
               step={0.01}
               value={scale}
