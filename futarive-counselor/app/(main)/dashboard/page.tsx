@@ -32,6 +32,7 @@ function getDayString() {
 }
 
 const ALL_SENTINEL = 'ALL'
+const CONTEXT_STORAGE_KEY = 'kinda-dashboard-context'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -39,11 +40,20 @@ export default function DashboardPage() {
   const [todos, setTodos] = useState<TodoItem[]>([])
   const [counselors, setCounselors] = useState<Counselor[]>([])
   const [agencies, setAgencies] = useState<Agency[]>([])
-  const [context, setContext] = useState<string>(ALL_SENTINEL) // ALL | counselor_id
+  const [context, setContextState] = useState<string>(ALL_SENTINEL) // ALL | counselor_id
   const [displayName, setDisplayName] = useState('')
   const [agencyName, setAgencyName] = useState('')
   const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // localStorage に永続化するラッパー
+  const setContext = (next: string) => {
+    setContextState(next)
+    try {
+      if (next === ALL_SENTINEL) localStorage.removeItem(CONTEXT_STORAGE_KEY)
+      else localStorage.setItem(CONTEXT_STORAGE_KEY, next)
+    } catch {}
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -75,7 +85,17 @@ export default function DashboardPage() {
       }
       setCounselors(scoped)
 
-      await loadStats(supabase, scoped, ALL_SENTINEL)
+      // 前回選択していたコンテキストを復元（該当カウンセラーが残っている場合のみ）
+      let initialContext = ALL_SENTINEL
+      try {
+        const stored = localStorage.getItem(CONTEXT_STORAGE_KEY)
+        if (stored && scoped.some(c => c.id === stored)) {
+          initialContext = stored
+        }
+      } catch {}
+      setContextState(initialContext)
+
+      await loadStats(supabase, scoped, initialContext)
       setLoading(false)
     }
     load()

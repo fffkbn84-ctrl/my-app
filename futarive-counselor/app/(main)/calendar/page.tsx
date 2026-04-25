@@ -22,7 +22,7 @@ export default function CalendarPage() {
   const [addingSlot, setAddingSlot] = useState(false)
   const [toast, setToast] = useState('')
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500) }
+  const showToast = (msg: string, durationMs = 2500) => { setToast(msg); setTimeout(() => setToast(''), durationMs) }
 
   const loadSlots = useCallback(async (c: Counselor, y: number, m: number) => {
     const supabase = createClient()
@@ -44,10 +44,31 @@ export default function CalendarPage() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const { data: c } = await supabase.from('counselors').select('*').eq('owner_user_id', user.id).maybeSingle()
+
+      // 1) 自分がカウンセラー本人として持っている行
+      let c: Counselor | null = null
+      const { data: own } = await supabase
+        .from('counselors').select('*').eq('owner_user_id', user.id).maybeSingle()
+      if (own) c = own as Counselor
+
+      // 2) なければ、自分がオーナーの相談所に所属する最初のカウンセラー
+      if (!c) {
+        const { data: agencies } = await supabase
+          .from('agencies').select('id').eq('owner_user_id', user.id)
+        const agencyIds = (agencies ?? []).map(a => a.id)
+        if (agencyIds.length > 0) {
+          const { data: rows } = await supabase
+            .from('counselors').select('*')
+            .in('agency_id', agencyIds)
+            .order('created_at', { ascending: true })
+            .limit(1)
+          if (rows && rows[0]) c = rows[0] as Counselor
+        }
+      }
+
       if (c) {
-        setCounselor(c as Counselor)
-        await loadSlots(c as Counselor, year, month)
+        setCounselor(c)
+        await loadSlots(c, year, month)
       }
       setLoading(false)
     }
@@ -73,25 +94,33 @@ export default function CalendarPage() {
   }, [counselor, year, month, loadSlots])
 
   const handleAddSlot = async (startTime: string, endTime: string) => {
-    if (!counselor) { showToast('カウンセラー情報が読み込めていません'); return }
-    if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください'); return }
+    if (!counselor) { showToast('カウンセラー情報が読み込めていません', 5000); return }
+    if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください', 4000); return }
     setAddingSlot(true)
     const supabase = createClient()
-    const { data: inserted, error } = await supabase.from('slots').insert({
+    const payload = {
       counselor_id: counselor.id,
       start_time: startTime,
       end_time: endTime,
-      status: 'open',
-    }).select().maybeSingle()
+      status: 'open' as const,
+    }
+    console.log('[slot add] payload', payload)
+    const { data: inserted, error } = await supabase.from('slots').insert(payload).select().maybeSingle()
     setAddingSlot(false)
     if (error) {
-      console.error('[slot add] error', error)
-      showToast(`追加失敗：${describeError(error)}`)
+      console.error('[slot add] full error object', error)
+      const code = error.code ? `[${error.code}] ` : ''
+      showToast(`追加失敗：${code}${describeError(error)}`, 7000)
       return
     }
-    if (inserted) {
-      setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_time.localeCompare(b.start_time)))
+    if (!inserted) {
+      console.warn('[slot add] no row returned (possibly RLS read block)')
+      showToast('追加できたか確認できませんでした。一覧を再読み込みします', 5000)
+      if (counselor) await loadSlots(counselor, year, month)
+      setShowForm(false)
+      return
     }
+    setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_time.localeCompare(b.start_time)))
     setShowForm(false)
     showToast('予約枠を追加しました')
   }

@@ -735,6 +735,7 @@ main {
 .theme-toggle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 6px 10px;
   border-radius: 999px;
@@ -746,6 +747,8 @@ main {
   cursor: pointer;
   transition: border-color .15s, color .15s, background .15s;
   min-height: 32px;
+  min-width: 32px;
+  flex-shrink: 0;
 }
 .theme-toggle:hover {
   border-color: var(--accent);
@@ -764,9 +767,47 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 12px;
   z-index: 50;
-  gap: 12px;
+  gap: 8px;
+  min-width: 0;
+}
+.kc-topbar-logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.kc-topbar-logo-jp {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--text-deep);
+  letter-spacing: .04em;
+}
+.kc-topbar-logo-sub {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+.kc-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+/* 狭幅では「管理画面」を非表示 + バッジを縮小 */
+@media (max-width: 420px) {
+  .kc-topbar { padding: 0 10px; }
+  .kc-topbar-logo-sub { display: none; }
+  .acct-name { font-size: 11px; max-width: 100px; }
+}
+@media (max-width: 360px) {
+  .acct-name { display: none; }
 }
 
 /* アカウント / 相談所バッジ（トップバー右） */
