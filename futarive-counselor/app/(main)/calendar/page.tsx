@@ -55,7 +55,7 @@ export default function CalendarPage() {
       if (!c) {
         const { data: agencies } = await supabase
           .from('agencies').select('id').eq('owner_user_id', user.id)
-        const agencyIds = (agencies ?? []).map(a => a.id)
+        const agencyIds = ((agencies as { id: string }[] | null) ?? []).map(a => a.id)
         if (agencyIds.length > 0) {
           const { data: rows } = await supabase
             .from('counselors').select('*')
