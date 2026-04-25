@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { CounselorMedia } from '@/lib/types'
 import ShareSheet from './ShareSheet'
 
@@ -37,6 +37,41 @@ export default function PhonePreview({
   const [showShare, setShowShare] = useState(false)
   const [showReviews, setShowReviews] = useState(false)
   const [liked, setLiked] = useState(false)
+  const [dragDx, setDragDx] = useState(0)
+  const dragRef = useRef<{ startX: number; startY: number; startTime: number; locked: 'h' | 'v' | null; dx: number } | null>(null)
+  const SWIPE_THRESHOLD = 40
+
+  const handlePointerDown = (clientX: number, clientY: number) => {
+    if (mediaList.length <= 1) return
+    dragRef.current = { startX: clientX, startY: clientY, startTime: Date.now(), locked: null, dx: 0 }
+  }
+  const handlePointerMove = (clientX: number, clientY: number) => {
+    const d = dragRef.current
+    if (!d) return
+    const dx = clientX - d.startX
+    const dy = clientY - d.startY
+    if (!d.locked) {
+      if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+        d.locked = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'
+      }
+    }
+    if (d.locked === 'h') {
+      d.dx = dx
+      setDragDx(dx)
+    }
+  }
+  const handlePointerUp = () => {
+    const d = dragRef.current
+    if (!d) { setDragDx(0); return }
+    const dx = d.locked === 'h' ? d.dx : 0
+    dragRef.current = null
+    setDragDx(0)
+    if (dx <= -SWIPE_THRESHOLD && selectedIndex < mediaList.length - 1) {
+      onSelectIndex(selectedIndex + 1)
+    } else if (dx >= SWIPE_THRESHOLD && selectedIndex > 0) {
+      onSelectIndex(selectedIndex - 1)
+    }
+  }
 
   const current = mediaList[selectedIndex]
   const total = Math.max(mediaList.length, 1)
@@ -52,11 +87,27 @@ export default function PhonePreview({
           position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)',
           width: 80, height: 22, borderRadius: 999, background: '#000', zIndex: 20,
         }} />
-        <div className="phone-screen">
+        <div
+          className="phone-screen"
+          style={{ touchAction: 'pan-y' }}
+          onTouchStart={e => { if (e.touches[0]) handlePointerDown(e.touches[0].clientX, e.touches[0].clientY) }}
+          onTouchMove={e => { if (e.touches[0]) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY) }}
+          onTouchEnd={handlePointerUp}
+          onTouchCancel={handlePointerUp}
+          onMouseDown={e => handlePointerDown(e.clientX, e.clientY)}
+          onMouseMove={e => { if (dragRef.current) handlePointerMove(e.clientX, e.clientY) }}
+          onMouseUp={handlePointerUp}
+          onMouseLeave={handlePointerUp}
+        >
           {/* 背景画像 */}
+          <div style={{
+            position: 'absolute', inset: 0,
+            transform: `translateX(${dragDx}px)`,
+            transition: dragRef.current ? 'none' : 'transform .25s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}>
           {current ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={current.media_url} alt="" className="phone-img" />
+            <img src={current.media_url} alt="" className="phone-img" draggable={false} />
           ) : (
             <div style={{
               width: '100%', height: '100%',
@@ -74,6 +125,7 @@ export default function PhonePreview({
               </span>
             </div>
           )}
+          </div>
 
           {/* オーバーレイ */}
           <div className="phone-overlay" />
