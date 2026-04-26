@@ -1,0 +1,9 @@
+# Vercel ビルドから除外するファイル/ディレクトリ
+#
+# futarive-counselor / futarive-admin はそれぞれ別の Vercel プロジェクトとして
+# Root Directory 指定でデプロイされる。
+# メインアプリ（このリポジトリのルート）のビルドにはこれらは含めない。
+# 含めると tsconfig の exclude を超えて Next.js / TypeScript の型チェックが
+# サブアプリのファイルを拾ってしまい、ビルドが落ちる。
+futarive-counselor
+futarive-admin
