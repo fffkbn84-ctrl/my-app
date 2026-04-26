@@ -77,13 +77,65 @@ export default function KindaActPage() {
 
             <p className="kt-guide-text">
               お見合いやデートで使うお店は、空気で決まります。
-              話しやすい音量、座席の距離、店員の干渉度合い、入店のしやすさ。
-              Kinda ふたりへが実際に取材して、安心して会話に集中できる場所だけを掲載しています。
+              <br />
+              Kinda ふたりへは、次の 4 つの基準で取材・厳選しています。
             </p>
+
+            {/* 4つの選定基準カード（2×2 グリッド） */}
+            <div className="ka-criteria-grid">
+              <div className="ka-criterion">
+                <div className="ka-criterion-icon" aria-hidden>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                  </svg>
+                </div>
+                <div className="ka-criterion-label">話しやすい音量</div>
+                <div className="ka-criterion-desc">大声を出さず会話できる空間</div>
+              </div>
+
+              <div className="ka-criterion">
+                <div className="ka-criterion-icon" aria-hidden>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 18v3M20 18v3" />
+                    <path d="M2 14h20l-1 4H3z" />
+                    <path d="M5 14V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6" />
+                  </svg>
+                </div>
+                <div className="ka-criterion-label">座席の距離</div>
+                <div className="ka-criterion-desc">隣との適度な間が取れるか</div>
+              </div>
+
+              <div className="ka-criterion">
+                <div className="ka-criterion-icon" aria-hidden>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                    <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
+                    <path d="M16 4l4 4M20 4l-4 4" opacity=".5" />
+                  </svg>
+                </div>
+                <div className="ka-criterion-label">店員の干渉</div>
+                <div className="ka-criterion-desc">過度な接客がないか</div>
+              </div>
+
+              <div className="ka-criterion">
+                <div className="ka-criterion-icon" aria-hidden>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 21h18" />
+                    <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+                    <circle cx="14" cy="12" r="1" fill="currentColor" />
+                  </svg>
+                </div>
+                <div className="ka-criterion-label">入店のしやすさ</div>
+                <div className="ka-criterion-desc">気軽に予約・入店できるか</div>
+              </div>
+            </div>
+
             <p className="kt-guide-text">
               「取材済み」のバッジは、運営スタッフが現地で確認したお店。
-              「相談所おすすめ」は、現役カウンセラーが推薦する場所。
-              バッジで選び方の安心感を可視化しています。
+              <br />
+              「相談所おすすめ」は、現役カウンセラーが推薦する場所です。
             </p>
           </div>
         </section>
