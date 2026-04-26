@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { COUNSELORS } from "@/lib/data";
+import { getCounselors } from "@/lib/data";
 import FAQAccordion, { FAQItem } from "@/components/kinda-talk/FAQAccordion";
 import KindaTalkClient from "./KindaTalkClient";
 
@@ -29,9 +29,9 @@ const FAQ_ITEMS: FAQItem[] = [
   },
 ];
 
-export default function KindaTalkPage() {
-  // 並び替え: rating × log(reviewCount+2) でデフォルト並び
-  const counselors = [...COUNSELORS].sort((a, b) => {
+export default async function KindaTalkPage() {
+  // Supabase からデータ取得（0件 / エラー時は mock COUNSELORS にフォールバック）
+  const counselors = (await getCounselors()).sort((a, b) => {
     return (
       b.rating * Math.log(b.reviewCount + 2) - a.rating * Math.log(a.reviewCount + 2)
     );

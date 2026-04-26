@@ -42,6 +42,18 @@ export interface Database {
           is_published: boolean | null;
           quote: string | null;
           experience_label: string | null;
+          /* 002_kinda_talk_extensions.sql で追加 */
+          catchphrase: string | null;
+          intro: string | null;
+          area: string | null;
+          role: string | null;
+          qualifications: string[] | null;
+          fee: string | null;
+          matching_types: string[] | null;
+          is_demo: boolean | null;
+          reel_enabled: boolean | null;
+          reel_order: number | null;
+          message: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -51,6 +63,25 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["counselors"]["Insert"]>;
+      };
+      counselor_media: {
+        Row: {
+          id: string;
+          counselor_id: string;
+          media_url: string;
+          media_type: "image" | "video";
+          caption: string | null;
+          display_order: number;
+          fallback_bg: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["counselor_media"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["counselor_media"]["Insert"]>;
       };
       slots: {
         Row: {

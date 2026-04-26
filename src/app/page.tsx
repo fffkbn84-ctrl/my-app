@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
-import { COUNSELORS } from "@/lib/data";
+import { getCounselors } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
@@ -190,9 +190,11 @@ function SectionLabel({ label, en }: { label: string; en?: string }) {
 /* ────────────────────────────────────────────────────────────
    トップページ
 ──────────────────────────────────────────────────────────── */
-export default function HomePage() {
-  // ホームのリールカルーセル用：ダミーも含む一覧から rating × log(reviewCount+2) で上位 6 件
-  const homeReelCounselors = [...COUNSELORS]
+export default async function HomePage() {
+  // ホームのリールカルーセル用：Supabase or mock fallback から取得し
+  // rating × log(reviewCount+2) で上位 6 件
+  const allCounselors = await getCounselors();
+  const homeReelCounselors = [...allCounselors]
     .sort(
       (a, b) =>
         b.rating * Math.log(b.reviewCount + 2) -

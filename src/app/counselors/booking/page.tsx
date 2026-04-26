@@ -11,10 +11,10 @@ export default async function CounselorBookingPage({
   const { agencyId } = await searchParams;
   if (!agencyId) notFound();
 
-  const agency = AGENCIES.find((a) => a.id === Number(agencyId));
+  const agency = AGENCIES.find((a) => String(a.id) === String(agencyId));
   if (!agency) notFound();
 
-  const counselors = COUNSELORS.filter((c) => c.agencyId === Number(agencyId));
+  const counselors = COUNSELORS.filter((c) => String(c.agencyId) === String(agencyId));
 
   return (
     <>

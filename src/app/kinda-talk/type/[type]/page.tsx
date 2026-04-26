@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { COUNSELORS } from "@/lib/data";
+import { getCounselors } from "@/lib/data";
 import { KINDA_TYPES, KINDA_TYPE_KEYS, KindaTypeKey } from "@/lib/kinda-types";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
 
@@ -40,7 +40,8 @@ export default async function TypePage({
   const t = KINDA_TYPES[type as KindaTypeKey];
   if (!t) notFound();
 
-  const filtered = COUNSELORS.filter((c) =>
+  const all = await getCounselors();
+  const filtered = all.filter((c) =>
     (c.matchingTypes ?? []).includes(type),
   ).sort(
     (a, b) =>

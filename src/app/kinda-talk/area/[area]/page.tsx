@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { COUNSELORS } from "@/lib/data";
+import { getCounselors } from "@/lib/data";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
 
 /* スラグ（URL）→ 検索用部分文字列・表示名 */
@@ -48,7 +48,8 @@ export default async function AreaPage({
   const info = AREA_MAP[area];
   if (!info) notFound();
 
-  const filtered = COUNSELORS.filter((c) =>
+  const all = await getCounselors();
+  const filtered = all.filter((c) =>
     info.match.some((m) => c.area.includes(m)),
   ).sort(
     (a, b) =>

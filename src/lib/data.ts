@@ -8,6 +8,7 @@ import { placesHomeData } from '@/lib/mock/places-home'
 import type { Database } from '@/types/database'
 
 type CounselorRow = Database['public']['Tables']['counselors']['Row']
+type CounselorMediaRow = Database['public']['Tables']['counselor_media']['Row']
 
 export type Plan = {
   name: string;
@@ -71,10 +72,11 @@ export type Agency = {
 };
 
 export type Counselor = {
-  id: number;
+  /** mock 段階では数値、Supabase 移行後は UUID 文字列 */
+  id: number | string;
   name: string;
   kana: string;
-  agencyId: number;
+  agencyId: number | string;
   agencyName: string;
   area: string;
   role: string;
@@ -102,6 +104,8 @@ export type Counselor = {
   catchphrase?: string;
   /** 自己紹介の本文（個別ページ用） */
   intro?: string;
+  /** 旧スキーマ互換: 個別ページの bio フィールド（intro と並行使用される箇所がある） */
+  bio?: string;
   /** 座右の銘や一言メッセージ */
   quote?: string;
   /** 得意分野（既存 tags より具体的なテキスト） */
@@ -643,28 +647,143 @@ export const COUNSELORS: Counselor[] = [
    Supabase データ取得関数
 ──────────────────────────────────────────────────────────── */
 
-// カウンセラー一覧取得
-export async function getCounselors() {
+/* ────────────────────────────────────────────────────────────
+   Supabase Row → モック互換 Counselor 型へのマッパー
+   002_kinda_talk_extensions.sql / 003_seed_kinda_talk_demo.sql
+   実行後の Supabase 構造を Counselor 型に変換する。
+──────────────────────────────────────────────────────────── */
+function mapCounselorRowToCounselor(
+  row: CounselorRow,
+  agencyName?: string,
+  reelMedia?: CounselorMediaRow[],
+): Counselor {
+  return {
+    id: row.id,
+    name: row.name,
+    kana: '', // Supabase 側に kana カラム未追加。必要なら 004 マイグレーションで追加。
+    agencyId: row.agency_id,
+    agencyName: agencyName ?? '',
+    area: row.area ?? '',
+    role: row.role ?? 'ブライダルカウンセラー',
+    experience: row.years_of_experience ?? 0,
+    tags: row.specialties ?? [],
+    rating: Number(row.rating_avg ?? 0),
+    reviewCount: row.review_count ?? 0,
+    online: false, // Supabase 側に未追加。デフォルト false。
+    minAdmission: 0,
+    monthlyFrom: 0,
+    gradient: 'linear-gradient(135deg,#FAF3DE,#F4E8C4)',
+    svgColor: '#B89A4A',
+    message: row.message ?? '',
+    diagnosisType: row.diagnosis_type ?? undefined,
+    catchphrase: row.catchphrase ?? undefined,
+    intro: row.intro ?? undefined,
+    bio: row.bio ?? undefined,
+    quote: row.quote ?? undefined,
+    specialties: row.specialties ?? undefined,
+    qualifications: row.qualifications ?? undefined,
+    fee: row.fee ?? undefined,
+    matchingTypes: row.matching_types ?? undefined,
+    isDemo: row.is_demo ?? false,
+    reelImages: (reelMedia ?? [])
+      .sort((a, b) => a.display_order - b.display_order)
+      .map((m) => ({
+        bg: m.fallback_bg ?? `url(${m.media_url})`,
+        caption: m.caption ?? undefined,
+      })),
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   カウンセラー一覧取得
+   - Supabase に公開データがあれば Counselor[] を返す
+   - 0 件 / エラー時は mock COUNSELORS にフォールバック
+──────────────────────────────────────────────────────────── */
+export async function getCounselors(): Promise<Counselor[]> {
   const { data, error } = await supabase
     .from('counselors')
     .select('*')
     .eq('is_published', true)
-    .order('review_count', { ascending: false })
-  if (error) {
-    console.error('getCounselors error:', error)
+    .order('reel_order', { ascending: true })
+
+  // Supabase SDK v2 の型推論が壊れるため明示的にキャストする（CLAUDE.md 参照）
+  const counselorRows = data as CounselorRow[] | null
+
+  if (error || !counselorRows || counselorRows.length === 0) {
+    if (error) console.error('getCounselors error (fallback to mock):', error.message)
     return COUNSELORS
   }
-  return data
+
+  // 関連する agencies と counselor_media を別クエリで取得（JOIN は型推論が壊れるため避ける）
+  const agencyIds = Array.from(new Set(counselorRows.map((c) => c.agency_id)))
+  const counselorIds = counselorRows.map((c) => c.id)
+
+  const [agencyRes, mediaRes] = await Promise.all([
+    supabase.from('agencies').select('id,name').in('id', agencyIds),
+    supabase.from('counselor_media').select('*').in('counselor_id', counselorIds),
+  ])
+  const agencyRows = agencyRes.data as Array<{ id: string; name: string }> | null
+  const mediaRows = mediaRes.data as CounselorMediaRow[] | null
+
+  const agencyNameById = new Map<string, string>(
+    (agencyRows ?? []).map((a) => [a.id, a.name]),
+  )
+  const mediaByCounselor = new Map<string, CounselorMediaRow[]>()
+  for (const m of mediaRows ?? []) {
+    const list = mediaByCounselor.get(m.counselor_id) ?? []
+    list.push(m)
+    mediaByCounselor.set(m.counselor_id, list)
+  }
+
+  return counselorRows.map((row) =>
+    mapCounselorRowToCounselor(
+      row,
+      agencyNameById.get(row.agency_id),
+      mediaByCounselor.get(row.id),
+    ),
+  )
 }
 
-// カウンセラー詳細取得
-export async function getCounselorById(id: string): Promise<CounselorRow | null> {
-  const { data, error } = await supabase
+/* ────────────────────────────────────────────────────────────
+   カウンセラー詳細取得
+   - Supabase の row を Counselor 型で返す
+   - 見つからない時は null（呼び出し側で notFound() 等する）
+   - mock fallback は呼び出し側で別途 COUNSELORS.find() してマージする想定
+──────────────────────────────────────────────────────────── */
+export async function getCounselorById(id: string): Promise<Counselor | null> {
+  const res = await supabase
     .from('counselors')
     .select('*')
     .eq('id', id)
     .single()
-  if (error) return null
+  const row = res.data as CounselorRow | null
+  if (res.error || !row) return null
+
+  const [agencyRes, mediaRes] = await Promise.all([
+    supabase.from('agencies').select('id,name').eq('id', row.agency_id).single(),
+    supabase
+      .from('counselor_media')
+      .select('*')
+      .eq('counselor_id', row.id)
+      .order('display_order', { ascending: true }),
+  ])
+  const agency = agencyRes.data as { id: string; name: string } | null
+  const media = mediaRes.data as CounselorMediaRow[] | null
+
+  return mapCounselorRowToCounselor(row, agency?.name, media ?? [])
+}
+
+/* ────────────────────────────────────────────────────────────
+   カウンセラーのリール画像のみ取得
+──────────────────────────────────────────────────────────── */
+export async function getCounselorMedia(counselorId: string): Promise<CounselorMediaRow[]> {
+  const res = await supabase
+    .from('counselor_media')
+    .select('*')
+    .eq('counselor_id', counselorId)
+    .order('display_order', { ascending: true })
+  const data = res.data as CounselorMediaRow[] | null
+  if (res.error || !data) return []
   return data
 }
 

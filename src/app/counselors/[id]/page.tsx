@@ -490,10 +490,10 @@ export default async function CounselorDetailPage({
     counselorReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) /
     counselorReviews.length;
 
-  const matchedAgency = AGENCIES.find((a) => a.id === Number(counselor.agencyId));
-  const agencyCounselorCount = COUNSELORS.filter((c) => c.agencyId === Number(counselor.agencyId)).length;
-  const matchedCounselorData = COUNSELORS.find((c) => c.id === Number(id));
-  const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? supabaseCounselor?.diagnosis_type ?? null;
+  const matchedAgency = AGENCIES.find((a) => String(a.id) === String(counselor.agencyId));
+  const agencyCounselorCount = COUNSELORS.filter((c) => String(c.agencyId) === String(counselor.agencyId)).length;
+  const matchedCounselorData = COUNSELORS.find((c) => String(c.id) === String(id));
+  const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? supabaseCounselor?.diagnosisType ?? null;
 
   return (
     <>
