@@ -6,7 +6,13 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { mergeLocalFavoritesToSupabase } from "@/hooks/useFavorites";
 
-type Mode = "signin" | "signup";
+type Mode = "signin" | "signup" | "reset-request";
+
+function getResetRedirectUrl(): string {
+  const envBase = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+  const base = envBase ?? (typeof window !== "undefined" ? window.location.origin : "");
+  return `${base}/auth/reset-password`;
+}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -20,6 +26,12 @@ export default function LoginForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setError(null);
+    setInfo(null);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +59,7 @@ export default function LoginForm() {
         }
         router.push(redirect);
         router.refresh();
-      } else {
+      } else if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -57,7 +69,6 @@ export default function LoginForm() {
           return;
         }
         if (data.user && data.session) {
-          // メール確認 OFF の場合はそのままログイン状態
           await mergeLocalFavoritesToSupabase(supabase, data.user.id);
           router.push(redirect);
           router.refresh();
@@ -66,6 +77,18 @@ export default function LoginForm() {
             "確認メールを送信しました。メール内のリンクから登録を完了してください。",
           );
         }
+      } else {
+        // reset-request
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: getResetRedirectUrl(),
+        });
+        if (error) {
+          setError(translateAuthError(error.message));
+          return;
+        }
+        setInfo(
+          "パスワード再設定のメールを送信しました。メール内のリンクから手続きしてください。",
+        );
       }
     } catch {
       setError("通信エラーが発生しました。時間をおいて再度お試しください。");
@@ -97,22 +120,14 @@ export default function LoginForm() {
       >
         <button
           type="button"
-          onClick={() => {
-            setMode("signin");
-            setError(null);
-            setInfo(null);
-          }}
+          onClick={() => switchMode("signin")}
           style={tabStyle(mode === "signin")}
         >
           ログイン
         </button>
         <button
           type="button"
-          onClick={() => {
-            setMode("signup");
-            setError(null);
-            setInfo(null);
-          }}
+          onClick={() => switchMode("signup")}
           style={tabStyle(mode === "signup")}
         >
           新規登録
@@ -120,6 +135,19 @@ export default function LoginForm() {
       </div>
 
       <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {mode === "reset-request" && (
+          <div
+            style={{
+              fontSize: 12,
+              color: "var(--mid)",
+              lineHeight: 1.7,
+              padding: "0 4px",
+            }}
+          >
+            登録したメールアドレスを入力してください。再設定リンクをお送りします。
+          </div>
+        )}
+
         <div>
           <label htmlFor="email" style={labelStyle}>
             メールアドレス
@@ -135,26 +163,28 @@ export default function LoginForm() {
           />
         </div>
 
-        <div>
-          <label htmlFor="password" style={labelStyle}>
-            パスワード
-            {mode === "signup" && (
-              <span style={{ color: "var(--muted)", fontSize: 11, marginLeft: 8 }}>
-                （8文字以上）
-              </span>
-            )}
-          </label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={mode === "signup" ? 8 : undefined}
-            autoComplete={mode === "signup" ? "new-password" : "current-password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
-          />
-        </div>
+        {mode !== "reset-request" && (
+          <div>
+            <label htmlFor="password" style={labelStyle}>
+              パスワード
+              {mode === "signup" && (
+                <span style={{ color: "var(--muted)", fontSize: 11, marginLeft: 8 }}>
+                  （8文字以上）
+                </span>
+              )}
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              minLength={mode === "signup" ? 8 : undefined}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+            />
+          </div>
+        )}
 
         {error && (
           <div
@@ -190,27 +220,51 @@ export default function LoginForm() {
             ? "送信中..."
             : mode === "signin"
               ? "ログインする"
-              : "新規登録する"}
+              : mode === "signup"
+                ? "新規登録する"
+                : "再設定メールを送信する"}
         </button>
       </form>
 
       {mode === "signin" && (
         <div style={{ textAlign: "center", marginTop: 20 }}>
-          <Link
-            href="#"
+          <button
+            type="button"
+            onClick={() => switchMode("reset-request")}
             style={{
+              background: "transparent",
+              border: "none",
               fontSize: 12,
               color: "var(--mid)",
               textDecoration: "underline",
               textUnderlineOffset: 3,
-            }}
-            onClick={(e) => {
-              e.preventDefault();
-              setInfo("パスワードリセットは準備中です。");
+              cursor: "pointer",
+              fontFamily: "inherit",
             }}
           >
             パスワードをお忘れの方
-          </Link>
+          </button>
+        </div>
+      )}
+
+      {mode === "reset-request" && (
+        <div style={{ textAlign: "center", marginTop: 20 }}>
+          <button
+            type="button"
+            onClick={() => switchMode("signin")}
+            style={{
+              background: "transparent",
+              border: "none",
+              fontSize: 12,
+              color: "var(--mid)",
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
+              cursor: "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            ← ログイン画面に戻る
+          </button>
         </div>
       )}
 
