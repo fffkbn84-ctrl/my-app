@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Link from "next/link";
 import { Counselor } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
@@ -22,6 +22,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
   const [shareOpen, setShareOpen] = useState(false);
   const [demoNoticeOpen, setDemoNoticeOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
   // Hooks は top-level で呼ぶ必要があるため、counselor が null の時は
   // sentinel ID を渡して effect 側で reflect させない
@@ -44,6 +45,8 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
     if (!counselor) return;
     const original = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // モーダル展開時、閉じるボタンへフォーカス（キーボード/SR ユーザー向け）
+    const focusTimer = window.setTimeout(() => closeBtnRef.current?.focus(), 100);
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowRight") setImgIndex((i) => Math.min(i + 1, (counselor.reelImages?.length ?? 1) - 1));
@@ -52,6 +55,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
     window.addEventListener("keydown", handleKey);
     return () => {
       document.body.style.overflow = original;
+      window.clearTimeout(focusTimer);
       window.removeEventListener("keydown", handleKey);
     };
   }, [counselor, onClose]);
@@ -93,24 +97,28 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
     : "";
 
   return createPortal(
-    <AnimatePresence>
-      {counselor && (
-        <motion.div
-          className="kt-reel-modal-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={onClose}
-        >
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence>
+        {counselor && (
           <motion.div
-            className="kt-reel-modal"
-            initial={{ scale: 0.92, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.92, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            onClick={(e) => e.stopPropagation()}
+            className="kt-reel-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
           >
+            <motion.div
+              className="kt-reel-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={`kt-reel-title-${counselor.id}`}
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="kt-reel-modal-progress" aria-hidden>
               {images.map((_, i) => (
                 <div
@@ -125,6 +133,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
             </div>
 
             <button
+              ref={closeBtnRef}
               type="button"
               className="kt-reel-modal-close"
               onClick={onClose}
@@ -195,7 +204,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
                   <KindaTypeBadge key={t} type={t} manual={i === 1} />
                 ))}
               </div>
-              <div className="kt-reel-modal-catchphrase">
+              <div className="kt-reel-modal-catchphrase" id={`kt-reel-title-${counselor.id}`}>
                 {currentImage?.caption ?? counselor.catchphrase ?? counselor.message}
               </div>
               <div className="kt-reel-modal-name">
@@ -242,8 +251,14 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
               onClick={() => setDemoNoticeOpen(false)}
               role="presentation"
             >
-              <div className="kt-demo-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="kt-demo-modal-title">これはサンプル表示です</div>
+              <div
+                className="kt-demo-modal"
+                onClick={(e) => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="kt-demo-modal-title"
+              >
+                <div className="kt-demo-modal-title" id="kt-demo-modal-title">これはサンプル表示です</div>
                 <div className="kt-demo-modal-text">
                   Kinda talk に実際に掲載されているカウンセラーではありません。
                   <br />
@@ -261,9 +276,10 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
               </div>
             </div>
           )}
-        </motion.div>
-      )}
-    </AnimatePresence>,
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </MotionConfig>,
     document.body,
   );
 }

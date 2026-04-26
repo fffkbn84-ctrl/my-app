@@ -3955,3 +3955,24 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 }
 .kt-faq-item.is-open .kt-faq-a { display: block; }
 
+
+/* ─────────────────────────────────────────────────────────
+   キーボードフォーカス可視化（:focus-visible）
+   マウス操作時はリングを出さず、Tab 移動時のみ目立たせる。
+───────────────────────────────────────────────────────── */
+.kt-reel-card:focus-visible,
+.kt-reel-modal-action:focus-visible,
+.kt-reel-modal-cta:focus-visible,
+.kt-reel-modal-close:focus-visible,
+.kt-pill:focus-visible,
+.kt-faq-q:focus-visible,
+.kt-share-sheet-btn:focus-visible,
+.kt-share-sheet-cancel:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.home-reel-scroll:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 14px;
+}

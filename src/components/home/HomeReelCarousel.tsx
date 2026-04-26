@@ -17,6 +17,9 @@ export default function HomeReelCarousel({ counselors }: Props) {
     <>
       <div
         className="home-reel-scroll"
+        role="region"
+        aria-label="今いるカウンセラー（左右スクロール）"
+        tabIndex={0}
         style={{
           display: "flex",
           gap: 12,
