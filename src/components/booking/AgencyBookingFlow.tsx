@@ -64,9 +64,9 @@ function CounselorSelectStep({
 }: {
   counselors: Counselor[];
   agencyName: string;
-  onNext: (counselorId: number | null) => void;
+  onNext: (counselorId: number | string | null) => void;
 }) {
-  const [selected, setSelected] = useState<number | "none" | null>(null);
+  const [selected, setSelected] = useState<number | string | "none" | null>(null);
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px" }}>
@@ -285,7 +285,7 @@ function CounselorSelectStep({
         <button
           type="button"
           disabled={selected === null}
-          onClick={() => onNext(selected === "none" ? null : (selected as number))}
+          onClick={() => onNext(selected === "none" ? null : (selected as number | string))}
           className="bk-btn bk-btn-accent bk-btn-lg"
           style={{ borderRadius: 50, opacity: selected === null ? 0.4 : 1 }}
         >
@@ -408,7 +408,7 @@ function AgencyCompletionScreen({
   counselorName: string;
   agencyName: string;
   agencyId: string;
-  counselorId: number | null;
+  counselorId: number | string | null;
   slot: Slot;
 }) {
   return (
@@ -490,7 +490,7 @@ function AgencyCompletionScreen({
 ──────────────────────────────────────────────────────────── */
 interface AgencyState {
   step: 1 | 2 | 3 | 4 | 5;
-  selectedCounselorId: number | null;
+  selectedCounselorId: number | string | null;
   selectedDate: string | null;
   selectedSlot: Slot | null;
   userInfo: BookingUserInfo;
@@ -529,7 +529,7 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors }: 
   }, []);
 
   const handleCounselorSelect = useCallback(
-    (counselorId: number | null) => {
+    (counselorId: number | string | null) => {
       setState((prev) => ({ ...prev, selectedCounselorId: counselorId }));
       goToStep(2);
     },
@@ -561,7 +561,7 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors }: 
 
   const selectedCounselor =
     state.selectedCounselorId != null
-      ? (counselors.find((c) => c.id === state.selectedCounselorId) ?? null)
+      ? (counselors.find((c) => String(c.id) === String(state.selectedCounselorId)) ?? null)
       : null;
 
   const counselorDisplayName = selectedCounselor ? selectedCounselor.name : "指名なし";

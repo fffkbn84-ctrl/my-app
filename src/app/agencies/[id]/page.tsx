@@ -179,7 +179,7 @@ export default async function AgencyDetailPage({
     : mockAgency;
   if (!agency) notFound();
 
-  const counselors = COUNSELORS.filter((c) => agency.counselorIds?.includes(c.id));
+  const counselors = COUNSELORS.filter((c) => agency.counselorIds?.some((cid) => String(cid) === String(c.id)));
 
   return (
     <>

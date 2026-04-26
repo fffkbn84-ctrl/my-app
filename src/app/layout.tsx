@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Kinda — 今、関係を築いているふたりへ",
@@ -25,21 +26,23 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        {/* 固定縦ライン — 全ページ共通装飾 */}
-        <div className="side-line" aria-hidden="true">
-          <div className="side-line-grad-top" />
-          <span className="side-line-txt">Kinda</span>
-          <span className="side-line-sep">·</span>
-          <span className="side-line-en">ふたりへ</span>
-          <div className="side-line-mid" />
-          <span className="side-line-txt">Kinda</span>
-          <span className="side-line-sep">·</span>
-          <span className="side-line-en">ふたりへ</span>
-          <div className="side-line-grad-bot" />
-        </div>
+        <AuthProvider>
+          {/* 固定縦ライン — 全ページ共通装飾 */}
+          <div className="side-line" aria-hidden="true">
+            <div className="side-line-grad-top" />
+            <span className="side-line-txt">Kinda</span>
+            <span className="side-line-sep">·</span>
+            <span className="side-line-en">ふたりへ</span>
+            <div className="side-line-mid" />
+            <span className="side-line-txt">Kinda</span>
+            <span className="side-line-sep">·</span>
+            <span className="side-line-en">ふたりへ</span>
+            <div className="side-line-grad-bot" />
+          </div>
 
-        {children}
-        <BottomNav />
+          {children}
+          <BottomNav />
+        </AuthProvider>
       </body>
     </html>
   );

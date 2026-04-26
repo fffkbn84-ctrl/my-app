@@ -3,6 +3,8 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
+import HomeReelCarousel from "@/components/home/HomeReelCarousel";
+import { getCounselors } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
@@ -188,7 +190,18 @@ function SectionLabel({ label, en }: { label: string; en?: string }) {
 /* ────────────────────────────────────────────────────────────
    トップページ
 ──────────────────────────────────────────────────────────── */
-export default function HomePage() {
+export default async function HomePage() {
+  // ホームのリールカルーセル用：Supabase or mock fallback から取得し
+  // rating × log(reviewCount+2) で上位 6 件
+  const allCounselors = await getCounselors();
+  const homeReelCounselors = [...allCounselors]
+    .sort(
+      (a, b) =>
+        b.rating * Math.log(b.reviewCount + 2) -
+        a.rating * Math.log(a.reviewCount + 2),
+    )
+    .slice(0, 6);
+
   return (
     <>
       <Header />
@@ -433,6 +446,64 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            B' — Kinda talk より | 今いるカウンセラーたち
+        ═══════════════════════════════════════════════════ */}
+        <section
+          style={{
+            padding: "56px 0 8px",
+            background: "#FEFCFA",
+          }}
+        >
+          <div style={{ textAlign: "center", marginBottom: 24, padding: "0 20px" }}>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                letterSpacing: ".18em",
+                color: "var(--muted)",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              Kinda talk{" "}
+              <em
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontStyle: "italic",
+                  color: "var(--accent)",
+                  textTransform: "lowercase",
+                  margin: "0 2px",
+                }}
+              >
+                より
+              </em>
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: 22,
+                color: "var(--ink)",
+                fontWeight: 500,
+                margin: "4px 0",
+              }}
+            >
+              今いるカウンセラーたち
+            </h2>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--mid)",
+                marginTop: 6,
+              }}
+            >
+              リールにこめた言葉と空気から、選ぶ
+            </div>
+          </div>
+
+          <HomeReelCarousel counselors={homeReelCounselors} />
         </section>
 
         {/* ═══════════════════════════════════════════════════

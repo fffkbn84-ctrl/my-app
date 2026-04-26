@@ -1,27 +1,15 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useFavorites } from "./useFavorites";
 
 /**
- * カウンセラー・相談所の保存状態をローカルで管理するフック。
- * Supabase連携後はDBへの読み書きに差し替える。
+ * @deprecated useFavorites を直接使ってください。
+ *
+ * 後方互換のために残したエイリアス。
+ * 既存の SaveButton / counselor-detail 等が type と id を受け取って
+ * { saved, toggle } を返す API に依存しているため、シグネチャを維持。
  */
 export function useSaved(type: "counselor" | "agency", id: string | number) {
-  const key = `saved_${type}_${id}`;
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    setSaved(localStorage.getItem(key) === "1");
-  }, [key]);
-
-  const toggle = () => {
-    const next = !saved;
-    setSaved(next);
-    if (next) {
-      localStorage.setItem(key, "1");
-    } else {
-      localStorage.removeItem(key);
-    }
-  };
-
+  const { saved, toggle } = useFavorites(type, id);
   return { saved, toggle };
 }

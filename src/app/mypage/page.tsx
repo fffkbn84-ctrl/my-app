@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
+import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
+import AuthCard from "./AuthCard";
+import SavedSection from "./SavedSection";
 
 export const metadata: Metadata = {
   title: "マイページ | ふたりへ",
@@ -99,7 +102,16 @@ const featureItems = [
   },
 ];
 
-export default function MyPage() {
+export default async function MyPage() {
+  // 「気になる」一覧の表示用に、Supabase + mock の両方からカウンセラーを集めて
+  // 重複排除（古い localStorage 保存も拾えるようにするため）
+  const supabaseCounselors = await getCounselors();
+  const counselorById = new Map<string, Counselor>();
+  for (const c of [...supabaseCounselors, ...COUNSELORS]) {
+    counselorById.set(String(c.id), c);
+  }
+  const allCounselors = Array.from(counselorById.values());
+
   return (
     <main
       style={{
@@ -142,102 +154,11 @@ export default function MyPage() {
           </h1>
         </header>
 
-        {/* ログイン促進カード */}
-        <div
-          style={{
-            background: "var(--black)",
-            borderRadius: "20px",
-            padding: "36px 28px",
-            marginBottom: "24px",
-          }}
-        >
-          {/* 鍵アイコン */}
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "0" }}>
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <rect
-                x="8"
-                y="18"
-                width="24"
-                height="18"
-                rx="3"
-                stroke="#C8A97A"
-                strokeWidth="1.5"
-                fill="rgba(200,169,122,.1)"
-              />
-              <path
-                d="M13 18v-5a7 7 0 0114 0v5"
-                stroke="#C8A97A"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-              <circle cx="20" cy="27" r="2" fill="#C8A97A" />
-            </svg>
-          </div>
+        {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
+        <AuthCard />
 
-          {/* テキスト */}
-          <p
-            style={{
-              fontFamily: "var(--font-mincho)",
-              fontSize: "18px",
-              color: "white",
-              textAlign: "center",
-              margin: "20px 0 28px",
-              lineHeight: 1.7,
-            }}
-          >
-            ログイン・会員登録すると
-            <br />
-            使えるようになります
-          </p>
-
-          {/* ボタン群 */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {/* ログインボタン — Supabase Auth実装後に差し替え */}
-            <a
-              href="#"
-              style={{
-                display: "block",
-                width: "100%",
-                borderRadius: "50px",
-                background: "var(--accent)",
-                color: "var(--black)",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "13px",
-                fontWeight: 500,
-                letterSpacing: ".06em",
-                textAlign: "center",
-                padding: "14px 0",
-                textDecoration: "none",
-                transition: "opacity .2s",
-              }}
-            >
-              ログイン
-            </a>
-
-            {/* 新規登録ボタン — Supabase Auth実装後に差し替え */}
-            <a
-              href="#"
-              style={{
-                display: "block",
-                width: "100%",
-                borderRadius: "50px",
-                background: "white",
-                color: "var(--ink)",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "13px",
-                fontWeight: 400,
-                letterSpacing: ".06em",
-                textAlign: "center",
-                padding: "14px 0",
-                textDecoration: "none",
-                border: "1px solid var(--light)",
-                transition: "opacity .2s",
-              }}
-            >
-              新規会員登録（無料）
-            </a>
-          </div>
-        </div>
+        {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
+        <SavedSection allCounselors={allCounselors} allAgencies={AGENCIES} />
 
         {/* 機能紹介リスト */}
         <div
