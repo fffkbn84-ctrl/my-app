@@ -1,11 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import type { PlaceHome } from "@/lib/mock/places-home";
-import PlaceThumb from "@/components/kinda-act/PlaceThumb";
-import PlaceBadge from "@/components/kinda-act/PlaceBadge";
-import DemoBadge from "@/components/kinda-talk/DemoBadge";
+import PlaceReelCard from "@/components/kinda-act/PlaceReelCard";
 
 type Props = {
   places: PlaceHome[];
@@ -88,33 +85,10 @@ export default function KindaActClient({ places }: Props) {
         <div className="kt-section-divider" />
       </div>
 
-      <div className="ka-grid-wrap">
-        <div className="ka-grid">
+      <div className="kt-grid-wrap">
+        <div className="kt-grid">
           {filtered.map((p) => (
-            <Link key={p.id} href={`/places/${p.id}`} className="ka-card">
-              <PlaceThumb variant={p.thumbVariant} />
-              <div className="ka-card-badges">
-                <PlaceBadge type={p.badgeType} />
-                <DemoBadge />
-              </div>
-              <div className="ka-card-body">
-                <div className="ka-card-stage">{p.stage}</div>
-                <div className="ka-card-name">{p.name}</div>
-                <div className="ka-card-meta">
-                  <span>{p.location}</span>
-                  <span style={{ color: "var(--light)" }}>·</span>
-                  <span
-                    className="ka-card-meta-rating"
-                    aria-label={`平均評価 ${p.rating.toFixed(1)}、レビュー ${p.reviewCount}件`}
-                  >
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    {p.rating.toFixed(1)} ({p.reviewCount})
-                  </span>
-                </div>
-              </div>
-            </Link>
+            <PlaceReelCard key={p.id} place={p} />
           ))}
         </div>
       </div>

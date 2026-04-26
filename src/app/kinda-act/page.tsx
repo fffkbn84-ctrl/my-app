@@ -65,14 +65,14 @@ export default function KindaActPage() {
                 margin: "12px 0",
               }}
             >
-              ふたりへの選定基準
+              Kinda ふたりへの選定基準
             </h2>
             <div className="kt-guide-divider" />
 
             <p className="kt-guide-text">
               お見合いやデートで使うお店は、空気で決まります。
               話しやすい音量、座席の距離、店員の干渉度合い、入店のしやすさ。
-              ふたりへが実際に取材して、安心して会話に集中できる場所だけを掲載しています。
+              Kinda ふたりへが実際に取材して、安心して会話に集中できる場所だけを掲載しています。
             </p>
             <p className="kt-guide-text">
               「取材済み」のバッジは、運営スタッフが現地で確認したお店。
@@ -109,7 +109,7 @@ export default function KindaActPage() {
           >
             現在掲載中のお店はすべて<strong style={{ color: "var(--ink)" }}>サンプル表示</strong>です。
             <br />
-            ふたりへが実際に取材した本物のお店は、これから順次公開予定です。
+            Kinda ふたりへが実際に取材した本物のお店は、これから順次公開予定です。
           </div>
         </section>
       </main>
