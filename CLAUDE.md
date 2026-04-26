@@ -2626,3 +2626,233 @@ git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
 | 予約詳細確認 | カレンダー画面から `booked` スロットの予約者情報を表示 |
 | プロフィール写真トリミング | アップロード時にブラウザ内でクロップ UI |
 | 通知機能 | 新規予約・新規口コミ着信時のブラウザ通知 |
+
+---
+
+## 実装済み機能（2026-04-26 追記） — Kinda talk / Kinda act / 認証 / 大規模 UX 改善
+
+> このセクションは `claude/implement-kinda-talk-uDUoW` ブランチで進めた一連の作業の総括。
+> ブランチ末端の最新コミット（2026-04-26 時点）まで全て反映済み。
+> Vercel のデイリーデプロイ上限により最後のいくつかのコミットは反映待ち。
+
+### ブランチ・PR 状況
+
+| ブランチ | 状態 |
+|---|---|
+| `claude/implement-kinda-talk-uDUoW` | 開発中。すべてのコミットを集約 |
+| `main` | 初回 PR (#3) で `Kinda talk + Supabase連携 + 認証` までマージ済み |
+
+以降のコミット（Kinda act、ブランド統一、スクロール戻る、地図、検索拡張、村背景など）は次回 PR でまとめて main へマージ予定。
+
+---
+
+### 1. /kinda-talk — カウンセラー一覧（リール型）
+
+**ファイル:**
+- `src/app/kinda-talk/{layout,page,KindaTalkClient}.tsx`
+- `src/components/kinda-talk/{CounselorReelCard,CounselorReelModal,KindaTypeBadge,DemoBadge,ShareSheet,FAQAccordion,CounselorReelGrid}.tsx`
+- `src/lib/kinda-types.ts`（6 タイプ定義: anshin / jibunjiku / zenryoku / senryaku / lifestyle / restart）
+
+**機能:**
+- 縦長 9:16 リールカードを 2/3/4 列グリッド
+- カードタップで全画面リールモーダル（framer-motion + MotionConfig reducedMotion）
+- モーダル内 ♡（DB保存） / 💬（口コミへ） / 共有 の 3 アクション
+- ヒーロー: フルブリード画像 + パステルイエロー被せ（`mix-blend-mode: soft-light`）
+- 選び方ガイド + FAQ（JSON-LD `FAQPage` 構造化データ）
+
+**派生ページ:**
+- `/kinda-talk/area/[area]`: tokyo / osaka / nagoya / fukuoka / online（SSG 5 ページ）
+- `/kinda-talk/type/[type]`: 6 Kinda type それぞれの専用ページ（SSG 6 ページ）
+
+**エリアフィルター（最新仕様）:**
+- 横スクロールピル → **トグル式ドロップダウン** に再構築
+- 11 都道府県 + オンラインを 3 列グリッドで表示
+- カウンセラー 0 件のエリアは `aria-disabled` + 35% 不透明度でグレーアウト
+- 各エリアのカウンセラー数を併記
+- `extractPrefecture()` で `counselor.area` の先頭セグメント（"・" より前）から都道府県抽出
+
+---
+
+### 2. /kinda-act — お見合い・デート用のお店一覧（リール型）
+
+**ファイル:**
+- `src/app/kinda-act/{layout,page,KindaActClient}.tsx`
+- `src/components/kinda-act/{PlaceReelCard,PlaceReelModal,PlaceThumb,PlaceBadge,placeIcons}.tsx`
+- `public/images/laughing-town-background.png.PNG`（ページ最奥背景の村ミニチュア）
+
+**機能:**
+- 旧名「Kinda meet」を **「Kinda act」**（実際に会う場所を行動して選ぶ）に改名
+- カテゴリ限定: **カフェ + レストランのみ**（美容系は Kinda glow へ分離する想定）
+- 縦長 9:16 リールカード + 全画面リールモーダル（PlaceReelModal）
+- リールモーダル: 画像スワイプ + ♡（type="place"）/ 💬（口コミへ） / 共有
+- 全 12 件すべてに「サンプル」バッジを表示（運用前のため）
+
+**ヒーロー + 背景:**
+- ヒーロー: 既存 `section-cafe-pastel.png.PNG` + 多層 text-shadow（白文字の視認性強化）
+- ヒーロー以降のページ最奥に **村のミニチュア画像をブラー + パステルピンク被せで配置**
+  - `.ka-village-bg`: `position: fixed; inset: 0; filter: blur(36px); transform: scale(1.18)`
+  - `::after` でピンクオーバーレイ 30〜45%
+  - セクション背景を半透明（72% / 50%）にして村が透ける
+  - スクロールで「具体的なカフェ → 抽象的な村世界」のグラデーション
+
+**選定基準:**
+- 4 カードグリッド（2×2）で表示
+  - 話しやすい音量 / 座席の距離 / 店員の干渉 / 入店のしやすさ
+- 各カード: accent カラー円形アイコン + Mincho ラベル + 短い説明
+- セクションテーマ: `data-section="act"` パステルピンク（`#F5E1E0`）
+
+---
+
+### 3. /counselors/[id] / /places/[id] — 詳細ページ強化
+
+**/counselors/[id]:**
+- `generateMetadata` で title / description / OGP / Twitter Card / canonical 動的生成
+- JSON-LD: `Person` + `LocalBusiness` + `AggregateRating` + 最新 5 件の `Review`
+- ヒーロー内に保存ボタン（SaveButton, useSaved → useFavorites 経由）
+
+**/places/[id]:**
+- 「○件の口コミ」を Link 化 → `#reviews` へスクロール（💬アイコン併設）
+- サイドバーの重複情報（営業時間/定休日/アクセス）を削除
+- 代わりに **Google Maps iframe** を埋め込み（API キー不要のクエリ版）
+- 口コミ制約文言: 「お店を利用した方ならどなたでも投稿できます」
+  → 将来 Kinda 経由予約フロー実装後に「面談済み制限」へ戻す方針
+
+---
+
+### 4. 認証・気になる保存
+
+**Supabase マイグレーション（実行済み）:**
+| ファイル | 内容 |
+|---|---|
+| `001_add_columns.sql` | counselors / reviews / shops / episodes に基本カラム追加 + diagnosis_results 新設 |
+| `002_kinda_talk_extensions.sql` | counselors に Kinda talk 用 11 カラム + counselor_media テーブル新設 |
+| `003_seed_kinda_talk_demo.sql` | 営業デモ用相談所 2 件 + カウンセラー 5 名 + リール画像 12 件 |
+| `004_favorites.sql` | favorites（user_id, target_type, target_id）テーブル + RLS |
+| `005_favorites_place.sql` | favorites の `target_type` CHECK に `'place'` 追加 |
+
+> 005 のみ未実行（ふうかが SQL Editor で 1 回 ALTER TABLE するだけ）
+
+**フロント:**
+- `src/lib/auth/AuthProvider.tsx`: Supabase Auth 状態を `useAuth()` で全ページに提供
+  - createBrowserClient はジェネリックなしで使う（`.update()` の型推論バグ回避）
+- `src/hooks/useFavorites.ts`: `useFavorites(type, id)` → `{ saved, toggle }`、`useFavoritesList()`
+  - ログイン時: Supabase favorites
+  - 未ログイン時: localStorage（key: `kinda-favorites-v2`）
+  - ログイン直後に `mergeLocalFavoritesToSupabase()` で localStorage の保存を DB へ同期
+- `src/hooks/useSaved.ts`: 旧 API を useFavorites に内部委譲（後方互換）
+
+**画面:**
+- `/login`: 3 モード（signin / signup / reset-request）タブ切替
+- `/auth/reset-password`: メールリンクから遷移、新パスワード入力で `updateUser()` を実行
+- `/mypage`: ログイン済みユーザーは保存件数 + 一覧、未ログインは促進カード
+- `src/app/mypage/{AuthCard,SavedSection}.tsx`: ログイン状態と保存一覧の Client Component
+
+---
+
+### 5. ブランド・UX 統一
+
+- **「ふたりへ」→「Kinda ふたりへ」** 全ページ sweep（Python regex で 25 ファイル一括）
+  - 詩的タグライン（HERO_TAGLINE / ルートタイトル / サイドライン装飾）は意図的に温存
+- **FloatingScrollToTop**: 全ページ右下にフローティング「↑」（200px 超で出現）
+  - `body:has(.cta-mobile-bar)` で詳細ページの CTA と被らないよう自動上方シフト
+- **a11y 強化（リールモーダル）**:
+  - `role="dialog"` / `aria-modal` / `aria-labelledby` / 開時 close ボタンへ自動フォーカス
+  - `MotionConfig reducedMotion="user"` で prefers-reduced-motion 尊重
+  - FAQAccordion / ShareSheet / DemoModal にも同 semantics
+  - SVG アイコンに `aria-hidden`、星評価行に `aria-label`、`:focus-visible` リング追加
+
+---
+
+### 6. ヘッダー🔍検索モーダル — 3 タブ化
+
+`src/components/search/SearchModal.tsx`
+
+| タブ | 入力 | 遷移先 |
+|---|---|---|
+| 結婚相談所 | エリア + Kinda type（6 種）+ 価格 + キーワード | `/kinda-talk` |
+| お見合いの場所 | エリア + 価格（〜1000/〜3000/〜5000/5000円〜）+ 雰囲気 + キーワード | `/kinda-act` |
+| 美容店 | エリア + 価格 + 予約タイミング（今日/明日/今週/日付指定）+ キーワード | `/kinda-glow`（未実装） |
+
+---
+
+### 7. その他のインフラ・ファイル
+
+- `tsconfig.json` の `exclude` に `futarive-counselor` を追加 + `.vercelignore` で二重防御
+- `src/app/sitemap.ts` / `src/app/robots.ts` を Next.js Metadata Files API で生成
+- `src/app/layout.tsx` に `<AuthProvider>` + `<FloatingScrollToTop />`
+- `framer-motion ^12.38.0` を追加
+
+---
+
+### 重要な設計決定
+
+1. **mock fallback 戦略**: SQL 未実行・env 未設定でもサイトが落ちない。`getCounselors()` などは Supabase が空 / エラー時に mock COUNSELORS を返す。
+2. **Counselor.id を `number | string` に拡張**: mock = 数値、Supabase = UUID 両方を許容。比較は `String(a.id) === String(b.id)` で統一。
+3. **JOIN クエリを使わない**: Supabase SDK v2 の型推論が壊れる（CLAUDE.md 上部の注意事項参照）。`agencies` / `counselor_media` は別クエリで取得。
+4. **Counselor 型に旧スキーマ互換 `bio` フィールド**: 既存 `/counselors/[id]` の mock データが `bio` を使っており、Supabase row の bio をマッピングして渡す。
+5. **データを混ぜない**: Supabase に 1 件でも公開データがあれば mock は使わない（混在で UX が壊れるため）。
+
+---
+
+## これからやること（次の優先順）
+
+### A. 本番リリース準備（推奨：先にやる）
+
+| 項目 | 担当 | 内容 |
+|---|---|---|
+| **SMTP 設定** | ふうか | Resend / SendGrid 等の API キーを取得し Supabase Authentication > SMTP に登録。標準の `noreply@mail.app.supabase.io` から自社ドメインに切替 |
+| **Confirm email 再 ON** | ふうか | SMTP 設定後、Authentication > Sign In/Up > Confirm email を ON に戻す |
+| **Auth Redirect URLs 登録** | ふうか | Supabase Authentication > URL Configuration の「Redirect URLs」に本番ドメイン + Vercel preview の `/auth/reset-password` を追加 |
+| **本番ドメイン環境変数** | ふうか | Vercel に `NEXT_PUBLIC_SITE_URL=https://本番ドメイン` を Production / Preview 両方で設定 |
+| **利用規約・プライバシーポリシー** | 私（叩き台）| `/about` 配下に専用ページを新設、または既存 `/about` に追加 |
+| **実カウンセラー投入** | ふうか | 統括管理画面 / SQL でふうか自身など本物のデータを公開。リール画像も Storage にアップロード |
+| **005 SQL 実行** | ふうか | お店の♡保存を Supabase に永続化するための ALTER TABLE 1 行 |
+
+### B. Kinda glow（美容店）新規ページ
+
+- `/kinda-glow` 新規作成
+- カテゴリ: 美容室 / ネイルサロン / 眉毛サロン / フォトスタジオ
+- /kinda-act と同パターン（リール型グリッド + モーダル）
+- セクションテーマ: パステルパープル `#EDE0F4`
+- 検索モーダルの「美容店」タブから既に遷移先が `/kinda-glow` を指している
+
+### C. Kinda story 強化
+
+- 既存 `/episodes` をブランド整合（`Kinda ふたりへ` 表記、リール型カードへの統一など）
+- 新エピソード追加・カテゴリタグ
+- セクションテーマ: パステルグリーン `#E8F4E4`
+
+### D. ホームに Kinda act リール埋め込み
+
+- `/kinda-talk より | 今いるカウンセラーたち` と同パターンで、Kinda act の人気店を横スクロール表示
+- 既存 `HomeReelCarousel` の概念を `HomePlaceCarousel` として複製
+
+### E. Kinda type ページ（/kinda-type）の正式実装
+
+- 現状は `/diagnosis` が代替を担っている
+- `/kinda-type` 専用のブランド化された診断フローを新設するかは要検討
+
+### F. パフォーマンス・実機確認
+
+- iPhone Safari で `/kinda-act` の村背景（重い画像 + blur）が滑らかに動くか
+  - カクつく場合は `laughing-town-background.png.PNG` を WebP / 圧縮版に差し替え
+- Lighthouse Mobile スコア計測（Performance / A11y / SEO）
+- axe DevTools で残存 a11y 問題チェック
+
+### G. 既存ページのブラッシュアップ（軽め）
+
+- ヒーローバナー画像の最適化（特にホームの `hero-couple-new.png.PNG` も含めて）
+- `/diagnosis` フローに Kinda 世界観を被せる
+- `/columns`（コラム）のリスト UI 整備
+
+---
+
+## 補足：Vercel デイリーデプロイ上限について
+
+無料プランでは 1 日あたりのビルド・デプロイ回数に上限がある。一連の作業で複数回プッシュした場合、最後のいくつかが「未デプロイ」状態のまま残ることがある。
+
+**回避策:**
+- 翌日になれば自動的に枠が回復する
+- または Vercel ダッシュボードから手動で「Redeploy」を当てる
+- 大きな変更は git 上でまとめてから 1 回プッシュにすると安全
+
