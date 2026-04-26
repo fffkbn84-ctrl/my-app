@@ -408,6 +408,53 @@ function RatingBar({ label, value }: { label: string; value: number }) {
 }
 
 /* ────────────────────────────────────────────────────────────
+   メタデータ生成（SEO）
+──────────────────────────────────────────────────────────── */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const mock = counselors[id as keyof typeof counselors];
+  const fromCounselors = COUNSELORS.find((c) => String(c.id) === id);
+
+  if (!mock && !fromCounselors) {
+    return { title: "カウンセラーが見つかりません | ふたりへ" };
+  }
+
+  const name = mock?.name ?? fromCounselors?.name ?? "カウンセラー";
+  const agency = mock?.agency ?? fromCounselors?.agencyName ?? "";
+  const area = mock?.area ?? fromCounselors?.area ?? "";
+  const catchphrase = fromCounselors?.catchphrase ?? mock?.message ?? "";
+  const intro =
+    fromCounselors?.intro ??
+    mock?.bio ??
+    "結婚相談所のカウンセラーを、人で選ぶ。Kinda ふたりへ。";
+
+  const title = `${name} | ${agency}${area ? " " + area : ""} | Kinda ふたりへ`;
+  const description = (catchphrase + " " + intro).trim().slice(0, 140);
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${name} - Kinda ふたりへ`,
+      description,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `/counselors/${id}`,
+    },
+  };
+}
+
+/* ────────────────────────────────────────────────────────────
    ページ
 ──────────────────────────────────────────────────────────── */
 export default async function CounselorDetailPage({
@@ -880,6 +927,63 @@ export default async function CounselorDetailPage({
           </div>
         </div>
         <ScrollToTopButton />
+
+        {/* ─── 構造化データ（JSON-LD） ─── */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Person",
+                  "@id": `/counselors/${counselor.id}#person`,
+                  name: counselor.name,
+                  jobTitle:
+                    "role" in counselor && (counselor as { role?: string }).role
+                      ? (counselor as { role: string }).role
+                      : "ブライダルカウンセラー",
+                  worksFor: {
+                    "@type": "LocalBusiness",
+                    name: counselor.agency,
+                    address: {
+                      "@type": "PostalAddress",
+                      addressLocality: counselor.area,
+                      ...(counselor.address
+                        ? { streetAddress: counselor.address }
+                        : {}),
+                    },
+                  },
+                  description:
+                    typeof counselor.bio === "string"
+                      ? counselor.bio.slice(0, 280)
+                      : "",
+                },
+                {
+                  "@type": "AggregateRating",
+                  itemReviewed: { "@id": `/counselors/${counselor.id}#person` },
+                  ratingValue: avgRating.toFixed(2),
+                  reviewCount: counselorReviews.length,
+                  bestRating: "5",
+                  worstRating: "1",
+                },
+                ...counselorReviews.slice(0, 5).map((r: { rating: number; user?: string; text?: string; body?: string; date?: string }) => ({
+                  "@type": "Review",
+                  itemReviewed: { "@id": `/counselors/${counselor.id}#person` },
+                  reviewRating: {
+                    "@type": "Rating",
+                    ratingValue: String(r.rating),
+                    bestRating: "5",
+                    worstRating: "1",
+                  },
+                  author: { "@type": "Person", name: r.user ?? "匿名" },
+                  reviewBody: (r.text ?? r.body ?? "").slice(0, 280),
+                  ...(r.date ? { datePublished: r.date } : {}),
+                })),
+              ],
+            }),
+          }}
+        />
       </main>
 
       {/* モバイル用固定CTA — 右端浮遊ボタン */}
