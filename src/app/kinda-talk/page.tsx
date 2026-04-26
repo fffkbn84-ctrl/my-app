@@ -64,6 +64,7 @@ export default function KindaTalkPage() {
               sizes="100vw"
             />
           </div>
+          <div className="kt-hero-tint" aria-hidden />
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
             <div className="kt-hero-eyebrow">Kinda talk</div>

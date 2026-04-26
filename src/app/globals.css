@@ -3208,6 +3208,18 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   object-fit: cover;
   object-position: center 30%;
 }
+/* セクションテーマ（パステルイエロー）の柔らかい色被せ。
+   ホームのマルチパステル感に近づけ、Kinda talk のブランドカラーを画面全体に薄く反映する。 */
+.kt-hero-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(250, 243, 222, 0.55) 0%, rgba(244, 232, 196, 0.2) 55%, rgba(250, 243, 222, 0) 90%),
+    linear-gradient(180deg, rgba(250, 243, 222, 0.32) 0%, rgba(250, 243, 222, 0.1) 55%, rgba(250, 243, 222, 0) 100%);
+  mix-blend-mode: soft-light;
+}
 .kt-hero-overlay {
   position: absolute;
   inset: 0;
