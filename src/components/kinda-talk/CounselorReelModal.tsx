@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { Counselor } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
+import { useFavorites } from "@/hooks/useFavorites";
 import KindaTypeBadge from "./KindaTypeBadge";
 import ShareSheet from "./ShareSheet";
 
@@ -14,12 +15,20 @@ type Props = {
   onClose: () => void;
 };
 
+const NULL_ID = "__none__";
+
 export default function CounselorReelModal({ counselor, onClose }: Props) {
   const [imgIndex, setImgIndex] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
   const [demoNoticeOpen, setDemoNoticeOpen] = useState(false);
-  const [favored, setFavored] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  // Hooks は top-level で呼ぶ必要があるため、counselor が null の時は
+  // sentinel ID を渡して effect 側で reflect させない
+  const { saved: favored, toggle: toggleFavorite } = useFavorites(
+    "counselor",
+    counselor?.id ?? NULL_ID,
+  );
 
   useEffect(() => setMounted(true), []);
 
@@ -28,13 +37,6 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
       setImgIndex(0);
       setShareOpen(false);
       setDemoNoticeOpen(false);
-      try {
-        const saved = localStorage.getItem("kt-favs");
-        const arr = saved ? JSON.parse(saved) : [];
-        setFavored(Array.isArray(arr) && arr.includes(counselor.id));
-      } catch {
-        setFavored(false);
-      }
     }
   }, [counselor]);
 
@@ -67,15 +69,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
       setDemoNoticeOpen(true);
       return;
     }
-    try {
-      const saved = localStorage.getItem("kt-favs");
-      const arr: number[] = saved ? JSON.parse(saved) : [];
-      const next = favored ? arr.filter((id) => id !== counselor.id) : [...arr, counselor.id];
-      localStorage.setItem("kt-favs", JSON.stringify(next));
-      setFavored(!favored);
-    } catch {
-      /* ignore */
-    }
+    toggleFavorite();
   };
 
   const handleBook = () => {
