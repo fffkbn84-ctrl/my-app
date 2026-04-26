@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
+import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
 import AuthCard from "./AuthCard";
+import SavedSection from "./SavedSection";
 
 export const metadata: Metadata = {
   title: "マイページ | ふたりへ",
@@ -100,7 +102,16 @@ const featureItems = [
   },
 ];
 
-export default function MyPage() {
+export default async function MyPage() {
+  // 「気になる」一覧の表示用に、Supabase + mock の両方からカウンセラーを集めて
+  // 重複排除（古い localStorage 保存も拾えるようにするため）
+  const supabaseCounselors = await getCounselors();
+  const counselorById = new Map<string, Counselor>();
+  for (const c of [...supabaseCounselors, ...COUNSELORS]) {
+    counselorById.set(String(c.id), c);
+  }
+  const allCounselors = Array.from(counselorById.values());
+
   return (
     <main
       style={{
@@ -145,6 +156,9 @@ export default function MyPage() {
 
         {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
         <AuthCard />
+
+        {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
+        <SavedSection allCounselors={allCounselors} allAgencies={AGENCIES} />
 
         {/* 機能紹介リスト */}
         <div
