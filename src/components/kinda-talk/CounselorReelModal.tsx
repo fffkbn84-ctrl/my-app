@@ -166,6 +166,22 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
               <button
                 type="button"
                 className="kt-reel-modal-action"
+                onClick={() => {
+                  if (counselor.isDemo) {
+                    setDemoNoticeOpen(true);
+                    return;
+                  }
+                  window.location.href = `/counselors/${counselor.id}#reviews`;
+                }}
+                aria-label="口コミを見る"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="kt-reel-modal-action"
                 onClick={() => setShareOpen(true)}
                 aria-label="共有"
               >
