@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { COUNSELORS } from "@/lib/data";
@@ -52,30 +53,24 @@ export default function KindaTalkPage() {
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
-        {/* ─── ヒーロー ─── */}
+        {/* ─── ヒーロー（フルブリード画像） ─── */}
         <section className="kt-hero">
+          <div className="kt-hero-bg-image" aria-hidden>
+            <Image
+              src="/images/sections/talk-hero.webp"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+            />
+          </div>
+          <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
             <div className="kt-hero-eyebrow">Kinda talk</div>
             <h1 className="kt-hero-title">
               Kinda <em>talk</em>
             </h1>
             <div className="kt-hero-sub">相談したい・迷っている</div>
-
-            <div className="kt-hero-illust" aria-hidden>
-              <svg width="60%" height="60%" viewBox="0 0 100 100" fill="none">
-                <circle cx="35" cy="42" r="14" fill="#FAF3DE" stroke="#B89A4A" strokeWidth="1.5" />
-                <circle cx="65" cy="42" r="14" fill="#FAEAE5" stroke="#D4A090" strokeWidth="1.5" />
-                <path
-                  d="M30 70 Q50 82 70 70"
-                  stroke="#B89A4A"
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-                <circle cx="35" cy="40" r="2" fill="#3A2E26" />
-                <circle cx="65" cy="40" r="2" fill="#3A2E26" />
-              </svg>
-            </div>
 
             <div className="kt-hero-divider" />
             <p className="kt-hero-copy">

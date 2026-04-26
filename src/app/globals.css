@@ -3193,58 +3193,77 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .kt-hero {
   position: relative;
   background: var(--section-bg, #FAF3DE);
-  padding: calc(var(--header-height) + 28px) 20px 36px;
+  padding: calc(var(--header-height) + 40px) 20px 48px;
   overflow: hidden;
+  min-height: 70vh;
+  display: flex;
+  align-items: flex-end;
+}
+.kt-hero-bg-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.kt-hero-bg-image img {
+  object-fit: cover;
+  object-position: center 30%;
+}
+.kt-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(250, 243, 222, 0) 0%,
+    rgba(250, 243, 222, 0) 35%,
+    rgba(60, 40, 20, 0.18) 70%,
+    rgba(40, 25, 12, 0.62) 100%);
 }
 .kt-hero-inner {
+  position: relative;
+  z-index: 2;
   max-width: 720px;
   margin: 0 auto;
   text-align: center;
+  width: 100%;
 }
 .kt-hero-illust {
-  width: clamp(180px, 60vw, 280px);
-  height: clamp(180px, 60vw, 280px);
-  margin: 8px auto 18px;
-  border-radius: 50%;
-  background: linear-gradient(160deg, #FFFBF4, #F4E8C4 60%, #ECC8C5);
-  box-shadow: 0 12px 40px rgba(184,154,74,.18), inset 0 1.5px 0 rgba(255,255,255,.92);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
 }
 .kt-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   letter-spacing: .18em;
-  color: var(--section-deep, #B89A4A);
+  color: rgba(255, 255, 255, .9);
   text-transform: uppercase;
   margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .kt-hero-title {
   font-family: 'Shippori Mincho', serif;
   font-size: clamp(28px, 6vw, 42px);
-  color: var(--ink);
+  color: white;
   font-weight: 500;
   line-height: 1.3;
   margin-bottom: 4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
 }
 .kt-hero-title em {
   font-family: 'DM Serif Display', serif;
   font-style: italic;
-  color: var(--accent);
+  color: #F4E8C4;
   font-weight: 400;
   margin: 0 4px;
 }
 .kt-hero-sub {
   font-size: 13px;
-  color: var(--mid);
+  color: rgba(255, 255, 255, .85);
   margin-bottom: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .kt-hero-divider {
   width: 40px;
   height: 1px;
-  background: rgba(0,0,0,.15);
+  background: rgba(255, 255, 255, .35);
   margin: 18px auto;
 }
 .kt-hero-copy {
@@ -3252,22 +3271,25 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   font-style: italic;
   font-size: clamp(16px, 3.6vw, 20px);
   line-height: 1.9;
-  color: var(--ink);
+  color: white;
   max-width: 480px;
   margin: 0 auto 24px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
 }
 .kt-hero-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,.7);
-  border: 1px solid rgba(212,160,144,.4);
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(255,255,255,.5);
   border-radius: 999px;
-  padding: 10px 18px;
+  padding: 11px 20px;
   font-size: 12px;
   color: var(--ink);
   letter-spacing: .04em;
   transition: all .2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .kt-hero-cta:hover {
   background: var(--accent);
