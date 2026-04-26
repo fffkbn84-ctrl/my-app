@@ -59,9 +59,13 @@ CREATE TABLE IF NOT EXISTS diagnosis_results (
 ALTER TABLE diagnosis_results ENABLE ROW LEVEL SECURITY;
 
 -- diagnosis_results: 誰でも INSERT 可能（匿名診断）
-CREATE POLICY IF NOT EXISTS "Anyone can insert diagnosis results"
+-- ※ PostgreSQL は CREATE POLICY で IF NOT EXISTS をサポートしないため
+--   DROP POLICY IF EXISTS で安全に再実行可能にする
+DROP POLICY IF EXISTS "Anyone can insert diagnosis results" ON diagnosis_results;
+CREATE POLICY "Anyone can insert diagnosis results"
   ON diagnosis_results FOR INSERT WITH CHECK (true);
 
 -- diagnosis_results: 自分のセッションのみ SELECT 可能
-CREATE POLICY IF NOT EXISTS "Users can read own diagnosis results"
+DROP POLICY IF EXISTS "Users can read own diagnosis results" ON diagnosis_results;
+CREATE POLICY "Users can read own diagnosis results"
   ON diagnosis_results FOR SELECT USING (true);
