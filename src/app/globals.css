@@ -3436,6 +3436,8 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 /* ─── リールカード（縦長 9:16） ─── */
 .kt-reel-card {
   position: relative;
+  display: block;
+  width: 100%;
   aspect-ratio: 9 / 16;
   border-radius: 14px;
   overflow: hidden;
@@ -3444,6 +3446,10 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   box-shadow: 0 2px 8px rgba(184,128,110,.06);
   transition: transform .25s ease, box-shadow .25s ease;
   border: 1px solid rgba(0,0,0,.04);
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
 }
 .kt-reel-card:hover {
   transform: translateY(-2px);
