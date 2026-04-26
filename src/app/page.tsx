@@ -33,12 +33,12 @@ const DECIDED_CARDS = [
     alt: "Kinda talk",
   },
   {
-    key: "meet",
-    href: "/kinda-meet",
-    kindaLabel: "meet",
-    desc: "お見合いやデートに使いやすい場所を見る",
+    key: "act",
+    href: "/kinda-act",
+    kindaLabel: "act",
+    desc: "お見合いやデートで実際に会う場所を選ぶ",
     img: "/images/section-cafe-pastel.png.PNG",
-    alt: "Kinda meet",
+    alt: "Kinda act",
   },
   {
     key: "glow",

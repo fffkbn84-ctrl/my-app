@@ -77,7 +77,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       if (atmosphere) params.set("atmosphere", atmosphere);
       if (placeKeyword) params.set("keyword", placeKeyword);
       const qs = params.toString();
-      router.push(`/kinda-meet${qs ? `?${qs}` : ""}`);
+      router.push(`/kinda-act${qs ? `?${qs}` : ""}`);
     }
     onClose();
   };

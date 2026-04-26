@@ -3179,6 +3179,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 [data-section="type"]  { --section-bg:#E0ECF8; --section-tint:#C4D8EC; --section-deep:#5A7FAF; }
 [data-section="talk"]  { --section-bg:#FAF3DE; --section-tint:#F4E8C4; --section-deep:#B89A4A; }
 [data-section="meet"]  { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
+[data-section="act"]   { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
 [data-section="glow"]  { --section-bg:#EDE0F4; --section-tint:#DCC5E8; --section-deep:#8A66B0; }
 [data-section="story"] { --section-bg:#E8F4E4; --section-tint:#C8E0C0; --section-deep:#5A8050; }
 
@@ -3975,4 +3976,146 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   outline: 2px solid var(--accent);
   outline-offset: 4px;
   border-radius: 14px;
+}
+
+/* ═════════════════════════════════════════════════════════
+   /kinda-act — お店一覧ページ
+   セクションテーマ：パステルピンク（data-section="act"）
+   /kinda-talk と同じ思想で kt-* クラスを多くは継承可。
+   このセクション固有の差分のみ ka-* で定義。
+   ───────────────────────────────────────────────────────── */
+
+/* ─── /kinda-act カードグリッド（横長カード） ─── */
+.ka-grid-wrap {
+  padding: 16px 16px 56px;
+  background: #FEFCFA;
+}
+.ka-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .ka-grid { grid-template-columns: 1fr 1fr; gap: 14px; max-width: 1080px; }
+}
+@media (min-width: 1100px) {
+  .ka-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── お店カード ─── */
+.ka-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .25s ease, box-shadow .25s ease;
+  box-shadow: 0 2px 8px rgba(184,128,110,.06);
+}
+.ka-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184,128,110,.12);
+}
+.ka-card-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ka-card-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ka-card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 3;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ka-card-body {
+  padding: 14px 16px 18px;
+}
+.ka-card-stage {
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--mid);
+  margin-bottom: 4px;
+  font-family: 'DM Sans', sans-serif;
+  text-transform: uppercase;
+}
+.ka-card-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.ka-card-meta {
+  font-size: 11px;
+  color: var(--mid);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.ka-card-meta-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── お店バッジ（取材済み・相談所おすすめ） ─── */
+.ka-place-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,251,244,.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 999px;
+  padding: 3px 10px 3px 8px;
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  font-weight: 500;
+}
+.ka-place-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── サムネイルのカテゴリ別グラデ背景 ─── */
+.ka-thumb-cafe   { background: linear-gradient(135deg,#FAEAE5,#F0D8D0); }
+.ka-thumb-rest   { background: linear-gradient(135deg,#F5E5E1,#ECC8C5); }
+.ka-thumb-hair   { background: linear-gradient(135deg,#E8F4E4,#C8E0C0); }
+.ka-thumb-nail   { background: linear-gradient(135deg,#EDE0F4,#DCC5E8); }
+.ka-thumb-brow   { background: linear-gradient(135deg,#FAF3DE,#F4E8C4); }
+.ka-thumb-photo  { background: linear-gradient(135deg,#E0ECF8,#C4D8EC); }
+
+/* ─── focus-visible ─── */
+.ka-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
