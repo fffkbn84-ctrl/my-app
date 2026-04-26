@@ -26,9 +26,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { area } = await params;
   const info = AREA_MAP[area];
-  if (!info) return { title: "エリアが見つかりません | ふたりへ" };
+  if (!info) return { title: "エリアが見つかりません | Kinda ふたりへ" };
 
-  const title = `${info.label}のカウンセラー一覧 | Kinda talk | ふたりへ`;
+  const title = `${info.label}のカウンセラー一覧 | Kinda talk | Kinda ふたりへ`;
   const description = `${info.label}エリアの結婚相談所カウンセラーを、リールと言葉で選ぼう。Kinda ふたりへなら、所属相談所のロゴではなくカウンセラー個人を見て予約できます。`;
 
   return {

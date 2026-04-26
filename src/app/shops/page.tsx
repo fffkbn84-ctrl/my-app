@@ -6,7 +6,7 @@ import { getShops } from "@/lib/data";
 import type { PlaceHome } from "@/lib/mock/places-home";
 
 export const metadata: Metadata = {
-  title: "お店を探す | ふたりへ",
+  title: "お店を探す | Kinda ふたりへ",
   description: "取材済み・相談所おすすめのお店を、実際に利用した方の口コミで探せます。",
 };
 

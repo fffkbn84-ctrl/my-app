@@ -103,7 +103,7 @@ function BadgePill({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
       <span className="rt-certified inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full">
-        ふたりへ取材済み
+        Kinda ふたりへ取材済み
       </span>
     );
   }
@@ -307,7 +307,7 @@ export default async function PlaceDetailPage({
               >
                 口コミを書く
               </Link>
-              <p className="d-book-note">口コミはふたりへ経由で利用した方のみ投稿できます</p>
+              <p className="d-book-note">口コミはKinda ふたりへ経由で利用した方のみ投稿できます</p>
             </div>
 
           </div>
@@ -415,7 +415,7 @@ export default async function PlaceDetailPage({
                         borderTop: "1px solid rgba(180,155,135,.15)",
                       }}
                     >
-                      ※ 口コミはふたりへ経由で利用した方のみ投稿できます
+                      ※ 口コミはKinda ふたりへ経由で利用した方のみ投稿できます
                     </p>
                   </div>
 
@@ -498,64 +498,37 @@ export default async function PlaceDetailPage({
                       口コミを書く
                     </Link>
                     <p className="cta-book-main-note">
-                      口コミはふたりへ経由で利用した方のみ投稿できます
+                      口コミはKinda ふたりへ経由で利用した方のみ投稿できます
                     </p>
                   </div>
                 </div>
 
-                {/* 基本情報ミニカード — クレイ */}
-                <div className="clay-mini-card">
-                  {[
-                    {
-                      icon: (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
-                          <circle cx="7" cy="7" r="5.5" />
-                          <path d="M7 4v3.5l2 1.5" />
-                        </svg>
-                      ),
-                      label: "営業時間",
-                      value: place.hours,
-                    },
-                    {
-                      icon: (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
-                          <rect x="2" y="3" width="10" height="9" rx="1.5" />
-                          <path d="M5 2v2M9 2v2M2 7h10" />
-                        </svg>
-                      ),
-                      label: "定休日",
-                      value: place.holiday,
-                    },
-                    {
-                      icon: (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
-                          <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
-                          <circle cx="7" cy="6" r="1.5" />
-                        </svg>
-                      ),
-                      label: "アクセス",
-                      value: place.access,
-                    },
-                  ].map(({ icon, label, value }) => (
-                    <div
-                      key={label}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 10,
-                        marginBottom: 14,
-                      }}
-                    >
-                      <div style={{ marginTop: 1, flexShrink: 0 }}>{icon}</div>
-                      <div>
-                        <p style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>{label}</p>
-                        <p style={{ fontSize: 12, color: "var(--ink)" }}>{value}</p>
-                      </div>
-                    </div>
-                  ))}
+                {/* Google Maps（営業時間/定休日/アクセスは上のメインカラムに記載済みのため、ここは地図に置換） */}
+                <div
+                  className="clay-card"
+                  style={{ padding: 0, overflow: "hidden", marginTop: 16 }}
+                >
+                  <iframe
+                    title={`${place.name} の地図`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                      `${place.name} ${place.access}`,
+                    )}&z=15&output=embed`}
+                    width="100%"
+                    height="280"
+                    style={{ border: 0, display: "block" }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      fontSize: 11,
+                      color: "var(--mid)",
+                      borderTop: "1px solid var(--border)",
+                    }}
+                  >
+                    {place.access}
+                  </div>
                 </div>
 
               </aside>

@@ -198,7 +198,7 @@ export default async function AgencyDetailPage({
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
               <p style={{ fontSize: 11, color: "rgba(0,0,0,.4)" }}>
                 <Link href="/" style={{ color: "inherit" }}>
-                  ふたりへ
+                  Kinda ふたりへ
                 </Link>
                 {" > "}
                 <Link href="/search?tab=agency" style={{ color: "inherit" }}>

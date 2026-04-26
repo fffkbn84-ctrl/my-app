@@ -6,7 +6,7 @@ import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
 
 export const metadata: Metadata = {
-  title: "マイページ | ふたりへ",
+  title: "マイページ | Kinda ふたりへ",
   description: "マイページ — お気に入り・予約履歴・口コミ投稿を管理できます。",
 };
 

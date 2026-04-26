@@ -3,7 +3,7 @@ import Link from "next/link";
 export const metadata = {
   title: "このサービスについて",
   description:
-    "ふたりへは、担当者を自分の目で選んで納得してから始められる婚活サービスです。面談した人だけが書けるレビューと、カウンセラーへの直接予約を提供しています。",
+    "Kinda ふたりへは、担当者を自分の目で選んで納得してから始められる婚活サービスです。面談した人だけが書けるレビューと、カウンセラーへの直接予約を提供しています。",
 };
 
 export default function AboutPage() {
@@ -80,7 +80,7 @@ export default function AboutPage() {
                 color: "var(--accent)",
               }}
             >
-              その瞬間のために、<span className="brand-name">ふたりへ</span>
+              その瞬間のために、<span className="brand-name">Kinda ふたりへ</span>
             </p>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ④ ふたりへが信じること
+          ④ Kinda ふたりへが信じること
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
@@ -224,7 +224,7 @@ export default function AboutPage() {
               marginBottom: 0,
             }}
           >
-            <span className="brand-name">ふたりへ</span>が信じること
+            <span className="brand-name">Kinda ふたりへ</span>が信じること
           </h2>
 
           <div
@@ -244,12 +244,12 @@ export default function AboutPage() {
               {
                 num: "02",
                 title: "口コミは、体験した人だけが書ける",
-                body: "面談していない人の声は、ここにはない。ふたりへ経由で面談を完了した人だけが投稿できる仕組みにしているのは、あなたに正直な情報だけを届けたいから。",
+                body: "面談していない人の声は、ここにはない。Kinda ふたりへ経由で面談を完了した人だけが投稿できる仕組みにしているのは、あなたに正直な情報だけを届けたいから。",
               },
               {
                 num: "03",
                 title: "婚活の孤独を、一人で抱えなくていい",
-                body: "断られた日も、迷っている夜も、誰かに話せる場所があればいい。婚活は孤独になりやすい。だからふたりへは、頑張れる場所でもありたい。",
+                body: "断られた日も、迷っている夜も、誰かに話せる場所があればいい。婚活は孤独になりやすい。だからKinda ふたりへは、頑張れる場所でもありたい。",
               },
               {
                 num: "04",
@@ -308,7 +308,7 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑤ ふたりへでできること
+          ⑤ Kinda ふたりへでできること
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section style={{ padding: "80px 32px" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
@@ -335,7 +335,7 @@ export default function AboutPage() {
               marginBottom: 48,
             }}
           >
-            <span className="brand-name">ふたりへ</span>でできること
+            <span className="brand-name">Kinda ふたりへ</span>でできること
           </h2>
 
           {/* ① カウンセラーを選ぶ */}
@@ -448,7 +448,7 @@ export default function AboutPage() {
                 <br />
                 記念日のレストラン。
                 <br />
-                <span className="brand-name">ふたりへ</span>が取材・厳選したお店を、
+                <span className="brand-name">Kinda ふたりへ</span>が取材・厳選したお店を、
                 <br />
                 口コミと一緒に探せる。
               </p>
@@ -512,7 +512,7 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑥ 数字で見るふたりへ
+          ⑥ 数字で見るKinda ふたりへ
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
@@ -545,7 +545,7 @@ export default function AboutPage() {
               marginBottom: 48,
             }}
           >
-            数字で見る<span className="brand-name">ふたりへ</span>
+            数字で見る<span className="brand-name">Kinda ふたりへ</span>
           </h2>
 
           <div

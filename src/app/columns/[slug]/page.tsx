@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${column.title} | ふたりへコラム`,
+    title: `${column.title} | Kinda ふたりへコラム`,
     description: column.description,
     openGraph: {
       title: column.title,
@@ -74,7 +74,7 @@ export default async function ColumnDetailPage({ params }: Props) {
     },
     publisher: {
       "@type": "Organization",
-      name: "ふたりへ",
+      name: "Kinda ふたりへ",
     },
     datePublished: column.publishedAt,
     keywords: column.tags.join(","),
@@ -109,7 +109,7 @@ export default async function ColumnDetailPage({ params }: Props) {
             }}
           >
             <Link href="/" style={{ color: "var(--muted)", textDecoration: "none" }}>
-              ふたりへ
+              Kinda ふたりへ
             </Link>
             <span style={{ color: "var(--light)" }}>›</span>
             <Link href="/columns" style={{ color: "var(--muted)", textDecoration: "none" }}>
@@ -313,7 +313,7 @@ export default async function ColumnDetailPage({ params }: Props) {
                 {column.author}
               </p>
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>
-                ふたりへ編集部
+                Kinda ふたりへ編集部
               </p>
             </div>
           </div>

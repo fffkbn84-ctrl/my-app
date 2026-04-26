@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
+import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
@@ -41,6 +42,7 @@ export default function RootLayout({
           </div>
 
           {children}
+          <FloatingScrollToTop />
           <BottomNav />
         </AuthProvider>
       </body>

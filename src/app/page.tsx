@@ -279,7 +279,7 @@ export default async function HomePage() {
                   letterSpacing: ".1em",
                 }}
               >
-                ふたりへ
+                Kinda ふたりへ
               </span>
             </div>
 
@@ -744,7 +744,7 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            D — ふたりへについて（Brand Belief）
+            D — Kinda ふたりへについて（Brand Belief）
         ═══════════════════════════════════════════════════ */}
         <section
           style={{

@@ -18,9 +18,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { type } = await params;
   const t = KINDA_TYPES[type as KindaTypeKey];
-  if (!t) return { title: "タイプが見つかりません | ふたりへ" };
+  if (!t) return { title: "タイプが見つかりません | Kinda ふたりへ" };
 
-  const title = `${t.name}のあなたへ | Kinda talk | ふたりへ`;
+  const title = `${t.name}のあなたへ | Kinda talk | Kinda ふたりへ`;
   const description = `${t.name}（${t.description}）に合うカウンセラーをリール形式で見つけよう。Kinda ふたりへ。`;
 
   return {

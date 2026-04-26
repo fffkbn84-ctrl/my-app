@@ -169,7 +169,7 @@ export default function PlacesSection() {
       <div className="places-inner">
         <div className="sec-label">selected places</div>
         <h2 className="sec-h">
-          ふたりへが選んだお店
+          Kinda ふたりへが選んだお店
           <span className="sec-h-jp">
             取材済み・相談所おすすめのお店を掲載しています
           </span>
@@ -179,7 +179,7 @@ export default function PlacesSection() {
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20, marginBottom: 32 }}>
           <span className="pt-review-type rt-certified" style={{ fontSize: 10, padding: "5px 12px" }}>
-            ふたりへ取材済み
+            Kinda ふたりへ取材済み
           </span>
           <span className="pt-review-type rt-agency" style={{ fontSize: 10, padding: "5px 12px" }}>
             相談所おすすめ

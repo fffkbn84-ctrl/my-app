@@ -328,9 +328,9 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="pt-review-type rt-certified" style={{ fontSize: 10, padding: "4px 10px" }}>
-              ふたりへ取材済み
+              Kinda ふたりへ取材済み
             </span>
-            <span style={{ fontSize: 12, color: "var(--mid)" }}>ふたりへスタッフが現地訪問・取材したお店</span>
+            <span style={{ fontSize: 12, color: "var(--mid)" }}>Kinda ふたりへスタッフが現地訪問・取材したお店</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="pt-review-type rt-agency" style={{ fontSize: 10, padding: "4px 10px" }}>

@@ -59,7 +59,7 @@ export default function Header() {
               whiteSpace: "nowrap",
             }}
           >
-            ふたりへ
+            Kinda ふたりへ
           </span>
         </Link>
 

@@ -43,7 +43,7 @@ export default async function EpisodeDetailPage({
             {/* パンくず */}
             <p style={{ fontSize: 11, color: "rgba(0,0,0,.4)", marginBottom: 36 }}>
               <Link href="/" style={{ color: "inherit" }}>
-                ふたりへ
+                Kinda ふたりへ
               </Link>
               {" > "}
               <Link href="/#episodes" style={{ color: "inherit" }}>

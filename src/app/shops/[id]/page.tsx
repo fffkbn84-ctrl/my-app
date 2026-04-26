@@ -30,7 +30,7 @@ const shopReviews: Record<string, {
    バッジ設定
 ──────────────────────────────────────────────────────────── */
 const BADGE_CONFIG: Record<BadgeType, { label: string; color: string; bg: string }> = {
-  certified: { label: "ふたりへ取材済み", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
+  certified: { label: "Kinda ふたりへ取材済み", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
   agency:    { label: "相談所おすすめ",   color: "var(--blue)",   bg: "color-mix(in srgb, var(--blue) 12%, transparent)" },
   listed:    { label: "掲載店",           color: "var(--muted)",  bg: "color-mix(in srgb, var(--muted) 12%, transparent)" },
 };
@@ -189,8 +189,8 @@ export default async function ShopDetailPage({
                     className="mt-5 p-4 rounded-xl border-l-4 bg-pale text-xs text-mid leading-relaxed"
                     style={{ borderLeftColor: "var(--accent)" }}
                   >
-                    <p className="font-medium text-ink mb-1">ふたりへ取材メモ</p>
-                    <p>ふたりへスタッフが実際に訪問し、婚活・お見合いシーンでの利用に適しているか確認しました。個室・半個室の有無、スタッフの配慮、雰囲気などを総合的に評価しています。</p>
+                    <p className="font-medium text-ink mb-1">Kinda ふたりへ取材メモ</p>
+                    <p>Kinda ふたりへスタッフが実際に訪問し、婚活・お見合いシーンでの利用に適しているか確認しました。個室・半個室の有無、スタッフの配慮、雰囲気などを総合的に評価しています。</p>
                   </div>
                 )}
               </section>

@@ -5,9 +5,15 @@ import Footer from "@/components/layout/Footer";
 import { placesHomeData } from "@/lib/mock/places-home";
 import KindaActClient from "./KindaActClient";
 
+/**
+ * Kinda act はお見合い・デートで使う「カフェ・レストラン」のみ。
+ * 美容室・ネイル・眉毛・フォトスタジオは Kinda glow へ分離する想定。
+ */
+const ACT_CATEGORY_LABELS = new Set(["カフェ", "レストラン"]);
+
 export default function KindaActPage() {
-  // モックデータをそのまま使用（Supabase 連携時は getPlaces() に差し替える）
-  const places = placesHomeData;
+  // モックデータから act 対象カテゴリのみ抽出（Supabase 連携時は getPlaces({ scope: 'act' }) に差し替える）
+  const places = placesHomeData.filter((p) => ACT_CATEGORY_LABELS.has(p.categoryLabel));
 
   return (
     <div className="kt-page">

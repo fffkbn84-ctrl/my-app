@@ -1,4 +1,5 @@
-import Link from "next/link";
+"use client";
+
 import type { PlaceHome } from "@/lib/mock/places-home";
 import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
@@ -15,17 +16,18 @@ const GRADIENT_BG: Record<string, string> = {
 
 type Props = {
   place: PlaceHome;
+  onOpen: (place: PlaceHome) => void;
 };
 
-export default function PlaceReelCard({ place }: Props) {
+export default function PlaceReelCard({ place, onOpen }: Props) {
   const bg = GRADIENT_BG[place.thumbVariant] ?? "linear-gradient(135deg,#FAEAE5,#F0D8D0)";
 
   return (
-    <Link
-      href={`/places/${place.id}`}
+    <button
+      type="button"
       className="kt-reel-card"
-      aria-label={`${place.name} の詳細を見る`}
-      style={{ display: "block" }}
+      aria-label={`${place.name} のリールを開く`}
+      onClick={() => onOpen(place)}
     >
       <div className="kt-reel-card-bg" style={{ background: bg }} aria-hidden />
       <div
@@ -84,6 +86,6 @@ export default function PlaceReelCard({ place }: Props) {
           </span>
         </div>
       </div>
-    </Link>
+    </button>
   );
 }

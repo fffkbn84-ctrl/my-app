@@ -5,7 +5,7 @@ import SearchContent from "./SearchContent";
 import { getCounselors, getAgencies, type Counselor, type Agency } from "@/lib/data";
 
 export const metadata = {
-  title: "相談所・カウンセラーを探す | ふたりへ",
+  title: "相談所・カウンセラーを探す | Kinda ふたりへ",
   description: "エリア・得意分野・料金帯などで絞り込んで、あなたにぴったりの相談所・カウンセラーを見つけましょう。",
 };
 

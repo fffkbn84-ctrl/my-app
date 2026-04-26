@@ -3,12 +3,17 @@
 import { useMemo, useState } from "react";
 import type { PlaceHome } from "@/lib/mock/places-home";
 import PlaceReelCard from "@/components/kinda-act/PlaceReelCard";
+import PlaceReelModal from "@/components/kinda-act/PlaceReelModal";
 
 type Props = {
   places: PlaceHome[];
 };
 
-const CATEGORIES = ["すべて", "カフェ", "レストラン", "美容室", "ネイルサロン", "眉毛サロン", "フォトスタジオ"];
+/**
+ * Kinda act はお見合い・デートで使うカフェ・レストラン専用。
+ * 美容系（美容室・ネイル・眉毛・フォト）は Kinda glow に分離。
+ */
+const CATEGORIES = ["すべて", "カフェ", "レストラン"];
 const AREAS = ["すべて", "東京", "大阪", "名古屋"];
 const BADGE_FILTERS = [
   { value: "all", label: "すべて" },
@@ -22,6 +27,7 @@ export default function KindaActClient({ places }: Props) {
   const [category, setCategory] = useState<string>("すべて");
   const [area, setArea] = useState<string>("すべて");
   const [badge, setBadge] = useState<BadgeFilter>("all");
+  const [openPlace, setOpenPlace] = useState<PlaceHome | null>(null);
 
   const filtered = useMemo(() => {
     return places.filter((p) => {
@@ -80,7 +86,7 @@ export default function KindaActClient({ places }: Props) {
           <em>find your place</em>
         </h2>
         <div style={{ fontSize: 13, color: "var(--mid)", marginTop: 4 }}>
-          ふたりへが選んだお店 <span style={{ color: "var(--accent)" }}>{filtered.length}</span> 軒
+          Kinda ふたりへが選んだお店 <span style={{ color: "var(--accent)" }}>{filtered.length}</span> 軒
         </div>
         <div className="kt-section-divider" />
       </div>
@@ -88,10 +94,12 @@ export default function KindaActClient({ places }: Props) {
       <div className="kt-grid-wrap">
         <div className="kt-grid">
           {filtered.map((p) => (
-            <PlaceReelCard key={p.id} place={p} />
+            <PlaceReelCard key={p.id} place={p} onOpen={setOpenPlace} />
           ))}
         </div>
       </div>
+
+      <PlaceReelModal place={openPlace} onClose={() => setOpenPlace(null)} />
     </>
   );
 }

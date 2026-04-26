@@ -1,5 +1,5 @@
 /* ────────────────────────────────────────────────────────────
-   ふたりへ — モックデータ（Supabaseフォールバック用）
+   Kinda ふたりへ — モックデータ（Supabaseフォールバック用）
 ──────────────────────────────────────────────────────────── */
 import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'

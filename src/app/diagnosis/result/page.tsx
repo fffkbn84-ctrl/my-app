@@ -83,7 +83,7 @@ export default async function DiagnosisResultPage({
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);
 
   const shareText = encodeURIComponent(
-    `私は${diagType.name}でした。\n#ふたりへ診断 #婚活`
+    `私は${diagType.name}でした。\n#Kinda ふたりへ診断 #婚活`
   );
   const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}`;
 
@@ -120,7 +120,7 @@ export default async function DiagnosisResultPage({
                 gap: 6,
               }}
             >
-              <Link href="/" style={{ color: "inherit" }}>ふたりへ</Link>
+              <Link href="/" style={{ color: "inherit" }}>Kinda ふたりへ</Link>
               <span>/</span>
               <span>診断結果</span>
             </div>

@@ -2,7 +2,7 @@ import Header from "@/components/layout/Header";
 import ReviewGate from "@/components/reviews/ReviewGate";
 
 export const metadata = {
-  title: "口コミを書く | ふたりへ",
+  title: "口コミを書く | Kinda ふたりへ",
   description: "面談後の口コミを投稿してください。あなたの声が次の方の婚活の参考になります。",
 };
 

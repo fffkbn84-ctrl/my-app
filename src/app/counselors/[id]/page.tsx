@@ -420,7 +420,7 @@ export async function generateMetadata({
   const fromCounselors = COUNSELORS.find((c) => String(c.id) === id);
 
   if (!mock && !fromCounselors) {
-    return { title: "カウンセラーが見つかりません | ふたりへ" };
+    return { title: "カウンセラーが見つかりません | Kinda ふたりへ" };
   }
 
   const name = mock?.name ?? fromCounselors?.name ?? "カウンセラー";
@@ -829,7 +829,7 @@ export default async function CounselorDetailPage({
                       </div>
                     </div>
                     <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
-                      ※ ふたりへ経由で面談した方のみ投稿できます
+                      ※ Kinda ふたりへ経由で面談した方のみ投稿できます
                     </p>
                   </div>
 

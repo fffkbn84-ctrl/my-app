@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { KINDA_TYPES, KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -37,17 +38,36 @@ const inputStyle: React.CSSProperties = {
   outline: "none",
 };
 
+const labelStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: "var(--mid)",
+  display: "block",
+  marginBottom: 8,
+};
+
+type Tab = "counselor" | "act" | "glow";
+
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"counselor" | "place">("counselor");
+  const [activeTab, setActiveTab] = useState<Tab>("counselor");
 
+  // Counselor (結婚相談所)
   const [area, setArea] = useState("");
   const [price, setPrice] = useState("");
+  const [type, setType] = useState("");
   const [keyword, setKeyword] = useState("");
 
+  // Act (お見合いの場所 = カフェ・レストラン)
   const [placeArea, setPlaceArea] = useState("");
+  const [placePrice, setPlacePrice] = useState("");
   const [atmosphere, setAtmosphere] = useState("");
   const [placeKeyword, setPlaceKeyword] = useState("");
+
+  // Glow (美容店 = 美容室・ネイル・眉毛・フォト)
+  const [glowArea, setGlowArea] = useState("");
+  const [glowPrice, setGlowPrice] = useState("");
+  const [glowKeyword, setGlowKeyword] = useState("");
+  const [glowReserve, setGlowReserve] = useState("");
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -64,21 +84,32 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   }, [isOpen, onClose]);
 
   const handleSearch = () => {
+    const params = new URLSearchParams();
+    let target = "/kinda-talk";
+
     if (activeTab === "counselor") {
-      const params = new URLSearchParams();
       if (area) params.set("area", area);
       if (price) params.set("price", price);
+      if (type) params.set("type", type);
       if (keyword) params.set("keyword", keyword);
-      const qs = params.toString();
-      router.push(`/kinda-talk${qs ? `?${qs}` : ""}`);
-    } else {
-      const params = new URLSearchParams();
+      target = "/kinda-talk";
+    } else if (activeTab === "act") {
       if (placeArea) params.set("area", placeArea);
+      if (placePrice) params.set("price", placePrice);
       if (atmosphere) params.set("atmosphere", atmosphere);
       if (placeKeyword) params.set("keyword", placeKeyword);
-      const qs = params.toString();
-      router.push(`/kinda-act${qs ? `?${qs}` : ""}`);
+      target = "/kinda-act";
+    } else {
+      // glow
+      if (glowArea) params.set("area", glowArea);
+      if (glowPrice) params.set("price", glowPrice);
+      if (glowKeyword) params.set("keyword", glowKeyword);
+      if (glowReserve) params.set("reserve", glowReserve);
+      target = "/kinda-glow";
     }
+
+    const qs = params.toString();
+    router.push(`${target}${qs ? `?${qs}` : ""}`);
     onClose();
   };
 
@@ -127,7 +158,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             aria-label="閉じる"
           >
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path
+                d="M4 4l10 10M14 4L4 14"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -150,7 +186,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns: "1fr 1fr 1fr",
             gap: 4,
             marginBottom: 28,
             background: "var(--pale)",
@@ -161,23 +197,24 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {(
             [
               ["counselor", "結婚相談所"],
-              ["place", "お見合いの場所"],
+              ["act", "お見合いの場所"],
+              ["glow", "美容店"],
             ] as const
           ).map(([tab, label]) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
-                padding: "12px 8px",
+                padding: "12px 4px",
                 borderRadius: 10,
                 border: "none",
                 background: activeTab === tab ? "var(--accent)" : "transparent",
                 color: activeTab === tab ? "white" : "var(--mid)",
                 fontFamily: "var(--font-sans)",
-                fontSize: 13,
+                fontSize: 12,
                 cursor: "pointer",
                 transition: "all .2s",
-                letterSpacing: ".03em",
+                letterSpacing: ".02em",
               }}
             >
               {label}
@@ -185,13 +222,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           ))}
         </div>
 
-        {/* Fields */}
-        {activeTab === "counselor" ? (
+        {/* Counselor タブ — エリア / タイプ / 価格 / キーワード */}
+        {activeTab === "counselor" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <label style={{ fontSize: 12, color: "var(--mid)", display: "block", marginBottom: 8 }}>
-                エリア
-              </label>
+              <label style={labelStyle}>エリア</label>
               <select value={area} onChange={(e) => setArea(e.target.value)} style={selectStyle}>
                 <option value="">すべて</option>
                 <option value="tokyo">東京都</option>
@@ -199,13 +234,23 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <option value="chiba">千葉県</option>
                 <option value="saitama">埼玉県</option>
                 <option value="osaka">大阪府</option>
+                <option value="online">オンライン</option>
                 <option value="other">その他</option>
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "var(--mid)", display: "block", marginBottom: 8 }}>
-                価格
-              </label>
+              <label style={labelStyle}>タイプ（Kinda type）</label>
+              <select value={type} onChange={(e) => setType(e.target.value)} style={selectStyle}>
+                <option value="">すべて</option>
+                {KINDA_TYPE_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {KINDA_TYPES[k].name}（{KINDA_TYPES[k].description}）
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>価格</label>
               <select value={price} onChange={(e) => setPrice(e.target.value)} style={selectStyle}>
                 <option value="">すべて</option>
                 <option value="low">〜20,000円</option>
@@ -214,9 +259,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "var(--mid)", display: "block", marginBottom: 8 }}>
-                キーワード
-              </label>
+              <label style={labelStyle}>キーワード</label>
               <input
                 type="text"
                 value={keyword}
@@ -226,13 +269,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               />
             </div>
           </div>
-        ) : (
+        )}
+
+        {/* Act タブ — エリア / 価格 / 雰囲気 / キーワード */}
+        {activeTab === "act" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
-              <label style={{ fontSize: 12, color: "var(--mid)", display: "block", marginBottom: 8 }}>
-                エリア
-              </label>
-              <select value={placeArea} onChange={(e) => setPlaceArea(e.target.value)} style={selectStyle}>
+              <label style={labelStyle}>エリア</label>
+              <select
+                value={placeArea}
+                onChange={(e) => setPlaceArea(e.target.value)}
+                style={selectStyle}
+              >
                 <option value="">すべて</option>
                 <option value="tokyo">東京都</option>
                 <option value="kanagawa">神奈川県</option>
@@ -243,9 +291,21 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "var(--mid)", display: "block", marginBottom: 8 }}>
-                雰囲気
-              </label>
+              <label style={labelStyle}>価格（1人あたり目安）</label>
+              <select
+                value={placePrice}
+                onChange={(e) => setPlacePrice(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">すべて</option>
+                <option value="under-1000">〜1,000円</option>
+                <option value="under-3000">〜3,000円</option>
+                <option value="under-5000">〜5,000円</option>
+                <option value="over-5000">5,000円〜</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>雰囲気</label>
               <select
                 value={atmosphere}
                 onChange={(e) => setAtmosphere(e.target.value)}
@@ -259,14 +319,72 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 12, color: "var(--mid)", display: "block", marginBottom: 8 }}>
-                キーワード
-              </label>
+              <label style={labelStyle}>キーワード</label>
               <input
                 type="text"
                 value={placeKeyword}
                 onChange={(e) => setPlaceKeyword(e.target.value)}
                 placeholder="店名、エリア、雰囲気など"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Glow タブ — 美容店（美容室・ネイル・眉毛・フォト）*/}
+        {activeTab === "glow" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div>
+              <label style={labelStyle}>エリア</label>
+              <select
+                value={glowArea}
+                onChange={(e) => setGlowArea(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">すべて</option>
+                <option value="tokyo">東京都</option>
+                <option value="kanagawa">神奈川県</option>
+                <option value="chiba">千葉県</option>
+                <option value="saitama">埼玉県</option>
+                <option value="osaka">大阪府</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>価格</label>
+              <select
+                value={glowPrice}
+                onChange={(e) => setGlowPrice(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">すべて</option>
+                <option value="under-3000">〜3,000円</option>
+                <option value="under-5000">〜5,000円</option>
+                <option value="under-10000">〜10,000円</option>
+                <option value="over-10000">10,000円〜</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>予約タイミング（将来 Kinda 経由予約）</label>
+              <select
+                value={glowReserve}
+                onChange={(e) => setGlowReserve(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">指定なし</option>
+                <option value="today">今日予約できる</option>
+                <option value="tomorrow">明日予約できる</option>
+                <option value="this-week">今週中に予約できる</option>
+                <option value="date">日付を指定する</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>キーワード</label>
+              <input
+                type="text"
+                value={glowKeyword}
+                onChange={(e) => setGlowKeyword(e.target.value)}
+                placeholder="店名、メニュー、エリアなど"
                 style={inputStyle}
               />
             </div>
