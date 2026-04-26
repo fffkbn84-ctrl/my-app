@@ -3494,6 +3494,9 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: absolute;
   inset: 0;
   z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .kt-reel-card-overlay {
   position: absolute;
@@ -4118,4 +4121,35 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .ka-card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   フローティング「ページトップへ戻る」ボタン
+   - 右下にデフォルト配置（ボトムナビ + safe-area の上）
+   - 詳細ページに .cta-mobile-bar が存在する時は、CSS の :has() で
+     ボタン位置を CTA の上にずらして overlap を回避
+───────────────────────────────────────────────────────── */
+.floating-scroll-top {
+  position: fixed;
+  right: 16px;
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 4px 14px rgba(184,128,110,.18), 0 1px 4px rgba(0,0,0,.08);
+  color: var(--ink);
+  align-items: center;
+  justify-content: center;
+  z-index: 95;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .2s ease, bottom .2s ease;
+}
+
+/* CTA がある詳細ページでは、CTA より上に配置して overlap 回避 */
+body:has(.cta-mobile-bar) .floating-scroll-top {
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px);
 }

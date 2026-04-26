@@ -216,16 +216,36 @@ export default async function PlaceDetailPage({
                   {avgRating.toFixed(1)}
                 </span>
                 <span className="d-rating-sep" style={{ background: "rgba(0,0,0,.15)" }} />
-                <span
+                <Link
+                  href="#reviews"
                   className="d-review-badge"
                   style={{
                     background: "rgba(0,0,0,.06)",
                     border: "1px solid rgba(0,0,0,.1)",
                     color: "rgba(0,0,0,.5)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    textDecoration: "none",
+                    cursor: "pointer",
                   }}
+                  aria-label="口コミセクションへ移動"
                 >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
                   {place.reviews.length}件の口コミ
-                </span>
+                </Link>
               </div>
 
               {/* シーンタグ */}
@@ -307,7 +327,7 @@ export default async function PlaceDetailPage({
               >
                 口コミを書く
               </Link>
-              <p className="d-book-note">口コミはKinda ふたりへ経由で利用した方のみ投稿できます</p>
+              <p className="d-book-note">お店を利用した方ならどなたでも口コミを投稿できます</p>
             </div>
 
           </div>
@@ -415,7 +435,7 @@ export default async function PlaceDetailPage({
                         borderTop: "1px solid rgba(180,155,135,.15)",
                       }}
                     >
-                      ※ 口コミはKinda ふたりへ経由で利用した方のみ投稿できます
+                      ※ お店を利用した方ならどなたでも口コミを投稿できます
                     </p>
                   </div>
 
@@ -498,7 +518,7 @@ export default async function PlaceDetailPage({
                       口コミを書く
                     </Link>
                     <p className="cta-book-main-note">
-                      口コミはKinda ふたりへ経由で利用した方のみ投稿できます
+                      お店を利用した方ならどなたでも口コミを投稿できます
                     </p>
                   </div>
                 </div>

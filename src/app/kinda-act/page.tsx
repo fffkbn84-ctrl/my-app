@@ -43,7 +43,7 @@ export default function KindaActPage() {
 
             <div className="kt-hero-divider" />
             <p className="kt-hero-copy">
-              お見合いも、デートも、婚活前の身支度も。
+              お見合いも、デートも。
               <br />
               ふたりの行動に、安心できる場所を。
             </p>

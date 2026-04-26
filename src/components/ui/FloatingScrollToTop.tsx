@@ -27,27 +27,8 @@ export default function FloatingScrollToTop() {
       type="button"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="ページトップへ戻る"
-      style={{
-        position: "fixed",
-        right: 16,
-        bottom: "calc(60px + 12px + env(safe-area-inset-bottom))",
-        width: 44,
-        height: 44,
-        borderRadius: "50%",
-        background: "rgba(255,255,255,.94)",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
-        border: "1px solid rgba(0,0,0,.08)",
-        boxShadow: "0 4px 14px rgba(184,128,110,.18), 0 1px 4px rgba(0,0,0,.08)",
-        color: "var(--ink)",
-        display: visible ? "flex" : "none",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 95,
-        cursor: "pointer",
-        transition: "transform .15s ease, opacity .2s ease",
-        opacity: visible ? 1 : 0,
-      }}
+      className="floating-scroll-top"
+      style={{ display: visible ? "flex" : "none" }}
     >
       <svg
         width="18"

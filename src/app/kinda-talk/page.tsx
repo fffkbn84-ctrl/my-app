@@ -110,7 +110,7 @@ export default async function KindaTalkPage() {
             <p className="kt-guide-text">
               カウンセラーは、あなたの婚活を支える&ldquo;人&rdquo;です。
               ロゴでもサービス名でもなく、生身の人間同士の対話で関係が進みます。
-              だから Kinda では、所属する相談所の名前ではなく、
+              だから Kinda では、
               カウンセラー個人を見て選んでほしい。
             </p>
             <p className="kt-guide-text">
