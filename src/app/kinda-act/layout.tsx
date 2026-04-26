@@ -7,5 +7,14 @@ export const metadata: Metadata = {
 };
 
 export default function KindaActLayout({ children }: { children: React.ReactNode }) {
-  return <div data-section="act">{children}</div>;
+  return (
+    <div data-section="act" style={{ position: "relative", minHeight: "100vh" }}>
+      {/* ページ最奥背景：村のミニチュア画像 + 強ブラー + パステルピンク被せ
+          ヒーローは独自の背景画像を持つので覆い隠される。
+          ヒーロー以降のセクションは半透明にして、この背景がふわっと透けて見える。 */}
+      <div className="ka-village-bg" aria-hidden />
+      <div style={{ position: "relative", zIndex: 1 }}>{children}</div>
+    </div>
+  );
 }
+

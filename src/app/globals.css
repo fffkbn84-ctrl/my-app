@@ -4153,3 +4153,46 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 body:has(.cta-mobile-bar) .floating-scroll-top {
   bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px);
 }
+
+/* ─────────────────────────────────────────────────────────
+   /kinda-act ページ最奥背景（村のミニチュア + 強ブラー + パステルピンク）
+   - position: fixed で常に画面いっぱいに配置
+   - filter: blur(50px) で強くぼかし、世界観のにじみを表現
+   - transform: scale(1.15) で blur のエッジ抜けを防止
+   - ::after でパステルピンクをやや厚めに乗せる（コンテンツ可読性確保）
+───────────────────────────────────────────────────────── */
+.ka-village-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url('/images/laughing-town-background.png.PNG');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(50px) brightness(1.08) saturate(1.05);
+  transform: scale(1.15);
+  will-change: filter;
+}
+.ka-village-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(245,225,224,.72) 0%,
+      rgba(236,200,197,.62) 45%,
+      rgba(245,225,224,.78) 100%);
+}
+
+/* /kinda-act 内のセクション背景を半透明化して、村背景を透けさせる
+   ヒーローは画像でフルブリードしているので影響なし */
+[data-section="act"] .kt-guide {
+  background: rgba(254,252,250,.78);
+}
+[data-section="act"] .kt-grid-wrap {
+  background: rgba(254,252,250,.6);
+}
+[data-section="act"] .kt-section-head {
+  background: transparent;
+}

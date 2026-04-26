@@ -19,7 +19,7 @@ export default function KindaActPage() {
     <div className="kt-page">
       <Header />
 
-      <main style={{ background: "#FEFCFA" }}>
+      <main style={{ background: "transparent" }}>
         {/* ─── ヒーロー（フルブリード画像 + パステルピンク被せ） ─── */}
         <section className="kt-hero">
           <div className="kt-hero-bg-image" aria-hidden>
