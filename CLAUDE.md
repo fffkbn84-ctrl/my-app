@@ -2662,3 +2662,80 @@ git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
 | 予約詳細確認 | カレンダー画面から `booked` スロットの予約者情報を表示 |
 | プロフィール写真トリミング | アップロード時にブラウザ内でクロップ UI |
 | 通知機能 | 新規予約・新規口コミ着信時のブラウザ通知 |
+
+---
+
+## Vercel デプロイ最適化（2026-04-27 追記）
+
+### 背景
+
+同一リポジトリ `fffkbn84-ctrl/my-app` を監視している Vercel プロジェクトが5つ存在し、1プッシュで複数の不要なビルドが走る状態だった。
+さらに各プロジェクトが全ブランチを自動デプロイする設定だったため、既に使っていない開発ブランチや別プロジェクト用のブランチでも毎回ビルドが走っていた。
+
+---
+
+### 実施内容
+
+#### ① 重複 Vercel プロジェクトの削除
+
+| プロジェクト | 対応 | 理由 |
+|---|---|---|
+| `my-app` | 🗑️ 削除 | 古い・URL が `-six-virid-90` で命名意味不明 |
+| `my-app-xqtq` | 🗑️ 削除 | 明らかに `my-app-rp9u` と重複 |
+| `my-app-rp9u` | ✅ 残す | 現在使用中のフロントサイト用 |
+| `futarive-counselor` | ✅ 残す | カウンセラー管理画面用（`futarive-counselor/` rootDir） |
+| `futarive-admin` | ✅ 残す | 統括管理画面用（`futarive-admin/` rootDir） |
+| `enishi` | 触らない | 別リポジトリ（`fffkbn84-ctrl/enishi`） |
+
+**削除手順：** Vercel Dashboard → 該当プロジェクト → Settings → 最下部 **Delete Project**。
+削除前に Settings → Domains でカスタムドメインが紐付いていないか必ず確認する。
+
+#### ② 残った各プロジェクトに Ignored Build Step を設定
+
+許可リスト方式：指定ブランチだけビルドし、それ以外は即スキップする。
+**Vercel Dashboard → 各プロジェクト → Settings → Git → Ignored Build Step → Custom** に以下を貼り付け。
+
+`exit 1` = ビルドする / `exit 0` = スキップ
+
+**`my-app-rp9u`：**
+```bash
+if [ "$VERCEL_GIT_COMMIT_REF" = "claude/implement-kinda-talk-uDUoW" ] || [ "$VERCEL_GIT_COMMIT_REF" = "main" ]; then exit 1; else exit 0; fi
+```
+
+**`futarive-counselor`：**
+```bash
+if [ "$VERCEL_GIT_COMMIT_REF" = "main" ] || [ "$VERCEL_GIT_COMMIT_REF" = "claude/fix-profile-creation-1clpG" ]; then exit 1; else exit 0; fi
+```
+
+**`futarive-admin`：**
+```bash
+if [ "$VERCEL_GIT_COMMIT_REF" = "integration/redesign-with-all-features" ]; then exit 1; else exit 0; fi
+```
+
+#### ③ CLAUDE.md に作業ブランチルールを明記
+
+CLAUDE.md 冒頭の「作業ルール」直下に **「作業ブランチルール（厳守・最優先）」** セクションを新設。
+Vercel の Ignored Build Step と整合する4ブランチ（`claude/implement-kinda-talk-uDUoW` / `claude/fix-profile-creation-1clpG` / `integration/redesign-with-all-features` / `main`）以外への commit / push を禁止。
+過去の「唯一の開発ブランチ」記述よりこのルールが優先される旨も明記。
+
+→ `claude/optimize-vercel-deployments-rkOOB` ブランチで commit & push 後、PR経由で `main` にマージ済み。
+
+---
+
+### 実施後の状態
+
+| 項目 | 結果 |
+|---|---|
+| 1プッシュで走るビルド数 | 最大3 → 最大1〜2に削減（マージ用 main push 時のみ複数走る） |
+| 古いブランチへの不要ビルド | すべてスキップ |
+| 別プロジェクト用ブランチの誤ビルド | 完全防止 |
+| Claude が誤ったブランチで作業するリスク | CLAUDE.md ルールで抑制 |
+
+---
+
+### 今後の追加・変更時の注意
+
+- **作業ブランチを新設・変更したら、対応する Vercel プロジェクトの Ignored Build Step も必ず更新する**
+- Ignored Build Step を更新したら、CLAUDE.md「作業ブランチルール」セクションの表も同期して更新する
+- 新しい Vercel プロジェクトを作る場合は、最初から Ignored Build Step を設定して全ブランチデプロイにしない
+- GitHub の古い・マージ済みブランチは Vercel に影響しなくなったが、リポジトリ整理目的で削除しても良い（任意）
