@@ -2272,6 +2272,62 @@ ALTER TABLE reviews
 
 ---
 
+## Vercel デプロイ運用メモ（2026-04-27 追記）
+
+> 過去ハマったので記録。my-app / futarive-admin / futarive-counselor すべての Vercel プロジェクトに共通する話。
+
+### Hobby プランのデプロイ回数制限
+
+- 1日のデプロイ回数に上限がある（Hobby = 100/日）。超えるとダッシュボードに「24時間で解除」表示が出る
+- **制限中に push してもビルドが走らない**（一覧に新しい行すら出てこないことがある）
+- **制限解除後も自動で再ビルドされない**。push 済みコミットを反映するには手動操作が必要
+
+### 制限解除後の対処法（どちらでもOK）
+
+**A. ダッシュボードから手動 Redeploy**
+1. Vercel → 該当プロジェクト → Deployments
+2. ステータスフィルタを Canceled / Error / Skipped にも広げる
+3. 反映されてないコミットの行を探して `…` メニュー → Redeploy
+
+**B. 空コミットを push して新しいビルドを誘発**
+```bash
+git -C /home/user/my-app commit --allow-empty -m "chore: trigger redeploy"
+git -C /home/user/my-app push origin <該当ブランチ>
+```
+**必ず制限解除後に実行する**（解除前にやると同じくスキップされる）
+
+### プレビューURLの読み方
+
+```
+my-app-rp9u-git-claude-implement-291d77-fffkbn84-4095s-projects.vercel.app
+                                  ^^^^^^
+                                  コミットハッシュ
+```
+
+- **コミットハッシュ入りURL** = そのコミット時点のスナップショット固定URL（古いまま）
+- **ブランチエイリアスURL**（ハッシュなし）= そのブランチの最新 Ready を常に指す
+
+最新を確認するときは Vercel ダッシュボードで Deployments タブを開き、ブランチでフィルタしてから最新の 🟢 Ready の Visit を押すのが確実。
+
+### ステータスの意味
+
+| ステータス | 意味 |
+|---|---|
+| Queued | ビルド待ち |
+| Building / Initializing | ビルド中 |
+| Ready | 🟢 ビルド成功・配信中 |
+| Error | ビルド失敗（ログ確認） |
+| Canceled | 後続コミットで上書きされてキャンセルされた |
+| Skipped | Ignored Build Step または制限でスキップ |
+
+### よくある誤解
+
+- ❌「24時間待てば自動で最新が反映される」→ ✅ 解除されるのはあくまで「制限」。ビルドは手動で誘発が必要
+- ❌「Ready が出てればそれが最新」→ ✅ Ready はそのコミットの配信状態。最新コミットが Ready とは限らない（main と開発ブランチでズレることもある）
+- ❌「ブランチ別の Vercel プロジェクトを横断的に把握」→ ✅ my-app / futarive-admin / futarive-counselor はそれぞれ独立した Vercel プロジェクト。ダッシュボード上で別々
+
+---
+
 ---
 
 # futarive-counselor — カウンセラー・相談所オーナー向け管理画面
