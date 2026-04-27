@@ -38,6 +38,42 @@
 
 ---
 
+## 作業ブランチルール（厳守・最優先）
+
+> **このセクションのルールは、CLAUDE.md 内の他の場所に書かれた古いブランチ指定（「唯一の開発ブランチ」「作業ブランチ：xxx」など）よりも優先される。**
+> 過去の実装記録セクションに登場するブランチ名は履歴情報であり、現在の作業ブランチ指定ではない。
+
+### 許可されている作業ブランチ
+
+| ブランチ | 用途 |
+|---|---|
+| `claude/implement-kinda-talk-uDUoW` | フロントサイト（`my-app/src/`）開発用 |
+| `claude/fix-profile-creation-1clpG` | futarive-counselor（`my-app/futarive-counselor/`）開発用 |
+| `integration/redesign-with-all-features` | futarive-admin（`my-app/futarive-admin/`）開発用 |
+| `main` | マージ用（Claude が直接 push するのは禁止） |
+
+### ルール
+
+1. **commit / push はこの4ブランチ以外に行わない**
+2. **`main` への直接 push は禁止**（Pull Request 経由でのマージのみ）
+3. **新しいブランチを作る前に必ずユーザーに確認する**
+4. **push する前に必ず `git branch --show-current` で現在のブランチを確認する**
+5. ユーザーから明示的に別ブランチを指定された場合のみ、そのブランチで作業してよい
+
+### Vercel デプロイとの連動
+
+各 Vercel プロジェクトは Ignored Build Step で許可ブランチのみビルドする設定になっている：
+
+| Vercel プロジェクト | ビルド対象ブランチ |
+|---|---|
+| `my-app-rp9u` | `main` / `claude/implement-kinda-talk-uDUoW` |
+| `futarive-counselor` | `main` / `claude/fix-profile-creation-1clpG` |
+| `futarive-admin` | `integration/redesign-with-all-features` |
+
+許可リスト外のブランチに push してもデプロイは走らないが、不要な commit を増やさないため必ず指定ブランチで作業すること。
+
+---
+
 ## ディレクトリ構成（想定）
 
 ```
