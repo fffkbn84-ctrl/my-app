@@ -59,14 +59,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   // Act (お見合いの場所 = カフェ・レストラン)
   const [placeArea, setPlaceArea] = useState("");
+  const [placeUse, setPlaceUse] = useState("");
   const [placePrice, setPlacePrice] = useState("");
   const [atmosphere, setAtmosphere] = useState("");
   const [placeKeyword, setPlaceKeyword] = useState("");
 
-  // Glow (美容店 = 美容室・ネイル・眉毛・フォト)
+  // Glow (美容店 = 美容室・眉毛サロン・ネイルサロン・エステ)
   // NOTE: 「予約タイミング」(glowReserve) は Kinda 経由予約が未実装のためサイト非表示中。
   // 将来 Kinda 経由予約を実装した際に state と UI（下部にコメントアウト済み）を復活させる。
   const [glowArea, setGlowArea] = useState("");
+  const [glowUse, setGlowUse] = useState("");
   const [glowPrice, setGlowPrice] = useState("");
   const [glowKeyword, setGlowKeyword] = useState("");
 
@@ -96,6 +98,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       target = "/kinda-talk";
     } else if (activeTab === "act") {
       if (placeArea) params.set("area", placeArea);
+      if (placeUse) params.set("use", placeUse);
       if (placePrice) params.set("price", placePrice);
       if (atmosphere) params.set("atmosphere", atmosphere);
       if (placeKeyword) params.set("keyword", placeKeyword);
@@ -104,6 +107,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       // glow（美容店）
       // NOTE: 予約タイミング(reserve) は未実装のため URL パラメータも付与しない
       if (glowArea) params.set("area", glowArea);
+      if (glowUse) params.set("use", glowUse);
       if (glowPrice) params.set("price", glowPrice);
       if (glowKeyword) params.set("keyword", glowKeyword);
       target = "/kinda-glow";
@@ -272,7 +276,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </div>
         )}
 
-        {/* Act タブ — エリア / 価格 / 雰囲気 / キーワード */}
+        {/* Act タブ — エリア / 用途 / 価格 / 雰囲気 / キーワード */}
         {activeTab === "act" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
@@ -289,6 +293,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <option value="saitama">埼玉県</option>
                 <option value="osaka">大阪府</option>
                 <option value="other">その他</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>用途</label>
+              <select
+                value={placeUse}
+                onChange={(e) => setPlaceUse(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">すべて</option>
+                <option value="cafe">カフェ</option>
+                <option value="restaurant">レストラン</option>
               </select>
             </div>
             <div>
@@ -332,7 +348,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </div>
         )}
 
-        {/* Glow タブ — 美容店（美容室・ネイル・眉毛・フォト）*/}
+        {/* Glow タブ — 美容店（美容室・眉毛サロン・ネイルサロン・エステ）*/}
         {activeTab === "glow" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <div>
@@ -349,6 +365,20 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <option value="saitama">埼玉県</option>
                 <option value="osaka">大阪府</option>
                 <option value="other">その他</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>用途</label>
+              <select
+                value={glowUse}
+                onChange={(e) => setGlowUse(e.target.value)}
+                style={selectStyle}
+              >
+                <option value="">すべて</option>
+                <option value="hair">美容室</option>
+                <option value="brow">眉毛サロン</option>
+                <option value="nail">ネイルサロン</option>
+                <option value="esthe">エステ</option>
               </select>
             </div>
             <div>

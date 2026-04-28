@@ -148,7 +148,7 @@ export default function KindaActPage() {
         <section
           style={{
             padding: "32px 20px 56px",
-            background: "var(--pale)",
+            background: "rgba(254,252,250,.45)",
           }}
         >
           <div
@@ -156,7 +156,9 @@ export default function KindaActPage() {
               maxWidth: 540,
               margin: "0 auto",
               padding: "20px 24px",
-              background: "rgba(255,255,255,.7)",
+              background: "rgba(255,255,255,.78)",
+              backdropFilter: "blur(6px)",
+              WebkitBackdropFilter: "blur(6px)",
               border: "1px dashed rgba(184,110,104,.4)",
               borderRadius: 16,
               textAlign: "center",
