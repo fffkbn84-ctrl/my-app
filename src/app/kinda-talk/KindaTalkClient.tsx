@@ -4,6 +4,14 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Counselor } from "@/lib/data";
 import { KINDA_TYPE_KEYS, KINDA_TYPES, KindaTypeKey } from "@/lib/kinda-types";
+import {
+  REGIONS,
+  ONLINE_OPTION,
+  OTHER_OPTION,
+  extractAreaKey,
+  matchesAreaFilter,
+  prefecturesInRegion,
+} from "@/lib/areas";
 import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
 
@@ -13,40 +21,12 @@ type Props = {
   counselors: Counselor[];
 };
 
-/**
- * エリアの定義。
- * 都道府県（一部、活動が多そうなエリア）とオンラインを並べる。
- * カウンセラー管理画面（futarive-counselor）の活動エリア入力時の選択肢と
- * 連動させる前提で、ここで列挙する prefecture 名は
- * counselor.area の先頭セグメント（"・"より前）と一致させる。
- */
-const PREFECTURES = [
-  "東京",
-  "神奈川",
-  "千葉",
-  "埼玉",
-  "大阪",
-  "京都",
-  "兵庫",
-  "愛知",
-  "福岡",
-  "北海道",
-  "オンライン",
-];
-
 const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "match", label: "おすすめ順" },
   { key: "rating", label: "評価が高い順" },
   { key: "review", label: "レビューが多い順" },
   { key: "experience", label: "経験年数が長い順" },
 ];
-
-/** カウンセラーの area 文字列から先頭の都道府県名を抽出 */
-function extractPrefecture(area: string): string {
-  if (!area) return "";
-  // "東京・銀座" → "東京"、"オンライン" → "オンライン"
-  return area.split(/[・\s]/)[0] ?? area;
-}
 
 export default function KindaTalkClient({ counselors }: Props) {
   const [openCounselor, setOpenCounselor] = useState<Counselor | null>(null);
@@ -56,16 +36,26 @@ export default function KindaTalkClient({ counselors }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("match");
   const areaRef = useRef<HTMLDivElement>(null);
 
-  /* 各都道府県のカウンセラー数 → 0 件はグレーアウト */
-  const counselorCountByPrefecture = useMemo(() => {
+  /* 各都道府県のカウンセラー数（カウンセラーが「関東」のように地域名で登録している場合も拾う） */
+  const counselorCountByKey = useMemo(() => {
     const map = new Map<string, number>();
     for (const c of counselors) {
-      const p = extractPrefecture(c.area);
-      if (!p) continue;
-      map.set(p, (map.get(p) ?? 0) + 1);
+      const k = extractAreaKey(c.area);
+      if (!k) continue;
+      map.set(k, (map.get(k) ?? 0) + 1);
     }
     return map;
   }, [counselors]);
+
+  /** ある地域のカウンセラー総数（各都道府県の合計 + 地域名で登録された人）*/
+  const countForRegion = (region: string): number => {
+    const directCount = counselorCountByKey.get(region) ?? 0;
+    const prefectureCount = prefecturesInRegion(region).reduce(
+      (sum, p) => sum + (counselorCountByKey.get(p) ?? 0),
+      0
+    );
+    return directCount + prefectureCount;
+  };
 
   /* エリアトグル外クリックで閉じる */
   useEffect(() => {
@@ -82,7 +72,7 @@ export default function KindaTalkClient({ counselors }: Props) {
   const filtered = useMemo(() => {
     let list = counselors;
     if (areaFilter !== "すべて") {
-      list = list.filter((c) => extractPrefecture(c.area) === areaFilter);
+      list = list.filter((c) => matchesAreaFilter(c.area, areaFilter));
     }
     if (typeFilter !== "all") {
       list = list.filter((c) => (c.matchingTypes ?? []).includes(typeFilter));
@@ -150,12 +140,15 @@ export default function KindaTalkClient({ counselors }: Props) {
                   border: "1px solid var(--light)",
                   borderRadius: 14,
                   boxShadow: "0 8px 24px rgba(184,128,110,.12), 0 2px 8px rgba(0,0,0,.06)",
-                  padding: 8,
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: 6,
+                  padding: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
                   zIndex: 20,
-                  minWidth: 280,
+                  minWidth: 320,
+                  maxWidth: 360,
+                  maxHeight: "70vh",
+                  overflowY: "auto",
                 }}
               >
                 <button
@@ -167,17 +160,104 @@ export default function KindaTalkClient({ counselors }: Props) {
                     setAreaOpen(false);
                   }}
                   className={`kt-pill ${areaFilter === "すべて" ? "is-active" : ""}`}
-                  style={{ gridColumn: "1 / -1" }}
+                  style={{ width: "100%", justifyContent: "center" }}
                 >
                   すべて
                 </button>
-                {PREFECTURES.map((p) => {
-                  const count = counselorCountByPrefecture.get(p) ?? 0;
+
+                {/* 地域 + 都道府県（地域見出しの下に都道府県を 3 列でぶら下げる） */}
+                {REGIONS.map((r) => {
+                  const regionCount = countForRegion(r.region);
+                  const regionDisabled = regionCount === 0;
+                  const regionActive = areaFilter === r.region;
+                  return (
+                    <div key={r.region} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                      {/* 地域カテゴリ自体（広域選択用ピル） */}
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={regionActive}
+                        aria-disabled={regionDisabled}
+                        disabled={regionDisabled}
+                        onClick={() => {
+                          if (regionDisabled) return;
+                          setAreaFilter(r.region);
+                          setAreaOpen(false);
+                        }}
+                        className={`kt-pill ${regionActive ? "is-active" : ""}`}
+                        style={{
+                          width: "100%",
+                          justifyContent: "space-between",
+                          opacity: regionDisabled ? 0.35 : 1,
+                          cursor: regionDisabled ? "not-allowed" : "pointer",
+                          fontWeight: 500,
+                          background: regionActive ? "var(--accent)" : "var(--pale)",
+                          borderColor: regionActive ? "var(--accent)" : "var(--pale)",
+                          color: regionActive ? "white" : "var(--ink)",
+                        }}
+                      >
+                        <span>{r.region}</span>
+                        {!regionDisabled && (
+                          <span style={{ fontSize: 10, opacity: 0.7 }}>{regionCount}</span>
+                        )}
+                      </button>
+                      {/* 都道府県（3列グリッド） */}
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(3, 1fr)",
+                          gap: 4,
+                          paddingLeft: 4,
+                        }}
+                      >
+                        {r.prefectures.map((p) => {
+                          const count = counselorCountByKey.get(p) ?? 0;
+                          const disabled = count === 0;
+                          const active = areaFilter === p;
+                          return (
+                            <button
+                              key={p}
+                              type="button"
+                              role="option"
+                              aria-selected={active}
+                              aria-disabled={disabled}
+                              disabled={disabled}
+                              onClick={() => {
+                                if (disabled) return;
+                                setAreaFilter(p);
+                                setAreaOpen(false);
+                              }}
+                              className={`kt-pill ${active ? "is-active" : ""}`}
+                              style={{
+                                opacity: disabled ? 0.35 : 1,
+                                cursor: disabled ? "not-allowed" : "pointer",
+                                textAlign: "center",
+                                fontSize: 11,
+                                padding: "5px 8px",
+                              }}
+                            >
+                              {p}
+                              {!disabled && (
+                                <span style={{ fontSize: 9, opacity: 0.6, marginLeft: 3 }}>
+                                  {count}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {/* オンライン・その他（地域には属さない選択肢） */}
+                {[ONLINE_OPTION, OTHER_OPTION].map((opt) => {
+                  const count = counselorCountByKey.get(opt) ?? 0;
                   const disabled = count === 0;
-                  const active = areaFilter === p;
+                  const active = areaFilter === opt;
                   return (
                     <button
-                      key={p}
+                      key={opt}
                       type="button"
                       role="option"
                       aria-selected={active}
@@ -185,29 +265,19 @@ export default function KindaTalkClient({ counselors }: Props) {
                       disabled={disabled}
                       onClick={() => {
                         if (disabled) return;
-                        setAreaFilter(p);
+                        setAreaFilter(opt);
                         setAreaOpen(false);
                       }}
                       className={`kt-pill ${active ? "is-active" : ""}`}
                       style={{
                         opacity: disabled ? 0.35 : 1,
                         cursor: disabled ? "not-allowed" : "pointer",
-                        textAlign: "center",
-                        position: "relative",
+                        width: "100%",
+                        justifyContent: "space-between",
                       }}
                     >
-                      {p}
-                      {!disabled && (
-                        <span
-                          style={{
-                            fontSize: 9,
-                            opacity: 0.6,
-                            marginLeft: 4,
-                          }}
-                        >
-                          {count}
-                        </span>
-                      )}
+                      <span>{opt}</span>
+                      {!disabled && <span style={{ fontSize: 10, opacity: 0.6 }}>{count}</span>}
                     </button>
                   );
                 })}

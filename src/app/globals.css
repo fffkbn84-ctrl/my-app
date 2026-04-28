@@ -4291,7 +4291,16 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
 }
 
 /* /kinda-act 内のセクション背景を半透明化して、村背景を透けさせる
-   ヒーローは画像でフルブリードしているので影響なし */
+   ヒーローは画像でフルブリードしているので影響なし
+
+   重要: .kt-page には #FEFCFA の不透明背景が掛かっているので、
+   ここで透過にしないと固定の .ka-village-bg が完全に隠れてしまう */
+[data-section="act"] .kt-page {
+  background: transparent;
+}
+[data-section="act"] main {
+  background: transparent !important;
+}
 [data-section="act"] .kt-guide {
   background: rgba(254,252,250,.55);
 }

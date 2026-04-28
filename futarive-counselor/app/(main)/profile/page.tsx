@@ -3,10 +3,10 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Agency } from '@/lib/types'
+import { REGIONS, ONLINE_OPTION, OTHER_OPTION } from '@/lib/areas'
 
 type Step = 1 | 2 | 3 | 4
 
-const AREAS = ['東京', '神奈川', '埼玉', '千葉', '大阪', '京都', '兵庫', 'オンライン', 'その他']
 const FEE_OPTIONS = ['無料', '3,000円', '5,000円', '10,000円']
 
 export default function ProfilePage() {
@@ -206,7 +206,20 @@ export default function ProfilePage() {
             <label className="kc-label">活動エリア</label>
             <select className="kc-select" value={form.area} onChange={e => updateForm('area', e.target.value)}>
               <option value="">選択してください</option>
-              {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+              {/* 広域カテゴリ（複数県をまたいで活動するカウンセラー向け） */}
+              <optgroup label="地域カテゴリ">
+                {REGIONS.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
+              </optgroup>
+              {/* 47 都道府県（地域ごとに optgroup でセクション分け） */}
+              {REGIONS.map(r => (
+                <optgroup key={r.region} label={r.region}>
+                  {r.prefectures.map(p => <option key={p} value={p}>{p}</option>)}
+                </optgroup>
+              ))}
+              <optgroup label="その他">
+                <option value={ONLINE_OPTION}>{ONLINE_OPTION}</option>
+                <option value={OTHER_OPTION}>{OTHER_OPTION}</option>
+              </optgroup>
             </select>
           </div>
           <div>
