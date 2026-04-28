@@ -158,7 +158,9 @@ export default async function PlaceDetailPage({
               <div className="d-breadcrumb" style={{ color: "rgba(0,0,0,.4)" }}>
                 <Link href="/" style={{ color: "rgba(0,0,0,.4)" }}>トップ</Link>
                 <span>/</span>
-                <Link href="/shops" style={{ color: "rgba(0,0,0,.4)" }}>お店を探す</Link>
+                <Link href="/shops" style={{ color: "rgba(0,0,0,.4)" }}>
+                  Kinda act<span style={{ marginLeft: 4, fontSize: "0.85em" }}>（実際に会う場所を選ぶ）</span>
+                </Link>
                 <span>/</span>
                 <span style={{ color: "rgba(0,0,0,.65)" }}>{place.name}</span>
               </div>
@@ -228,7 +230,7 @@ export default async function PlaceDetailPage({
                 </span>
               </div>
 
-              {/* シーンタグ */}
+              {/* シーンタグ — stage と重複する scene は除外 */}
               <div className="d-tags">
                 <span
                   className="d-tag featured"
@@ -240,15 +242,17 @@ export default async function PlaceDetailPage({
                 >
                   {place.stage}
                 </span>
-                {place.scenes.map((scene) => (
-                  <span
-                    key={scene}
-                    className="d-tag"
-                    style={{ borderColor: "rgba(0,0,0,.15)", color: "rgba(0,0,0,.5)" }}
-                  >
-                    {scene}
-                  </span>
-                ))}
+                {place.scenes
+                  .filter((scene) => scene !== place.stage)
+                  .map((scene) => (
+                    <span
+                      key={scene}
+                      className="d-tag"
+                      style={{ borderColor: "rgba(0,0,0,.15)", color: "rgba(0,0,0,.5)" }}
+                    >
+                      {scene}
+                    </span>
+                  ))}
               </div>
 
               {/* 統計 */}
