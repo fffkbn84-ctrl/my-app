@@ -20,11 +20,11 @@ export default function KindaActPage() {
       <Header />
 
       <main style={{ background: "transparent" }}>
-        {/* ─── ヒーロー（フルブリード画像 + パステルピンク被せ） ─── */}
+        {/* ─── ヒーロー（フルブリード画像 + ふんわりフェードイン + パステルピンクtint） ─── */}
         <section className="kt-hero">
-          <div className="kt-hero-bg-image" aria-hidden>
+          <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             <Image
-              src="/images/section-cafe-pastel.png.PNG"
+              src="/images/kinda-act-hero.jpg"
               alt=""
               fill
               priority

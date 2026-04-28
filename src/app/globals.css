@@ -4319,9 +4319,54 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
 [data-section="act"] main {
   background: transparent !important;
 }
+/* フッターは村背景の対象外（村は kinda-act 本文にだけ） */
+[data-section="act"] footer {
+  background: var(--white, #FAFAF8);
+  position: relative;
+  z-index: 1;
+}
+/* Kinda act ヒーロー: 柔らかいパステルピンク tint で Kinda talk と統一感を出す
+   （Kinda talk はパステルイエロー） */
+[data-section="act"] .kt-hero-tint {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 225, 224, 0.55) 0%, rgba(236, 200, 197, 0.22) 55%, rgba(245, 225, 224, 0) 90%),
+    linear-gradient(180deg, rgba(245, 225, 224, 0.34) 0%, rgba(245, 225, 224, 0.12) 55%, rgba(245, 225, 224, 0) 100%);
+  mix-blend-mode: soft-light;
+}
 /* セクション背景もさらに薄くして、村が透けて見えるように */
 [data-section="act"] .kt-guide {
-  background: rgba(254,252,250,.4);
+  background: rgba(254,252,250,.32);
+  position: relative;
+}
+/* How we pick も Find your place と同じ "ふんわり白の radial gradient" + 白ハロー
+   テキスト処理で、村背景を残したまま読みやすくする */
+[data-section="act"] .kt-guide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(254,252,250,.65) 0%,
+    rgba(254,252,250,.35) 45%,
+    rgba(254,252,250,0) 85%
+  );
+  z-index: 0;
+}
+[data-section="act"] .kt-guide-inner {
+  position: relative;
+  z-index: 1;
+}
+[data-section="act"] .kt-guide-eyebrow,
+[data-section="act"] .kt-guide-inner > h2,
+[data-section="act"] .kt-guide-text {
+  text-shadow:
+    0 0 6px rgba(255,255,255,.95),
+    0 0 14px rgba(255,255,255,.8),
+    0 1px 2px rgba(255,255,255,.7);
+}
+[data-section="act"] .kt-guide-divider {
+  background: rgba(0,0,0,.18);
 }
 [data-section="act"] .kt-grid-wrap {
   background: rgba(254,252,250,.1);

@@ -15,6 +15,14 @@ const HERO_IMAGE_SRC = "/images/hero-couple-new.png.PNG";
 /* ────────────────────────────────────────────────────────────
    「もう決まっている方へ」カード定義
 ──────────────────────────────────────────────────────────── */
+/**
+ * カードの bg / accent カラーは globals.css の [data-section] と同じ
+ * パステルパレットを使用：
+ *   type → #E0ECF8（パステルブルー）
+ *   talk → #FAF3DE（パステルイエロー）
+ *   act  → #F5E1E0（パステルピンク）
+ *   glow → #EDE0F4（パステルパープル）
+ */
 const DECIDED_CARDS = [
   {
     key: "type",
@@ -23,6 +31,8 @@ const DECIDED_CARDS = [
     desc: "診断で、合うカウンセラーが見つかる",
     img: "/images/section-kinda-type.png.PNG",
     alt: "Kinda type",
+    bg: "#E0ECF8",
+    accent: "#5A7FAF",
   },
   {
     key: "talk",
@@ -31,6 +41,8 @@ const DECIDED_CARDS = [
     desc: "カウンセラー・相談所を見る",
     img: "/images/section-counseling.png",
     alt: "Kinda talk",
+    bg: "#FAF3DE",
+    accent: "#B89A4A",
   },
   {
     key: "act",
@@ -39,6 +51,8 @@ const DECIDED_CARDS = [
     desc: "お見合いやデートで実際に会う場所を選ぶ",
     img: "/images/section-cafe-pastel.png.PNG",
     alt: "Kinda act",
+    bg: "#F5E1E0",
+    accent: "#B86E68",
   },
   {
     key: "glow",
@@ -47,6 +61,8 @@ const DECIDED_CARDS = [
     desc: "美容を整える",
     img: "/images/section-beauty-n2.png.jpg",
     alt: "Kinda glow",
+    bg: "#EDE0F4",
+    accent: "#8A66B0",
   },
 ] as const;
 
@@ -385,20 +401,20 @@ export default async function HomePage() {
                 href={card.href}
                 style={{
                   display: "block",
-                  background: "var(--white)",
+                  background: card.bg,
                   borderRadius: 16,
-                  border: "1px solid var(--light)",
+                  border: "1px solid rgba(0,0,0,.04)",
                   overflow: "hidden",
                   boxShadow: "0 4px 16px rgba(200,169,122,.08)",
                   textDecoration: "none",
                   transition: "transform .3s, box-shadow .3s",
                 }}
               >
-                {/* 画像エリア */}
+                {/* 画像エリア（カードと同色のパステル背景に画像が乗る） */}
                 <div
                   style={{
                     aspectRatio: "1/1",
-                    background: "#F5EEE6",
+                    background: card.bg,
                     overflow: "hidden",
                     position: "relative",
                   }}
@@ -411,7 +427,7 @@ export default async function HomePage() {
                   />
                 </div>
 
-                {/* テキストエリア */}
+                {/* テキストエリア — カード bg を継承して馴染ませる */}
                 <div style={{ padding: "12px 14px 16px" }}>
                   <p
                     style={{
@@ -426,7 +442,7 @@ export default async function HomePage() {
                     <em
                       style={{
                         fontStyle: "italic",
-                        color: "var(--accent)",
+                        color: card.accent,
                         fontFamily: "'DM Serif Display', serif",
                       }}
                     >
