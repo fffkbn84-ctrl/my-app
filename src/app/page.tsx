@@ -267,36 +267,21 @@ export default async function HomePage() {
             }}
           >
             {/* ロゴ行 */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 10,
-                marginBottom: 12,
-              }}
-            >
-              <span
+            {/* ロゴ画像（toppage_logo.jpg） */}
+            <div style={{ marginBottom: 12 }}>
+              <Image
+                src="/images/toppage_logo.jpg"
+                alt="Kinda ふたりへ"
+                width={360}
+                height={120}
+                priority
                 style={{
-                  fontFamily: "var(--font-mincho)",
-                  fontWeight: 500,
-                  fontSize: "clamp(44px, 12vw, 56px)",
-                  color: "white",
-                  lineHeight: 1,
+                  width: "auto",
+                  height: "clamp(64px, 14vw, 100px)",
+                  objectFit: "contain",
+                  filter: "drop-shadow(0 2px 8px rgba(0,0,0,.25))",
                 }}
-              >
-                Kinda
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-mincho)",
-                  fontWeight: 400,
-                  fontSize: "clamp(14px, 4vw, 18px)",
-                  color: "rgba(255,255,255,.75)",
-                  letterSpacing: ".1em",
-                }}
-              >
-                Kinda ふたりへ
-              </span>
+              />
             </div>
 
             {/* タグライン */}

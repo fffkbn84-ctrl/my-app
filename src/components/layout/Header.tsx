@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import SearchModal from "@/components/search/SearchModal";
 
@@ -27,40 +28,24 @@ export default function Header() {
           padding: "0 24px",
         }}
       >
-        {/* Logo */}
+        {/* Logo（header_logo.jpg） */}
         <Link
           href="/"
           style={{
             display: "flex",
-            alignItems: "baseline",
-            gap: 6,
+            alignItems: "center",
             textDecoration: "none",
           }}
+          aria-label="Kinda ふたりへ ホームへ"
         >
-          <span
-            style={{
-              fontFamily: "var(--font-mincho)",
-              fontWeight: 500,
-              fontSize: 20,
-              color: "var(--ink)",
-              letterSpacing: ".06em",
-              lineHeight: 1,
-            }}
-          >
-            Kinda
-          </span>
-          <span
-            style={{
-              fontFamily: "var(--font-mincho)",
-              fontWeight: 400,
-              fontSize: 12,
-              color: "var(--mid)",
-              letterSpacing: ".08em",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Kinda ふたりへ
-          </span>
+          <Image
+            src="/images/header_logo.jpg"
+            alt="Kinda ふたりへ"
+            width={200}
+            height={40}
+            priority
+            style={{ width: "auto", height: 32, objectFit: "contain" }}
+          />
         </Link>
 
         {/* Right side: Search + Hamburger */}
