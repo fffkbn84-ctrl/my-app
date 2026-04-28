@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { KINDA_TYPES, KINDA_TYPE_KEYS } from "@/lib/kinda-types";
+import {
+  PREFECTURE_GROUPS,
+  BROAD_REGIONS,
+  NATIONAL_OPTION,
+  ONLINE_OPTION,
+} from "@/lib/areas";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -45,6 +51,40 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 8,
 };
 
+/**
+ * エリア <select> の中身（option群）。
+ * 結婚相談所 / デートの場所 / 美容店 すべてで同じ階層構造を使う：
+ *   広域・オンライン（全国・オンライン）→ エリア（広域）→ 47 都道府県
+ * futarive-counselor のプロフィール「活動エリア」と完全一致。
+ */
+function AreaOptions() {
+  return (
+    <>
+      <option value="">すべて</option>
+      <optgroup label="広域・オンライン">
+        <option value={NATIONAL_OPTION}>{NATIONAL_OPTION}</option>
+        <option value={ONLINE_OPTION}>{ONLINE_OPTION}</option>
+      </optgroup>
+      <optgroup label="エリア（広域）">
+        {BROAD_REGIONS.map((r) => (
+          <option key={r.name} value={r.name}>
+            {r.name}
+          </option>
+        ))}
+      </optgroup>
+      {PREFECTURE_GROUPS.map((g) => (
+        <optgroup key={g.label} label={g.label}>
+          {g.prefectures.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </optgroup>
+      ))}
+    </>
+  );
+}
+
 type Tab = "counselor" | "act" | "glow";
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
@@ -57,7 +97,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [type, setType] = useState("");
   const [keyword, setKeyword] = useState("");
 
-  // Act (お見合いの場所 = カフェ・レストラン)
+  // Act (デートの場所 = お見合い・デートで使うカフェ・レストラン)
   const [placeArea, setPlaceArea] = useState("");
   const [placeUse, setPlaceUse] = useState("");
   const [placePrice, setPlacePrice] = useState("");
@@ -202,7 +242,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {(
             [
               ["counselor", "結婚相談所"],
-              ["act", "お見合いの場所"],
+              ["act", "デートの場所"],
               ["glow", "美容店"],
             ] as const
           ).map(([tab, label]) => (
@@ -233,14 +273,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <div>
               <label style={labelStyle}>エリア</label>
               <select value={area} onChange={(e) => setArea(e.target.value)} style={selectStyle}>
-                <option value="">すべて</option>
-                <option value="tokyo">東京都</option>
-                <option value="kanagawa">神奈川県</option>
-                <option value="chiba">千葉県</option>
-                <option value="saitama">埼玉県</option>
-                <option value="osaka">大阪府</option>
-                <option value="online">オンライン</option>
-                <option value="other">その他</option>
+                <AreaOptions />
               </select>
             </div>
             <div>
@@ -286,13 +319,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 onChange={(e) => setPlaceArea(e.target.value)}
                 style={selectStyle}
               >
-                <option value="">すべて</option>
-                <option value="tokyo">東京都</option>
-                <option value="kanagawa">神奈川県</option>
-                <option value="chiba">千葉県</option>
-                <option value="saitama">埼玉県</option>
-                <option value="osaka">大阪府</option>
-                <option value="other">その他</option>
+                <AreaOptions />
               </select>
             </div>
             <div>
@@ -358,13 +385,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 onChange={(e) => setGlowArea(e.target.value)}
                 style={selectStyle}
               >
-                <option value="">すべて</option>
-                <option value="tokyo">東京都</option>
-                <option value="kanagawa">神奈川県</option>
-                <option value="chiba">千葉県</option>
-                <option value="saitama">埼玉県</option>
-                <option value="osaka">大阪府</option>
-                <option value="other">その他</option>
+                <AreaOptions />
               </select>
             </div>
             <div>
