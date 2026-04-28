@@ -267,19 +267,20 @@ export default async function HomePage() {
             }}
           >
             {/* ロゴ行 */}
-            {/* ロゴ画像（toppage_logo.jpg） */}
+            {/* ロゴ画像（toppage_logo.jpg） — JPG の白背景は mix-blend-mode で
+                ヒーロー画像の村背景に馴染ませる */}
             <div style={{ marginBottom: 12 }}>
               <Image
                 src="/images/toppage_logo.jpg"
                 alt="Kinda ふたりへ"
-                width={360}
-                height={120}
+                width={280}
+                height={56}
                 priority
                 style={{
                   width: "auto",
-                  height: "clamp(64px, 14vw, 100px)",
+                  height: "clamp(40px, 9vw, 56px)",
                   objectFit: "contain",
-                  filter: "drop-shadow(0 2px 8px rgba(0,0,0,.25))",
+                  mixBlendMode: "multiply",
                 }}
               />
             </div>

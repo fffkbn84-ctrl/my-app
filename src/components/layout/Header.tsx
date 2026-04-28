@@ -28,7 +28,8 @@ export default function Header() {
           padding: "0 24px",
         }}
       >
-        {/* Logo（header_logo.jpg） */}
+        {/* Logo（header_logo.jpg） — JPG の白背景は mix-blend-mode: multiply で
+            ヘッダーのクリーム色背景に馴染ませる */}
         <Link
           href="/"
           style={{
@@ -41,10 +42,15 @@ export default function Header() {
           <Image
             src="/images/header_logo.jpg"
             alt="Kinda ふたりへ"
-            width={200}
-            height={40}
+            width={140}
+            height={28}
             priority
-            style={{ width: "auto", height: 32, objectFit: "contain" }}
+            style={{
+              width: "auto",
+              height: 24,
+              objectFit: "contain",
+              mixBlendMode: "multiply",
+            }}
           />
         </Link>
 
