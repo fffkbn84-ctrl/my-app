@@ -53,9 +53,9 @@ export default async function KindaTalkPage() {
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
-        {/* ─── ヒーロー（フルブリード画像） ─── */}
+        {/* ─── ヒーロー（フルブリード画像 + カード式テキスト） ─── */}
         <section className="kt-hero">
-          <div className="kt-hero-bg-image" aria-hidden>
+          <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             <Image
               src="/images/sections/talk-hero.webp"
               alt=""
@@ -67,25 +67,27 @@ export default async function KindaTalkPage() {
           <div className="kt-hero-tint" aria-hidden />
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
-            <div className="kt-hero-eyebrow">Kinda talk</div>
-            <h1 className="kt-hero-title">
-              Kinda <em>talk</em>
-            </h1>
-            <div className="kt-hero-sub">相談したい・迷っている</div>
+            <div className="kt-hero-card">
+              <div className="kt-hero-eyebrow">Kinda talk</div>
+              <h1 className="kt-hero-title">
+                Kinda <em>talk</em>
+              </h1>
+              <div className="kt-hero-sub">相談したい・迷っている</div>
 
-            <div className="kt-hero-divider" />
-            <p className="kt-hero-copy">
-              「この人なら話せそう」を、
-              <br />
-              写真と言葉から見つけよう。
-            </p>
+              <div className="kt-hero-divider" />
+              <p className="kt-hero-copy">
+                「この人なら話せそう」を、
+                <br />
+                写真と言葉から見つけよう。
+              </p>
 
-            <Link href="/diagnosis" className="kt-hero-cta">
-              あなたに合うタイプを知る（1〜3分）
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 7h10M7 2l5 5-5 5" />
-              </svg>
-            </Link>
+              <Link href="/diagnosis" className="kt-hero-cta">
+                あなたに合うタイプを知る（1〜3分）
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 7h10M7 2l5 5-5 5" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 

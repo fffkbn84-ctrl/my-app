@@ -64,10 +64,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [placeKeyword, setPlaceKeyword] = useState("");
 
   // Glow (美容店 = 美容室・ネイル・眉毛・フォト)
+  // NOTE: 「予約タイミング」(glowReserve) は Kinda 経由予約が未実装のためサイト非表示中。
+  // 将来 Kinda 経由予約を実装した際に state と UI（下部にコメントアウト済み）を復活させる。
   const [glowArea, setGlowArea] = useState("");
   const [glowPrice, setGlowPrice] = useState("");
   const [glowKeyword, setGlowKeyword] = useState("");
-  const [glowReserve, setGlowReserve] = useState("");
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -100,11 +101,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       if (placeKeyword) params.set("keyword", placeKeyword);
       target = "/kinda-act";
     } else {
-      // glow
+      // glow（美容店）
+      // NOTE: 予約タイミング(reserve) は未実装のため URL パラメータも付与しない
       if (glowArea) params.set("area", glowArea);
       if (glowPrice) params.set("price", glowPrice);
       if (glowKeyword) params.set("keyword", glowKeyword);
-      if (glowReserve) params.set("reserve", glowReserve);
       target = "/kinda-glow";
     }
 
@@ -361,9 +362,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <option value="under-3000">〜3,000円</option>
                 <option value="under-5000">〜5,000円</option>
                 <option value="under-10000">〜10,000円</option>
-                <option value="over-10000">10,000円〜</option>
+                <option value="under-20000">〜20,000円</option>
+                <option value="over-20000">20,000円〜</option>
               </select>
             </div>
+            {/*
+              「予約タイミング（将来 Kinda 経由予約）」フィールド
+              現時点では Kinda 経由予約機能が未実装のため、サイト上は非表示。
+              将来 Kinda 経由予約を実装した際にこのブロックを復活させる。
+              （URL クエリ ?reserve= も利用しないので handleSearch の glowReserve も握りつぶされる）
+            */}
+            {/*
             <div>
               <label style={labelStyle}>予約タイミング（将来 Kinda 経由予約）</label>
               <select
@@ -378,6 +387,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <option value="date">日付を指定する</option>
               </select>
             </div>
+            */}
             <div>
               <label style={labelStyle}>キーワード</label>
               <input
