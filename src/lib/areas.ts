@@ -161,6 +161,28 @@ export function isPrefecture(value: string): boolean {
   return ALL_PREFECTURES.includes(value);
 }
 
+/**
+ * 短縮形（"東京" / "大阪" / "京都"）→ 正式形（"東京都" / "大阪府" / "京都府"）に正規化
+ * 既に正式形 / 北海道 / オンライン などはそのまま返す。
+ *
+ * 古いモック/Supabase データに短縮形が残っているケース対策。
+ */
+export function normalizePrefecture(raw: string): string {
+  if (!raw) return "";
+  if (isPrefecture(raw)) return raw;
+  if (raw === ONLINE_OPTION || raw === NATIONAL_OPTION) return raw;
+  if (isBroadRegion(raw)) return raw;
+  if (raw === "北海道") return "北海道"; // suffix なし
+  // 都/府の特例
+  if (raw === "東京") return "東京都";
+  if (raw === "大阪") return "大阪府";
+  if (raw === "京都") return "京都府";
+  // 県を補完
+  const withKen = raw + "県";
+  if (isPrefecture(withKen)) return withKen;
+  return raw;
+}
+
 /** 広域エリア名 → 含まれる都道府県の配列 */
 export function prefecturesInBroadRegion(name: string): readonly string[] {
   return BROAD_REGIONS.find((r) => r.name === name)?.prefectures ?? [];
@@ -181,11 +203,13 @@ export function extractAreaKey(area: string | null | undefined): string {
   if (area === NATIONAL_OPTION) return NATIONAL_OPTION;
   if (area === ONLINE_OPTION) return ONLINE_OPTION;
   if (isBroadRegion(area)) return area;
-  // 都道府県の完全一致
-  if (isPrefecture(area)) return area;
-  // "東京都・銀座" のように区切り付き → 最初のセグメントが都道府県/広域なら採用
+  // 都道府県の完全一致（または短縮形 → 正式形）
+  const normalized = normalizePrefecture(area);
+  if (isPrefecture(normalized)) return normalized;
+  // "東京・銀座" / "東京都・銀座" のように区切り付き → 最初のセグメントを正規化
   const head = area.split(/[・\s]/)[0] ?? area;
-  if (isPrefecture(head) || isBroadRegion(head)) return head;
+  const headNorm = normalizePrefecture(head);
+  if (isPrefecture(headNorm) || isBroadRegion(headNorm)) return headNorm;
   return head;
 }
 

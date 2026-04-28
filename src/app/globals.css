@@ -4291,19 +4291,21 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(18px) brightness(1.08) saturate(1.12);
-  transform: scale(1.1);
+  /* blur と scale を抑えて、村のシルエット・木・小屋の雰囲気がぼんやり認識できるレベルに */
+  filter: blur(8px) brightness(1.04) saturate(1.18);
+  transform: scale(1.06);
   will-change: filter;
 }
 .ka-village-bg::after {
   content: "";
   position: absolute;
   inset: 0;
+  /* ピンクの被せをさらに薄くして村が透けるように */
   background:
     linear-gradient(180deg,
-      rgba(245,225,224,.22) 0%,
-      rgba(236,200,197,.16) 45%,
-      rgba(245,225,224,.24) 100%);
+      rgba(245,225,224,.10) 0%,
+      rgba(236,200,197,.06) 45%,
+      rgba(245,225,224,.12) 100%);
 }
 
 /* /kinda-act 内のセクション背景を半透明化して、村背景を透けさせる
@@ -4317,17 +4319,18 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
 [data-section="act"] main {
   background: transparent !important;
 }
+/* セクション背景もさらに薄くして、村が透けて見えるように */
 [data-section="act"] .kt-guide {
-  background: rgba(254,252,250,.55);
+  background: rgba(254,252,250,.4);
 }
 [data-section="act"] .kt-grid-wrap {
-  background: rgba(254,252,250,.28);
+  background: rgba(254,252,250,.18);
 }
 [data-section="act"] .kt-section-head {
   background: transparent;
 }
 [data-section="act"] .kt-filter-bar {
-  background: rgba(254,252,250,.72);
+  background: rgba(254,252,250,.65);
 }
 
 /* ─────────────────────────────────────────────────────────
