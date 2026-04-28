@@ -4324,13 +4324,48 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   background: rgba(254,252,250,.4);
 }
 [data-section="act"] .kt-grid-wrap {
-  background: rgba(254,252,250,.18);
+  background: rgba(254,252,250,.1);
 }
 [data-section="act"] .kt-section-head {
   background: transparent;
 }
 [data-section="act"] .kt-filter-bar {
   background: rgba(254,252,250,.65);
+}
+
+/* find your place の見出しを村背景の上でも読みやすく
+   - 文字にホワイトハロー shadow を載せ、後ろに緩やかなホワイトの円形グラデで
+     ふんわり背景を持ち上げる（村は透けたまま）*/
+[data-section="act"] .kt-section-head {
+  position: relative;
+}
+[data-section="act"] .kt-section-head::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 55%,
+    rgba(254,252,250,.85) 0%,
+    rgba(254,252,250,.55) 35%,
+    rgba(254,252,250,0) 75%
+  );
+  z-index: 0;
+}
+[data-section="act"] .kt-section-head > * {
+  position: relative;
+  z-index: 1;
+}
+[data-section="act"] .kt-section-head,
+[data-section="act"] .kt-section-head > * {
+  /* 子要素も含めて全テキストに白ハロー shadow を適用 */
+  text-shadow:
+    0 0 6px rgba(255,255,255,.95),
+    0 0 14px rgba(255,255,255,.8),
+    0 1px 2px rgba(255,255,255,.7);
+}
+[data-section="act"] .kt-section-head .kt-section-divider {
+  background: rgba(0,0,0,.18);
 }
 
 /* ─────────────────────────────────────────────────────────
