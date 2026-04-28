@@ -1,99 +1,215 @@
 /**
  * エリア定義（共通モジュール）
  *
- * Kinda talk のエリアフィルター・futarive-counselor のプロフィール「活動エリア」入力と
- * 連動させるための単一データソース。
+ * Kinda talk のエリアフィルター・futarive-counselor のプロフィール「活動エリア」入力で
+ * 共有する単一データソース。
  *
- * - REGIONS: 8 つの地域 + 47 都道府県を一覧化
- * - REGION_OPTIONS: 「関東」などの地域カテゴリ（広域オプション）
- * - PREFECTURES: 47 都道府県のフラットな配列
- * - ALL_AREAS: 地域 + 都道府県 + 「オンライン」+「その他」 ＝ 全選択肢
- * - regionOf(prefecture): 都道府県名から所属地域を逆引き
- * - prefecturesInRegion(region): 地域名 → その地域に属する都道府県の配列
+ * 構造（4 階層）:
+ *   1. NATIONAL_OPTION       … 全国（すべての都道府県にマッチ）
+ *   2. ONLINE_OPTION         … オンライン
+ *   3. BROAD_REGIONS         … 首都圏 / 関東 / 関西（近畿）/ 東海 / 北陸 / 甲信越 /
+ *                              東北 / 北海道 / 中国 / 四国 / 九州・沖縄
+ *      （複数県をまたいで活動するカウンセラー向けの広域選択肢）
+ *   4. PREFECTURE_GROUPS     … 47 都道府県を地理的にグルーピング
+ *      （UI 上での見出しは: 北海道・東北 / 関東 / 中部 / 近畿 / 中国・四国 / 九州・沖縄）
+ *
+ * 都道府県表記には「県/都/府/道」の suffix を含む（例: "東京都", "京都府", "北海道"）。
+ * counselor.area に保存される値もこの表記に揃える前提。
  */
 
-export type AreaRegion = {
-  region: string;
+export type PrefectureGroup = {
+  /** UI 上の見出しラベル */
+  label: string;
+  /** この見出しの下に並ぶ都道府県（suffix 込み） */
   prefectures: string[];
 };
 
-export const REGIONS: readonly AreaRegion[] = [
-  { region: "北海道・東北", prefectures: ["北海道", "青森", "岩手", "宮城", "秋田", "山形", "福島"] },
-  { region: "関東",        prefectures: ["東京", "神奈川", "埼玉", "千葉", "茨城", "栃木", "群馬"] },
-  { region: "甲信越・北陸", prefectures: ["新潟", "富山", "石川", "福井", "山梨", "長野"] },
-  { region: "東海",        prefectures: ["岐阜", "静岡", "愛知", "三重"] },
-  { region: "関西",        prefectures: ["大阪", "京都", "兵庫", "滋賀", "奈良", "和歌山"] },
-  { region: "中国",        prefectures: ["鳥取", "島根", "岡山", "広島", "山口"] },
-  { region: "四国",        prefectures: ["徳島", "香川", "愛媛", "高知"] },
-  { region: "九州・沖縄",   prefectures: ["福岡", "佐賀", "長崎", "熊本", "大分", "宮崎", "鹿児島", "沖縄"] },
+export type BroadRegion = {
+  /** ユーザーが選ぶ表示名（例: "首都圏（東京・神奈川・千葉・埼玉）"） */
+  name: string;
+  /** この広域に含まれる都道府県（matchesAreaFilter で使用） */
+  prefectures: string[];
+};
+
+/* ────────────────────────────────────────────────────────────
+   1. 47 都道府県のグルーピング表示
+──────────────────────────────────────────────────────────── */
+export const PREFECTURE_GROUPS: readonly PrefectureGroup[] = [
+  {
+    label: "北海道・東北",
+    prefectures: ["北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
+  },
+  {
+    label: "関東",
+    prefectures: ["茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県"],
+  },
+  {
+    label: "中部",
+    prefectures: [
+      "新潟県", "富山県", "石川県", "福井県",
+      "山梨県", "長野県",
+      "岐阜県", "静岡県", "愛知県",
+    ],
+  },
+  {
+    label: "近畿",
+    prefectures: ["三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県"],
+  },
+  {
+    label: "中国・四国",
+    prefectures: [
+      "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+      "徳島県", "香川県", "愛媛県", "高知県",
+    ],
+  },
+  {
+    label: "九州・沖縄",
+    prefectures: [
+      "福岡県", "佐賀県", "長崎県", "熊本県",
+      "大分県", "宮崎県", "鹿児島県", "沖縄県",
+    ],
+  },
 ] as const;
 
-/** 8 地域名のみ（広域カテゴリとして「関東」「関西」などを選びたいときに使う） */
-export const REGION_OPTIONS: readonly string[] = REGIONS.map((r) => r.region);
+export const ALL_PREFECTURES: readonly string[] = PREFECTURE_GROUPS.flatMap(
+  (g) => g.prefectures
+);
 
-/** 47 都道府県のフラット配列 */
-export const PREFECTURES: readonly string[] = REGIONS.flatMap((r) => r.prefectures);
+/* ────────────────────────────────────────────────────────────
+   2. 広域エリア（複数県をまたぐ選択肢）
+──────────────────────────────────────────────────────────── */
+export const BROAD_REGIONS: readonly BroadRegion[] = [
+  {
+    name: "首都圏（東京・神奈川・千葉・埼玉）",
+    prefectures: ["東京都", "神奈川県", "千葉県", "埼玉県"],
+  },
+  {
+    name: "関東",
+    prefectures: ["茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県"],
+  },
+  {
+    name: "関西（近畿）",
+    prefectures: ["三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県"],
+  },
+  {
+    name: "東海",
+    prefectures: ["岐阜県", "静岡県", "愛知県", "三重県"],
+  },
+  {
+    name: "北陸",
+    prefectures: ["富山県", "石川県", "福井県"],
+  },
+  {
+    name: "甲信越",
+    prefectures: ["新潟県", "山梨県", "長野県"],
+  },
+  {
+    name: "東北",
+    prefectures: ["青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
+  },
+  {
+    name: "北海道",
+    prefectures: ["北海道"],
+  },
+  {
+    name: "中国",
+    prefectures: ["鳥取県", "島根県", "岡山県", "広島県", "山口県"],
+  },
+  {
+    name: "四国",
+    prefectures: ["徳島県", "香川県", "愛媛県", "高知県"],
+  },
+  {
+    name: "九州・沖縄",
+    prefectures: [
+      "福岡県", "佐賀県", "長崎県", "熊本県",
+      "大分県", "宮崎県", "鹿児島県", "沖縄県",
+    ],
+  },
+] as const;
 
+export const BROAD_REGION_NAMES: readonly string[] = BROAD_REGIONS.map((r) => r.name);
+
+/* ────────────────────────────────────────────────────────────
+   3. 全国・オンライン
+──────────────────────────────────────────────────────────── */
+export const NATIONAL_OPTION = "全国";
 export const ONLINE_OPTION = "オンライン";
-export const OTHER_OPTION = "その他";
 
 /**
- * 全選択肢（カウンセラー管理画面の <select> に並べる順番）
- * 地域カテゴリ → 都道府県 → オンライン → その他
+ * すべての選択肢のフラット配列（順番は futarive-counselor のドロップダウンと同じ）
+ *   全国 → オンライン → 11 広域エリア → 47 都道府県
  */
-export const ALL_AREAS: readonly string[] = [
-  ...REGION_OPTIONS,
-  ...PREFECTURES,
+export const ALL_AREA_OPTIONS: readonly string[] = [
+  NATIONAL_OPTION,
   ONLINE_OPTION,
-  OTHER_OPTION,
+  ...BROAD_REGION_NAMES,
+  ...ALL_PREFECTURES,
 ];
 
-/** 都道府県 → 所属地域（例: "東京" → "関東"） */
-export function regionOf(prefecture: string): string | null {
-  for (const r of REGIONS) {
-    if (r.prefectures.includes(prefecture)) return r.region;
-  }
-  return null;
+/* ────────────────────────────────────────────────────────────
+   4. ヘルパー関数
+──────────────────────────────────────────────────────────── */
+
+/** 広域エリア名かどうか */
+export function isBroadRegion(value: string): boolean {
+  return BROAD_REGION_NAMES.includes(value);
 }
 
-/** 地域名 → 所属都道府県の配列 */
-export function prefecturesInRegion(region: string): readonly string[] {
-  return REGIONS.find((r) => r.region === region)?.prefectures ?? [];
+/** 都道府県名（"東京都" / "北海道" / etc.）かどうか */
+export function isPrefecture(value: string): boolean {
+  return ALL_PREFECTURES.includes(value);
+}
+
+/** 広域エリア名 → 含まれる都道府県の配列 */
+export function prefecturesInBroadRegion(name: string): readonly string[] {
+  return BROAD_REGIONS.find((r) => r.name === name)?.prefectures ?? [];
 }
 
 /**
- * 入力文字列が地域名かどうか
- * （カウンセラーが「関東」と設定している場合の絞り込み判定で使う）
- */
-export function isRegion(value: string): boolean {
-  return REGION_OPTIONS.includes(value);
-}
-
-/**
- * カウンセラーの area 文字列から先頭の都道府県/地域名を抽出
- * 例: "東京・銀座" → "東京"、"関東" → "関東"、"オンライン" → "オンライン"
+ * counselor.area 文字列から先頭の有効な「キー」を抽出
+ * 例: "東京都・銀座"   → "東京都"
+ *     "首都圏（...）"   → "首都圏（東京・神奈川・千葉・埼玉）"（完全一致時のみ）
+ *     "オンライン"      → "オンライン"
+ *
+ * 区切り（・/ スペース）で分けた最初のセグメントを返す。
+ * ただし広域エリア名は括弧を含むので、完全一致を優先的にチェックする。
  */
 export function extractAreaKey(area: string | null | undefined): string {
   if (!area) return "";
-  return area.split(/[・\s]/)[0] ?? area;
+  // 全国・オンライン・広域エリア名の完全一致
+  if (area === NATIONAL_OPTION) return NATIONAL_OPTION;
+  if (area === ONLINE_OPTION) return ONLINE_OPTION;
+  if (isBroadRegion(area)) return area;
+  // 都道府県の完全一致
+  if (isPrefecture(area)) return area;
+  // "東京都・銀座" のように区切り付き → 最初のセグメントが都道府県/広域なら採用
+  const head = area.split(/[・\s]/)[0] ?? area;
+  if (isPrefecture(head) || isBroadRegion(head)) return head;
+  return head;
 }
 
 /**
- * フィルター比較ロジック
- * filterValue が地域名なら、area がその地域に属する都道府県かどうかで判定。
- * filterValue が都道府県/オンライン/その他/地域名 のときの一致判定。
+ * counselor.area がフィルター値に一致するか判定
+ *  - filter = "全国"           → 必ずマッチ（カウンセラー全員が対象）
+ *  - filter = 広域エリア名     → 含まれる都道府県（または広域名そのもの）にマッチ
+ *  - filter = 都道府県         → 完全一致
+ *  - filter = "オンライン"     → 完全一致
  */
-export function matchesAreaFilter(area: string | null | undefined, filterValue: string): boolean {
-  if (!filterValue || filterValue === "すべて") return true;
+export function matchesAreaFilter(
+  area: string | null | undefined,
+  filter: string
+): boolean {
+  if (!filter || filter === "すべて") return true;
+  if (filter === NATIONAL_OPTION) return true;
+
   const key = extractAreaKey(area);
   if (!key) return false;
+  if (key === filter) return true;
 
-  // 完全一致（都道府県・オンライン・その他・地域名）
-  if (key === filterValue) return true;
-
-  // フィルターが地域名 → 該当地域の都道府県をすべて含める
-  if (isRegion(filterValue)) {
-    return prefecturesInRegion(filterValue).includes(key);
+  // 広域フィルター → 含まれる都道府県のいずれか、または広域名と一致
+  if (isBroadRegion(filter)) {
+    return prefecturesInBroadRegion(filter).includes(key);
   }
 
   return false;

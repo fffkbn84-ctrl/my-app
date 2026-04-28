@@ -3,7 +3,12 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Agency } from '@/lib/types'
-import { REGIONS, ONLINE_OPTION, OTHER_OPTION } from '@/lib/areas'
+import {
+  PREFECTURE_GROUPS,
+  BROAD_REGIONS,
+  NATIONAL_OPTION,
+  ONLINE_OPTION,
+} from '@/lib/areas'
 
 type Step = 1 | 2 | 3 | 4
 
@@ -206,20 +211,23 @@ export default function ProfilePage() {
             <label className="kc-label">活動エリア</label>
             <select className="kc-select" value={form.area} onChange={e => updateForm('area', e.target.value)}>
               <option value="">選択してください</option>
-              {/* 広域カテゴリ（複数県をまたいで活動するカウンセラー向け） */}
-              <optgroup label="地域カテゴリ">
-                {REGIONS.map(r => <option key={r.region} value={r.region}>{r.region}</option>)}
+              {/* 広域・オンライン */}
+              <optgroup label="広域・オンライン">
+                <option value={NATIONAL_OPTION}>{NATIONAL_OPTION}</option>
+                <option value={ONLINE_OPTION}>{ONLINE_OPTION}</option>
               </optgroup>
-              {/* 47 都道府県（地域ごとに optgroup でセクション分け） */}
-              {REGIONS.map(r => (
-                <optgroup key={r.region} label={r.region}>
-                  {r.prefectures.map(p => <option key={p} value={p}>{p}</option>)}
+              {/* 11 の広域エリア（首都圏・関東・関西（近畿）など） */}
+              <optgroup label="エリア（広域）">
+                {BROAD_REGIONS.map(r => (
+                  <option key={r.name} value={r.name}>{r.name}</option>
+                ))}
+              </optgroup>
+              {/* 47 都道府県（北海道・東北 / 関東 / 中部 / 近畿 / 中国・四国 / 九州・沖縄） */}
+              {PREFECTURE_GROUPS.map(g => (
+                <optgroup key={g.label} label={g.label}>
+                  {g.prefectures.map(p => <option key={p} value={p}>{p}</option>)}
                 </optgroup>
               ))}
-              <optgroup label="その他">
-                <option value={ONLINE_OPTION}>{ONLINE_OPTION}</option>
-                <option value={OTHER_OPTION}>{OTHER_OPTION}</option>
-              </optgroup>
             </select>
           </div>
           <div>
