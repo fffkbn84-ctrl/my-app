@@ -35,25 +35,27 @@ export default function KindaActPage() {
           <div className="kt-hero-tint" aria-hidden />
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
-            <div className="kt-hero-eyebrow">Kinda act</div>
-            <h1 className="kt-hero-title">
-              Kinda <em>act</em>
-            </h1>
-            <div className="kt-hero-sub">実際に会う場所を、選ぶ</div>
+            <div className="kt-hero-card">
+              <div className="kt-hero-eyebrow">Kinda act</div>
+              <h1 className="kt-hero-title">
+                Kinda <em>act</em>
+              </h1>
+              <div className="kt-hero-sub">実際に会う場所を、選ぶ</div>
 
-            <div className="kt-hero-divider" />
-            <p className="kt-hero-copy">
-              お見合いも、デートも。
-              <br />
-              ふたりの行動に、安心できる場所を。
-            </p>
+              <div className="kt-hero-divider" />
+              <p className="kt-hero-copy">
+                お見合いも、デートも。
+                <br />
+                ふたりの行動に、安心できる場所を。
+              </p>
 
-            <Link href="#places" className="kt-hero-cta">
-              お店を見る
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M7 2v10M2 7l5 5 5-5" />
-              </svg>
-            </Link>
+              <Link href="#places" className="kt-hero-cta">
+                お店を見る
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 2v10M2 7l5 5 5-5" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 
