@@ -10,7 +10,7 @@ const ITEMS = [
     id: 'talk',
     label: 'talk',
     sub: '相談したい・迷っている',
-    img: '/images/section-counseling.png',
+    img: '/images/section-counseling.webp',
     href: '/search',
     bg: '#FFFBEC',
   },
@@ -18,7 +18,7 @@ const ITEMS = [
     id: 'meet',
     label: 'meet',
     sub: 'お見合い・デート用のカフェ',
-    img: '/images/section-cafe-pastel.png.PNG',
+    img: '/images/section-cafe-pastel.webp',
     href: '/shops',
     bg: '#FFF0F3',
   },
@@ -34,7 +34,7 @@ const ITEMS = [
     id: 'story',
     label: 'story',
     sub: 'みんなの体験談',
-    img: '/images/section-story-new.png.PNG',
+    img: '/images/section-story-new.webp',
     href: '/episodes',
     bg: '#F0FAF2',
   },
@@ -123,7 +123,7 @@ export default function KindaSearchBar() {
                 <Link href="/kinda-note" className="ks-modal-tool-card" style={{ background: '#EDE8F8' }} onClick={close}>
                   <div className="ks-modal-tool-img">
                     <Image
-                      src="/images/section-kinda-note.png.PNG"
+                      src="/images/section-kinda-note.webp"
                       alt="Kinda note"
                       fill
                       style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.3)', transformOrigin: 'center 30%' }}
@@ -136,7 +136,7 @@ export default function KindaSearchBar() {
                 <Link href="/kinda-type" className="ks-modal-tool-card" style={{ background: '#E8F4E4' }} onClick={close}>
                   <div className="ks-modal-tool-img">
                     <Image
-                      src="/images/section-kinda-type.png.PNG"
+                      src="/images/section-kinda-type.webp"
                       alt="Kinda type"
                       fill
                       style={{ objectFit: 'cover' }}
