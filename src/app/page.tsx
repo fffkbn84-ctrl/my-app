@@ -266,9 +266,24 @@ export default async function HomePage() {
               padding: "0 24px 36px",
             }}
           >
-            {/* ロゴ行 */}
-            {/* ロゴ画像（透過 PNG）— 幅をタグラインと揃える */}
-            <div style={{ marginBottom: 12 }}>
+            {/* ロゴ + タグラインを薄い白カードで囲んで可読性を上げる
+                （「ふたりへ」「カインダ」が小さくて村背景に埋もれるため）*/}
+            <div
+              style={{
+                background: "rgba(255,255,255,.78)",
+                backdropFilter: "blur(14px) saturate(1.05)",
+                WebkitBackdropFilter: "blur(14px) saturate(1.05)",
+                borderRadius: 22,
+                padding: "20px 22px 18px",
+                boxShadow:
+                  "inset 0 1.5px 0 rgba(255,255,255,.85), 0 12px 36px rgba(40,25,12,.18), 0 2px 8px rgba(0,0,0,.06)",
+                border: "1px solid rgba(255,255,255,.6)",
+                marginBottom: 20,
+                display: "inline-block",
+                maxWidth: "100%",
+              }}
+            >
+              {/* ロゴ画像（透過 PNG）— width 比率を上げて存在感を出す */}
               <Image
                 src="/images/toppage_name.PNG"
                 alt="Kinda ふたりへ"
@@ -276,27 +291,29 @@ export default async function HomePage() {
                 height={200}
                 priority
                 style={{
-                  width: "min(54vw, 240px)",
+                  display: "block",
+                  width: "min(72vw, 320px)",
                   height: "auto",
                   objectFit: "contain",
+                  marginBottom: 8,
                 }}
               />
-            </div>
 
-            {/* タグライン */}
-            <p
-              style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontStyle: "italic",
-                fontSize: "clamp(16px, 4.5vw, 20px)",
-                color: "rgba(255,255,255,.9)",
-                lineHeight: 1.8,
-                marginBottom: 28,
-                letterSpacing: ".02em",
-              }}
-            >
-              {HERO_TAGLINE}
-            </p>
+              {/* タグライン — カード内なので白文字 → ink に */}
+              <p
+                style={{
+                  fontFamily: "'DM Serif Display', serif",
+                  fontStyle: "italic",
+                  fontSize: "clamp(15px, 4.2vw, 18px)",
+                  color: "var(--ink)",
+                  lineHeight: 1.6,
+                  letterSpacing: ".02em",
+                  margin: 0,
+                }}
+              >
+                {HERO_TAGLINE}
+              </p>
+            </div>
 
             {/* 主CTA */}
             <Link
