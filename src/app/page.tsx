@@ -276,14 +276,14 @@ export default async function HomePage() {
             style={{ objectFit: "cover", objectPosition: "center 15%" }}
           />
 
-          {/* 下側グラデーションオーバーレイ */}
+          {/* 下側グラデーションオーバーレイ — H1/H2 領域をしっかり暗く */}
           <div
             aria-hidden="true"
             style={{
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(to bottom, transparent 30%, rgba(18,12,8,.68) 80%, rgba(18,12,8,.82) 100%)",
+                "linear-gradient(to bottom, transparent 0%, rgba(18,12,8,.18) 30%, rgba(18,12,8,.55) 55%, rgba(18,12,8,.86) 78%, rgba(18,12,8,.94) 100%)",
             }}
           />
 
@@ -307,7 +307,7 @@ export default async function HomePage() {
               padding: "0 24px 28px",
             }}
           >
-            {/* H1 — 詩的メインコピー（画像の上に直接乗せる、白文字＋多層シャドウで可読） */}
+            {/* H1 — 詩的メインコピー（白文字＋多層シャドウで村背景上で可読） */}
             <h1
               style={{
                 fontFamily: "var(--font-mincho)",
@@ -319,7 +319,7 @@ export default async function HomePage() {
                 margin: 0,
                 marginBottom: 10,
                 textShadow:
-                  "0 0 1.5px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.55), 0 4px 18px rgba(0,0,0,.45)",
+                  "0 0 2px rgba(0,0,0,.65), 0 2px 6px rgba(0,0,0,.7), 0 4px 22px rgba(0,0,0,.55)",
               }}
             >
               {HERO_H1_LINE1}
@@ -333,27 +333,22 @@ export default async function HomePage() {
                 fontFamily: "var(--font-sans)",
                 fontWeight: 300,
                 fontSize: "clamp(12px, 3.4vw, 14px)",
-                color: "rgba(255,255,255,.92)",
+                color: "rgba(255,255,255,.96)",
                 lineHeight: 1.7,
                 letterSpacing: ".02em",
                 margin: 0,
                 marginBottom: 16,
                 textShadow:
-                  "0 0 1px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.5), 0 2px 10px rgba(0,0,0,.4)",
+                  "0 0 2px rgba(0,0,0,.6), 0 1px 4px rgba(0,0,0,.65), 0 2px 12px rgba(0,0,0,.5)",
               }}
             >
               {HERO_H2}
             </h2>
 
-            {/* ロゴ — 小さい透過カードでブランドマーク（H1 が主役なので控えめ） */}
+            {/* ロゴ — ごく小さく、ブランドマーク程度に控える
+                ※ PNG 自体に白い余白が多いので、トリミング後はより小さく見せられる */}
             <div
               style={{
-                background: "rgba(255,255,255,.32)",
-                backdropFilter: "blur(20px) saturate(1.1)",
-                WebkitBackdropFilter: "blur(20px) saturate(1.1)",
-                borderRadius: 14,
-                padding: "8px 12px",
-                border: "1px solid rgba(255,255,255,.4)",
                 marginBottom: 18,
                 display: "inline-block",
               }}
@@ -366,9 +361,11 @@ export default async function HomePage() {
                 priority
                 style={{
                   display: "block",
-                  width: "min(38vw, 160px)",
+                  width: "min(24vw, 110px)",
                   height: "auto",
                   objectFit: "contain",
+                  opacity: 0.88,
+                  filter: "drop-shadow(0 1px 4px rgba(0,0,0,.4))",
                 }}
               />
             </div>
