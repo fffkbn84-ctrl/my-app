@@ -272,12 +272,12 @@ export default async function HomePage() {
               <Image
                 src="/images/toppage_name.PNG"
                 alt="Kinda ふたりへ"
-                width={280}
-                height={56}
+                width={480}
+                height={120}
                 priority
                 style={{
                   width: "auto",
-                  height: "clamp(40px, 9vw, 56px)",
+                  height: "clamp(88px, 22vw, 130px)",
                   objectFit: "contain",
                 }}
               />
