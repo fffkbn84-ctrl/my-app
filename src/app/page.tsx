@@ -13,7 +13,7 @@ const HERO_H1_LINE1 = "好きな人を見つけて、";
 const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
 const HERO_H2 =
   "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
-const HERO_IMAGE_SRC = "/images/hero-couple-new.png.PNG";
+const HERO_IMAGE_SRC = "/images/hero-couple-new.webp";
 
 /* SEO 用の構造化データ（JSON-LD）。婚活キーワード対策の中核。 */
 const SITE_JSONLD = {
@@ -273,6 +273,8 @@ export default async function HomePage() {
             alt=""
             fill
             priority
+            fetchPriority="high"
+            sizes="100vw"
             style={{ objectFit: "cover", objectPosition: "center 15%" }}
           />
 
@@ -430,6 +432,117 @@ export default async function HomePage() {
                 }}
               >
                 まずカウンセラーを見る
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 7h8M7 3l4 4-4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            A' — 体験談ティザー（above-the-fold 直下）
+            CRO 効果: ヒーロー直下で社会的証明を見せて離脱を防ぐ
+        ═══════════════════════════════════════════════════ */}
+        <section
+          style={{
+            background:
+              "linear-gradient(180deg, #FEFCFA 0%, #FAF6F0 100%)",
+            padding: "40px 24px 36px",
+            borderBottom: "1px solid rgba(0,0,0,.04)",
+          }}
+        >
+          <div style={{ maxWidth: 560, margin: "0 auto" }}>
+            {/* eyebrow */}
+            <p
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                letterSpacing: ".18em",
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                textAlign: "center",
+                marginBottom: 14,
+              }}
+            >
+              real voices
+            </p>
+
+            {/* 開閉引用符 + 本文 */}
+            <div
+              style={{
+                position: "relative",
+                padding: "14px 8px 0",
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: -8,
+                  left: -2,
+                  fontSize: 56,
+                  color: "var(--accent)",
+                  opacity: 0.32,
+                  fontFamily: "'DM Serif Display', serif",
+                  lineHeight: 1,
+                }}
+              >
+                &ldquo;
+              </span>
+              <blockquote
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: "clamp(15px, 4.2vw, 18px)",
+                  color: "var(--ink)",
+                  lineHeight: 1.9,
+                  margin: 0,
+                  letterSpacing: ".02em",
+                }}
+              >
+                最初はなんとなく始めたんです。決めなきゃって焦ってた時に、
+                カウンセラーさんが「急がなくていい」って言ってくれて、
+                肩の力が抜けました。
+              </blockquote>
+            </div>
+
+            {/* 著者情報 */}
+            <p
+              style={{
+                fontSize: 12,
+                color: "var(--mid)",
+                textAlign: "right",
+                marginTop: 14,
+                letterSpacing: ".04em",
+              }}
+            >
+              — A.M さん（32歳） / 6ヶ月で成婚
+            </p>
+
+            {/* 「もっと見る」リンク */}
+            <div style={{ textAlign: "center", marginTop: 22 }}>
+              <Link
+                href="#stories"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  color: "var(--mid)",
+                  textDecoration: "none",
+                  borderBottom: "1px solid rgba(0,0,0,.15)",
+                  paddingBottom: 2,
+                  letterSpacing: ".06em",
+                  fontFamily: "var(--font-sans)",
+                }}
+              >
+                ほかの体験談を読む
                 <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
                   <path
                     d="M3 7h8M7 3l4 4-4 4"
@@ -618,9 +731,11 @@ export default async function HomePage() {
             C — ふたりの物語（Kinda story 抜粋）
         ═══════════════════════════════════════════════════ */}
         <section
+          id="stories"
           style={{
             padding: "64px 24px",
             background: "#FEFCFA",
+            scrollMarginTop: 80,
           }}
         >
           <SectionLabel label="ふたりの物語" en="Kinda story" />

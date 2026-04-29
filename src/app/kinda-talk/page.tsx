@@ -57,7 +57,7 @@ export default async function KindaTalkPage() {
         <section className="kt-hero">
           <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             <Image
-              src="/images/sections/talk-hero.webp"
+              src="/images/sections_talk-hero.webp"
               alt=""
               fill
               priority

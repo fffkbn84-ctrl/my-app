@@ -46,9 +46,19 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* フォント本体は CSS から非同期で読む（display=swap）
+            preconnect で接続だけ先に確立しておくことで FCP/LCP を改善 */}
         <link
           href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@200;300;400&family=Noto+Sans+JP:wght@200;300;400;500&family=Shippori+Mincho:wght@400;500&display=swap"
           rel="stylesheet"
+        />
+        {/* ヒーロー用 LCP 画像の preload（Lighthouse の "Largest Contentful Paint image was not preloaded" 対策）*/}
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero-couple-new.webp"
+          fetchPriority="high"
+          type="image/webp"
         />
       </head>
       <body className="min-h-full flex flex-col">

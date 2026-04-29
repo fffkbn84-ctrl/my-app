@@ -4287,7 +4287,7 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: url('/images/laughing-town-background.png.PNG');
+  background-image: url('/images/laughing-town-background.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
