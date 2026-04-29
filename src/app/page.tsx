@@ -263,27 +263,45 @@ export default async function HomePage() {
               bottom: 0,
               left: 0,
               right: 0,
-              padding: "0 24px 36px",
+              padding: "0 24px 28px",
             }}
           >
+            {/* SEO: 視覚的には Image 表記、検索エンジン・スクリーンリーダー用に h1 */}
+            <h1
+              style={{
+                position: "absolute",
+                width: 1,
+                height: 1,
+                padding: 0,
+                margin: -1,
+                overflow: "hidden",
+                clip: "rect(0,0,0,0)",
+                whiteSpace: "nowrap",
+                border: 0,
+              }}
+            >
+              Kinda ふたりへ — なんとなく、いいふたりへ
+            </h1>
+
             {/* ロゴ + タグラインを薄い白カードで囲んで可読性を上げる
-                （「ふたりへ」「カインダ」が小さくて村背景に埋もれるため）*/}
+                - 横幅は CTA ボタンと同じ（カード→CTA で視覚的に連続）
+                - 背景透過率 .38 で村背景がしっかり透ける */}
             <div
               style={{
-                background: "rgba(255,255,255,.55)",
-                backdropFilter: "blur(18px) saturate(1.08)",
-                WebkitBackdropFilter: "blur(18px) saturate(1.08)",
+                background: "rgba(255,255,255,.38)",
+                backdropFilter: "blur(20px) saturate(1.1)",
+                WebkitBackdropFilter: "blur(20px) saturate(1.1)",
                 borderRadius: 20,
                 padding: "14px 18px 14px",
                 boxShadow:
-                  "inset 0 1.5px 0 rgba(255,255,255,.7), 0 10px 30px rgba(40,25,12,.16)",
-                border: "1px solid rgba(255,255,255,.55)",
-                marginBottom: 20,
-                display: "inline-block",
-                maxWidth: "min(82vw, 360px)",
+                  "inset 0 1.5px 0 rgba(255,255,255,.55), 0 10px 30px rgba(40,25,12,.14)",
+                border: "1px solid rgba(255,255,255,.45)",
+                marginBottom: 12,
+                width: "100%",
+                boxSizing: "border-box",
               }}
             >
-              {/* ロゴ画像（透過 PNG）— カード幅にフィット */}
+              {/* ロゴ画像（透過 PNG）*/}
               <Image
                 src="/images/toppage_name.PNG"
                 alt="Kinda ふたりへ"
@@ -299,7 +317,9 @@ export default async function HomePage() {
                 }}
               />
 
-              {/* タグライン — ロゴのアンダーバーに寄せるため上マージン詰め */}
+              {/* タグライン — ロゴ画像の K の位置に視覚的に揃えるための paddingLeft
+                  （PNG 内に左の透明余白があるため、その分だけ右にオフセット）
+                  PNG をトリミング後はこの paddingLeft を 0 に戻す */}
               <p
                 style={{
                   fontFamily: "'DM Serif Display', serif",
@@ -310,6 +330,7 @@ export default async function HomePage() {
                   letterSpacing: ".02em",
                   margin: 0,
                   marginTop: -4,
+                  paddingLeft: 12,
                 }}
               >
                 {HERO_TAGLINE}
