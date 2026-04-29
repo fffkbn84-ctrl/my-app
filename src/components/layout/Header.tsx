@@ -28,8 +28,7 @@ export default function Header() {
           padding: "0 24px",
         }}
       >
-        {/* Logo（header_logo.jpg） — JPG の白背景は mix-blend-mode: multiply で
-            ヘッダーのクリーム色背景に馴染ませる */}
+        {/* Logo（透過 PNG） */}
         <Link
           href="/"
           style={{
@@ -40,7 +39,7 @@ export default function Header() {
           aria-label="Kinda ふたりへ ホームへ"
         >
           <Image
-            src="/images/header_logo.jpg"
+            src="/images/logoname _kinda_header.PNG"
             alt="Kinda ふたりへ"
             width={140}
             height={28}
@@ -49,7 +48,6 @@ export default function Header() {
               width: "auto",
               height: 24,
               objectFit: "contain",
-              mixBlendMode: "multiply",
             }}
           />
         </Link>
