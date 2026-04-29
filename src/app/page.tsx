@@ -267,7 +267,7 @@ export default async function HomePage() {
             }}
           >
             {/* ロゴ行 */}
-            {/* ロゴ画像（透過 PNG） */}
+            {/* ロゴ画像（透過 PNG）— 幅をタグラインと揃える */}
             <div style={{ marginBottom: 12 }}>
               <Image
                 src="/images/toppage_name.PNG"
@@ -276,8 +276,8 @@ export default async function HomePage() {
                 height={200}
                 priority
                 style={{
-                  width: "auto",
-                  height: "clamp(140px, 36vw, 220px)",
+                  width: "min(54vw, 240px)",
+                  height: "auto",
                   objectFit: "contain",
                 }}
               />

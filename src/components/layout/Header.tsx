@@ -45,8 +45,9 @@ export default function Header() {
             height={56}
             priority
             style={{
-              width: "auto",
-              height: 48,
+              width: "min(33vw, 180px)",
+              height: "auto",
+              maxHeight: 48,
               objectFit: "contain",
             }}
           />
