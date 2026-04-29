@@ -41,13 +41,13 @@ export default function Header() {
           <Image
             src="/images/logoname _kinda_header.PNG"
             alt="Kinda ふたりへ"
-            width={300}
+            width={400}
             height={56}
             priority
             style={{
-              width: "min(33vw, 180px)",
+              width: "min(60vw, 280px)",
               height: "auto",
-              maxHeight: 48,
+              maxHeight: 52,
               objectFit: "contain",
             }}
           />
