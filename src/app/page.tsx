@@ -9,8 +9,39 @@ import { getCounselors } from "@/lib/data";
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
 ──────────────────────────────────────────────────────────── */
-const HERO_TAGLINE = "なんとなく、いいふたりへ";
+const HERO_H1_LINE1 = "好きな人を見つけて、";
+const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
+const HERO_H2 =
+  "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
 const HERO_IMAGE_SRC = "/images/hero-couple-new.png.PNG";
+
+/* SEO 用の構造化データ（JSON-LD）。婚活キーワード対策の中核。 */
+const SITE_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Kinda ふたりへ",
+  url: "https://www.kinda-futari.app",
+  description:
+    "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと本音の口コミで選ぶ結婚相談所サービス。",
+  keywords:
+    "結婚相談所, 結婚相談所 口コミ, カウンセラー, 婚活, 婚活カウンセラー, 相性診断, お見合い, デート, パートナー探し",
+  inLanguage: "ja-JP",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://www.kinda-futari.app/kinda-talk?keyword={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+} as const;
+
+const ORG_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Kinda ふたりへ",
+  alternateName: ["Kinda", "カインダ", "カインダふたりへ"],
+  description:
+    "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーが伴走する、本音の口コミで選ぶ結婚相談所サービス。",
+  url: "https://www.kinda-futari.app",
+} as const;
 
 /* ────────────────────────────────────────────────────────────
    「もう決まっている方へ」カード定義
@@ -256,6 +287,16 @@ export default async function HomePage() {
             }}
           />
 
+          {/* SEO: 構造化データ（JSON-LD） */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_JSONLD) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
+          />
+
           {/* コンテンツ — 画像下部にオーバーレイ */}
           <div
             style={{
@@ -266,80 +307,75 @@ export default async function HomePage() {
               padding: "0 24px 28px",
             }}
           >
-            {/* SEO: 視覚的には Image 表記、検索エンジン・スクリーンリーダー用に h1 */}
+            {/* H1 — 詩的メインコピー（画像の上に直接乗せる、白文字＋多層シャドウで可読） */}
             <h1
               style={{
-                position: "absolute",
-                width: 1,
-                height: 1,
-                padding: 0,
-                margin: -1,
-                overflow: "hidden",
-                clip: "rect(0,0,0,0)",
-                whiteSpace: "nowrap",
-                border: 0,
+                fontFamily: "var(--font-mincho)",
+                fontWeight: 500,
+                fontSize: "clamp(22px, 6.4vw, 36px)",
+                color: "white",
+                lineHeight: 1.5,
+                letterSpacing: ".02em",
+                margin: 0,
+                marginBottom: 10,
+                textShadow:
+                  "0 0 1.5px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.55), 0 4px 18px rgba(0,0,0,.45)",
               }}
             >
-              Kinda ふたりへ — なんとなく、いいふたりへ
+              {HERO_H1_LINE1}
+              <br />
+              {HERO_H1_LINE2}
             </h1>
 
-            {/* ロゴ + タグラインを薄い白カードで囲んで可読性を上げる
-                - 横幅は CTA ボタンと同じ（カード→CTA で視覚的に連続）
-                - 背景透過率 .38 で村背景がしっかり透ける */}
-            <div
+            {/* H2 — 機能・カバー範囲を伝える説明文 */}
+            <h2
               style={{
-                background: "rgba(255,255,255,.38)",
-                backdropFilter: "blur(20px) saturate(1.1)",
-                WebkitBackdropFilter: "blur(20px) saturate(1.1)",
-                borderRadius: 20,
-                padding: "14px 18px 14px",
-                boxShadow:
-                  "inset 0 1.5px 0 rgba(255,255,255,.55), 0 10px 30px rgba(40,25,12,.14)",
-                border: "1px solid rgba(255,255,255,.45)",
-                marginBottom: 12,
-                width: "100%",
-                boxSizing: "border-box",
+                fontFamily: "var(--font-sans)",
+                fontWeight: 300,
+                fontSize: "clamp(12px, 3.4vw, 14px)",
+                color: "rgba(255,255,255,.92)",
+                lineHeight: 1.7,
+                letterSpacing: ".02em",
+                margin: 0,
+                marginBottom: 16,
+                textShadow:
+                  "0 0 1px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.5), 0 2px 10px rgba(0,0,0,.4)",
               }}
             >
-              {/* ロゴ画像（透過 PNG）*/}
+              {HERO_H2}
+            </h2>
+
+            {/* ロゴ — 小さい透過カードでブランドマーク（H1 が主役なので控えめ） */}
+            <div
+              style={{
+                background: "rgba(255,255,255,.32)",
+                backdropFilter: "blur(20px) saturate(1.1)",
+                WebkitBackdropFilter: "blur(20px) saturate(1.1)",
+                borderRadius: 14,
+                padding: "8px 12px",
+                border: "1px solid rgba(255,255,255,.4)",
+                marginBottom: 18,
+                display: "inline-block",
+              }}
+            >
               <Image
                 src="/images/toppage_name.PNG"
                 alt="Kinda ふたりへ"
-                width={640}
-                height={200}
+                width={400}
+                height={120}
                 priority
                 style={{
                   display: "block",
-                  width: "min(58vw, 260px)",
+                  width: "min(38vw, 160px)",
                   height: "auto",
                   objectFit: "contain",
-                  marginBottom: 2,
                 }}
               />
-
-              {/* タグライン — ロゴ画像の K の位置に視覚的に揃えるための paddingLeft
-                  （PNG 内に左の透明余白があるため、その分だけ右にオフセット）
-                  PNG をトリミング後はこの paddingLeft を 0 に戻す */}
-              <p
-                style={{
-                  fontFamily: "'DM Serif Display', serif",
-                  fontStyle: "italic",
-                  fontSize: "clamp(13px, 3.6vw, 16px)",
-                  color: "var(--ink)",
-                  lineHeight: 1.5,
-                  letterSpacing: ".02em",
-                  margin: 0,
-                  marginTop: -4,
-                  paddingLeft: 12,
-                }}
-              >
-                {HERO_TAGLINE}
-              </p>
             </div>
 
-            {/* 主CTA */}
+            {/* 主CTA — Kinda type 診断へ（メインの転換ポイント） */}
             <Link
-              href="/kinda-note"
+              href="/kinda-type"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -351,27 +387,63 @@ export default async function HomePage() {
                 borderRadius: 999,
                 fontFamily: "var(--font-sans)",
                 fontSize: 15,
+                fontWeight: 500,
                 letterSpacing: ".03em",
                 textDecoration: "none",
-                marginBottom: 14,
-                transition: "opacity .2s",
+                marginBottom: 10,
+                transition: "transform .2s, box-shadow .2s",
+                boxShadow: "0 8px 24px rgba(212,160,144,.45), 0 2px 6px rgba(0,0,0,.12)",
               }}
             >
-              Kinda note で今のあなたがわかる
+              自分に合う担当を診断する
               <ArrowRight color="white" />
             </Link>
 
-            {/* 補足テキスト */}
+            {/* マイクロコピー — 心理障壁を下げる（離脱率↓） */}
             <p
               style={{
                 fontSize: 12,
-                color: "rgba(255,255,255,.55)",
+                color: "rgba(255,255,255,.85)",
                 textAlign: "center",
-                letterSpacing: ".05em",
+                letterSpacing: ".06em",
+                marginBottom: 14,
+                textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                fontFamily: "var(--font-sans)",
               }}
             >
-              1分で終わる・会員登録なし
+              ✓ 60秒　✓ 登録不要　✓ 完全無料
             </p>
+
+            {/* 副CTA — テキストリンク風（離脱回収） */}
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/kinda-talk"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 13,
+                  color: "rgba(255,255,255,.92)",
+                  textDecoration: "none",
+                  borderBottom: "1px solid rgba(255,255,255,.4)",
+                  paddingBottom: 2,
+                  letterSpacing: ".04em",
+                  fontFamily: "var(--font-sans)",
+                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                }}
+              >
+                まずカウンセラーを見る
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 7h8M7 3l4 4-4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 

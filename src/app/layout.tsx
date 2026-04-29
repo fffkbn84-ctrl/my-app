@@ -5,10 +5,35 @@ import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
-  title: "Kinda — 今、関係を築いているふたりへ",
+  title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
   description:
-    "Kindaは、担当者を自分の目で選んで予約できる婚活サービスです。面談した人だけが書けるリアルな口コミで、あなたにぴったりのカウンセラーを見つけて。",
-  keywords: ["結婚相談所", "カウンセラー", "口コミ", "婚活", "予約", "Kinda"],
+    "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと探す、本音の口コミで選ぶ結婚相談所。婚活カウンセラーの相性診断は60秒・無料・登録不要。お見合いのカフェ、デートの場所、ふたりに必要な美容まで、ふたりに寄り添うすべてが Kinda に。",
+  keywords: [
+    "結婚相談所",
+    "結婚相談所 口コミ",
+    "結婚相談所 比較",
+    "カウンセラー",
+    "婚活",
+    "婚活カウンセラー",
+    "相性診断",
+    "お見合い カフェ",
+    "ふたりへ",
+    "Kinda",
+  ],
+  openGraph: {
+    title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
+    description:
+      "好きな人を見つけて、一緒に過ごす日々まで。本音の口コミと相性診断で、ふたりになる手前から寄り添う場所。",
+    type: "website",
+    locale: "ja_JP",
+    siteName: "Kinda ふたりへ",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
+    description:
+      "好きな人を見つけて、一緒に過ごす日々まで。本音の口コミと相性診断、お見合いから美容まで。",
+  },
 };
 
 export default function RootLayout({
