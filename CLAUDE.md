@@ -2856,3 +2856,273 @@ git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
 - または Vercel ダッシュボードから手動で「Redeploy」を当てる
 - 大きな変更は git 上でまとめてから 1 回プッシュにすると安全
 
+---
+
+## 実装済み機能（2026-04-30 追記） — トップページ刷新・SEO/CRO 強化・全面 WebP 化
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`（最新コミット `c5913d5`）
+> セッションスコア改善: **62 → 92 点想定**（残り 2 枚の天気アイコン後に Lighthouse 計測予定）
+
+### A. ヘッダー検索モーダル全面改修（`src/components/search/SearchModal.tsx`）
+
+**タブ刷新：**
+- 「お見合いの場所」→ **「デートの場所」** にリネーム（お見合い・デート両ユーザーに刺さる文言）
+- 全 3 タブ（結婚相談所 / デートの場所 / 美容店）に共通エリア選択（後述の `@/lib/areas` 由来）
+
+**フィールド追加：**
+- act タブ: 「用途」select（カフェ / レストラン）
+- glow タブ: 「用途」select（美容室 / 眉毛サロン / ネイルサロン / エステ）
+
+**美容店タブ修正：**
+- 「予約タイミング」フィールドを非表示化（Kinda 経由予約は未実装のため。state と UI はコメントアウトで残存）
+- 価格選択肢更新：「10,000円〜」削除 →「〜20,000円」「20,000円〜」追加（最終: ～3,000 / ～5,000 / ～10,000 / ～20,000 / 20,000～）
+
+**ヘッダーアイコン：**
+- 一時的に検索アイコンを非表示にしていたが、修正完了後に再表示（`Header.tsx`）
+- ヘッダーロゴ画像化: `/images/logoname _kinda_header.PNG`（透過 PNG）
+- ヘッダー左 padding を `0` にしてロゴを画面左端にぴったり寄せる（モバイルでの見栄え最適化）
+
+**0 件グレーアウト：**
+- 各タブのエリア option に `disabled` + 「（0件）」サフィックス
+- カウンセラータブ: `COUNSELORS` モックから件数集計
+- act タブ: `placesHomeData` の カフェ/レストラン
+- glow タブ: 美容室/ネイル/眉毛/エステ
+
+---
+
+### B. 共通エリア定義モジュール（新規 `src/lib/areas.ts`）
+
+futarive-counselor のプロフィール「活動エリア」と Kinda 公開サイトのフィルターを **完全同期** させるための単一データソース。`futarive-counselor/lib/areas.ts` にもミラー。
+
+**4 階層構造：**
+1. `NATIONAL_OPTION` ＝「全国」（全カウンセラーマッチ）
+2. `ONLINE_OPTION` ＝「オンライン」
+3. `BROAD_REGIONS` ＝ 11 の広域カテゴリ
+   - 首都圏（東京・神奈川・千葉・埼玉）/ 関東 / 関西（近畿）/ 東海 / 北陸 / 甲信越 / 東北 / 北海道 / 中国 / 四国 / 九州・沖縄
+4. `PREFECTURE_GROUPS` ＝ 47 都道府県を 6 つの見出しでグルーピング
+   - 北海道・東北 / 関東 / 中部 / 近畿 / 中国・四国 / 九州・沖縄
+   - 都道府県は「県／都／府／道」の suffix 込み（例: "東京都"、"京都府"、"北海道"）
+
+**ヘルパー関数：**
+- `extractAreaKey(area)` — "東京・銀座" → "東京都" の正規化付き抽出
+- `matchesAreaFilter(area, filter)` — 「関東」を選ぶと所属 7 県すべてに一致
+- `prefecturesInBroadRegion(name)` — 広域名 → 含まれる県の配列
+- `normalizePrefecture(raw)` — 短縮形（"東京"）→ 正式形（"東京都"）変換。古いモックデータ対策
+
+**適用箇所：**
+- `SearchModal.tsx`（3 タブ全部）
+- `KindaActClient.tsx`（エリアドロップダウン）
+- `KindaTalkClient.tsx`（エリアドロップダウン）
+- `futarive-counselor/app/(main)/profile/page.tsx`（活動エリア `<select>` の `<optgroup>`）
+
+**0 件グレーアウト：** すべて `aria-disabled` + 35% opacity で表示。Kinda が成長したらエリアが順次有効化される。
+
+---
+
+### C. ホームページ全面リブランド（`src/app/page.tsx`）
+
+**ヒーロー Plan C（ブランド哲学に沿った最大効果版）：**
+
+```
+[村のミニチュア画像 フルブリード]
+  [overlay: 下方向グラデーション + 強化シャドウ]
+  
+  H1: 好きな人を見つけて、
+      一緒に過ごす日々まで。
+      （Shippori Mincho 大型・白文字＋多層 text-shadow）
+  
+  H2: カウンセラー × お見合いのカフェ × デートの場所 × 美容、
+      ふたりに寄り添うすべて。
+  
+  [小ロゴ: toppage_name.PNG]
+  
+  [主CTA] 自分に合う担当を診断する → /kinda-type
+          glow shadow 付き、最強調
+  [マイクロコピー] ✓ 60秒 ✓ 登録不要 ✓ 完全無料
+  [副CTA] まずカウンセラーを見る → /kinda-talk
+          テキストリンク風（離脱回収用）
+```
+
+**重要な CTA マッピング修正：**
+- 旧: `/kinda-note`（問診票）
+- 新: `/kinda-type`（診断）← Kinda の core value に最短
+
+**ブランド哲学厳守：**
+- 「婚活」「結婚」「成婚」「ゴール」をヒーローには使わない
+- 「好きな人」「ふたり」「過ごす日々」など包摂的な語彙
+- LGBTQ+ 含むあらゆるふたりの形に寄り添う設計
+
+**追加：**
+- 体験談ティザー（`A' — real voices`）— ヒーロー直下、A.M さんの引用 + 「ほかの体験談を読む →」リンク
+- DECIDED_CARDS にパステル背景色＋アクセント色を実装：
+  - type → `#E0ECF8`（パステルブルー）/ accent `#5A7FAF`
+  - talk → `#FAF3DE`（パステルイエロー）/ accent `#B89A4A`
+  - act → `#F5E1E0`（パステルピンク）/ accent `#B86E68`
+  - glow → `#EDE0F4`（パステルパープル）/ accent `#8A66B0`
+
+**ヒーロー画像化：**
+- ロゴ: 「Kinda Kinda ふたりへ」テキスト → `<Image src="/images/toppage_name.PNG">` に置換
+- 「ふたりの物語」セクションに `id="stories"` 追加（体験談ティザーリンク用）
+
+---
+
+### D. SEO 強化（`src/app/layout.tsx` + 構造化データ）
+
+**Metadata 拡張：**
+- title: `Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス`
+- description に「婚活」「結婚相談所 口コミ」を自然に含める（ブランド哲学を維持しつつ SEO 効果を取る戦略）
+- keywords[] を 10 項目に拡張（結婚相談所 / 結婚相談所 口コミ / 結婚相談所 比較 / カウンセラー / 婚活 / 婚活カウンセラー / 相性診断 / お見合い カフェ / ふたりへ / Kinda）
+- OpenGraph + Twitter Card 追加（SNS シェア時の見栄え）
+
+**JSON-LD 構造化データ（`page.tsx` ヒーロー内）：**
+- `WebSite` schema（searchAction 含む → Google 検索結果に検索ボックス表示の可能性）
+- `Organization` schema（alternateName で「カインダ」「Kinda」名寄せ）
+
+**婚活キーワード戦略（表に出さず裏で SEO 効果）：**
+- meta description, JSON-LD keywords に含める（ユーザー視認なし）
+- `/about` ページに既存で「婚活」が自然に複数回出現（FAQ 的に「婚活と違う Kinda」を説明）
+- ブランドコピーには使わない
+
+---
+
+### E. Kinda act ページ刷新（`src/app/kinda-act/page.tsx` + `KindaActClient.tsx`）
+
+**ヒーロー：**
+- 画像差し替え: `/images/section-cafe-pastel.png.PNG` → `/images/kinda-act-hero.jpg`
+- `kt-hero-fade-in` アニメーション付与（Kinda talk と統一感）
+- `[data-section="act"] .kt-hero-tint` でパステルピンク tint（Kinda talk のパステルイエローと対）
+- カード式テキスト（`.kt-hero-card`）追加で、両ページのヒーローが完全同型に
+
+**フィルター刷新：**
+- 旧: 横並びピル「すべて／東京／大阪／名古屋」
+- 新: エリアトグルドロップダウン（共通 areas 構造、0 件グレーアウト）
+- ドロップダウン位置: トリガーが行末のため `right: 0; left: auto` で左展開
+- 幅クランプ: `width: min(360px, calc(100vw - 24px))`
+
+**村背景の可視化（`globals.css`）：**
+- `/images/laughing-town-background.webp`（旧 8.4MB → 99KB）
+- `filter: blur(8px)`, `transform: scale(1.06)`, ピンクオーバーレイを `.10〜.12` まで薄く調整
+- `[data-section="act"] .kt-page` を `transparent` 上書き（`#FEFCFA` の不透明背景が村を完全に隠していた問題の解決）
+- `[data-section="act"] footer` には不透明背景 + `z-index: 1` でフッターからは村を排除（CLAUDE.md の鉄則: 村は本文だけに）
+
+**「How we pick」「Find your place」可読性：**
+- `.kt-section-head` / `.kt-guide` に radial gradient backdrop + 多層 white text-shadow
+- divider のコントラスト UP
+
+---
+
+### F. Kinda talk ヒーロー刷新（`src/app/kinda-talk/page.tsx`）
+
+- カード式ヒーロー（`.kt-hero-card`）— 半透明白カード（`.42`）+ blur(20px) で背景画像が透けて見える
+- 画像のふんわりフェードイン（`kt-hero-fade-in` クラス）
+- エリアドロップダウン（共通 areas 構造、0 件グレーアウト）
+  - トリガー位置が行頭のため **`left: 0` のまま**、幅クランプだけ追加
+  - 注: kinda-act は行末で `right: 0`、kinda-talk は行頭で `left: 0`、トリガー位置に応じて anchor 切替
+
+---
+
+### G. 場所詳細ページ（`/places/[id]`）— Kinda act 詳細
+
+- パンくず変更: `お店を探す` → `Kinda act（実際に会う場所を選ぶ）`、リンク先 `/kinda-act`
+- タグ重複バグ修正: `place.scenes.filter((scene) => scene !== place.stage)` で stage と一致する scene を除外（「お見合い・お見合い・初デート」→「お見合い・初デート」）
+
+---
+
+### H. 全面 WebP 化 + 不要画像クリーンアップ
+
+**取り込んだ WebP（main から作業ブランチへ）：**
+
+| ファイル | 旧サイズ | 新サイズ | 削減率 |
+|---|---|---|---|
+| `hero-couple-new.webp` | 1.5MB | 67KB | 96% |
+| `laughing-town-background.webp` | 8.4MB | 99KB | 99% |
+| `sections_talk-hero.webp` | 1.5MB | 99KB | 93% |
+| `section-kinda-type.webp` | 4.5MB | 9KB | 99.8% |
+| `section-kinda-note.webp` | 3.6MB | 5KB | 99.9% |
+| `section-counseling.webp` | 3.2MB | 83KB | 97% |
+| `section-cafe-pastel.webp` | 1.1MB | 23KB | 98% |
+| `section-story-new.webp` | 1.3MB | 26KB | 98% |
+| `Toontown-background.webp` | — | 83KB | 新規 |
+| `Kinda-belief-background.webp` | — | 53KB | 新規 |
+| `ornamental-heartwopal.webp` | — | 87KB | 新規 |
+| `ornamental-starfish2.webp` | — | 86KB | 新規 |
+
+**Kinda note 結果用 天気アイコン WebP（16 種類、残り 2 枚で完了予定）：**
+- w_angels_ladder / w_cold_wind / w_faint_sunlight / w_flower_overcast
+- w_light_rain / w_light_rain_start / w_light_sunrise / w_morning_mist
+- w_pre_dawn / w_rain_cloud（jpg） / w_sun_break / w_sunrise
+- w_thunderstorm / w_twilight / w_wandering_clouds / w_windy_day / w_windy_sunshine
+
+**コード参照を WebP に更新：**
+- `src/app/page.tsx`（HERO_IMAGE_SRC、DECIDED_CARDS の img 等）
+- `src/app/globals.css`（`.ka-village-bg` の `background-image`）
+- `src/app/kinda-talk/page.tsx`（ヒーロー画像）
+- `src/components/home/KindaSearchBar.tsx`（5 箇所）
+
+**削除した画像（41 ファイル / 約 80MB）：**
+
+旧 PNG（WebP に置き換え済み・17 枚）：
+- `hero-couple-new.png.PNG` / `laughing-town-background.png.PNG`
+- `section-{kinda-type,kinda-note,counseling,cafe-pastel,story-new,story}.png[.PNG]`
+- `ornamental-{heartwopal,starfish,starfish2}.png.PNG`
+- `Kinda-belief-background.png.PNG` / `Toontown-background.png.PNG`
+- `w_{faint_sunlight,light_sunrise,sun_break,sunrise,windy_sunshine}.PNG`
+- 旧 `sections/talk-hero.webp`（1.5MB 版）
+
+UUID 装飾画像（7 枚）: `00E313F4-...png` / `3FA669FA-...png` / `7CC03528-...png` / `891DD977-...png` / `B05C715D-...png` / `4EA55216-...png` / `BE7E3F03-...png`
+
+未使用 hero/orphan（13 枚）: `hero-background-street.png` / `hero-couple-cafe.png.PNG` / `hero-couple-top.png` / `header_logo.jpg` / `toppage_logo.jpg` / `section-beauty.png` / `section-cafe.png` / `section-cafe2.png` etc
+
+**`globals.css` で対応する `background-image: url(...)` 行も削除**して `background-color` のみ残す graceful degradation 形式に。
+
+---
+
+### I. Lighthouse 100 対応（First Step）
+
+- LCP 画像 preload: `<link rel="preload" as="image" href="/images/hero-couple-new.webp" fetchPriority="high" type="image/webp" />` を `layout.tsx` に追加
+- ヒーロー `<Image>` に `sizes="100vw"` + `fetchPriority="high"` 明示
+- フォント preconnect は既存維持
+
+**残る最適化（天気アイコン揃い次第やる）：**
+- 実機 Lighthouse 計測 → 個別最適化
+- CSS 最適化（不要セレクタ削除）
+- next/image のさらなるチューニング
+- 画像 sizes の各箇所最適化
+
+---
+
+### J. 透過 PNG ロゴ（main から取り込み済み）
+
+- `public/images/logoname _kinda_header.PNG`（ファイル名にスペース注意。Next.js Image は URL 自動エンコードで対応）
+- `public/images/toppage_name.PNG`
+- 当初 `header_logo.jpg` / `toppage_logo.jpg` を使っていたが、透過 PNG に切り替えて `mix-blend-mode: multiply` の暫定対応も削除済み
+- 旧 jpg ファイルは削除済み
+
+**サイズ：**
+- ヘッダー: `width: min(60vw, 280px); height: auto; maxHeight: 52px`
+- ヒーロー（カード内）: `width: min(58vw, 260px)` 等は各箇所で調整中
+
+---
+
+### K. ブランドガイド（哲学）の定着
+
+セッション中に CLAUDE.md にあるブランド哲学を再確認：
+- 「婚活」「結婚」「成婚」「ゴール」を**フロントには出さない**
+- 「好きな人」「ふたり」「過ごす日々」「伴走」「本音の口コミ」が中核ボキャブラリー
+- LGBTQ+ も自然に使えるサービス
+- 「ふたりになる、その手前から、過ごす日々まで」が世界観
+
+→ ヒーロー H1/H2、CTA 文言、SEO 戦略すべてこの哲学に沿って構築。
+
+---
+
+### 残課題（次セッション以降）
+
+1. **天気アイコン残り 2 枚** が揃ったら Lighthouse 計測 → 残最適化（90 点超を狙う）
+2. **PNG ロゴのスペース問題**: `logoname _kinda_header.PNG` のスペースをいつかリネームしたい（`logoname_kinda_header.png` に）
+3. **トラスト要素の数値化**: 提携相談所数・口コミ件数を実数で表示するエリアを追加（営業開始後）
+4. **Kinda note の位置づけ整理**: ヒーロー CTA は Kinda type に絞った。Kinda note はホーム中盤の DECIDED_CARDS と独自セクションで案内する設計
+5. **`/about` の婚活ワード自然散りばめ**: 既に十分入っているが、最新コピーに合わせて軽くリライト推奨
+6. **PlacesSection.tsx**（dead code）の削除整理
+7. **Vercel デプロイ反映遅延**: 無料プランの日次上限に当たることが多々あるため、まとめてプッシュする習慣がベター
+
