@@ -150,7 +150,9 @@ export default function KindaActClient({ places }: Props) {
                 style={{
                   position: "absolute",
                   top: "calc(100% + 6px)",
-                  left: 0,
+                  // 右端アンカーで画面はみ出し回避（モバイル iPhone で右にオーバーフローしていた）
+                  right: 0,
+                  left: "auto",
                   background: "white",
                   border: "1px solid var(--light)",
                   borderRadius: 14,
@@ -160,8 +162,8 @@ export default function KindaActClient({ places }: Props) {
                   flexDirection: "column",
                   gap: 8,
                   zIndex: 20,
-                  minWidth: 320,
-                  maxWidth: 360,
+                  // モバイル幅でも収まるよう viewport - 24px でクランプ
+                  width: "min(360px, calc(100vw - 24px))",
                   maxHeight: "70vh",
                   overflowY: "auto",
                 }}

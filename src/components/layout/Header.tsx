@@ -25,7 +25,7 @@ export default function Header() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 24px",
+          padding: "0 16px 0 0",
         }}
       >
         {/* Logo（透過 PNG） */}

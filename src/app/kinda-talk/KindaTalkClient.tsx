@@ -136,7 +136,8 @@ export default function KindaTalkClient({ counselors }: Props) {
                 style={{
                   position: "absolute",
                   top: "calc(100% + 6px)",
-                  left: 0,
+                  right: 0,
+                  left: "auto",
                   background: "white",
                   border: "1px solid var(--light)",
                   borderRadius: 14,
@@ -146,8 +147,7 @@ export default function KindaTalkClient({ counselors }: Props) {
                   flexDirection: "column",
                   gap: 8,
                   zIndex: 20,
-                  minWidth: 320,
-                  maxWidth: 360,
+                  width: "min(360px, calc(100vw - 24px))",
                   maxHeight: "70vh",
                   overflowY: "auto",
                 }}
