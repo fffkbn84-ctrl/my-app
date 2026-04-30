@@ -136,8 +136,8 @@ export default function KindaTalkClient({ counselors }: Props) {
                 style={{
                   position: "absolute",
                   top: "calc(100% + 6px)",
-                  right: 0,
-                  left: "auto",
+                  // talk のエリアトリガーは行頭にあるため left:0 で左から展開
+                  left: 0,
                   background: "white",
                   border: "1px solid var(--light)",
                   borderRadius: 14,
@@ -147,6 +147,7 @@ export default function KindaTalkClient({ counselors }: Props) {
                   flexDirection: "column",
                   gap: 8,
                   zIndex: 20,
+                  // viewport - 24px でクランプして画面端を超えないように
                   width: "min(360px, calc(100vw - 24px))",
                   maxHeight: "70vh",
                   overflowY: "auto",
