@@ -1757,9 +1757,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   overflow: hidden;
   display: block;
   padding: 0;
-  background-image: url('/images/3FA669FA-BC60-42A2-A42F-957707348A59.png');
-  background-size: cover;
-  background-position: center;
   background-color: #1A1410;
 }
 .hero-overlay {
@@ -1981,9 +1978,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: relative;
   overflow: hidden;
   padding: 64px 0;
-  background-image: url('/images/7CC03528-7D20-46FC-9195-86DC48686D98.png');
-  background-size: cover;
-  background-position: center;
   background-color: #F0EBE4;
 }
 .counselors-photo-overlay {
@@ -2075,9 +2069,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: relative;
   overflow: hidden;
   padding: 64px 0;
-  background-image: url('/images/00E313F4-98A6-4210-BE54-BF6E0E2913AF.png');
-  background-size: cover;
-  background-position: center top;
   background-color: #0E0E0E;
 }
 .places-sec::before {
@@ -2130,9 +2121,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   overflow: hidden;
   padding: 72px 24px;
   text-align: center;
-  background-image: url('/images/891DD977-6401-4A42-8E48-EDCFB7555E14.png');
-  background-size: cover;
-  background-position: center top;
   background-color: #0A0A08;
 }
 .belief-overlay {
@@ -2152,9 +2140,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
    CTA セクション v5 — Photo background
 ═══════════════════════════════════════════════════ */
 .cta-sec {
-  background-image: url('/images/B05C715D-D477-4D9C-9667-663CCC3FD1A4.png');
-  background-size: cover;
-  background-position: center;
   background-color: var(--black);
   padding: 56px 24px;
 }
@@ -2181,7 +2166,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 ═══════════════════════════════════════════════════ */
 .hero-kinda {
   min-height: 100svh;
-  background: #FEFCFA url('/images/hero-background-street.png') center top / cover no-repeat;
+  background: #FEFCFA;
   display: flex;
   flex-direction: column;
   align-items: center;
