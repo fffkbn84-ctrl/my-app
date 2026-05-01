@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
@@ -80,6 +81,7 @@ export default function RootLayout({
           <FloatingScrollToTop />
           <BottomNav />
         </AuthProvider>
+        <Analytics />
       </body>
     </html>
   );
