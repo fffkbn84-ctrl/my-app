@@ -3,6 +3,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
@@ -82,6 +83,7 @@ export default function RootLayout({
           <BottomNav />
         </AuthProvider>
         <Analytics />
+        <GoogleAnalytics />
       </body>
     </html>
   );
