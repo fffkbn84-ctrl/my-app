@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
+import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
 import { AGENCIES, COUNSELORS, getCounselorById, getReviewsByCounselor } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 
@@ -498,6 +499,7 @@ export default async function CounselorDetailPage({
   return (
     <>
       <Header />
+      <CounselorDetailViewTracker counselorId={String(id)} />
 
       <main className="pt-16">
         {/* ═══════════════════════════════════════════════════

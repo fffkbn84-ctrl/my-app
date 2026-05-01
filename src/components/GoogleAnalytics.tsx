@@ -4,13 +4,6 @@ import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
-declare global {
-  interface Window {
-    gtag: (...args: unknown[]) => void;
-    dataLayer: unknown[];
-  }
-}
-
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 function PageviewTracker({ gaId }: { gaId: string }) {

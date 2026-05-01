@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai" | "kousai" | "multiple";
@@ -323,6 +324,11 @@ export default function KindaNoteQuizPage() {
   const [nextPressed, setNextPressed] = useState(false);
   const [backPressed, setBackPressed] = useState(false);
 
+  // Q1（診断 1 問目）表示 = クイズ画面マウント時に開始イベントを送信
+  useEffect(() => {
+    trackEvent("kinda_note_start");
+  }, []);
+
   // ─── 派生値 ──────────────────────────────────────────────────────────────
   const isQ0 = quizState.phase === "q0";
   const isActiveSub = quizState.phase === "active_sub";
@@ -390,6 +396,13 @@ export default function KindaNoteQuizPage() {
           freeTexts: quizState.freeTexts,
         }));
       } catch { /* ignore */ }
+      // 結果画面表示直前に完了イベントを送信
+      // weather_type は結果ロジック実装後に正しい値を渡せるよう、
+      // 今は localStorage / URL から読める想定の空文字をフォールバックに
+      trackEvent("kinda_note_complete", {
+        weather_type: "",
+        route: quizState.phase,
+      });
       router.push(`/kinda-note/result?route=${quizState.phase}`);
       return;
     }

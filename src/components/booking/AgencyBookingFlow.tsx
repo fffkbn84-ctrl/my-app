@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { BookingState, BookingUserInfo, Slot } from "@/types/booking";
 import type { Counselor } from "@/lib/data";
+import { trackEvent } from "@/lib/analytics";
 import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
 import Step4Confirm from "./Step4Confirm";
@@ -506,6 +507,12 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors }: 
   });
 
   const lockedSlotRef = useRef<Slot | null>(null);
+
+  // 相談所起点の予約フロー到達時にイベント送信。
+  // この時点ではまだカウンセラー未選択なので counselor_id は空文字。
+  useEffect(() => {
+    trackEvent("reservation_form_start", { counselor_id: "" });
+  }, []);
 
   const releaseLockedSlot = useCallback(() => {
     if (lockedSlotRef.current) lockedSlotRef.current = null;

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { trackEvent } from "@/lib/analytics";
 
 type Counselor = {
   id: string;
@@ -40,6 +41,12 @@ function CounselorCard({ counselor }: { counselor: Counselor }) {
   return (
     <Link
       href={`/counselors/${counselor.id}`}
+      onClick={() =>
+        trackEvent("counselor_card_click", {
+          counselor_id: String(counselor.id),
+          source_page: "counselor_list",
+        })
+      }
       className="group bg-white rounded-2xl overflow-hidden border border-light hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
     >
       {/* アバター */}
