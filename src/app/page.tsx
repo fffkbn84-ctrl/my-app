@@ -59,7 +59,7 @@ const DECIDED_CARDS = [
     key: "type",
     href: "/kinda-type",
     kindaLabel: "type",
-    desc: "診断で、合うカウンセラーが見つかる",
+    desc: "自分に合うカウンセラーが見つかる相性チェック",
     img: "/images/section-kinda-type.webp",
     alt: "Kinda type",
     bg: "#E0ECF8",
@@ -79,7 +79,7 @@ const DECIDED_CARDS = [
     key: "act",
     href: "/kinda-act",
     kindaLabel: "act",
-    desc: "お見合いやデートで実際に会う場所を選ぶ",
+    desc: "お見合いやデートに使いやすい場所",
     img: "/images/section-cafe-pastel.webp",
     alt: "Kinda act",
     bg: "#F5E1E0",
@@ -89,12 +89,25 @@ const DECIDED_CARDS = [
     key: "glow",
     href: "/kinda-glow",
     kindaLabel: "glow",
-    desc: "美容を整える",
+    desc: "好きな人に会う前に、自分を整える時間",
     img: "/images/section-beauty-n2.png.jpg",
     alt: "Kinda glow",
     bg: "#EDE0F4",
     accent: "#8A66B0",
   },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   Kinda note — 天気アイコン 5 種
+   pre / waiting / omiai / date1 / kousai の各ルートから 1 つずつ選定。
+   重い天気（thunderstorm / rain_cloud / mist）は初見ユーザーに重いため除外。
+──────────────────────────────────────────────────────────── */
+const NOTE_WEATHERS = [
+  { src: "/images/w_pre_dawn.webp",         label: "夜明け前" },
+  { src: "/images/w_light_rain_start.webp", label: "小雨の始まり" },
+  { src: "/images/w_angels_ladder.webp",    label: "天使のはしご" },
+  { src: "/images/w_wandering_clouds.webp", label: "迷い雲" },
+  { src: "/images/w_sunrise.webp",          label: "朝焼け" },
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
@@ -372,16 +385,16 @@ export default async function HomePage() {
               />
             </div>
 
-            {/* 主CTA — Kinda type 診断へ（メインの転換ポイント） */}
+            {/* 主CTA — Kinda note（軽い気持ちの整理から始める） */}
             <Link
-              href="/kinda-type"
+              href="/kinda-note"
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 10,
                 padding: "18px 24px",
-                background: "var(--accent)",
+                background: "#D4A090",
                 color: "white",
                 borderRadius: 999,
                 fontFamily: "var(--font-sans)",
@@ -391,38 +404,85 @@ export default async function HomePage() {
                 textDecoration: "none",
                 marginBottom: 10,
                 transition: "transform .2s, box-shadow .2s",
-                boxShadow: "0 8px 24px rgba(212,160,144,.45), 0 2px 6px rgba(0,0,0,.12)",
+                boxShadow:
+                  "0 0 32px rgba(212,160,144,.55), 0 8px 24px rgba(212,160,144,.5), 0 2px 6px rgba(0,0,0,.14)",
               }}
             >
-              自分に合う担当を診断する
+              いまの気持ちを整理する
               <ArrowRight color="white" />
             </Link>
 
-            {/* マイクロコピー — 心理障壁を下げる（離脱率↓） */}
+            {/* マイクロコピー — 軽さと安心感を伝える */}
             <p
               style={{
                 fontSize: 12,
                 color: "rgba(255,255,255,.85)",
                 textAlign: "center",
                 letterSpacing: ".06em",
-                marginBottom: 14,
+                marginBottom: 18,
                 textShadow: "0 1px 3px rgba(0,0,0,.4)",
                 fontFamily: "var(--font-sans)",
               }}
             >
-              ✓ 60秒　✓ 登録不要　✓ 完全無料
+              ✓ 60秒で言葉になる　✓ 登録不要　✓ 相談前の整理に
             </p>
 
-            {/* 副CTA — テキストリンク風（離脱回収） */}
-            <div style={{ textAlign: "center" }}>
+            {/* 区切り線 + ラベル — 副CTAへの導線 */}
+            <div
+              aria-hidden="true"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 12,
+              }}
+            >
+              <div
+                style={{
+                  flex: 1,
+                  height: 1,
+                  background: "rgba(255,255,255,.28)",
+                }}
+              />
+              <p
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,.72)",
+                  letterSpacing: ".08em",
+                  whiteSpace: "nowrap",
+                  fontFamily: "var(--font-sans)",
+                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                  margin: 0,
+                }}
+              >
+                やりたいことが決まっている方は
+              </p>
+              <div
+                style={{
+                  flex: 1,
+                  height: 1,
+                  background: "rgba(255,255,255,.28)",
+                }}
+              />
+            </div>
+
+            {/* 副CTA — Kinda type / Kinda talk（テキストリンク風） */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
               <Link
-                href="/kinda-talk"
+                href="/kinda-type"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 6,
                   fontSize: 13,
-                  color: "rgba(255,255,255,.92)",
+                  color: "rgba(255,255,255,.94)",
                   textDecoration: "none",
                   borderBottom: "1px solid rgba(255,255,255,.4)",
                   paddingBottom: 2,
@@ -431,7 +491,34 @@ export default async function HomePage() {
                   textShadow: "0 1px 3px rgba(0,0,0,.4)",
                 }}
               >
-                まずカウンセラーを見る
+                自分に合う担当を見つける
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 7h8M7 3l4 4-4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+              <Link
+                href="/kinda-talk"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 13,
+                  color: "rgba(255,255,255,.94)",
+                  textDecoration: "none",
+                  borderBottom: "1px solid rgba(255,255,255,.4)",
+                  paddingBottom: 2,
+                  letterSpacing: ".04em",
+                  fontFamily: "var(--font-sans)",
+                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                }}
+              >
+                カウンセラーを見てみる
                 <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
                   <path
                     d="M3 7h8M7 3l4 4-4 4"
@@ -447,14 +534,14 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            A' — 体験談ティザー（above-the-fold 直下）
-            CRO 効果: ヒーロー直下で社会的証明を見せて離脱を防ぐ
+            A' — Kinda note 説明セクション
+            ヒーロー直下で「気持ちを整理する」体験を訴求し、Kinda の
+            差別化機能（他社にない唯一無二のメモツール）を主役に置く。
         ═══════════════════════════════════════════════════ */}
         <section
           style={{
-            background:
-              "linear-gradient(180deg, #FEFCFA 0%, #FAF6F0 100%)",
-            padding: "40px 24px 36px",
+            background: "#F5EEE6",
+            padding: "56px 24px 60px",
             borderBottom: "1px solid rgba(0,0,0,.04)",
           }}
         >
@@ -465,93 +552,180 @@ export default async function HomePage() {
                 fontFamily: "'DM Sans', sans-serif",
                 fontSize: 11,
                 letterSpacing: ".18em",
-                color: "var(--accent)",
+                color: "#D4A090",
                 textTransform: "uppercase",
                 textAlign: "center",
                 marginBottom: 14,
               }}
             >
-              real voices
+              Kinda <em style={{ fontFamily: "Georgia, serif", fontStyle: "italic" }}>note</em>
             </p>
 
-            {/* 開閉引用符 + 本文 */}
-            <div
+            {/* セクション見出し（Georgia serif 大きめ） */}
+            <h2
               style={{
-                position: "relative",
-                padding: "14px 8px 0",
+                fontFamily: "Georgia, 'DM Serif Display', serif",
+                fontSize: "clamp(22px, 5.8vw, 30px)",
+                color: "var(--ink)",
+                fontWeight: 400,
+                lineHeight: 1.5,
+                letterSpacing: ".02em",
+                textAlign: "center",
+                margin: "0 0 18px",
               }}
             >
-              <span
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  top: -8,
-                  left: -2,
-                  fontSize: 56,
-                  color: "var(--accent)",
-                  opacity: 0.32,
-                  fontFamily: "'DM Serif Display', serif",
-                  lineHeight: 1,
-                }}
-              >
-                &ldquo;
-              </span>
-              <blockquote
-                style={{
-                  fontFamily: "var(--font-mincho)",
-                  fontSize: "clamp(15px, 4.2vw, 18px)",
-                  color: "var(--ink)",
-                  lineHeight: 1.9,
-                  margin: 0,
-                  letterSpacing: ".02em",
-                }}
-              >
-                最初はなんとなく始めたんです。決めなきゃって焦ってた時に、
-                カウンセラーさんが「急がなくていい」って言ってくれて、
-                肩の力が抜けました。
-              </blockquote>
-            </div>
+              あなたの気持ちは、いま、どんな天気？
+            </h2>
 
-            {/* 著者情報 */}
+            {/* リード文 */}
             <p
               style={{
-                fontSize: 12,
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
                 color: "var(--mid)",
-                textAlign: "right",
-                marginTop: 14,
-                letterSpacing: ".04em",
+                lineHeight: 1.95,
+                textAlign: "center",
+                margin: "0 0 32px",
+                letterSpacing: ".02em",
               }}
             >
-              — A.M さん（32歳） / 6ヶ月で成婚
+              うまく言葉にできない不安や迷いも、
+              <br />
+              天気のメタファーを通して、自分の気持ちが見えてきます。
             </p>
 
-            {/* 「もっと見る」リンク */}
-            <div style={{ textAlign: "center", marginTop: 22 }}>
+            {/* 天気アイコン 5 種（横スクロール） */}
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                overflowX: "auto",
+                padding: "4px 4px 18px",
+                margin: "0 -24px 28px",
+                paddingLeft: 24,
+                paddingRight: 24,
+                scrollSnapType: "x mandatory",
+                WebkitOverflowScrolling: "touch",
+              }}
+              className="hide-scrollbar"
+            >
+              {NOTE_WEATHERS.map((w) => (
+                <div
+                  key={w.src}
+                  style={{
+                    flex: "0 0 auto",
+                    width: 96,
+                    textAlign: "center",
+                    scrollSnapAlign: "start",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 96,
+                      height: 96,
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      background: "white",
+                      boxShadow: "0 4px 14px rgba(180,140,110,.14)",
+                      position: "relative",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Image
+                      src={w.src}
+                      alt={w.label}
+                      fill
+                      sizes="96px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      fontSize: 11,
+                      color: "var(--ink)",
+                      letterSpacing: ".04em",
+                      margin: 0,
+                    }}
+                  >
+                    {w.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* 機能の特徴 3 つ（チェックリスト） */}
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: "0 0 28px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              {[
+                "60秒で、いまの気持ちが言葉になる",
+                "整理したメモは、そのままカウンセラーに渡せる",
+                "何度でも、気持ちが揺れたときに",
+              ].map((item) => (
+                <li
+                  key={item}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10,
+                    fontSize: 13,
+                    color: "var(--ink)",
+                    lineHeight: 1.7,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden
+                    style={{ flex: "0 0 auto", marginTop: 4 }}
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="#D4A090"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA — 気持ちを整理する */}
+            <div style={{ textAlign: "center" }}>
               <Link
-                href="#stories"
+                href="/kinda-note"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 6,
-                  fontSize: 12,
-                  color: "var(--mid)",
-                  textDecoration: "none",
-                  borderBottom: "1px solid rgba(0,0,0,.15)",
-                  paddingBottom: 2,
-                  letterSpacing: ".06em",
+                  gap: 8,
+                  padding: "14px 28px",
+                  background: "#D4A090",
+                  color: "white",
+                  borderRadius: 999,
                   fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  letterSpacing: ".04em",
+                  textDecoration: "none",
+                  boxShadow: "0 6px 18px rgba(212,160,144,.4)",
+                  transition: "transform .2s, box-shadow .2s",
                 }}
               >
-                ほかの体験談を読む
-                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
-                  <path
-                    d="M3 7h8M7 3l4 4-4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                気持ちを整理する
+                <ArrowRight color="white" />
               </Link>
             </div>
           </div>
@@ -585,7 +759,7 @@ export default async function HomePage() {
                 fontFamily: "var(--font-sans)",
               }}
             >
-              もう決まっている方へ
+              やりたいことが決まっている方へ
             </p>
             <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
           </div>

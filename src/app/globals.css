@@ -144,6 +144,11 @@ a {
 .counselor-scroll::-webkit-scrollbar {
   display: none;
 }
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 @keyframes gDrift {
   from { transform: translate(0, 0); }
   to   { transform: translate(20px, 10px); }
