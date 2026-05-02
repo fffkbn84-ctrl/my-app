@@ -654,6 +654,20 @@ export default async function HomePage() {
               ))}
             </div>
 
+            {/* 全20種であることをそっと伝える（"これだけ?" を防ぐ） */}
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 11,
+                color: "var(--muted)",
+                textAlign: "center",
+                letterSpacing: ".06em",
+                margin: "-8px 0 28px",
+              }}
+            >
+              全20種の天気から、自分の気持ちに近いものを選べます。
+            </p>
+
             {/* 機能の特徴 3 つ（チェックリスト） */}
             <ul
               style={{
