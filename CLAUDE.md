@@ -3289,3 +3289,92 @@ UUID 装飾画像（7 枚）: `00E313F4-...png` / `3FA669FA-...png` / `7CC03528-
 - 万一別ブランチで作業してしまった場合は cherry-pick で `claude/implement-kinda-talk-uDUoW` に移すこと
 - main へのマージは PR 経由で別途実施
 
+---
+
+## 実装済み機能（2026-05-02 追記②） — Kinda note 結果画面 v3 設計書の確定
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`
+> コミット: `65ab0da` `docs: phase1-instructions-v3 作成`
+
+### 経緯
+
+Kinda note の結果画面リファクタリングを進めるための設計書を、v2（`docs/phase1-instructions-v2.md` / 95% 完成済み）+ パッチ（`docs/phase1-v2-patch-v2.md` / 2026-05-02）から、最終確定版の **v3（`docs/phase1-instructions-v3.md` / 2,079行）** に統合した。
+
+このセッションでは設計書（マークダウン）の更新のみを実施。実装コード（TypeScript / React）の作成と `weatherDescriptions.ts` の実ファイル作成は**次のタスクで別セッションで行う**。
+
+### 作成したファイル
+
+| ファイル | 内容 |
+|---|---|
+| `docs/phase1-instructions-v2.md` | 95%完成済みの土台（このセッション開始時に main から取り込み） |
+| `docs/phase1-v2-patch-v2.md` | 追加・変更指示書（2026-05-02 作成） |
+| **`docs/phase1-instructions-v3.md`** | **本セッションで作成した最終確定版（2,079行）** |
+
+### v3 で確定した変更（v2 → v3）
+
+1. **全 20 タイプに「天気の解説」（40-60文字、2文構成）を追加**
+   - summary 直下・第1層の前に配置
+   - Georgia serif で詩的に表示する設計（`white-space: pre-line` で `\n` を改行扱い）
+   - waiting ルートは 4 タイプを「### 各タイプの天気の解説」セクションにまとめて配置（テーブル分岐方式に合わせた特例）
+
+2. **`weatherDescriptions.ts` のコード仕様を本書内に明記**
+   - `app/kinda-note/data/weatherDescriptions.ts` として新規作成する想定
+   - 型定義：`WeatherKey`（20種）/ `RouteKey`（6種）/ `WeatherDescription`
+   - `WEATHER_DESCRIPTIONS` 定数（20件）+ ヘルパー関数 3つ（`getWeatherDescription` / `getWeathersByRoute` / `getAllWeathers`）
+   - 結果画面 + フェーズ B の SEO 解説ページ（`/note/weather/[slug]`）の両方で使い回す
+
+3. **活動中 5 ルート（waiting / omiai / date1 / kousai / multiple）に「他の機能も見てみる」サブ導線を追加**
+   - メイン 3 ボタン直下に Kinda act / Kinda glow への控えめなテキストリンク
+   - pre ルートには追加しない（既に 5 ボタン構成で type/talk/glow/story が揃っている）
+   - ポジティブ系 3 タイプ（omiai 晴れ間 / date1 朝焼け（淡）/ kousai 朝焼け）では Kinda story 誘導カードのさらに下に配置
+
+4. **「診断」ワードをタイトル・主要見出し・サマリーから排除**
+   - タイトル：「フェーズ1：診断フローの全面書き直し」→「フェーズ1：Kinda note フローの全面書き直し」
+   - Kinda type 関連：「カウンセラー診断」→「カウンセラーとの相性チェック」
+   - DB スキーマコメント・フェーズ4見出し等で「診断履歴」→「Kinda note 履歴」
+   - **意図的に残した箇所**：原則1の「Kindaは診断ツールではなく『翻訳ツール』」（否定形での原則説明）と、v3 changelog 内の「診断ワード排除」説明文
+
+5. **weatherKey の名前を統一**
+   - `thin_clouds` / `usugumori` → `angels_ladder`（omiai ルート「天使の梯子」）
+   - `wandering_cloud`（単数）→ `wandering_clouds`（複数、date1 ルート「迷い雲」）
+   - `dusk` → `twilight`（multiple ルート「夕暮れ」、英語名統一）
+
+6. **omiai タイプ2 の名称変更**
+   - 「Kinda うすぐもり」→「Kinda 天使の梯子」（v2 内の残存箇所すべて置換）
+   - 分岐ロジック内の戻り値・コメント・WeatherKey 型定義も同期
+
+### 次のセッションで進める実装タスク
+
+v3 設計書に基づき、以下の順で実装する想定（**まだ着手していない**）：
+
+1. **`app/kinda-note/data/weatherDescriptions.ts` の実ファイル作成** — v3 の「データ構造：weatherDescriptions.ts」セクションのコードをそのままファイル化
+2. **結果画面コンポーネントへの天気の解説表示の組み込み** — summary 直下に Georgia serif 14px のカードで表示
+3. **活動中 5 ルートのサブ導線実装** — `subLinkStyle` を含めた Kinda act / Kinda glow テキストリンク
+4. **omiai タイプ2 の改名対応** — UI 文言・分岐ロジック・型定義を `angels_ladder` ベースに統一
+5. **weatherKey 名称変更の影響範囲修正** — 既存実装（あれば）の `thin_clouds` / `usugumori` / `wandering_cloud` / `dusk` を新キーに置換
+
+### 新セッション開始時の引き継ぎテンプレート
+
+新しい Claude Code セッションを立てる場合、以下をそのまま渡せばすぐに着手できる：
+
+```
+作業ブランチ: claude/implement-kinda-talk-uDUoW
+
+以下を読んでから始めてください:
+1. CLAUDE.md
+2. docs/phase1-instructions-v3.md (設計書・最終確定版)
+
+【今回の作業】
+v3 設計書に従って Kinda note 結果画面の実装を進めてください。
+次に作る具体的なファイル・優先順位はこちらから指示します。
+まずは v3 を読み終わったら「読みました、次の指示をください」と返してください。
+```
+
+### 判断に迷い、ふうかさんに共有した点（次セッションで確認するとよい）
+
+1. **waiting ルートの天気解説の配置**：waiting は 4 タイプを「## waiting タイプ1〜4」のセクションでなくテーブルで表現しているため、各タイプ下に summary がない。パッチの「summary 直下に配置」ルールが直接適用できないため、テーブル直後（共通 summary 文の後）に「### 各タイプの天気の解説」というまとめセクションを新設し、4 タイプ分の解説をリスト形式で配置した。実装時は結果画面で選ばれたタイプの解説のみ表示する旨もセクション冒頭に明記。
+
+2. **「v2 改訂項目の確認」見出しの扱い**：チェックリストセクションの `### v2 改訂項目の確認` を `### v2 / v3 改訂項目の確認` に変更（v3 で追加した検証項目もここに今後足せるように）。パッチに明示なしの判断。気になれば戻せる。
+
+3. **天気の解説の改行表現**：パッチでは「`<br>` ではなく自然な行間」とのみ指示だったが、データは `\n` を含むため、CSS 側で `white-space: pre-line` を併用してもよい旨をスタイル仕様に補足した。
+
