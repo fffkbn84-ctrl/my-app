@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -6,6 +7,44 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { COUNSELORS } from "@/lib/data";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+
+/* ────────────────────────────────────────────────────────────
+   メタデータ生成（タイプ別に title / description / OGP / canonical）
+──────────────────────────────────────────────────────────── */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ type?: string }>;
+}): Promise<Metadata> {
+  const { type } = await searchParams;
+  const typeId = (type as DiagnosisTypeId) || "C";
+  const dt = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
+
+  const title = `${dt.name}｜Kinda type 相性チェック結果`;
+  const description = `${dt.label}。${dt.description.join(" / ")}。あなたに合うカウンセラーを Kinda ふたりへで見つけよう。`;
+  const url = `${SITE_URL}/kinda-type/result?type=${typeId}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Kinda ふたりへ",
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 /* ────────────────────────────────────────────────────────────
    サブカード定義
@@ -85,12 +124,35 @@ export default async function DiagnosisResultPage({
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);
 
   const shareText = encodeURIComponent(
-    `私は${diagType.name}でした。\n#Kinda ふたりへ診断 #婚活`
+    `私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`
   );
   const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}`;
 
+  // JSON-LD 構造化データ（Article schema）
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: `${diagType.name}｜Kinda type 相性チェック結果`,
+    description: diagType.label,
+    keywords: ["Kinda type", "相性チェック", "カウンセラー", "結婚相談所", ...diagType.tags],
+    inLanguage: "ja-JP",
+    isPartOf: {
+      "@type": "WebSite",
+      name: "Kinda ふたりへ",
+      url: SITE_URL,
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/kinda-type/result?type=${typeId}`,
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <main
         style={{
@@ -106,7 +168,7 @@ export default async function DiagnosisResultPage({
           items={[
             { label: "ホーム", href: "/" },
             { label: "Kinda type", href: "/kinda-type" },
-            { label: "診断結果" },
+            { label: "結果" },
           ]}
         />
         <div style={{ maxWidth: 480, margin: "0 auto" }}>
@@ -117,25 +179,9 @@ export default async function DiagnosisResultPage({
           <div
             style={{
               background: diagType.gradient,
-              padding: "52px 28px 60px",
+              padding: "40px 28px 56px",
             }}
           >
-            {/* パンくず */}
-            <div
-              style={{
-                fontSize: 11,
-                color: "rgba(0,0,0,.35)",
-                marginBottom: 24,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-              }}
-            >
-              <Link href="/" style={{ color: "inherit" }}>Kinda ふたりへ</Link>
-              <span>/</span>
-              <span>診断結果</span>
-            </div>
-
             {/* タイプ名 */}
             <h1
               style={{
@@ -464,7 +510,7 @@ export default async function DiagnosisResultPage({
               Xでシェアする
             </a>
 
-            {/* ⑦ もう一度診断する */}
+            {/* ⑦ もう一度試す */}
             <div>
               <Link
                 href="/kinda-type"
@@ -476,7 +522,7 @@ export default async function DiagnosisResultPage({
                   textUnderlineOffset: 3,
                 }}
               >
-                もう一度診断する
+                もう一度試す
               </Link>
             </div>
           </div>
