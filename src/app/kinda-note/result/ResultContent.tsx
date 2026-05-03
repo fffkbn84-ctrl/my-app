@@ -675,7 +675,7 @@ function StoryCard() {
         今日のあなたの物語を、誰かに残しませんか？
       </p>
       <p style={{ fontSize: 13, lineHeight: 1.9, color: "#7A6A5A", marginBottom: 18 }}>
-        書かなくてもいいし、書くなら匿名でもいい。あなたが今感じているこの気持ちは、これから始める誰かの「自分もこうなりたい」になるかもしれません。
+        匿名でも大丈夫。あなたが今感じているこの気持ちが、これから始める誰かの「自分もこうなりたい」になるかもしれません。
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         <Link
@@ -688,7 +688,7 @@ function StoryCard() {
           href="/kinda-story"
           style={storyBtnStyle}
         >
-          いまは見るだけ
+          他の物語を見てみる
         </Link>
       </div>
     </div>
@@ -917,7 +917,9 @@ function Toast({ text }: { text: string }) {
     <div
       style={{
         position: "fixed",
-        bottom: 24,
+        // ボトムナビ（60px + safe-area-inset-bottom）の上に余白を取って
+        // 重ならないように配置する。
+        bottom: "calc(60px + env(safe-area-inset-bottom) + 16px)",
         left: "50%",
         transform: "translateX(-50%)",
         background: "#3A2E26",
@@ -926,7 +928,7 @@ function Toast({ text }: { text: string }) {
         borderRadius: 999,
         fontSize: 13,
         boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
-        zIndex: 50,
+        zIndex: 110,
         maxWidth: "90vw",
         textAlign: "center",
       }}
