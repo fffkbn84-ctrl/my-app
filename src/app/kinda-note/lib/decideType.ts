@@ -17,10 +17,9 @@ export type Answers = Record<string, string[]>;
 
 /**
  * pre_q2 で「情報不足」系として扱う option ID。
- * v3：相場 / 続けられるか / 結果出なかったら / どんな人 / 抵抗感（の5項目）
- * 現行：a 料金（3項目を集約）/ d どんな人 / e 抵抗感
+ * v3 通り 8 択に分解済み：a1 相場 / a2 続けられるか / a3 結果出なかったら / d どんな人 / e 抵抗感
  */
-const INFO_PRE_IDS = ["a", "d", "e"];
+const INFO_PRE_IDS = ["a1", "a2", "a3", "d", "e"];
 
 /**
  * pre_q2 で「自信不足」系として扱う option ID。

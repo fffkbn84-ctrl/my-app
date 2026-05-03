@@ -1,15 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai" | "kousai" | "multiple";
+type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai" | "date1" | "kousai" | "multiple";
 
 interface Option {
   id: string;
   label: string;
+  /** この選択肢の前にセクション見出しを差し込む（v3 Q2-pre のセクション分けで使用） */
+  sectionStart?: string;
 }
 
 interface Question {
@@ -37,9 +39,10 @@ const Q0_OPTIONS = [
 
 // ─── active_sub 選択肢 ───────────────────────────────────────────────────────
 const ACTIVE_SUB_OPTIONS = [
-  { id: "omiai",    label: "お見合いをした（初めて会った）",    sub: "お見合いの気持ちを整理しよう" },
-  { id: "kousai",   label: "交際中（2回以上会っている）",       sub: "今の関係について整理する" },
-  { id: "multiple", label: "複数人と同時に迷っている",           sub: "迷いや気持ちを整理する" },
+  { id: "omiai",    label: "お見合いをした（初めて会った）",                  sub: "お見合いの気持ちを整理しよう" },
+  { id: "date1",    label: "デート1回目を終えた（お見合いの次に1度会った）", sub: "1回目のデートの気持ちを整理しよう" },
+  { id: "kousai",   label: "交際中（2回以上会っている）",                     sub: "今の関係について整理する" },
+  { id: "multiple", label: "複数人と同時に迷っている",                         sub: "迷いや気持ちを整理する" },
 ];
 
 // ─── pre ルート（入会前）4問 ─────────────────────────────────────────────────
@@ -60,12 +63,14 @@ const PRE_QUESTIONS: Question[] = [
     text: "踏み出せていない理由は？",
     type: "multi", required: true,
     options: [
-      { id: "a", label: "料金や仕組みがよくわからない" },
-      { id: "b", label: "自分に合うカウンセラーがいるか不安" },
-      { id: "c", label: "本当に相手が見つかるか自信がない" },
-      { id: "d", label: "どんな人が活動しているか想像できない" },
-      { id: "e", label: "相談所に入ることへの抵抗感がある" },
-      { id: "f", label: "特にない、もう少し情報を集めたい" },
+      { id: "a1", label: "相場がわからない（高いのか安いのかも判断できない）", sectionStart: "お金のこと" },
+      { id: "a2", label: "毎月の費用を続けられるか不安" },
+      { id: "a3", label: "払ったのに結果が出なかったら、と思うと踏み出せない" },
+      { id: "b",  label: "自分に合うカウンセラーがいるか不安",                 sectionStart: "自分のこと" },
+      { id: "c",  label: "本当に相手が見つかるか自信がない" },
+      { id: "d",  label: "どんな人が活動しているか想像できない",               sectionStart: "相談所のこと" },
+      { id: "e",  label: "相談所に入ることへの抵抗感がある" },
+      { id: "f",  label: "特にない、もう少し情報を集めたい",                   sectionStart: "その他" },
     ],
   },
   {
@@ -189,6 +194,65 @@ const OMIAI_QUESTIONS: Question[] = [
   },
 ];
 
+// ─── date1 ルート（デート1回目）5問 ──────────────────────────────────────────
+// 内部 ID は v3 仕様に合わせて date1_q2..date1_q6（Q1 は active_sub の選択画面）。
+const DATE1_QUESTIONS: Question[] = [
+  {
+    id: "date1_q2", label: "Q1",
+    text: "デート1回目、どうだった？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "もっと一緒にいたいと思った" },
+      { id: "b", label: "お見合いの印象と同じだった" },
+      { id: "c", label: "お見合いの印象と変わった（良い方に）" },
+      { id: "d", label: "お見合いの印象と変わった（違和感が出た）" },
+      { id: "e", label: "よくわからなかった" },
+    ],
+  },
+  {
+    id: "date1_q3", label: "Q2",
+    text: "次のデートに進む気持ちは？",
+    type: "single", required: true,
+    options: [
+      { id: "a", label: "進みたい" },
+      { id: "b", label: "もう一度くらいなら" },
+      { id: "c", label: "迷っている" },
+      { id: "d", label: "止めたい" },
+    ],
+  },
+  {
+    id: "date1_q4", label: "Q3",
+    text: "気になったのは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "沈黙が増えた" },
+      { id: "b", label: "会話のペースが合わなかった" },
+      { id: "c", label: "価値観の片鱗が見えた" },
+      { id: "d", label: "むしろ話しやすくなった" },
+      { id: "e", label: "相手の素の表情が見えた" },
+      { id: "f", label: "マナーや振る舞いが気になった" },
+      { id: "g", label: "特にない" },
+    ],
+  },
+  {
+    id: "date1_q5", label: "Q4",
+    text: "カウンセラーに話したいことは？",
+    type: "multi", required: true,
+    options: [
+      { id: "a", label: "相談したいことがあるけど言葉にできない" },
+      { id: "b", label: "相談したいけど指摘されそうで怖い" },
+      { id: "c", label: "何を相談すればいいかわからない" },
+      { id: "d", label: "また会いたい気持ちを後押ししてほしい" },
+      { id: "e", label: "特にない、自分で整理できてる" },
+    ],
+  },
+  {
+    id: "date1_q6", label: "Q5",
+    text: "今の気持ちを、そのまま書いてみて。",
+    type: "text", required: false,
+  },
+];
+
 // ─── kousai ルート（交際中）4問 ──────────────────────────────────────────────
 const KOUSAI_QUESTIONS: Question[] = [
   {
@@ -296,6 +360,7 @@ function getRouteQuestions(phase: Phase): Question[] {
   if (phase === "pre") return PRE_QUESTIONS;
   if (phase === "waiting") return WAITING_QUESTIONS;
   if (phase === "omiai") return OMIAI_QUESTIONS;
+  if (phase === "date1") return DATE1_QUESTIONS;
   if (phase === "kousai") return KOUSAI_QUESTIONS;
   if (phase === "multiple") return MULTIPLE_QUESTIONS;
   return [];
@@ -806,8 +871,22 @@ export default function KindaNoteQuizPage() {
                   {currentQ.options.map((opt) => {
                     const isSel = currentAnswers.includes(opt.id);
                     return (
+                      <Fragment key={opt.id}>
+                        {opt.sectionStart && (
+                          <div
+                            style={{
+                              fontSize: 11,
+                              letterSpacing: "0.12em",
+                              color: "#B0A090",
+                              marginTop: 8,
+                              marginBottom: -2,
+                              fontWeight: 500,
+                            }}
+                          >
+                            【{opt.sectionStart}】
+                          </div>
+                        )}
                       <button
-                        key={opt.id}
                         onClick={() => handleOptionSelect(opt.id)}
                         onMouseDown={(e) => { e.currentTarget.style.transform = "translateY(1px)"; }}
                         onMouseUp={(e) => { e.currentTarget.style.transform = "translateY(0)"; }}
@@ -879,6 +958,7 @@ export default function KindaNoteQuizPage() {
                         )}
                         <span>{opt.label}</span>
                       </button>
+                      </Fragment>
                     );
                   })}
                 </div>
