@@ -57,9 +57,12 @@ export default function PolaroidWeatherCard({
   const cardWidth = isShare ? 480 : "min(85vw, 340px)";
   const cardPaddingTop = isShare ? 24 : 16;
   const cardPaddingX = isShare ? 24 : 16;
-  const cardPaddingBottom = isShare ? 36 : 20;
+  // 本物のポラロイドらしさを出すため、下フレームを写真の 20% 前後の太さに。
+  // 上 16px / 下 56px の差で「下が明らかに太い」シルエットを作る。
+  const cardPaddingBottom = isShare ? 80 : 56;
   const nameFontSize = isShare ? 16 : 11;
-  const nameMarginTop = isShare ? 18 : 12;
+  // 下フレームの中で英名は「上から1/3〜中央」に置く。
+  const nameMarginTop = isShare ? 28 : 20;
   const innerImagePixelSize = isShare ? 480 - cardPaddingX * 2 : 360;
 
   return (
