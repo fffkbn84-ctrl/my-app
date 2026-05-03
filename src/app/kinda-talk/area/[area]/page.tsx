@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { getCounselors } from "@/lib/data";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
 
@@ -62,6 +64,14 @@ export default async function AreaPage({
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: info.label },
+          ]}
+        />
         <section className="kt-hero">
           <div className="kt-hero-inner">
             <div className="kt-hero-eyebrow">Kinda talk · area</div>

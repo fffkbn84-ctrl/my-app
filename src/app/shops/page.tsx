@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import ShopSearch from "@/components/shops/ShopSearch";
 import { getShops } from "@/lib/data";
 import type { PlaceHome } from "@/lib/mock/places-home";
@@ -18,6 +19,7 @@ export default async function ShopsPage() {
       <Header />
 
       <main className="pt-16">
+        <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda meet" }]} />
         {/* ページヘッダー */}
         <section className="bg-pale border-b border-light" style={{ paddingTop: 88, paddingBottom: 48 }}>
           <div className="max-w-6xl mx-auto px-6">

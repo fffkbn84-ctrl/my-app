@@ -13,14 +13,14 @@ const HERO_TAGLINE = "なんとなく、いいふたりへ";
 const HERO_IMAGE_SRC = "/images/hero-couple-new.png.PNG";
 
 /* ────────────────────────────────────────────────────────────
-   「もう決まっている方へ」カード定義
+   「やりたいことが決まっている方へ」カード定義
 ──────────────────────────────────────────────────────────── */
 const DECIDED_CARDS = [
   {
     key: "type",
     href: "/kinda-type",
     kindaLabel: "type",
-    desc: "診断で、合うカウンセラーが見つかる",
+    desc: "自分に合うカウンセラーを見つける",
     img: "/images/section-kinda-type.png.PNG",
     alt: "Kinda type",
   },
@@ -28,7 +28,7 @@ const DECIDED_CARDS = [
     key: "talk",
     href: "/kinda-talk",
     kindaLabel: "talk",
-    desc: "カウンセラー・相談所を見る",
+    desc: "カウンセラー・相談所を直接見る",
     img: "/images/section-counseling.png",
     alt: "Kinda talk",
   },
@@ -36,7 +36,7 @@ const DECIDED_CARDS = [
     key: "meet",
     href: "/kinda-meet",
     kindaLabel: "meet",
-    desc: "お見合いやデートに使いやすい場所を見る",
+    desc: "お見合いやデートの場所",
     img: "/images/section-cafe-pastel.png.PNG",
     alt: "Kinda meet",
   },
@@ -44,10 +44,38 @@ const DECIDED_CARDS = [
     key: "glow",
     href: "/kinda-glow",
     kindaLabel: "glow",
-    desc: "美容を整える",
+    desc: "好きな人に会う前に、自分を整える",
     img: "/images/section-beauty-n2.png.jpg",
     alt: "Kinda glow",
   },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   A' — Kinda note 天気アイコン（5種）
+──────────────────────────────────────────────────────────── */
+const WEATHER_ITEMS = [
+  { key: "pre_dawn", label: "夜明け前", src: "/images/w_pre_dawn.webp" },
+  { key: "light_rain_start", label: "小雨のはじまり", src: "/images/w_light_rain_start.webp" },
+  { key: "angels_ladder", label: "天使の梯子", src: "/images/w_angels_ladder.webp" },
+  { key: "light_sunrise", label: "淡い朝焼け", src: "/images/w_light_sunrise.webp" },
+  { key: "twilight", label: "夕暮れ", src: "/images/w_twilight.webp" },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   A'' — Kinda note ユースケース（2グループ × 4項目）
+──────────────────────────────────────────────────────────── */
+const KN_USECASES_PAUSE = [
+  "カウンセラーになんて伝えればいいか分からない",
+  "お見合いの後、ことばにならない違和感があった",
+  "交際中、なぜか不安が消えない",
+  "複数の人で、気持ちが揺れている",
+] as const;
+
+const KN_USECASES_MOVE = [
+  "好きな人ができた、その気持ちを整理したい",
+  "「好き」をどう伝えればいいか考えたい",
+  "大事なデートの前、自分の気持ちを見つめたい",
+  "節目のとき、いまの自分を残しておきたい",
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
@@ -337,9 +365,152 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            B — もう決まっている方へ
+            A' — Kinda note 説明（天気）
+        ═══════════════════════════════════════════════════ */}
+        <section style={{ padding: "56px 24px 24px", background: "#FEFCFA" }}>
+          <SectionLabel label="あなたの気持ちは、いま、どんな天気？" en="kinda note" />
+
+          <p
+            style={{
+              maxWidth: 480,
+              margin: "0 auto 28px",
+              textAlign: "center",
+              fontSize: 14,
+              color: "var(--mid)",
+              lineHeight: 1.9,
+            }}
+          >
+            うまく言葉にできない不安や、
+            <br />
+            言葉にならない嬉しさも。
+            <br />
+            天気のメタファーを通して、
+            <br />
+            自分の気持ちが見えてきます。
+          </p>
+
+          <div className="kn-weather-scroll" aria-label="天気メタファー一覧">
+            {WEATHER_ITEMS.map((w) => (
+              <div key={w.key} className="kn-weather-item">
+                <div className="kn-weather-img-wrap">
+                  <Image src={w.src} alt={w.label} fill style={{ objectFit: "cover" }} sizes="96px" />
+                </div>
+                <p className="kn-weather-label">{w.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <ul
+            style={{
+              listStyle: "none",
+              padding: 0,
+              margin: "28px auto 28px",
+              maxWidth: 480,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              fontSize: 13,
+              color: "var(--mid)",
+              lineHeight: 1.7,
+            }}
+          >
+            <li>✓ 60秒で、いまの気持ちが言葉になる</li>
+            <li>✓ 整理したメモは、そのままカウンセラーに渡せる</li>
+            <li>✓ 何度でも、気持ちが揺れたときに</li>
+          </ul>
+
+          <div style={{ textAlign: "center" }}>
+            <Link
+              href="/kinda-note"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "14px 36px",
+                background: "var(--accent)",
+                color: "white",
+                borderRadius: 999,
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                letterSpacing: ".03em",
+                textDecoration: "none",
+              }}
+            >
+              気持ちを整理する
+              <ArrowRight color="white" />
+            </Link>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            A'' — Kinda note は、こんな時に使えます
+        ═══════════════════════════════════════════════════ */}
+        <section style={{ padding: "48px 24px 64px", background: "#FEFCFA" }}>
+          <SectionLabel label="Kinda note は、こんな時に使えます" />
+
+          <div style={{ maxWidth: 480, margin: "0 auto" }}>
+            <h3 className="kn-usecase-h3">ふと立ち止まったとき</h3>
+            <div className="kn-usecase-box">
+              <ul className="kn-usecase-list">
+                {KN_USECASES_PAUSE.map((u) => (
+                  <li key={u}>{u}</li>
+                ))}
+              </ul>
+            </div>
+
+            <h3 className="kn-usecase-h3" style={{ marginTop: 24 }}>
+              気持ちが動いたとき
+            </h3>
+            <div className="kn-usecase-box">
+              <ul className="kn-usecase-list">
+                {KN_USECASES_MOVE.map((u) => (
+                  <li key={u}>{u}</li>
+                ))}
+              </ul>
+            </div>
+
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontStyle: "italic",
+                fontSize: 16,
+                color: "var(--ink)",
+                textAlign: "center",
+                margin: "32px 0 16px",
+              }}
+            >
+              入会前から交際後まで、何度でも。
+            </p>
+
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/kinda-note"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "14px 36px",
+                  background: "var(--accent)",
+                  color: "white",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  letterSpacing: ".03em",
+                  textDecoration: "none",
+                }}
+              >
+                気持ちを整理する
+                <ArrowRight color="white" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            B — やりたいことが決まっている方へ
         ═══════════════════════════════════════════════════ */}
         <section
+          id="section-b"
           style={{
             padding: "48px 24px 64px",
             background: "#FEFCFA",
@@ -364,7 +535,7 @@ export default async function HomePage() {
                 fontFamily: "var(--font-sans)",
               }}
             >
-              もう決まっている方へ
+              やりたいことが決まっている方へ
             </p>
             <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
           </div>
@@ -786,7 +957,7 @@ export default async function HomePage() {
             >
               <em>既存のレビューサイトは、</em>
               <br />
-              <em>関係が成立した人のためにある。</em>
+              <em>関係が確立した人のためのもの。</em>
             </p>
 
             <p
@@ -801,9 +972,9 @@ export default async function HomePage() {
             >
               Kinda ふたりへは、
               <br />
-              <em>今まさに関係を築いている</em>
+              <em>いまに関係を築いている</em>
               <br />
-              <em>あなたたちのためにある。</em>
+              <em>あなたたちのためのもの。</em>
             </p>
 
             <p
@@ -819,7 +990,7 @@ export default async function HomePage() {
               <br />
               飛び込まなくていい。
               <br />
-              入会前から交際後まで
+              入会前から交際後まで、
               <br />
               あなたのそばにいます。
             </p>

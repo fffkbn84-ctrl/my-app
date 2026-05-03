@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import { QUESTIONS, DIAGNOSIS_TYPES, DiagnosisTypeId, calculateResult } from "@/lib/diagnosis";
 
 /* タイプ別アクセントカラー */
@@ -76,6 +77,7 @@ export default function DiagnosisPage() {
           paddingBottom: "80px",
         }}
       >
+        <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda type" }]} />
         <div style={{ maxWidth: 560, margin: "0 auto", padding: "0 24px" }}>
 
           {/* ページヘッダー */}

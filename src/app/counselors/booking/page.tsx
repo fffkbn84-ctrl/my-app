@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import AgencyBookingFlow from "@/components/booking/AgencyBookingFlow";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { AGENCIES, COUNSELORS } from "@/lib/data";
 
 export default async function CounselorBookingPage({
@@ -20,6 +22,15 @@ export default async function CounselorBookingPage({
     <>
       <Header />
       <main className="pt-16 min-h-screen" style={{ background: "var(--white)" }}>
+        <SectionSubHeader sectionName="相談所" sectionRoot={`/agencies/${agencyId}`} />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: agency.name, href: `/agencies/${agencyId}` },
+            { label: "予約" },
+          ]}
+        />
         {/* ページヘッダー */}
         <div
           style={{

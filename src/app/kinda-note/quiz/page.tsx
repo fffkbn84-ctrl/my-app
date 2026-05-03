@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type Phase = "q0" | "pre" | "waiting" | "active_sub" | "omiai" | "kousai" | "multiple";
@@ -434,6 +436,14 @@ export default function KindaNoteQuizPage() {
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div style={{ background: "#F5EEE6", minHeight: "100vh" }}>
+      <SectionSubHeader sectionName="Kinda note" sectionRoot="/kinda-note" />
+      <Breadcrumb
+        items={[
+          { label: "ホーム", href: "/" },
+          { label: "Kinda note", href: "/kinda-note" },
+          { label: "診断中" },
+        ]}
+      />
 
       {/* ミニヘッダー */}
       <div

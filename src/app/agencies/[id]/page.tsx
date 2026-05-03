@@ -4,6 +4,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SaveButton from "@/components/ui/SaveButton";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, getAgencies, type Agency, type Counselor } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
@@ -186,6 +188,14 @@ export default async function AgencyDetailPage({
       <Header />
 
       <main style={{ paddingTop: 64 }}>
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: agency.name },
+          ]}
+        />
         {/* ═══ ヒーロー ═══ */}
         <section
           style={{

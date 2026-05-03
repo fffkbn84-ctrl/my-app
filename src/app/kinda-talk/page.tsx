@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import { getCounselors } from "@/lib/data";
 import FAQAccordion, { FAQItem } from "@/components/kinda-talk/FAQAccordion";
 import KindaTalkClient from "./KindaTalkClient";
@@ -53,6 +54,7 @@ export default async function KindaTalkPage() {
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
+        <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda talk" }]} />
         {/* ─── ヒーロー（フルブリード画像） ─── */}
         <section className="kt-hero">
           <div className="kt-hero-bg-image" aria-hidden>

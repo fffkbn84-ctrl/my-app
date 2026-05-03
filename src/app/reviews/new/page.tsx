@@ -1,5 +1,7 @@
 import Header from "@/components/layout/Header";
 import ReviewGate from "@/components/reviews/ReviewGate";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 export const metadata = {
   title: "口コミを書く | ふたりへ",
@@ -21,6 +23,8 @@ export default async function ReviewNewPage({
         className="pt-16 min-h-screen"
         style={{ background: "var(--white)" }}
       >
+        <SectionSubHeader sectionName="ホーム" sectionRoot="/" />
+        <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "口コミ投稿" }]} />
         {/* ページヘッダー */}
         <div style={{ padding: "60px 0 40px" }}>
           <div className="max-w-[640px] mx-auto px-6 text-center">

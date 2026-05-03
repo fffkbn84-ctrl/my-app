@@ -4,6 +4,8 @@ import { useState, use } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { placesHomeData } from "@/lib/mock/places-home";
 
 /* ────────────────────────────────────────────────────────────
@@ -178,6 +180,15 @@ export default function ShopReviewPage({
       <Header />
 
       <main className="pt-16 min-h-screen bg-white">
+        <SectionSubHeader sectionName={shop.name} sectionRoot={`/shops/${id}`} />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda meet", href: "/shops" },
+            { label: shop.name, href: `/shops/${id}` },
+            { label: "口コミ投稿" },
+          ]}
+        />
         <div className="border-b border-light bg-pale">
           <div className="max-w-2xl mx-auto px-6 py-6">
             <p className="text-xs tracking-[0.2em] text-accent uppercase mb-1">Review</p>

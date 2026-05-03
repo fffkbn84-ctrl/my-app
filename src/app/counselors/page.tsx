@@ -1,6 +1,8 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import CounselorSearch from "@/components/counselors/CounselorSearch";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -101,6 +103,14 @@ export default function CounselorsPage() {
       <Header />
 
       <main className="pt-16">
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: "カウンセラー一覧" },
+          ]}
+        />
         {/* ページヘッダー */}
         <section className="bg-pale py-14 md:py-20 border-b border-light">
           <div className="max-w-6xl mx-auto px-6">

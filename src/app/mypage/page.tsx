@@ -4,6 +4,7 @@ import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
 import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
 import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
   title: "マイページ | ふたりへ",
@@ -121,6 +122,7 @@ export default async function MyPage() {
         paddingBottom: "calc(60px + env(safe-area-inset-bottom))",
       }}
     >
+      <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "マイページ" }]} />
       <div
         style={{
           maxWidth: "480px",

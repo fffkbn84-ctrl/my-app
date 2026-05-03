@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { places } from "@/lib/mock/places";
 import type { Place } from "@/lib/mock/places";
 
@@ -146,6 +148,14 @@ export default async function PlaceDetailPage({
       <Header />
 
       <main className="pt-16">
+        <SectionSubHeader sectionName="Kinda meet" sectionRoot="/shops" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda meet", href: "/shops" },
+            { label: place.name },
+          ]}
+        />
         {/* ═══════════════════════════════════════════════════
             ヒーローストリップ（お店グラデーション背景）
         ═══════════════════════════════════════════════════ */}

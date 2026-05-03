@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllColumns, getColumnBySlug } from "@/lib/columns";
 import ShareButtons from "./ShareButtons";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -89,6 +91,14 @@ export default async function ColumnDetailPage({ params }: Props) {
       />
 
       <div style={{ background: "var(--white)", minHeight: "100vh" }}>
+        <SectionSubHeader sectionName="コラム" sectionRoot="/columns" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "コラム", href: "/columns" },
+            { label: column.category },
+          ]}
+        />
         <article
           style={{
             maxWidth: "720px",
@@ -96,28 +106,6 @@ export default async function ColumnDetailPage({ params }: Props) {
             padding: "40px 24px 80px",
           }}
         >
-          {/* パンくず */}
-          <nav
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              marginBottom: "32px",
-              fontSize: "11px",
-              color: "var(--muted)",
-              fontFamily: "var(--font-sans)",
-            }}
-          >
-            <Link href="/" style={{ color: "var(--muted)", textDecoration: "none" }}>
-              ふたりへ
-            </Link>
-            <span style={{ color: "var(--light)" }}>›</span>
-            <Link href="/columns" style={{ color: "var(--muted)", textDecoration: "none" }}>
-              コラム
-            </Link>
-            <span style={{ color: "var(--light)" }}>›</span>
-            <span style={{ color: "var(--mid)" }}>{column.category}</span>
-          </nav>
 
           {/* サムネイル */}
           <div

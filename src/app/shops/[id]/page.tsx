@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { placesHomeData } from "@/lib/mock/places-home";
 import type { BadgeType } from "@/lib/mock/places-home";
 
@@ -72,16 +74,14 @@ export default async function ShopDetailPage({
       <Header />
 
       <main className="pt-16">
-        {/* パンくず */}
-        <div className="bg-pale border-b border-light">
-          <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-xs text-muted">
-            <Link href="/" className="hover:text-ink transition-colors">トップ</Link>
-            <span>/</span>
-            <Link href="/shops" className="hover:text-ink transition-colors">お店一覧</Link>
-            <span>/</span>
-            <span className="text-ink">{shop.name}</span>
-          </div>
-        </div>
+        <SectionSubHeader sectionName="Kinda meet" sectionRoot="/shops" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda meet", href: "/shops" },
+            { label: shop.name },
+          ]}
+        />
 
         <div className="max-w-6xl mx-auto px-6 py-10 md:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">

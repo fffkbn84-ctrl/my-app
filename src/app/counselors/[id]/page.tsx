@@ -5,6 +5,8 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { AGENCIES, COUNSELORS, getCounselorById, getReviewsByCounselor } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 
@@ -500,6 +502,14 @@ export default async function CounselorDetailPage({
       <Header />
 
       <main className="pt-16">
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: counselor.name },
+          ]}
+        />
         {/* ═══════════════════════════════════════════════════
             ヒーローストリップ（黒背景）
         ═══════════════════════════════════════════════════ */}
