@@ -1,22 +1,22 @@
 "use client";
 
 import { forwardRef } from "react";
-import WeatherIcon from "./WeatherIcon";
+import PolaroidWeatherCard from "./PolaroidWeatherCard";
 import type { TypeContent } from "../data/typeContent";
 import type { WeatherDescription } from "../data/weatherDescriptions";
 
 /**
  * 画像保存用カード。html2canvas でキャプチャされる。
  *
- * 800×1000px を意識した縦長カードで、結果画面の主要な情報だけをまとめる。
- * ・ロゴ
- * ・タイプ名
- * ・天気アイコン + 解説
- * ・summary
- * ・選んだ項目の主要部分（最大8件）
- * ・日付
+ * 800px 幅の縦長カードで、結果画面の主要な情報をまとめる：
+ * - Kinda note ロゴ
+ * - ポラロイド風 天気カード（傾き反映）
+ * - タイプ名 / Summary
+ * - 選んだ項目の主要部分（最大8件）
+ * - 自由記述（あれば）
+ * - 日付 + ロゴ
  *
- * 画面表示用ではなく、オフスクリーン（visibility: hidden 相当）で
+ * 画面表示用ではなく、オフスクリーン（left: -10000px 相当）で
  * レンダリングし、html2canvas で取り出して PNG にする。
  */
 
@@ -27,10 +27,12 @@ type Props = {
   selectedLabels: string[];
   /** 自由記述（あれば） */
   freeText?: string;
+  /** ポラロイドカードの傾き（結果画面と同じ値を渡す） */
+  tiltAngle?: string;
 };
 
 const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
-  { type, weather, selectedLabels, freeText },
+  { type, weather, selectedLabels, freeText, tiltAngle = "rotate(0deg)" },
   ref
 ) {
   const today = new Date();
@@ -49,7 +51,7 @@ const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
         color: "#2A2A2A",
         display: "flex",
         flexDirection: "column",
-        gap: 32,
+        gap: 28,
       }}
     >
       {/* ロゴ */}
@@ -65,67 +67,43 @@ const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
         Kinda note
       </div>
 
-      {/* タイプ名 + 天気アイコン */}
-      <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-        <div style={{ flexShrink: 0 }}>
-          <WeatherIcon weather={weather.key} size={140} color={type.color} />
-        </div>
-        <div>
-          <div
-            style={{
-              fontFamily: "'DM Sans', serif",
-              fontSize: 14,
-              letterSpacing: "0.12em",
-              color: "#A0A0A0",
-              textTransform: "uppercase",
-              marginBottom: 8,
-            }}
-          >
-            {weather.name_en}
-          </div>
-          <div
-            style={{
-              fontFamily: "'Shippori Mincho', serif",
-              fontSize: 40,
-              fontWeight: 500,
-              color: "#2A2A2A",
-              letterSpacing: "0.04em",
-              lineHeight: 1.3,
-            }}
-          >
-            {type.fullName}
-          </div>
-        </div>
+      {/* ポラロイド風 天気カード */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <PolaroidWeatherCard
+          weather={weather.key}
+          nameEn={weather.name_en}
+          tiltAngle={tiltAngle}
+          variant="share"
+        />
+      </div>
+
+      {/* タイプ名 */}
+      <div
+        style={{
+          fontFamily: "'Shippori Mincho', serif",
+          fontSize: 38,
+          fontWeight: 500,
+          color: "#2A2A2A",
+          letterSpacing: "0.04em",
+          lineHeight: 1.4,
+          textAlign: "center",
+        }}
+      >
+        {type.fullName}
       </div>
 
       {/* summary */}
       <div
         style={{
           fontFamily: "'Georgia', serif",
-          fontSize: 26,
+          fontSize: 22,
           fontStyle: "italic",
           lineHeight: 1.7,
           color: "#2A2A2A",
+          textAlign: "center",
         }}
       >
         {type.summary}
-      </div>
-
-      {/* 天気の解説 */}
-      <div
-        style={{
-          background: "#F5EEE6",
-          padding: "24px 28px",
-          borderRadius: 16,
-          fontFamily: "'Georgia', serif",
-          fontSize: 17,
-          lineHeight: 2,
-          whiteSpace: "pre-line",
-          color: "#2A2A2A",
-          letterSpacing: "0.02em",
-        }}
-      >
-        {weather.description}
       </div>
 
       {/* 選んだ項目 */}

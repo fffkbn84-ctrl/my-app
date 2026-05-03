@@ -16,7 +16,7 @@ import { decideTypeForRoute } from "../lib/decideType";
 import { saveKindaNoteHistory } from "../lib/storage";
 import { buildMemoText } from "../lib/buildMemo";
 import { getQuestionsForRoute } from "../data/questions";
-import WeatherIcon from "../components/WeatherIcon";
+import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
 
 const VALID_ROUTES: RouteKey[] = [
@@ -48,6 +48,10 @@ export default function ResultContent({ initialRoute }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // ポラロイドカードの傾き（3% 確率のレア演出）。SSR では常に 0deg。
+  // hydration 後の useEffect で一度だけ算出する。
+  const [tiltAngle, setTiltAngle] = useState<string>("rotate(0deg)");
+  const [isRareTilt, setIsRareTilt] = useState<boolean>(false);
   const shareCardRef = useRef<HTMLDivElement | null>(null);
   const savedRef = useRef(false);
 
@@ -81,16 +85,25 @@ export default function ResultContent({ initialRoute }: Props) {
   const typeContent = getTypeContent(weather);
   const weatherDesc = getWeatherDescription(weather);
 
-  // ─── 履歴保存 + 完了イベント送信（1回だけ） ─────
+  // ─── 履歴保存 + tilt 算出 + 完了イベント送信（1回だけ） ─────
   useEffect(() => {
     if (!hydrated || !stored || !typeContent || savedRef.current) return;
     savedRef.current = true;
+
+    // レア傾き判定（3%）。発火時は -1.8deg〜+1.8deg のランダム角度。
+    // 一度だけ算出して state に保存し、再描画でも安定させる。
+    const isRare = Math.random() < 0.03;
+    const angleNum = isRare ? (Math.random() * 2 - 1) * 1.8 : 0;
+    const angle = `rotate(${angleNum.toFixed(2)}deg)`;
+    setTiltAngle(angle);
+    setIsRareTilt(isRare);
 
     saveKindaNoteHistory({
       route,
       result_type: typeContent.fullName,
       weather,
       answers: { answers: stored.answers, freeTexts: stored.freeTexts },
+      meta: { isRareTilt: isRare, tiltAngle: angle },
     });
 
     trackEvent("kinda_note_complete", {
@@ -217,7 +230,11 @@ export default function ResultContent({ initialRoute }: Props) {
         }}
       >
         {/* ヒーロー */}
-        <Hero type={typeContent} weatherDesc={weatherDesc} />
+        <Hero
+          type={typeContent}
+          weatherDesc={weatherDesc}
+          tiltAngle={tiltAngle}
+        />
 
         {/* 第1層（常に表示） */}
         <Section>
@@ -322,6 +339,7 @@ export default function ResultContent({ initialRoute }: Props) {
             weather={weatherDesc}
             selectedLabels={selectedLabels}
             freeText={firstFreeText}
+            tiltAngle={tiltAngle}
           />
         </div>
       )}
@@ -389,31 +407,21 @@ function Header({ onBack }: { onBack: () => void }) {
 function Hero({
   type,
   weatherDesc,
+  tiltAngle,
 }: {
   type: TypeContent;
   weatherDesc: ReturnType<typeof getWeatherDescription>;
+  tiltAngle: string;
 }) {
   return (
-    <section style={{ paddingTop: 28, paddingBottom: 12 }}>
-      {/* eyebrow */}
-      <div
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 11,
-          letterSpacing: "0.16em",
-          color: "#B0A090",
-          textTransform: "uppercase",
-          textAlign: "center",
-          marginBottom: 12,
-        }}
-      >
-        {weatherDesc.name_en}
-      </div>
-
-      {/* 天気アイコン */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-        <WeatherIcon weather={type.weather} size={120} color={type.color} />
-      </div>
+    <section style={{ paddingTop: 12, paddingBottom: 12 }}>
+      {/* ポラロイド風 天気カード（英名はカード内下部）。
+          上部の eyebrow（FLOWER OVERCAST）はカード内に統合済み。 */}
+      <PolaroidWeatherCard
+        weather={type.weather}
+        nameEn={weatherDesc.name_en}
+        tiltAngle={tiltAngle}
+      />
 
       {/* タイプ名 */}
       <h1
@@ -425,7 +433,7 @@ function Hero({
           letterSpacing: "0.04em",
           textAlign: "center",
           lineHeight: 1.5,
-          marginBottom: 14,
+          marginBottom: 16,
         }}
       >
         {type.fullName}
@@ -440,7 +448,7 @@ function Hero({
           textAlign: "center",
           color: "#3A2E26",
           lineHeight: 1.7,
-          margin: "0 8px 16px",
+          margin: "0 8px 24px",
         }}
       >
         {type.summary}

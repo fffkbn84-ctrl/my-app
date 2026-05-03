@@ -23,6 +23,16 @@ export type KindaNoteHistoryItem = {
   answers: Record<string, unknown>;
   /** ISO 8601 */
   created_at: string;
+  /**
+   * レア傾き演出フラグ（3% 確率）。
+   * フェーズ5の天気ダッシュボードで「✨」マーク表示の判定に使う。
+   */
+  isRareTilt?: boolean;
+  /**
+   * カードの傾き角度。例: "rotate(-1.2deg)"
+   * フェーズ5でミニチュアカードに適用して履歴を傾けて表示できる。
+   */
+  tiltAngle?: string;
 };
 
 export type KindaNoteHistory = KindaNoteHistoryItem[];
@@ -40,6 +50,7 @@ export function saveKindaNoteHistory(item: {
   result_type: string;
   weather: WeatherKey;
   answers: Record<string, unknown>;
+  meta?: { isRareTilt?: boolean; tiltAngle?: string };
 }): KindaNoteHistoryItem | null {
   if (typeof window === "undefined") return null;
 
@@ -54,6 +65,8 @@ export function saveKindaNoteHistory(item: {
       weather: item.weather,
       answers: item.answers,
       created_at: new Date().toISOString(),
+      isRareTilt: item.meta?.isRareTilt ?? false,
+      tiltAngle: item.meta?.tiltAngle ?? "rotate(0deg)",
     };
 
     history.push(newItem);
