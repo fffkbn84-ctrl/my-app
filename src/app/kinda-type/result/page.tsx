@@ -161,7 +161,7 @@ export default async function DiagnosisResultPage({
           paddingBottom: 80,
         }}
       >
-        <div style={{ paddingTop: 64, background: "var(--pale)" }}>
+        <div style={{ background: "var(--pale)" }}>
           <SectionSubHeader sectionName="Kinda type" sectionRoot="/kinda-type" />
         </div>
         <Breadcrumb
