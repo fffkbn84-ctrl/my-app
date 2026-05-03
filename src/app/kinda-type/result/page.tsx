@@ -96,11 +96,12 @@ export default async function DiagnosisResultPage({
         style={{
           minHeight: "100vh",
           background: "var(--white)",
-          paddingTop: 64,
           paddingBottom: 80,
         }}
       >
-        <SectionSubHeader sectionName="Kinda type" sectionRoot="/kinda-type" />
+        <div style={{ paddingTop: 64, background: "var(--pale)" }}>
+          <SectionSubHeader sectionName="Kinda type" sectionRoot="/kinda-type" />
+        </div>
         <Breadcrumb
           items={[
             { label: "ホーム", href: "/" },
