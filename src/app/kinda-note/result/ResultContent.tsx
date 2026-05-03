@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { trackEvent } from "@/lib/analytics";
@@ -34,9 +34,13 @@ type StoredAnswers = {
   freeTexts: Record<string, string>;
 };
 
-export default function ResultContent() {
+type Props = {
+  /** Server component から URL の ?route= を渡す */
+  initialRoute: string | null;
+};
+
+export default function ResultContent({ initialRoute }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   // ─── 状態 ────────────────────────────────────────
   const [stored, setStored] = useState<StoredAnswers | null>(null);
@@ -63,12 +67,11 @@ export default function ResultContent() {
 
   // ─── ルートと天気の決定 ─────────────────────────
   const route: RouteKey = useMemo(() => {
-    const fromUrl = searchParams.get("route");
-    if (fromUrl && (VALID_ROUTES as string[]).includes(fromUrl)) {
-      return fromUrl as RouteKey;
+    if (initialRoute && (VALID_ROUTES as string[]).includes(initialRoute)) {
+      return initialRoute as RouteKey;
     }
     return stored?.phase ?? "omiai";
-  }, [searchParams, stored]);
+  }, [initialRoute, stored]);
 
   const weather: WeatherKey = useMemo(() => {
     if (!stored) return defaultWeatherForRoute(route);
@@ -96,11 +99,7 @@ export default function ResultContent() {
     });
   }, [hydrated, stored, typeContent, weather, route]);
 
-  // ─── ローディング表示（hydration 中・未保存）───
-  if (!hydrated) {
-    return <div style={{ minHeight: "100vh", background: "#F5EEE6" }} />;
-  }
-
+  // typeContent が見つからないことは原則ないが、安全弁として
   if (!typeContent) {
     return (
       <FallbackError
@@ -111,14 +110,21 @@ export default function ResultContent() {
   }
 
   // ─── 派生値 ──────────────────────────────────────
+  // hydrated 前は answers が空のため layer2/3 はゼロ件、selected ラベルもゼロ件で
+  // SSR 出力とクライアント初期描画が一致する（ハイドレーション安全）。
+  // useEffect で localStorage を読み込んだ後、再レンダリングで埋まる。
   const answers = stored?.answers ?? {};
   const freeTexts = stored?.freeTexts ?? {};
-  const visibleLayer2 = typeContent.layer2.filter(
-    (e) => !e.when || e.when(answers, freeTexts)
-  );
-  const visibleLayer3 = typeContent.layer3.filter(
-    (e) => !e.when || e.when(answers, freeTexts)
-  );
+  const visibleLayer2 = hydrated
+    ? typeContent.layer2.filter(
+        (e) => !e.when || e.when(answers, freeTexts)
+      )
+    : [];
+  const visibleLayer3 = hydrated
+    ? typeContent.layer3.filter(
+        (e) => !e.when || e.when(answers, freeTexts)
+      )
+    : [];
 
   const isPre = route === "pre";
   const isActiveRoute = !isPre;
@@ -297,24 +303,28 @@ export default function ResultContent() {
         {isActiveRoute && <SubLinks />}
       </main>
 
-      {/* オフスクリーン ShareCard（画像保存用） */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "fixed",
-          left: -10000,
-          top: 0,
-          pointerEvents: "none",
-        }}
-      >
-        <ShareCard
-          ref={shareCardRef}
-          type={typeContent}
-          weather={weatherDesc}
-          selectedLabels={selectedLabels}
-          freeText={firstFreeText}
-        />
-      </div>
+      {/* オフスクリーン ShareCard（画像保存用）
+          ShareCard 内で new Date() を使うため、SSR と client で値が
+          ズレてハイドレーション警告が出る。クライアント側でのみ描画する。 */}
+      {hydrated && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            left: -10000,
+            top: 0,
+            pointerEvents: "none",
+          }}
+        >
+          <ShareCard
+            ref={shareCardRef}
+            type={typeContent}
+            weather={weatherDesc}
+            selectedLabels={selectedLabels}
+            freeText={firstFreeText}
+          />
+        </div>
+      )}
 
       {/* トースト */}
       {toast && <Toast text={toast} />}
