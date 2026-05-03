@@ -363,7 +363,7 @@ export default function KindaTalkClient({ counselors }: Props) {
             </span>
           </div>
           <Link
-            href="/diagnosis"
+            href="/kinda-type"
             className="kt-grid-tease"
             style={{ textDecoration: "none", color: "var(--ink)" }}
           >

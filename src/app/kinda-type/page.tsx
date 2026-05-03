@@ -50,7 +50,7 @@ export default function DiagnosisPage() {
         }, 200);
       } else {
         const resultType = calculateResult(newAnswers);
-        router.push(`/diagnosis/result?type=${resultType}`);
+        router.push(`/kinda-type/result?type=${resultType}`);
       }
     }, 300);
   }

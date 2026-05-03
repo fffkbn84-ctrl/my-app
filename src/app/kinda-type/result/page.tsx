@@ -100,11 +100,11 @@ export default async function DiagnosisResultPage({
           paddingBottom: 80,
         }}
       >
-        <SectionSubHeader sectionName="Kinda type" sectionRoot="/diagnosis" />
+        <SectionSubHeader sectionName="Kinda type" sectionRoot="/kinda-type" />
         <Breadcrumb
           items={[
             { label: "ホーム", href: "/" },
-            { label: "Kinda type", href: "/diagnosis" },
+            { label: "Kinda type", href: "/kinda-type" },
             { label: "診断結果" },
           ]}
         />
@@ -466,7 +466,7 @@ export default async function DiagnosisResultPage({
             {/* ⑦ もう一度診断する */}
             <div>
               <Link
-                href="/diagnosis"
+                href="/kinda-type"
                 style={{
                   fontSize: 12,
                   color: "var(--accent)",

@@ -362,7 +362,7 @@ export default async function MyPage() {
                   ログイン
                 </a>
                 <Link
-                  href="/diagnosis"
+                  href="/kinda-type"
                   style={{
                     fontSize: 12,
                     padding: "9px 20px",
