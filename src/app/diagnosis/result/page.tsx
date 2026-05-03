@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { COUNSELORS } from "@/lib/data";
 
@@ -98,6 +100,14 @@ export default async function DiagnosisResultPage({
           paddingBottom: 80,
         }}
       >
+        <SectionSubHeader sectionName="Kinda type" sectionRoot="/diagnosis" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda type", href: "/diagnosis" },
+            { label: "診断結果" },
+          ]}
+        />
         <div style={{ maxWidth: 480, margin: "0 auto" }}>
 
           {/* ══════════════════════════════════

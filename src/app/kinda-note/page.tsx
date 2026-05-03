@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export default function KindaNotePage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function KindaNotePage() {
 
   return (
     <div style={{ background: "#F5EEE6", minHeight: "100vh" }}>
+      <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda note" }]} />
 
       {/* ① ミニヘッダー */}
       <div

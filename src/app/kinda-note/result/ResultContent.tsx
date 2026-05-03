@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 import { trackEvent } from "@/lib/analytics";
 
@@ -221,6 +223,15 @@ export default function ResultContent({ initialRoute }: Props) {
     <div style={{ background: "#F5EEE6", minHeight: "100vh" }}>
       {/* ヘッダー */}
       <Header onBack={() => router.push("/kinda-note")} />
+
+      <SectionSubHeader sectionName="Kinda note" sectionRoot="/kinda-note" />
+      <Breadcrumb
+        items={[
+          { label: "ホーム", href: "/" },
+          { label: "Kinda note", href: "/kinda-note" },
+          { label: "結果" },
+        ]}
+      />
 
       <main
         style={{

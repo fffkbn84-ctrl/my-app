@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import { placesHomeData } from "@/lib/mock/places-home";
 import KindaActClient from "./KindaActClient";
 
@@ -20,6 +21,7 @@ export default function KindaActPage() {
       <Header />
 
       <main style={{ background: "transparent" }}>
+        <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda act" }]} />
         {/* ─── ヒーロー（フルブリード画像 + ふんわりフェードイン + パステルピンクtint） ─── */}
         <section className="kt-hero">
           <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>

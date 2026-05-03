@@ -59,7 +59,7 @@ const DECIDED_CARDS = [
     key: "type",
     href: "/kinda-type",
     kindaLabel: "type",
-    desc: "自分に合うカウンセラーが見つかる相性チェック",
+    desc: "自分に合うカウンセラーを見つける",
     img: "/images/section-kinda-type.webp",
     alt: "Kinda type",
     bg: "#E0ECF8",
@@ -69,7 +69,7 @@ const DECIDED_CARDS = [
     key: "talk",
     href: "/kinda-talk",
     kindaLabel: "talk",
-    desc: "カウンセラー・相談所を見る",
+    desc: "カウンセラー・相談所を直接見る",
     img: "/images/section-counseling.webp",
     alt: "Kinda talk",
     bg: "#FAF3DE",
@@ -79,7 +79,7 @@ const DECIDED_CARDS = [
     key: "act",
     href: "/kinda-act",
     kindaLabel: "act",
-    desc: "お見合いやデートに使いやすい場所",
+    desc: "お見合いやデートの場所",
     img: "/images/section-cafe-pastel.webp",
     alt: "Kinda act",
     bg: "#F5E1E0",
@@ -89,12 +89,29 @@ const DECIDED_CARDS = [
     key: "glow",
     href: "/kinda-glow",
     kindaLabel: "glow",
-    desc: "好きな人に会う前に、自分を整える時間",
+    desc: "好きな人に会う前に、自分を整える",
     img: "/images/section-beauty-n2.png.jpg",
     alt: "Kinda glow",
     bg: "#EDE0F4",
     accent: "#8A66B0",
   },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   A'' — Kinda note ユースケース（2グループ × 4項目）
+──────────────────────────────────────────────────────────── */
+const KN_USECASES_PAUSE = [
+  "カウンセラーになんて伝えればいいか分からない",
+  "お見合いの後、ことばにならない違和感があった",
+  "交際中、なぜか不安が消えない",
+  "複数の人で、気持ちが揺れている",
+] as const;
+
+const KN_USECASES_MOVE = [
+  "好きな人ができた、その気持ちを整理したい",
+  "「好き」をどう伝えればいいか考えたい",
+  "大事なデートの前、自分の気持ちを見つめたい",
+  "節目のとき、いまの自分を残しておきたい",
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
@@ -104,10 +121,10 @@ const DECIDED_CARDS = [
 ──────────────────────────────────────────────────────────── */
 const NOTE_WEATHERS = [
   { src: "/images/w_pre_dawn.webp",         label: "夜明け前" },
-  { src: "/images/w_light_rain_start.webp", label: "小雨の始まり" },
-  { src: "/images/w_angels_ladder.webp",    label: "天使のはしご" },
-  { src: "/images/w_wandering_clouds.webp", label: "迷い雲" },
-  { src: "/images/w_sunrise.webp",          label: "朝焼け" },
+  { src: "/images/w_light_rain_start.webp", label: "小雨のはじまり" },
+  { src: "/images/w_angels_ladder.webp",    label: "天使の梯子" },
+  { src: "/images/w_light_sunrise.webp",    label: "淡い朝焼け" },
+  { src: "/images/w_twilight.webp",         label: "夕暮れ" },
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
@@ -589,9 +606,13 @@ export default async function HomePage() {
                 letterSpacing: ".02em",
               }}
             >
-              うまく言葉にできない不安や迷いも、
+              うまく言葉にできない不安や、
               <br />
-              天気のメタファーを通して、自分の気持ちが見えてきます。
+              言葉にならない嬉しさも。
+              <br />
+              天気のメタファーを通して、
+              <br />
+              自分の気持ちが見えてきます。
             </p>
 
             {/* 天気アイコン 5 種（横スクロール） */}
@@ -746,9 +767,75 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            B — もう決まっている方へ
+            A'' — Kinda note は、こんな時に使えます
+        ═══════════════════════════════════════════════════ */}
+        <section style={{ padding: "48px 24px 64px", background: "#FEFCFA" }}>
+          <SectionLabel label="Kinda note は、こんな時に使えます" />
+
+          <div style={{ maxWidth: 480, margin: "0 auto" }}>
+            <h3 className="kn-usecase-h3">ふと立ち止まったとき</h3>
+            <div className="kn-usecase-box">
+              <ul className="kn-usecase-list">
+                {KN_USECASES_PAUSE.map((u) => (
+                  <li key={u}>{u}</li>
+                ))}
+              </ul>
+            </div>
+
+            <h3 className="kn-usecase-h3" style={{ marginTop: 24 }}>
+              気持ちが動いたとき
+            </h3>
+            <div className="kn-usecase-box">
+              <ul className="kn-usecase-list">
+                {KN_USECASES_MOVE.map((u) => (
+                  <li key={u}>{u}</li>
+                ))}
+              </ul>
+            </div>
+
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontStyle: "italic",
+                fontSize: 16,
+                color: "var(--ink)",
+                textAlign: "center",
+                margin: "32px 0 16px",
+              }}
+            >
+              入会前から交際後まで、何度でも。
+            </p>
+
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/kinda-note"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "14px 36px",
+                  background: "#D4A090",
+                  color: "white",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  letterSpacing: ".03em",
+                  textDecoration: "none",
+                  boxShadow: "0 6px 18px rgba(212,160,144,.4)",
+                }}
+              >
+                気持ちを整理する
+                <ArrowRight color="white" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            B — やりたいことが決まっている方へ
         ═══════════════════════════════════════════════════ */}
         <section
+          id="section-b"
           style={{
             padding: "48px 24px 64px",
             background: "#FEFCFA",

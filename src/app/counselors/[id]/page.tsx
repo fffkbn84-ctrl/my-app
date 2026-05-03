@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
@@ -502,6 +504,14 @@ export default async function CounselorDetailPage({
       <CounselorDetailViewTracker counselorId={String(id)} />
 
       <main className="pt-16">
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: counselor.name },
+          ]}
+        />
         {/* ═══════════════════════════════════════════════════
             ヒーローストリップ（黒背景）
         ═══════════════════════════════════════════════════ */}

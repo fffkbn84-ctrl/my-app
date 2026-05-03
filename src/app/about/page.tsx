@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 export const metadata = {
   title: "このサービスについて",
@@ -9,6 +11,9 @@ export const metadata = {
 export default function AboutPage() {
   return (
     <main style={{ background: "var(--white)" }}>
+      <SectionSubHeader sectionName="ホーム" sectionRoot="/" />
+      <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kindaについて" }]} />
+
 
       {/* ━━━━━━━━━━━━━━━━━━━━
           ① ヒーロー
