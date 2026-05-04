@@ -4,7 +4,9 @@ import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AGENCIES, COUNSELORS, type Counselor, type Agency } from "@/lib/data";
+import { matchesAreaFilter } from "@/lib/areas";
 import Pagination from "@/components/ui/Pagination";
+import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -126,6 +128,9 @@ export default function AgenciesClient({
     setPage(1);
   }, [query, area, type, price, sort]);
 
+  /* エリア option 用の件数マップ（0 件はグレーアウト） */
+  const areaCountMap = useMemo(() => buildAreaCountMap(agencies), [agencies]);
+
   const filtered = useMemo(() => {
     let list = [...agencies];
 
@@ -138,7 +143,7 @@ export default function AgenciesClient({
           a.features.some((f) => f.includes(q))
       );
     }
-    if (area) list = list.filter((a) => a.area.includes(area));
+    if (area) list = list.filter((a) => matchesAreaFilter(a.area, area));
     if (type) list = list.filter((a) => a.type.includes(type));
     if (price === "low") list = list.filter((a) => Math.min(...a.plans.map((p) => p.admission)) < 80000);
     else if (price === "mid")
@@ -185,10 +190,7 @@ export default function AgenciesClient({
 
         <div className="agc-filter-row">
           <select value={area} onChange={(e) => setArea(e.target.value)} aria-label="エリア" className="agc-select">
-            <option value="">すべてのエリア</option>
-            <option value="東京">東京</option>
-            <option value="大阪">大阪</option>
-            <option value="名古屋">名古屋</option>
+            <AreaOptions countMap={areaCountMap} />
           </select>
 
           <select value={type} onChange={(e) => setType(e.target.value)} aria-label="種別" className="agc-select">

@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/kinda-talk",
     "/kinda-act",
+    "/kinda-glow",
     "/kinda-type",
     "/kinda-type/quiz",
     "/agencies",

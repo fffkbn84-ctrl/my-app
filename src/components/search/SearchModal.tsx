@@ -6,16 +6,10 @@ import { DIAGNOSIS_TYPES, type DiagnosisTypeId } from "@/lib/diagnosis";
 import Link from "next/link";
 
 const DIAGNOSIS_KEYS: DiagnosisTypeId[] = ["A", "B", "C", "D"];
-import {
-  PREFECTURE_GROUPS,
-  BROAD_REGIONS,
-  NATIONAL_OPTION,
-  ONLINE_OPTION,
-  extractAreaKey,
-  prefecturesInBroadRegion,
-} from "@/lib/areas";
+import { extractAreaKey, matchesAreaFilter } from "@/lib/areas";
 import { COUNSELORS } from "@/lib/data";
 import { placesHomeData } from "@/lib/mock/places-home";
+import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -57,75 +51,6 @@ const labelStyle: React.CSSProperties = {
   display: "block",
   marginBottom: 8,
 };
-
-/**
- * 任意の {area: string|null}[] からキー単位のカウントマップを作成。
- * "東京"・"東京都"・"東京・銀座" 等は extractAreaKey で正規化される。
- */
-function buildAreaCountMap<T extends { area?: string | null; areaLabel?: string | null }>(
-  items: T[]
-): Map<string, number> {
-  const map = new Map<string, number>();
-  for (const it of items) {
-    const raw = it.area ?? it.areaLabel ?? "";
-    const k = extractAreaKey(raw);
-    if (!k) continue;
-    map.set(k, (map.get(k) ?? 0) + 1);
-  }
-  return map;
-}
-
-/**
- * エリア <select> の中身（option群）。
- * 結婚相談所 / デートの場所 / 美容店 すべてで同じ階層構造を使う：
- *   広域・オンライン（全国・オンライン）→ エリア（広域）→ 47 都道府県
- * futarive-counselor のプロフィール「活動エリア」と完全一致。
- *
- * countMap は { 都道府県名 / 広域エリア名 / オンライン → 件数 } のマップ。
- * 件数 0 の選択肢は disabled でグレーアウト。
- */
-function AreaOptions({ countMap }: { countMap: Map<string, number> }) {
-  // 全件数（「全国」用）
-  const total = Array.from(countMap.values()).reduce((s, n) => s + n, 0);
-
-  // 広域エリアの件数（含まれる都道府県の合計 + 直接登録）
-  const broadCount = (name: string): number => {
-    const direct = countMap.get(name) ?? 0;
-    const sum = prefecturesInBroadRegion(name).reduce(
-      (s, p) => s + (countMap.get(p) ?? 0),
-      0
-    );
-    return direct + sum;
-  };
-
-  const renderOption = (value: string, label: string, count: number) => {
-    const disabled = count === 0;
-    return (
-      <option key={value} value={value} disabled={disabled}>
-        {label}
-        {disabled ? "（0件）" : ""}
-      </option>
-    );
-  };
-
-  return (
-    <>
-      <option value="">すべて</option>
-      <optgroup label="広域・オンライン">
-        {renderOption(NATIONAL_OPTION, NATIONAL_OPTION, total)}
-        {renderOption(ONLINE_OPTION, ONLINE_OPTION, countMap.get(ONLINE_OPTION) ?? 0)}
-      </optgroup>
-      <optgroup label="エリア（広域）">
-        {BROAD_REGIONS.map((r) => renderOption(r.name, r.name, broadCount(r.name)))}
-      </optgroup>
-      {PREFECTURE_GROUPS.map((g) => (
-        <optgroup key={g.label} label={g.label}>
-          {g.prefectures.map((p) => renderOption(p, p, countMap.get(p) ?? 0))}
-        </optgroup>
-      ))}
-    </>
-  );
-}
 
 type Tab = "counselor" | "act" | "glow";
 

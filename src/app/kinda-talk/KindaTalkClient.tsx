@@ -314,13 +314,13 @@ export default function KindaTalkClient({ counselors }: Props) {
 
           <span style={{ width: 8, flexShrink: 0 }} />
 
-          {/* Kinda type フィルター */}
+          {/* Kinda type フィルター（4タイプ A/B/C/D を ピル化） */}
           <button
             type="button"
             className={`kt-pill ${typeFilter === "all" ? "is-active" : ""}`}
             onClick={() => setTypeFilter("all")}
           >
-            すべてのタイプ
+            すべて
           </button>
           {DIAGNOSIS_KEYS.map((k) => (
             <button

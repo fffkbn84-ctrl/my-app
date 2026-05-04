@@ -3520,6 +3520,19 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   padding: 0 16px;
   overflow-x: auto;
   scrollbar-width: none;
+  /* スクロール可能な右端を fade で示唆（ユーザーに「もっとある」を伝える） */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 0,
+    black calc(100% - 36px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    black 0,
+    black calc(100% - 36px),
+    transparent 100%
+  );
 }
 .kt-filter-scroll::-webkit-scrollbar { display: none; }
 .kt-pill {
