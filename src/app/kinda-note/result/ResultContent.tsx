@@ -245,6 +245,7 @@ export default function ResultContent({ initialRoute }: Props) {
           type={typeContent}
           weatherDesc={weatherDesc}
           tiltAngle={tiltAngle}
+          hydrated={hydrated}
         />
 
         {/* 第1層（常に表示） */}
@@ -415,24 +416,72 @@ function Header({ onBack }: { onBack: () => void }) {
   );
 }
 
+/** Hydration 前の空ポラロイド枠（PolaroidWeatherCard と同寸）。
+ *  実天気のフラッシュ切替を防ぐためのプレースホルダ。 */
+function WeatherCardSkeleton() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: 32,
+        marginBottom: 32,
+        paddingLeft: 16,
+        paddingRight: 16,
+      }}
+      aria-hidden="true"
+    >
+      <div
+        style={{
+          background: "#FFFFFF",
+          padding: "16px 16px 56px 16px",
+          borderRadius: 4,
+          boxShadow: "0 2px 4px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.08)",
+          width: "min(85vw, 340px)",
+          maxWidth: "100%",
+          boxSizing: "border-box",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            aspectRatio: "1 / 1",
+            background: "#FAF6F0",
+          }}
+        />
+        <div style={{ height: 11, marginTop: 20 }} />
+      </div>
+    </div>
+  );
+}
+
 function Hero({
   type,
   weatherDesc,
   tiltAngle,
+  hydrated,
 }: {
   type: TypeContent;
   weatherDesc: ReturnType<typeof getWeatherDescription>;
   tiltAngle: string;
+  hydrated: boolean;
 }) {
   return (
     <section style={{ paddingTop: 12, paddingBottom: 12 }}>
       {/* ポラロイド風 天気カード（英名はカード内下部）。
-          上部の eyebrow（FLOWER OVERCAST）はカード内に統合済み。 */}
-      <PolaroidWeatherCard
-        weather={type.weather}
-        nameEn={weatherDesc.name_en}
-        tiltAngle={tiltAngle}
-      />
+          上部の eyebrow（FLOWER OVERCAST）はカード内に統合済み。
+          hydrated 前は localStorage 未読込で weather がデフォルト値のため、
+          実回答に基づくアイコンへの「フラッシュ切替」が起きる。
+          同寸のスケルトンを置いて切替を不可視化する。 */}
+      {hydrated ? (
+        <PolaroidWeatherCard
+          weather={type.weather}
+          nameEn={weatherDesc.name_en}
+          tiltAngle={tiltAngle}
+        />
+      ) : (
+        <WeatherCardSkeleton />
+      )}
 
       {/* タイプ名 */}
       <h1

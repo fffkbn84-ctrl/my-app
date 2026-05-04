@@ -4988,12 +4988,16 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   margin-bottom: 10px;
   transition: all .25s;
 }
-.ktq-option:hover {
-  border-color: var(--type-color, var(--accent));
-  background: var(--type-bg-hover, var(--pale));
+/* sticky hover 対策：マウスが実在する環境のみ hover を有効化。
+   タッチデバイスでは hover が「最後にタップした場所」に残り続けるため、
+   次の質問の同じ位置のボタンが選択風に見える iOS Safari の既知バグを回避する。 */
+@media (hover: hover) and (pointer: fine) {
+  .ktq-option:hover {
+    border-color: var(--type-color, var(--accent));
+    background: var(--type-bg-hover, var(--pale));
+  }
 }
-.ktq-option[data-selected="true"],
-.ktq-option[data-selected="true"]:hover {
+.ktq-option[data-selected="true"] {
   border-color: var(--type-color, var(--accent));
   background: var(--type-bg, var(--pale));
 }
