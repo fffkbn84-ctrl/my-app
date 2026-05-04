@@ -4585,3 +4585,294 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   color: var(--mid);
   flex-shrink: 0;
 }
+
+/* ─────────────────────────────────────────────────────────
+   Kinda type 結果ページ（/kinda-type/result）
+   prefix: .ktr-*
+   動的な色（diagType.color / c.gradient 等）は inline style 維持。
+───────────────────────────────────────────────────────── */
+.ktr-main {
+  min-height: 100vh;
+  background: var(--white);
+  padding-bottom: 80px;
+}
+.ktr-subheader-wrap { background: var(--pale); }
+.ktr-content { max-width: 480px; margin: 0 auto; }
+
+/* ① ヒーロー */
+.ktr-hero { padding: 40px 28px 56px; }
+.ktr-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(26px, 5vw, 42px);
+  font-weight: 400;
+  color: var(--black);
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.ktr-hero-label {
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+.ktr-hero-desc-list {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ktr-hero-desc-item {
+  padding: 4px 0 4px 12px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.7;
+  font-weight: 300;
+}
+.ktr-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ktr-hero-tag {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+}
+
+/* ② メインカード（カウンセラー紹介） */
+.ktr-main-card {
+  background: white;
+  border-radius: 20px;
+  padding: 28px 24px;
+  margin: -20px 20px 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 32px rgba(0,0,0,.08);
+}
+.ktr-eyebrow {
+  font-size: 9px;
+  letter-spacing: .18em;
+  font-family: 'DM Serif Display', serif;
+  margin-bottom: 12px;
+}
+.ktr-card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+.ktr-card-desc {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 2;
+  margin-bottom: 20px;
+}
+.ktr-divider {
+  border-bottom: 1px solid var(--pale);
+  margin-bottom: 20px;
+}
+.ktr-empty {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  font-weight: 300;
+}
+
+/* カウンセラーカード */
+.ktr-counselor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ktr-counselor-card {
+  position: relative;
+  padding: 16px 16px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--pale);
+  background: white;
+  transition: border-color .2s, box-shadow .2s;
+}
+.ktr-counselor-card:hover {
+  border-color: var(--light);
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+}
+.ktr-counselor-stretch {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 14px;
+}
+.ktr-counselor-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ktr-counselor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ktr-counselor-info { flex: 1; min-width: 0; }
+.ktr-counselor-name {
+  font-size: 15px;
+  color: var(--black);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.ktr-counselor-meta {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+}
+.ktr-counselor-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 300;
+  margin-bottom: 12px;
+}
+.ktr-counselor-rating-star { font-weight: 500; }
+.ktr-counselor-rating-sub { color: var(--muted); }
+.ktr-counselor-quote {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--black);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  letter-spacing: .02em;
+  padding-left: 10px;
+}
+.ktr-counselor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ktr-counselor-tag {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 16px;
+  font-weight: 400;
+}
+.ktr-counselor-actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+.ktr-counselor-cta {
+  font-size: 12px;
+  padding: 9px 18px;
+  border-radius: 50px;
+  background: var(--black);
+  color: white;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  letter-spacing: .03em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ktr-counselor-cta:hover { opacity: .85; }
+
+/* もっと見るリンク */
+.ktr-more-link {
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  letter-spacing: .03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ③ 分岐テキスト */
+.ktr-branch { padding: 28px 24px 0; }
+.ktr-branch p {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.9;
+  letter-spacing: .03em;
+}
+
+/* ④ サブカード */
+.ktr-sub-grid {
+  padding: 20px 20px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+.ktr-sub-icon { margin-bottom: 10px; }
+.ktr-sub-title {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--black);
+  font-weight: 400;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.ktr-sub-desc {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.ktr-sub-arrow {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+/* ⑤ あとから見返しリンク */
+.ktr-recall {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 0 24px;
+}
+.ktr-recall-link {
+  font-size: 13px;
+  color: var(--accent);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  letter-spacing: .03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ⑥ シェア + もう一度 */
+.ktr-share-wrap { text-align: center; padding: 0 24px 8px; }
+.ktr-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  background: #000;
+  color: white;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  letter-spacing: .03em;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+.ktr-share-btn:hover { opacity: .85; }
+.ktr-retry-link {
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: .05em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
