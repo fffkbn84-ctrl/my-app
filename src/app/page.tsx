@@ -289,14 +289,7 @@ export default async function HomePage() {
         {/* ═══════════════════════════════════════════════════
             A — ヒーロー（フルブリード）
         ═══════════════════════════════════════════════════ */}
-        <section
-          style={{
-            position: "relative",
-            width: "100%",
-            minHeight: "calc(100svh - 56px)",
-            overflow: "hidden",
-          }}
-        >
+        <section className="ktp-hero">
           {/* フルブリード背景画像 */}
           <Image
             src={HERO_IMAGE_SRC}
@@ -309,15 +302,7 @@ export default async function HomePage() {
           />
 
           {/* 下側グラデーションオーバーレイ — H1/H2 領域をしっかり暗く */}
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(to bottom, transparent 0%, rgba(18,12,8,.18) 30%, rgba(18,12,8,.55) 55%, rgba(18,12,8,.86) 78%, rgba(18,12,8,.94) 100%)",
-            }}
-          />
+          <div className="ktp-hero-overlay" aria-hidden="true" />
 
           {/* SEO: 構造化データ（JSON-LD） */}
           <script
@@ -330,186 +315,52 @@ export default async function HomePage() {
           />
 
           {/* コンテンツ — 画像下部にオーバーレイ */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: "0 24px 28px",
-            }}
-          >
+          <div className="ktp-hero-content">
             {/* H1 — 詩的メインコピー（白文字＋多層シャドウで村背景上で可読） */}
-            <h1
-              style={{
-                fontFamily: "var(--font-mincho)",
-                fontWeight: 500,
-                fontSize: "clamp(22px, 6.4vw, 36px)",
-                color: "white",
-                lineHeight: 1.5,
-                letterSpacing: ".02em",
-                margin: 0,
-                marginBottom: 10,
-                textShadow:
-                  "0 0 2px rgba(0,0,0,.65), 0 2px 6px rgba(0,0,0,.7), 0 4px 22px rgba(0,0,0,.55)",
-              }}
-            >
+            <h1 className="ktp-hero-h1">
               {HERO_H1_LINE1}
               <br />
               {HERO_H1_LINE2}
             </h1>
 
             {/* H2 — 機能・カバー範囲を伝える説明文 */}
-            <h2
-              style={{
-                fontFamily: "var(--font-sans)",
-                fontWeight: 300,
-                fontSize: "clamp(12px, 3.4vw, 14px)",
-                color: "rgba(255,255,255,.96)",
-                lineHeight: 1.7,
-                letterSpacing: ".02em",
-                margin: 0,
-                marginBottom: 16,
-                textShadow:
-                  "0 0 2px rgba(0,0,0,.6), 0 1px 4px rgba(0,0,0,.65), 0 2px 12px rgba(0,0,0,.5)",
-              }}
-            >
-              {HERO_H2}
-            </h2>
+            <h2 className="ktp-hero-h2">{HERO_H2}</h2>
 
             {/* ロゴ — ごく小さく、ブランドマーク程度に控える
                 ※ PNG 自体に白い余白が多いので、トリミング後はより小さく見せられる */}
-            <div
-              style={{
-                marginBottom: 18,
-                display: "inline-block",
-              }}
-            >
+            <div className="ktp-hero-logo">
               <Image
                 src="/images/toppage_name.PNG"
                 alt="Kinda ふたりへ"
                 width={400}
                 height={120}
                 priority
-                style={{
-                  display: "block",
-                  width: "min(24vw, 110px)",
-                  height: "auto",
-                  objectFit: "contain",
-                  opacity: 0.88,
-                  filter: "drop-shadow(0 1px 4px rgba(0,0,0,.4))",
-                }}
               />
             </div>
 
             {/* 主CTA — Kinda note（軽い気持ちの整理から始める） */}
-            <Link
-              href="/kinda-note"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 10,
-                padding: "18px 24px",
-                background: "#D4A090",
-                color: "white",
-                borderRadius: 999,
-                fontFamily: "var(--font-sans)",
-                fontSize: 15,
-                fontWeight: 500,
-                letterSpacing: ".03em",
-                textDecoration: "none",
-                marginBottom: 10,
-                transition: "transform .2s, box-shadow .2s",
-                boxShadow:
-                  "0 0 32px rgba(212,160,144,.55), 0 8px 24px rgba(212,160,144,.5), 0 2px 6px rgba(0,0,0,.14)",
-              }}
-            >
+            <Link href="/kinda-note" className="ktp-hero-cta">
               いまの気持ちを整理する
               <ArrowRight color="white" />
             </Link>
 
             {/* マイクロコピー — 軽さと安心感を伝える */}
-            <p
-              style={{
-                fontSize: 12,
-                color: "rgba(255,255,255,.85)",
-                textAlign: "center",
-                letterSpacing: ".06em",
-                marginBottom: 18,
-                textShadow: "0 1px 3px rgba(0,0,0,.4)",
-                fontFamily: "var(--font-sans)",
-              }}
-            >
+            <p className="ktp-hero-micro">
               ✓ 60秒で言葉になる　✓ 登録不要　✓ 相談前の整理に
             </p>
 
             {/* 区切り線 + ラベル — 副CTAへの導線 */}
-            <div
-              aria-hidden="true"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 12,
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  height: 1,
-                  background: "rgba(255,255,255,.28)",
-                }}
-              />
-              <p
-                style={{
-                  fontSize: 11,
-                  color: "rgba(255,255,255,.72)",
-                  letterSpacing: ".08em",
-                  whiteSpace: "nowrap",
-                  fontFamily: "var(--font-sans)",
-                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
-                  margin: 0,
-                }}
-              >
-                やりたいことが決まっている方は
-              </p>
-              <div
-                style={{
-                  flex: 1,
-                  height: 1,
-                  background: "rgba(255,255,255,.28)",
-                }}
-              />
+            <div className="ktp-hero-divider" aria-hidden="true">
+              <div className="ktp-hero-divider-line" />
+              <p className="ktp-hero-divider-label">やりたいことが決まっている方は</p>
+              <div className="ktp-hero-divider-line" />
             </div>
 
             {/* 副CTA — Kinda type / Kinda talk（テキストリンク風） */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 10,
-              }}
-            >
-              <Link
-                href="/kinda-type"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 13,
-                  color: "rgba(255,255,255,.94)",
-                  textDecoration: "none",
-                  borderBottom: "1px solid rgba(255,255,255,.4)",
-                  paddingBottom: 2,
-                  letterSpacing: ".04em",
-                  fontFamily: "var(--font-sans)",
-                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
-                }}
-              >
+            <div className="ktp-hero-sub">
+              <Link href="/kinda-type" className="ktp-hero-sub-link">
                 自分に合う担当を見つける
-                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                   <path
                     d="M3 7h8M7 3l4 4-4 4"
                     stroke="currentColor"
@@ -519,24 +370,9 @@ export default async function HomePage() {
                   />
                 </svg>
               </Link>
-              <Link
-                href="/kinda-talk"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 13,
-                  color: "rgba(255,255,255,.94)",
-                  textDecoration: "none",
-                  borderBottom: "1px solid rgba(255,255,255,.4)",
-                  paddingBottom: 2,
-                  letterSpacing: ".04em",
-                  fontFamily: "var(--font-sans)",
-                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
-                }}
-              >
+              <Link href="/kinda-talk" className="ktp-hero-sub-link">
                 カウンセラーを見てみる
-                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                   <path
                     d="M3 7h8M7 3l4 4-4 4"
                     stroke="currentColor"

@@ -12,6 +12,9 @@
   --pale:     #F0EEEB;
   --white:    #FAFAF8;
   --accent:   #D4A090;
+  --accent-deep: #B8806E;                  /* CTA active 状態の影色 */
+  --accent-glow: rgba(212,160,144,.55);    /* CTA グロー強 */
+  --accent-shadow: rgba(212,160,144,.5);   /* CTA 影 */
   --adim:     rgba(212,160,144,.15);
   --adim2:    rgba(212,160,144,.07);
   --accent-dim: rgba(212,160,144,.08);
@@ -5314,4 +5317,158 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   color: var(--ink);
   font-weight: 300;
   margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   トップページ ヒーロー（src/app/page.tsx の A セクション）
+   prefix: .ktp-* (Kinda Top Page)
+   背景画像の上に白文字が乗る前提のクラス群。
+───────────────────────────────────────────────────────── */
+.ktp-hero {
+  position: relative;
+  width: 100%;
+  min-height: calc(100svh - 56px);
+  overflow: hidden;
+}
+.ktp-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(18,12,8,.18) 30%,
+    rgba(18,12,8,.55) 55%,
+    rgba(18,12,8,.86) 78%,
+    rgba(18,12,8,.94) 100%
+  );
+}
+.ktp-hero-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 24px 28px;
+}
+.ktp-hero-h1 {
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  font-size: clamp(22px, 6.4vw, 36px);
+  color: white;
+  line-height: 1.5;
+  letter-spacing: .02em;
+  margin: 0 0 10px;
+  text-shadow:
+    0 0 2px rgba(0,0,0,.65),
+    0 2px 6px rgba(0,0,0,.7),
+    0 4px 22px rgba(0,0,0,.55);
+}
+.ktp-hero-h2 {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: clamp(12px, 3.4vw, 14px);
+  color: rgba(255,255,255,.96);
+  line-height: 1.7;
+  letter-spacing: .02em;
+  margin: 0 0 16px;
+  text-shadow:
+    0 0 2px rgba(0,0,0,.6),
+    0 1px 4px rgba(0,0,0,.65),
+    0 2px 12px rgba(0,0,0,.5);
+}
+.ktp-hero-logo {
+  display: inline-block;
+  margin-bottom: 18px;
+}
+.ktp-hero-logo img {
+  display: block;
+  width: min(24vw, 110px);
+  height: auto;
+  object-fit: contain;
+  opacity: .88;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,.4));
+}
+
+/* 主CTA */
+.ktp-hero-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 24px;
+  background: var(--accent);
+  color: white;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: .03em;
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: transform .2s, box-shadow .2s, opacity .2s;
+  box-shadow:
+    0 0 32px var(--accent-glow),
+    0 8px 24px var(--accent-shadow),
+    0 2px 6px rgba(0,0,0,.14);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ktp-hero-cta:hover { opacity: .92; }
+}
+.ktp-hero-cta:active { transform: translateY(1px); }
+
+/* マイクロコピー */
+.ktp-hero-micro {
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  text-align: center;
+  letter-spacing: .06em;
+  margin-bottom: 18px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.4);
+  font-family: var(--font-sans);
+}
+
+/* 副CTA区切り線 */
+.ktp-hero-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ktp-hero-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,.28);
+}
+.ktp-hero-divider-label {
+  font-size: 11px;
+  color: rgba(255,255,255,.72);
+  letter-spacing: .08em;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  text-shadow: 0 1px 3px rgba(0,0,0,.4);
+  margin: 0;
+}
+
+/* 副CTA */
+.ktp-hero-sub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.ktp-hero-sub-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255,255,255,.94);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.4);
+  padding-bottom: 2px;
+  letter-spacing: .04em;
+  font-family: var(--font-sans);
+  text-shadow: 0 1px 3px rgba(0,0,0,.4);
+  transition: border-color .2s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ktp-hero-sub-link:hover { border-color: rgba(255,255,255,.8); }
 }
