@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AGENCIES, COUNSELORS, type Counselor, type Agency } from "@/lib/data";
 import Pagination from "@/components/ui/Pagination";
 
@@ -113,11 +113,13 @@ export default function AgenciesClient({
   agencies?: Agency[];
   counselors?: Counselor[];
 }) {
-  const [query, setQuery] = useState("");
-  const [area, setArea] = useState("");
-  const [type, setType] = useState("");
-  const [price, setPrice] = useState("");
-  const [sort, setSort] = useState("rating");
+  /* URL params から初期値を読む（SearchModal / フッター等からの遷移に対応） */
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("keyword") ?? searchParams.get("q") ?? "");
+  const [area, setArea] = useState(searchParams.get("area") ?? "");
+  const [type, setType] = useState(searchParams.get("type") ?? "");
+  const [price, setPrice] = useState(searchParams.get("price") ?? "");
+  const [sort, setSort] = useState(searchParams.get("sort") ?? "rating");
   const [page, setPage] = useState(1);
 
   useEffect(() => {

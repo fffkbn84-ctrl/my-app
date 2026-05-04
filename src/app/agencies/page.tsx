@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -45,7 +46,9 @@ export default function AgenciesPage() {
           </p>
         </section>
 
-        <AgenciesClient />
+        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+          <AgenciesClient />
+        </Suspense>
       </main>
       <ScrollToTopButton />
       <Footer />

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
@@ -132,8 +133,10 @@ export default async function KindaTalkPage() {
           </div>
         </section>
 
-        {/* ─── リール一覧（クライアント） ─── */}
-        <KindaTalkClient counselors={counselors} />
+        {/* ─── リール一覧（クライアント。useSearchParams 利用のため Suspense 必須） ─── */}
+        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+          <KindaTalkClient counselors={counselors} />
+        </Suspense>
 
         {/* ─── FAQ ─── */}
         <section className="kt-faq">

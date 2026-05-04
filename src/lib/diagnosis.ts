@@ -21,6 +21,8 @@ export type DiagnosisQuestion = {
 export type DiagnosisType = {
   id: DiagnosisTypeId;
   name: string;
+  /** ピル・タブ・短い表示用の省略名（4文字以内）*/
+  shortName: string;
   label: string;
   description: string[];
   color: string;
@@ -46,6 +48,7 @@ export const DIAGNOSIS_TYPES: Record<DiagnosisTypeId, DiagnosisType> = {
   A: {
     id: "A",
     name: "慎重分析タイプ",
+    shortName: "慎重分析",
     label: "情報が多いほど迷いやすい状態です",
     description: [
       "正しく選ぼうとしすぎている",
@@ -84,6 +87,7 @@ export const DIAGNOSIS_TYPES: Record<DiagnosisTypeId, DiagnosisType> = {
   B: {
     id: "B",
     name: "自信低下タイプ",
+    shortName: "自信低下",
     label: "本来の魅力が伝わりにくい状態です",
     description: [
       "自分を抑えすぎている",
@@ -122,6 +126,7 @@ export const DIAGNOSIS_TYPES: Record<DiagnosisTypeId, DiagnosisType> = {
   C: {
     id: "C",
     name: "環境影響タイプ",
+    shortName: "環境影響",
     label: "人より環境の影響を受けやすい状態です",
     description: [
       "空気や場所で印象が変わりやすい",
@@ -160,6 +165,7 @@ export const DIAGNOSIS_TYPES: Record<DiagnosisTypeId, DiagnosisType> = {
   D: {
     id: "D",
     name: "直感型",
+    shortName: "直感型",
     label: "感覚で選びやすく、ズレが起きやすい状態です",
     description: [
       "フィーリング重視で動いている",

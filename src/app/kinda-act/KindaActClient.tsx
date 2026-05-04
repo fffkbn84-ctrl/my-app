@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import type { PlaceHome } from "@/lib/mock/places-home";
 import PlaceReelCard from "@/components/kinda-act/PlaceReelCard";
 import PlaceReelModal from "@/components/kinda-act/PlaceReelModal";
@@ -32,8 +33,17 @@ const BADGE_FILTERS = [
 type BadgeFilter = (typeof BADGE_FILTERS)[number]["value"];
 
 export default function KindaActClient({ places }: Props) {
-  const [category, setCategory] = useState<string>("すべて");
-  const [areaFilter, setAreaFilter] = useState<string>("すべて");
+  /* URL params から初期値（SearchModal「デートの場所」タブからの遷移に対応）
+     use=cafe → カフェ / use=restaurant → レストラン にマッピング */
+  const searchParams = useSearchParams();
+  const useParam = searchParams.get("use");
+  const initialCategory =
+    useParam === "cafe" ? "カフェ" :
+    useParam === "restaurant" ? "レストラン" :
+    "すべて";
+
+  const [category, setCategory] = useState<string>(initialCategory);
+  const [areaFilter, setAreaFilter] = useState<string>(searchParams.get("area") ?? "すべて");
   const [areaOpen, setAreaOpen] = useState(false);
   const [badge, setBadge] = useState<BadgeFilter>("all");
   const [openPlace, setOpenPlace] = useState<PlaceHome | null>(null);

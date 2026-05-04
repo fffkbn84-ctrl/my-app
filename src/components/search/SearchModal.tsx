@@ -2,7 +2,10 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { KINDA_TYPES, KINDA_TYPE_KEYS } from "@/lib/kinda-types";
+import { DIAGNOSIS_TYPES, type DiagnosisTypeId } from "@/lib/diagnosis";
+import Link from "next/link";
+
+const DIAGNOSIS_KEYS: DiagnosisTypeId[] = ["A", "B", "C", "D"];
 import {
   PREFECTURE_GROUPS,
   BROAD_REGIONS,
@@ -306,7 +309,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         >
           {(
             [
-              ["counselor", "結婚相談所"],
+              ["counselor", "カウンセラー"],
               ["act", "デートの場所"],
               ["glow", "美容店"],
             ] as const
@@ -345,9 +348,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <label style={labelStyle}>タイプ（Kinda type）</label>
               <select value={type} onChange={(e) => setType(e.target.value)} style={selectStyle}>
                 <option value="">すべて</option>
-                {KINDA_TYPE_KEYS.map((k) => (
+                {DIAGNOSIS_KEYS.map((k) => (
                   <option key={k} value={k}>
-                    {KINDA_TYPES[k].name}（{KINDA_TYPES[k].description}）
+                    {DIAGNOSIS_TYPES[k].name} — {DIAGNOSIS_TYPES[k].label}
                   </option>
                 ))}
               </select>
@@ -371,6 +374,22 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 style={inputStyle}
               />
             </div>
+            {/* 相談所一覧への分岐リンク（カウンセラーではなく相談所単位で見たい人向け） */}
+            <Link
+              href="/agencies"
+              onClick={onClose}
+              style={{
+                fontSize: 12,
+                color: "var(--mid)",
+                textAlign: "center",
+                textDecoration: "underline",
+                textUnderlineOffset: 3,
+                fontFamily: "var(--font-sans)",
+                marginTop: 4,
+              }}
+            >
+              相談所一覧から探す →
+            </Link>
           </div>
         )}
 

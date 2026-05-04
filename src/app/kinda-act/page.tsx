@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
@@ -144,9 +145,11 @@ export default function KindaActPage() {
           </div>
         </section>
 
-        {/* ─── 一覧（クライアント） ─── */}
+        {/* ─── 一覧（クライアント。useSearchParams 利用のため Suspense 必須） ─── */}
         <div id="places" />
-        <KindaActClient places={places} />
+        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+          <KindaActClient places={places} />
+        </Suspense>
 
         {/* ─── 注記：すべてサンプル表示 ─── */}
         <section

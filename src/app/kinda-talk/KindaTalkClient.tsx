@@ -1,9 +1,12 @@
 "use client";
 
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Counselor } from "@/lib/data";
-import { KINDA_TYPE_KEYS, KINDA_TYPES, KindaTypeKey } from "@/lib/kinda-types";
+import { DIAGNOSIS_TYPES, type DiagnosisTypeId } from "@/lib/diagnosis";
+
+const DIAGNOSIS_KEYS: DiagnosisTypeId[] = ["A", "B", "C", "D"];
 import {
   PREFECTURE_GROUPS,
   BROAD_REGIONS,
@@ -30,10 +33,20 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
 ];
 
 export default function KindaTalkClient({ counselors }: Props) {
+  /* URL params から初期値を読む（SearchModal からの遷移に対応） */
+  const searchParams = useSearchParams();
+  const initialArea = searchParams.get("area") ?? "すべて";
+  const initialTypeRaw = searchParams.get("type");
+  const initialType: DiagnosisTypeId | "all" =
+    initialTypeRaw === "A" || initialTypeRaw === "B" ||
+    initialTypeRaw === "C" || initialTypeRaw === "D"
+      ? initialTypeRaw
+      : "all";
+
   const [openCounselor, setOpenCounselor] = useState<Counselor | null>(null);
-  const [areaFilter, setAreaFilter] = useState<string>("すべて");
+  const [areaFilter, setAreaFilter] = useState<string>(initialArea);
   const [areaOpen, setAreaOpen] = useState(false);
-  const [typeFilter, setTypeFilter] = useState<KindaTypeKey | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<DiagnosisTypeId | "all">(initialType);
   const [sortKey, setSortKey] = useState<SortKey>("match");
   const areaRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +89,7 @@ export default function KindaTalkClient({ counselors }: Props) {
       list = list.filter((c) => matchesAreaFilter(c.area, areaFilter));
     }
     if (typeFilter !== "all") {
-      list = list.filter((c) => (c.matchingTypes ?? []).includes(typeFilter));
+      list = list.filter((c) => c.diagnosisType === typeFilter);
     }
     const sorted = [...list];
     sorted.sort((a, b) => {
@@ -309,14 +322,14 @@ export default function KindaTalkClient({ counselors }: Props) {
           >
             すべてのタイプ
           </button>
-          {KINDA_TYPE_KEYS.map((k) => (
+          {DIAGNOSIS_KEYS.map((k) => (
             <button
               key={k}
               type="button"
               className={`kt-pill ${typeFilter === k ? "is-active" : ""}`}
               onClick={() => setTypeFilter(k)}
             >
-              {KINDA_TYPES[k].shortName}
+              {DIAGNOSIS_TYPES[k].shortName}
             </button>
           ))}
         </div>
