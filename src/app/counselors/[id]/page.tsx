@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
+import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
 import { AGENCIES, COUNSELORS, getCounselorById, getReviewsByCounselor } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 
@@ -420,7 +423,7 @@ export async function generateMetadata({
   const fromCounselors = COUNSELORS.find((c) => String(c.id) === id);
 
   if (!mock && !fromCounselors) {
-    return { title: "カウンセラーが見つかりません | ふたりへ" };
+    return { title: "カウンセラーが見つかりません | Kinda ふたりへ" };
   }
 
   const name = mock?.name ?? fromCounselors?.name ?? "カウンセラー";
@@ -498,8 +501,17 @@ export default async function CounselorDetailPage({
   return (
     <>
       <Header />
+      <CounselorDetailViewTracker counselorId={String(id)} />
 
       <main className="pt-16">
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: counselor.name },
+          ]}
+        />
         {/* ═══════════════════════════════════════════════════
             ヒーローストリップ（黒背景）
         ═══════════════════════════════════════════════════ */}
@@ -829,7 +841,7 @@ export default async function CounselorDetailPage({
                       </div>
                     </div>
                     <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
-                      ※ ふたりへ経由で面談した方のみ投稿できます
+                      ※ Kinda ふたりへ経由で面談した方のみ投稿できます
                     </p>
                   </div>
 

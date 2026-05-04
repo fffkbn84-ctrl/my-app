@@ -144,6 +144,11 @@ a {
 .counselor-scroll::-webkit-scrollbar {
   display: none;
 }
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar { display: none; }
 @keyframes gDrift {
   from { transform: translate(0, 0); }
   to   { transform: translate(20px, 10px); }
@@ -1757,9 +1762,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   overflow: hidden;
   display: block;
   padding: 0;
-  background-image: url('/images/3FA669FA-BC60-42A2-A42F-957707348A59.png');
-  background-size: cover;
-  background-position: center;
   background-color: #1A1410;
 }
 .hero-overlay {
@@ -1981,9 +1983,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: relative;
   overflow: hidden;
   padding: 64px 0;
-  background-image: url('/images/7CC03528-7D20-46FC-9195-86DC48686D98.png');
-  background-size: cover;
-  background-position: center;
   background-color: #F0EBE4;
 }
 .counselors-photo-overlay {
@@ -2075,9 +2074,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: relative;
   overflow: hidden;
   padding: 64px 0;
-  background-image: url('/images/00E313F4-98A6-4210-BE54-BF6E0E2913AF.png');
-  background-size: cover;
-  background-position: center top;
   background-color: #0E0E0E;
 }
 .places-sec::before {
@@ -2130,9 +2126,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   overflow: hidden;
   padding: 72px 24px;
   text-align: center;
-  background-image: url('/images/891DD977-6401-4A42-8E48-EDCFB7555E14.png');
-  background-size: cover;
-  background-position: center top;
   background-color: #0A0A08;
 }
 .belief-overlay {
@@ -2152,9 +2145,6 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
    CTA セクション v5 — Photo background
 ═══════════════════════════════════════════════════ */
 .cta-sec {
-  background-image: url('/images/B05C715D-D477-4D9C-9667-663CCC3FD1A4.png');
-  background-size: cover;
-  background-position: center;
   background-color: var(--black);
   padding: 56px 24px;
 }
@@ -2181,7 +2171,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 ═══════════════════════════════════════════════════ */
 .hero-kinda {
   min-height: 100svh;
-  background: #FEFCFA url('/images/hero-background-street.png') center top / cover no-repeat;
+  background: #FEFCFA;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3179,6 +3169,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 [data-section="type"]  { --section-bg:#E0ECF8; --section-tint:#C4D8EC; --section-deep:#5A7FAF; }
 [data-section="talk"]  { --section-bg:#FAF3DE; --section-tint:#F4E8C4; --section-deep:#B89A4A; }
 [data-section="meet"]  { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
+[data-section="act"]   { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
 [data-section="glow"]  { --section-bg:#EDE0F4; --section-tint:#DCC5E8; --section-deep:#8A66B0; }
 [data-section="story"] { --section-bg:#E8F4E4; --section-tint:#C8E0C0; --section-deep:#5A8050; }
 
@@ -3208,6 +3199,31 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   object-fit: cover;
   object-position: center 30%;
 }
+/* ふんわり浮かび上がるヒーロー画像のフェードイン（最初の表示が遅いのを和らげる） */
+.kt-hero-fade-in {
+  opacity: 0;
+  animation: kt-hero-fade-in 1.6s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+.kt-hero-fade-in img {
+  transform: scale(1.04);
+  animation: kt-hero-zoom-in 2.4s cubic-bezier(.4, 0, .2, 1) forwards;
+}
+@keyframes kt-hero-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes kt-hero-zoom-in {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kt-hero-fade-in,
+  .kt-hero-fade-in img {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
 /* セクションテーマ（パステルイエロー）の柔らかい色被せ。
    ホームのマルチパステル感に近づけ、Kinda talk のブランドカラーを画面全体に薄く反映する。 */
 .kt-hero-tint {
@@ -3225,10 +3241,11 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   inset: 0;
   z-index: 1;
   background: linear-gradient(180deg,
-    rgba(250, 243, 222, 0) 0%,
-    rgba(250, 243, 222, 0) 35%,
-    rgba(60, 40, 20, 0.18) 70%,
-    rgba(40, 25, 12, 0.62) 100%);
+    rgba(60, 40, 20, 0) 0%,
+    rgba(60, 40, 20, 0.05) 25%,
+    rgba(60, 40, 20, 0.25) 55%,
+    rgba(40, 25, 12, 0.55) 85%,
+    rgba(30, 18, 10, 0.7) 100%);
 }
 .kt-hero-inner {
   position: relative;
@@ -3241,14 +3258,84 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .kt-hero-illust {
   display: none;
 }
+/* ─── カード式ヒーローテキスト（Kinda act 詳細ページのカードを応用して見やすく）
+   半透明にして背景画像がふんわり透けて見えるようにしてある ───── */
+.kt-hero-card {
+  background: rgba(254, 252, 250, 0.42);
+  backdrop-filter: blur(24px) saturate(1.08);
+  -webkit-backdrop-filter: blur(24px) saturate(1.08);
+  border-radius: 24px;
+  padding: 32px 28px 28px;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, .8),
+    0 14px 44px rgba(40, 25, 12, .22),
+    0 2px 8px rgba(0, 0, 0, .08);
+  border: 1px solid rgba(255, 255, 255, .55);
+  max-width: 460px;
+  margin: 0 auto;
+  animation: kt-hero-card-rise 1s cubic-bezier(.4, 0, .2, 1) .3s both;
+}
+@keyframes kt-hero-card-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 480px) {
+  .kt-hero-card { padding: 26px 22px 22px; max-width: calc(100% - 8px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kt-hero-card { animation: none; }
+}
+/* カード内のテキストは白文字 + ドロップシャドウを解除して、淡背景に合う色へ */
+.kt-hero-card .kt-hero-eyebrow {
+  color: var(--accent);
+  text-shadow: none;
+}
+.kt-hero-card .kt-hero-title {
+  color: var(--ink);
+  text-shadow: none;
+}
+.kt-hero-card .kt-hero-title em {
+  color: var(--accent);
+}
+.kt-hero-card .kt-hero-sub {
+  color: var(--mid);
+  text-shadow: none;
+}
+.kt-hero-card .kt-hero-divider {
+  background: rgba(0, 0, 0, .12);
+}
+.kt-hero-card .kt-hero-copy {
+  color: var(--ink);
+  font-style: normal;
+  font-family: 'Shippori Mincho', serif;
+  text-shadow: none;
+}
+.kt-hero-card .kt-hero-cta {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 6px 18px rgba(200, 169, 122, .35);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.kt-hero-card .kt-hero-cta:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: white;
+}
 .kt-hero-eyebrow {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   letter-spacing: .18em;
-  color: rgba(255, 255, 255, .9);
+  color: rgba(255, 255, 255, .95);
   text-transform: uppercase;
   margin-bottom: 8px;
-  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+  /* 多層シャドウ：1px の dark stroke + ソフトなハロー
+     白い背景画像の上でも白文字が浮き上がる */
+  text-shadow:
+    0 0 1px rgba(0,0,0,.55),
+    0 1px 2px rgba(0,0,0,.5),
+    0 2px 12px rgba(0,0,0,.45);
 }
 .kt-hero-title {
   font-family: 'Shippori Mincho', serif;
@@ -3257,7 +3344,10 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   font-weight: 500;
   line-height: 1.3;
   margin-bottom: 4px;
-  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+  text-shadow:
+    0 0 1.5px rgba(0,0,0,.55),
+    0 2px 4px rgba(0,0,0,.5),
+    0 4px 18px rgba(0,0,0,.45);
 }
 .kt-hero-title em {
   font-family: 'DM Serif Display', serif;
@@ -3268,9 +3358,12 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 }
 .kt-hero-sub {
   font-size: 13px;
-  color: rgba(255, 255, 255, .85);
+  color: rgba(255, 255, 255, .92);
   margin-bottom: 18px;
-  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+  text-shadow:
+    0 0 1px rgba(0,0,0,.55),
+    0 1px 3px rgba(0,0,0,.5),
+    0 2px 10px rgba(0,0,0,.4);
 }
 .kt-hero-divider {
   width: 40px;
@@ -3286,7 +3379,10 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   color: white;
   max-width: 480px;
   margin: 0 auto 24px;
-  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+  text-shadow:
+    0 0 1.5px rgba(0,0,0,.55),
+    0 2px 4px rgba(0,0,0,.5),
+    0 4px 18px rgba(0,0,0,.4);
 }
 .kt-hero-cta {
   display: inline-flex;
@@ -3447,6 +3543,22 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   border-color: var(--accent);
   color: white;
 }
+/* ─── エリアドロップダウンのセクション見出し ─── */
+.kt-area-section-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 6px 0 2px;
+  padding-left: 2px;
+  border-top: 1px solid rgba(0,0,0,.06);
+  padding-top: 8px;
+}
+.kt-area-section-label:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
 
 /* ─── リールグリッド ─── */
 .kt-grid-wrap {
@@ -3493,6 +3605,9 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   position: absolute;
   inset: 0;
   z-index: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .kt-reel-card-overlay {
   position: absolute;
@@ -3975,4 +4090,1095 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   outline: 2px solid var(--accent);
   outline-offset: 4px;
   border-radius: 14px;
+}
+
+/* ═════════════════════════════════════════════════════════
+   /kinda-act — お店一覧ページ
+   セクションテーマ：パステルピンク（data-section="act"）
+   /kinda-talk と同じ思想で kt-* クラスを多くは継承可。
+   このセクション固有の差分のみ ka-* で定義。
+   ───────────────────────────────────────────────────────── */
+
+/* ─── /kinda-act カードグリッド（横長カード） ─── */
+.ka-grid-wrap {
+  padding: 16px 16px 56px;
+  background: #FEFCFA;
+}
+.ka-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .ka-grid { grid-template-columns: 1fr 1fr; gap: 14px; max-width: 1080px; }
+}
+@media (min-width: 1100px) {
+  .ka-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── お店カード ─── */
+.ka-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .25s ease, box-shadow .25s ease;
+  box-shadow: 0 2px 8px rgba(184,128,110,.06);
+}
+.ka-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(184,128,110,.12);
+}
+.ka-card-thumb {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--pale);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ka-card-thumb-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ka-card-badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 3;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ka-card-body {
+  padding: 14px 16px 18px;
+}
+.ka-card-stage {
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--mid);
+  margin-bottom: 4px;
+  font-family: 'DM Sans', sans-serif;
+  text-transform: uppercase;
+}
+.ka-card-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+.ka-card-meta {
+  font-size: 11px;
+  color: var(--mid);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.ka-card-meta-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── お店バッジ（取材済み・相談所おすすめ） ─── */
+.ka-place-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,251,244,.92);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 999px;
+  padding: 3px 10px 3px 8px;
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: var(--ink);
+  font-weight: 500;
+}
+.ka-place-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ─── サムネイルのカテゴリ別グラデ背景 ─── */
+.ka-thumb-cafe   { background: linear-gradient(135deg,#FAEAE5,#F0D8D0); }
+.ka-thumb-rest   { background: linear-gradient(135deg,#F5E5E1,#ECC8C5); }
+.ka-thumb-hair   { background: linear-gradient(135deg,#E8F4E4,#C8E0C0); }
+.ka-thumb-nail   { background: linear-gradient(135deg,#EDE0F4,#DCC5E8); }
+.ka-thumb-brow   { background: linear-gradient(135deg,#FAF3DE,#F4E8C4); }
+.ka-thumb-photo  { background: linear-gradient(135deg,#E0ECF8,#C4D8EC); }
+
+/* ─── focus-visible ─── */
+.ka-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   フローティング「ページトップへ戻る」ボタン
+   - 右下にデフォルト配置（ボトムナビ + safe-area の上）
+   - 詳細ページに .cta-mobile-bar が存在する時は、CSS の :has() で
+     ボタン位置を CTA の上にずらして overlap を回避
+───────────────────────────────────────────────────────── */
+.floating-scroll-top {
+  position: fixed;
+  right: 16px;
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 4px 14px rgba(184,128,110,.18), 0 1px 4px rgba(0,0,0,.08);
+  color: var(--ink);
+  align-items: center;
+  justify-content: center;
+  z-index: 95;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .2s ease, bottom .2s ease;
+}
+
+/* CTA がある詳細ページでは、CTA より上に配置して overlap 回避 */
+body:has(.cta-mobile-bar) .floating-scroll-top {
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px);
+}
+
+/* ─────────────────────────────────────────────────────────
+   /kinda-act ページ最奥背景（村のミニチュア + 強ブラー + パステルピンク）
+   - position: fixed で常に画面いっぱいに配置
+   - filter: blur(50px) で強くぼかし、世界観のにじみを表現
+   - transform: scale(1.15) で blur のエッジ抜けを防止
+   - ::after でパステルピンクをやや厚めに乗せる（コンテンツ可読性確保）
+───────────────────────────────────────────────────────── */
+.ka-village-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url('/images/laughing-town-background.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* blur と scale を抑えて、村のシルエット・木・小屋の雰囲気がぼんやり認識できるレベルに */
+  filter: blur(8px) brightness(1.04) saturate(1.18);
+  transform: scale(1.06);
+  will-change: filter;
+}
+.ka-village-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* ピンクの被せをさらに薄くして村が透けるように */
+  background:
+    linear-gradient(180deg,
+      rgba(245,225,224,.10) 0%,
+      rgba(236,200,197,.06) 45%,
+      rgba(245,225,224,.12) 100%);
+}
+
+/* /kinda-act 内のセクション背景を半透明化して、村背景を透けさせる
+   ヒーローは画像でフルブリードしているので影響なし
+
+   重要: .kt-page には #FEFCFA の不透明背景が掛かっているので、
+   ここで透過にしないと固定の .ka-village-bg が完全に隠れてしまう */
+[data-section="act"] .kt-page {
+  background: transparent;
+}
+[data-section="act"] main {
+  background: transparent !important;
+}
+/* フッターは村背景の対象外（村は kinda-act 本文にだけ） */
+[data-section="act"] footer {
+  background: var(--white, #FAFAF8);
+  position: relative;
+  z-index: 1;
+}
+/* Kinda act ヒーロー: 柔らかいパステルピンク tint で Kinda talk と統一感を出す
+   （Kinda talk はパステルイエロー） */
+[data-section="act"] .kt-hero-tint {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(245, 225, 224, 0.55) 0%, rgba(236, 200, 197, 0.22) 55%, rgba(245, 225, 224, 0) 90%),
+    linear-gradient(180deg, rgba(245, 225, 224, 0.34) 0%, rgba(245, 225, 224, 0.12) 55%, rgba(245, 225, 224, 0) 100%);
+  mix-blend-mode: soft-light;
+}
+/* セクション背景もさらに薄くして、村が透けて見えるように */
+[data-section="act"] .kt-guide {
+  background: rgba(254,252,250,.32);
+  position: relative;
+}
+/* How we pick も Find your place と同じ "ふんわり白の radial gradient" + 白ハロー
+   テキスト処理で、村背景を残したまま読みやすくする */
+[data-section="act"] .kt-guide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(254,252,250,.65) 0%,
+    rgba(254,252,250,.35) 45%,
+    rgba(254,252,250,0) 85%
+  );
+  z-index: 0;
+}
+[data-section="act"] .kt-guide-inner {
+  position: relative;
+  z-index: 1;
+}
+[data-section="act"] .kt-guide-eyebrow,
+[data-section="act"] .kt-guide-inner > h2,
+[data-section="act"] .kt-guide-text {
+  text-shadow:
+    0 0 6px rgba(255,255,255,.95),
+    0 0 14px rgba(255,255,255,.8),
+    0 1px 2px rgba(255,255,255,.7);
+}
+[data-section="act"] .kt-guide-divider {
+  background: rgba(0,0,0,.18);
+}
+[data-section="act"] .kt-grid-wrap {
+  background: rgba(254,252,250,.1);
+}
+[data-section="act"] .kt-section-head {
+  background: transparent;
+}
+[data-section="act"] .kt-filter-bar {
+  background: rgba(254,252,250,.65);
+}
+
+/* find your place の見出しを村背景の上でも読みやすく
+   - 文字にホワイトハロー shadow を載せ、後ろに緩やかなホワイトの円形グラデで
+     ふんわり背景を持ち上げる（村は透けたまま）*/
+[data-section="act"] .kt-section-head {
+  position: relative;
+}
+[data-section="act"] .kt-section-head::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 55%,
+    rgba(254,252,250,.85) 0%,
+    rgba(254,252,250,.55) 35%,
+    rgba(254,252,250,0) 75%
+  );
+  z-index: 0;
+}
+[data-section="act"] .kt-section-head > * {
+  position: relative;
+  z-index: 1;
+}
+[data-section="act"] .kt-section-head,
+[data-section="act"] .kt-section-head > * {
+  /* 子要素も含めて全テキストに白ハロー shadow を適用 */
+  text-shadow:
+    0 0 6px rgba(255,255,255,.95),
+    0 0 14px rgba(255,255,255,.8),
+    0 1px 2px rgba(255,255,255,.7);
+}
+[data-section="act"] .kt-section-head .kt-section-divider {
+  background: rgba(0,0,0,.18);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Kinda act — 選定基準カードグリッド（2×2）
+───────────────────────────────────────────────────────── */
+.ka-criteria-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 460px;
+  margin: 22px auto 22px;
+}
+.ka-criterion {
+  background: rgba(255, 255, 255, .82);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 12px 14px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.ka-criterion-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-pale);
+  color: var(--accent-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.ka-criterion-label {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.ka-criterion-desc {
+  font-size: 10.5px;
+  color: var(--mid);
+  line-height: 1.6;
+  letter-spacing: .02em;
+}
+
+/* 既存の --accent-deep / --accent-pale が定義済みでない環境向けフォールバック */
+[data-section="act"] .ka-criterion-icon {
+  background: rgba(212,160,144,.15);
+  color: rgba(184,128,110,.95);
+}
+
+/* ─────────────────────────────────────────────────────────
+   Breadcrumb（パンくずリスト・全下層ページ共通）
+───────────────────────────────────────────────────────── */
+.bc-nav {
+  padding: 12px 16px 16px;
+  font-family: var(--font-sans);
+}
+.bc-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.6;
+}
+.bc-item {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bc-sep {
+  margin: 0 4px;
+  color: var(--muted);
+  user-select: none;
+}
+.bc-link {
+  color: var(--mid);
+  text-decoration: none;
+  transition: color .2s;
+}
+.bc-link:hover {
+  color: var(--accent);
+}
+.bc-current {
+  color: var(--ink);
+}
+
+/* ─────────────────────────────────────────────────────────
+   SectionSubHeader（サブヘッダー）
+───────────────────────────────────────────────────────── */
+.ssh-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 44px;
+  padding: 0 16px;
+  background: var(--pale);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+}
+.ssh-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--mid);
+  text-decoration: none;
+  transition: color .2s;
+}
+.ssh-back:hover {
+  color: var(--accent);
+}
+.ssh-back-label {
+  font-family: var(--font-mincho);
+  font-size: 14px;
+  color: var(--ink);
+  letter-spacing: .03em;
+}
+.ssh-back:hover .ssh-back-label {
+  color: var(--accent);
+}
+.ssh-home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 12px;
+  color: var(--mid);
+  text-decoration: none;
+  transition: color .2s;
+}
+.ssh-home:hover {
+  color: var(--accent);
+}
+
+/* ─────────────────────────────────────────────────────────
+   トップページ A'' — Kinda note は、こんな時に使えます
+───────────────────────────────────────────────────────── */
+.kn-usecase-h3 {
+  font-family: var(--font-mincho);
+  font-size: 16px;
+  color: var(--mid);
+  margin-bottom: 16px;
+  letter-spacing: .04em;
+}
+.kn-usecase-box {
+  background: var(--pale);
+  border-radius: 16px;
+  padding: 20px;
+}
+.kn-usecase-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  line-height: 1.9;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--ink);
+}
+.kn-usecase-list li {
+  display: flex;
+  gap: 8px;
+}
+.kn-usecase-list li::before {
+  content: "・";
+  color: var(--mid);
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Kinda type 結果ページ（/kinda-type/result）
+   prefix: .ktr-*
+   動的な色（diagType.color / c.gradient 等）は inline style 維持。
+───────────────────────────────────────────────────────── */
+.ktr-main {
+  min-height: 100vh;
+  background: var(--white);
+  padding-bottom: 80px;
+}
+.ktr-subheader-wrap { background: var(--pale); }
+.ktr-content { max-width: 480px; margin: 0 auto; }
+
+/* ① ヒーロー */
+.ktr-hero { padding: 40px 28px 56px; }
+.ktr-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(26px, 5vw, 42px);
+  font-weight: 400;
+  color: var(--black);
+  letter-spacing: 0.05em;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+.ktr-hero-label {
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
+}
+.ktr-hero-desc-list {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ktr-hero-desc-item {
+  padding: 4px 0 4px 12px;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.7;
+  font-weight: 300;
+}
+.ktr-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ktr-hero-tag {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+}
+
+/* ② メインカード（カウンセラー紹介） */
+.ktr-main-card {
+  background: white;
+  border-radius: 20px;
+  padding: 28px 24px;
+  margin: -20px 20px 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 8px 32px rgba(0,0,0,.08);
+}
+.ktr-eyebrow {
+  font-size: 9px;
+  letter-spacing: .18em;
+  font-family: 'DM Serif Display', serif;
+  margin-bottom: 12px;
+}
+.ktr-card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+.ktr-card-desc {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 2;
+  margin-bottom: 20px;
+}
+.ktr-divider {
+  border-bottom: 1px solid var(--pale);
+  margin-bottom: 20px;
+}
+.ktr-empty {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  font-weight: 300;
+}
+
+/* カウンセラーカード */
+.ktr-counselor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ktr-counselor-card {
+  position: relative;
+  padding: 16px 16px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--pale);
+  background: white;
+  transition: border-color .2s, box-shadow .2s;
+}
+.ktr-counselor-card:hover {
+  border-color: var(--light);
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+}
+.ktr-counselor-stretch {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 14px;
+}
+.ktr-counselor-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.ktr-counselor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ktr-counselor-info { flex: 1; min-width: 0; }
+.ktr-counselor-name {
+  font-size: 15px;
+  color: var(--black);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.ktr-counselor-meta {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+}
+.ktr-counselor-rating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink);
+  font-weight: 300;
+  margin-bottom: 12px;
+}
+.ktr-counselor-rating-star { font-weight: 500; }
+.ktr-counselor-rating-sub { color: var(--muted); }
+.ktr-counselor-quote {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--black);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  letter-spacing: .02em;
+  padding-left: 10px;
+}
+.ktr-counselor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ktr-counselor-tag {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 16px;
+  font-weight: 400;
+}
+.ktr-counselor-actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+}
+.ktr-counselor-cta {
+  font-size: 12px;
+  padding: 9px 18px;
+  border-radius: 50px;
+  background: var(--black);
+  color: white;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 400;
+  letter-spacing: .03em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ktr-counselor-cta:hover { opacity: .85; }
+
+/* もっと見るリンク */
+.ktr-more-link {
+  font-size: 12px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  letter-spacing: .03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ③ 分岐テキスト */
+.ktr-branch { padding: 28px 24px 0; }
+.ktr-branch p {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.9;
+  letter-spacing: .03em;
+}
+
+/* ④ サブカード */
+.ktr-sub-grid {
+  padding: 20px 20px 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+.ktr-sub-icon { margin-bottom: 10px; }
+.ktr-sub-title {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  color: var(--black);
+  font-weight: 400;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.ktr-sub-desc {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.ktr-sub-arrow {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 300;
+}
+
+/* ⑤ あとから見返しリンク */
+.ktr-recall {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 0 24px;
+}
+.ktr-recall-link {
+  font-size: 13px;
+  color: var(--accent);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  letter-spacing: .03em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ⑥ シェア + もう一度 */
+.ktr-share-wrap { text-align: center; padding: 0 24px 8px; }
+.ktr-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  background: #000;
+  color: white;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 300;
+  letter-spacing: .03em;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+.ktr-share-btn:hover { opacity: .85; }
+.ktr-retry-link {
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: .05em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   Kinda type 質問ページ（/kinda-type）
+   prefix: .ktq-*
+   タイプ色は CSS 変数 --type-color / --type-bg / --type-bg-hover でボタンに inline 注入。
+───────────────────────────────────────────────────────── */
+.ktq-main {
+  min-height: 100vh;
+  background: var(--white);
+  padding-bottom: 80px;
+}
+.ktq-content {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ヘッダー */
+.ktq-header { text-align: center; margin-bottom: 40px; }
+.ktq-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  font-family: 'DM Serif Display', serif;
+  margin-bottom: 12px;
+}
+.ktq-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 400;
+  color: var(--black);
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.ktq-subtitle {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+/* プログレスバー */
+.ktq-progress-wrap { margin-bottom: 32px; }
+.ktq-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.ktq-progress-counter {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.05em;
+}
+.ktq-progress-percent { font-size: 11px; color: var(--muted); }
+.ktq-progress-bar {
+  background: var(--pale);
+  border-radius: 4px;
+  height: 4px;
+  overflow: hidden;
+}
+.ktq-progress-fill {
+  background: var(--accent);
+  border-radius: 4px;
+  height: 100%;
+  transition: width .4s cubic-bezier(.16,1,.3,1);
+}
+
+/* 質問カード */
+.ktq-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 32px;
+  margin-bottom: 24px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .2s ease, transform .2s ease;
+}
+.ktq-card[data-animating="true"] {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.ktq-question {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(18px, 3vw, 22px);
+  line-height: 1.7;
+  color: var(--black);
+  margin-bottom: 28px;
+  letter-spacing: 0.03em;
+}
+
+/* 選択肢ボタン */
+.ktq-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 20px;
+  border: 1.5px solid var(--light);
+  border-radius: 12px;
+  background: white;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: all .25s;
+}
+/* sticky hover 対策：マウスが実在する環境のみ hover を有効化。
+   タッチデバイスでは hover が「最後にタップした場所」に残り続けるため、
+   次の質問の同じ位置のボタンが選択風に見える iOS Safari の既知バグを回避する。 */
+@media (hover: hover) and (pointer: fine) {
+  .ktq-option:hover {
+    border-color: var(--type-color, var(--accent));
+    background: var(--type-bg-hover, var(--pale));
+  }
+}
+.ktq-option[data-selected="true"] {
+  border-color: var(--type-color, var(--accent));
+  background: var(--type-bg, var(--pale));
+}
+.ktq-option-icon { flex-shrink: 0; margin-left: 12px; }
+
+/* 戻るボタン */
+.ktq-back {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ktq-back:hover { color: var(--ink); }
+
+/* ─────────────────────────────────────────────────────────
+   Kinda type ランディング（/kinda-type）
+   prefix: .ktl-*
+   "kinda" = "my kind of" の意（"なんとなく" は Kinda note 専用）。
+───────────────────────────────────────────────────────── */
+.ktl-page {
+  min-height: 100vh;
+  background: var(--white);
+}
+.ktl-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ヒーロー */
+.ktl-hero { padding: 32px 0 28px; }
+.ktl-hero-deco {
+  height: 180px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #F5E8D8, #E8DCC4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.ktl-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--black);
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.ktl-hero-sub {
+  font-size: 14px;
+  color: var(--mid);
+  line-height: 1.9;
+  margin-bottom: 18px;
+}
+
+/* バッジ */
+.ktl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* 価値訴求カード 2枚 */
+.ktl-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 28px 0 36px;
+}
+.ktl-card {
+  border-radius: 20px;
+  padding: 22px 14px;
+  text-align: center;
+}
+.ktl-card-gold { background: #F5E8D8; }
+.ktl-card-sage { background: #E4ECDF; }
+.ktl-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+.ktl-card-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--black);
+  line-height: 1.7;
+}
+
+/* HOW IT WORKS */
+.ktl-steps { margin-bottom: 36px; }
+.ktl-steps-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.ktl-step {
+  background: var(--pale);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.ktl-step-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+}
+.ktl-step-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.ktl-step-desc {
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.7;
+}
+
+/* CTA */
+.ktl-cta-wrap { margin-bottom: 12px; }
+.ktl-cta {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 18px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 0.04em;
+  user-select: none;
+  box-shadow: 0 5px 0 #A88858;
+  transform: translateY(0);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .2s;
+}
+.ktl-cta:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #A88858;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ktl-cta:hover { opacity: .92; }
+}
+.ktl-cta-note {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
 }

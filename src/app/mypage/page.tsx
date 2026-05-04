@@ -4,9 +4,10 @@ import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
 import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
 import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
-  title: "マイページ | ふたりへ",
+  title: "マイページ | Kinda ふたりへ",
   description: "マイページ — お気に入り・予約履歴・口コミ投稿を管理できます。",
 };
 
@@ -121,6 +122,7 @@ export default async function MyPage() {
         paddingBottom: "calc(60px + env(safe-area-inset-bottom))",
       }}
     >
+      <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "マイページ" }]} />
       <div
         style={{
           maxWidth: "480px",
@@ -360,7 +362,7 @@ export default async function MyPage() {
                   ログイン
                 </a>
                 <Link
-                  href="/diagnosis"
+                  href="/kinda-type"
                   style={{
                     fontSize: 12,
                     padding: "9px 20px",

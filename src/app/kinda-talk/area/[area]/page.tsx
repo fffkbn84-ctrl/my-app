@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { getCounselors } from "@/lib/data";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
 
@@ -26,9 +28,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { area } = await params;
   const info = AREA_MAP[area];
-  if (!info) return { title: "エリアが見つかりません | ふたりへ" };
+  if (!info) return { title: "エリアが見つかりません | Kinda ふたりへ" };
 
-  const title = `${info.label}のカウンセラー一覧 | Kinda talk | ふたりへ`;
+  const title = `${info.label}のカウンセラー一覧 | Kinda talk | Kinda ふたりへ`;
   const description = `${info.label}エリアの結婚相談所カウンセラーを、リールと言葉で選ぼう。Kinda ふたりへなら、所属相談所のロゴではなくカウンセラー個人を見て予約できます。`;
 
   return {
@@ -62,6 +64,14 @@ export default async function AreaPage({
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: info.label },
+          ]}
+        />
         <section className="kt-hero">
           <div className="kt-hero-inner">
             <div className="kt-hero-eyebrow">Kinda talk · area</div>

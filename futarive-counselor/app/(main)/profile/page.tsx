@@ -3,10 +3,15 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Agency } from '@/lib/types'
+import {
+  PREFECTURE_GROUPS,
+  BROAD_REGIONS,
+  NATIONAL_OPTION,
+  ONLINE_OPTION,
+} from '@/lib/areas'
 
 type Step = 1 | 2 | 3 | 4
 
-const AREAS = ['東京', '神奈川', '埼玉', '千葉', '大阪', '京都', '兵庫', 'オンライン', 'その他']
 const FEE_OPTIONS = ['無料', '3,000円', '5,000円', '10,000円']
 
 export default function ProfilePage() {
@@ -206,7 +211,23 @@ export default function ProfilePage() {
             <label className="kc-label">活動エリア</label>
             <select className="kc-select" value={form.area} onChange={e => updateForm('area', e.target.value)}>
               <option value="">選択してください</option>
-              {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+              {/* 広域・オンライン */}
+              <optgroup label="広域・オンライン">
+                <option value={NATIONAL_OPTION}>{NATIONAL_OPTION}</option>
+                <option value={ONLINE_OPTION}>{ONLINE_OPTION}</option>
+              </optgroup>
+              {/* 11 の広域エリア（首都圏・関東・関西（近畿）など） */}
+              <optgroup label="エリア（広域）">
+                {BROAD_REGIONS.map(r => (
+                  <option key={r.name} value={r.name}>{r.name}</option>
+                ))}
+              </optgroup>
+              {/* 47 都道府県（北海道・東北 / 関東 / 中部 / 近畿 / 中国・四国 / 九州・沖縄） */}
+              {PREFECTURE_GROUPS.map(g => (
+                <optgroup key={g.label} label={g.label}>
+                  {g.prefectures.map(p => <option key={p} value={p}>{p}</option>)}
+                </optgroup>
+              ))}
             </select>
           </div>
           <div>

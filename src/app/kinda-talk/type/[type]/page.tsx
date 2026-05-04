@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { getCounselors } from "@/lib/data";
 import { KINDA_TYPES, KINDA_TYPE_KEYS, KindaTypeKey } from "@/lib/kinda-types";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
@@ -18,9 +20,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { type } = await params;
   const t = KINDA_TYPES[type as KindaTypeKey];
-  if (!t) return { title: "タイプが見つかりません | ふたりへ" };
+  if (!t) return { title: "タイプが見つかりません | Kinda ふたりへ" };
 
-  const title = `${t.name}のあなたへ | Kinda talk | ふたりへ`;
+  const title = `${t.name}のあなたへ | Kinda talk | Kinda ふたりへ`;
   const description = `${t.name}（${t.description}）に合うカウンセラーをリール形式で見つけよう。Kinda ふたりへ。`;
 
   return {
@@ -54,6 +56,14 @@ export default async function TypePage({
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
+        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: t.name },
+          ]}
+        />
         <section className="kt-hero" style={{ background: t.bg }}>
           <div className="kt-hero-inner">
             <div className="kt-hero-eyebrow" style={{ color: t.color }}>

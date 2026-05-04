@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { placesHomeData } from "@/lib/mock/places-home";
 import type { BadgeType } from "@/lib/mock/places-home";
 
@@ -30,7 +32,7 @@ const shopReviews: Record<string, {
    バッジ設定
 ──────────────────────────────────────────────────────────── */
 const BADGE_CONFIG: Record<BadgeType, { label: string; color: string; bg: string }> = {
-  certified: { label: "ふたりへ取材済み", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
+  certified: { label: "Kinda ふたりへ取材済み", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
   agency:    { label: "相談所おすすめ",   color: "var(--blue)",   bg: "color-mix(in srgb, var(--blue) 12%, transparent)" },
   listed:    { label: "掲載店",           color: "var(--muted)",  bg: "color-mix(in srgb, var(--muted) 12%, transparent)" },
 };
@@ -72,16 +74,15 @@ export default async function ShopDetailPage({
       <Header />
 
       <main className="pt-16">
-        {/* パンくず */}
-        <div className="bg-pale border-b border-light">
-          <div className="max-w-6xl mx-auto px-6 py-3 flex items-center gap-2 text-xs text-muted">
-            <Link href="/" className="hover:text-ink transition-colors">トップ</Link>
-            <span>/</span>
-            <Link href="/shops" className="hover:text-ink transition-colors">お店一覧</Link>
-            <span>/</span>
-            <span className="text-ink">{shop.name}</span>
-          </div>
-        </div>
+        <SectionSubHeader sectionName="Kinda act" sectionRoot="/kinda-act" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda act", href: "/kinda-act" },
+            { label: "お店一覧", href: "/shops" },
+            { label: shop.name },
+          ]}
+        />
 
         <div className="max-w-6xl mx-auto px-6 py-10 md:py-14">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -189,8 +190,8 @@ export default async function ShopDetailPage({
                     className="mt-5 p-4 rounded-xl border-l-4 bg-pale text-xs text-mid leading-relaxed"
                     style={{ borderLeftColor: "var(--accent)" }}
                   >
-                    <p className="font-medium text-ink mb-1">ふたりへ取材メモ</p>
-                    <p>ふたりへスタッフが実際に訪問し、婚活・お見合いシーンでの利用に適しているか確認しました。個室・半個室の有無、スタッフの配慮、雰囲気などを総合的に評価しています。</p>
+                    <p className="font-medium text-ink mb-1">Kinda ふたりへ取材メモ</p>
+                    <p>Kinda ふたりへスタッフが実際に訪問し、婚活・お見合いシーンでの利用に適しているか確認しました。個室・半個室の有無、スタッフの配慮、雰囲気などを総合的に評価しています。</p>
                   </div>
                 )}
               </section>

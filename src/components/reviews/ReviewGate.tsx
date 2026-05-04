@@ -126,7 +126,7 @@ function AuthGate({ onVerified }: { onVerified: (data: ReviewToken) => void }) {
           margin: "0 auto 32px",
         }}
       >
-        口コミは、ふたりへ経由で面談を予約・完了した方のみ投稿できます。
+        口コミは、Kinda ふたりへ経由で面談を予約・完了した方のみ投稿できます。
         <br />
         面談完了後にお送りしたメール内のURLからアクセスしてください。
       </p>

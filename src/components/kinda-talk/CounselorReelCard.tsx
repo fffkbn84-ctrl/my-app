@@ -2,15 +2,17 @@
 
 import { Counselor } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
+import { trackEvent } from "@/lib/analytics";
 import KindaTypeBadge from "./KindaTypeBadge";
 import DemoBadge from "./DemoBadge";
 
 type Props = {
   counselor: Counselor;
   onOpen: (counselor: Counselor) => void;
+  sourcePage?: string;
 };
 
-export default function CounselorReelCard({ counselor, onOpen }: Props) {
+export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kinda_talk" }: Props) {
   const cover = counselor.reelImages?.[0];
   const bg = cover?.bg ?? counselor.gradient;
   const catchphrase = counselor.catchphrase ?? counselor.message;
@@ -21,7 +23,13 @@ export default function CounselorReelCard({ counselor, onOpen }: Props) {
       type="button"
       className="kt-reel-card"
       aria-label={`${counselor.name}のリールを開く`}
-      onClick={() => onOpen(counselor)}
+      onClick={() => {
+        trackEvent("counselor_card_click", {
+          counselor_id: String(counselor.id),
+          source_page: sourcePage,
+        });
+        onOpen(counselor);
+      }}
     >
       <div className="kt-reel-card-bg" style={{ background: bg }} aria-hidden />
       <div className="kt-reel-card-overlay" aria-hidden />

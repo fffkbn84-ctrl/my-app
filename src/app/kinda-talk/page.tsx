@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import Footer from "@/components/layout/Footer";
 import { getCounselors } from "@/lib/data";
 import FAQAccordion, { FAQItem } from "@/components/kinda-talk/FAQAccordion";
@@ -53,11 +54,12 @@ export default async function KindaTalkPage() {
       <Header />
 
       <main style={{ background: "#FEFCFA" }}>
-        {/* ─── ヒーロー（フルブリード画像） ─── */}
+        <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda talk" }]} />
+        {/* ─── ヒーロー（フルブリード画像 + カード式テキスト） ─── */}
         <section className="kt-hero">
-          <div className="kt-hero-bg-image" aria-hidden>
+          <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             <Image
-              src="/images/sections/talk-hero.webp"
+              src="/images/sections_talk-hero.webp"
               alt=""
               fill
               priority
@@ -67,25 +69,27 @@ export default async function KindaTalkPage() {
           <div className="kt-hero-tint" aria-hidden />
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
-            <div className="kt-hero-eyebrow">Kinda talk</div>
-            <h1 className="kt-hero-title">
-              Kinda <em>talk</em>
-            </h1>
-            <div className="kt-hero-sub">相談したい・迷っている</div>
+            <div className="kt-hero-card">
+              <div className="kt-hero-eyebrow">Kinda talk</div>
+              <h1 className="kt-hero-title">
+                Kinda <em>talk</em>
+              </h1>
+              <div className="kt-hero-sub">相談したい・迷っている</div>
 
-            <div className="kt-hero-divider" />
-            <p className="kt-hero-copy">
-              「この人なら話せそう」を、
-              <br />
-              写真と言葉から見つけよう。
-            </p>
+              <div className="kt-hero-divider" />
+              <p className="kt-hero-copy">
+                「この人なら話せそう」を、
+                <br />
+                写真と言葉から見つけよう。
+              </p>
 
-            <Link href="/diagnosis" className="kt-hero-cta">
-              あなたに合うタイプを知る（1〜3分）
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M2 7h10M7 2l5 5-5 5" />
-              </svg>
-            </Link>
+              <Link href="/kinda-type" className="kt-hero-cta">
+                あなたに合うタイプを知る（1〜3分）
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 7h10M7 2l5 5-5 5" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -110,7 +114,7 @@ export default async function KindaTalkPage() {
             <p className="kt-guide-text">
               カウンセラーは、あなたの婚活を支える&ldquo;人&rdquo;です。
               ロゴでもサービス名でもなく、生身の人間同士の対話で関係が進みます。
-              だから Kinda では、所属する相談所の名前ではなく、
+              だから Kinda では、
               カウンセラー個人を見て選んでほしい。
             </p>
             <p className="kt-guide-text">

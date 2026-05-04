@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SympathyButton from "@/components/episodes/SympathyButton";
@@ -37,13 +39,21 @@ export default async function EpisodeDetailPage({
       <Header />
 
       <main style={{ paddingTop: 64, background: "var(--white)" }}>
+        <SectionSubHeader sectionName="ホーム" sectionRoot="/" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "ふたりの物語" },
+            { label: episode.title },
+          ]}
+        />
         {/* ═══ ヒーローエリア ═══ */}
         <section style={{ background: episode.gradient, padding: "56px 32px 48px" }}>
           <div style={{ maxWidth: 720, margin: "0 auto" }}>
             {/* パンくず */}
             <p style={{ fontSize: 11, color: "rgba(0,0,0,.4)", marginBottom: 36 }}>
               <Link href="/" style={{ color: "inherit" }}>
-                ふたりへ
+                Kinda ふたりへ
               </Link>
               {" > "}
               <Link href="/#episodes" style={{ color: "inherit" }}>

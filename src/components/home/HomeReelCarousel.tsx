@@ -39,7 +39,7 @@ export default function HomeReelCarousel({ counselors }: Props) {
               scrollSnapAlign: "start",
             }}
           >
-            <CounselorReelCard counselor={c} onOpen={setOpenCounselor} />
+            <CounselorReelCard counselor={c} onOpen={setOpenCounselor} sourcePage="home" />
           </div>
         ))}
         {/* 末尾「すべて見る」CTA カード */}

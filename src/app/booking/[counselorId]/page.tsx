@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import BookingFlow from "@/components/booking/BookingFlow";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 const counselors: Record<string, { name: string; agency: string }> = {
   "1": { name: "田中 美咲", agency: "ブライダルサロン エクラン" },
@@ -27,6 +29,15 @@ export default async function BookingPage({
         className="pt-16 min-h-screen"
         style={{ background: "var(--white)" }}
       >
+        <SectionSubHeader sectionName="カウンセラー" sectionRoot={`/counselors/${counselorId}`} />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda talk", href: "/kinda-talk" },
+            { label: counselor.name, href: `/counselors/${counselorId}` },
+            { label: "予約" },
+          ]}
+        />
         {/* ページヘッダー */}
         <div className="max-w-3xl mx-auto px-5 sm:px-8" style={{ padding: "60px 0 40px" }}>
           <div

@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="ft-grid">
         <div>
           <Link href="/" className="logo" style={{ display: "inline-flex", marginBottom: "12px" }}>
-            <span className="logo-ja">ふたりへ</span>
+            <span className="logo-ja">Kinda ふたりへ</span>
             <span className="logo-sep">·</span>
             <span className="logo-en">futarive</span>
           </Link>
@@ -33,7 +33,7 @@ export default function Footer() {
         </div>
 
         <div className="ft-col">
-          <h5>ふたりへについて</h5>
+          <h5>Kinda ふたりへについて</h5>
           <ul>
             <li><Link href="/about">このサービスについて</Link></li>
             <li><Link href="#">口コミの信頼性</Link></li>
@@ -44,7 +44,7 @@ export default function Footer() {
       </div>
 
       <div className="ft-bottom">
-        <p>© 2025 ふたりへ. All rights reserved.</p>
+        <p>© 2025 Kinda ふたりへ. All rights reserved.</p>
         <p>プライバシーポリシー　|　利用規約</p>
       </div>
     </footer>

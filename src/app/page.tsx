@@ -9,45 +9,122 @@ import { getCounselors } from "@/lib/data";
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
 ──────────────────────────────────────────────────────────── */
-const HERO_TAGLINE = "なんとなく、いいふたりへ";
-const HERO_IMAGE_SRC = "/images/hero-couple-new.png.PNG";
+const HERO_H1_LINE1 = "好きな人を見つけて、";
+const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
+const HERO_H2 =
+  "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
+const HERO_IMAGE_SRC = "/images/hero-couple-new.webp";
+
+/* SEO 用の構造化データ（JSON-LD）。婚活キーワード対策の中核。 */
+const SITE_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Kinda ふたりへ",
+  url: "https://www.kinda-futari.app",
+  description:
+    "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと本音の口コミで選ぶ結婚相談所サービス。",
+  keywords:
+    "結婚相談所, 結婚相談所 口コミ, カウンセラー, 婚活, 婚活カウンセラー, 相性診断, お見合い, デート, パートナー探し",
+  inLanguage: "ja-JP",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://www.kinda-futari.app/kinda-talk?keyword={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+} as const;
+
+const ORG_JSONLD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Kinda ふたりへ",
+  alternateName: ["Kinda", "カインダ", "カインダふたりへ"],
+  description:
+    "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーが伴走する、本音の口コミで選ぶ結婚相談所サービス。",
+  url: "https://www.kinda-futari.app",
+} as const;
 
 /* ────────────────────────────────────────────────────────────
    「もう決まっている方へ」カード定義
 ──────────────────────────────────────────────────────────── */
+/**
+ * カードの bg / accent カラーは globals.css の [data-section] と同じ
+ * パステルパレットを使用：
+ *   type → #E0ECF8（パステルブルー）
+ *   talk → #FAF3DE（パステルイエロー）
+ *   act  → #F5E1E0（パステルピンク）
+ *   glow → #EDE0F4（パステルパープル）
+ */
 const DECIDED_CARDS = [
   {
     key: "type",
     href: "/kinda-type",
     kindaLabel: "type",
-    desc: "診断で、合うカウンセラーが見つかる",
-    img: "/images/section-kinda-type.png.PNG",
+    desc: "自分に合うカウンセラーを見つける",
+    img: "/images/section-kinda-type.webp",
     alt: "Kinda type",
+    bg: "#E0ECF8",
+    accent: "#5A7FAF",
   },
   {
     key: "talk",
     href: "/kinda-talk",
     kindaLabel: "talk",
-    desc: "カウンセラー・相談所を見る",
-    img: "/images/section-counseling.png",
+    desc: "カウンセラー・相談所を直接見る",
+    img: "/images/section-counseling.webp",
     alt: "Kinda talk",
+    bg: "#FAF3DE",
+    accent: "#B89A4A",
   },
   {
-    key: "meet",
-    href: "/kinda-meet",
-    kindaLabel: "meet",
-    desc: "お見合いやデートに使いやすい場所を見る",
-    img: "/images/section-cafe-pastel.png.PNG",
-    alt: "Kinda meet",
+    key: "act",
+    href: "/kinda-act",
+    kindaLabel: "act",
+    desc: "お見合いやデートの場所",
+    img: "/images/section-cafe-pastel.webp",
+    alt: "Kinda act",
+    bg: "#F5E1E0",
+    accent: "#B86E68",
   },
   {
     key: "glow",
     href: "/kinda-glow",
     kindaLabel: "glow",
-    desc: "美容を整える",
+    desc: "好きな人に会う前に、自分を整える",
     img: "/images/section-beauty-n2.png.jpg",
     alt: "Kinda glow",
+    bg: "#EDE0F4",
+    accent: "#8A66B0",
   },
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   A'' — Kinda note ユースケース（2グループ × 4項目）
+──────────────────────────────────────────────────────────── */
+const KN_USECASES_PAUSE = [
+  "カウンセラーになんて伝えればいいか分からない",
+  "お見合いの後、ことばにならない違和感があった",
+  "交際中、なぜか不安が消えない",
+  "複数の人で、気持ちが揺れている",
+] as const;
+
+const KN_USECASES_MOVE = [
+  "好きな人ができた、その気持ちを整理したい",
+  "「好き」をどう伝えればいいか考えたい",
+  "大事なデートの前、自分の気持ちを見つめたい",
+  "節目のとき、いまの自分を残しておきたい",
+] as const;
+
+/* ────────────────────────────────────────────────────────────
+   Kinda note — 天気アイコン 5 種
+   pre / waiting / omiai / date1 / kousai の各ルートから 1 つずつ選定。
+   重い天気（thunderstorm / rain_cloud / mist）は初見ユーザーに重いため除外。
+──────────────────────────────────────────────────────────── */
+const NOTE_WEATHERS = [
+  { src: "/images/w_pre_dawn.webp",         label: "夜明け前" },
+  { src: "/images/w_light_rain_start.webp", label: "小雨のはじまり" },
+  { src: "/images/w_angels_ladder.webp",    label: "天使の梯子" },
+  { src: "/images/w_light_sunrise.webp",    label: "淡い朝焼け" },
+  { src: "/images/w_twilight.webp",         label: "夕暮れ" },
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
@@ -226,18 +303,30 @@ export default async function HomePage() {
             alt=""
             fill
             priority
+            fetchPriority="high"
+            sizes="100vw"
             style={{ objectFit: "cover", objectPosition: "center 15%" }}
           />
 
-          {/* 下側グラデーションオーバーレイ */}
+          {/* 下側グラデーションオーバーレイ — H1/H2 領域をしっかり暗く */}
           <div
             aria-hidden="true"
             style={{
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(to bottom, transparent 30%, rgba(18,12,8,.68) 80%, rgba(18,12,8,.82) 100%)",
+                "linear-gradient(to bottom, transparent 0%, rgba(18,12,8,.18) 30%, rgba(18,12,8,.55) 55%, rgba(18,12,8,.86) 78%, rgba(18,12,8,.94) 100%)",
             }}
+          />
+
+          {/* SEO: 構造化データ（JSON-LD） */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_JSONLD) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
           />
 
           {/* コンテンツ — 画像下部にオーバーレイ */}
@@ -247,58 +336,73 @@ export default async function HomePage() {
               bottom: 0,
               left: 0,
               right: 0,
-              padding: "0 24px 36px",
+              padding: "0 24px 28px",
             }}
           >
-            {/* ロゴ行 */}
+            {/* H1 — 詩的メインコピー（白文字＋多層シャドウで村背景上で可読） */}
+            <h1
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontWeight: 500,
+                fontSize: "clamp(22px, 6.4vw, 36px)",
+                color: "white",
+                lineHeight: 1.5,
+                letterSpacing: ".02em",
+                margin: 0,
+                marginBottom: 10,
+                textShadow:
+                  "0 0 2px rgba(0,0,0,.65), 0 2px 6px rgba(0,0,0,.7), 0 4px 22px rgba(0,0,0,.55)",
+              }}
+            >
+              {HERO_H1_LINE1}
+              <br />
+              {HERO_H1_LINE2}
+            </h1>
+
+            {/* H2 — 機能・カバー範囲を伝える説明文 */}
+            <h2
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontWeight: 300,
+                fontSize: "clamp(12px, 3.4vw, 14px)",
+                color: "rgba(255,255,255,.96)",
+                lineHeight: 1.7,
+                letterSpacing: ".02em",
+                margin: 0,
+                marginBottom: 16,
+                textShadow:
+                  "0 0 2px rgba(0,0,0,.6), 0 1px 4px rgba(0,0,0,.65), 0 2px 12px rgba(0,0,0,.5)",
+              }}
+            >
+              {HERO_H2}
+            </h2>
+
+            {/* ロゴ — ごく小さく、ブランドマーク程度に控える
+                ※ PNG 自体に白い余白が多いので、トリミング後はより小さく見せられる */}
             <div
               style={{
-                display: "flex",
-                alignItems: "baseline",
-                gap: 10,
-                marginBottom: 12,
+                marginBottom: 18,
+                display: "inline-block",
               }}
             >
-              <span
+              <Image
+                src="/images/toppage_name.PNG"
+                alt="Kinda ふたりへ"
+                width={400}
+                height={120}
+                priority
                 style={{
-                  fontFamily: "var(--font-mincho)",
-                  fontWeight: 500,
-                  fontSize: "clamp(44px, 12vw, 56px)",
-                  color: "white",
-                  lineHeight: 1,
+                  display: "block",
+                  width: "min(24vw, 110px)",
+                  height: "auto",
+                  objectFit: "contain",
+                  opacity: 0.88,
+                  filter: "drop-shadow(0 1px 4px rgba(0,0,0,.4))",
                 }}
-              >
-                Kinda
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-mincho)",
-                  fontWeight: 400,
-                  fontSize: "clamp(14px, 4vw, 18px)",
-                  color: "rgba(255,255,255,.75)",
-                  letterSpacing: ".1em",
-                }}
-              >
-                ふたりへ
-              </span>
+              />
             </div>
 
-            {/* タグライン */}
-            <p
-              style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontStyle: "italic",
-                fontSize: "clamp(16px, 4.5vw, 20px)",
-                color: "rgba(255,255,255,.9)",
-                lineHeight: 1.8,
-                marginBottom: 28,
-                letterSpacing: ".02em",
-              }}
-            >
-              {HERO_TAGLINE}
-            </p>
-
-            {/* 主CTA */}
+            {/* 主CTA — Kinda note（軽い気持ちの整理から始める） */}
             <Link
               href="/kinda-note"
               style={{
@@ -307,39 +411,431 @@ export default async function HomePage() {
                 justifyContent: "center",
                 gap: 10,
                 padding: "18px 24px",
-                background: "var(--accent)",
+                background: "#D4A090",
                 color: "white",
                 borderRadius: 999,
                 fontFamily: "var(--font-sans)",
                 fontSize: 15,
+                fontWeight: 500,
                 letterSpacing: ".03em",
                 textDecoration: "none",
-                marginBottom: 14,
-                transition: "opacity .2s",
+                marginBottom: 10,
+                transition: "transform .2s, box-shadow .2s",
+                boxShadow:
+                  "0 0 32px rgba(212,160,144,.55), 0 8px 24px rgba(212,160,144,.5), 0 2px 6px rgba(0,0,0,.14)",
               }}
             >
-              Kinda note で今のあなたがわかる
+              いまの気持ちを整理する
               <ArrowRight color="white" />
             </Link>
 
-            {/* 補足テキスト */}
+            {/* マイクロコピー — 軽さと安心感を伝える */}
             <p
               style={{
                 fontSize: 12,
-                color: "rgba(255,255,255,.55)",
+                color: "rgba(255,255,255,.85)",
                 textAlign: "center",
-                letterSpacing: ".05em",
+                letterSpacing: ".06em",
+                marginBottom: 18,
+                textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                fontFamily: "var(--font-sans)",
               }}
             >
-              1分で終わる・会員登録なし
+              ✓ 60秒で言葉になる　✓ 登録不要　✓ 相談前の整理に
             </p>
+
+            {/* 区切り線 + ラベル — 副CTAへの導線 */}
+            <div
+              aria-hidden="true"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                marginBottom: 12,
+              }}
+            >
+              <div
+                style={{
+                  flex: 1,
+                  height: 1,
+                  background: "rgba(255,255,255,.28)",
+                }}
+              />
+              <p
+                style={{
+                  fontSize: 11,
+                  color: "rgba(255,255,255,.72)",
+                  letterSpacing: ".08em",
+                  whiteSpace: "nowrap",
+                  fontFamily: "var(--font-sans)",
+                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                  margin: 0,
+                }}
+              >
+                やりたいことが決まっている方は
+              </p>
+              <div
+                style={{
+                  flex: 1,
+                  height: 1,
+                  background: "rgba(255,255,255,.28)",
+                }}
+              />
+            </div>
+
+            {/* 副CTA — Kinda type / Kinda talk（テキストリンク風） */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <Link
+                href="/kinda-type"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 13,
+                  color: "rgba(255,255,255,.94)",
+                  textDecoration: "none",
+                  borderBottom: "1px solid rgba(255,255,255,.4)",
+                  paddingBottom: 2,
+                  letterSpacing: ".04em",
+                  fontFamily: "var(--font-sans)",
+                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                }}
+              >
+                自分に合う担当を見つける
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 7h8M7 3l4 4-4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+              <Link
+                href="/kinda-talk"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 13,
+                  color: "rgba(255,255,255,.94)",
+                  textDecoration: "none",
+                  borderBottom: "1px solid rgba(255,255,255,.4)",
+                  paddingBottom: 2,
+                  letterSpacing: ".04em",
+                  fontFamily: "var(--font-sans)",
+                  textShadow: "0 1px 3px rgba(0,0,0,.4)",
+                }}
+              >
+                カウンセラーを見てみる
+                <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M3 7h8M7 3l4 4-4 4"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            B — もう決まっている方へ
+            A' — Kinda note 説明セクション
+            ヒーロー直下で「気持ちを整理する」体験を訴求し、Kinda の
+            差別化機能（他社にない唯一無二のメモツール）を主役に置く。
         ═══════════════════════════════════════════════════ */}
         <section
+          style={{
+            background: "#F5EEE6",
+            padding: "56px 24px 60px",
+            borderBottom: "1px solid rgba(0,0,0,.04)",
+          }}
+        >
+          <div style={{ maxWidth: 560, margin: "0 auto" }}>
+            {/* eyebrow */}
+            <p
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                letterSpacing: ".18em",
+                color: "#D4A090",
+                textTransform: "uppercase",
+                textAlign: "center",
+                marginBottom: 14,
+              }}
+            >
+              Kinda <em style={{ fontFamily: "Georgia, serif", fontStyle: "italic" }}>note</em>
+            </p>
+
+            {/* セクション見出し（Georgia serif 大きめ） */}
+            <h2
+              style={{
+                fontFamily: "Georgia, 'DM Serif Display', serif",
+                fontSize: "clamp(22px, 5.8vw, 30px)",
+                color: "var(--ink)",
+                fontWeight: 400,
+                lineHeight: 1.5,
+                letterSpacing: ".02em",
+                textAlign: "center",
+                margin: "0 0 18px",
+              }}
+            >
+              あなたの気持ちは、いま、どんな天気？
+            </h2>
+
+            {/* リード文 */}
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                color: "var(--mid)",
+                lineHeight: 1.95,
+                textAlign: "center",
+                margin: "0 0 32px",
+                letterSpacing: ".02em",
+              }}
+            >
+              うまく言葉にできない不安や、
+              <br />
+              言葉にならない嬉しさも。
+              <br />
+              天気のメタファーを通して、
+              <br />
+              自分の気持ちが見えてきます。
+            </p>
+
+            {/* 天気アイコン 5 種（横スクロール） */}
+            <div
+              style={{
+                display: "flex",
+                gap: 16,
+                overflowX: "auto",
+                padding: "4px 4px 18px",
+                margin: "0 -24px 28px",
+                paddingLeft: 24,
+                paddingRight: 24,
+                scrollSnapType: "x mandatory",
+                WebkitOverflowScrolling: "touch",
+              }}
+              className="hide-scrollbar"
+            >
+              {NOTE_WEATHERS.map((w) => (
+                <div
+                  key={w.src}
+                  style={{
+                    flex: "0 0 auto",
+                    width: 96,
+                    textAlign: "center",
+                    scrollSnapAlign: "start",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 96,
+                      height: 96,
+                      borderRadius: 16,
+                      overflow: "hidden",
+                      background: "white",
+                      boxShadow: "0 4px 14px rgba(180,140,110,.14)",
+                      position: "relative",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <Image
+                      src={w.src}
+                      alt={w.label}
+                      fill
+                      sizes="96px"
+                      style={{ objectFit: "cover" }}
+                    />
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      fontSize: 11,
+                      color: "var(--ink)",
+                      letterSpacing: ".04em",
+                      margin: 0,
+                    }}
+                  >
+                    {w.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* 全20種であることをそっと伝える（"これだけ?" を防ぐ） */}
+            <p
+              style={{
+                fontFamily: "var(--font-sans)",
+                fontSize: 11,
+                color: "var(--muted)",
+                textAlign: "center",
+                letterSpacing: ".06em",
+                margin: "-8px 0 28px",
+              }}
+            >
+              答えると、全20種の中から、いまの気持ちに近い天気がひとつ届きます。
+            </p>
+
+            {/* 機能の特徴 3 つ（チェックリスト） */}
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: "0 0 28px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
+              {[
+                "60秒で、いまの気持ちが言葉になる",
+                "整理したメモは、そのままカウンセラーに渡せる",
+                "何度でも、気持ちが揺れたときに",
+              ].map((item) => (
+                <li
+                  key={item}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 10,
+                    fontSize: 13,
+                    color: "var(--ink)",
+                    lineHeight: 1.7,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                    aria-hidden
+                    style={{ flex: "0 0 auto", marginTop: 4 }}
+                  >
+                    <path
+                      d="M2.5 7.5l3 3 6-7"
+                      stroke="#D4A090"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* CTA — 気持ちを整理する */}
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/kinda-note"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "14px 28px",
+                  background: "#D4A090",
+                  color: "white",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  letterSpacing: ".04em",
+                  textDecoration: "none",
+                  boxShadow: "0 6px 18px rgba(212,160,144,.4)",
+                  transition: "transform .2s, box-shadow .2s",
+                }}
+              >
+                気持ちを整理する
+                <ArrowRight color="white" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            A'' — Kinda note は、こんな時に使えます
+        ═══════════════════════════════════════════════════ */}
+        <section style={{ padding: "48px 24px 64px", background: "#FEFCFA" }}>
+          <SectionLabel label="Kinda note は、こんな時に使えます" />
+
+          <div style={{ maxWidth: 480, margin: "0 auto" }}>
+            <h3 className="kn-usecase-h3">ふと立ち止まったとき</h3>
+            <div className="kn-usecase-box">
+              <ul className="kn-usecase-list">
+                {KN_USECASES_PAUSE.map((u) => (
+                  <li key={u}>{u}</li>
+                ))}
+              </ul>
+            </div>
+
+            <h3 className="kn-usecase-h3" style={{ marginTop: 24 }}>
+              気持ちが動いたとき
+            </h3>
+            <div className="kn-usecase-box">
+              <ul className="kn-usecase-list">
+                {KN_USECASES_MOVE.map((u) => (
+                  <li key={u}>{u}</li>
+                ))}
+              </ul>
+            </div>
+
+            <p
+              style={{
+                fontFamily: "'DM Serif Display', Georgia, serif",
+                fontStyle: "italic",
+                fontSize: 16,
+                color: "var(--ink)",
+                textAlign: "center",
+                margin: "32px 0 16px",
+              }}
+            >
+              入会前から交際後まで、何度でも。
+            </p>
+
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/kinda-note"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "14px 36px",
+                  background: "#D4A090",
+                  color: "white",
+                  borderRadius: 999,
+                  fontFamily: "var(--font-sans)",
+                  fontSize: 14,
+                  letterSpacing: ".03em",
+                  textDecoration: "none",
+                  boxShadow: "0 6px 18px rgba(212,160,144,.4)",
+                }}
+              >
+                気持ちを整理する
+                <ArrowRight color="white" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════
+            B — やりたいことが決まっている方へ
+        ═══════════════════════════════════════════════════ */}
+        <section
+          id="section-b"
           style={{
             padding: "48px 24px 64px",
             background: "#FEFCFA",
@@ -364,7 +860,7 @@ export default async function HomePage() {
                 fontFamily: "var(--font-sans)",
               }}
             >
-              もう決まっている方へ
+              やりたいことが決まっている方へ
             </p>
             <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
           </div>
@@ -385,20 +881,20 @@ export default async function HomePage() {
                 href={card.href}
                 style={{
                   display: "block",
-                  background: "var(--white)",
+                  background: card.bg,
                   borderRadius: 16,
-                  border: "1px solid var(--light)",
+                  border: "1px solid rgba(0,0,0,.04)",
                   overflow: "hidden",
                   boxShadow: "0 4px 16px rgba(200,169,122,.08)",
                   textDecoration: "none",
                   transition: "transform .3s, box-shadow .3s",
                 }}
               >
-                {/* 画像エリア */}
+                {/* 画像エリア（カードと同色のパステル背景に画像が乗る） */}
                 <div
                   style={{
                     aspectRatio: "1/1",
-                    background: "#F5EEE6",
+                    background: card.bg,
                     overflow: "hidden",
                     position: "relative",
                   }}
@@ -411,7 +907,7 @@ export default async function HomePage() {
                   />
                 </div>
 
-                {/* テキストエリア */}
+                {/* テキストエリア — カード bg を継承して馴染ませる */}
                 <div style={{ padding: "12px 14px 16px" }}>
                   <p
                     style={{
@@ -426,7 +922,7 @@ export default async function HomePage() {
                     <em
                       style={{
                         fontStyle: "italic",
-                        color: "var(--accent)",
+                        color: card.accent,
                         fontFamily: "'DM Serif Display', serif",
                       }}
                     >
@@ -510,9 +1006,11 @@ export default async function HomePage() {
             C — ふたりの物語（Kinda story 抜粋）
         ═══════════════════════════════════════════════════ */}
         <section
+          id="stories"
           style={{
             padding: "64px 24px",
             background: "#FEFCFA",
+            scrollMarginTop: 80,
           }}
         >
           <SectionLabel label="ふたりの物語" en="Kinda story" />
@@ -744,7 +1242,7 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            D — ふたりへについて（Brand Belief）
+            D — Kinda ふたりへについて（Brand Belief）
         ═══════════════════════════════════════════════════ */}
         <section
           style={{

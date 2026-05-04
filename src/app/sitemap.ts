@@ -14,7 +14,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticEntries: MetadataRoute.Sitemap = [
     "",
     "/kinda-talk",
-    "/diagnosis",
+    "/kinda-act",
+    "/kinda-type",
+    "/kinda-type/quiz",
     "/search",
     "/shops",
     "/about",

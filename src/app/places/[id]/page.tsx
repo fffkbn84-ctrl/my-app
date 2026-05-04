@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
+import Breadcrumb from "@/components/ui/Breadcrumb";
+import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
 import { places } from "@/lib/mock/places";
 import type { Place } from "@/lib/mock/places";
@@ -103,7 +105,7 @@ function BadgePill({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
       <span className="rt-certified inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full">
-        ふたりへ取材済み
+        Kinda ふたりへ取材済み
       </span>
     );
   }
@@ -146,6 +148,14 @@ export default async function PlaceDetailPage({
       <Header />
 
       <main className="pt-16">
+        <SectionSubHeader sectionName="Kinda act" sectionRoot="/kinda-act" />
+        <Breadcrumb
+          items={[
+            { label: "ホーム", href: "/" },
+            { label: "Kinda act", href: "/kinda-act" },
+            { label: place.name },
+          ]}
+        />
         {/* ═══════════════════════════════════════════════════
             ヒーローストリップ（お店グラデーション背景）
         ═══════════════════════════════════════════════════ */}
@@ -158,7 +168,9 @@ export default async function PlaceDetailPage({
               <div className="d-breadcrumb" style={{ color: "rgba(0,0,0,.4)" }}>
                 <Link href="/" style={{ color: "rgba(0,0,0,.4)" }}>トップ</Link>
                 <span>/</span>
-                <Link href="/shops" style={{ color: "rgba(0,0,0,.4)" }}>お店を探す</Link>
+                <Link href="/kinda-act" style={{ color: "rgba(0,0,0,.4)" }}>
+                  Kinda act<span style={{ marginLeft: 4, fontSize: "0.85em" }}>（実際に会う場所を選ぶ）</span>
+                </Link>
                 <span>/</span>
                 <span style={{ color: "rgba(0,0,0,.65)" }}>{place.name}</span>
               </div>
@@ -216,19 +228,39 @@ export default async function PlaceDetailPage({
                   {avgRating.toFixed(1)}
                 </span>
                 <span className="d-rating-sep" style={{ background: "rgba(0,0,0,.15)" }} />
-                <span
+                <Link
+                  href="#reviews"
                   className="d-review-badge"
                   style={{
                     background: "rgba(0,0,0,.06)",
                     border: "1px solid rgba(0,0,0,.1)",
                     color: "rgba(0,0,0,.5)",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    textDecoration: "none",
+                    cursor: "pointer",
                   }}
+                  aria-label="口コミセクションへ移動"
                 >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
                   {place.reviews.length}件の口コミ
-                </span>
+                </Link>
               </div>
 
-              {/* シーンタグ */}
+              {/* シーンタグ — stage と重複する scene は除外 */}
               <div className="d-tags">
                 <span
                   className="d-tag featured"
@@ -240,15 +272,17 @@ export default async function PlaceDetailPage({
                 >
                   {place.stage}
                 </span>
-                {place.scenes.map((scene) => (
-                  <span
-                    key={scene}
-                    className="d-tag"
-                    style={{ borderColor: "rgba(0,0,0,.15)", color: "rgba(0,0,0,.5)" }}
-                  >
-                    {scene}
-                  </span>
-                ))}
+                {place.scenes
+                  .filter((scene) => scene !== place.stage)
+                  .map((scene) => (
+                    <span
+                      key={scene}
+                      className="d-tag"
+                      style={{ borderColor: "rgba(0,0,0,.15)", color: "rgba(0,0,0,.5)" }}
+                    >
+                      {scene}
+                    </span>
+                  ))}
               </div>
 
               {/* 統計 */}
@@ -307,7 +341,7 @@ export default async function PlaceDetailPage({
               >
                 口コミを書く
               </Link>
-              <p className="d-book-note">口コミはふたりへ経由で利用した方のみ投稿できます</p>
+              <p className="d-book-note">お店を利用した方ならどなたでも口コミを投稿できます</p>
             </div>
 
           </div>
@@ -415,7 +449,7 @@ export default async function PlaceDetailPage({
                         borderTop: "1px solid rgba(180,155,135,.15)",
                       }}
                     >
-                      ※ 口コミはふたりへ経由で利用した方のみ投稿できます
+                      ※ お店を利用した方ならどなたでも口コミを投稿できます
                     </p>
                   </div>
 
@@ -498,64 +532,37 @@ export default async function PlaceDetailPage({
                       口コミを書く
                     </Link>
                     <p className="cta-book-main-note">
-                      口コミはふたりへ経由で利用した方のみ投稿できます
+                      お店を利用した方ならどなたでも口コミを投稿できます
                     </p>
                   </div>
                 </div>
 
-                {/* 基本情報ミニカード — クレイ */}
-                <div className="clay-mini-card">
-                  {[
-                    {
-                      icon: (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
-                          <circle cx="7" cy="7" r="5.5" />
-                          <path d="M7 4v3.5l2 1.5" />
-                        </svg>
-                      ),
-                      label: "営業時間",
-                      value: place.hours,
-                    },
-                    {
-                      icon: (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
-                          <rect x="2" y="3" width="10" height="9" rx="1.5" />
-                          <path d="M5 2v2M9 2v2M2 7h10" />
-                        </svg>
-                      ),
-                      label: "定休日",
-                      value: place.holiday,
-                    },
-                    {
-                      icon: (
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-                          stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round">
-                          <path d="M7 1.5C4.5 1.5 2.5 3.5 2.5 6c0 3.5 4.5 6.5 4.5 6.5S11.5 9.5 11.5 6c0-2.5-2-4.5-4.5-4.5z" />
-                          <circle cx="7" cy="6" r="1.5" />
-                        </svg>
-                      ),
-                      label: "アクセス",
-                      value: place.access,
-                    },
-                  ].map(({ icon, label, value }) => (
-                    <div
-                      key={label}
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 10,
-                        marginBottom: 14,
-                      }}
-                    >
-                      <div style={{ marginTop: 1, flexShrink: 0 }}>{icon}</div>
-                      <div>
-                        <p style={{ fontSize: 10, color: "var(--muted)", marginBottom: 2 }}>{label}</p>
-                        <p style={{ fontSize: 12, color: "var(--ink)" }}>{value}</p>
-                      </div>
-                    </div>
-                  ))}
+                {/* Google Maps（営業時間/定休日/アクセスは上のメインカラムに記載済みのため、ここは地図に置換） */}
+                <div
+                  className="clay-card"
+                  style={{ padding: 0, overflow: "hidden", marginTop: 16 }}
+                >
+                  <iframe
+                    title={`${place.name} の地図`}
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                      `${place.name} ${place.access}`,
+                    )}&z=15&output=embed`}
+                    width="100%"
+                    height="280"
+                    style={{ border: 0, display: "block" }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                  <div
+                    style={{
+                      padding: "10px 14px",
+                      fontSize: 11,
+                      color: "var(--mid)",
+                      borderTop: "1px solid var(--border)",
+                    }}
+                  >
+                    {place.access}
+                  </div>
                 </div>
 
               </aside>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ColumnMeta } from "@/lib/columns";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 
 const CATEGORIES = ["すべて", "取材レポート", "お見合い準備", "デートプラン"];
 
@@ -151,6 +152,7 @@ export default function ColumnsClient({ columns }: { columns: ColumnMeta[] }) {
 
   return (
     <div style={{ background: "var(--white)", minHeight: "100vh" }}>
+      <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "コラム" }]} />
       {/* ヘッダーセクション */}
       <section
         style={{

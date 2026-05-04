@@ -2662,3 +2662,906 @@ git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
 | 予約詳細確認 | カレンダー画面から `booked` スロットの予約者情報を表示 |
 | プロフィール写真トリミング | アップロード時にブラウザ内でクロップ UI |
 | 通知機能 | 新規予約・新規口コミ着信時のブラウザ通知 |
+
+---
+
+## 実装済み機能（2026-04-26 追記） — Kinda talk / Kinda act / 認証 / 大規模 UX 改善
+
+> このセクションは `claude/implement-kinda-talk-uDUoW` ブランチで進めた一連の作業の総括。
+> ブランチ末端の最新コミット（2026-04-26 時点）まで全て反映済み。
+> Vercel のデイリーデプロイ上限により最後のいくつかのコミットは反映待ち。
+
+### ブランチ・PR 状況
+
+| ブランチ | 状態 |
+|---|---|
+| `claude/implement-kinda-talk-uDUoW` | 開発中。すべてのコミットを集約 |
+| `main` | 初回 PR (#3) で `Kinda talk + Supabase連携 + 認証` までマージ済み |
+
+以降のコミット（Kinda act、ブランド統一、スクロール戻る、地図、検索拡張、村背景など）は次回 PR でまとめて main へマージ予定。
+
+---
+
+### 1. /kinda-talk — カウンセラー一覧（リール型）
+
+**ファイル:**
+- `src/app/kinda-talk/{layout,page,KindaTalkClient}.tsx`
+- `src/components/kinda-talk/{CounselorReelCard,CounselorReelModal,KindaTypeBadge,DemoBadge,ShareSheet,FAQAccordion,CounselorReelGrid}.tsx`
+- `src/lib/kinda-types.ts`（6 タイプ定義: anshin / jibunjiku / zenryoku / senryaku / lifestyle / restart）
+
+**機能:**
+- 縦長 9:16 リールカードを 2/3/4 列グリッド
+- カードタップで全画面リールモーダル（framer-motion + MotionConfig reducedMotion）
+- モーダル内 ♡（DB保存） / 💬（口コミへ） / 共有 の 3 アクション
+- ヒーロー: フルブリード画像 + パステルイエロー被せ（`mix-blend-mode: soft-light`）
+- 選び方ガイド + FAQ（JSON-LD `FAQPage` 構造化データ）
+
+**派生ページ:**
+- `/kinda-talk/area/[area]`: tokyo / osaka / nagoya / fukuoka / online（SSG 5 ページ）
+- `/kinda-talk/type/[type]`: 6 Kinda type それぞれの専用ページ（SSG 6 ページ）
+
+**エリアフィルター（最新仕様）:**
+- 横スクロールピル → **トグル式ドロップダウン** に再構築
+- 11 都道府県 + オンラインを 3 列グリッドで表示
+- カウンセラー 0 件のエリアは `aria-disabled` + 35% 不透明度でグレーアウト
+- 各エリアのカウンセラー数を併記
+- `extractPrefecture()` で `counselor.area` の先頭セグメント（"・" より前）から都道府県抽出
+
+---
+
+### 2. /kinda-act — お見合い・デート用のお店一覧（リール型）
+
+**ファイル:**
+- `src/app/kinda-act/{layout,page,KindaActClient}.tsx`
+- `src/components/kinda-act/{PlaceReelCard,PlaceReelModal,PlaceThumb,PlaceBadge,placeIcons}.tsx`
+- `public/images/laughing-town-background.png.PNG`（ページ最奥背景の村ミニチュア）
+
+**機能:**
+- 旧名「Kinda meet」を **「Kinda act」**（実際に会う場所を行動して選ぶ）に改名
+- カテゴリ限定: **カフェ + レストランのみ**（美容系は Kinda glow へ分離する想定）
+- 縦長 9:16 リールカード + 全画面リールモーダル（PlaceReelModal）
+- リールモーダル: 画像スワイプ + ♡（type="place"）/ 💬（口コミへ） / 共有
+- 全 12 件すべてに「サンプル」バッジを表示（運用前のため）
+
+**ヒーロー + 背景:**
+- ヒーロー: 既存 `section-cafe-pastel.png.PNG` + 多層 text-shadow（白文字の視認性強化）
+- ヒーロー以降のページ最奥に **村のミニチュア画像をブラー + パステルピンク被せで配置**
+  - `.ka-village-bg`: `position: fixed; inset: 0; filter: blur(36px); transform: scale(1.18)`
+  - `::after` でピンクオーバーレイ 30〜45%
+  - セクション背景を半透明（72% / 50%）にして村が透ける
+  - スクロールで「具体的なカフェ → 抽象的な村世界」のグラデーション
+
+**選定基準:**
+- 4 カードグリッド（2×2）で表示
+  - 話しやすい音量 / 座席の距離 / 店員の干渉 / 入店のしやすさ
+- 各カード: accent カラー円形アイコン + Mincho ラベル + 短い説明
+- セクションテーマ: `data-section="act"` パステルピンク（`#F5E1E0`）
+
+---
+
+### 3. /counselors/[id] / /places/[id] — 詳細ページ強化
+
+**/counselors/[id]:**
+- `generateMetadata` で title / description / OGP / Twitter Card / canonical 動的生成
+- JSON-LD: `Person` + `LocalBusiness` + `AggregateRating` + 最新 5 件の `Review`
+- ヒーロー内に保存ボタン（SaveButton, useSaved → useFavorites 経由）
+
+**/places/[id]:**
+- 「○件の口コミ」を Link 化 → `#reviews` へスクロール（💬アイコン併設）
+- サイドバーの重複情報（営業時間/定休日/アクセス）を削除
+- 代わりに **Google Maps iframe** を埋め込み（API キー不要のクエリ版）
+- 口コミ制約文言: 「お店を利用した方ならどなたでも投稿できます」
+  → 将来 Kinda 経由予約フロー実装後に「面談済み制限」へ戻す方針
+
+---
+
+### 4. 認証・気になる保存
+
+**Supabase マイグレーション（実行済み）:**
+| ファイル | 内容 |
+|---|---|
+| `001_add_columns.sql` | counselors / reviews / shops / episodes に基本カラム追加 + diagnosis_results 新設 |
+| `002_kinda_talk_extensions.sql` | counselors に Kinda talk 用 11 カラム + counselor_media テーブル新設 |
+| `003_seed_kinda_talk_demo.sql` | 営業デモ用相談所 2 件 + カウンセラー 5 名 + リール画像 12 件 |
+| `004_favorites.sql` | favorites（user_id, target_type, target_id）テーブル + RLS |
+| `005_favorites_place.sql` | favorites の `target_type` CHECK に `'place'` 追加 |
+
+> 005 のみ未実行（ふうかが SQL Editor で 1 回 ALTER TABLE するだけ）
+
+**フロント:**
+- `src/lib/auth/AuthProvider.tsx`: Supabase Auth 状態を `useAuth()` で全ページに提供
+  - createBrowserClient はジェネリックなしで使う（`.update()` の型推論バグ回避）
+- `src/hooks/useFavorites.ts`: `useFavorites(type, id)` → `{ saved, toggle }`、`useFavoritesList()`
+  - ログイン時: Supabase favorites
+  - 未ログイン時: localStorage（key: `kinda-favorites-v2`）
+  - ログイン直後に `mergeLocalFavoritesToSupabase()` で localStorage の保存を DB へ同期
+- `src/hooks/useSaved.ts`: 旧 API を useFavorites に内部委譲（後方互換）
+
+**画面:**
+- `/login`: 3 モード（signin / signup / reset-request）タブ切替
+- `/auth/reset-password`: メールリンクから遷移、新パスワード入力で `updateUser()` を実行
+- `/mypage`: ログイン済みユーザーは保存件数 + 一覧、未ログインは促進カード
+- `src/app/mypage/{AuthCard,SavedSection}.tsx`: ログイン状態と保存一覧の Client Component
+
+---
+
+### 5. ブランド・UX 統一
+
+- **「ふたりへ」→「Kinda ふたりへ」** 全ページ sweep（Python regex で 25 ファイル一括）
+  - 詩的タグライン（HERO_TAGLINE / ルートタイトル / サイドライン装飾）は意図的に温存
+- **FloatingScrollToTop**: 全ページ右下にフローティング「↑」（200px 超で出現）
+  - `body:has(.cta-mobile-bar)` で詳細ページの CTA と被らないよう自動上方シフト
+- **a11y 強化（リールモーダル）**:
+  - `role="dialog"` / `aria-modal` / `aria-labelledby` / 開時 close ボタンへ自動フォーカス
+  - `MotionConfig reducedMotion="user"` で prefers-reduced-motion 尊重
+  - FAQAccordion / ShareSheet / DemoModal にも同 semantics
+  - SVG アイコンに `aria-hidden`、星評価行に `aria-label`、`:focus-visible` リング追加
+
+---
+
+### 6. ヘッダー🔍検索モーダル — 3 タブ化
+
+`src/components/search/SearchModal.tsx`
+
+| タブ | 入力 | 遷移先 |
+|---|---|---|
+| 結婚相談所 | エリア + Kinda type（6 種）+ 価格 + キーワード | `/kinda-talk` |
+| お見合いの場所 | エリア + 価格（〜1000/〜3000/〜5000/5000円〜）+ 雰囲気 + キーワード | `/kinda-act` |
+| 美容店 | エリア + 価格 + 予約タイミング（今日/明日/今週/日付指定）+ キーワード | `/kinda-glow`（未実装） |
+
+---
+
+### 7. その他のインフラ・ファイル
+
+- `tsconfig.json` の `exclude` に `futarive-counselor` を追加 + `.vercelignore` で二重防御
+- `src/app/sitemap.ts` / `src/app/robots.ts` を Next.js Metadata Files API で生成
+- `src/app/layout.tsx` に `<AuthProvider>` + `<FloatingScrollToTop />`
+- `framer-motion ^12.38.0` を追加
+
+---
+
+### 重要な設計決定
+
+1. **mock fallback 戦略**: SQL 未実行・env 未設定でもサイトが落ちない。`getCounselors()` などは Supabase が空 / エラー時に mock COUNSELORS を返す。
+2. **Counselor.id を `number | string` に拡張**: mock = 数値、Supabase = UUID 両方を許容。比較は `String(a.id) === String(b.id)` で統一。
+3. **JOIN クエリを使わない**: Supabase SDK v2 の型推論が壊れる（CLAUDE.md 上部の注意事項参照）。`agencies` / `counselor_media` は別クエリで取得。
+4. **Counselor 型に旧スキーマ互換 `bio` フィールド**: 既存 `/counselors/[id]` の mock データが `bio` を使っており、Supabase row の bio をマッピングして渡す。
+5. **データを混ぜない**: Supabase に 1 件でも公開データがあれば mock は使わない（混在で UX が壊れるため）。
+
+---
+
+## これからやること（次の優先順）
+
+### A. 本番リリース準備（推奨：先にやる）
+
+| 項目 | 担当 | 内容 |
+|---|---|---|
+| **SMTP 設定** | ふうか | Resend / SendGrid 等の API キーを取得し Supabase Authentication > SMTP に登録。標準の `noreply@mail.app.supabase.io` から自社ドメインに切替 |
+| **Confirm email 再 ON** | ふうか | SMTP 設定後、Authentication > Sign In/Up > Confirm email を ON に戻す |
+| **Auth Redirect URLs 登録** | ふうか | Supabase Authentication > URL Configuration の「Redirect URLs」に本番ドメイン + Vercel preview の `/auth/reset-password` を追加 |
+| **本番ドメイン環境変数** | ふうか | Vercel に `NEXT_PUBLIC_SITE_URL=https://本番ドメイン` を Production / Preview 両方で設定 |
+| **利用規約・プライバシーポリシー** | 私（叩き台）| `/about` 配下に専用ページを新設、または既存 `/about` に追加 |
+| **実カウンセラー投入** | ふうか | 統括管理画面 / SQL でふうか自身など本物のデータを公開。リール画像も Storage にアップロード |
+| **005 SQL 実行** | ふうか | お店の♡保存を Supabase に永続化するための ALTER TABLE 1 行 |
+
+### B. Kinda glow（美容店）新規ページ
+
+- `/kinda-glow` 新規作成
+- カテゴリ: 美容室 / ネイルサロン / 眉毛サロン / フォトスタジオ
+- /kinda-act と同パターン（リール型グリッド + モーダル）
+- セクションテーマ: パステルパープル `#EDE0F4`
+- 検索モーダルの「美容店」タブから既に遷移先が `/kinda-glow` を指している
+
+### C. Kinda story 強化
+
+- 既存 `/episodes` をブランド整合（`Kinda ふたりへ` 表記、リール型カードへの統一など）
+- 新エピソード追加・カテゴリタグ
+- セクションテーマ: パステルグリーン `#E8F4E4`
+
+### D. ホームに Kinda act リール埋め込み
+
+- `/kinda-talk より | 今いるカウンセラーたち` と同パターンで、Kinda act の人気店を横スクロール表示
+- 既存 `HomeReelCarousel` の概念を `HomePlaceCarousel` として複製
+
+### E. Kinda type ページ（/kinda-type）の正式実装
+
+- 現状は `/diagnosis` が代替を担っている
+- `/kinda-type` 専用のブランド化された診断フローを新設するかは要検討
+
+### F. パフォーマンス・実機確認
+
+- iPhone Safari で `/kinda-act` の村背景（重い画像 + blur）が滑らかに動くか
+  - カクつく場合は `laughing-town-background.png.PNG` を WebP / 圧縮版に差し替え
+- Lighthouse Mobile スコア計測（Performance / A11y / SEO）
+- axe DevTools で残存 a11y 問題チェック
+
+### G. 既存ページのブラッシュアップ（軽め）
+
+- ヒーローバナー画像の最適化（特にホームの `hero-couple-new.png.PNG` も含めて）
+- `/diagnosis` フローに Kinda 世界観を被せる
+- `/columns`（コラム）のリスト UI 整備
+
+---
+
+## 補足：Vercel デイリーデプロイ上限について
+
+無料プランでは 1 日あたりのビルド・デプロイ回数に上限がある。一連の作業で複数回プッシュした場合、最後のいくつかが「未デプロイ」状態のまま残ることがある。
+
+**回避策:**
+- 翌日になれば自動的に枠が回復する
+- または Vercel ダッシュボードから手動で「Redeploy」を当てる
+- 大きな変更は git 上でまとめてから 1 回プッシュにすると安全
+
+---
+
+## 実装済み機能（2026-04-30 追記） — トップページ刷新・SEO/CRO 強化・全面 WebP 化
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`（最新コミット `c5913d5`）
+> セッションスコア改善: **62 → 92 点想定**（残り 2 枚の天気アイコン後に Lighthouse 計測予定）
+
+### A. ヘッダー検索モーダル全面改修（`src/components/search/SearchModal.tsx`）
+
+**タブ刷新：**
+- 「お見合いの場所」→ **「デートの場所」** にリネーム（お見合い・デート両ユーザーに刺さる文言）
+- 全 3 タブ（結婚相談所 / デートの場所 / 美容店）に共通エリア選択（後述の `@/lib/areas` 由来）
+
+**フィールド追加：**
+- act タブ: 「用途」select（カフェ / レストラン）
+- glow タブ: 「用途」select（美容室 / 眉毛サロン / ネイルサロン / エステ）
+
+**美容店タブ修正：**
+- 「予約タイミング」フィールドを非表示化（Kinda 経由予約は未実装のため。state と UI はコメントアウトで残存）
+- 価格選択肢更新：「10,000円〜」削除 →「〜20,000円」「20,000円〜」追加（最終: ～3,000 / ～5,000 / ～10,000 / ～20,000 / 20,000～）
+
+**ヘッダーアイコン：**
+- 一時的に検索アイコンを非表示にしていたが、修正完了後に再表示（`Header.tsx`）
+- ヘッダーロゴ画像化: `/images/logoname _kinda_header.PNG`（透過 PNG）
+- ヘッダー左 padding を `0` にしてロゴを画面左端にぴったり寄せる（モバイルでの見栄え最適化）
+
+**0 件グレーアウト：**
+- 各タブのエリア option に `disabled` + 「（0件）」サフィックス
+- カウンセラータブ: `COUNSELORS` モックから件数集計
+- act タブ: `placesHomeData` の カフェ/レストラン
+- glow タブ: 美容室/ネイル/眉毛/エステ
+
+---
+
+### B. 共通エリア定義モジュール（新規 `src/lib/areas.ts`）
+
+futarive-counselor のプロフィール「活動エリア」と Kinda 公開サイトのフィルターを **完全同期** させるための単一データソース。`futarive-counselor/lib/areas.ts` にもミラー。
+
+**4 階層構造：**
+1. `NATIONAL_OPTION` ＝「全国」（全カウンセラーマッチ）
+2. `ONLINE_OPTION` ＝「オンライン」
+3. `BROAD_REGIONS` ＝ 11 の広域カテゴリ
+   - 首都圏（東京・神奈川・千葉・埼玉）/ 関東 / 関西（近畿）/ 東海 / 北陸 / 甲信越 / 東北 / 北海道 / 中国 / 四国 / 九州・沖縄
+4. `PREFECTURE_GROUPS` ＝ 47 都道府県を 6 つの見出しでグルーピング
+   - 北海道・東北 / 関東 / 中部 / 近畿 / 中国・四国 / 九州・沖縄
+   - 都道府県は「県／都／府／道」の suffix 込み（例: "東京都"、"京都府"、"北海道"）
+
+**ヘルパー関数：**
+- `extractAreaKey(area)` — "東京・銀座" → "東京都" の正規化付き抽出
+- `matchesAreaFilter(area, filter)` — 「関東」を選ぶと所属 7 県すべてに一致
+- `prefecturesInBroadRegion(name)` — 広域名 → 含まれる県の配列
+- `normalizePrefecture(raw)` — 短縮形（"東京"）→ 正式形（"東京都"）変換。古いモックデータ対策
+
+**適用箇所：**
+- `SearchModal.tsx`（3 タブ全部）
+- `KindaActClient.tsx`（エリアドロップダウン）
+- `KindaTalkClient.tsx`（エリアドロップダウン）
+- `futarive-counselor/app/(main)/profile/page.tsx`（活動エリア `<select>` の `<optgroup>`）
+
+**0 件グレーアウト：** すべて `aria-disabled` + 35% opacity で表示。Kinda が成長したらエリアが順次有効化される。
+
+---
+
+### C. ホームページ全面リブランド（`src/app/page.tsx`）
+
+**ヒーロー Plan C（ブランド哲学に沿った最大効果版）：**
+
+```
+[村のミニチュア画像 フルブリード]
+  [overlay: 下方向グラデーション + 強化シャドウ]
+  
+  H1: 好きな人を見つけて、
+      一緒に過ごす日々まで。
+      （Shippori Mincho 大型・白文字＋多層 text-shadow）
+  
+  H2: カウンセラー × お見合いのカフェ × デートの場所 × 美容、
+      ふたりに寄り添うすべて。
+  
+  [小ロゴ: toppage_name.PNG]
+  
+  [主CTA] 自分に合う担当を診断する → /kinda-type
+          glow shadow 付き、最強調
+  [マイクロコピー] ✓ 60秒 ✓ 登録不要 ✓ 完全無料
+  [副CTA] まずカウンセラーを見る → /kinda-talk
+          テキストリンク風（離脱回収用）
+```
+
+**重要な CTA マッピング修正：**
+- 旧: `/kinda-note`（問診票）
+- 新: `/kinda-type`（診断）← Kinda の core value に最短
+
+**ブランド哲学厳守：**
+- 「婚活」「結婚」「成婚」「ゴール」をヒーローには使わない
+- 「好きな人」「ふたり」「過ごす日々」など包摂的な語彙
+- LGBTQ+ 含むあらゆるふたりの形に寄り添う設計
+
+**追加：**
+- 体験談ティザー（`A' — real voices`）— ヒーロー直下、A.M さんの引用 + 「ほかの体験談を読む →」リンク
+- DECIDED_CARDS にパステル背景色＋アクセント色を実装：
+  - type → `#E0ECF8`（パステルブルー）/ accent `#5A7FAF`
+  - talk → `#FAF3DE`（パステルイエロー）/ accent `#B89A4A`
+  - act → `#F5E1E0`（パステルピンク）/ accent `#B86E68`
+  - glow → `#EDE0F4`（パステルパープル）/ accent `#8A66B0`
+
+**ヒーロー画像化：**
+- ロゴ: 「Kinda Kinda ふたりへ」テキスト → `<Image src="/images/toppage_name.PNG">` に置換
+- 「ふたりの物語」セクションに `id="stories"` 追加（体験談ティザーリンク用）
+
+---
+
+### D. SEO 強化（`src/app/layout.tsx` + 構造化データ）
+
+**Metadata 拡張：**
+- title: `Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス`
+- description に「婚活」「結婚相談所 口コミ」を自然に含める（ブランド哲学を維持しつつ SEO 効果を取る戦略）
+- keywords[] を 10 項目に拡張（結婚相談所 / 結婚相談所 口コミ / 結婚相談所 比較 / カウンセラー / 婚活 / 婚活カウンセラー / 相性診断 / お見合い カフェ / ふたりへ / Kinda）
+- OpenGraph + Twitter Card 追加（SNS シェア時の見栄え）
+
+**JSON-LD 構造化データ（`page.tsx` ヒーロー内）：**
+- `WebSite` schema（searchAction 含む → Google 検索結果に検索ボックス表示の可能性）
+- `Organization` schema（alternateName で「カインダ」「Kinda」名寄せ）
+
+**婚活キーワード戦略（表に出さず裏で SEO 効果）：**
+- meta description, JSON-LD keywords に含める（ユーザー視認なし）
+- `/about` ページに既存で「婚活」が自然に複数回出現（FAQ 的に「婚活と違う Kinda」を説明）
+- ブランドコピーには使わない
+
+---
+
+### E. Kinda act ページ刷新（`src/app/kinda-act/page.tsx` + `KindaActClient.tsx`）
+
+**ヒーロー：**
+- 画像差し替え: `/images/section-cafe-pastel.png.PNG` → `/images/kinda-act-hero.jpg`
+- `kt-hero-fade-in` アニメーション付与（Kinda talk と統一感）
+- `[data-section="act"] .kt-hero-tint` でパステルピンク tint（Kinda talk のパステルイエローと対）
+- カード式テキスト（`.kt-hero-card`）追加で、両ページのヒーローが完全同型に
+
+**フィルター刷新：**
+- 旧: 横並びピル「すべて／東京／大阪／名古屋」
+- 新: エリアトグルドロップダウン（共通 areas 構造、0 件グレーアウト）
+- ドロップダウン位置: トリガーが行末のため `right: 0; left: auto` で左展開
+- 幅クランプ: `width: min(360px, calc(100vw - 24px))`
+
+**村背景の可視化（`globals.css`）：**
+- `/images/laughing-town-background.webp`（旧 8.4MB → 99KB）
+- `filter: blur(8px)`, `transform: scale(1.06)`, ピンクオーバーレイを `.10〜.12` まで薄く調整
+- `[data-section="act"] .kt-page` を `transparent` 上書き（`#FEFCFA` の不透明背景が村を完全に隠していた問題の解決）
+- `[data-section="act"] footer` には不透明背景 + `z-index: 1` でフッターからは村を排除（CLAUDE.md の鉄則: 村は本文だけに）
+
+**「How we pick」「Find your place」可読性：**
+- `.kt-section-head` / `.kt-guide` に radial gradient backdrop + 多層 white text-shadow
+- divider のコントラスト UP
+
+---
+
+### F. Kinda talk ヒーロー刷新（`src/app/kinda-talk/page.tsx`）
+
+- カード式ヒーロー（`.kt-hero-card`）— 半透明白カード（`.42`）+ blur(20px) で背景画像が透けて見える
+- 画像のふんわりフェードイン（`kt-hero-fade-in` クラス）
+- エリアドロップダウン（共通 areas 構造、0 件グレーアウト）
+  - トリガー位置が行頭のため **`left: 0` のまま**、幅クランプだけ追加
+  - 注: kinda-act は行末で `right: 0`、kinda-talk は行頭で `left: 0`、トリガー位置に応じて anchor 切替
+
+---
+
+### G. 場所詳細ページ（`/places/[id]`）— Kinda act 詳細
+
+- パンくず変更: `お店を探す` → `Kinda act（実際に会う場所を選ぶ）`、リンク先 `/kinda-act`
+- タグ重複バグ修正: `place.scenes.filter((scene) => scene !== place.stage)` で stage と一致する scene を除外（「お見合い・お見合い・初デート」→「お見合い・初デート」）
+
+---
+
+### H. 全面 WebP 化 + 不要画像クリーンアップ
+
+**取り込んだ WebP（main から作業ブランチへ）：**
+
+| ファイル | 旧サイズ | 新サイズ | 削減率 |
+|---|---|---|---|
+| `hero-couple-new.webp` | 1.5MB | 67KB | 96% |
+| `laughing-town-background.webp` | 8.4MB | 99KB | 99% |
+| `sections_talk-hero.webp` | 1.5MB | 99KB | 93% |
+| `section-kinda-type.webp` | 4.5MB | 9KB | 99.8% |
+| `section-kinda-note.webp` | 3.6MB | 5KB | 99.9% |
+| `section-counseling.webp` | 3.2MB | 83KB | 97% |
+| `section-cafe-pastel.webp` | 1.1MB | 23KB | 98% |
+| `section-story-new.webp` | 1.3MB | 26KB | 98% |
+| `Toontown-background.webp` | — | 83KB | 新規 |
+| `Kinda-belief-background.webp` | — | 53KB | 新規 |
+| `ornamental-heartwopal.webp` | — | 87KB | 新規 |
+| `ornamental-starfish2.webp` | — | 86KB | 新規 |
+
+**Kinda note 結果用 天気アイコン WebP（16 種類、残り 2 枚で完了予定）：**
+- w_angels_ladder / w_cold_wind / w_faint_sunlight / w_flower_overcast
+- w_light_rain / w_light_rain_start / w_light_sunrise / w_morning_mist
+- w_pre_dawn / w_rain_cloud（jpg） / w_sun_break / w_sunrise
+- w_thunderstorm / w_twilight / w_wandering_clouds / w_windy_day / w_windy_sunshine
+
+**コード参照を WebP に更新：**
+- `src/app/page.tsx`（HERO_IMAGE_SRC、DECIDED_CARDS の img 等）
+- `src/app/globals.css`（`.ka-village-bg` の `background-image`）
+- `src/app/kinda-talk/page.tsx`（ヒーロー画像）
+- `src/components/home/KindaSearchBar.tsx`（5 箇所）
+
+**削除した画像（41 ファイル / 約 80MB）：**
+
+旧 PNG（WebP に置き換え済み・17 枚）：
+- `hero-couple-new.png.PNG` / `laughing-town-background.png.PNG`
+- `section-{kinda-type,kinda-note,counseling,cafe-pastel,story-new,story}.png[.PNG]`
+- `ornamental-{heartwopal,starfish,starfish2}.png.PNG`
+- `Kinda-belief-background.png.PNG` / `Toontown-background.png.PNG`
+- `w_{faint_sunlight,light_sunrise,sun_break,sunrise,windy_sunshine}.PNG`
+- 旧 `sections/talk-hero.webp`（1.5MB 版）
+
+UUID 装飾画像（7 枚）: `00E313F4-...png` / `3FA669FA-...png` / `7CC03528-...png` / `891DD977-...png` / `B05C715D-...png` / `4EA55216-...png` / `BE7E3F03-...png`
+
+未使用 hero/orphan（13 枚）: `hero-background-street.png` / `hero-couple-cafe.png.PNG` / `hero-couple-top.png` / `header_logo.jpg` / `toppage_logo.jpg` / `section-beauty.png` / `section-cafe.png` / `section-cafe2.png` etc
+
+**`globals.css` で対応する `background-image: url(...)` 行も削除**して `background-color` のみ残す graceful degradation 形式に。
+
+---
+
+### I. Lighthouse 100 対応（First Step）
+
+- LCP 画像 preload: `<link rel="preload" as="image" href="/images/hero-couple-new.webp" fetchPriority="high" type="image/webp" />` を `layout.tsx` に追加
+- ヒーロー `<Image>` に `sizes="100vw"` + `fetchPriority="high"` 明示
+- フォント preconnect は既存維持
+
+**残る最適化（天気アイコン揃い次第やる）：**
+- 実機 Lighthouse 計測 → 個別最適化
+- CSS 最適化（不要セレクタ削除）
+- next/image のさらなるチューニング
+- 画像 sizes の各箇所最適化
+
+---
+
+### J. 透過 PNG ロゴ（main から取り込み済み）
+
+- `public/images/logoname _kinda_header.PNG`（ファイル名にスペース注意。Next.js Image は URL 自動エンコードで対応）
+- `public/images/toppage_name.PNG`
+- 当初 `header_logo.jpg` / `toppage_logo.jpg` を使っていたが、透過 PNG に切り替えて `mix-blend-mode: multiply` の暫定対応も削除済み
+- 旧 jpg ファイルは削除済み
+
+**サイズ：**
+- ヘッダー: `width: min(60vw, 280px); height: auto; maxHeight: 52px`
+- ヒーロー（カード内）: `width: min(58vw, 260px)` 等は各箇所で調整中
+
+---
+
+### K. ブランドガイド（哲学）の定着
+
+セッション中に CLAUDE.md にあるブランド哲学を再確認：
+- 「婚活」「結婚」「成婚」「ゴール」を**フロントには出さない**
+- 「好きな人」「ふたり」「過ごす日々」「伴走」「本音の口コミ」が中核ボキャブラリー
+- LGBTQ+ も自然に使えるサービス
+- 「ふたりになる、その手前から、過ごす日々まで」が世界観
+
+→ ヒーロー H1/H2、CTA 文言、SEO 戦略すべてこの哲学に沿って構築。
+
+---
+
+### 残課題（次セッション以降）
+
+1. **天気アイコン残り 2 枚** が揃ったら Lighthouse 計測 → 残最適化（90 点超を狙う）
+2. **PNG ロゴのスペース問題**: `logoname _kinda_header.PNG` のスペースをいつかリネームしたい（`logoname_kinda_header.png` に）
+3. **トラスト要素の数値化**: 提携相談所数・口コミ件数を実数で表示するエリアを追加（営業開始後）
+4. **Kinda note の位置づけ整理**: ヒーロー CTA は Kinda type に絞った。Kinda note はホーム中盤の DECIDED_CARDS と独自セクションで案内する設計
+5. **`/about` の婚活ワード自然散りばめ**: 既に十分入っているが、最新コピーに合わせて軽くリライト推奨
+6. **PlacesSection.tsx**（dead code）の削除整理
+7. **Vercel デプロイ反映遅延**: 無料プランの日次上限に当たることが多々あるため、まとめてプッシュする習慣がベター
+
+---
+
+## 実装済み機能（2026-05-02 追記） — トップページ Kinda note 主役戻し
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`（唯一の作業ブランチ）
+> コミット: `f15ab37`（主要変更）→ `4d84200`（全20種キャプション追加）→ `b14cad4`（「選べる」→「届く」修正）
+
+### 背景
+
+2026-04-30 のセッションで主CTAを Kinda type 診断に置き換えていたが、ブランド差別化戦略上「他社に存在しない唯一無二の機能 = Kinda note」を入口に置くべきという判断で、**主CTA を Kinda note に戻す**修正を実施。
+
+理由（ふうかとの議論で明確化）:
+1. Kinda note は他社（ゼクシィ縁結び/タップル/Pairs/Linkx 等）に存在しない差別化機能
+2. カウンセラー診断は心理的距離が遠く、入口としては Kinda note のほうが軽い
+3. CRO 数値だけ見れば Kinda type が効率的だが、ユーザーが何度も戻ってくる理由になるのは Kinda note
+4. Kinda note → カウンセラー面談という理想動線（整理したメモを持って面談へ）
+
+→ **2026-04-30 「残課題 #4」は今回の作業で解決済み**（ヒーローCTAは Kinda type ではなく Kinda note に戻った）
+
+---
+
+### A. ヒーローセクション CTA 再構成（`src/app/page.tsx`）
+
+| 項目 | 変更前 | 変更後 |
+|---|---|---|
+| 主CTA | 「自分に合う担当を診断する」→ `/kinda-type` | 「いまの気持ちを整理する」→ `/kinda-note` |
+| 主CTA 背景色 | `var(--accent)`（ゴールド） | `#D4A090`（ローズゴールド） |
+| 主CTA shadow | 通常 box-shadow | **glow shadow**（`0 0 32px rgba(212,160,144,.55)` の発光感） |
+| マイクロコピー | ✓60秒 ✓登録不要 ✓完全無料 | ✓60秒で言葉になる ✓登録不要 ✓相談前の整理に |
+| 副CTA | 「まずカウンセラーを見る」 1 つ（テキストリンク） | 区切り線「やりたいことが決まっている方は」+ 副CTA 2 つ |
+| 副CTA 1 | — | 「自分に合う担当を見つける」→ `/kinda-type` |
+| 副CTA 2 | — | 「カウンセラーを見てみる」→ `/kinda-talk` |
+
+**重要な文言ルール:**
+- ❌「診断」をフロントに出さない（医療ワード・上から評価する印象）
+- ✅ Kinda type 関連は「相性チェック」「合う担当を見つける」と表現
+- ✅ 副CTAラベルは「やりたいことが決まっている方は」（主体的・ニュートラル）
+- ❌「すでに動き出している方は」「もう決まっている方へ」は使わない（止まってる=ダメと取られる）
+- ✅ 副CTA は Kinda type / Kinda talk の 2 つのみ（act / glow は載せない — 目的が補助機能のため）
+
+---
+
+### B. A' Kinda note 説明セクション（新規）
+
+ヒーロー直下の testimonial teaser（"real voices"）を**完全置換**して、Kinda note を解説する新セクションを設置。
+
+**構造:**
+```
+[eyebrow: Kinda note]
+   セクション見出し（Georgia serif / clamp(22px, 5.8vw, 30px)）
+   「あなたの気持ちは、いま、どんな天気？」
+
+   リード文: 「うまく言葉にできない不安や迷いも、
+              天気のメタファーを通して、自分の気持ちが見えてきます。」
+
+   [天気アイコン 5 種 横スクロール]
+       夜明け前 / 小雨の始まり / 天使のはしご / 迷い雲 / 朝焼け
+
+   キャプション: 「答えると、全20種の中から、いまの気持ちに近い天気がひとつ届きます。」
+
+   ✓ 60秒で、いまの気持ちが言葉になる
+   ✓ 整理したメモは、そのままカウンセラーに渡せる
+   ✓ 何度でも、気持ちが揺れたときに
+
+   [CTA] 気持ちを整理する → /kinda-note
+```
+
+**天気アイコン 5 種の選定（`NOTE_WEATHERS` 定数）:**
+
+全 20 種から、6 ルートの 5 つから 1 種ずつ採用してバランス取り。重い天気（thunderstorm / rain_cloud / mist）は初見ユーザーに重いため除外。
+
+| アイコン | ラベル | ルート | トーン |
+|---|---|---|---|
+| `w_pre_dawn.webp` | 夜明け前 | pre | 静かな始まり |
+| `w_light_rain_start.webp` | 小雨の始まり | waiting | やわらかな迷い |
+| `w_angels_ladder.webp` | 天使のはしご | omiai | ほのかな希望 |
+| `w_wandering_clouds.webp` | 迷い雲 | date1 | 共感しやすいゆれ |
+| `w_sunrise.webp` | 朝焼け | kousai | 前向きな伴走 |
+
+**重要な仕様（ガチャ的体験）:**
+- ユーザーは天気を「能動的に選ぶ」のではなく、質問に答えると 20 種から 1 つが**自動でアサインされる**仕組み（ガチャガチャ的な発見体験）
+- そのためキャプション文言は「**選べる**」ではなく「**届く**」「**ひとつ届きます**」
+- 5 種だけ見せて全 20 種ネタバレを避けつつ、「全 20 種の中から」と一行で開示することで「これしか選べない」誤読を防止
+
+**スタイル:**
+- セクション背景: `#F5EEE6`（ウォームベージュ）
+- アクセント: `#D4A090`（ローズゴールド = ヒーロー主CTAと統一）
+- 横スクロール: `scroll-snap-type: x mandatory`、`.hide-scrollbar` クラスでスクロールバー非表示
+- アイコンタイル: 96×96px、`border-radius: 16`、`box-shadow: 0 4px 14px rgba(180,140,110,.14)`
+- CTA: ローズゴールド + glow（ヒーロー主CTAより少し控えめなサイズ）
+
+---
+
+### C. B セクション「やりたいことが決まっている方へ」
+
+**ラベル変更:** `もう決まっている方へ` → `やりたいことが決まっている方へ`（ヒーロー副CTA区切りラベルと整合）
+
+**4 カードの説明文クリーンアップ（`DECIDED_CARDS` 定数）:**
+
+| カード | 変更前 | 変更後 |
+|---|---|---|
+| Kinda type | 診断で、合うカウンセラーが見つかる | 自分に合うカウンセラーが見つかる相性チェック |
+| Kinda talk | カウンセラー・相談所を見る | （変更なし） |
+| Kinda act | お見合いやデートで実際に会う場所を選ぶ | お見合いやデートに使いやすい場所 |
+| Kinda glow | 美容を整える | 好きな人に会う前に、自分を整える時間 |
+
+**変更ルール:**
+- ❌「診断」を排除（type の説明）
+- ❌「美容」だけの機能説明を排除（glow の説明 → 感情的動機起点に）
+
+---
+
+### D. 共通 CSS 追加（`src/app/globals.css`）
+
+```css
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+```
+
+天気アイコン横スクロール用の汎用ユーティリティ。既存の `.counselor-scroll` / `.places-scroll` / `.kt-filter-scroll` と同じ用途だが、再利用しやすい一般名に。
+
+---
+
+### E. 削除したもの
+
+- ヒーロー直下の testimonial teaser セクション（"real voices" / A.M さん引用）
+  - 役割は C セクション「ふたりの物語」に集約済みのため重複を解消
+  - 主 CTA から testimonial を経由する離脱率の高い導線を、Kinda note 直行に変更
+
+---
+
+### 全体構造（変更後）
+
+```
+[A. ヒーロー]
+  └ 主CTA: いまの気持ちを整理する → /kinda-note（ローズゴールド + glow）
+  └ 副CTA区切り: ─── やりたいことが決まっている方は ───
+  └ 副CTA: 自分に合う担当を見つける / カウンセラーを見てみる
+
+[A'. Kinda note 説明セクション] ← 新規（testimonial を置換）
+  └ 5 天気アイコン横スクロール + 全20種キャプション + CTA
+
+[B. やりたいことが決まっている方へ]  ← ラベル変更
+  └ 4 カード: Kinda type / talk / act / glow
+
+[B'. Kinda talk より | 今いるカウンセラーたち]   ← 変更なし
+[C.  ふたりの物語]                              ← 変更なし
+[C'. ふたりを見守る人たち]                       ← 変更なし
+[D.  About]                                     ← 変更なし
+```
+
+---
+
+### ブランチ運用ルール（このセッションで確定）
+
+- **作業ブランチは `claude/implement-kinda-talk-uDUoW` の 1 本に固定**
+- 過去のセッションで複数ブランチが乱立していたが、今後は新規ブランチを作らず常にこのブランチへ commit + push
+- 万一別ブランチで作業してしまった場合は cherry-pick で `claude/implement-kinda-talk-uDUoW` に移すこと
+- main へのマージは PR 経由で別途実施
+
+---
+
+## 実装済み機能（2026-05-02 追記②） — Kinda note 結果画面 v3 設計書の確定
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`
+> コミット: `65ab0da` `docs: phase1-instructions-v3 作成`
+
+### 経緯
+
+Kinda note の結果画面リファクタリングを進めるための設計書を、v2（`docs/phase1-instructions-v2.md` / 95% 完成済み）+ パッチ（`docs/phase1-v2-patch-v2.md` / 2026-05-02）から、最終確定版の **v3（`docs/phase1-instructions-v3.md` / 2,079行）** に統合した。
+
+このセッションでは設計書（マークダウン）の更新のみを実施。実装コード（TypeScript / React）の作成と `weatherDescriptions.ts` の実ファイル作成は**次のタスクで別セッションで行う**。
+
+### 作成したファイル
+
+| ファイル | 内容 |
+|---|---|
+| `docs/phase1-instructions-v2.md` | 95%完成済みの土台（このセッション開始時に main から取り込み） |
+| `docs/phase1-v2-patch-v2.md` | 追加・変更指示書（2026-05-02 作成） |
+| **`docs/phase1-instructions-v3.md`** | **本セッションで作成した最終確定版（2,079行）** |
+
+### v3 で確定した変更（v2 → v3）
+
+1. **全 20 タイプに「天気の解説」（40-60文字、2文構成）を追加**
+   - summary 直下・第1層の前に配置
+   - Georgia serif で詩的に表示する設計（`white-space: pre-line` で `\n` を改行扱い）
+   - waiting ルートは 4 タイプを「### 各タイプの天気の解説」セクションにまとめて配置（テーブル分岐方式に合わせた特例）
+
+2. **`weatherDescriptions.ts` のコード仕様を本書内に明記**
+   - `app/kinda-note/data/weatherDescriptions.ts` として新規作成する想定
+   - 型定義：`WeatherKey`（20種）/ `RouteKey`（6種）/ `WeatherDescription`
+   - `WEATHER_DESCRIPTIONS` 定数（20件）+ ヘルパー関数 3つ（`getWeatherDescription` / `getWeathersByRoute` / `getAllWeathers`）
+   - 結果画面 + フェーズ B の SEO 解説ページ（`/note/weather/[slug]`）の両方で使い回す
+
+3. **活動中 5 ルート（waiting / omiai / date1 / kousai / multiple）に「他の機能も見てみる」サブ導線を追加**
+   - メイン 3 ボタン直下に Kinda act / Kinda glow への控えめなテキストリンク
+   - pre ルートには追加しない（既に 5 ボタン構成で type/talk/glow/story が揃っている）
+   - ポジティブ系 3 タイプ（omiai 晴れ間 / date1 朝焼け（淡）/ kousai 朝焼け）では Kinda story 誘導カードのさらに下に配置
+
+4. **「診断」ワードをタイトル・主要見出し・サマリーから排除**
+   - タイトル：「フェーズ1：診断フローの全面書き直し」→「フェーズ1：Kinda note フローの全面書き直し」
+   - Kinda type 関連：「カウンセラー診断」→「カウンセラーとの相性チェック」
+   - DB スキーマコメント・フェーズ4見出し等で「診断履歴」→「Kinda note 履歴」
+   - **意図的に残した箇所**：原則1の「Kindaは診断ツールではなく『翻訳ツール』」（否定形での原則説明）と、v3 changelog 内の「診断ワード排除」説明文
+
+5. **weatherKey の名前を統一**
+   - `thin_clouds` / `usugumori` → `angels_ladder`（omiai ルート「天使の梯子」）
+   - `wandering_cloud`（単数）→ `wandering_clouds`（複数、date1 ルート「迷い雲」）
+   - `dusk` → `twilight`（multiple ルート「夕暮れ」、英語名統一）
+
+6. **omiai タイプ2 の名称変更**
+   - 「Kinda うすぐもり」→「Kinda 天使の梯子」（v2 内の残存箇所すべて置換）
+   - 分岐ロジック内の戻り値・コメント・WeatherKey 型定義も同期
+
+### 次のセッションで進める実装タスク
+
+v3 設計書に基づき、以下の順で実装する想定（**まだ着手していない**）：
+
+1. **`app/kinda-note/data/weatherDescriptions.ts` の実ファイル作成** — v3 の「データ構造：weatherDescriptions.ts」セクションのコードをそのままファイル化
+2. **結果画面コンポーネントへの天気の解説表示の組み込み** — summary 直下に Georgia serif 14px のカードで表示
+3. **活動中 5 ルートのサブ導線実装** — `subLinkStyle` を含めた Kinda act / Kinda glow テキストリンク
+4. **omiai タイプ2 の改名対応** — UI 文言・分岐ロジック・型定義を `angels_ladder` ベースに統一
+5. **weatherKey 名称変更の影響範囲修正** — 既存実装（あれば）の `thin_clouds` / `usugumori` / `wandering_cloud` / `dusk` を新キーに置換
+
+### 新セッション開始時の引き継ぎテンプレート
+
+新しい Claude Code セッションを立てる場合、以下をそのまま渡せばすぐに着手できる：
+
+```
+作業ブランチ: claude/implement-kinda-talk-uDUoW
+
+以下を読んでから始めてください:
+1. CLAUDE.md
+2. docs/phase1-instructions-v3.md (設計書・最終確定版)
+
+【今回の作業】
+v3 設計書に従って Kinda note 結果画面の実装を進めてください。
+次に作る具体的なファイル・優先順位はこちらから指示します。
+まずは v3 を読み終わったら「読みました、次の指示をください」と返してください。
+```
+
+### 判断に迷い、ふうかさんに共有した点（次セッションで確認するとよい）
+
+1. **waiting ルートの天気解説の配置**：waiting は 4 タイプを「## waiting タイプ1〜4」のセクションでなくテーブルで表現しているため、各タイプ下に summary がない。パッチの「summary 直下に配置」ルールが直接適用できないため、テーブル直後（共通 summary 文の後）に「### 各タイプの天気の解説」というまとめセクションを新設し、4 タイプ分の解説をリスト形式で配置した。実装時は結果画面で選ばれたタイプの解説のみ表示する旨もセクション冒頭に明記。
+
+2. **「v2 改訂項目の確認」見出しの扱い**：チェックリストセクションの `### v2 改訂項目の確認` を `### v2 / v3 改訂項目の確認` に変更（v3 で追加した検証項目もここに今後足せるように）。パッチに明示なしの判断。気になれば戻せる。
+
+3. **天気の解説の改行表現**：パッチでは「`<br>` ではなく自然な行間」とのみ指示だったが、データは `\n` を含むため、CSS 側で `white-space: pre-line` を併用してもよい旨をスタイル仕様に補足した。
+
+---
+
+## 作業ブランチの運用ルール（2026-05-03 確定）
+
+**新しいブランチを作成しないこと。** 以下 3 本以外のブランチで作業しないこと。
+ユーザーから明示の指示がない限り、新規ブランチを切ってはいけない。
+
+| 対象 | リポジトリ / 配置 | ブランチ |
+|---|---|---|
+| ユーザー用サイト（Kinda ふたりへ・本体） | `fffkbn84-ctrl/my-app`（`src/` 配下） | `claude/implement-kinda-talk-uDUoW` |
+| カウンセラー管理画面 | `fffkbn84-ctrl/my-app`（`futarive-counselor/` 配下） | `futarive-counselor` |
+| ふたりへ運営の統括管理画面 | `fffkbn84-ctrl/my-app`（`futarive-admin/` 配下） | `futarive-admin` |
+
+過去のセッションで複数の `claude/...` ブランチが乱立していたが、今後は新規ブランチを切らず、必ず上記 3 本のいずれかへ commit / push する。間違えて別ブランチを切ってしまった場合は cherry-pick で正しいブランチへ移し直すこと。
+
+---
+
+## 実装済み機能（2026-05-03 追記） — トップページ＆ナビゲーション改修 v1.1
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`
+> 仕様書: `docs/top-page-nav-improvements-v1.1.md`
+> 目的: 初見ユーザーが「ガイドなしで分かりにくい」「下層ページで現在地と戻り方が分からない」「カウンセラーを見たい時にどこを触ればいいか分からない」という 3 つの課題を解消する。Kinda note を主役に据えつつ、SEO（構造化データ）も同時に強化する。
+
+### 1. トップページ A' セクション（Kinda note 天気説明）の調整
+
+**`src/app/page.tsx`** の既存 A' セクションを v1.1 仕様に揃えた。
+
+- リード文をネガポジ両対応に変更：「うまく言葉にできない不安や、言葉にならない嬉しさも。天気のメタファーを通して、自分の気持ちが見えてきます。」
+- 天気アイコン 5 種を仕様通りに統一（pre / waiting / omiai / kousai / multiple の各ルートから 1 つずつ）：
+
+| weatherKey | ラベル |
+|---|---|
+| `pre_dawn` | 夜明け前 |
+| `light_rain_start` | 小雨のはじまり |
+| `angels_ladder` | 天使の梯子 |
+| `light_sunrise` | 淡い朝焼け |
+| `twilight` | 夕暮れ |
+
+旧版（`wandering_clouds` / `sunrise`）は外した。
+
+### 2. トップページ A'' セクション（新規）— Kinda note は、こんな時に使えます
+
+A' の直下、B の直前に新設。**ネガティブ／ポジティブ両方のユースケースを並べる**ことで、Kinda note を「全ユーザー向けの伴走機能」として位置づけ直す。
+
+```
+　ふと立ち止まったとき
+   ・カウンセラーになんて伝えればいいか分からない
+   ・お見合いの後、ことばにならない違和感があった
+   ・交際中、なぜか不安が消えない
+   ・複数の人で、気持ちが揺れている
+
+　気持ちが動いたとき
+   ・好きな人ができた、その気持ちを整理したい
+   ・「好き」をどう伝えればいいか考えたい
+   ・大事なデートの前、自分の気持ちを見つめたい
+   ・節目のとき、いまの自分を残しておきたい
+
+   入会前から交際後まで、何度でも。
+       [ 気持ちを整理する → ]
+```
+
+- 小見出し 2 つ（`.kn-usecase-h3`）：Shippori Mincho 16px / `var(--mid)` / 左揃え
+- ボックス（`.kn-usecase-box`）：`var(--pale)` 背景 / 角丸 16px / padding 20px
+- リスト（`.kn-usecase-list`）：行間 1.9 / 各項目「・」プレフィックス
+- 締め文：DM Serif Display italic 16px 中央揃え
+- CTA：`#D4A090`（ローズゴールド）の pill ボタン → `/kinda-note`
+- 各文言は **SEO ロングテール対策** を兼ねているため、**勝手に変えないこと**
+
+### 3. トップページ B セクション（やりたいことが決まっている方へ）
+
+- セクション要素に `id="section-b"` を付与（A セクション副CTA からのスクロール先）
+- 4 カードの `desc` を仕様書通りに統一：
+  - Kinda type: 自分に合うカウンセラーを見つける
+  - Kinda talk: カウンセラー・相談所を直接見る
+  - Kinda act: お見合いやデートの場所
+  - Kinda glow: 好きな人に会う前に、自分を整える
+- ラベル「やりたいことが決まっている方へ」、4 カードのレイアウト・カラーパレットは既存維持
+
+### 4. 共通コンポーネント（新規作成）
+
+**`src/components/ui/Breadcrumb.tsx`**
+- `BreadcrumbItem = { label: string; href?: string }` の配列を受け取り、リンク列を出力
+- 同時に `<script type="application/ld+json">` で **schema.org BreadcrumbList** 構造化データを出力（SEO 効果の中核）
+- 現在ページ（最後の項目）は `aria-current="page"` を付与、リンクではなく `<span>` で表示
+- `SITE_ORIGIN = "https://www.kinda-futari.app"` で絶対 URL を組み立てる
+
+**`src/components/ui/SectionSubHeader.tsx`**
+- `sectionName` と `sectionRoot` を受け取り、左に「← {sectionName}」、右に「ホームへ」を配置
+- 高さ 44px、`var(--pale)` 背景、上下 1px ボーダー
+- タップ領域 44×44px 以上（アクセシビリティ）
+
+**`src/app/globals.css`** に以下のクラスを追加：
+- `.bc-nav` / `.bc-list` / `.bc-item` / `.bc-sep` / `.bc-link` / `.bc-current`
+- `.ssh-bar` / `.ssh-back` / `.ssh-back-label` / `.ssh-home`
+- `.kn-usecase-h3` / `.kn-usecase-box` / `.kn-usecase-list`
+
+### 5. 全下層ページへの適用
+
+| ページ | Breadcrumb | SubHeader（戻り先） |
+|---|---|---|
+| `/about` | ホーム › Kindaについて | `/`（ホーム） |
+| `/agencies/[id]` | ホーム › Kinda talk › 相談所名 | `/kinda-talk` |
+| `/booking/[counselorId]` | ホーム › Kinda talk › カウンセラー名 › 予約 | `/counselors/{id}` |
+| `/columns`（ColumnsClient.tsx 経由） | ホーム › コラム | — |
+| `/columns/[slug]` | ホーム › コラム › カテゴリ | `/columns` |
+| `/counselors` | ホーム › Kinda talk › カウンセラー一覧 | `/kinda-talk` |
+| `/counselors/[id]` | ホーム › Kinda talk › カウンセラー名 | `/kinda-talk` |
+| `/counselors/booking` | ホーム › Kinda talk › 相談所名 › 予約 | `/agencies/{id}` |
+| `/diagnosis` | ホーム › Kinda type | — |
+| `/diagnosis/result` | ホーム › Kinda type › 診断結果 | `/diagnosis` |
+| `/episodes/[id]` | ホーム › ふたりの物語 › タイトル | `/`（ホーム） |
+| `/kinda-act` | ホーム › Kinda act | — |
+| `/kinda-note` | ホーム › Kinda note | — |
+| `/kinda-note/quiz` | ホーム › Kinda note › 診断中 | `/kinda-note` |
+| `/kinda-note/result`（ResultContent.tsx 経由） | ホーム › Kinda note › 結果 | `/kinda-note` |
+| `/kinda-talk` | ホーム › Kinda talk | — |
+| `/kinda-talk/area/[area]` | ホーム › Kinda talk › エリア名 | `/kinda-talk` |
+| `/kinda-talk/type/[type]` | ホーム › Kinda talk › タイプ名 | `/kinda-talk` |
+| `/mypage` | ホーム › マイページ | — |
+| `/places/[id]` | ホーム › Kinda act › お店名 | `/kinda-act` |
+| `/reviews/new` | ホーム › 口コミ投稿 | `/`（ホーム） |
+| `/search` | ホーム › 検索 | — |
+| `/shops` | ホーム › Kinda act › お店一覧 | `/kinda-act` |
+| `/shops/[id]` | ホーム › Kinda act › お店一覧 › お店名 | `/kinda-act` |
+| `/shops/[id]/review` | ホーム › Kinda act › お店一覧 › お店名 › 口コミ投稿 | `/shops/{id}` |
+
+セクショントップ（`/diagnosis` / `/kinda-act` / `/kinda-note` / `/kinda-talk` / `/shops` 等）には SubHeader を付けず、Breadcrumb のみとする（自分自身がトップなので）。
+
+`/shops/[id]` と `/columns/[slug]` は既存の独自パンくず実装があったため、共通コンポーネントに置き換えた（JSON-LD を獲得するため）。
+
+### 6. ボトムナビゲーション
+
+`src/components/layout/BottomNav.tsx` は既に `usePathname()` でアクティブハイライト（accent カラー）を実装済みのため、修正なし。「診断」タブが `/kinda-note` を指す現状も維持（仕様書通り）。
+
+### 7. 確認・既知の差分
+
+- ヒーロー（A セクション）は v1.1 仕様で「変更不要」と明記されており、現ブランチは既に正しい状態（主CTA「いまの気持ちを整理する →」、副CTA「自分に合う担当を見つける →」→ `/kinda-type`、補足「✓ 60秒で言葉になる ✓ 登録不要 ✓ 相談前の整理に」）。今回触っていない。
+- B カードの遷移先（`/kinda-type` / `/kinda-talk` / `/kinda-act` / `/kinda-glow`）も既存どおり維持。`/kinda-glow` と `/kinda-type` は本ブランチに専用ページがまだない（リンク切れになる可能性あり）が、それは別フェーズの課題なので今回はノーオプ。
+- `npx tsc --noEmit` および `npm run build` ともに成功（getCounselors の Supabase fetch エラーは事前条件のため許容）。
+
+### 関連ファイル
+
+- 新規：`src/components/ui/Breadcrumb.tsx` / `src/components/ui/SectionSubHeader.tsx`
+- 修正：`src/app/page.tsx` / `src/app/globals.css` / `src/app/about/page.tsx` / `src/app/agencies/[id]/page.tsx` / `src/app/booking/[counselorId]/page.tsx` / `src/app/columns/ColumnsClient.tsx` / `src/app/columns/[slug]/page.tsx` / `src/app/counselors/page.tsx` / `src/app/counselors/[id]/page.tsx` / `src/app/counselors/booking/page.tsx` / `src/app/diagnosis/page.tsx` / `src/app/diagnosis/result/page.tsx` / `src/app/episodes/[id]/page.tsx` / `src/app/kinda-act/page.tsx` / `src/app/kinda-note/page.tsx` / `src/app/kinda-note/quiz/page.tsx` / `src/app/kinda-note/result/ResultContent.tsx` / `src/app/kinda-talk/page.tsx` / `src/app/kinda-talk/area/[area]/page.tsx` / `src/app/kinda-talk/type/[type]/page.tsx` / `src/app/mypage/page.tsx` / `src/app/places/[id]/page.tsx` / `src/app/reviews/new/page.tsx` / `src/app/search/page.tsx` / `src/app/shops/page.tsx` / `src/app/shops/[id]/page.tsx` / `src/app/shops/[id]/review/page.tsx`
+
+### 次フェーズへのメモ
+
+- A'' のユースケース「節目のとき、いまの自分を残しておきたい」は将来のマイページ天気ダッシュボード（フェーズ 5）への伏線として置いてある。実装時はここから誘導できる
+- ボトムタブのラベル変更（「診断」→ 別の呼称）は v1.1 では対応せず、次フェーズで検討
+- パンくずは `flex-wrap: wrap` で折り返す。`…` 省略は未実装（必要になれば追加）
+
