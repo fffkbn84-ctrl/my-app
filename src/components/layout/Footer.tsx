@@ -16,9 +16,9 @@ export default function Footer() {
         <div className="ft-col">
           <h5>相談所</h5>
           <ul>
-            <li><Link href="/search?tab=agency">相談所を探す</Link></li>
-            <li><Link href="/search">カウンセラーから探す</Link></li>
-            <li><Link href="/search">エリアから探す</Link></li>
+            <li><Link href="/agencies">相談所を探す</Link></li>
+            <li><Link href="/kinda-talk">カウンセラーから探す</Link></li>
+            <li><Link href="/kinda-talk">エリアから探す</Link></li>
           </ul>
         </div>
 

@@ -211,7 +211,7 @@ export default async function AgencyDetailPage({
                   Kinda ふたりへ
                 </Link>
                 {" > "}
-                <Link href="/search?tab=agency" style={{ color: "inherit" }}>
+                <Link href="/agencies" style={{ color: "inherit" }}>
                   相談所を探す
                 </Link>
                 {" > "}

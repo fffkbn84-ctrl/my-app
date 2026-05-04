@@ -100,7 +100,7 @@ export default function SavedSection({ allCounselors, allAgencies }: Props) {
           <SectionHeader
             label="相談所"
             count={savedAgencies.length}
-            href="/search?tab=agency"
+            href="/agencies"
             hrefLabel="さらに探す"
           />
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
