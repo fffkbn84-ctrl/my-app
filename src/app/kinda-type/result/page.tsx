@@ -367,7 +367,7 @@ export default async function DiagnosisResultPage({
 
             {/* ⑦ もう一度試す */}
             <div>
-              <Link href="/kinda-type" className="ktr-retry-link">
+              <Link href="/kinda-type/quiz" className="ktr-retry-link">
                 もう一度試す
               </Link>
             </div>

@@ -5016,3 +5016,169 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   gap: 4px;
 }
 .ktq-back:hover { color: var(--ink); }
+
+/* ─────────────────────────────────────────────────────────
+   Kinda type ランディング（/kinda-type）
+   prefix: .ktl-*
+   "kinda" = "my kind of" の意（"なんとなく" は Kinda note 専用）。
+───────────────────────────────────────────────────────── */
+.ktl-page {
+  min-height: 100vh;
+  background: var(--white);
+}
+.ktl-content {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ヒーロー */
+.ktl-hero { padding: 32px 0 28px; }
+.ktl-hero-deco {
+  height: 180px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #F5E8D8, #E8DCC4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+.ktl-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--black);
+  letter-spacing: 0.04em;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.ktl-hero-sub {
+  font-size: 14px;
+  color: var(--mid);
+  line-height: 1.9;
+  margin-bottom: 18px;
+}
+
+/* バッジ */
+.ktl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* 価値訴求カード 2枚 */
+.ktl-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 28px 0 36px;
+}
+.ktl-card {
+  border-radius: 20px;
+  padding: 22px 14px;
+  text-align: center;
+}
+.ktl-card-gold { background: #F5E8D8; }
+.ktl-card-sage { background: #E4ECDF; }
+.ktl-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+.ktl-card-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--black);
+  line-height: 1.7;
+}
+
+/* HOW IT WORKS */
+.ktl-steps { margin-bottom: 36px; }
+.ktl-steps-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  font-family: 'DM Sans', sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.ktl-step {
+  background: var(--pale);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.ktl-step-num {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+}
+.ktl-step-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--black);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.ktl-step-desc {
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.7;
+}
+
+/* CTA */
+.ktl-cta-wrap { margin-bottom: 12px; }
+.ktl-cta {
+  display: block;
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 18px;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 0.04em;
+  user-select: none;
+  box-shadow: 0 5px 0 #A88858;
+  transform: translateY(0);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .2s;
+}
+.ktl-cta:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #A88858;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ktl-cta:hover { opacity: .92; }
+}
+.ktl-cta-note {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+}
