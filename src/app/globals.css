@@ -5182,3 +5182,126 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   color: var(--muted);
   text-align: center;
 }
+
+/* ─────────────────────────────────────────────────────────
+   Kinda type 結果ページ：あるある／関連タイプ／FAQ セクション
+   既存 .ktr-* prefix を継続使用
+───────────────────────────────────────────────────────── */
+.ktr-section { padding: 28px 24px 0; }
+.ktr-section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px;
+  color: var(--black);
+  font-weight: 500;
+  margin-bottom: 18px;
+  letter-spacing: .02em;
+}
+
+/* あるある */
+.ktr-char-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ktr-char-item {
+  display: flex;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+  font-weight: 300;
+}
+.ktr-char-bullet {
+  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 13px;
+  margin-top: 1px;
+}
+
+/* 関連タイプ */
+.ktr-related {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ktr-related-block {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--pale);
+  background: white;
+}
+.ktr-related-label {
+  font-size: 11px;
+  color: var(--mid);
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+.ktr-related-pill {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--black);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.ktr-related-note {
+  font-size: 12px;
+  color: var(--mid);
+  font-weight: 300;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* FAQ */
+.ktr-faq-section { padding-top: 36px; padding-bottom: 16px; }
+.ktr-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ktr-faq-item {
+  border: 1px solid var(--pale);
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.ktr-faq-item[open] { border-color: var(--light); }
+.ktr-faq-q {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--black);
+  cursor: pointer;
+  list-style: none;
+  line-height: 1.6;
+}
+.ktr-faq-q::-webkit-details-marker { display: none; }
+.ktr-faq-q::after {
+  content: "+";
+  margin-left: auto;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--mid);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.ktr-faq-item[open] .ktr-faq-q::after {
+  content: "−";
+}
+.ktr-faq-a {
+  padding: 0 16px 14px 32px;
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--ink);
+  font-weight: 300;
+  margin: 0;
+}

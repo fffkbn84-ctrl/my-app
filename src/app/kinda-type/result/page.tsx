@@ -128,24 +128,38 @@ export default async function DiagnosisResultPage({
   );
   const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}`;
 
-  // JSON-LD 構造化データ（Article schema）
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: `${diagType.name}｜Kinda type 相性チェック結果`,
-    description: diagType.label,
-    keywords: ["Kinda type", "相性チェック", "カウンセラー", "結婚相談所", ...diagType.tags],
-    inLanguage: "ja-JP",
-    isPartOf: {
-      "@type": "WebSite",
-      name: "Kinda ふたりへ",
-      url: SITE_URL,
+  // JSON-LD 構造化データ（Article + FAQPage schema）
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: `${diagType.name}｜Kinda type 相性チェック結果`,
+      description: diagType.label,
+      keywords: ["Kinda type", "相性チェック", "カウンセラー", "結婚相談所", ...diagType.tags],
+      inLanguage: "ja-JP",
+      isPartOf: {
+        "@type": "WebSite",
+        name: "Kinda ふたりへ",
+        url: SITE_URL,
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `${SITE_URL}/kinda-type/result?type=${typeId}`,
+      },
     },
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${SITE_URL}/kinda-type/result?type=${typeId}`,
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: diagType.faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: f.a,
+        },
+      })),
     },
-  };
+  ];
 
   return (
     <>
@@ -310,6 +324,72 @@ export default async function DiagnosisResultPage({
           </div>
 
           {/* ══════════════════════════════════
+              ②-2 あるある（共感セクション）
+          ══════════════════════════════════ */}
+          <section className="ktr-section">
+            <div className="ktr-eyebrow" style={{ color: diagType.color }}>
+              CHARACTERISTICS
+            </div>
+            <h2 className="ktr-section-title">こんな自分に、思い当たる？</h2>
+            <ul className="ktr-char-list">
+              {diagType.characteristics.map((c, i) => (
+                <li key={i} className="ktr-char-item">
+                  <span
+                    className="ktr-char-bullet"
+                    style={{ color: diagType.color }}
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* ══════════════════════════════════
+              ②-3 関連タイプ
+          ══════════════════════════════════ */}
+          <section className="ktr-section">
+            <div className="ktr-eyebrow" style={{ color: diagType.color }}>
+              OTHER TYPES
+            </div>
+            <h2 className="ktr-section-title">他のタイプとの関係</h2>
+            <div className="ktr-related">
+              {diagType.similarTypes.map((tid) => {
+                const t = DIAGNOSIS_TYPES[tid];
+                return (
+                  <div key={tid} className="ktr-related-block">
+                    <div className="ktr-related-label">似ているタイプ</div>
+                    <div
+                      className="ktr-related-pill"
+                      style={{ background: t.gradient }}
+                    >
+                      {t.name}
+                    </div>
+                    <p className="ktr-related-note">{t.label}</p>
+                  </div>
+                );
+              })}
+              {diagType.contrastTypes.map((tid) => {
+                const t = DIAGNOSIS_TYPES[tid];
+                return (
+                  <div key={tid} className="ktr-related-block">
+                    <div className="ktr-related-label">対照的なタイプ</div>
+                    <div
+                      className="ktr-related-pill"
+                      style={{ background: t.gradient }}
+                    >
+                      {t.name}
+                    </div>
+                    <p className="ktr-related-note">{t.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════
               ③ 分岐テキスト（タイプA以外）
           ══════════════════════════════════ */}
           {typeId !== "A" && (
@@ -372,6 +452,29 @@ export default async function DiagnosisResultPage({
               </Link>
             </div>
           </div>
+
+          {/* ══════════════════════════════════
+              ⑧ FAQ（最下部・SEO ロングテール対策）
+          ══════════════════════════════════ */}
+          <section className="ktr-section ktr-faq-section">
+            <div className="ktr-eyebrow" style={{ color: diagType.color }}>
+              FREQUENTLY ASKED
+            </div>
+            <h2 className="ktr-section-title">よくある質問</h2>
+            <div className="ktr-faq-list">
+              {diagType.faqs.map((f, i) => (
+                <details key={i} className="ktr-faq-item">
+                  <summary className="ktr-faq-q">
+                    <span aria-hidden="true" style={{ color: diagType.color }}>
+                      Q.
+                    </span>
+                    <span>{f.q}</span>
+                  </summary>
+                  <p className="ktr-faq-a">{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </section>
 
         </div>
       </main>
