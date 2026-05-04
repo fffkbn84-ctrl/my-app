@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -31,12 +32,16 @@ export default function KindaTypeLandingPage() {
 
           {/* ① ヒーロー */}
           <section className="ktl-hero">
-            {/* 装飾エリア（ぴったり重なる円 = 相性メタファー） */}
-            <div className="ktl-hero-deco" aria-hidden="true">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" opacity="0.5">
-                <circle cx="32" cy="40" r="22" stroke="#A88858" strokeWidth="1.5" />
-                <circle cx="48" cy="40" r="22" stroke="#A88858" strokeWidth="1.5" />
-              </svg>
+            {/* 装飾画像：4つの椅子（4タイプの暗喩） */}
+            <div className="ktl-hero-img" aria-hidden="true">
+              <Image
+                src="/images/kinda-type-hero.webp"
+                alt=""
+                fill
+                priority
+                sizes="(max-width: 480px) 100vw, 480px"
+                style={{ objectFit: "cover" }}
+              />
             </div>
 
             <h1 className="ktl-hero-title">

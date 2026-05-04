@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { QUESTIONS, DIAGNOSIS_TYPES, DiagnosisTypeId, calculateResult } from "@/lib/diagnosis";
+import { trackEvent } from "@/lib/analytics";
 
 /* タイプ別アクセントカラー */
 const TYPE_COLORS: Record<DiagnosisTypeId, string> = {
@@ -25,6 +26,14 @@ export default function DiagnosisPage() {
   const [answerIndices, setAnswerIndices] = useState<Record<number, number>>({});
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [animating, setAnimating] = useState(false);
+
+  // 開始時に1回だけ kinda_type_quiz_start イベントを送信
+  const startedRef = useRef(false);
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    trackEvent("kinda_type_quiz_start");
+  }, []);
 
   const question = QUESTIONS[currentQ];
   const progress = ((currentQ + 1) / QUESTIONS.length) * 100;
@@ -51,6 +60,7 @@ export default function DiagnosisPage() {
         }, 200);
       } else {
         const resultType = calculateResult(newAnswers);
+        trackEvent("kinda_type_quiz_complete", { result_type: resultType });
         router.push(`/kinda-type/result?type=${resultType}`);
       }
     }, 300);

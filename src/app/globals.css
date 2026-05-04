@@ -5044,6 +5044,16 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   margin-bottom: 28px;
   overflow: hidden;
 }
+/* 4つの椅子のミニチュア画像（4タイプの暗喩）*/
+.ktl-hero-img {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 24px;
+  margin-bottom: 28px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #F5E8D8, #E8DCC4); /* 画像読み込み中のフォールバック */
+}
 .ktl-hero-title {
   font-family: 'Shippori Mincho', serif;
   font-size: 24px;

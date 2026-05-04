@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
@@ -83,6 +84,7 @@ export default function RootLayout({
           <BottomNav />
         </AuthProvider>
         <Analytics />
+        <SpeedInsights />
         <GoogleAnalytics />
       </body>
     </html>

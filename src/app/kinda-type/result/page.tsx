@@ -7,6 +7,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { COUNSELORS } from "@/lib/data";
+import ShareRetryActions from "./ShareRetryActions";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
@@ -430,28 +431,9 @@ export default async function DiagnosisResultPage({
           </div>
 
           {/* ══════════════════════════════════
-              ⑥ SNSシェア + もう一度
+              ⑥ SNSシェア + もう一度試す（trackEvent付き Client Component）
           ══════════════════════════════════ */}
-          <div className="ktr-share-wrap">
-            <a
-              href={twitterUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ktr-share-btn"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
-                <path d="M12.6 1h2.4L9.6 6.9 16 15h-4.8l-3.6-4.7L3.2 15H.8l5.8-6.6L0 1h4.9l3.3 4.3L12.6 1zM11.8 13.5h1.3L4.3 2.4H2.9l8.9 11.1z" />
-              </svg>
-              Xでシェアする
-            </a>
-
-            {/* ⑦ もう一度試す */}
-            <div>
-              <Link href="/kinda-type/quiz" className="ktr-retry-link">
-                もう一度試す
-              </Link>
-            </div>
-          </div>
+          <ShareRetryActions twitterUrl={twitterUrl} resultType={typeId} />
 
           {/* ══════════════════════════════════
               ⑧ FAQ（最下部・SEO ロングテール対策）
