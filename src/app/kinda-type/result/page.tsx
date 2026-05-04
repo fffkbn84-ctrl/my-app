@@ -314,9 +314,11 @@ export default async function DiagnosisResultPage({
             )}
 
             {/* もっと見るリンク */}
-            {/* TODO: Supabase連携後、/search に ?type={typeId} パラメータでフィルタリングできるようにする */}
+            {/* TODO: 将来、Kinda type 4タイプ（A/B/C/D）と Kinda talk の 6タイプ
+                （anshin / jibunjiku / zenryoku / senryaku / lifestyle / restart）の
+                マッピング表を作って、/kinda-talk/type/{mappedType} へ飛ばす */}
             <Link
-              href="/search"
+              href="/kinda-talk"
               className="ktr-more-link"
               style={{ color: diagType.color }}
             >
