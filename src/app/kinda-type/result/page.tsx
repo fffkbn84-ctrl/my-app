@@ -307,63 +307,138 @@ export default async function DiagnosisResultPage({
 
             {/* カウンセラー一覧 */}
             {matchedCounselors.length > 0 ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16 }}>
                 {matchedCounselors.map((c) => (
-                  <div
+                  <article
                     key={c.id}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 14,
+                      position: "relative",
+                      padding: "16px 16px 14px",
+                      borderRadius: 14,
+                      border: "1px solid var(--pale)",
+                      background: "white",
+                      transition: "border-color .2s",
                     }}
                   >
-                    {/* アバター */}
+                    {/* カード全体タップで詳細ページへ（stretched link） */}
+                    <Link
+                      href={`/counselors/${c.id}`}
+                      aria-label={`${c.name}の詳細を見る`}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        zIndex: 1,
+                        borderRadius: 14,
+                      }}
+                    />
+
+                    {/* ヘッダー行：アバター + 名前/相談所 */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: "50%",
+                          background: c.gradient,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <svg width="24" height="24" viewBox="0 0 22 22" fill="none">
+                          <circle cx="11" cy="8" r="4" fill={c.svgColor} opacity=".6" />
+                          <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke={c.svgColor} strokeWidth="1.2" fill="none" opacity=".4" />
+                        </svg>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, color: "var(--black)", fontWeight: 500, marginBottom: 2 }}>
+                          {c.name}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 300 }}>
+                          {c.agencyName} · {c.area}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 評価行：★ + 件数 + 経験年数 */}
                     <div
                       style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "50%",
-                        background: c.gradient,
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <circle cx="11" cy="8" r="4" fill={c.svgColor} opacity=".6" />
-                        <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke={c.svgColor} strokeWidth="1.2" fill="none" opacity=".4" />
-                      </svg>
-                    </div>
-                    {/* 情報 */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 14, color: "var(--black)", fontWeight: 400, marginBottom: 2 }}>
-                        {c.name}
-                      </div>
-                      <div style={{ fontSize: 11, color: "var(--muted)", fontWeight: 300 }}>
-                        {c.agencyName} · 経験{c.experience}年
-                      </div>
-                    </div>
-                    {/* 予約ボタン */}
-                    <Link
-                      href={`/booking/${c.id}`}
-                      style={{
-                        fontSize: 11,
-                        padding: "8px 14px",
-                        borderRadius: 50,
-                        background: "var(--black)",
-                        color: "white",
-                        fontFamily: "Noto Sans JP, sans-serif",
+                        gap: 10,
+                        fontSize: 12,
+                        color: "var(--ink)",
                         fontWeight: 300,
-                        letterSpacing: ".03em",
-                        textDecoration: "none",
-                        flexShrink: 0,
-                        whiteSpace: "nowrap",
+                        marginBottom: 12,
                       }}
+                      aria-label={`評価 ${c.rating} 5段階中、口コミ ${c.reviewCount} 件、経験 ${c.experience} 年`}
                     >
-                      面談を予約する
-                    </Link>
-                  </div>
+                      <span style={{ color: diagType.color, fontWeight: 500 }}>★ {c.rating.toFixed(1)}</span>
+                      <span style={{ color: "var(--muted)" }}>口コミ {c.reviewCount}件</span>
+                      <span style={{ color: "var(--muted)" }}>経験{c.experience}年</span>
+                    </div>
+
+                    {/* キャッチコピー（1行レビュー相当） */}
+                    {c.catchphrase && (
+                      <p
+                        style={{
+                          fontFamily: "Shippori Mincho, serif",
+                          fontSize: 14,
+                          color: "var(--black)",
+                          lineHeight: 1.6,
+                          marginBottom: 12,
+                          letterSpacing: ".02em",
+                          borderLeft: `2px solid ${diagType.color}`,
+                          paddingLeft: 10,
+                        }}
+                      >
+                        「{c.catchphrase}」
+                      </p>
+                    )}
+
+                    {/* 得意分野タグ（最大2件） */}
+                    {c.specialties && c.specialties.length > 0 && (
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+                        {c.specialties.slice(0, 2).map((s) => (
+                          <span
+                            key={s}
+                            style={{
+                              fontSize: 10,
+                              padding: "3px 9px",
+                              borderRadius: 16,
+                              background: `${diagType.color}14`,
+                              color: diagType.color,
+                              fontWeight: 400,
+                            }}
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* アクション行：予約ボタン（stretched link より上のレイヤー） */}
+                    <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "flex-end" }}>
+                      <Link
+                        href={`/booking/${c.id}`}
+                        style={{
+                          fontSize: 12,
+                          padding: "9px 18px",
+                          borderRadius: 50,
+                          background: "var(--black)",
+                          color: "white",
+                          fontFamily: "Noto Sans JP, sans-serif",
+                          fontWeight: 400,
+                          letterSpacing: ".03em",
+                          textDecoration: "none",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        面談を予約する
+                      </Link>
+                    </div>
+                  </article>
                 ))}
               </div>
             ) : (
