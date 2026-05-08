@@ -3752,6 +3752,21 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
   font-weight: 500;
 }
 
+/* 新人バッジ — 経験年数 1 年未満のカウンセラーに自動付与される。
+   サンプルバッジ（中立トーン）と区別するため、accent カラーを使う。 */
+.kt-new-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: white;
+  font-weight: 500;
+}
+
 /* ─── プレースホルダーカード（"Kinda は厳選を続けています"） ─── */
 .kt-grid-tease {
   aspect-ratio: 9 / 16;

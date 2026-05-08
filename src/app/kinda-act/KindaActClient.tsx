@@ -155,9 +155,11 @@ export default function KindaActClient({ places }: Props) {
                 style={{
                   position: "absolute",
                   top: "calc(100% + 6px)",
-                  // 右端アンカーで画面はみ出し回避（モバイル iPhone で右にオーバーフローしていた）
-                  right: 0,
-                  left: "auto",
+                  // エリアトグルが行頭にあるので left: 0 で右に展開する。
+                  // 右側に余白がない場合（極端に狭い viewport）でも
+                  // width クランプで収まる。
+                  left: 0,
+                  right: "auto",
                   background: "white",
                   border: "1px solid var(--light)",
                   borderRadius: 14,

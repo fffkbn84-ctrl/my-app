@@ -5,6 +5,7 @@ import { KindaTypeKey } from "@/lib/kinda-types";
 import { trackEvent } from "@/lib/analytics";
 import KindaTypeBadge from "./KindaTypeBadge";
 import DemoBadge from "./DemoBadge";
+import NewBadge from "./NewBadge";
 
 type Props = {
   counselor: Counselor;
@@ -40,7 +41,11 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
             <KindaTypeBadge key={t} type={t} manual={i === 1} />
           ))}
         </div>
-        {counselor.isDemo && <DemoBadge />}
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+          {/* 経験年数 1 年未満は「新人」を自動付与（サンプルとは独立したフラグ）*/}
+          {counselor.experience < 1 && <NewBadge />}
+          {counselor.isDemo && <DemoBadge />}
+        </div>
       </div>
 
       <div className="kt-reel-card-bottom">

@@ -615,7 +615,18 @@ export default async function CounselorDetailPage({
     getReviewsByCounselor(id),
   ]);
 
-  const mockCounselor = counselors[id as keyof typeof counselors];
+  // Supabase にレコードがある（UUID）が、ローカル counselors{} にエントリが
+  // ない場合は、名前で sample プロフィールにマッチさせて使う。
+  // 営業デモ用カウンセラーは Supabase 側で自動生成 UUID を持つが、
+  // 当ページは hardcoded mock を中核に組まれているため、UUID URL から
+  // ID 101〜105 の sample プロフィールへ橋渡しする必要がある。
+  let mockCounselor = counselors[id as keyof typeof counselors];
+  if (!mockCounselor && supabaseCounselor) {
+    const found = Object.values(counselors).find(
+      (c) => c.name === supabaseCounselor.name,
+    );
+    if (found) mockCounselor = found as typeof mockCounselor;
+  }
   if (!mockCounselor && !supabaseCounselor) notFound();
 
   // Supabase にデータがある場合はフィールドを上書き（フォールバック: モック）
@@ -698,7 +709,13 @@ export default async function CounselorDetailPage({
                   )}
                 </div>
                 <div>
-                  <div className="d-name">{counselor.name}</div>
+                  <div className="d-name" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    {counselor.name}
+                    {/* 経験年数 1 年未満は「新人」バッジを自動付与 */}
+                    {counselor.yearsExp < 1 && (
+                      <span className="kt-new-badge" style={{ fontSize: 10 }}>新人</span>
+                    )}
+                  </div>
                   <div className="d-role">婚活カウンセラー · {counselor.area}</div>
                 </div>
               </div>

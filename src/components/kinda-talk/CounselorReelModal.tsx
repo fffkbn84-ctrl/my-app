@@ -209,6 +209,11 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
               </div>
               <div className="kt-reel-modal-name">
                 {counselor.name}
+                {counselor.experience < 1 && (
+                  <span style={{ marginLeft: 8, fontSize: 10, color: "var(--accent)", fontWeight: 600 }}>
+                    新人
+                  </span>
+                )}
                 {counselor.isDemo && (
                   <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.7 }}>サンプル</span>
                 )}
