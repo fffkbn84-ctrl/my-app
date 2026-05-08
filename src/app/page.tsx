@@ -344,10 +344,12 @@ export default async function HomePage() {
             </p>
           </div>
 
-          {/* Block 4 — 副CTA帯（ヒーローの「外」として階層化） */}
+          {/* Block 4 — 副CTA帯（ヒーローの「外」として階層化）
+              4カードセクション（B）へスムーススクロール。診断は飛躍があるので
+              「やりたいことが決まっている方は」 → 4 カード選択画面 が自然な流れ。 */}
           <div className="ktp-hero-sub-block">
             <p className="ktp-hero-sub-lead">やりたいことが決まっている方は</p>
-            <Link href="/kinda-type" className="ktp-hero-sub-link">
+            <Link href="#section-b" className="ktp-hero-sub-link">
               自分に合う担当を見つける
               <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path
