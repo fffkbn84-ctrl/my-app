@@ -287,23 +287,10 @@ export default async function HomePage() {
       <main style={{ fontFamily: "var(--font-sans)" }}>
 
         {/* ═══════════════════════════════════════════════════
-            A — ヒーロー（フルブリード）
+            A — ヒーロー（垂直分離レイアウト）
+            Block 1: ビジュアル / Block 2: コピー / Block 3: 主CTA / Block 4: 副CTA帯
         ═══════════════════════════════════════════════════ */}
-        <section className="ktp-hero">
-          {/* フルブリード背景画像 */}
-          <Image
-            src={HERO_IMAGE_SRC}
-            alt=""
-            fill
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            style={{ objectFit: "cover", objectPosition: "center 15%" }}
-          />
-
-          {/* 下側グラデーションオーバーレイ — H1/H2 領域をしっかり暗く */}
-          <div className="ktp-hero-overlay" aria-hidden="true" />
-
+        <section className="ktp-hero" aria-labelledby="hero-h1">
           {/* SEO: 構造化データ（JSON-LD） */}
           <script
             type="application/ld+json"
@@ -314,20 +301,27 @@ export default async function HomePage() {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
           />
 
-          {/* コンテンツ — 画像下部にオーバーレイ */}
-          <div className="ktp-hero-content">
-            {/* H1 — 詩的メインコピー（白文字＋多層シャドウで村背景上で可読） */}
-            <h1 className="ktp-hero-h1">
+          {/* Block 1 — ビジュアル（画像のみ・文字一切なし） */}
+          <div className="ktp-hero-visual">
+            <Image
+              src={HERO_IMAGE_SRC}
+              alt="Kindaの世界観：ミニチュアクレイで作られた、ふたりが歩く村"
+              fill
+              priority
+              fetchPriority="high"
+              sizes="(min-width: 768px) 480px, 100vw"
+              className="ktp-hero-visual-img"
+            />
+          </div>
+
+          {/* Block 2 — メインコピー（ベージュ単色背景・濃ブラウン文字） */}
+          <div className="ktp-hero-copy">
+            <h1 id="hero-h1" className="ktp-hero-h1">
               {HERO_H1_LINE1}
               <br />
               {HERO_H1_LINE2}
             </h1>
-
-            {/* H2 — 機能・カバー範囲を伝える説明文 */}
             <h2 className="ktp-hero-h2">{HERO_H2}</h2>
-
-            {/* ロゴ — ごく小さく、ブランドマーク程度に控える
-                ※ PNG 自体に白い余白が多いので、トリミング後はより小さく見せられる */}
             <div className="ktp-hero-logo">
               <Image
                 src="/images/toppage_name.PNG"
@@ -337,52 +331,41 @@ export default async function HomePage() {
                 priority
               />
             </div>
+          </div>
 
-            {/* 主CTA — Kinda note（軽い気持ちの整理から始める） */}
-            <Link href="/kinda-note" className="ktp-hero-cta">
+          {/* Block 3 — 主CTA（Kinda note） */}
+          <div className="ktp-hero-cta-block">
+            <p className="ktp-hero-cta-tagline">
+              言葉にならないモヤモヤを、60秒で。
+            </p>
+            <Link
+              href="/kinda-note"
+              className="ktp-hero-cta"
+              aria-label="いまの気持ちを整理する Kinda note を始める"
+            >
               いまの気持ちを整理する
               <ArrowRight color="white" />
             </Link>
-
-            {/* マイクロコピー — 軽さと安心感を伝える */}
             <p className="ktp-hero-micro">
-              ✓ 60秒で言葉になる　✓ 登録不要　✓ 相談前の整理に
+              ✓60秒で言葉になる　✓登録不要　✓相談前の整理に
             </p>
+          </div>
 
-            {/* 区切り線 + ラベル — 副CTAへの導線 */}
-            <div className="ktp-hero-divider" aria-hidden="true">
-              <div className="ktp-hero-divider-line" />
-              <p className="ktp-hero-divider-label">やりたいことが決まっている方は</p>
-              <div className="ktp-hero-divider-line" />
-            </div>
-
-            {/* 副CTA — Kinda type / Kinda talk（テキストリンク風） */}
-            <div className="ktp-hero-sub">
-              <Link href="/kinda-type" className="ktp-hero-sub-link">
-                自分に合う担当を見つける
-                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path
-                    d="M3 7h8M7 3l4 4-4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-              <Link href="/kinda-talk" className="ktp-hero-sub-link">
-                カウンセラーを見てみる
-                <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <path
-                    d="M3 7h8M7 3l4 4-4 4"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-            </div>
+          {/* Block 4 — 副CTA帯（ヒーローの「外」として階層化） */}
+          <div className="ktp-hero-sub-block">
+            <p className="ktp-hero-sub-lead">やりたいことが決まっている方は</p>
+            <Link href="/kinda-type" className="ktp-hero-sub-link">
+              自分に合う担当を見つける
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M3 7h8M7 3l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
           </div>
         </section>
 
