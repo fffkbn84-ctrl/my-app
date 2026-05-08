@@ -5390,7 +5390,9 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   pointer-events: none;
 }
 
-/* Block 2 — メインコピー */
+/* Block 2 — メインコピー
+   H2 自体の bottom margin を 0 にして、ここの padding-bottom で
+   Block 3（CTA）への自然な間隔をコントロールする。 */
 .ktp-hero-copy {
   background: #F5EEE6;
   padding: 36px 24px 28px;
@@ -5411,17 +5413,7 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   color: var(--mid);
   line-height: 1.7;
   letter-spacing: .02em;
-  margin: 0 0 20px;
-}
-.ktp-hero-logo {
-  display: inline-block;
-}
-.ktp-hero-logo img {
-  display: block;
-  width: min(34vw, 130px);
-  height: auto;
-  object-fit: contain;
-  opacity: 1;
+  margin: 0;
 }
 
 /* Block 3 — 主CTA */
@@ -5434,7 +5426,8 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   font-family: var(--font-mincho);
   font-weight: 500;
   font-size: clamp(18px, 5vw, 20px);
-  color: var(--accent-deep);
+  /* H1 と同じ濃ブラウン。CTA（accent）と色が衝突して主張が弱まるのを避ける */
+  color: var(--ink);
   line-height: 1.6;
   letter-spacing: .02em;
   margin: 0 0 18px;
@@ -5471,7 +5464,9 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
 .ktp-hero-micro {
   font-family: var(--font-sans);
   font-size: 12px;
-  color: var(--muted);
+  /* 副CTA帯のリード（var(--mid)）と同等の可読性に揃える。
+     旧 var(--muted) はベージュ背景で薄すぎて読めなかったため一段濃く。 */
+  color: var(--mid);
   text-align: center;
   letter-spacing: .04em;
   line-height: 1.7;

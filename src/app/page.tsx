@@ -314,7 +314,9 @@ export default async function HomePage() {
             />
           </div>
 
-          {/* Block 2 — メインコピー（ベージュ単色背景・濃ブラウン文字） */}
+          {/* Block 2 — メインコピー（ベージュ単色背景・濃ブラウン文字）
+              ヘッダーに固定でロゴが出ているため、ヒーロー内ロゴは
+              二重表示になる。ファーストビューの情報整理のため省略。 */}
           <div className="ktp-hero-copy">
             <h1 id="hero-h1" className="ktp-hero-h1">
               {HERO_H1_LINE1}
@@ -322,15 +324,6 @@ export default async function HomePage() {
               {HERO_H1_LINE2}
             </h1>
             <h2 className="ktp-hero-h2">{HERO_H2}</h2>
-            <div className="ktp-hero-logo">
-              <Image
-                src="/images/toppage_name.PNG"
-                alt="Kinda ふたりへ"
-                width={400}
-                height={120}
-                priority
-              />
-            </div>
           </div>
 
           {/* Block 3 — 主CTA（Kinda note） */}
