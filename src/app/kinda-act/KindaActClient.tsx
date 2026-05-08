@@ -107,24 +107,19 @@ export default function KindaActClient({ places }: Props) {
             </button>
           ))}
         </div>
+        {/* エリア — 独立行に切り出し（mask-image つきの kt-filter-scroll の中に
+            置くと iOS でドロップダウンの末尾（都道府県）が透明にフェードして
+            タップできなくなるため、必ず外に出す） */}
         <div
-          className="kt-filter-scroll"
-          style={{ marginTop: 8, overflow: "visible" }}
-          aria-label="カテゴリ・エリアで絞り込み"
+          style={{
+            marginTop: 8,
+            padding: "0 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+          aria-label="エリアで絞り込み"
         >
-          {CATEGORIES.map((c) => (
-            <button
-              key={c}
-              type="button"
-              className={`kt-pill ${category === c ? "is-active" : ""}`}
-              onClick={() => setCategory(c)}
-            >
-              {c}
-            </button>
-          ))}
-          <span style={{ width: 8, flexShrink: 0 }} />
-
-          {/* エリアトグル */}
           <div ref={areaRef} style={{ position: "relative", flexShrink: 0 }}>
             <button
               type="button"
@@ -318,6 +313,24 @@ export default function KindaActClient({ places }: Props) {
               </div>
             )}
           </div>
+        </div>
+
+        {/* カテゴリピル（横スクロール可、mask-image で右端フェード） */}
+        <div
+          className="kt-filter-scroll"
+          style={{ marginTop: 8 }}
+          aria-label="カテゴリで絞り込み"
+        >
+          {CATEGORIES.map((c) => (
+            <button
+              key={c}
+              type="button"
+              className={`kt-pill ${category === c ? "is-active" : ""}`}
+              onClick={() => setCategory(c)}
+            >
+              {c}
+            </button>
+          ))}
         </div>
       </div>
 

@@ -183,6 +183,148 @@ const counselors = {
       note: "※ 料金はすべて税込です。初回面談は無料（日英対応可）。",
     },
   },
+
+  /* ──────────────────────────────────────────
+     営業デモ用ダミー（src/lib/data.ts の COUNSELORS と
+     同じ ID 101〜105 でプロフィール詳細を持たせる）。
+     カードのリールモーダルから「プロフィールを見る」で
+     直接ここへ遷移してくる。
+  ────────────────────────────────────────── */
+  "101": {
+    id: "101",
+    name: "藤村 詩織（サンプル）",
+    nameKana: "ふじむら しおり",
+    agency: "ブライダルハウス銀座（サンプル）",
+    agencyId: "1",
+    area: "東京・銀座",
+    address: "東京都中央区銀座（サンプル表示）",
+    specialties: ["再婚OK", "30〜40代女性", "実績重視"],
+    rating: 4.9,
+    reviewCount: 28,
+    yearsExp: 15,
+    successCount: 96,
+    nextAvailable: "（サンプル）— 営業用デモ表示のため、実際の予約はできません",
+    bio: "（サンプル表示）ブライダルハウス銀座で15年カウンセラーを務めています。30〜40代女性を中心に、再婚や仕事との両立など、人生のステージに合わせたサポートを大切にしています。\n\n焦らず、流されず、選ぶ。一人ひとりの「らしさ」を尊重しながら、納得のいく出会いまで丁寧に伴走します。これは Kinda の掲載サンプルとしてのプロフィールです。",
+    message: "（サンプル）あなたのペースで、丁寧に。",
+    qualifications: ["IBJ認定カウンセラー"],
+    photoUrl: undefined,
+    monthlyFee: "18,000",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "スタンダード", featured: false, enrollment: 110000, monthly: 18000, matchmaking: 5000, success: 200000, notes: "" },
+      ],
+      note: "※ サンプル表示の料金です。実際の掲載相談所では金額が変わります。",
+    },
+  },
+  "102": {
+    id: "102",
+    name: "吉岡 結衣（サンプル）",
+    nameKana: "よしおか ゆい",
+    agency: "マリッジサポート梅田（サンプル）",
+    agencyId: "3",
+    area: "大阪・梅田",
+    address: "大阪府大阪市北区梅田（サンプル表示）",
+    specialties: ["自分軸", "20〜30代", "関西エリア"],
+    rating: 4.8,
+    reviewCount: 19,
+    yearsExp: 8,
+    successCount: 54,
+    nextAvailable: "（サンプル）— 営業用デモ表示のため、実際の予約はできません",
+    bio: "（サンプル表示）マリッジサポート梅田所属。8年間で「自分が本当は何を求めているのか」を一緒に見つけることを大切にしてきました。\n\n好きの輪郭が、相手を引き寄せる。条件先行ではなく、まずは自分の感覚を整えるところから始めます。これは Kinda の掲載サンプルとしてのプロフィールです。",
+    message: "（サンプル）自分の軸を、一緒に見つけましょう。",
+    qualifications: ["IBJ認定カウンセラー", "心理カウンセラー資格"],
+    photoUrl: undefined,
+    monthlyFee: "13,000",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "スタンダード", featured: false, enrollment: 80000, monthly: 13000, matchmaking: 3000, success: 150000, notes: "" },
+      ],
+      note: "※ サンプル表示の料金です。実際の掲載相談所では金額が変わります。",
+    },
+  },
+  "103": {
+    id: "103",
+    name: "山本 健太（サンプル）",
+    nameKana: "やまもと けんた",
+    agency: "天神マリッジセンター（サンプル）",
+    agencyId: "5",
+    area: "福岡・天神",
+    address: "福岡県福岡市中央区天神（サンプル表示）",
+    specialties: ["戦略派", "データ志向", "男性カウンセラー"],
+    rating: 4.7,
+    reviewCount: 31,
+    yearsExp: 12,
+    successCount: 78,
+    nextAvailable: "（サンプル）— 営業用デモ表示のため、実際の予約はできません",
+    bio: "（サンプル表示）天神マリッジセンター所属。12年間蓄積したデータをもとに、確率を上げる行動を一緒に設計します。\n\n感情と数字、両方で結婚する。感覚だけに頼らず、お見合い数・申込率・返事率まで見ながら戦略を立てるスタイルです。これは Kinda の掲載サンプルとしてのプロフィールです。",
+    message: "（サンプル）データに基づく戦略で、確実に。",
+    qualifications: ["IBJ認定カウンセラー", "MBA"],
+    photoUrl: undefined,
+    monthlyFee: "14,000",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "スタンダード", featured: false, enrollment: 90000, monthly: 14000, matchmaking: 3000, success: 180000, notes: "" },
+      ],
+      note: "※ サンプル表示の料金です。実際の掲載相談所では金額が変わります。",
+    },
+  },
+  "104": {
+    id: "104",
+    name: "中村 さくら（サンプル）",
+    nameKana: "なかむら さくら",
+    agency: "栄ブライダルカフェ（サンプル）",
+    agencyId: "4",
+    area: "名古屋・栄",
+    address: "愛知県名古屋市中区栄（サンプル表示）",
+    specialties: ["20〜30代", "全力サポート", "明るい"],
+    rating: 4.9,
+    reviewCount: 14,
+    yearsExp: 5,
+    successCount: 32,
+    nextAvailable: "（サンプル）— 営業用デモ表示のため、実際の予約はできません",
+    bio: "（サンプル表示）栄ブライダルカフェ所属。5年間、全力で寄り添うことを大切にしてきました。\n\n本気は、最強の武器。本気で結婚したい人と本気で向き合う、シンプルだけど強いスタンスです。これは Kinda の掲載サンプルとしてのプロフィールです。",
+    message: "（サンプル）二人三脚で、本気で婚活します。",
+    qualifications: ["IBJ認定カウンセラー"],
+    photoUrl: undefined,
+    monthlyFee: "11,000",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "スタンダード", featured: false, enrollment: 70000, monthly: 11000, matchmaking: 3000, success: 150000, notes: "" },
+      ],
+      note: "※ サンプル表示の料金です。実際の掲載相談所では金額が変わります。",
+    },
+  },
+  "105": {
+    id: "105",
+    name: "高橋 玲奈（サンプル）",
+    nameKana: "たかはし れいな",
+    agency: "オンライン専門 RING（サンプル）",
+    agencyId: "5",
+    area: "オンライン",
+    address: "オンライン対応のため店舗無し（サンプル表示）",
+    specialties: ["オンライン専門", "仕事忙しい人向け", "全国対応"],
+    rating: 4.8,
+    reviewCount: 22,
+    yearsExp: 10,
+    successCount: 67,
+    nextAvailable: "（サンプル）— 営業用デモ表示のため、実際の予約はできません",
+    bio: "（サンプル表示）オンライン専門 RING 所属。10年間、忙しい方の婚活をサポート。「仕事を犠牲にしない婚活」を一緒に設計します。\n\n無理なく続くことが、いちばんの近道。スキマ時間で進められる工夫と、続けやすいペース配分が強みです。これは Kinda の掲載サンプルとしてのプロフィールです。",
+    message: "（サンプル）忙しい毎日でも、無理なく続けられる婚活を。",
+    qualifications: ["IBJ認定カウンセラー"],
+    photoUrl: undefined,
+    monthlyFee: "11,000",
+    campaign: null,
+    pricing: {
+      plans: [
+        { name: "スタンダード", featured: false, enrollment: 60000, monthly: 11000, matchmaking: 3000, success: 150000, notes: "" },
+      ],
+      note: "※ サンプル表示の料金です。実際の掲載相談所では金額が変わります。",
+    },
+  },
 };
 
 const reviews = [
@@ -489,9 +631,13 @@ export default async function CounselorDetailPage({
   const mockReviews = reviews.filter((r) => r.counselorId === id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const counselorReviews = supabaseReviews.length > 0 ? supabaseReviews as any[] : mockReviews;
+  // 口コミがゼロの場合は counselor.rating（カードに出している値）をフォールバックに使う。
+  // 0/0 = NaN を表示しないための安全弁。デモカウンセラーで顕在化するケース。
   const avgRating =
-    counselorReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) /
-    counselorReviews.length;
+    counselorReviews.length > 0
+      ? counselorReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) /
+        counselorReviews.length
+      : counselor.rating;
 
   const matchedAgency = AGENCIES.find((a) => String(a.id) === String(counselor.agencyId));
   const agencyCounselorCount = COUNSELORS.filter((c) => String(c.agencyId) === String(counselor.agencyId)).length;

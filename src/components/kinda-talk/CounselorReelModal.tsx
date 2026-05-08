@@ -221,12 +221,6 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
                 <Link
                   href={`/counselors/${counselor.id}`}
                   className="kt-reel-modal-cta is-secondary"
-                  onClick={(e) => {
-                    if (counselor.isDemo) {
-                      e.preventDefault();
-                      setDemoNoticeOpen(true);
-                    }
-                  }}
                 >
                   プロフィールを見る
                 </Link>

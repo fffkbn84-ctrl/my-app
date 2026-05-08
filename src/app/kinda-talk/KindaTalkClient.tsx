@@ -106,12 +106,17 @@ export default function KindaTalkClient({ counselors }: Props) {
     <>
       {/* sticky フィルターバー */}
       <div className="kt-filter-bar">
-        {/* エリア（トグル式） + Kinda type ピル */}
+        {/* エリア — 独立行（mask-image つきの kt-filter-scroll の中に置くと
+            iOS でドロップダウンの末尾（都道府県）が透明にフェードして
+            タップできなくなるため、必ず外に出す） */}
         <div
-          className="kt-filter-scroll"
-          role="region"
-          aria-label="エリアと Kinda type で絞り込み"
-          style={{ overflow: "visible" }}
+          style={{
+            padding: "0 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+          }}
+          aria-label="エリアで絞り込み"
         >
           {/* エリアトグル */}
           <div ref={areaRef} style={{ position: "relative", flexShrink: 0 }}>
@@ -311,10 +316,14 @@ export default function KindaTalkClient({ counselors }: Props) {
               </div>
             )}
           </div>
+        </div>
 
-          <span style={{ width: 8, flexShrink: 0 }} />
-
-          {/* Kinda type フィルター（4タイプ A/B/C/D を ピル化） */}
+        {/* Kinda type フィルター（横スクロール可、mask-image で右端フェード） */}
+        <div
+          className="kt-filter-scroll"
+          style={{ marginTop: 8 }}
+          aria-label="Kinda type で絞り込み"
+        >
           <button
             type="button"
             className={`kt-pill ${typeFilter === "all" ? "is-active" : ""}`}

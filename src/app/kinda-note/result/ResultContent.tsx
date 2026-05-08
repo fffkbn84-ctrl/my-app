@@ -50,6 +50,11 @@ export default function ResultContent({ initialRoute }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // 自由記述（最後の質問で入力した言葉）の表示・シェア含有フラグ。
+  // デフォルト ON：ユーザーが自分で書いた言葉なので、結果画面で見返せて、
+  // メモ・画像にもそのまま含まれる方が自然。チェックを外すと結果画面から消え、
+  // コピー・画像にも含まれなくなる。
+  const [includeFreeText, setIncludeFreeText] = useState(true);
   // ポラロイドカードの傾き（3% 確率のレア演出）。SSR では常に 0deg。
   // hydration 後の useEffect で一度だけ算出する。
   const [tiltAngle, setTiltAngle] = useState<string>("rotate(0deg)");
@@ -151,7 +156,7 @@ export default function ResultContent({ initialRoute }: Props) {
       fullName: typeContent.fullName,
       route,
       answers,
-      freeTexts,
+      freeTexts: includeFreeText ? freeTexts : {},
     });
     try {
       await navigator.clipboard.writeText(text);
@@ -311,6 +316,16 @@ export default function ResultContent({ initialRoute }: Props) {
           </Section>
         )}
 
+        {/* あなたの言葉（最後の質問で書いた自由記述。表示／非表示をユーザー自身で選べる） */}
+        {firstFreeText && (
+          <FreeTextSection
+            text={firstFreeText}
+            include={includeFreeText}
+            onToggle={() => setIncludeFreeText((v) => !v)}
+            accent={typeContent.color}
+          />
+        )}
+
         {/* Kinda story 誘導カード（ポジティブ系3タイプ限定） */}
         {typeContent.storyCard && <StoryCard />}
 
@@ -350,7 +365,7 @@ export default function ResultContent({ initialRoute }: Props) {
             type={typeContent}
             weather={weatherDesc}
             selectedLabels={selectedLabels}
-            freeText={firstFreeText}
+            freeText={includeFreeText ? firstFreeText : ""}
             tiltAngle={tiltAngle}
           />
         </div>
@@ -695,6 +710,104 @@ function EncourageCard({ text, accent }: { text: string; accent: string }) {
         {text}
       </p>
     </div>
+  );
+}
+
+function FreeTextSection({
+  text,
+  include,
+  onToggle,
+  accent,
+}: {
+  text: string;
+  include: boolean;
+  onToggle: () => void;
+  accent: string;
+}) {
+  return (
+    <section style={{ marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 10,
+          gap: 12,
+        }}
+      >
+        <div
+          style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 11,
+            letterSpacing: "0.16em",
+            color: "#A0A0A0",
+            textTransform: "uppercase",
+          }}
+        >
+          Your Words
+        </div>
+        <label
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 12,
+            color: "#6B5D52",
+            cursor: "pointer",
+            userSelect: "none",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={include}
+            onChange={onToggle}
+            aria-label="あなたの言葉を結果に含める"
+            style={{
+              accentColor: accent,
+              width: 16,
+              height: 16,
+              cursor: "pointer",
+            }}
+          />
+          結果に含める
+        </label>
+      </div>
+
+      {include ? (
+        <div
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #EAE0D8",
+            borderRadius: 14,
+            padding: "18px 20px",
+            fontFamily: "'Hiragino Mincho ProN', 'Shippori Mincho', serif",
+            fontStyle: "italic",
+            fontSize: 14,
+            lineHeight: 2,
+            color: "#3A2E26",
+            borderLeft: `3px solid ${accent}`,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}
+        >
+          「{text}」
+        </div>
+      ) : (
+        <div
+          style={{
+            background: "#F0EBE3",
+            border: "1px dashed #D4C5B5",
+            borderRadius: 14,
+            padding: "14px 18px",
+            fontSize: 12,
+            color: "#A0907F",
+            textAlign: "center",
+          }}
+        >
+          あなたの言葉は非表示にしています（共有・コピーにも含まれません）
+        </div>
+      )}
+    </section>
   );
 }
 
