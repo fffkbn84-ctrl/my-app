@@ -5492,34 +5492,40 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
 }
 
 /* Block 4 — 副CTA帯（ヒーローの「外」） */
+/* 副CTA帯 — 帯全体が 1 つのテキストリンク。
+   リードと矢印リンクの2行構成だったものを一体化したので、
+   タップ領域は帯いっぱいに広がる。 */
 .ktp-hero-sub-block {
   background: #EFE7DC;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 18px 24px;
   text-align: center;
-}
-.ktp-hero-sub-lead {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--mid);
-  letter-spacing: .04em;
-  margin: 0 0 8px;
+  /* padding は <a> 側で持たせて全面クリック領域にする */
+  padding: 0;
 }
 .ktp-hero-sub-link {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 18px 24px;
   font-family: var(--font-sans);
   font-size: 14px;
   font-weight: 500;
   color: var(--accent-deep);
   text-decoration: none;
   letter-spacing: .03em;
-  transition: opacity .2s;
+  transition: background-color .2s, opacity .2s;
 }
 @media (hover: hover) and (pointer: fine) {
-  .ktp-hero-sub-link:hover { opacity: .8; }
+  .ktp-hero-sub-link:hover {
+    background: rgba(212,160,144,.08);
+    opacity: .85;
+  }
+}
+.ktp-hero-sub-link:active {
+  background: rgba(212,160,144,.14);
 }
 
 /* ─────────────────────────────────────────────────────────

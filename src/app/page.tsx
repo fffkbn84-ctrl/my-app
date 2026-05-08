@@ -345,12 +345,11 @@ export default async function HomePage() {
           </div>
 
           {/* Block 4 — 副CTA帯（ヒーローの「外」として階層化）
-              4カードセクション（B）へスムーススクロール。診断は飛躍があるので
-              「やりたいことが決まっている方は」 → 4 カード選択画面 が自然な流れ。 */}
+              帯全体を 1 つのクリック領域に。リード＋リンクの2行構成は
+              タップ可能領域が分散して伝わりにくかったので、文言を一体化。 */}
           <div className="ktp-hero-sub-block">
-            <p className="ktp-hero-sub-lead">やりたいことが決まっている方は</p>
             <Link href="#section-b" className="ktp-hero-sub-link">
-              自分に合う担当を見つける
+              やりたいことが決まっている方はこちら
               <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path
                   d="M3 7h8M7 3l4 4-4 4"
