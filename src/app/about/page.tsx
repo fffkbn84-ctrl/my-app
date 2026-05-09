@@ -371,22 +371,23 @@ export default function AboutPage() {
           <div style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 40 }}>
             <div
               style={{
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 borderRadius: "50%",
-                background: "var(--adim)",
+                background: "linear-gradient(135deg, #F4E5CC, #E0CDA8)",
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 2px 10px rgba(180,140,90,.15), inset 0 1px 0 rgba(255,255,255,.55)",
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <circle cx="11" cy="8" r="4" stroke="#C8A97A" strokeWidth="1.3" />
+              <svg width="24" height="24" viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="8" r="4" stroke="#A88858" strokeWidth="1.5" />
                 <path
                   d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8"
-                  stroke="#C8A97A"
-                  strokeWidth="1.3"
+                  stroke="#A88858"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
                 />
               </svg>
@@ -426,27 +427,28 @@ export default function AboutPage() {
           <div style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 40 }}>
             <div
               style={{
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 borderRadius: "50%",
-                background: "rgba(122,158,135,.15)",
+                background: "linear-gradient(135deg, #DCE8DA, #B4CDB6)",
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 2px 10px rgba(100,130,100,.15), inset 0 1px 0 rgba(255,255,255,.55)",
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <svg width="24" height="24" viewBox="0 0 22 22" fill="none">
                 <path
                   d="M3 9l8-6 8 6v11H3V9z"
-                  stroke="#7A9E87"
-                  strokeWidth="1.3"
+                  stroke="#5A8068"
+                  strokeWidth="1.5"
                   strokeLinejoin="round"
                 />
                 <path
                   d="M9 20v-6h4v6"
-                  stroke="#7A9E87"
-                  strokeWidth="1.3"
+                  stroke="#5A8068"
+                  strokeWidth="1.5"
                   strokeLinejoin="round"
                 />
               </svg>
@@ -488,21 +490,22 @@ export default function AboutPage() {
           <div style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 0 }}>
             <div
               style={{
-                width: 48,
-                height: 48,
+                width: 56,
+                height: 56,
                 borderRadius: "50%",
-                background: "rgba(107,143,191,.15)",
+                background: "linear-gradient(135deg, #DAE3F0, #B6C4DC)",
                 flexShrink: 0,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                boxShadow: "0 2px 10px rgba(90,120,170,.15), inset 0 1px 0 rgba(255,255,255,.55)",
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <svg width="24" height="24" viewBox="0 0 22 22" fill="none">
                 <path
                   d="M11 19C11 19 3 13.5 3 8C3 5.5 5 3.5 7.5 3.5C9 3.5 10.5 4.5 11 6C11.5 4.5 13 3.5 14.5 3.5C17 3.5 19 5.5 19 8C19 13.5 11 19 11 19Z"
-                  stroke="#6B8FBF"
-                  strokeWidth="1.3"
+                  stroke="#4F76A8"
+                  strokeWidth="1.5"
                   fill="none"
                 />
               </svg>
