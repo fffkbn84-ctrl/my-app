@@ -67,7 +67,6 @@ export default function KindaGlowPage() {
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
             <div className="kt-hero-card">
-              <div className="kt-hero-eyebrow">Kinda glow</div>
               <h1 className="kt-hero-title">
                 Kinda <em>glow</em>
               </h1>

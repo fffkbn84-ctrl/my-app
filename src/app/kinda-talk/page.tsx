@@ -71,7 +71,6 @@ export default async function KindaTalkPage() {
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
             <div className="kt-hero-card">
-              <div className="kt-hero-eyebrow">Kinda talk</div>
               <h1 className="kt-hero-title">
                 Kinda <em>talk</em>
               </h1>

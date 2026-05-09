@@ -39,7 +39,6 @@ export default function KindaActPage() {
           <div className="kt-hero-overlay" aria-hidden />
           <div className="kt-hero-inner">
             <div className="kt-hero-card">
-              <div className="kt-hero-eyebrow">Kinda act</div>
               <h1 className="kt-hero-title">
                 Kinda <em>act</em>
               </h1>
