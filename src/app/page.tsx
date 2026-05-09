@@ -3,6 +3,7 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
+import SectionDivider from "@/components/ui/SectionDivider";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
 import { getCounselors } from "@/lib/data";
 
@@ -579,6 +580,8 @@ export default async function HomePage() {
             background: "#FEFCFA",
           }}
         >
+          <SectionDivider />
+
           {/* ラベル */}
           <div
             style={{
@@ -691,6 +694,8 @@ export default async function HomePage() {
             background: "#FEFCFA",
           }}
         >
+          <SectionDivider />
+
           <div style={{ textAlign: "center", marginBottom: 24, padding: "0 20px" }}>
             <div
               style={{
@@ -751,6 +756,8 @@ export default async function HomePage() {
             scrollMarginTop: 80,
           }}
         >
+          <SectionDivider />
+
           <SectionLabel label="ふたりの物語" en="Kinda story" />
 
           <div
@@ -863,6 +870,8 @@ export default async function HomePage() {
             background: "#FEFCFA",
           }}
         >
+          <SectionDivider />
+
           <SectionLabel label="ふたりを見守る人たち" en="interview & column" />
 
           <div
@@ -988,6 +997,8 @@ export default async function HomePage() {
             background: "#FAF5EE",
           }}
         >
+          <SectionDivider />
+
           {/* ラベル */}
           <p
             style={{
