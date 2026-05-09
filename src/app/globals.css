@@ -5724,8 +5724,9 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(10px) brightness(1.04) saturate(1.1);
-  transform: scale(1.06);
+  /* ぼかしを弱めて村のシルエット・小屋・木が認識できるレベルに */
+  filter: blur(5px) brightness(1.06) saturate(1.18);
+  transform: scale(1.04);
   will-change: filter;
 }
 .about-village-bg::after {
@@ -5735,9 +5736,9 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   /* 暖色クリームの被せ — 詩的トーンに馴染ませつつ村は透けて見える */
   background:
     linear-gradient(180deg,
-      rgba(247,239,229,.18) 0%,
-      rgba(245,235,220,.10) 45%,
-      rgba(247,239,229,.20) 100%);
+      rgba(247,239,229,.14) 0%,
+      rgba(245,235,220,.06) 45%,
+      rgba(247,239,229,.16) 100%);
 }
 
 /* /about 内のセクションは明るい所だけ半透明にして村が透ける */

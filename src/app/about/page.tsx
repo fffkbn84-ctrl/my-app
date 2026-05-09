@@ -23,7 +23,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "var(--black)",
+          background: "#231A12",
           padding: "80px 32px",
         }}
       >
@@ -31,7 +31,7 @@ export default function AboutPage() {
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -120,7 +120,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "rgba(240,238,235,.74)",
+          background: "rgba(240,238,235,.55)",
           padding: "80px 32px",
           textAlign: "center",
         }}
@@ -157,12 +157,12 @@ export default function AboutPage() {
       {/* ━━━━━━━━━━━━━━━━━━━━
           ③ なぜ作ったか
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.7)" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.5)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -225,7 +225,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "var(--black)",
+          background: "#231A12",
           padding: "80px 32px",
         }}
       >
@@ -233,7 +233,7 @@ export default function AboutPage() {
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -339,12 +339,12 @@ export default function AboutPage() {
       {/* ━━━━━━━━━━━━━━━━━━━━
           ⑤ Kinda ふたりへでできること
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.7)" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.5)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -545,12 +545,12 @@ export default function AboutPage() {
           ホームの B カードと同じ書体ルールとカラーパレットを使い、
           サイト全体での Kinda シリーズの認知を補強する。
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,255,255,.74)" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,255,255,.55)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -691,7 +691,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "rgba(240,238,235,.74)",
+          background: "rgba(240,238,235,.55)",
           padding: "80px 32px",
           textAlign: "center",
         }}
@@ -700,7 +700,7 @@ export default function AboutPage() {
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -768,12 +768,12 @@ export default function AboutPage() {
       {/* ━━━━━━━━━━━━━━━━━━━━
           ⑦ 運営チームより
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.7)" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.5)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 200,
+              fontWeight: 400,
               fontSize: 11,
               letterSpacing: ".18em",
               color: "var(--accent)",
@@ -897,7 +897,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "var(--black)",
+          background: "#231A12",
           padding: "80px 32px",
           textAlign: "center",
         }}
