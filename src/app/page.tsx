@@ -204,14 +204,6 @@ function GhostButton({ href, children }: { href: string; children: React.ReactNo
 function SectionLabel({ label, en }: { label: string; en?: string }) {
   return (
     <div style={{ textAlign: "center", marginBottom: 32 }}>
-      <div
-        style={{
-          width: 40,
-          height: 1,
-          background: "var(--light)",
-          margin: "0 auto 20px",
-        }}
-      />
       <p
         style={{
           fontFamily: "var(--font-mincho)",
@@ -236,14 +228,6 @@ function SectionLabel({ label, en }: { label: string; en?: string }) {
           {en}
         </p>
       )}
-      <div
-        style={{
-          width: 40,
-          height: 1,
-          background: "var(--light)",
-          margin: "20px auto 0",
-        }}
-      />
     </div>
   );
 }
@@ -582,29 +566,19 @@ export default async function HomePage() {
         >
           <SectionDivider />
 
-          {/* ラベル */}
-          <div
+          {/* ラベル（中央テキストのみ・線は SectionDivider に一本化） */}
+          <p
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 16,
+              fontSize: 12,
+              color: "var(--muted)",
+              letterSpacing: ".16em",
+              fontFamily: "var(--font-sans)",
+              textAlign: "center",
               marginBottom: 28,
             }}
           >
-            <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
-            <p
-              style={{
-                fontSize: 12,
-                color: "var(--muted)",
-                letterSpacing: ".16em",
-                whiteSpace: "nowrap",
-                fontFamily: "var(--font-sans)",
-              }}
-            >
-              やりたいことが決まっている方へ
-            </p>
-            <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
-          </div>
+            やりたいことが決まっている方へ
+          </p>
 
           {/* 2×2 グリッド */}
           <div
