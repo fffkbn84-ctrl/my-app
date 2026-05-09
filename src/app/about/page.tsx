@@ -643,46 +643,72 @@ export default function AboutPage() {
                 key={svc.key}
                 href={svc.href}
                 style={{
-                  display: "block",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  minHeight: 124,
                   background: svc.bg,
                   borderRadius: 16,
-                  padding: "20px 18px",
-                  border: "1px solid rgba(0,0,0,.04)",
+                  padding: "18px 18px 14px",
+                  border: "1px solid rgba(0,0,0,.06)",
                   textDecoration: "none",
-                  transition: "transform .3s",
+                  transition: "transform .25s, box-shadow .25s",
+                  boxShadow:
+                    "0 2px 10px rgba(180,140,90,.10), inset 0 1px 0 rgba(255,255,255,.5)",
                 }}
               >
-                <p
-                  style={{
-                    fontFamily: "'Shippori Mincho', serif",
-                    fontSize: 18,
-                    color: "var(--black)",
-                    margin: "0 0 6px",
-                    letterSpacing: ".03em",
-                  }}
-                >
-                  Kinda{" "}
-                  <em
+                <div>
+                  <p
                     style={{
-                      fontStyle: "italic",
-                      color: svc.accent,
-                      fontFamily: "'DM Serif Display', serif",
+                      fontFamily: "'Shippori Mincho', serif",
+                      fontSize: 18,
+                      color: "var(--black)",
+                      margin: "0 0 6px",
+                      letterSpacing: ".03em",
                     }}
                   >
-                    {svc.suffix}
-                  </em>
-                </p>
-                <p
+                    Kinda{" "}
+                    <em
+                      style={{
+                        fontStyle: "italic",
+                        color: svc.accent,
+                        fontFamily: "'DM Serif Display', serif",
+                      }}
+                    >
+                      {svc.suffix}
+                    </em>
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "'Noto Sans JP', sans-serif",
+                      fontSize: 12,
+                      color: "var(--mid)",
+                      lineHeight: 1.6,
+                      margin: 0,
+                    }}
+                  >
+                    {svc.desc}
+                  </p>
+                </div>
+                {/* 矢印（右下にタップ可能感を出す） */}
+                <div
                   style={{
-                    fontFamily: "'Noto Sans JP', sans-serif",
-                    fontSize: 12,
-                    color: "var(--mid)",
-                    lineHeight: 1.6,
-                    margin: 0,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginTop: 10,
                   }}
+                  aria-hidden="true"
                 >
-                  {svc.desc}
-                </p>
+                  <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+                    <path
+                      d="M2 7h10M7 2l5 5-5 5"
+                      stroke={svc.accent}
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </Link>
             ))}
           </div>
@@ -924,14 +950,57 @@ export default function AboutPage() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 16,
+              gap: 14,
             }}
           >
-            <Link href="/kinda-talk" className="btn btn-wh" style={{ minWidth: 240 }}>
-              カウンセラーを探す
+            {/* 主CTA — Kinda note（ヒーローと同じローズゴールド主CTA） */}
+            <Link
+              href="/kinda-note"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 10,
+                minWidth: 260,
+                padding: "16px 32px",
+                background: "#D4A090",
+                color: "white",
+                borderRadius: 999,
+                fontFamily: "var(--font-sans)",
+                fontSize: 14,
+                fontWeight: 500,
+                letterSpacing: ".04em",
+                textDecoration: "none",
+                boxShadow:
+                  "0 0 24px rgba(212,160,144,.45), 0 6px 18px rgba(212,160,144,.35)",
+                transition: "transform .2s, box-shadow .2s",
+              }}
+            >
+              いまの気持ちを整理する
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M2 7h10M7 2l5 5-5 5" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </Link>
-            <Link href="/shops" className="btn btn-gl" style={{ minWidth: 240 }}>
-              ふたりのお店を探す
+            {/* 副CTA — Kinda talk（ghost テキストリンク） */}
+            <Link
+              href="/kinda-talk"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "10px 20px",
+                color: "rgba(255,255,255,.78)",
+                fontFamily: "var(--font-sans)",
+                fontSize: 13,
+                letterSpacing: ".04em",
+                textDecoration: "none",
+                transition: "color .2s",
+              }}
+            >
+              カウンセラーを見てみる
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </Link>
           </div>
         </div>
