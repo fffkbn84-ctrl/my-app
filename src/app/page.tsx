@@ -70,7 +70,7 @@ const DECIDED_CARDS = [
     key: "talk",
     href: "/kinda-talk",
     kindaLabel: "talk",
-    desc: "カウンセラー・相談所を直接見る",
+    desc: "ぴったりのカウンセラーに直接会う",
     img: "/images/section-counseling.webp",
     alt: "Kinda talk",
     bg: "#FAF3DE",
@@ -969,7 +969,9 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            D — Kinda ふたりへについて（Brand Belief）
+            D — Kinda ふたりへについて（Brand Belief・/about のティザー）
+            /about のヒーローコピーと同期。詩的ブロック末尾に CTA を置き、
+            タップで /about の詳細へ遷移する。
         ═══════════════════════════════════════════════════ */}
         <section
           style={{
@@ -1001,55 +1003,78 @@ export default async function HomePage() {
               textAlign: "center",
             }}
           >
+            {/* /about ヒーローと同じ詩的ブロックを圧縮版で */}
             <p
               style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontStyle: "italic",
-                fontSize: 18,
+                fontFamily: "'Shippori Mincho', serif",
+                fontSize: "clamp(16px, 4vw, 18px)",
                 color: "var(--ink)",
-                lineHeight: 2.0,
+                lineHeight: 2.2,
                 marginBottom: 24,
+                letterSpacing: ".06em",
               }}
             >
-              <em>既存のレビューサイトは、</em>
+              誰かと「ふたり」になる瞬間は
               <br />
-              <em>関係が成立した人のためにある。</em>
+              いつだって、はじめて。
             </p>
 
             <p
               style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontStyle: "italic",
-                fontSize: 18,
-                color: "var(--ink)",
-                lineHeight: 2.0,
-                marginBottom: 24,
+                fontFamily: "'Shippori Mincho', serif",
+                fontSize: "clamp(15px, 3.6vw, 17px)",
+                color: "var(--mid)",
+                lineHeight: 2.2,
+                marginBottom: 32,
+                letterSpacing: ".04em",
               }}
             >
-              Kinda ふたりへは、
+              はじめての恋愛でも、再婚でも、子連れでも。
               <br />
-              <em>今まさに関係を築いている</em>
-              <br />
-              <em>あなたたちのためにある。</em>
+              その瞬間のために、
+              <span style={{ color: "var(--accent)" }}>Kinda ふたりへ</span>
+              がいます。
             </p>
 
+            {/* Kinda の語源（圧縮版・/about ヒーローと同期） */}
             <p
               style={{
-                fontFamily: "'DM Serif Display', serif",
+                fontFamily: "'Shippori Mincho', serif",
                 fontStyle: "italic",
-                fontSize: 18,
-                color: "var(--ink)",
-                lineHeight: 2.0,
+                fontSize: 13,
+                color: "var(--muted)",
+                lineHeight: 2,
+                letterSpacing: ".06em",
+                marginBottom: 36,
               }}
             >
-              不安なまま相談所に
+              Kinda — 英語で「なんとなく」。
               <br />
-              飛び込まなくていい。
-              <br />
-              入会前から交際後まで
-              <br />
-              あなたのそばにいます。
+              そして &ldquo;my kinda&rdquo; と言えば、「私にぴったりの」。
             </p>
+
+            {/* CTA → /about */}
+            <Link
+              href="/about"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "12px 28px",
+                border: "1px solid var(--light)",
+                borderRadius: 999,
+                fontFamily: "var(--font-sans)",
+                fontSize: 13,
+                color: "var(--ink)",
+                textDecoration: "none",
+                transition: "border-color .2s, color .2s, background .2s",
+                background: "var(--white)",
+              }}
+              aria-label="Kinda ふたりへについて、もっと知る"
+            >
+              Kinda ふたりへについて、もっと知る
+              <ArrowRight />
+            </Link>
           </div>
         </section>
 

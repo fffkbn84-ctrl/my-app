@@ -74,7 +74,7 @@ export default async function KindaTalkPage() {
               <h1 className="kt-hero-title">
                 Kinda <em>talk</em>
               </h1>
-              <div className="kt-hero-sub">相談したい・迷っている</div>
+              <div className="kt-hero-sub">ぴったりの担当者を、見つける</div>
 
               <div className="kt-hero-divider" />
               <p className="kt-hero-copy">

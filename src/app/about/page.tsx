@@ -102,7 +102,11 @@ export default function AboutPage() {
             >
               Kinda — 英語で「なんとなく」。
               <br />
-              決めなくていい余白から、ふたりは始まる。
+              そして &ldquo;my kinda&rdquo; と言えば、「私にぴったりの」。
+              <br />
+              決めなくていい余白と、しっくりくる感覚から、
+              <br />
+              ふたりは始まる。
             </p>
           </div>
         </div>
@@ -610,7 +614,7 @@ export default function AboutPage() {
                 suffix: "talk",
                 accent: "#B89A4A",
                 bg: "#FAF3DE",
-                desc: "カウンセラー・相談所を直接見る",
+                desc: "ぴったりのカウンセラーに直接会う",
               },
               {
                 key: "act",
