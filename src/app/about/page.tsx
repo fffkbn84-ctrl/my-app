@@ -87,6 +87,23 @@ export default function AboutPage() {
             >
               その瞬間のために、<span className="brand-name">Kinda ふたりへ</span>
             </p>
+
+            {/* Kinda の語源を一行で（ブランド名の腑落ち）*/}
+            <p
+              style={{
+                margin: "2.4em 0 0",
+                fontFamily: "'Shippori Mincho', serif",
+                fontStyle: "italic",
+                fontSize: "clamp(13px, 1.6vw, 15px)",
+                color: "rgba(255,255,255,.55)",
+                letterSpacing: ".06em",
+                lineHeight: 2,
+              }}
+            >
+              Kinda — 英語で「なんとなく」。
+              <br />
+              決めなくていい余白から、ふたりは始まる。
+            </p>
           </div>
         </div>
       </section>
@@ -512,6 +529,152 @@ export default function AboutPage() {
                 小さな一歩を報告できる場所が、ここにある。
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ━━━━━━━━━━━━━━━━━━━━
+          ⑤' Kinda のしくみ（5つの Kinda 一覧）
+          ホームの B カードと同じ書体ルールとカラーパレットを使い、
+          サイト全体での Kinda シリーズの認知を補強する。
+      ━━━━━━━━━━━━━━━━━━━━ */}
+      <section style={{ padding: "80px 32px", background: "var(--white)" }}>
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 200,
+              fontSize: 11,
+              letterSpacing: ".18em",
+              color: "var(--accent)",
+              textTransform: "uppercase",
+              marginBottom: 16,
+            }}
+          >
+            KINDA SERIES
+          </p>
+          <h2
+            style={{
+              fontFamily: "'Shippori Mincho', serif",
+              fontWeight: 500,
+              fontSize: "clamp(22px, 3vw, 36px)",
+              color: "var(--black)",
+              letterSpacing: ".06em",
+              marginBottom: 16,
+            }}
+          >
+            5つの<span className="brand-name"> Kinda</span>、ひとつの場所で。
+          </h2>
+          <p
+            style={{
+              fontFamily: "'Noto Sans JP', sans-serif",
+              fontSize: 14,
+              color: "var(--mid)",
+              lineHeight: 2,
+              marginBottom: 40,
+            }}
+          >
+            気持ちの整理から、ふたりが過ごす日々まで。
+            <br />
+            Kinda は5つの役割で、あなたのそばにいます。
+          </p>
+
+          {/* 5つの Kinda サービスカード（2×n グリッド） */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 12,
+            }}
+          >
+            {[
+              {
+                key: "note",
+                href: "/kinda-note",
+                suffix: "note",
+                accent: "#D4A090",
+                bg: "#FAF1EB",
+                desc: "言葉にならない気持ちを整理する",
+              },
+              {
+                key: "type",
+                href: "/kinda-type",
+                suffix: "type",
+                accent: "#5A7FAF",
+                bg: "#E0ECF8",
+                desc: "自分に合うカウンセラーを見つける",
+              },
+              {
+                key: "talk",
+                href: "/kinda-talk",
+                suffix: "talk",
+                accent: "#B89A4A",
+                bg: "#FAF3DE",
+                desc: "カウンセラー・相談所を直接見る",
+              },
+              {
+                key: "act",
+                href: "/kinda-act",
+                suffix: "act",
+                accent: "#B86E68",
+                bg: "#F5E1E0",
+                desc: "お見合いやデートに使いやすい場所",
+              },
+              {
+                key: "glow",
+                href: "/kinda-glow",
+                suffix: "glow",
+                accent: "#8A66B0",
+                bg: "#EDE0F4",
+                desc: "好きな人に会う前に、自分を整える",
+              },
+            ].map((svc) => (
+              <Link
+                key={svc.key}
+                href={svc.href}
+                style={{
+                  display: "block",
+                  background: svc.bg,
+                  borderRadius: 16,
+                  padding: "20px 18px",
+                  border: "1px solid rgba(0,0,0,.04)",
+                  textDecoration: "none",
+                  transition: "transform .3s",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "'Shippori Mincho', serif",
+                    fontSize: 18,
+                    color: "var(--black)",
+                    margin: "0 0 6px",
+                    letterSpacing: ".03em",
+                  }}
+                >
+                  Kinda{" "}
+                  <em
+                    style={{
+                      fontStyle: "italic",
+                      color: svc.accent,
+                      fontFamily: "'DM Serif Display', serif",
+                    }}
+                  >
+                    {svc.suffix}
+                  </em>
+                </p>
+                <p
+                  style={{
+                    fontFamily: "'Noto Sans JP', sans-serif",
+                    fontSize: 12,
+                    color: "var(--mid)",
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}
+                >
+                  {svc.desc}
+                </p>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
