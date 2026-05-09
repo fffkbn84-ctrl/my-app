@@ -10,7 +10,10 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <main style={{ background: "var(--white)" }}>
+    <div className="about-page">
+      {/* Kinda 村のクレイ風背景（ぼかし固定） */}
+      <div className="about-village-bg" aria-hidden="true" />
+      <main>
       <SectionSubHeader sectionName="ホーム" sectionRoot="/" />
       <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kindaについて" }]} />
 
@@ -36,7 +39,7 @@ export default function AboutPage() {
               marginBottom: 24,
             }}
           >
-            ABOUT FUTARIVE
+            ABOUT US
           </p>
           <h1
             style={{
@@ -117,7 +120,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "var(--pale)",
+          background: "rgba(240,238,235,.74)",
           padding: "80px 32px",
           textAlign: "center",
         }}
@@ -154,7 +157,7 @@ export default function AboutPage() {
       {/* ━━━━━━━━━━━━━━━━━━━━
           ③ なぜ作ったか
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.7)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
@@ -264,22 +267,22 @@ export default function AboutPage() {
             {[
               {
                 num: "01",
-                title: "カウンセラーは、人で選ぶべきだ",
+                title: "カウンセラーは、人で選ぶ",
                 body: "相談所のブランドより、目の前のカウンセラーがどんな人かの方が、あなたの婚活を左右する。だから私たちは、カウンセラー個人のプロフィールと口コミを中心に据えた。",
               },
               {
                 num: "02",
-                title: "口コミは、体験した人だけが書ける",
+                title: "口コミは、体験した人だけが書く",
                 body: "面談していない人の声は、ここにはない。Kinda ふたりへ経由で面談を完了した人だけが投稿できる仕組みにしているのは、あなたに正直な情報だけを届けたいから。",
               },
               {
                 num: "03",
-                title: "婚活の孤独を、一人で抱えなくていい",
+                title: "婚活の孤独は、ひとりにしない",
                 body: "断られた日も、迷っている夜も、誰かに話せる場所があればいい。婚活は孤独になりやすい。だからKinda ふたりへは、頑張れる場所でもありたい。",
               },
               {
                 num: "04",
-                title: "ふたりの時間に、いい場所を",
+                title: "ふたりの時間に、いい場所を渡す",
                 body: "出会いのカフェから、婚活準備の美容室、成婚後の記念日まで。\n\nはじめてでも、もう一度でも。婚活中だけじゃなく、ふたりになったあとも\nずっと使えるサービスでありたい。",
               },
             ].map((belief) => (
@@ -336,7 +339,7 @@ export default function AboutPage() {
       {/* ━━━━━━━━━━━━━━━━━━━━
           ⑤ Kinda ふたりへでできること
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.7)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
@@ -542,7 +545,7 @@ export default function AboutPage() {
           ホームの B カードと同じ書体ルールとカラーパレットを使い、
           サイト全体での Kinda シリーズの認知を補強する。
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "var(--white)" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,255,255,.74)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
@@ -688,7 +691,7 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "var(--pale)",
+          background: "rgba(240,238,235,.74)",
           padding: "80px 32px",
           textAlign: "center",
         }}
@@ -765,7 +768,7 @@ export default function AboutPage() {
       {/* ━━━━━━━━━━━━━━━━━━━━
           ⑦ 運営チームより
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px" }}>
+      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.7)" }}>
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <p
             style={{
@@ -801,155 +804,90 @@ export default function AboutPage() {
             }}
             className="about-team-grid"
           >
-            {/* 1. ふうか（代表） — ボブ */}
-            <div style={{ textAlign: "center" }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ display: "block", margin: "0 auto 16px" }}>
-                <circle cx="40" cy="40" r="40" fill="url(#g1)" />
-                <circle cx="40" cy="32" r="12" fill="rgba(255,255,255,.75)" />
-                <path d="M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22" fill="rgba(255,255,255,.5)" />
-                {/* ボブ（あご下） */}
-                <path d="M28 26c0-6.627 5.373-12 12-12s12 5.373 12 12" fill="rgba(80,50,30,.25)" />
-                <path d="M27 34c-1 0-2-1-2-3v-4h2" fill="rgba(80,50,30,.2)" />
-                <path d="M53 34c1 0 2-1 2-3v-4h-2" fill="rgba(80,50,30,.2)" />
-                <rect x="28" y="37" width="24" height="6" rx="3" fill="rgba(80,50,30,.2)" />
-                <defs>
-                  <linearGradient id="g1" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#EDE0D4" />
-                    <stop offset="1" stopColor="#D4C4B0" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>ふうか</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>代表</p>
-              <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
-                ここでの出会いが一生ものになる、そんな瞬間を作っていきます
-              </p>
-            </div>
-
-            {/* 2. るな（設計/デザイン） — ミディアム */}
-            <div style={{ textAlign: "center" }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ display: "block", margin: "0 auto 16px" }}>
-                <circle cx="40" cy="40" r="40" fill="url(#g2)" />
-                <circle cx="40" cy="32" r="12" fill="rgba(255,255,255,.75)" />
-                <path d="M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22" fill="rgba(255,255,255,.5)" />
-                {/* ミディアム（肩まで） */}
-                <path d="M28 26c0-6.627 5.373-12 12-12s12 5.373 12 12" fill="rgba(60,40,20,.2)" />
-                <path d="M26 30c-1.5 0-2.5-1.5-2-4l1-6h4" fill="rgba(60,40,20,.18)" />
-                <path d="M54 30c1.5 0 2.5-1.5 2-4l-1-6h-4" fill="rgba(60,40,20,.18)" />
-                <path d="M27 36 Q26 46 27 50" stroke="rgba(60,40,20,.25)" strokeWidth="4" strokeLinecap="round" fill="none" />
-                <path d="M53 36 Q54 46 53 50" stroke="rgba(60,40,20,.25)" strokeWidth="4" strokeLinecap="round" fill="none" />
-                <defs>
-                  <linearGradient id="g2" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#D8E4D8" />
-                    <stop offset="1" stopColor="#C0D4C2" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>るな</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>設計 / デザイン</p>
-              <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
-                使うたびに、少し前に進める場所にしたい
-              </p>
-            </div>
-
-            {/* 3. つよし（共同代表） — 短髪・男性 */}
-            <div style={{ textAlign: "center" }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ display: "block", margin: "0 auto 16px" }}>
-                <circle cx="40" cy="40" r="40" fill="url(#g3)" />
-                <circle cx="40" cy="32" r="12" fill="rgba(255,255,255,.75)" />
-                <path d="M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22" fill="rgba(255,255,255,.5)" />
-                {/* 短髪・男性 */}
-                <path d="M29 26c0-6.075 4.925-11 11-11s11 4.925 11 11v2H29v-2z" fill="rgba(50,35,20,.25)" />
-                <defs>
-                  <linearGradient id="g3" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#D4DDE8" />
-                    <stop offset="1" stopColor="#C0CCDA" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>つよし</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>共同代表 / 全国取材</p>
-              <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
-                みなさんのために駆け抜けます！
-              </p>
-            </div>
-
-            {/* 4. みづき（取材/コラム） — ロング */}
-            <div style={{ textAlign: "center" }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ display: "block", margin: "0 auto 16px" }}>
-                <circle cx="40" cy="40" r="40" fill="url(#g4)" />
-                <circle cx="40" cy="32" r="12" fill="rgba(255,255,255,.75)" />
-                <path d="M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22" fill="rgba(255,255,255,.5)" />
-                {/* ロング（胸まで） */}
-                <path d="M28 26c0-6.627 5.373-12 12-12s12 5.373 12 12" fill="rgba(55,35,15,.22)" />
-                <path d="M26 30c-1.5 0-2.5-1.5-2-4l1-6h4" fill="rgba(55,35,15,.2)" />
-                <path d="M54 30c1.5 0 2.5-1.5 2-4l-1-6h-4" fill="rgba(55,35,15,.2)" />
-                <path d="M27 36 Q25 50 26 60" stroke="rgba(55,35,15,.25)" strokeWidth="5" strokeLinecap="round" fill="none" />
-                <path d="M53 36 Q55 50 54 60" stroke="rgba(55,35,15,.25)" strokeWidth="5" strokeLinecap="round" fill="none" />
-                <defs>
-                  <linearGradient id="g4" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#E8EEF0" />
-                    <stop offset="1" stopColor="#D0DFE4" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>みづき</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>取材 / コラム</p>
-              <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
-                実際に足を運んで、正直に書きます
-              </p>
-            </div>
-
-            {/* 5. あかり（コラム/お店担当） — ポニーテール */}
-            <div style={{ textAlign: "center" }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ display: "block", margin: "0 auto 16px" }}>
-                <circle cx="40" cy="40" r="40" fill="url(#g5)" />
-                <circle cx="40" cy="32" r="12" fill="rgba(255,255,255,.75)" />
-                <path d="M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22" fill="rgba(255,255,255,.5)" />
-                {/* ポニーテール */}
-                <path d="M28 26c0-6.627 5.373-12 12-12s12 5.373 12 12" fill="rgba(80,45,20,.22)" />
-                <path d="M26 32c-2 0-3-2-2.5-4.5l1.5-7h4" fill="rgba(80,45,20,.2)" />
-                {/* ポニー束 */}
-                <path d="M52 20 Q58 16 56 28 Q60 20 56 32" stroke="rgba(80,45,20,.28)" strokeWidth="4" strokeLinecap="round" fill="none" />
-                <circle cx="53" cy="20" r="2.5" fill="rgba(80,45,20,.3)" />
-                <defs>
-                  <linearGradient id="g5" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#FCE8E5" />
-                    <stop offset="1" stopColor="#F0D0CC" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>あかり</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>コラム / お店担当</p>
-              <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
-                婚活中のあなたに、本当に使えるお店を
-              </p>
-            </div>
-
-            {/* 6. さき（コラム/カウンセラー取材） — ショートボブ */}
-            <div style={{ textAlign: "center" }}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" style={{ display: "block", margin: "0 auto 16px" }}>
-                <circle cx="40" cy="40" r="40" fill="url(#g6)" />
-                <circle cx="40" cy="32" r="12" fill="rgba(255,255,255,.75)" />
-                <path d="M18 68c0-12.15 9.85-22 22-22s22 9.85 22 22" fill="rgba(255,255,255,.5)" />
-                {/* ショートボブ（耳上） */}
-                <path d="M28 26c0-6.627 5.373-12 12-12s12 5.373 12 12" fill="rgba(65,40,25,.22)" />
-                <path d="M27 32c-1.5 0-2.5-1.5-2-3.5l1-5.5h3" fill="rgba(65,40,25,.2)" />
-                <path d="M53 32c1.5 0 2.5-1.5 2-3.5l-1-5.5h-3" fill="rgba(65,40,25,.2)" />
-                <rect x="28" y="36" width="24" height="4" rx="2" fill="rgba(65,40,25,.18)" />
-                <defs>
-                  <linearGradient id="g6" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#E8D8EE" />
-                    <stop offset="1" stopColor="#D4C0E2" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>さき</p>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>コラム / カウンセラー取材</p>
-              <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
-                カウンセラーの人となりを、正直にお届けします
-              </p>
-            </div>
+            {[
+              {
+                name: "ふうか",
+                initial: "F",
+                role: "代表",
+                quote: "ここでの出会いが一生ものになる、そんな瞬間を作っていきます",
+                gradient: "linear-gradient(135deg, #EDE0D4, #D4C4B0)",
+              },
+              {
+                name: "るな",
+                initial: "R",
+                role: "設計 / デザイン",
+                quote: "使うたびに、少し前に進める場所にしたい",
+                gradient: "linear-gradient(135deg, #D8E4D8, #C0D4C2)",
+              },
+              {
+                name: "つよし",
+                initial: "T",
+                role: "共同代表 / 全国取材",
+                quote: "みなさんのために駆け抜けます！",
+                gradient: "linear-gradient(135deg, #D4DDE8, #C0CCDA)",
+              },
+              {
+                name: "みづき",
+                initial: "M",
+                role: "取材 / コラム",
+                quote: "実際に足を運んで、正直に書きます",
+                gradient: "linear-gradient(135deg, #E8EEF0, #D0DFE4)",
+              },
+              {
+                name: "あかり",
+                initial: "A",
+                role: "コラム / お店担当",
+                quote: "婚活中のあなたに、本当に使えるお店を",
+                gradient: "linear-gradient(135deg, #FCE8E5, #F0D0CC)",
+              },
+              {
+                name: "さき",
+                initial: "S",
+                role: "コラム / カウンセラー取材",
+                quote: "カウンセラーの人となりを、正直にお届けします",
+                gradient: "linear-gradient(135deg, #E8D8EE, #D4C0E2)",
+              },
+            ].map((member) => (
+              <div key={member.name} style={{ textAlign: "center" }}>
+                {/* シンプルなパステルグラデーション円 + DM Serif italic イニシャル */}
+                <div
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: "50%",
+                    background: member.gradient,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    margin: "0 auto 16px",
+                    boxShadow: "0 4px 14px rgba(180,140,110,.12), inset 0 1px 0 rgba(255,255,255,.5)",
+                  }}
+                  aria-hidden="true"
+                >
+                  <span
+                    style={{
+                      fontFamily: "'DM Serif Display', serif",
+                      fontStyle: "italic",
+                      fontSize: 32,
+                      color: "rgba(255,255,255,.92)",
+                      letterSpacing: "0.02em",
+                      textShadow: "0 1px 2px rgba(0,0,0,.06)",
+                    }}
+                  >
+                    {member.initial}
+                  </span>
+                </div>
+                <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 16, color: "var(--black)", marginBottom: 4 }}>
+                  {member.name}
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase", marginBottom: 10 }}>
+                  {member.role}
+                </p>
+                <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--mid)", lineHeight: 1.9, padding: "0 8px", margin: 0 }}>
+                  {member.quote}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -1008,6 +946,7 @@ export default function AboutPage() {
           }
         }
       `}</style>
-    </main>
+      </main>
+    </div>
   );
 }

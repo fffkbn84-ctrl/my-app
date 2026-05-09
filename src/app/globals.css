@@ -5708,3 +5708,52 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   font-size: 14px;
 }
 .agc-empty span { font-size: 12px; }
+
+/* ─────────────────────────────────────────────────────────
+   /about — Kinda 村のクレイ風背景
+   Kinda act と同じ思想：ぼかしと暖色オーバーレイで村が"そばにある"
+   雰囲気を作る。明るいセクションだけ村が透けて、暗いセクションは
+   しっかり覆って詩的なドラマを保つ。
+───────────────────────────────────────────────────────── */
+.about-village-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url('/images/kinda-about-village.webp');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(10px) brightness(1.04) saturate(1.1);
+  transform: scale(1.06);
+  will-change: filter;
+}
+.about-village-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* 暖色クリームの被せ — 詩的トーンに馴染ませつつ村は透けて見える */
+  background:
+    linear-gradient(180deg,
+      rgba(247,239,229,.18) 0%,
+      rgba(245,235,220,.10) 45%,
+      rgba(247,239,229,.20) 100%);
+}
+
+/* /about 内のセクションは明るい所だけ半透明にして村が透ける */
+.about-page {
+  background: transparent;
+}
+.about-page main {
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+}
+/* dark セクション（hero / OUR BELIEF / 締めCTA）は実装側で
+   var(--black) を維持するので何も上書きしない。それ以外の
+   pale / white セクションは個別に rgba にする */
+.about-page footer {
+  background: var(--white, #FAFAF8);
+  position: relative;
+  z-index: 2;
+}
