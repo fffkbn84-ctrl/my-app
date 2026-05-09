@@ -344,19 +344,27 @@ export default async function HomePage() {
           }}
         >
           <div style={{ maxWidth: 560, margin: "0 auto" }}>
-            {/* eyebrow */}
+            {/* セクションラベル（Bパターン：Kinda 主役・Mincho + DM Serif italic accent） */}
             <p
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 11,
-                letterSpacing: ".18em",
-                color: "#D4A090",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-mincho)",
+                fontSize: 18,
+                color: "var(--ink)",
+                letterSpacing: ".04em",
                 textAlign: "center",
                 marginBottom: 14,
               }}
             >
-              Kinda <em style={{ fontFamily: "Georgia, serif", fontStyle: "italic" }}>note</em>
+              Kinda{" "}
+              <em
+                style={{
+                  fontStyle: "italic",
+                  color: "#D4A090",
+                  fontFamily: "'DM Serif Display', serif",
+                }}
+              >
+                note
+              </em>
             </p>
 
             {/* セクション見出し（Georgia serif 大きめ） */}
@@ -671,29 +679,27 @@ export default async function HomePage() {
           <SectionDivider />
 
           <div style={{ textAlign: "center", marginBottom: 24, padding: "0 20px" }}>
-            <div
+            {/* セクションラベル（Bパターン：Kinda 主役・「より」は削除） */}
+            <p
               style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 11,
-                letterSpacing: ".18em",
-                color: "var(--muted)",
-                textTransform: "uppercase",
+                fontFamily: "var(--font-mincho)",
+                fontSize: 18,
+                color: "var(--ink)",
+                letterSpacing: ".04em",
                 marginBottom: 6,
               }}
             >
-              Kinda talk{" "}
+              Kinda{" "}
               <em
                 style={{
-                  fontFamily: "Georgia, serif",
                   fontStyle: "italic",
-                  color: "var(--accent)",
-                  textTransform: "lowercase",
-                  margin: "0 2px",
+                  color: "#B89A4A",
+                  fontFamily: "'DM Serif Display', serif",
                 }}
               >
-                より
+                talk
               </em>
-            </div>
+            </p>
             <h2
               style={{
                 fontFamily: "var(--font-mincho)",
