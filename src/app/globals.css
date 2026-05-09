@@ -4593,40 +4593,20 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
 }
 
 /* ─────────────────────────────────────────────────────────
-   トップページ A'' — Kinda note は、こんな時に使えます
+   トップページ A' — Kinda note 説明セクション
+   天気アイコンの「ふわっと浮かぶ」呼吸アニメーション。
+   delay は inline style（animationDelay）で各アイコンに設定。
 ───────────────────────────────────────────────────────── */
-.kn-usecase-h3 {
-  font-family: var(--font-mincho);
-  font-size: 16px;
-  color: var(--mid);
-  margin-bottom: 16px;
-  letter-spacing: .04em;
+@keyframes weather-icon-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
 }
-.kn-usecase-box {
-  background: var(--pale);
-  border-radius: 16px;
-  padding: 20px;
+.weather-icon-animated {
+  animation: weather-icon-float 3s ease-in-out infinite;
+  will-change: transform;
 }
-.kn-usecase-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  line-height: 1.9;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  color: var(--ink);
-}
-.kn-usecase-list li {
-  display: flex;
-  gap: 8px;
-}
-.kn-usecase-list li::before {
-  content: "・";
-  color: var(--mid);
-  flex-shrink: 0;
+@media (prefers-reduced-motion: reduce) {
+  .weather-icon-animated { animation: none; }
 }
 
 /* ─────────────────────────────────────────────────────────

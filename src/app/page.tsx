@@ -98,23 +98,6 @@ const DECIDED_CARDS = [
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
-   A'' — Kinda note ユースケース（2グループ × 4項目）
-──────────────────────────────────────────────────────────── */
-const KN_USECASES_PAUSE = [
-  "カウンセラーになんて伝えればいいか分からない",
-  "お見合いの後、ことばにならない違和感があった",
-  "交際中、なぜか不安が消えない",
-  "複数の人で、気持ちが揺れている",
-] as const;
-
-const KN_USECASES_MOVE = [
-  "好きな人ができた、その気持ちを整理したい",
-  "「好き」をどう伝えればいいか考えたい",
-  "大事なデートの前、自分の気持ちを見つめたい",
-  "節目のとき、いまの自分を残しておきたい",
-] as const;
-
-/* ────────────────────────────────────────────────────────────
    Kinda note — 天気アイコン 5 種
    pre / waiting / omiai / date1 / kousai の各ルートから 1 つずつ選定。
    重い天気（thunderstorm / rain_cloud / mist）は初見ユーザーに重いため除外。
@@ -443,7 +426,7 @@ export default async function HomePage() {
               }}
               className="hide-scrollbar"
             >
-              {NOTE_WEATHERS.map((w) => (
+              {NOTE_WEATHERS.map((w, i) => (
                 <div
                   key={w.src}
                   style={{
@@ -454,6 +437,7 @@ export default async function HomePage() {
                   }}
                 >
                   <div
+                    className="weather-icon-animated"
                     style={{
                       width: 96,
                       height: 96,
@@ -463,6 +447,7 @@ export default async function HomePage() {
                       boxShadow: "0 4px 14px rgba(180,140,110,.14)",
                       position: "relative",
                       marginBottom: 8,
+                      animationDelay: `${i * 0.6}s`,
                     }}
                   >
                     <Image
@@ -488,18 +473,21 @@ export default async function HomePage() {
               ))}
             </div>
 
-            {/* 全20種であることをそっと伝える（"これだけ?" を防ぐ） */}
+            {/* 全20種であることをそっと伝える（"これだけ?" を防ぐ・詩的な余韻） */}
             <p
               style={{
-                fontFamily: "var(--font-sans)",
-                fontSize: 11,
+                fontFamily: "Georgia, serif",
+                fontSize: 14,
                 color: "var(--muted)",
                 textAlign: "center",
-                letterSpacing: ".06em",
-                margin: "-8px 0 28px",
+                lineHeight: 1.9,
+                letterSpacing: "0.02em",
+                margin: "24px 0 32px",
               }}
             >
-              答えると、全20種の中から、いまの気持ちに近い天気がひとつ届きます。
+              並んでいるのは、ほんの一部。
+              <br />
+              あなたの天気は、20の中にあります。
             </p>
 
             {/* 機能の特徴 3 つ（チェックリスト） */}
@@ -570,71 +558,6 @@ export default async function HomePage() {
                   textDecoration: "none",
                   boxShadow: "0 6px 18px rgba(212,160,144,.4)",
                   transition: "transform .2s, box-shadow .2s",
-                }}
-              >
-                気持ちを整理する
-                <ArrowRight color="white" />
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════════════════
-            A'' — Kinda note は、こんな時に使えます
-        ═══════════════════════════════════════════════════ */}
-        <section style={{ padding: "48px 24px 64px", background: "#FEFCFA" }}>
-          <SectionLabel label="Kinda note は、こんな時に使えます" />
-
-          <div style={{ maxWidth: 480, margin: "0 auto" }}>
-            <h3 className="kn-usecase-h3">ふと立ち止まったとき</h3>
-            <div className="kn-usecase-box">
-              <ul className="kn-usecase-list">
-                {KN_USECASES_PAUSE.map((u) => (
-                  <li key={u}>{u}</li>
-                ))}
-              </ul>
-            </div>
-
-            <h3 className="kn-usecase-h3" style={{ marginTop: 24 }}>
-              気持ちが動いたとき
-            </h3>
-            <div className="kn-usecase-box">
-              <ul className="kn-usecase-list">
-                {KN_USECASES_MOVE.map((u) => (
-                  <li key={u}>{u}</li>
-                ))}
-              </ul>
-            </div>
-
-            <p
-              style={{
-                fontFamily: "'DM Serif Display', Georgia, serif",
-                fontStyle: "italic",
-                fontSize: 16,
-                color: "var(--ink)",
-                textAlign: "center",
-                margin: "32px 0 16px",
-              }}
-            >
-              入会前から交際後まで、何度でも。
-            </p>
-
-            <div style={{ textAlign: "center" }}>
-              <Link
-                href="/kinda-note"
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "14px 36px",
-                  background: "#D4A090",
-                  color: "white",
-                  borderRadius: 999,
-                  fontFamily: "var(--font-sans)",
-                  fontSize: 14,
-                  letterSpacing: ".03em",
-                  textDecoration: "none",
-                  boxShadow: "0 6px 18px rgba(212,160,144,.4)",
                 }}
               >
                 気持ちを整理する
