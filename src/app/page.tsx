@@ -387,7 +387,9 @@ export default async function HomePage() {
                 margin: "0 0 18px",
               }}
             >
-              あなたの気持ちは、いま、どんな天気？
+              あなたの気持ちは
+              <br />
+              いま、どんな天気？
             </h2>
 
             {/* リード文 */}
