@@ -5758,3 +5758,664 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   position: relative;
   z-index: 2;
 }
+
+/* ════════════════════════════════════════════════════════════
+   /kinda-story  Kinda story（ふたりの物語）一覧 + 詳細
+   テーマ: グリーン（#5A8050 / #E8F4E4）
+═════════════════════════════════════════════════════════════ */
+.ks-page {
+  min-height: 100vh;
+  background: #FBFCF8;
+  color: var(--ink);
+}
+
+/* ─── 一覧ヒーロー ─── */
+.ks-hero {
+  position: relative;
+  background: #E8F4E4;
+  padding: calc(var(--header-height) + 40px) 20px 48px;
+  overflow: hidden;
+  min-height: 60vh;
+  display: flex;
+  align-items: flex-end;
+}
+.ks-hero-bg-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.ks-hero-bg-image img {
+  object-fit: cover;
+  object-position: center 40%;
+}
+.ks-hero-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(232,244,228,.5) 0%, rgba(200,224,192,.18) 55%, rgba(232,244,228,0) 90%),
+    linear-gradient(180deg, rgba(232,244,228,.28) 0%, rgba(232,244,228,.1) 55%, rgba(232,244,228,0) 100%);
+  mix-blend-mode: soft-light;
+}
+.ks-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(20,40,20,0) 0%,
+    rgba(20,40,20,0) 35%,
+    rgba(20,40,20,.22) 70%,
+    rgba(15,30,15,.66) 100%);
+}
+.ks-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+.ks-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: rgba(255,255,255,.92);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.ks-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(28px, 6vw, 42px);
+  color: white;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+}
+.ks-hero-title em {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  color: #DDEAD4;
+  font-weight: 400;
+  margin: 0 4px;
+}
+.ks-hero-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
+  margin-bottom: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.ks-hero-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(255,255,255,.35);
+  margin: 18px auto;
+}
+.ks-hero-copy {
+  font-family: Georgia, 'Shippori Mincho', serif;
+  font-style: italic;
+  font-size: clamp(15px, 3.4vw, 19px);
+  line-height: 1.95;
+  color: white;
+  max-width: 480px;
+  margin: 0 auto;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+}
+
+/* ─── イントロ ─── */
+.ks-intro {
+  background: #FBFCF8;
+  padding: 56px 20px 40px;
+}
+.ks-intro-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+.ks-intro-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 auto 12px;
+}
+.ks-intro-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+  margin: 0 auto 12px;
+}
+.ks-intro-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 12px 0;
+}
+.ks-intro-text {
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--ink);
+  margin-top: 16px;
+}
+
+/* ─── フィルターバー ─── */
+.ks-filter-bar {
+  position: sticky;
+  top: var(--header-height);
+  z-index: 30;
+  background: rgba(251,252,248,.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid #E0EAD8;
+  padding: 10px 0;
+}
+.ks-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ks-filter-row::-webkit-scrollbar { display: none; }
+.ks-filter-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-family: 'DM Sans', sans-serif;
+  padding-right: 4px;
+}
+.ks-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid #DDEAD4;
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 12px;
+  color: var(--mid);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+}
+.ks-pill:hover {
+  border-color: #5A8050;
+  color: var(--ink);
+}
+.ks-pill.is-active {
+  background: #5A8050;
+  border-color: #5A8050;
+  color: white;
+}
+.ks-pill:focus-visible {
+  outline: 2px solid #5A8050;
+  outline-offset: 2px;
+}
+
+/* ─── セクションヘッダー ─── */
+.ks-section-head {
+  text-align: center;
+  padding: 36px 20px 16px;
+}
+.ks-section-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+  margin: 8px auto;
+}
+.ks-section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 4px 0;
+}
+.ks-section-title em {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #5A8050;
+  margin-right: 6px;
+}
+
+/* ─── 一覧グリッド ─── */
+.ks-grid-wrap {
+  padding: 16px 16px 56px;
+  background: #FBFCF8;
+}
+.ks-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) {
+  .ks-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+
+/* ─── 物語カード（一覧 + 関連） ─── */
+.ks-card {
+  display: block;
+  background: white;
+  border: 1px solid #DDEAD4;
+  border-radius: 18px;
+  padding: 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.ks-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(90,128,80,.1);
+  border-color: #5A8050;
+}
+.ks-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.ks-card-stage {
+  font-size: 10px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #5A8050;
+  background: #E8F4E4;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.ks-card-period {
+  font-size: 11px;
+  color: var(--mid);
+}
+.ks-card-quote {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.95;
+  margin-bottom: 14px;
+  letter-spacing: .02em;
+}
+.ks-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.ks-card-tag {
+  font-size: 10px;
+  color: #5A8050;
+  background: #F4FAF1;
+  border: 1px solid #DDEAD4;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+.ks-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ks-card-author {
+  font-size: 11px;
+  color: var(--mid);
+}
+.ks-card-link {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #5A8050;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ks-empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--mid);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ─── 詳細ヒーロー ─── */
+.ks-detail-hero {
+  position: relative;
+  background: #E8F4E4;
+  padding: calc(var(--header-height) + 36px) 20px 44px;
+  overflow: hidden;
+  min-height: 50vh;
+  display: flex;
+  align-items: flex-end;
+}
+.ks-detail-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.ks-detail-hero-bg img {
+  object-fit: cover;
+  object-position: center 40%;
+}
+.ks-detail-hero-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(232,244,228,.2) 0%, rgba(232,244,228,0) 60%);
+}
+.ks-detail-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(15,30,15,.15) 0%,
+    rgba(15,30,15,.4) 55%,
+    rgba(15,30,15,.78) 100%);
+}
+.ks-detail-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+}
+.ks-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.78);
+  margin-bottom: 16px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.ks-breadcrumb a {
+  color: rgba(255,255,255,.78);
+  text-decoration: none;
+}
+.ks-breadcrumb a:hover {
+  color: white;
+}
+.ks-detail-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.ks-detail-stage {
+  font-size: 10px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: white;
+  background: rgba(90,128,80,.85);
+  padding: 4px 12px;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.ks-detail-period {
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.ks-detail-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(22px, 5vw, 32px);
+  color: white;
+  font-weight: 500;
+  line-height: 1.6;
+  margin-bottom: 18px;
+  letter-spacing: .02em;
+  text-shadow: 0 2px 14px rgba(0,0,0,.4);
+}
+.ks-detail-byline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,.85);
+  font-family: 'DM Sans', sans-serif;
+  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+.ks-detail-byline-sep {
+  opacity: .5;
+}
+
+/* ─── 本文 ─── */
+.ks-article {
+  background: #FBFCF8;
+  padding: 48px 20px 24px;
+}
+.ks-article-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+.ks-article-p {
+  font-size: 15px;
+  line-height: 2;
+  color: var(--ink);
+  margin-bottom: 22px;
+}
+.ks-pullquote {
+  position: relative;
+  margin: 36px 0;
+  padding: 28px 24px 24px;
+  background: #F4FAF1;
+  border-left: 3px solid #5A8050;
+  border-radius: 4px;
+}
+.ks-pullquote-mark {
+  position: absolute;
+  top: -8px;
+  left: 16px;
+  font-family: Georgia, serif;
+  font-size: 56px;
+  color: #5A8050;
+  opacity: .3;
+  line-height: 1;
+}
+.ks-pullquote p {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px;
+  line-height: 2;
+  color: var(--ink);
+  letter-spacing: .03em;
+}
+.ks-article-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 32px 0 8px;
+}
+.ks-article-tag {
+  font-size: 11px;
+  color: #5A8050;
+  background: #F4FAF1;
+  border: 1px solid #DDEAD4;
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.ks-article-divider {
+  border-top: 1px solid #E0EAD8;
+  margin: 32px 0 28px;
+}
+.ks-author-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ks-author-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ks-author-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #DDEAD4;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.ks-author-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(90,128,80,.1);
+  border-color: #5A8050;
+}
+.ks-author-avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ks-author-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.ks-author-card-role {
+  font-size: 10px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ks-author-card-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.ks-author-card-sub {
+  font-size: 11px;
+  color: var(--mid);
+}
+.ks-author-card-arrow {
+  flex-shrink: 0;
+  color: #5A8050;
+}
+
+/* ─── 関連物語 ─── */
+.ks-related {
+  background: #F4FAF1;
+  padding: 48px 16px 56px;
+}
+.ks-related-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  text-align: center;
+}
+.ks-related-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-top: 24px;
+  text-align: left;
+}
+@media (min-width: 768px) {
+  .ks-related-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+}
+
+/* ─── CTA ─── */
+.ks-cta {
+  background: #FBFCF8;
+  padding: 64px 20px 80px;
+  border-top: 1px solid #E0EAD8;
+}
+.ks-cta-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+.ks-cta-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: #5A8050;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.ks-cta-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(20px, 4vw, 26px);
+  color: var(--ink);
+  font-weight: 500;
+  margin-bottom: 14px;
+  letter-spacing: .03em;
+}
+.ks-cta-text {
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--mid);
+  margin-bottom: 24px;
+}
+.ks-cta-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.ks-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 14px;
+  letter-spacing: .03em;
+  text-decoration: none;
+  transition: all .2s ease;
+  min-width: 240px;
+}
+.ks-cta-btn-primary {
+  background: #5A8050;
+  color: white;
+  border: 1px solid #5A8050;
+}
+.ks-cta-btn-primary:hover {
+  background: #486840;
+  border-color: #486840;
+}
+.ks-cta-btn-ghost {
+  background: white;
+  color: var(--ink);
+  border: 1px solid #DDEAD4;
+}
+.ks-cta-btn-ghost:hover {
+  border-color: #5A8050;
+  color: #5A8050;
+}
+
+/* ─── FAQ ─── */
+.ks-faq {
+  background: #FBFCF8;
+  padding: 16px 20px 80px;
+}
+.ks-faq-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}

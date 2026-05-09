@@ -6,6 +6,7 @@ import RevealObserver from "@/components/ui/RevealObserver";
 import SectionDivider from "@/components/ui/SectionDivider";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
 import { getCounselors } from "@/lib/data";
+import { STORIES } from "@/lib/mock/stories";
 
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
@@ -109,28 +110,6 @@ const NOTE_WEATHERS = [
   { src: "/images/w_angels_ladder.webp",    label: "天使の梯子" },
   { src: "/images/w_light_sunrise.webp",    label: "淡い朝焼け" },
   { src: "/images/w_twilight.webp",         label: "夕暮れ" },
-] as const;
-
-/* ────────────────────────────────────────────────────────────
-   Kinda story — ダミーデータ
-──────────────────────────────────────────────────────────── */
-const STORIES = [
-  {
-    id: "1",
-    quote:
-      "「最初はなんとなく始めたんです。決めなきゃって焦ってた時に、カウンセラーさんが『急がなくていい』って言ってくれて、肩の力が抜けました」",
-    author: "A.M さん",
-    age: "32歳",
-    status: "6ヶ月で成婚",
-  },
-  {
-    id: "2",
-    quote:
-      "「お見合いの後にいつも迷ってしまって、でもそれを責めずに聞いてくれる人がいました。だから続けられていると思います」",
-    author: "K.T さん",
-    age: "28歳",
-    status: "交際3ヶ月",
-  },
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
@@ -726,107 +705,154 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            C — ふたりの物語（Kinda story 抜粋）
+            C' — Kinda story より | 続いている、ふたりの物語
         ═══════════════════════════════════════════════════ */}
         <section
           id="stories"
           style={{
-            padding: "64px 24px",
-            background: "#FEFCFA",
+            padding: "72px 24px 64px",
+            background: "#F4FAF1",
             scrollMarginTop: 80,
           }}
         >
           <SectionDivider />
 
-          <SectionLabel label="ふたりの物語" en="Kinda story" />
+          <div style={{ textAlign: "center", marginBottom: 28, padding: "0 4px" }}>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                letterSpacing: ".18em",
+                color: "var(--muted)",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              Kinda story{" "}
+              <em
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontStyle: "italic",
+                  color: "#5A8050",
+                  textTransform: "lowercase",
+                  margin: "0 2px",
+                }}
+              >
+                より
+              </em>
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: 22,
+                color: "var(--ink)",
+                fontWeight: 500,
+                margin: "4px 0",
+              }}
+            >
+              続いている、ふたりの物語
+            </h2>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--mid)",
+                marginTop: 6,
+              }}
+            >
+              成婚の先輩・活動中の声、ぜんぶそのまま
+            </div>
+          </div>
 
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 16,
+              gap: 14,
               maxWidth: 560,
-              margin: "0 auto 32px",
+              margin: "0 auto 28px",
             }}
           >
-            {STORIES.map((story) => (
+            {STORIES.slice(0, 3).map((story) => (
               <Link
                 key={story.id}
                 href={`/kinda-story/${story.id}`}
                 style={{
                   display: "block",
                   background: "var(--white)",
-                  borderRadius: 20,
-                  padding: 24,
-                  border: "1px solid var(--light)",
+                  borderRadius: 18,
+                  padding: 22,
+                  border: "1px solid #DDEAD4",
                   textDecoration: "none",
-                  transition: "transform .3s, box-shadow .3s",
+                  transition: "transform .25s, box-shadow .25s",
                 }}
               >
-                {/* 画像プレースホルダー */}
+                {/* ステージ + 期間 */}
                 <div
                   style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 12,
-                    background: "#F5EEE6",
-                    border: "1px solid #EAE0D8",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 16,
-                    flexShrink: 0,
+                    gap: 8,
+                    marginBottom: 14,
                   }}
                 >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"
-                      stroke="var(--accent)"
-                      strokeWidth="1.3"
-                      fill="rgba(212,160,144,.12)"
-                    />
-                  </svg>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "'DM Sans', sans-serif",
+                      letterSpacing: ".12em",
+                      textTransform: "uppercase",
+                      color: "#5A8050",
+                      background: "#E8F4E4",
+                      padding: "4px 10px",
+                      borderRadius: 999,
+                    }}
+                  >
+                    {story.stage}
+                  </span>
+                  <span style={{ fontSize: 11, color: "var(--mid)" }}>
+                    {story.periodLabel}
+                  </span>
                 </div>
 
                 {/* 引用文 */}
                 <p
                   style={{
-                    fontFamily: "'DM Serif Display', serif",
-                    fontStyle: "italic",
-                    fontSize: 17,
+                    fontFamily: "var(--font-mincho)",
+                    fontSize: 15,
                     color: "var(--ink)",
-                    lineHeight: 1.9,
+                    lineHeight: 1.95,
                     marginBottom: 14,
+                    letterSpacing: ".02em",
                   }}
                 >
-                  {story.quote}
+                  「{story.quote}」
                 </p>
 
-                {/* 著者情報 */}
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "var(--mid)",
-                    marginBottom: 12,
-                  }}
-                >
-                  — {story.author}（{story.age}）&nbsp;&nbsp;{story.status}
-                </p>
-
-                {/* 続きを読む */}
+                {/* 著者情報 + 続きを読む */}
                 <div
                   style={{
-                    textAlign: "right",
-                    fontSize: 11,
-                    color: "var(--accent)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "flex-end",
-                    gap: 4,
+                    justifyContent: "space-between",
+                    gap: 8,
                   }}
                 >
-                  続きを読む
-                  <ArrowRight color="var(--accent)" />
+                  <p style={{ fontSize: 11, color: "var(--mid)" }}>
+                    — {story.author}（{story.age}）／{story.counselorName}
+                  </p>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "#5A8050",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      flexShrink: 0,
+                    }}
+                  >
+                    読む
+                    <ArrowRight color="#5A8050" />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -835,7 +861,7 @@ export default async function HomePage() {
           {/* もっと読む */}
           <div style={{ textAlign: "center" }}>
             <GhostButton href="/kinda-story">
-              もっと読む
+              ぜんぶの物語を読む
               <ArrowRight />
             </GhostButton>
           </div>
