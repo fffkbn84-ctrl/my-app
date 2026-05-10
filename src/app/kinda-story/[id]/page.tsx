@@ -63,7 +63,7 @@ export default async function KindaStoryDetailPage({
               fill
               priority
               sizes="100vw"
-              style={{ objectFit: "cover", objectPosition: "center 28%" }}
+              style={{ objectFit: "cover", objectPosition: "center 55%" }}
             />
           </div>
           <div className="ks-detail-hero-tint" aria-hidden />
