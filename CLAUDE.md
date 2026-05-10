@@ -4289,3 +4289,221 @@ CREATE TABLE diagnosis_results (
   - カウンセラー：自動掲載停止 + アーカイブ
   - 口コミ：表示は残す（過去の信頼性として価値があるため）が、カウンセラー名はマスク or アーカイブ表示
 
+---
+
+## 実装済み機能（2026-05-10 追記②） — 予約フロー Supabase 連携 + マイページ予約履歴・キャンセル機能
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`
+> コミット: `effe005` `feat(reservations): 予約フロー Supabase 連携 + マイページ予約履歴・キャンセル`
+
+### 背景
+
+それまで予約フロー（`/booking/[counselorId]` と `/counselors/booking?agencyId=X`）は UI 4〜5 ステップが完成していたが、`Step4Confirm.handleConfirm` は 1.2 秒のダミー遅延だけで Supabase に何も書いていなかった。マイページの「予約履歴」も "準備中" バッジのみ。営業開始前に「予約してマイページから自分の予約を見る・キャンセルする」を最低限動かすために実装。
+
+### 方針（このセッションでふうかさんと確定した方針）
+
+| 論点 | 確定方針 |
+|---|---|
+| 認証要件 | **ログイン必須**（`user_id NOT NULL` 相当の運用、未ログインなら `/login?redirect=...` へ自動リダイレクト） |
+| ダブルブッキング防止 | **最小限の排他制御のみ**（`status='open' or 'locked' のときだけ booked に UPDATE`）。`locked_until` + `pg_cron` 自動解放は本番直前の別タスク |
+| キャンセルポリシー | `agency.cancelDeadlineHours` で**機械的に期限判定**。期限内ならキャンセルボタン表示、期限切れなら**相談所の電話番号・メールを案内** |
+
+### Supabase スキーマ拡張（マイグレーション 007 / 008、適用済み）
+
+**`007_reservations_user_id_status.sql`**
+- `reservations` に追加カラム:
+  - `user_id` (UUID, FK → auth.users, ON DELETE SET NULL)
+  - `status` (TEXT, NOT NULL DEFAULT 'active', CHECK IN ('active','canceled','completed'))
+  - `canceled_at` (TIMESTAMPTZ)
+  - `cancel_reason` (TEXT)
+  - `start_at` / `end_at` (TIMESTAMPTZ) ← reservations をスタンドアロン化（slot_id 無くても予約情報を保持）
+  - `meeting_type` (TEXT, CHECK IN ('対面','オンライン'))
+  - `agency_id` (UUID, FK → agencies, ON DELETE SET NULL)
+  - `counselor_name` / `agency_name` (TEXT) ← モック ID で予約された場合の表示用
+- `slot_id` を **nullable に変更**（`Step1Calendar` がモック slot を生成するため、本物 UUID 以外は NULL で保存）
+- インデックス: `idx_reservations_user_status_start (user_id, status, start_at DESC)`
+- `agencies` に追加カラム:
+  - `phone` (TEXT)
+  - `email` (TEXT)
+  - `cancel_deadline_hours` (INTEGER, NOT NULL DEFAULT 24)
+  - `cancel_policy` (TEXT)
+- RLS ポリシー: `authenticated` ユーザーは自分の `user_id` の行のみ SELECT/INSERT/UPDATE 可。DELETE は許可しない（論理削除のみ）
+
+**`008_reservations_counselor_id_nullable.sql`**
+- `reservations.counselor_id` を nullable に変更（hardcoded モックページの数値 ID で予約された場合に counselor_id NULL で保存できるよう）
+
+### 新規ファイル
+
+| ファイル | 役割 |
+|---|---|
+| `src/lib/reservations.ts` | `createReservation` / `cancelReservation` / `isCancellable` / `isUuid` のヘルパー |
+| `src/components/booking/LoginGuard.tsx` | 予約フロー用ログインガード。未ログインなら `/login?redirect=<currentPath>` に `router.replace`。loading 中はスピナー表示 |
+| `src/app/mypage/ReservationsSection.tsx` | マイページの予約履歴セクション（`'use client'`） |
+
+### 既存ファイルの変更
+
+- `src/components/booking/Step4Confirm.tsx`
+  - `useAuth()` で user 取得、`createReservation(supabase, ...)` を呼んで Supabase に INSERT
+  - 排他制御エラー（slot_unavailable）時はユーザー向けエラーカードに切り替え
+  - `onConfirm` シグネチャを `(reservationId: string | null) => void` に変更
+  - props に `counselorId` / `agencyId` を追加（本物 UUID なら排他制御 / `counselor_id` 指定、モックなら null）
+- `src/components/booking/BookingFlow.tsx` / `AgencyBookingFlow.tsx`
+  - 全体を `<LoginGuard redirectTo={...}>` でラップ
+  - `useAuth()` で user.email を取得し、`Step3Form` の email 初期値に流し込み
+  - 完了画面の最終 CTA を「マイページで確認する」に変更（`/mypage` へ）
+  - `AgencyBookingFlow` では選択カウンセラーの ID が UUID なら `supabaseCounselorId` として渡す
+- `src/lib/data.ts`
+  - `Agency` 型に `cancelDeadlineHours?: number` / `phone?: string` / `email?: string` を追加
+  - 既存 5 相談所に値を投入:
+
+  | 相談所 | cancelDeadlineHours | phone（仮） | email（仮） |
+  |---|---|---|---|
+  | ブライダルハウス東京 | 0 | 03-1234-5678 | info@bridal-house-tokyo.example.jp |
+  | リーガルウェディング | 24 | 03-2345-6789 | contact@legal-wedding.example.jp |
+  | シンプリーマリッジ | 0 | 06-1234-5678 | info@simply-marriage.example.jp |
+  | ハッピーロードサロン | 24 | 045-123-4567 | hello@happyroad-salon.example.jp |
+  | コトブキ相談センター | 0 | 0120-555-1234 | support@kotobuki-center.example.jp |
+
+  ※ phone / email は **仮の値**（運営側で本物に差し替える前提）
+- `src/types/database.ts`
+  - `agencies` Row に `phone` / `email` / `cancel_deadline_hours` / `cancel_policy` を追加
+  - `reservations` Row に新規カラムを追加し、`slot_id` / `counselor_id` を nullable 化
+- `src/app/mypage/page.tsx`
+  - `<ReservationsSection />` を `<AuthCard />` の直後に配置
+  - 機能紹介リストの「予約履歴の確認・キャンセル"準備中"」項目を削除（本物のセクションが上に出るため）
+
+### `createReservation` の動作仕様
+
+```
+1. supabase が null なら supabase_unavailable で fail
+2. input.slotId が UUID 形式なら:
+   UPDATE slots SET status='booked' WHERE id=:slotId AND status IN ('open','locked') RETURNING id
+   → 0 行返ったら slot_unavailable で fail
+3. INSERT reservations:
+   - counselor_id / agency_id は UUID 形式の時のみ値、それ以外は NULL
+   - counselor_name / agency_name は常に文字列で保存（マイページ表示用）
+   - status='active' で INSERT
+4. INSERT エラー時は slot を 'open' にロールバック UPDATE
+5. 成功時は { ok: true, reservationId } を返す
+```
+
+### `ReservationsSection` の動作仕様
+
+- 認証ロード中は何も表示しない、未ログインなら何も表示しない（`AuthCard` が促進カードを出すため）
+- ログイン済みなら自分の予約を `select * from reservations order by start_at desc`（RLS で自動絞り込み）
+- 「これから（status='active' かつ start_at 未来）」「過去・キャンセル済み」に分けて表示
+- 各予約カードで `isCancellable(start_at, agency.cancelDeadlineHours)` を判定:
+  - 期限内 → 「キャンセルする」ボタン表示（`cancelReservation` を呼ぶ → status を 'canceled' に UPDATE + 本物 slot UUID なら 'open' に戻す）
+  - 期限切れ → 相談所連絡先（電話/メール）を SVG アイコン付きでカード内に表示
+- agency 情報の解決:
+  - `reservation.agency_id` が UUID なら Supabase から `agencies.cancel_deadline_hours / phone / email / cancel_policy` を取得
+  - そうでなければモック `AGENCIES.find(a => a.name === agency_name)` から取得
+  - どちらも無ければデフォルト値（24h / "面談日の前日まで〜"）
+
+### Supabase 側で運営が後で実値を入れる必要があるもの
+
+| テーブル | カラム | 現状 | 今後 |
+|---|---|---|---|
+| `agencies` | `phone` / `email` / `cancel_deadline_hours` / `cancel_policy` | DEFAULT 24h、phone/email は NULL | SQL Editor から各相談所ごとに本物の値を投入 |
+
+### 既知の制約・本番リリース前タスク
+
+- `Step1Calendar` がモック slot を生成しているため、現状は「本物の Supabase slots テーブルとの連動なし」。実カウンセラーの予約枠を運用するには別タスクで Step1Calendar の Supabase 化が必要
+- `locked_until` での 5 分タイムアウトと `pg_cron` 自動解放はマイグレーション未作成（仕組みとして必要だが本番直前タスクに送り）
+- メール送信（予約完了確認・キャンセル通知）は未実装。SMTP 設定 + 通知メール送信ロジックは別タスク
+
+---
+
+## 次セッションへの引き継ぎ — カウンセラー管理画面（futarive-counselor）の Supabase 連携整理
+
+### このタスクで進めること
+
+ふうかさんから「カウンセラー管理画面を Supabase 連携できるよう調整したい。必要・不要を分けたり作ったりしてほしい」と依頼を受けた。futarive-counselor の各画面（プロフィール / リール / カレンダー / 口コミ / ダッシュボード）で:
+
+1. 現状動いているか / モックのままか確認
+2. 営業開始時に **必要 / 後回し / 不要** を切り分け
+3. 必要だがモックの機能を Supabase 連携に書き換え
+4. 足りない DB カラムをマイグレーションで追加
+5. カウンセラー本人が触る項目 vs 運営（futarive-admin）が裏で触る項目の境界を整理
+
+### 新セッション開始時にふうかさんに依頼する情報
+
+**A. 各画面のスクリーンショット**
+- プロフィール編集（4 ステップそれぞれ）
+- リール編集
+- カレンダー
+- 口コミ
+- ダッシュボード
+- ログイン画面（任意）
+
+**B. 機能の優先順位**
+- 営業開始時に絶対必要なもの（プロフィール公開・リール・カレンダーなど）
+- 後回しでいいもの（ダッシュボード統計・複数カウンセラー切替・通知）
+- いらないもの
+
+**C. 運用準備の状況**
+- 最初のカウンセラーアカウントは誰か（ふうかさん本人か / Supabase Auth に登録済みか）
+- Storage バケット（`counselor-photos` / `counselor-media`）は作成済みか
+- カウンセラーが触ること vs 運営が裏で触ることの境界（例：料金プランは誰が編集する？）
+
+**D. リアルなフロー想定**
+- カウンセラーが新規登録してから初回面談予約が入るまでの理想フロー（誰がいつ何をするか）
+
+### futarive-counselor 側で既に把握済みの情報（CLAUDE.md より）
+
+- 場所: `/home/user/my-app/futarive-counselor/`
+- 認証: Supabase Auth（cookie ベース、`@supabase/ssr`）+ `middleware.ts` で全ルート保護
+- DnD: `@dnd-kit/core` + `@dnd-kit/sortable`（リール画像並び替え）
+- 開発ブランチ: `futarive-counselor`、デプロイ用は別 Vercel プロジェクトで `main`
+- ローカル開発ポート: `localhost:3001`
+- ページ: `/login` `/dashboard` `/profile` `/reel` `/calendar` `/reviews`
+- `useAgencyContext` でカウンセラー本人 / オーナー / 両方モードを判定済み
+- プロフィール 4 ステップ（基本情報 → 人となり → 料金と成果 → 確認）で 2 秒デバウンス自動保存
+- リールは @dnd-kit + iPhone 9:16 プレビュー + キャッチコピー 20 文字制限
+- カレンダーは月グリッド + スロットドット表示 + 9:00〜20:00 30 分刻みで枠追加
+- 口コミは 2 段階確認モーダルで返信送信（1 回のみ・取り消し不可）
+
+### 関連する Supabase テーブル（既存）
+
+- `counselors` — `owner_user_id` で本人と紐付け済み（CLAUDE.md「カウンセラー管理画面の RLS」セクション参照）
+- `agencies` — `owner_user_id` で相談所オーナーと紐付け済み
+- `slots` — `counselor_id` / `start_at` / `end_at` / `status` (open/locked/booked) / `locked_until`
+- `reservations` — 2026-05-10 追記② で拡張済み（user_id / status / start_at / agency_id 等）
+- `reviews` — `agency_reply` / `agency_replied_at`（CLAUDE.md「相談所専用管理画面」セクションで設計記載）
+- `counselor_media` — リール画像
+
+### 作業ブランチ運用（CLAUDE.md「作業ブランチの運用ルール（2026-05-03 確定）」を厳守）
+
+| 対象 | ブランチ |
+|---|---|
+| ユーザー用サイト（`src/`） | `claude/implement-kinda-talk-uDUoW` |
+| カウンセラー管理画面（`futarive-counselor/`） | `futarive-counselor` |
+| 統括管理画面（`futarive-admin/`） | `futarive-admin` |
+
+- `git -C /home/user/my-app` で my-app リポジトリのルートから git コマンドを実行する（CLAUDE.md 上部に記載）
+- 新規ブランチを切らない
+
+### 新セッション開始時の引き継ぎテンプレート
+
+```
+作業ブランチ:
+- ユーザー用サイト側: claude/implement-kinda-talk-uDUoW
+- カウンセラー管理画面: futarive-counselor
+
+以下を読んでから始めてください:
+1. CLAUDE.md（特に末尾の「2026-05-10 追記②」と「次セッションへの引き継ぎ — カウンセラー管理画面」）
+2. futarive-counselor/ ディレクトリの構造を把握
+
+【今回の作業】
+カウンセラー管理画面（futarive-counselor）の Supabase 連携整理。
+画面ごとに「残す / 削る / 作り足す / DB と繋ぐ」の表を作って優先順位順に進める。
+スクショと機能優先順位はこちらから渡します。
+読み終わったら「読みました、スクショください」と返してください。
+```
+
+### Vercel デプロイの確認について
+
+- Claude は Vercel MCP ツールで「デプロイの成否 / ビルドログ / ランタイムログ / プロジェクト設定」を確認可能
+- ただしブラウザでの動作確認・スクショ撮影・iOS Safari 固有の動作チェックは不可
+- 実機チェックはふうかさんに依頼する必要がある
+
