@@ -24,6 +24,10 @@ export default function AgencyPage() {
     consultation_end_time: '19:00',
     closed_weekdays: [] as number[],
     default_slot_minutes: 60,
+    phone: '',
+    email: '',
+    cancel_deadline_hours: 24,
+    cancel_policy: '',
   })
 
   const formRef = useRef(form)
@@ -41,6 +45,10 @@ export default function AgencyPage() {
       consultation_end_time: (ag.consultation_end_time ?? '19:00').slice(0, 5),
       closed_weekdays: ag.closed_weekdays ?? [],
       default_slot_minutes: ag.default_slot_minutes ?? 60,
+      phone: ag.phone ?? '',
+      email: ag.email ?? '',
+      cancel_deadline_hours: ag.cancel_deadline_hours ?? 24,
+      cancel_policy: ag.cancel_policy ?? '',
     })
   }
 
@@ -98,6 +106,10 @@ export default function AgencyPage() {
       consultation_end_time: f.consultation_end_time || null,
       closed_weekdays: f.closed_weekdays.length > 0 ? f.closed_weekdays : null,
       default_slot_minutes: f.default_slot_minutes || null,
+      phone: f.phone || null,
+      email: f.email || null,
+      cancel_deadline_hours: typeof f.cancel_deadline_hours === 'number' ? f.cancel_deadline_hours : null,
+      cancel_policy: f.cancel_policy || null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -353,6 +365,94 @@ export default function AgencyPage() {
           </select>
           <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
             予約枠の自動生成と「枠を追加」の終了時刻のデフォルトに使われます。
+          </p>
+        </div>
+
+        {/* キャンセル・連絡先セクション区切り */}
+        <div style={{
+          marginTop: 8,
+          paddingTop: 24,
+          borderTop: '1px solid var(--border)',
+        }}>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>CANCELLATION &amp; CONTACT</div>
+          <h2 style={{
+            fontFamily: 'Shippori Mincho, serif',
+            fontSize: 16,
+            fontWeight: 500,
+            color: 'var(--text-deep)',
+            marginBottom: 10,
+          }}>
+            キャンセル・連絡先設定
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
+            キャンセル期限を過ぎた予約のキャンセル依頼が来た場合、お客様の予約履歴ページに
+            ここで設定した連絡先（電話・メール）が表示されます。
+          </p>
+        </div>
+
+        {/* キャンセル期限 */}
+        <div>
+          <label className="kc-label">キャンセル可能期限</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 12, color: 'var(--text-mid)' }}>面談日時の</span>
+            <input
+              className="kc-input"
+              type="number"
+              min={0}
+              max={168}
+              value={form.cancel_deadline_hours}
+              onChange={e => update('cancel_deadline_hours', e.target.value === '' ? 0 : Number(e.target.value))}
+              style={{ maxWidth: 100 }}
+            />
+            <span style={{ fontSize: 12, color: 'var(--text-mid)' }}>時間前まで</span>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            例：24 → 面談日の前日同時刻まで／0 → 当日キャンセル可。期限を過ぎたらお客様には電話・メール案内のみ。
+          </p>
+        </div>
+
+        {/* キャンセルポリシー本文 */}
+        <div>
+          <label className="kc-label">キャンセルポリシー（自由記述）</label>
+          <textarea
+            className="kc-textarea"
+            style={{ minHeight: 80 }}
+            value={form.cancel_policy}
+            onChange={e => update('cancel_policy', e.target.value)}
+            placeholder="例：面談日の前日23:59までキャンセル無料。当日キャンセルも初回のみ可。"
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            お客様の予約フローと予約履歴ページに表示されます。空欄ならデフォルト文言が使われます。
+          </p>
+        </div>
+
+        {/* 電話 */}
+        <div>
+          <label className="kc-label">電話番号</label>
+          <input
+            className="kc-input"
+            type="tel"
+            value={form.phone}
+            onChange={e => update('phone', e.target.value)}
+            placeholder="03-1234-5678"
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            キャンセル期限後の連絡先としてお客様に表示されます。営業電話には使われません。
+          </p>
+        </div>
+
+        {/* メール */}
+        <div>
+          <label className="kc-label">連絡先メールアドレス</label>
+          <input
+            className="kc-input"
+            type="email"
+            value={form.email}
+            onChange={e => update('email', e.target.value)}
+            placeholder="info@example.com"
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            キャンセル依頼の連絡先として表示されます。
           </p>
         </div>
       </div>

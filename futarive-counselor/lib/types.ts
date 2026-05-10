@@ -9,6 +9,10 @@ export interface Agency {
   consultation_end_time: string | null
   closed_weekdays: number[] | null         // 0=日 ... 6=土
   default_slot_minutes: number | null      // 1枠あたりの所要時間（分）
+  phone: string | null                     // キャンセル期限超過時の連絡先
+  email: string | null
+  cancel_deadline_hours: number | null     // キャンセル期限（時間前）
+  cancel_policy: string | null             // キャンセルポリシー本文
   created_at: string
 }
 
