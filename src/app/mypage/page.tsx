@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
 import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
+import { placesHomeData } from "@/lib/mock/places-home";
 import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -30,19 +31,6 @@ const featureItems = [
           strokeWidth="1.2"
           strokeLinejoin="round"
           fill="rgba(200,169,122,.2)"
-        />
-      </svg>
-    ),
-  },
-  {
-    label: "お気に入りのカウンセラー・相談所を保存",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path
-          d="M4 2h10v15l-5-3-5 3V2z"
-          stroke="#C8A97A"
-          strokeWidth="1.3"
-          strokeLinejoin="round"
         />
       </svg>
     ),
@@ -160,7 +148,11 @@ export default async function MyPage() {
         <AuthCard />
 
         {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
-        <SavedSection allCounselors={allCounselors} allAgencies={AGENCIES} />
+        <SavedSection
+          allCounselors={allCounselors}
+          allAgencies={AGENCIES}
+          allPlaces={placesHomeData}
+        />
 
         {/* 機能紹介リスト */}
         <div

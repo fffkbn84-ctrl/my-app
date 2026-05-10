@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useFavoritesList } from "@/hooks/useFavorites";
 import type { Counselor, Agency } from "@/lib/data";
+import type { PlaceHome } from "@/lib/mock/places-home";
+import { getPlaceThumbGradientClass } from "@/components/kinda-act/PlaceThumb";
 import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
 import { useState } from "react";
@@ -10,6 +12,7 @@ import { useState } from "react";
 type Props = {
   allCounselors: Counselor[];
   allAgencies: Agency[];
+  allPlaces: PlaceHome[];
 };
 
 /**
@@ -18,7 +21,7 @@ type Props = {
  * - allCounselors / allAgencies と target_id で突き合わせて表示用データに変換
  * - 0 件 / 認証ロード中は何も描画しない
  */
-export default function SavedSection({ allCounselors, allAgencies }: Props) {
+export default function SavedSection({ allCounselors, allAgencies, allPlaces }: Props) {
   const { favorites, loading } = useFavoritesList();
   const [openCounselor, setOpenCounselor] = useState<Counselor | null>(null);
 
@@ -29,6 +32,9 @@ export default function SavedSection({ allCounselors, allAgencies }: Props) {
   );
   const agencyById = new Map<string, Agency>(
     allAgencies.map((a) => [String(a.id), a]),
+  );
+  const placeById = new Map<string, PlaceHome>(
+    allPlaces.map((p) => [String(p.id), p]),
   );
 
   const savedCounselors = favorites
@@ -41,7 +47,16 @@ export default function SavedSection({ allCounselors, allAgencies }: Props) {
     .map((f) => agencyById.get(f.target_id))
     .filter((a): a is Agency => Boolean(a));
 
-  if (savedCounselors.length === 0 && savedAgencies.length === 0) {
+  const savedPlaces = favorites
+    .filter((f) => f.target_type === "place")
+    .map((f) => placeById.get(f.target_id))
+    .filter((p): p is PlaceHome => Boolean(p));
+
+  if (
+    savedCounselors.length === 0 &&
+    savedAgencies.length === 0 &&
+    savedPlaces.length === 0
+  ) {
     return null;
   }
 
@@ -146,6 +161,79 @@ export default function SavedSection({ allCounselors, allAgencies }: Props) {
                   </div>
                   <div style={{ fontSize: 11, color: "var(--mid)", marginTop: 2 }}>
                     {a.area} · ★{a.rating.toFixed(1)} ({a.reviewCount})
+                  </div>
+                </div>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  style={{ color: "var(--mid)" }}
+                >
+                  <path d="M2 7h10M7 2l5 5-5 5" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {savedPlaces.length > 0 && (
+        <div style={{ marginBottom: 24 }}>
+          <SectionHeader
+            label="お店"
+            count={savedPlaces.length}
+            href="/kinda-act"
+            hrefLabel="さらに探す"
+          />
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {savedPlaces.map((p) => (
+              <Link
+                key={p.id}
+                href={`/places/${p.id}`}
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  padding: 12,
+                  background: "var(--pale)",
+                  border: "1px solid var(--light)",
+                  borderRadius: 14,
+                  textDecoration: "none",
+                  color: "var(--ink)",
+                  alignItems: "center",
+                }}
+              >
+                <div
+                  className={getPlaceThumbGradientClass(p.thumbVariant)}
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 12,
+                    flexShrink: 0,
+                  }}
+                  aria-hidden
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      fontSize: 14,
+                      fontWeight: 500,
+                      color: "var(--ink)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {p.name}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--mid)", marginTop: 2 }}>
+                    {p.stage} · ★{p.rating.toFixed(1)} ({p.reviewCount})
                   </div>
                 </div>
                 <svg
