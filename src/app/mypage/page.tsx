@@ -1,10 +1,9 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { DIAGNOSIS_TYPES } from "@/lib/diagnosis";
 import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
 import { placesHomeData } from "@/lib/mock/places-home";
 import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
+import DiagnosisTypeHistorySection from "./DiagnosisTypeHistorySection";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
@@ -208,171 +207,8 @@ export default async function MyPage() {
           ))}
         </div>
 
-        {/*
-          ────────────────────────────────────────
-          診断結果の履歴プレビュー
-
-          【Supabase連携時の実装方針】
-          テーブル: diagnosis_results
-            id          UUID PRIMARY KEY DEFAULT gen_random_uuid()
-            user_id     UUID REFERENCES auth.users(id) ON DELETE CASCADE
-            result_type TEXT NOT NULL CHECK (result_type IN ('A','B','C','D'))
-            answers     JSONB NOT NULL  -- Record<number, string>
-            created_at  TIMESTAMPTZ DEFAULT now()
-
-          RLS: ユーザーは自分の行のみ SELECT/INSERT 可
-          取得: SELECT * FROM diagnosis_results
-                WHERE user_id = auth.uid()
-                ORDER BY created_at DESC
-                LIMIT 20
-
-          未ログイン時: このプレビュー表示をそのまま維持する
-          ──────────────────────────────────────── */}
-        <div style={{ marginTop: 24 }}>
-          <p
-            style={{
-              fontSize: 11,
-              letterSpacing: ".12em",
-              color: "var(--accent)",
-              fontFamily: "'DM Sans', sans-serif",
-              marginBottom: 12,
-            }}
-          >
-            DIAGNOSIS HISTORY
-          </p>
-
-          {/* 履歴カード（未ログイン時プレビュー／ログイン後は diagnosis_results から取得） */}
-          <div
-            style={{
-              background: "white",
-              border: "1px solid var(--border)",
-              borderRadius: "16px",
-              overflow: "hidden",
-            }}
-          >
-            {/* ぼかしプレビュー（4タイプのうち3件分） */}
-            {Object.values(DIAGNOSIS_TYPES).slice(0, 3).map((dt, i, arr) => (
-              <div
-                key={dt.id}
-                style={{
-                  padding: "16px 20px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
-                  opacity: 0.45,
-                  filter: "blur(3px)",
-                  userSelect: "none",
-                  pointerEvents: "none",
-                }}
-              >
-                {/* タイプ識別円 */}
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    background: dt.gradient,
-                    flexShrink: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: dt.color,
-                  }}
-                >
-                  {dt.id}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontFamily: "var(--font-mincho)",
-                      fontSize: 14,
-                      color: "var(--black)",
-                      marginBottom: 2,
-                    }}
-                  >
-                    {dt.name}
-                  </div>
-                  <div style={{ fontSize: 11, color: "var(--muted)" }}>
-                    {dt.label}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: "var(--muted)",
-                    fontFamily: "'DM Sans', sans-serif",
-                    flexShrink: 0,
-                  }}
-                >
-                  ----/--/--
-                </div>
-              </div>
-            ))}
-
-            {/* ログイン促進オーバーレイ */}
-            <div
-              style={{
-                padding: "20px",
-                background: "var(--pale)",
-                borderTop: "1px solid var(--border)",
-                textAlign: "center",
-              }}
-            >
-              <p
-                style={{
-                  fontSize: 12,
-                  color: "var(--mid)",
-                  fontFamily: "var(--font-sans)",
-                  fontWeight: 300,
-                  marginBottom: 12,
-                  lineHeight: 1.7,
-                }}
-              >
-                ログインすると、過去の診断結果を
-                <br />
-                いつでも確認できます。
-              </p>
-              <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
-                {/* TODO: Supabase Auth 実装後に href を差し替え */}
-                <a
-                  href="#"
-                  style={{
-                    fontSize: 12,
-                    padding: "9px 20px",
-                    borderRadius: 24,
-                    background: "var(--black)",
-                    color: "white",
-                    fontFamily: "'DM Sans', sans-serif",
-                    letterSpacing: ".05em",
-                    textDecoration: "none",
-                  }}
-                >
-                  ログイン
-                </a>
-                <Link
-                  href="/kinda-type"
-                  style={{
-                    fontSize: 12,
-                    padding: "9px 20px",
-                    borderRadius: 24,
-                    background: "white",
-                    color: "var(--ink)",
-                    border: "1px solid var(--light)",
-                    fontFamily: "'DM Sans', sans-serif",
-                    letterSpacing: ".05em",
-                    textDecoration: "none",
-                  }}
-                >
-                  診断する
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Kinda type 診断履歴（ログイン時は diagnosis_results・ゲスト時は localStorage） */}
+        <DiagnosisTypeHistorySection />
 
       </div>
     </main>

@@ -8,6 +8,8 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { QUESTIONS, DIAGNOSIS_TYPES, DiagnosisTypeId, calculateResult } from "@/lib/diagnosis";
 import { trackEvent } from "@/lib/analytics";
+import { saveDiagnosisResult } from "@/lib/kinda/diagnosisHistory";
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 /* タイプ別アクセントカラー */
 const TYPE_COLORS: Record<DiagnosisTypeId, string> = {
@@ -19,6 +21,7 @@ const TYPE_COLORS: Record<DiagnosisTypeId, string> = {
 
 export default function DiagnosisPage() {
   const router = useRouter();
+  const { user, supabase } = useAuth();
   const [currentQ, setCurrentQ] = useState(0); // 0-indexed
   // answers: questionId -> type letter ("A"/"B"/"C"/"D")
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -61,6 +64,14 @@ export default function DiagnosisPage() {
       } else {
         const resultType = calculateResult(newAnswers);
         trackEvent("kinda_type_quiz_complete", { result_type: resultType });
+        // 履歴保存はルーティングをブロックしない（fire-and-forget）
+        void saveDiagnosisResult({
+          kind: "type",
+          result_key: resultType,
+          answers: newAnswers,
+          supabase,
+          userId: user?.id ?? null,
+        });
         router.push(`/kinda-type/result?type=${resultType}`);
       }
     }, 300);

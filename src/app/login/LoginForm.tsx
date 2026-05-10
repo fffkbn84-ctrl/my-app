@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { mergeLocalFavoritesToSupabase } from "@/hooks/useFavorites";
+import { mergeLocalDiagnosisToSupabase } from "@/lib/kinda/diagnosisHistory";
 
 type Mode = "signin" | "signup" | "reset-request";
 
@@ -56,6 +57,7 @@ export default function LoginForm() {
         if (data.user) {
           // localStorage の保存を Supabase へマージ
           await mergeLocalFavoritesToSupabase(supabase, data.user.id);
+          await mergeLocalDiagnosisToSupabase(supabase, data.user.id);
         }
         router.push(redirect);
         router.refresh();
@@ -70,6 +72,7 @@ export default function LoginForm() {
         }
         if (data.user && data.session) {
           await mergeLocalFavoritesToSupabase(supabase, data.user.id);
+          await mergeLocalDiagnosisToSupabase(supabase, data.user.id);
           router.push(redirect);
           router.refresh();
         } else {
