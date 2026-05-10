@@ -6108,16 +6108,14 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  /* スケールはコンテナ側で行うことで、next/image が img に付与する
-     インラインスタイル（position/width/height/object-fit）と干渉せず、
-     bfcache から復元しても表示が崩れない。 */
-  transform: scale(1.12);
-  transform-origin: center 30%;
-  will-change: transform;
+  /* transform / transformOrigin は page.tsx の inline style で適用。
+     bfcache・next/image との干渉を避けるため CSS の cascade ではなく
+     インラインで確実に当てる。 */
 }
+/* object-fit / object-position は <Image style={...}> でインラインに付与済み。
+   ここでは CSS フォールバックを残しておく。 */
 .ks-detail-hero-bg img {
   object-fit: cover;
-  /* ハートをやや上に配置し、テキストオーバーレイ部分を余白として活かす */
   object-position: center 28%;
 }
 .ks-detail-hero-tint {

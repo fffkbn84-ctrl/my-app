@@ -48,13 +48,22 @@ export default async function KindaStoryDetailPage({
       <main style={{ background: "#FBFCF8" }}>
         {/* ─── ヒーロー ─── */}
         <section className="ks-detail-hero">
-          <div className="ks-detail-hero-bg" aria-hidden>
+          <div
+            className="ks-detail-hero-bg"
+            aria-hidden
+            style={{
+              transform: "scale(1.12)",
+              transformOrigin: "center 30%",
+              willChange: "transform",
+            }}
+          >
             <Image
               src="/images/section-story-new.webp"
               alt=""
               fill
               priority
               sizes="100vw"
+              style={{ objectFit: "cover", objectPosition: "center 28%" }}
             />
           </div>
           <div className="ks-detail-hero-tint" aria-hidden />
