@@ -17,6 +17,8 @@ import { getTypeContent, type TypeContent } from "../data/typeContent";
 import { decideTypeForRoute } from "../lib/decideType";
 import { saveKindaNoteHistory } from "../lib/storage";
 import { buildMemoText } from "../lib/buildMemo";
+import { saveDiagnosisResult } from "@/lib/kinda/diagnosisHistory";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import { getQuestionsForRoute } from "../data/questions";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
@@ -43,6 +45,7 @@ type Props = {
 
 export default function ResultContent({ initialRoute }: Props) {
   const router = useRouter();
+  const { user, supabase } = useAuth();
 
   // ─── 状態 ────────────────────────────────────────
   const [stored, setStored] = useState<StoredAnswers | null>(null);
@@ -113,11 +116,22 @@ export default function ResultContent({ initialRoute }: Props) {
       meta: { isRareTilt: isRare, tiltAngle: angle },
     });
 
+    // ログイン時は diagnosis_results にも保存（マイページの履歴表示用）。
+    // ゲスト時は localStorage("kinda_diagnosis_history") に保存し、
+    // ログイン時に mergeLocalDiagnosisToSupabase で同期される。
+    void saveDiagnosisResult({
+      kind: "note",
+      result_key: weather,
+      answers: { route, answers: stored.answers, freeTexts: stored.freeTexts },
+      supabase,
+      userId: user?.id ?? null,
+    });
+
     trackEvent("kinda_note_complete", {
       weather_type: weather,
       route,
     });
-  }, [hydrated, stored, typeContent, weather, route]);
+  }, [hydrated, stored, typeContent, weather, route, supabase, user]);
 
   // typeContent が見つからないことは原則ないが、安全弁として
   if (!typeContent) {

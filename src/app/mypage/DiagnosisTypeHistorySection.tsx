@@ -30,10 +30,10 @@ function formatDate(iso: string): string {
 }
 
 /**
- * Kinda type 診断履歴セクション。
- * - ログイン済 + 履歴あり → Supabase の履歴を一覧表示
- * - ゲスト + 履歴あり → localStorage の履歴を一覧表示
- * - 履歴なし → 既存の促進プレビュー（ぼかしモック + ログイン誘導）
+ * Kinda type 履歴セクション（最新1件のヒーロー表示）。
+ * - ログイン済 + 履歴あり: 最新1件をヒーローカードで表示 +「もう一度チェックする」リンク
+ * - ゲスト + 履歴あり:    localStorage の最新1件を同形式で表示
+ * - 履歴なし:             ぼかしプレビュー + ログイン誘導 / Kinda type 誘導
  */
 export default function DiagnosisTypeHistorySection() {
   const { user, supabase, loading: authLoading } = useAuth();
@@ -47,7 +47,7 @@ export default function DiagnosisTypeHistorySection() {
         supabase,
         userId: user?.id ?? null,
         kind: "type",
-        limit: 20,
+        limit: 1,
       });
       if (!active) return;
       setHistory(items);
@@ -57,189 +57,242 @@ export default function DiagnosisTypeHistorySection() {
     };
   }, [authLoading, supabase, user]);
 
-  // 認証ロード中・履歴 fetch 中は何も出さない（チラつき防止）
   if (history === null) return null;
 
   return (
-    <div style={{ marginTop: 24 }}>
+    <section style={{ marginTop: 32 }}>
+      <SectionHeader />
+      {history.length > 0 ? (
+        <LatestHero item={history[0]} />
+      ) : (
+        <EmptyState loggedIn={!!user} />
+      )}
+    </section>
+  );
+}
+
+/* ─────────── Bパターンのセクション見出し ─────────── */
+function SectionHeader() {
+  return (
+    <div style={{ marginBottom: 16 }}>
       <p
         style={{
-          fontSize: 11,
-          letterSpacing: ".12em",
-          color: "var(--accent)",
-          fontFamily: "'DM Sans', sans-serif",
-          marginBottom: 12,
+          fontFamily: "var(--font-mincho)",
+          fontWeight: 500,
+          fontSize: 18,
+          color: "var(--ink)",
+          letterSpacing: ".06em",
+          marginBottom: 4,
         }}
       >
-        DIAGNOSIS HISTORY
-      </p>
-
-      {history.length > 0 ? (
-        <div
+        <span>Kinda </span>
+        <span
           style={{
-            background: "white",
-            border: "1px solid var(--border)",
-            borderRadius: "16px",
-            overflow: "hidden",
+            fontStyle: "italic",
+            fontFamily: "'DM Serif Display', serif",
+            color: "#5A7FAF",
           }}
         >
-          {history.map((item, i) => {
-            const tid = isTypeId(item.result_key) ? item.result_key : null;
-            const dt = tid ? DIAGNOSIS_TYPES[tid] : null;
-            return (
-              <Link
-                key={item.id}
-                href={
-                  tid
-                    ? `/kinda-type/result?type=${tid}`
-                    : "/kinda-type/result"
-                }
-                style={{
-                  padding: "16px 20px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
-                  borderBottom:
-                    i < history.length - 1 ? "1px solid var(--pale)" : "none",
-                  textDecoration: "none",
-                  color: "var(--ink)",
-                }}
-              >
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    background: dt?.gradient ?? "var(--pale)",
-                    flexShrink: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: dt?.color ?? "var(--mid)",
-                  }}
-                  aria-hidden="true"
-                >
-                  {tid ?? "?"}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      fontFamily: "var(--font-mincho)",
-                      fontSize: 14,
-                      color: "var(--black)",
-                      marginBottom: 2,
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {dt?.name ?? "Kinda type"}
-                  </div>
-                  <div style={{ fontSize: 11, color: "var(--muted)" }}>
-                    {dt?.label ?? ""}
-                  </div>
-                </div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    color: "var(--muted)",
-                    fontFamily: "'DM Sans', sans-serif",
-                    flexShrink: 0,
-                  }}
-                >
-                  {formatDate(item.created_at)}
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      ) : (
-        <DiagnosisHistoryPromo loggedIn={!!user} />
-      )}
+          type
+        </span>
+      </p>
+      <p
+        style={{
+          fontSize: 12,
+          color: "var(--mid)",
+          fontFamily: "var(--font-sans)",
+          fontWeight: 300,
+          lineHeight: 1.7,
+        }}
+      >
+        あなたに合うカウンセラーのタイプ
+      </p>
     </div>
   );
 }
 
-/* ───────── 履歴ゼロ時の促進プレビュー（既存 mypage の表示を移植） ───────── */
-function DiagnosisHistoryPromo({ loggedIn }: { loggedIn: boolean }) {
+/* ─────────── 最新1件ヒーロー ─────────── */
+function LatestHero({ item }: { item: DiagnosisHistoryItem }) {
+  const tid = isTypeId(item.result_key) ? item.result_key : null;
+  const dt = tid ? DIAGNOSIS_TYPES[tid] : null;
+
   return (
     <div
       style={{
         background: "white",
         border: "1px solid var(--border)",
-        borderRadius: "16px",
+        borderRadius: 20,
         overflow: "hidden",
       }}
     >
-      {Object.values(DIAGNOSIS_TYPES)
-        .slice(0, 3)
-        .map((dt, i, arr) => (
-          <div
-            key={dt.id}
-            style={{
-              padding: "16px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: 14,
-              borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
-              opacity: 0.45,
-              filter: "blur(3px)",
-              userSelect: "none",
-              pointerEvents: "none",
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: dt.gradient,
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: 13,
-                fontWeight: 500,
-                color: dt.color,
-              }}
-            >
-              {dt.id}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-mincho)",
-                  fontSize: 14,
-                  color: "var(--black)",
-                  marginBottom: 2,
-                }}
-              >
-                {dt.name}
-              </div>
-              <div style={{ fontSize: 11, color: "var(--muted)" }}>
-                {dt.label}
-              </div>
-            </div>
-            <div
-              style={{
-                fontSize: 10,
-                color: "var(--muted)",
-                fontFamily: "'DM Sans', sans-serif",
-                flexShrink: 0,
-              }}
-            >
-              ----/--/--
-            </div>
-          </div>
-        ))}
-
       <div
         style={{
-          padding: "20px",
+          background: dt?.gradient ?? "var(--pale)",
+          padding: "28px 24px 24px",
+          textAlign: "center",
+          color: "white",
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,.25)",
+            backdropFilter: "blur(10px)",
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 28,
+            fontStyle: "italic",
+            color: "white",
+            marginBottom: 12,
+          }}
+          aria-hidden="true"
+        >
+          {tid ?? "?"}
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-mincho)",
+            fontSize: 22,
+            fontWeight: 500,
+            marginBottom: 4,
+            textShadow: "0 2px 8px rgba(0,0,0,.15)",
+          }}
+        >
+          {dt?.name ?? "Kinda type"}
+        </div>
+        <div
+          style={{
+            fontSize: 12,
+            opacity: 0.92,
+            letterSpacing: ".06em",
+            fontFamily: "var(--font-sans)",
+            fontWeight: 300,
+          }}
+        >
+          {dt?.label ?? ""}
+        </div>
+      </div>
+      <div
+        style={{
+          padding: "16px 20px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--muted)",
+            fontFamily: "'DM Sans', sans-serif",
+            letterSpacing: ".04em",
+          }}
+        >
+          {formatDate(item.created_at)}
+        </span>
+        <Link
+          href={tid ? `/kinda-type/result?type=${tid}` : "/kinda-type"}
+          style={{
+            fontSize: 12,
+            padding: "8px 16px",
+            borderRadius: 20,
+            background: "var(--pale)",
+            color: "var(--ink)",
+            fontFamily: "'DM Sans', sans-serif",
+            letterSpacing: ".04em",
+            textDecoration: "none",
+            border: "1px solid var(--light)",
+          }}
+        >
+          結果を見る →
+        </Link>
+      </div>
+      <div
+        style={{
+          padding: "0 20px 20px",
+          textAlign: "center",
+        }}
+      >
+        <Link
+          href="/kinda-type"
+          style={{
+            display: "inline-block",
+            fontSize: 12,
+            color: "var(--mid)",
+            fontFamily: "var(--font-sans)",
+            textDecoration: "underline",
+            textUnderlineOffset: "3px",
+          }}
+        >
+          もう一度チェックする
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────── 履歴ゼロ時 ─────────── */
+function EmptyState({ loggedIn }: { loggedIn: boolean }) {
+  const previewType = DIAGNOSIS_TYPES.A;
+  return (
+    <div
+      style={{
+        background: "white",
+        border: "1px solid var(--border)",
+        borderRadius: 20,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          background: previewType.gradient,
+          padding: "28px 24px 24px",
+          textAlign: "center",
+          color: "white",
+          opacity: 0.5,
+          filter: "blur(3px)",
+          userSelect: "none",
+          pointerEvents: "none",
+        }}
+        aria-hidden="true"
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 64,
+            height: 64,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,.25)",
+            fontFamily: "'DM Serif Display', serif",
+            fontSize: 28,
+            fontStyle: "italic",
+            marginBottom: 12,
+          }}
+        >
+          ?
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-mincho)",
+            fontSize: 22,
+            fontWeight: 500,
+            marginBottom: 4,
+          }}
+        >
+          ＿＿タイプ
+        </div>
+        <div style={{ fontSize: 12, opacity: 0.92 }}>＿＿＿＿＿＿＿＿＿＿</div>
+      </div>
+      <div
+        style={{
+          padding: 20,
           background: "var(--pale)",
           borderTop: "1px solid var(--border)",
           textAlign: "center",
@@ -263,13 +316,20 @@ function DiagnosisHistoryPromo({ loggedIn }: { loggedIn: boolean }) {
             </>
           ) : (
             <>
-              ログインすると、過去の相性チェック結果を
+              ログインすると、相性チェックの結果を
               <br />
               いつでも確認できます。
             </>
           )}
         </p>
-        <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            justifyContent: "center",
+            flexWrap: "wrap",
+          }}
+        >
           {!loggedIn && (
             <Link
               href="/login"
@@ -293,15 +353,16 @@ function DiagnosisHistoryPromo({ loggedIn }: { loggedIn: boolean }) {
               fontSize: 12,
               padding: "9px 20px",
               borderRadius: 24,
-              background: loggedIn ? "var(--black)" : "white",
+              background: loggedIn ? "#5A7FAF" : "white",
               color: loggedIn ? "white" : "var(--ink)",
               border: loggedIn ? "none" : "1px solid var(--light)",
+              boxShadow: loggedIn ? "0 4px 16px rgba(90,127,175,.32)" : "none",
               fontFamily: "'DM Sans', sans-serif",
               letterSpacing: ".05em",
               textDecoration: "none",
             }}
           >
-            相性チェックする
+            相性をチェックする
           </Link>
         </div>
       </div>

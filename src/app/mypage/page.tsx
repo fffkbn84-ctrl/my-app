@@ -3,6 +3,7 @@ import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data"
 import { placesHomeData } from "@/lib/mock/places-home";
 import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
+import NoteHistorySection from "./NoteHistorySection";
 import DiagnosisTypeHistorySection from "./DiagnosisTypeHistorySection";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
@@ -12,28 +13,6 @@ export const metadata: Metadata = {
 };
 
 const featureItems = [
-  {
-    label: "診断タイプ・婚活スタイルの確認",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <circle cx="9" cy="9" r="7" stroke="#C8A97A" strokeWidth="1.3" fill="none" />
-        <path
-          d="M9 5v1M9 12v1M5 9h1M12 9h1"
-          stroke="#C8A97A"
-          strokeWidth="1.1"
-          strokeLinecap="round"
-          opacity=".5"
-        />
-        <path
-          d="M11 7l-2.5 2-1.5 2.5 2.5-2 1.5-2.5z"
-          stroke="#C8A97A"
-          strokeWidth="1.2"
-          strokeLinejoin="round"
-          fill="rgba(200,169,122,.2)"
-        />
-      </svg>
-    ),
-  },
   {
     label: "共感したエピソードを保存",
     icon: (
@@ -146,16 +125,25 @@ export default async function MyPage() {
         {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
         <AuthCard />
 
+        {/* Kinda note 履歴（天気予報風 横スクロール） */}
+        <NoteHistorySection />
+
+        {/* Kinda type 履歴（最新1件ヒーロー表示） */}
+        <DiagnosisTypeHistorySection />
+
         {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
-        <SavedSection
-          allCounselors={allCounselors}
-          allAgencies={AGENCIES}
-          allPlaces={placesHomeData}
-        />
+        <div style={{ marginTop: 32 }}>
+          <SavedSection
+            allCounselors={allCounselors}
+            allAgencies={AGENCIES}
+            allPlaces={placesHomeData}
+          />
+        </div>
 
         {/* 機能紹介リスト */}
         <div
           style={{
+            marginTop: 32,
             background: "white",
             border: "1px solid var(--border)",
             borderRadius: "16px",
@@ -206,10 +194,6 @@ export default async function MyPage() {
             </div>
           ))}
         </div>
-
-        {/* Kinda type 診断履歴（ログイン時は diagnosis_results・ゲスト時は localStorage） */}
-        <DiagnosisTypeHistorySection />
-
       </div>
     </main>
   );
