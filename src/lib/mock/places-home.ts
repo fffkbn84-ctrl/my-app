@@ -10,7 +10,7 @@ export type PlaceTabCategory = "all" | "omiai" | "date" | "beauty" | "photo";
  * ThumbVariant: コンポーネント側でグラデーション＋SVGアイコンを選択するためのキー。
  * Supabase に差し替える際は thumb_image_url 等の画像URLに置き換える。
  */
-export type ThumbVariant = "cafe" | "lounge" | "hair" | "nail" | "brow" | "photo-studio";
+export type ThumbVariant = "cafe" | "lounge" | "hair" | "nail" | "brow" | "photo-studio" | "esthetic";
 
 export interface PlaceHome {
   id: string;
@@ -221,6 +221,108 @@ export const placesHomeData: PlaceHome[] = [
     categoryLabel: "レストラン",
     areaLabel: "東京",
     priceRange: "¥¥¥",
+  },
+
+  /* ──────────────────────────────────────────────────────────
+     Kinda glow 用デモデータ — エステ / ネイル / 眉毛
+     美容室・フォトスタジオに加え、自分を整える時間の選択肢として
+     カテゴリを充実させる。本番運用後は Supabase で管理。
+  ────────────────────────────────────────────────────────── */
+  {
+    id: "13",
+    name: "Salon Lumière",
+    category: "beauty",
+    stage: "エステ",
+    location: "東京・銀座",
+    rating: 4.9,
+    reviewCount: 22,
+    badgeType: "certified",
+    thumbVariant: "esthetic",
+    description: "婚活前のリフレッシュに最適。フェイシャル・ボディトリートメントの一貫プランあり。お肌のコンディションを整えて、自分らしさを引き出します。",
+    features: ["フェイシャル", "ボディ", "個室"],
+    categoryLabel: "エステ",
+    areaLabel: "東京",
+    priceRange: "¥¥¥",
+  },
+  {
+    id: "14",
+    name: "Aroma Spa Aqua",
+    category: "beauty",
+    stage: "エステ",
+    location: "東京・恵比寿",
+    rating: 4.8,
+    reviewCount: 18,
+    badgeType: "certified",
+    thumbVariant: "esthetic",
+    description: "アロマトリートメントで深いリラックスを。婚活疲れのケアにも、デート前の特別な日にも。完全予約制で他のお客様と顔を合わせない安心設計。",
+    features: ["アロマ", "完全予約制", "夜間営業"],
+    categoryLabel: "エステ",
+    areaLabel: "東京",
+    priceRange: "¥¥",
+  },
+  {
+    id: "15",
+    name: "Nail Atelier Soie",
+    category: "beauty",
+    stage: "ネイルサロン",
+    location: "東京・表参道",
+    rating: 4.9,
+    reviewCount: 31,
+    badgeType: "certified",
+    thumbVariant: "nail",
+    description: "お見合い・婚活写真に映える上品なネイルが得意。シンプルで清潔感のあるデザインを多数提案。婚活経験者のネイリスト在籍。",
+    features: ["シンプル", "婚活向け", "個室"],
+    categoryLabel: "ネイルサロン",
+    areaLabel: "東京",
+    priceRange: "¥¥",
+  },
+  {
+    id: "16",
+    name: "Beige Nail",
+    category: "beauty",
+    stage: "ネイルサロン",
+    location: "大阪・梅田",
+    rating: 4.7,
+    reviewCount: 19,
+    badgeType: "agency",
+    thumbVariant: "nail",
+    description: "ベーシックカラーに強いネイルサロン。お仕事終わりにも通いやすい立地と営業時間。デート前のメンテナンス利用も多数。",
+    features: ["夜21時まで", "ベージュ専門", "オフィス街"],
+    categoryLabel: "ネイルサロン",
+    areaLabel: "大阪",
+    priceRange: "¥¥",
+  },
+  {
+    id: "17",
+    name: "Brow Studio Arché",
+    category: "beauty",
+    stage: "眉毛サロン",
+    location: "東京・原宿",
+    rating: 4.9,
+    reviewCount: 27,
+    badgeType: "certified",
+    thumbVariant: "brow",
+    description: "顔印象を整える眉毛専門サロン。婚活写真前に眉を整えたい方に多く選ばれています。骨格・表情に合わせた眉デザインを提案。",
+    features: ["眉スタイリング", "ワックス", "メンズ可"],
+    categoryLabel: "眉毛サロン",
+    areaLabel: "東京",
+    priceRange: "¥¥",
+  },
+  {
+    id: "18",
+    name: "Eyebrow Salon Lien",
+    category: "beauty",
+    stage: "眉毛サロン",
+    location: "名古屋・栄",
+    rating: 4.8,
+    reviewCount: 14,
+    badgeType: "agency",
+    thumbVariant: "brow",
+    description: "1 回 30 分の眉毛施術が中心。お見合い・写真撮影前の駆け込み利用にも対応。アイブロウケア初心者にも丁寧にカウンセリング。",
+    features: ["短時間", "初心者歓迎", "当日予約可"],
+    categoryLabel: "眉毛サロン",
+    areaLabel: "愛知",
+    priceRange: "¥",
   },
 ];
 

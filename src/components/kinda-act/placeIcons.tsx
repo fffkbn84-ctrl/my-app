@@ -67,4 +67,17 @@ export const PLACE_CATEGORY_ICON: Record<ThumbVariant, ReactNode> = {
       <rect x="14" y="13" width="8" height="3" rx="1" fill="#fff" opacity=".8" />
     </svg>
   ),
+  esthetic: (
+    <svg width="120" height="120" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+      {/* シンプルな手のひらと水滴のモチーフ（エステ・スパ） */}
+      <path
+        d="M16 28v8a8 8 0 0016 0v-8c0-1-.8-2-2-2s-2 1-2 2v-3c0-1-.8-2-2-2s-2 1-2 2v-3c0-1-.8-2-2-2s-2 1-2 2v3c0-1-.8-2-2-2s-2 1-2 2z"
+        stroke="#fff"
+        strokeWidth="1.6"
+        fill="rgba(255,255,255,.15)"
+        strokeLinejoin="round"
+      />
+      <path d="M26 12c-1.5 2.5-3 4-3 6a3 3 0 006 0c0-2-1.5-3.5-3-6z" fill="#fff" opacity=".8" />
+    </svg>
+  ),
 };

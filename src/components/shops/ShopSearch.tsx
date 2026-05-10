@@ -37,6 +37,7 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
     nail:           "pt-nail",
     brow:           "pt-brow",
     "photo-studio": "pt-photo",
+    esthetic:       "pt-esthetic",
   };
 
   const icons: Record<ThumbVariant, ReactNode> = {
@@ -92,6 +93,18 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
         <circle cx="26" cy="29" r="7" stroke="#6B8FBF" strokeWidth="1.5" fill="none" />
         <path d="M19 16l3-5h8l3 5" stroke="#6B8FBF" strokeWidth="1.5" strokeLinejoin="round" />
         <circle cx="38" cy="23" r="2" fill="#6B8FBF" opacity=".5" />
+      </svg>
+    ),
+    esthetic: (
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <path
+          d="M16 28v8a8 8 0 0016 0v-8c0-1-.8-2-2-2s-2 1-2 2v-3c0-1-.8-2-2-2s-2 1-2 2v-3c0-1-.8-2-2-2s-2 1-2 2v3c0-1-.8-2-2-2s-2 1-2 2z"
+          stroke="#C4877A"
+          strokeWidth="1.5"
+          fill="rgba(196,135,122,.1)"
+          strokeLinejoin="round"
+        />
+        <path d="M26 12c-1.5 2.5-3 4-3 6a3 3 0 006 0c0-2-1.5-3.5-3-6z" fill="#C4877A" opacity=".5" />
       </svg>
     ),
   };

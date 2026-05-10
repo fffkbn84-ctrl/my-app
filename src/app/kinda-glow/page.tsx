@@ -34,9 +34,15 @@ export const metadata: Metadata = {
 
 /**
  * Kinda glow は「好きな人に会う前に、自分を整える」ための場所。
- * 美容室・フォトスタジオ・（将来）ネイル・眉毛・エステ。
+ * 美容室・フォトスタジオ・ネイル・眉毛・エステの 5 カテゴリ。
  */
-const GLOW_CATEGORY_LABELS = new Set(["美容室", "フォトスタジオ"]);
+const GLOW_CATEGORY_LABELS = new Set([
+  "美容室",
+  "フォトスタジオ",
+  "ネイルサロン",
+  "眉毛サロン",
+  "エステ",
+]);
 
 export default function KindaGlowPage() {
   const places = placesHomeData.filter((p) => GLOW_CATEGORY_LABELS.has(p.categoryLabel));

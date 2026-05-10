@@ -21,12 +21,16 @@ type Props = {
 
 /**
  * Kinda glow は「好きな人に会う前に、自分を整える」時間。
- * 美容室・フォトスタジオ・（将来）ネイル・眉毛・エステの一覧。
- *
- * NOTE: 現状データには 美容室 / フォトスタジオ のみ。
- * 眉毛・ネイル・エステは Supabase 連携時に追加。
+ * 美容室・フォトスタジオ・ネイル・眉毛・エステの 5 カテゴリでフィルタ可能。
  */
-const CATEGORIES = ["すべて", "美容室", "フォトスタジオ"];
+const CATEGORIES = [
+  "すべて",
+  "美容室",
+  "ネイルサロン",
+  "眉毛サロン",
+  "エステ",
+  "フォトスタジオ",
+];
 const BADGE_FILTERS = [
   { value: "all", label: "すべて" },
   { value: "certified", label: "取材済み" },
@@ -36,12 +40,17 @@ const BADGE_FILTERS = [
 type BadgeFilter = (typeof BADGE_FILTERS)[number]["value"];
 
 export default function KindaGlowClient({ places }: Props) {
-  /* URL params から初期値（SearchModal「美容店」タブからの遷移に対応）
-     use=beauty → 美容室 にマッピング。
-     eyebrow / nail / esthetic は現状データなしのため "すべて" に解決。 */
+  /* URL params から初期値（SearchModal「美容店」タブからの遷移に対応） */
   const searchParams = useSearchParams();
   const useParam = searchParams.get("use");
-  const initialCategory = useParam === "beauty" ? "美容室" : "すべて";
+  const useToCategory: Record<string, string> = {
+    beauty: "美容室",
+    nail: "ネイルサロン",
+    eyebrow: "眉毛サロン",
+    esthetic: "エステ",
+    photo: "フォトスタジオ",
+  };
+  const initialCategory = (useParam && useToCategory[useParam]) || "すべて";
 
   const [category, setCategory] = useState<string>(initialCategory);
   const [areaFilter, setAreaFilter] = useState<string>(searchParams.get("area") ?? "すべて");

@@ -8,6 +8,7 @@ const GRADIENT_CLASS: Record<ThumbVariant, string> = {
   nail: "ka-thumb-nail",
   brow: "ka-thumb-brow",
   "photo-studio": "ka-thumb-photo",
+  esthetic: "ka-thumb-esthetic",
 };
 
 const ICONS: Record<ThumbVariant, ReactNode> = {
@@ -51,6 +52,18 @@ const ICONS: Record<ThumbVariant, ReactNode> = {
       <rect x="10" y="16" width="32" height="22" rx="3" stroke="#5A7FAF" strokeWidth="1.5" fill="rgba(90,127,175,.1)" />
       <circle cx="26" cy="27" r="6" stroke="#5A7FAF" strokeWidth="1.5" />
       <rect x="14" y="13" width="8" height="3" rx="1" fill="#5A7FAF" opacity=".5" />
+    </svg>
+  ),
+  esthetic: (
+    <svg width="56" height="56" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+      <path
+        d="M16 28v8a8 8 0 0016 0v-8c0-1-.8-2-2-2s-2 1-2 2v-3c0-1-.8-2-2-2s-2 1-2 2v-3c0-1-.8-2-2-2s-2 1-2 2v3c0-1-.8-2-2-2s-2 1-2 2z"
+        stroke="#C4877A"
+        strokeWidth="1.5"
+        fill="rgba(196,135,122,.1)"
+        strokeLinejoin="round"
+      />
+      <path d="M26 12c-1.5 2.5-3 4-3 6a3 3 0 006 0c0-2-1.5-3.5-3-6z" fill="#C4877A" opacity=".5" />
     </svg>
   ),
 };

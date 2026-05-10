@@ -735,6 +735,7 @@ a {
 .pt-nail  { background: linear-gradient(135deg,#E8D8EE,#D4C0E2); }
 .pt-brow  { background: linear-gradient(135deg,#E8E8D8,#D4D4C0); }
 .pt-photo { background: linear-gradient(135deg,#D8DCE4,#C4C8D4); }
+.pt-esthetic { background: linear-gradient(135deg,#FCE8E5,#F0D0CC); }
 .pt-rest  { background: linear-gradient(135deg,#E4DCDC,#D0C4C4); }
 .pt-body  { padding: 16px 18px 20px; }
 .pt-stage {
@@ -4274,6 +4275,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.13); border-color: rgba(2
 .ka-thumb-nail   { background: linear-gradient(135deg,#EDE0F4,#DCC5E8); }
 .ka-thumb-brow   { background: linear-gradient(135deg,#FAF3DE,#F4E8C4); }
 .ka-thumb-photo  { background: linear-gradient(135deg,#E0ECF8,#C4D8EC); }
+.ka-thumb-esthetic { background: linear-gradient(135deg,#FCE8E5,#F0D0CC); }
 
 /* ─── focus-visible ─── */
 .ka-card:focus-visible {
@@ -4841,13 +4843,29 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   margin-top: 4px;
 }
 .ktr-sub-icon { margin-bottom: 10px; }
-.ktr-sub-title {
-  font-family: 'Noto Sans JP', sans-serif;
-  font-size: 13px;
-  color: var(--black);
-  font-weight: 400;
+.ktr-sub-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-transform: uppercase;
   margin-bottom: 6px;
-  line-height: 1.5;
+}
+.ktr-sub-label em {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  color: var(--accent);
+  text-transform: lowercase;
+  margin-left: 2px;
+}
+.ktr-sub-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: .02em;
+  margin-bottom: 6px;
+  line-height: 1.6;
 }
 .ktr-sub-desc {
   font-size: 11px;

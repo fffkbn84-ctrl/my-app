@@ -49,21 +49,26 @@ export async function generateMetadata({
 
 /* ────────────────────────────────────────────────────────────
    サブカード定義
+   診断結果から続けて触れてほしい Kinda シリーズへの導線。
+   ラベルは「Kinda XXX」+ 一行説明 + 短いベネフィットコピーで
+   何のページかすぐ分かるように。
 ──────────────────────────────────────────────────────────── */
 type SubCardDef = {
-  key: "cafe" | "beauty" | "column";
-  title: string;
-  sub: string;
+  key: "act" | "glow" | "voices";
+  kinda: string;          // "act" / "glow" / "voices"
+  title: string;          // 説明（"お見合い・デートの場所" など）
+  sub: string;            // ベネフィットコピー
   href: string;
   icon: ReactNode;
 };
 
-const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
-  cafe: {
-    key: "cafe",
-    title: "お見合い・デートのお店",
-    sub: "沈黙しない場所を、知っている",
-    href: "/shops",
+const SUB_CARDS: Record<"act" | "glow" | "voices", SubCardDef> = {
+  act: {
+    key: "act",
+    kinda: "act",
+    title: "お見合い・デートの場所",
+    sub: "沈黙しない、話せる場所を選ぶ",
+    href: "/kinda-act",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
         <path d="M6 10h16v10a3 3 0 01-3 3H9a3 3 0 01-3-3V10z" stroke="#C8A97A" strokeWidth="1.3" fill="none" />
@@ -72,11 +77,12 @@ const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
       </svg>
     ),
   },
-  beauty: {
-    key: "beauty",
-    title: "婚活準備の美容室・サロン",
-    sub: "第一印象は、作れる",
-    href: "/shops?category=beauty",
+  glow: {
+    key: "glow",
+    kinda: "glow",
+    title: "好きな人に会う前に、自分を整える",
+    sub: "美容室・ネイル・眉毛・エステ",
+    href: "/kinda-glow",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
         <circle cx="14" cy="10" r="5" stroke="#C4877A" strokeWidth="1.3" fill="none" />
@@ -85,10 +91,11 @@ const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
       </svg>
     ),
   },
-  column: {
-    key: "column",
-    title: "婚活コラムを読む",
-    sub: "整えてから、進もう",
+  voices: {
+    key: "voices",
+    kinda: "voices",
+    title: "ふたりを見守る人たちの声",
+    sub: "編集部の取材・コラムを読む",
     href: "/columns",
     icon: (
       <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -100,9 +107,11 @@ const SUB_CARDS: Record<"cafe" | "beauty" | "column", SubCardDef> = {
 };
 
 function getSubCards(subRoute: "cafe" | "beauty" | "counselor"): [SubCardDef, SubCardDef] {
-  if (subRoute === "beauty") return [SUB_CARDS.beauty, SUB_CARDS.cafe];
-  if (subRoute === "counselor") return [SUB_CARDS.cafe, SUB_CARDS.column];
-  return [SUB_CARDS.cafe, SUB_CARDS.beauty]; // cafe (default)
+  // subRoute は診断結果ごとに異なる（人と会う場所重視 / 自分を整える重視 / カウンセラー重視）。
+  // 重視テーマに合わせて 1 枚目を変えつつ、もう 1 枚で別の選択肢を提示。
+  if (subRoute === "beauty") return [SUB_CARDS.glow, SUB_CARDS.act];
+  if (subRoute === "counselor") return [SUB_CARDS.act, SUB_CARDS.voices];
+  return [SUB_CARDS.act, SUB_CARDS.glow]; // cafe (default)
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -415,6 +424,9 @@ export default async function DiagnosisResultPage({
                 className="diagnosis-sub-card"
               >
                 <div className="ktr-sub-icon">{card.icon}</div>
+                <div className="ktr-sub-label">
+                  Kinda <em>{card.kinda}</em>
+                </div>
                 <div className="ktr-sub-title">{card.title}</div>
                 <div className="ktr-sub-desc">{card.sub}</div>
                 <span className="ktr-sub-arrow">見てみる →</span>
