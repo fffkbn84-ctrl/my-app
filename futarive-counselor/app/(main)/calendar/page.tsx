@@ -7,6 +7,7 @@ import type { Counselor, Slot, Agency } from '@/lib/types'
 import MonthGrid from '@/components/calendar/MonthGrid'
 import SlotDetailPanel from '@/components/calendar/SlotDetailPanel'
 import SlotForm from '@/components/calendar/SlotForm'
+import ReservationDetailModal from '@/components/calendar/ReservationDetailModal'
 
 // "YYYY-MM-DD" + "HH:mm" を端末ローカルTZ ISO 文字列に変換
 function localDateTimeToIsoStr(date: string, time: string): string {
@@ -36,6 +37,7 @@ export default function CalendarPage() {
   const [addingSlot, setAddingSlot] = useState(false)
   const [bulkGenerating, setBulkGenerating] = useState(false)
   const [toast, setToast] = useState('')
+  const [viewingReservationSlotId, setViewingReservationSlotId] = useState<string | null>(null)
 
   const showToast = (msg: string, durationMs = 2500) => { setToast(msg); setTimeout(() => setToast(''), durationMs) }
 
@@ -352,6 +354,15 @@ export default function CalendarPage() {
           onStatusChange={handleStatusChange}
           onDelete={handleDelete}
           onAddNew={() => setShowForm(true)}
+          onViewReservation={setViewingReservationSlotId}
+        />
+      )}
+
+      {/* 予約者情報モーダル */}
+      {viewingReservationSlotId && (
+        <ReservationDetailModal
+          slotId={viewingReservationSlotId}
+          onClose={() => setViewingReservationSlotId(null)}
         />
       )}
 

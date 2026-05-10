@@ -62,14 +62,24 @@ export interface Slot {
 
 export interface Reservation {
   id: string
-  slot_id: string
-  counselor_id: string
+  slot_id: string | null
+  counselor_id: string | null
+  agency_id: string | null
+  user_id: string | null
   user_name: string
   user_email: string
   user_phone: string | null
   memo: string | null
   review_token: string | null
   review_code: string | null
+  status: 'active' | 'canceled' | 'completed'
+  start_at: string | null
+  end_at: string | null
+  meeting_type: '対面' | 'オンライン' | null
+  counselor_name: string | null
+  agency_name: string | null
+  canceled_at: string | null
+  cancel_reason: string | null
   created_at: string
 }
 

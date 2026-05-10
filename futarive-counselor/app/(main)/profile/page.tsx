@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
 import PhotoCropModal from '@/components/profile/PhotoCropModal'
@@ -63,7 +64,9 @@ function deriveAutoTags(form: { years_of_experience: string; online: boolean }, 
 }
 
 export default function ProfilePage() {
+  const router = useRouter()
   const [step, setStep] = useState<Step>(1)
+  const [finishing, setFinishing] = useState(false)
   const [counselor, setCounselor] = useState<Counselor | null>(null)
   const [agencies, setAgencies] = useState<Agency[]>([])
   const [isOwner, setIsOwner] = useState(false)
@@ -245,6 +248,17 @@ export default function ProfilePage() {
   const handleManualSave = async () => {
     const ok = await save()
     if (ok) showToast('保存しました')
+  }
+
+  // Step4「完了」ボタン：未保存があれば保存してからダッシュボードへ
+  const handleFinish = async () => {
+    setFinishing(true)
+    if (saveStatus !== 'saved') {
+      const ok = await save()
+      if (!ok) { setFinishing(false); return }
+    }
+    showToast(form.is_published ? 'プロフィールを公開しました' : '保存しました')
+    setTimeout(() => router.push('/dashboard'), 700)
   }
 
   const updateForm = (key: keyof typeof form, value: unknown) => {
@@ -609,8 +623,21 @@ export default function ProfilePage() {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
           </button>
         ) : (
-          <button onClick={handleManualSave} className="kc-btn kc-btn-primary" disabled={saveStatus === 'saving'}>
-            {saveStatus === 'saving' ? '保存中...' : '保存する'}
+          <button
+            onClick={handleFinish}
+            className="kc-btn kc-btn-primary"
+            disabled={finishing || saveStatus === 'saving'}
+          >
+            {finishing
+              ? '保存中…'
+              : saveStatus === 'saving'
+                ? '保存中…'
+                : saveStatus === 'dirty'
+                  ? '保存して完了'
+                  : 'ダッシュボードへ'}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </button>
         )}
       </div>
