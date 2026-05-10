@@ -41,6 +41,7 @@ export default function AgencyPage() {
     fees: [] as FeeItem[],
     campaign_text: '',
     campaign_expires_at: '',  // ISO 文字列、未設定なら ''
+    founded_at: '',           // 'YYYY-MM-DD'、未設定なら ''
   })
 
   const formRef = useRef(form)
@@ -68,6 +69,7 @@ export default function AgencyPage() {
       campaign_expires_at: ag.campaign_expires_at
         ? new Date(ag.campaign_expires_at).toISOString().slice(0, 16)
         : '',
+      founded_at: ag.founded_at ?? '',
     })
   }
 
@@ -134,6 +136,7 @@ export default function AgencyPage() {
       campaign_expires_at: f.campaign_expires_at
         ? new Date(f.campaign_expires_at).toISOString()
         : null,
+      founded_at: f.founded_at || null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -204,17 +207,17 @@ export default function AgencyPage() {
     setForm(prev => ({ ...prev, fees: prev.fees.filter((_, i) => i !== idx) }))
   }
 
-  // 「新店舗」バッジ表示状況
-  const selectedAgency = agencies.find(a => a.id === selectedId) ?? null
+  // 「新店舗」バッジ表示状況（founded_at ベース）
   const newShopInfo = (() => {
-    if (!selectedAgency?.created_at) return null
-    const created = new Date(selectedAgency.created_at)
-    const expires = new Date(created.getTime() + NEW_SHOP_DAYS * 24 * 60 * 60 * 1000)
+    if (!form.founded_at) return null
+    const founded = new Date(form.founded_at + 'T00:00:00')
+    if (isNaN(founded.getTime())) return null
+    const expires = new Date(founded.getTime() + NEW_SHOP_DAYS * 24 * 60 * 60 * 1000)
     const now = new Date()
-    const createdLabel = `${created.getFullYear()}年${created.getMonth() + 1}月${created.getDate()}日`
-    if (now >= expires) return { active: false, daysLeft: 0, createdLabel }
+    const foundedLabel = `${founded.getFullYear()}年${founded.getMonth() + 1}月${founded.getDate()}日`
+    if (now >= expires) return { active: false, daysLeft: 0, foundedLabel }
     const daysLeft = Math.ceil((expires.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
-    return { active: true, daysLeft, createdLabel }
+    return { active: true, daysLeft, foundedLabel }
   })()
 
   // キャンペーンの状態
@@ -318,37 +321,49 @@ export default function AgencyPage() {
             placeholder="https://example.com" />
         </div>
 
-        {/* 創業日 + 新店舗バッジ表示状況 */}
-        {newShopInfo && (
-          <div style={{
-            padding: '12px 14px',
-            background: newShopInfo.active ? 'var(--accent-pale)' : 'var(--bg-elev)',
-            border: `1px solid ${newShopInfo.active ? 'var(--accent-dim)' : 'var(--border)'}`,
-            borderRadius: 12,
-            display: 'flex',
-            gap: 10,
-            alignItems: 'flex-start',
-          }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
-              <path d="M2 14V5l6-3 6 3v9M5 14V9h6v5" stroke={newShopInfo.active ? 'var(--accent-deep)' : 'var(--text-mid)'} strokeWidth="1.4" strokeLinejoin="round"/>
-            </svg>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-deep)', fontWeight: 500, marginBottom: 2 }}>
-                創業日：{newShopInfo.createdLabel}
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+        {/* 創業日（手入力） */}
+        <div>
+          <label className="kc-label">創業日</label>
+          <input
+            className="kc-input"
+            type="date"
+            value={form.founded_at}
+            onChange={e => update('founded_at', e.target.value)}
+            style={{ maxWidth: 200 }}
+          />
+          {newShopInfo ? (
+            <div style={{
+              marginTop: 8,
+              padding: '10px 12px',
+              background: newShopInfo.active ? 'var(--accent-pale)' : 'var(--bg-elev)',
+              border: `1px solid ${newShopInfo.active ? 'var(--accent-dim)' : 'var(--border)'}`,
+              borderRadius: 10,
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+                <path d="M2 14V5l6-3 6 3v9M5 14V9h6v5" stroke={newShopInfo.active ? 'var(--accent-deep)' : 'var(--text-mid)'} strokeWidth="1.4" strokeLinejoin="round"/>
+              </svg>
+              <div style={{ flex: 1, fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
                 {newShopInfo.active ? (
                   <>
                     お客様向けページに <strong style={{ color: 'var(--accent-deep)' }}>「新店舗」バッジ</strong> が
-                    自動表示されています（あと <strong>{newShopInfo.daysLeft}</strong> 日間）。
+                    自動表示されます（あと <strong>{newShopInfo.daysLeft}</strong> 日間）。
                   </>
                 ) : (
-                  <>「新店舗」バッジの表示期間（創業から1年）は終了しました。</>
+                  <>「新店舗」バッジの表示期間（創業から1年）は終了しています。</>
                 )}
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+              創業日を入力すると、お客様向けページに「新店舗」バッジが自動表示されます（創業から1年間）。
+            </p>
+          )}
+        </div>
+
+
 
         {/* 営業時間（自由記述） */}
         <div>
@@ -481,6 +496,19 @@ export default function AgencyPage() {
             お客様の相談所詳細ページに表示される料金一覧です。<br/>
             入会金・月会費・成婚料の標準プランに加え、独自の料金（例：デート同行サポート）も自由に追加できます。
           </p>
+          <div style={{
+            marginTop: 10,
+            padding: '8px 12px',
+            background: 'var(--accent-pale)',
+            border: '1px solid var(--accent-dim)',
+            borderRadius: 8,
+            fontSize: 11,
+            color: 'var(--text-deep)',
+            lineHeight: 1.7,
+          }}>
+            <strong style={{ color: 'var(--accent-deep)' }}>金額は税込で入力してください。</strong>
+            お客様向けページには「¥XX,XXX（税込）」と表示されます。
+          </div>
         </div>
 
         {/* 料金プラン本体 */}
@@ -528,7 +556,7 @@ export default function AgencyPage() {
                         style={{ fontSize: 13, fontWeight: 500 }}
                       />
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>¥</span>
                       <input
                         className="kc-input"
@@ -539,6 +567,7 @@ export default function AgencyPage() {
                         placeholder="100000"
                         style={{ fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
                       />
+                      <span style={{ fontSize: 10, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>（込）</span>
                     </div>
                     <input
                       className="kc-input"

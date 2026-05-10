@@ -19,10 +19,11 @@ export interface Agency {
   email: string | null
   cancel_deadline_hours: number | null     // キャンセル期限（時間前）
   cancel_policy: string | null             // キャンセルポリシー本文
-  fees: FeeItem[]                          // 料金プラン配列
+  fees: FeeItem[]                          // 料金プラン配列（税込金額）
   campaign_text: string | null             // キャンペーン本文
   campaign_expires_at: string | null       // キャンペーン有効期限 ISO 文字列
-  created_at: string
+  founded_at: string | null                // 創業日 'YYYY-MM-DD'（NULL なら新店舗バッジ非表示）
+  created_at: string                       // Supabase 登録日（参考のみ）
 }
 
 export interface Counselor {
