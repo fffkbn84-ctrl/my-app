@@ -5,6 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
+import {
+  detectInAppBrowser,
+  inAppBrowserLabel,
+  buildExternalBrowserUrl,
+  type InAppBrowser,
+} from '@/lib/inAppBrowser'
 
 interface Preview {
   valid: boolean
@@ -29,6 +35,12 @@ export default function ClaimContent() {
   const [claimingNow, setClaimingNow] = useState(false)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
+  const [inApp, setInApp] = useState<InAppBrowser>(null)
+  const [urlCopied, setUrlCopied] = useState(false)
+
+  useEffect(() => {
+    setInApp(detectInAppBrowser())
+  }, [])
 
   useEffect(() => {
     const run = async () => {
@@ -108,6 +120,99 @@ export default function ClaimContent() {
       setAuthedEmail(data.user?.email ?? email)
       setSubmitting(false)
     }
+  }
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setUrlCopied(true)
+      setTimeout(() => setUrlCopied(false), 2200)
+    } catch {
+      setError('コピーに失敗しました。アドレスバーから手動でコピーしてください')
+    }
+  }
+
+  // In-app browser ブロック（LINE / Instagram / Facebook 等）
+  // これらのアプリ内ブラウザでは Cookie が分離されていて Supabase Auth が
+  // 機能しないため、登録・ログインを進ませない
+  if (inApp) {
+    const label = inAppBrowserLabel(inApp)
+    const externalUrl = inApp === 'line' && typeof window !== 'undefined'
+      ? buildExternalBrowserUrl(window.location.href, inApp)
+      : null
+
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: 'var(--bg)' }}>
+        <div className="kc-card" style={{ maxWidth: 440, padding: 28 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="var(--warning)" strokeWidth="1.6"/>
+              <path d="M12 7v6M12 16v.01" stroke="var(--warning)" strokeWidth="1.6" strokeLinecap="round"/>
+            </svg>
+            <h1 style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 600, fontSize: 18, color: 'var(--text-deep)', margin: 0 }}>
+              {label} のブラウザでは登録できません
+            </h1>
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.9, marginBottom: 20 }}>
+            このリンクは {label} のアプリ内ブラウザで開かれています。<br/>
+            セキュリティ上の理由で、{label} 内では新規登録・ログインができません。
+          </p>
+
+          <div style={{
+            padding: '12px 14px',
+            background: 'var(--accent-pale)',
+            border: '1px solid var(--accent-dim)',
+            borderRadius: 12,
+            marginBottom: 16,
+          }}>
+            <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.8, marginBottom: 10, fontWeight: 500 }}>
+              Safari または Chrome で開き直してください
+            </p>
+            {externalUrl ? (
+              <a
+                href={externalUrl}
+                className="kc-btn kc-btn-primary"
+                style={{ display: 'inline-flex', textDecoration: 'none', width: '100%', justifyContent: 'center' }}
+              >
+                外部ブラウザで開く
+              </a>
+            ) : (
+              <p style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                右上のメニュー（…）から「ブラウザで開く」を選んでください。<br/>
+                または下のURLをコピーして Safari / Chrome に貼り付けてください。
+              </p>
+            )}
+          </div>
+
+          <div style={{
+            padding: '10px 12px',
+            background: 'var(--bg-elev)',
+            border: '1px solid var(--border)',
+            borderRadius: 10,
+            fontSize: 11,
+            fontFamily: 'DM Sans, sans-serif',
+            color: 'var(--text)',
+            wordBreak: 'break-all',
+            lineHeight: 1.6,
+            marginBottom: 12,
+          }}>
+            {typeof window !== 'undefined' ? window.location.href : ''}
+          </div>
+
+          <button
+            onClick={handleCopyUrl}
+            className="kc-btn kc-btn-ghost"
+            style={{ width: '100%', justifyContent: 'center' }}
+          >
+            {urlCopied ? '✓ URLをコピーしました' : 'URLをコピー'}
+          </button>
+
+          {error && (
+            <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 12, lineHeight: 1.7 }}>{error}</p>
+          )}
+        </div>
+      </div>
+    )
   }
 
   if (loading) {
