@@ -21,7 +21,13 @@ export default function LoginForm() {
   const redirect = searchParams.get("redirect") ?? "/mypage";
 
   const { supabase } = useAuth();
-  const [mode, setMode] = useState<Mode>("signin");
+  // 初期モードを URL クエリ ?mode=signup / signin / reset-request から読む
+  const initialMode = ((): Mode => {
+    const m = searchParams.get("mode");
+    if (m === "signup" || m === "reset-request") return m;
+    return "signin";
+  })();
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);

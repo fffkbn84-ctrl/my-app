@@ -64,11 +64,18 @@ export default function NoteHistorySection() {
 
   useEffect(() => {
     if (authLoading) return;
+    // 未ログイン時はマイページに履歴を表示しない。
+    // localStorage の保存は維持され、ログイン時に
+    // mergeLocalDiagnosisToSupabase で Supabase に移される。
+    if (!user) {
+      setHistory([]);
+      return;
+    }
     let active = true;
     (async () => {
       const items = await fetchDiagnosisHistory({
         supabase,
-        userId: user?.id ?? null,
+        userId: user.id,
         kind: "note",
         limit: 5,
       });
@@ -364,9 +371,9 @@ function EmptyState({ loggedIn }: { loggedIn: boolean }) {
             </>
           ) : (
             <>
-              ログインすると、過去の天気を
+              マイページに登録すると、
               <br />
-              ここに並べて見返せます。
+              ここに過去の天気が溜まっていきます。
             </>
           )}
         </p>
@@ -378,42 +385,59 @@ function EmptyState({ loggedIn }: { loggedIn: boolean }) {
             flexWrap: "wrap",
           }}
         >
-          {!loggedIn && (
+          {loggedIn ? (
             <Link
-              href="/login"
+              href="/kinda-note"
               style={{
                 fontSize: 12,
                 padding: "9px 20px",
                 borderRadius: 24,
-                background: "var(--black)",
+                background: "#D4A090",
                 color: "white",
+                boxShadow: "0 4px 16px rgba(212,160,144,.32)",
                 fontFamily: "'DM Sans', sans-serif",
                 letterSpacing: ".05em",
                 textDecoration: "none",
               }}
             >
-              ログイン
+              気持ちを整理する
             </Link>
+          ) : (
+            <>
+              <Link
+                href="/login?mode=signup"
+                style={{
+                  fontSize: 12,
+                  padding: "9px 20px",
+                  borderRadius: 24,
+                  background: "#D4A090",
+                  color: "white",
+                  boxShadow: "0 4px 16px rgba(212,160,144,.32)",
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: ".05em",
+                  textDecoration: "none",
+                }}
+              >
+                新規登録
+              </Link>
+              <Link
+                href="/login"
+                style={{
+                  fontSize: 12,
+                  padding: "9px 20px",
+                  borderRadius: 24,
+                  background: "white",
+                  color: "var(--ink)",
+                  border: "1px solid var(--light)",
+                  fontFamily: "'DM Sans', sans-serif",
+                  letterSpacing: ".05em",
+                  textDecoration: "none",
+                }}
+              >
+                ログイン
+              </Link>
+            </>
           )}
-          <Link
-            href="/kinda-note"
-            style={{
-              fontSize: 12,
-              padding: "9px 20px",
-              borderRadius: 24,
-              background: loggedIn ? "#D4A090" : "white",
-              color: loggedIn ? "white" : "var(--ink)",
-              border: loggedIn ? "none" : "1px solid var(--light)",
-              boxShadow: loggedIn
-                ? "0 4px 16px rgba(212,160,144,.32)"
-                : "none",
-              fontFamily: "'DM Sans', sans-serif",
-              letterSpacing: ".05em",
-              textDecoration: "none",
-            }}
-          >
-            気持ちを整理する
-          </Link>
         </div>
       </div>
     </div>
