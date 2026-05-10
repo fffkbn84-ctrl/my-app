@@ -1,3 +1,9 @@
+export interface FeeItem {
+  label: string                  // '入会金' '月会費' '成婚料' or 独自名
+  amount: number                 // 円単位（0 = 無料）
+  note?: string | null           // 補足説明（任意）
+}
+
 export interface Agency {
   id: string
   name: string
@@ -13,6 +19,9 @@ export interface Agency {
   email: string | null
   cancel_deadline_hours: number | null     // キャンセル期限（時間前）
   cancel_policy: string | null             // キャンセルポリシー本文
+  fees: FeeItem[]                          // 料金プラン配列
+  campaign_text: string | null             // キャンペーン本文
+  campaign_expires_at: string | null       // キャンペーン有効期限 ISO 文字列
   created_at: string
 }
 

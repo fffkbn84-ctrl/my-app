@@ -294,7 +294,7 @@ export default function AddCounselorModal({ agencies, onClose, onCreated }: Prop
                     className="kc-input"
                     value={name}
                     onChange={e => setName(e.target.value)}
-                    placeholder="例：小山楓華"
+                    placeholder="例：田中花子"
                     autoFocus
                   />
                 </div>

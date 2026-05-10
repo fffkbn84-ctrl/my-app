@@ -4,7 +4,17 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
-import type { Agency } from '@/lib/types'
+import type { Agency, FeeItem } from '@/lib/types'
+
+// 「新店舗」バッジが表示される期間（創業から）
+const NEW_SHOP_DAYS = 365
+
+// 標準料金プランのテンプレート
+const STANDARD_FEES: FeeItem[] = [
+  { label: '入会金', amount: 0, note: null },
+  { label: '月会費', amount: 0, note: null },
+  { label: '成婚料', amount: 0, note: null },
+]
 
 export default function AgencyPage() {
   const [agencies, setAgencies] = useState<Agency[]>([])
@@ -28,6 +38,9 @@ export default function AgencyPage() {
     email: '',
     cancel_deadline_hours: 24,
     cancel_policy: '',
+    fees: [] as FeeItem[],
+    campaign_text: '',
+    campaign_expires_at: '',  // ISO 文字列、未設定なら ''
   })
 
   const formRef = useRef(form)
@@ -49,6 +62,12 @@ export default function AgencyPage() {
       email: ag.email ?? '',
       cancel_deadline_hours: ag.cancel_deadline_hours ?? 24,
       cancel_policy: ag.cancel_policy ?? '',
+      fees: Array.isArray(ag.fees) ? ag.fees : [],
+      campaign_text: ag.campaign_text ?? '',
+      // datetime-local の input value 用に "YYYY-MM-DDTHH:mm" に変換
+      campaign_expires_at: ag.campaign_expires_at
+        ? new Date(ag.campaign_expires_at).toISOString().slice(0, 16)
+        : '',
     })
   }
 
@@ -110,6 +129,11 @@ export default function AgencyPage() {
       email: f.email || null,
       cancel_deadline_hours: typeof f.cancel_deadline_hours === 'number' ? f.cancel_deadline_hours : null,
       cancel_policy: f.cancel_policy || null,
+      fees: f.fees,
+      campaign_text: f.campaign_text || null,
+      campaign_expires_at: f.campaign_expires_at
+        ? new Date(f.campaign_expires_at).toISOString()
+        : null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -162,6 +186,43 @@ export default function AgencyPage() {
   const update = (key: keyof typeof form, value: unknown) => {
     setForm(prev => ({ ...prev, [key]: value }))
   }
+
+  // 料金プラン操作
+  const addStandardFees = () => {
+    setForm(prev => ({ ...prev, fees: STANDARD_FEES.map(f => ({ ...f })) }))
+  }
+  const addCustomFee = () => {
+    setForm(prev => ({ ...prev, fees: [...prev.fees, { label: '', amount: 0, note: null }] }))
+  }
+  const updateFee = (idx: number, key: keyof FeeItem, value: string | number | null) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((f, i) => i === idx ? { ...f, [key]: value } : f),
+    }))
+  }
+  const removeFee = (idx: number) => {
+    setForm(prev => ({ ...prev, fees: prev.fees.filter((_, i) => i !== idx) }))
+  }
+
+  // 「新店舗」バッジ表示状況
+  const selectedAgency = agencies.find(a => a.id === selectedId) ?? null
+  const newShopInfo = (() => {
+    if (!selectedAgency?.created_at) return null
+    const created = new Date(selectedAgency.created_at)
+    const expires = new Date(created.getTime() + NEW_SHOP_DAYS * 24 * 60 * 60 * 1000)
+    const now = new Date()
+    const createdLabel = `${created.getFullYear()}年${created.getMonth() + 1}月${created.getDate()}日`
+    if (now >= expires) return { active: false, daysLeft: 0, createdLabel }
+    const daysLeft = Math.ceil((expires.getTime() - now.getTime()) / (24 * 60 * 60 * 1000))
+    return { active: true, daysLeft, createdLabel }
+  })()
+
+  // キャンペーンの状態
+  const campaignStatus: 'none' | 'active' | 'expired' = !form.campaign_text
+    ? 'none'
+    : form.campaign_expires_at && new Date(form.campaign_expires_at) <= new Date()
+      ? 'expired'
+      : 'active'
 
   if (loading) return <div style={{ padding: 32, color: 'var(--text-mid)' }}>読み込み中...</div>
 
@@ -256,6 +317,38 @@ export default function AgencyPage() {
             onChange={e => update('website_url', e.target.value)}
             placeholder="https://example.com" />
         </div>
+
+        {/* 創業日 + 新店舗バッジ表示状況 */}
+        {newShopInfo && (
+          <div style={{
+            padding: '12px 14px',
+            background: newShopInfo.active ? 'var(--accent-pale)' : 'var(--bg-elev)',
+            border: `1px solid ${newShopInfo.active ? 'var(--accent-dim)' : 'var(--border)'}`,
+            borderRadius: 12,
+            display: 'flex',
+            gap: 10,
+            alignItems: 'flex-start',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+              <path d="M2 14V5l6-3 6 3v9M5 14V9h6v5" stroke={newShopInfo.active ? 'var(--accent-deep)' : 'var(--text-mid)'} strokeWidth="1.4" strokeLinejoin="round"/>
+            </svg>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-deep)', fontWeight: 500, marginBottom: 2 }}>
+                創業日：{newShopInfo.createdLabel}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                {newShopInfo.active ? (
+                  <>
+                    お客様向けページに <strong style={{ color: 'var(--accent-deep)' }}>「新店舗」バッジ</strong> が
+                    自動表示されています（あと <strong>{newShopInfo.daysLeft}</strong> 日間）。
+                  </>
+                ) : (
+                  <>「新店舗」バッジの表示期間（創業から1年）は終了しました。</>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 営業時間（自由記述） */}
         <div>
@@ -365,6 +458,202 @@ export default function AgencyPage() {
           </select>
           <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
             予約枠の自動生成と「枠を追加」の終了時刻のデフォルトに使われます。
+          </p>
+        </div>
+
+        {/* 料金プランセクション区切り */}
+        <div style={{
+          marginTop: 8,
+          paddingTop: 24,
+          borderTop: '1px solid var(--border)',
+        }}>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>FEES</div>
+          <h2 style={{
+            fontFamily: 'Shippori Mincho, serif',
+            fontSize: 16,
+            fontWeight: 500,
+            color: 'var(--text-deep)',
+            marginBottom: 10,
+          }}>
+            料金プラン
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
+            お客様の相談所詳細ページに表示される料金一覧です。<br/>
+            入会金・月会費・成婚料の標準プランに加え、独自の料金（例：デート同行サポート）も自由に追加できます。
+          </p>
+        </div>
+
+        {/* 料金プラン本体 */}
+        <div>
+          {form.fees.length === 0 ? (
+            <div style={{
+              padding: '16px 14px',
+              background: 'var(--bg-elev)',
+              border: '1px dashed var(--border)',
+              borderRadius: 12,
+              textAlign: 'center',
+            }}>
+              <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 12, lineHeight: 1.7 }}>
+                料金プランがまだ登録されていません。
+              </p>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button type="button" className="kc-btn kc-btn-primary kc-btn-sm" onClick={addStandardFees}>
+                  標準プランを追加（入会金 / 月会費 / 成婚料）
+                </button>
+                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addCustomFee}>
+                  + カスタム料金を追加
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {form.fees.map((fee, idx) => (
+                  <div key={idx} style={{
+                    padding: '12px',
+                    background: 'var(--bg-elev)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 12,
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 130px auto',
+                    gap: 8,
+                    alignItems: 'start',
+                  }}>
+                    <div style={{ gridColumn: 'span 3' }}>
+                      <input
+                        className="kc-input"
+                        value={fee.label}
+                        onChange={e => updateFee(idx, 'label', e.target.value)}
+                        placeholder="例：入会金 / デート同行サポート"
+                        style={{ fontSize: 13, fontWeight: 500 }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>¥</span>
+                      <input
+                        className="kc-input"
+                        type="number"
+                        min={0}
+                        value={fee.amount}
+                        onChange={e => updateFee(idx, 'amount', e.target.value === '' ? 0 : Number(e.target.value))}
+                        placeholder="100000"
+                        style={{ fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
+                      />
+                    </div>
+                    <input
+                      className="kc-input"
+                      value={fee.note ?? ''}
+                      onChange={e => updateFee(idx, 'note', e.target.value || null)}
+                      placeholder="補足（任意）"
+                      style={{ fontSize: 12 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeFee(idx)}
+                      aria-label="削除"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-light)',
+                        cursor: 'pointer',
+                        padding: 4,
+                        alignSelf: 'center',
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 10 }}>
+                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addCustomFee}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  料金を追加
+                </button>
+              </div>
+            </>
+          )}
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 8, lineHeight: 1.7 }}>
+            ¥0 と入力した項目は「無料」と表示されます。補足には「初回のみ」「ご希望者のみ」など短い説明を入れてください。
+          </p>
+        </div>
+
+        {/* キャンペーンセクション区切り */}
+        <div style={{
+          marginTop: 8,
+          paddingTop: 24,
+          borderTop: '1px solid var(--border)',
+        }}>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>CAMPAIGN</div>
+          <h2 style={{
+            fontFamily: 'Shippori Mincho, serif',
+            fontSize: 16,
+            fontWeight: 500,
+            color: 'var(--text-deep)',
+            marginBottom: 10,
+          }}>
+            キャンペーン
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
+            お客様の相談所詳細ページの目立つ位置に1件だけ表示されます。<br/>
+            有効期限を過ぎたキャンペーンは自動的に非表示になります。
+          </p>
+        </div>
+
+        {/* キャンペーン本文 */}
+        <div>
+          <label className="kc-label">キャンペーン本文</label>
+          <textarea
+            className="kc-textarea"
+            style={{ minHeight: 60 }}
+            value={form.campaign_text}
+            onChange={e => update('campaign_text', e.target.value)}
+            placeholder="例：5/31までの入会で入会金0円!"
+          />
+        </div>
+
+        {/* キャンペーン有効期限 */}
+        <div>
+          <label className="kc-label">有効期限（任意）</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <input
+              className="kc-input"
+              type="datetime-local"
+              value={form.campaign_expires_at}
+              onChange={e => update('campaign_expires_at', e.target.value)}
+              style={{ maxWidth: 260 }}
+            />
+            {form.campaign_expires_at && (
+              <button
+                type="button"
+                className="kc-btn kc-btn-ghost kc-btn-sm"
+                onClick={() => update('campaign_expires_at', '')}
+              >
+                期限を解除
+              </button>
+            )}
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 8, lineHeight: 1.7 }}>
+            {form.campaign_text ? (
+              campaignStatus === 'active' ? (
+                <span style={{ color: 'var(--success)' }}>
+                  ✓ 表示中
+                  {form.campaign_expires_at && (
+                    <> — {new Date(form.campaign_expires_at).toLocaleDateString('ja-JP')} まで</>
+                  )}
+                </span>
+              ) : campaignStatus === 'expired' ? (
+                <span style={{ color: 'var(--danger)' }}>
+                  ⚠ 期限切れ — お客様には表示されていません。期限を延長するか、本文を更新してください。
+                </span>
+              ) : null
+            ) : (
+              <>キャンペーン本文を入力すると表示されます。期限を空欄にすると無期限表示になります。</>
+            )}
           </p>
         </div>
 
