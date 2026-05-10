@@ -119,7 +119,10 @@ export default async function KindaStoryDetailPage({
               <p className="ks-author-eyebrow">この物語を支えた人たち</p>
 
               {counselor && (
-                <Link href={`/counselors/${counselor.id}`} className="ks-author-card">
+                <Link
+                  href={`/counselors/${counselor.id}?from=story&fromId=${story.id}`}
+                  className="ks-author-card"
+                >
                   <div
                     className="ks-author-avatar"
                     style={{ background: counselor.gradient }}
@@ -150,7 +153,10 @@ export default async function KindaStoryDetailPage({
               )}
 
               {agency && (
-                <Link href={`/agencies/${agency.id}`} className="ks-author-card">
+                <Link
+                  href={`/agencies/${agency.id}?from=story&fromId=${story.id}`}
+                  className="ks-author-card"
+                >
                   <div
                     className="ks-author-avatar"
                     style={{ background: agency.gradient }}

@@ -10,6 +10,7 @@ import SaveButton from "@/components/ui/SaveButton";
 import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
 import { AGENCIES, COUNSELORS, getCounselorById, getReviewsByCounselor } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
+import { getStoryById } from "@/lib/mock/stories";
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -604,10 +605,13 @@ export async function generateMetadata({
 ──────────────────────────────────────────────────────────── */
 export default async function CounselorDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string; fromId?: string }>;
 }) {
   const { id } = await params;
+  const { from, fromId } = await searchParams;
 
   // Supabase から取得を試みる（フォールバック: モックデータ）
   const [supabaseCounselor, supabaseReviews] = await Promise.all([
@@ -661,14 +665,44 @@ export default async function CounselorDetailPage({
       <CounselorDetailViewTracker counselorId={String(id)} />
 
       <main className="pt-16">
-        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
-        <Breadcrumb
-          items={[
-            { label: "ホーム", href: "/" },
-            { label: "Kinda talk", href: "/kinda-talk" },
-            { label: counselor.name },
-          ]}
-        />
+        {(() => {
+          // 遷移元（from）に応じてパンくず & 戻り先を切り替える。
+          // 例: Kinda story の物語詳細から来た場合はそこへ戻れるように。
+          const fromStory = from === "story" && fromId ? getStoryById(fromId) : null;
+          if (fromStory) {
+            return (
+              <>
+                <SectionSubHeader
+                  sectionName="Kinda story"
+                  sectionRoot={`/kinda-story/${fromStory.id}`}
+                />
+                <Breadcrumb
+                  items={[
+                    { label: "ホーム", href: "/" },
+                    { label: "Kinda story", href: "/kinda-story" },
+                    {
+                      label: fromStory.author,
+                      href: `/kinda-story/${fromStory.id}`,
+                    },
+                    { label: counselor.name },
+                  ]}
+                />
+              </>
+            );
+          }
+          return (
+            <>
+              <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+              <Breadcrumb
+                items={[
+                  { label: "ホーム", href: "/" },
+                  { label: "Kinda talk", href: "/kinda-talk" },
+                  { label: counselor.name },
+                ]}
+              />
+            </>
+          );
+        })()}
         {/* ═══════════════════════════════════════════════════
             ヒーローストリップ（黒背景）
         ═══════════════════════════════════════════════════ */}

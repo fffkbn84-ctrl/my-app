@@ -69,15 +69,19 @@
 }
 
 html {
-  /* アンカーリンク（#section-b 等）をタップした時のスムーススクロール。
-     prefers-reduced-motion ユーザーには発火させない。 */
-  scroll-behavior: smooth;
   /* sticky ヘッダー分のオフセットを確保し、アンカー先がヘッダー下に
      隠れないようにする */
   scroll-padding-top: var(--header-height, 56px);
 }
+/* アンカーリンク（#section-b 等）のジャンプはスムーススクロール、
+   ページ遷移後の先頭リセットは即時にしたい。
+   :target が存在する瞬間だけ smooth を有効にすることで、
+   ページ間遷移の「下からせり上がる」アニメーションを抑止する。 */
+html:has(:target) {
+  scroll-behavior: smooth;
+}
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
+  html:has(:target) { scroll-behavior: auto; }
 }
 
 html,
@@ -6094,7 +6098,8 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   background: #E8F4E4;
   padding: calc(var(--header-height) + 36px) 20px 44px;
   overflow: hidden;
-  min-height: 50vh;
+  /* hero 高さを少し上げてヒーロー画像を主役化（旧 50vh） */
+  min-height: 56vh;
   display: flex;
   align-items: flex-end;
 }
@@ -6102,10 +6107,15 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
 }
 .ks-detail-hero-bg img {
   object-fit: cover;
-  object-position: center 40%;
+  /* 画像中央のハートをやや上に配置し、テキストオーバーレイ部分を余白として活かす */
+  object-position: center 28%;
+  /* ほんの少し拡大してフォーカルポイントを強調 */
+  transform: scale(1.12);
+  transform-origin: center 30%;
 }
 .ks-detail-hero-tint {
   position: absolute;

@@ -7,6 +7,7 @@ import SaveButton from "@/components/ui/SaveButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, getAgencies, type Agency, type Counselor } from "@/lib/data";
+import { getStoryById } from "@/lib/mock/stories";
 
 /* ────────────────────────────────────────────────────────────
    ユーティリティ
@@ -166,10 +167,13 @@ export async function generateStaticParams() {
 
 export default async function AgencyDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ from?: string; fromId?: string }>;
 }) {
   const { id } = await params;
+  const { from, fromId } = await searchParams;
 
   // Supabase から相談所一覧を取得（フォールバック: モックデータ）
   const allAgencies = await getAgencies();
@@ -188,14 +192,42 @@ export default async function AgencyDetailPage({
       <Header />
 
       <main style={{ paddingTop: 64 }}>
-        <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
-        <Breadcrumb
-          items={[
-            { label: "ホーム", href: "/" },
-            { label: "Kinda talk", href: "/kinda-talk" },
-            { label: agency.name },
-          ]}
-        />
+        {(() => {
+          const fromStory = from === "story" && fromId ? getStoryById(fromId) : null;
+          if (fromStory) {
+            return (
+              <>
+                <SectionSubHeader
+                  sectionName="Kinda story"
+                  sectionRoot={`/kinda-story/${fromStory.id}`}
+                />
+                <Breadcrumb
+                  items={[
+                    { label: "ホーム", href: "/" },
+                    { label: "Kinda story", href: "/kinda-story" },
+                    {
+                      label: fromStory.author,
+                      href: `/kinda-story/${fromStory.id}`,
+                    },
+                    { label: agency.name },
+                  ]}
+                />
+              </>
+            );
+          }
+          return (
+            <>
+              <SectionSubHeader sectionName="Kinda talk" sectionRoot="/kinda-talk" />
+              <Breadcrumb
+                items={[
+                  { label: "ホーム", href: "/" },
+                  { label: "Kinda talk", href: "/kinda-talk" },
+                  { label: agency.name },
+                ]}
+              />
+            </>
+          );
+        })()}
         {/* ═══ ヒーロー ═══ */}
         <section
           style={{
