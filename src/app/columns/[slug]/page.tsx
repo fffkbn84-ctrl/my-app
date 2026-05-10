@@ -6,6 +6,8 @@ import { getAllColumns, getColumnBySlug } from "@/lib/columns";
 import ShareButtons from "./ShareButtons";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -90,12 +92,13 @@ export default async function ColumnDetailPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div style={{ background: "var(--white)", minHeight: "100vh" }}>
-        <SectionSubHeader sectionName="コラム" sectionRoot="/columns" />
+      <Header />
+      <div className="kv-page" style={{ background: "#FCF8F2", minHeight: "100vh" }}>
+        <SectionSubHeader sectionName="Kinda voices" sectionRoot="/columns" />
         <Breadcrumb
           items={[
             { label: "ホーム", href: "/" },
-            { label: "コラム", href: "/columns" },
+            { label: "Kinda voices", href: "/columns" },
             { label: column.category },
           ]}
         />
@@ -158,11 +161,11 @@ export default async function ColumnDetailPage({ params }: Props) {
             <span
               style={{
                 display: "inline-block",
-                border: "1px solid var(--accent)",
+                border: "1px solid #8B7355",
                 borderRadius: "20px",
                 padding: "3px 14px",
                 fontSize: "10px",
-                color: "var(--accent)",
+                color: "#8B7355",
                 fontFamily: "var(--font-sans)",
                 letterSpacing: "0.04em",
                 marginBottom: "16px",
@@ -314,7 +317,7 @@ export default async function ColumnDetailPage({ params }: Props) {
                   fontFamily: "DM Serif Display, serif",
                   fontSize: "11px",
                   letterSpacing: "0.18em",
-                  color: "var(--accent)",
+                  color: "#8B7355",
                   marginBottom: "20px",
                   textTransform: "lowercase",
                 }}
@@ -356,11 +359,11 @@ export default async function ColumnDetailPage({ params }: Props) {
                       <span
                         style={{
                           display: "inline-block",
-                          border: "1px solid var(--accent)",
+                          border: "1px solid #8B7355",
                           borderRadius: "20px",
                           padding: "2px 10px",
                           fontSize: "9px",
-                          color: "var(--accent)",
+                          color: "#8B7355",
                           fontFamily: "var(--font-sans)",
                           marginBottom: "8px",
                           letterSpacing: "0.04em",
@@ -387,6 +390,7 @@ export default async function ColumnDetailPage({ params }: Props) {
           )}
         </article>
       </div>
+      <Footer />
 
       <style>{`
         .mdx-content p {
@@ -416,7 +420,7 @@ export default async function ColumnDetailPage({ params }: Props) {
         .mdx-content blockquote {
           padding: 20px 24px;
           background: var(--pale);
-          border-left: 3px solid var(--accent);
+          border-left: 3px solid #8B7355;
           border-radius: 0 10px 10px 0;
           margin: 32px 0;
           font-size: 14px;
@@ -441,8 +445,8 @@ export default async function ColumnDetailPage({ params }: Props) {
           font-weight: 300;
         }
         .tag-link:hover {
-          border-color: var(--accent);
-          color: var(--accent);
+          border-color: #8B7355;
+          color: #8B7355;
         }
         .related-card:hover {
           box-shadow: 0 4px 16px rgba(0,0,0,0.07);

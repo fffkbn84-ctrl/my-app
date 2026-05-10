@@ -7,6 +7,7 @@ import SectionDivider from "@/components/ui/SectionDivider";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
 import { getCounselors } from "@/lib/data";
 import { STORIES } from "@/lib/mock/stories";
+import { getAllColumns } from "@/lib/columns";
 
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
@@ -113,28 +114,6 @@ const NOTE_WEATHERS = [
 ] as const;
 
 /* ────────────────────────────────────────────────────────────
-   コラム・インタビュー — ダミーデータ
-──────────────────────────────────────────────────────────── */
-const ARTICLES = [
-  {
-    id: "tanaka-miki-interview",
-    category: "INTERVIEW #01",
-    title: "「30年間、私が見てきた婚活の本当のこと」",
-    author: "田中 美紀さん",
-    affiliation: "ブライダルハウス東京",
-    slug: "tanaka-miki-interview",
-  },
-  {
-    id: "omiai-chigau-kanjita-toki",
-    category: "COLUMN #01",
-    title: "「お見合いで『違う』と感じた時、どうすべきか」",
-    author: null,
-    affiliation: null,
-    slug: "omiai-chigau-kanjita-toki",
-  },
-] as const;
-
-/* ────────────────────────────────────────────────────────────
    共通 SVG — 右矢印
 ──────────────────────────────────────────────────────────── */
 function ArrowRight({ color = "currentColor" }: { color?: string }) {
@@ -225,6 +204,9 @@ export default async function HomePage() {
         a.rating * Math.log(a.reviewCount + 2),
     )
     .slice(0, 6);
+
+  // Kinda voices（ふたりを見守る人たち）— 取材・コラム最新3件
+  const homeColumns = (await getAllColumns()).slice(0, 3);
 
   return (
     <>
@@ -868,118 +850,154 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            C' — ふたりを見守る人たち（取材・コラム）
+            C' — Kinda voices より | ふたりを見守る人たち
         ═══════════════════════════════════════════════════ */}
         <section
           style={{
-            padding: "64px 24px",
-            background: "#FEFCFA",
+            padding: "72px 24px 64px",
+            background: "#FCF8F2",
           }}
         >
           <SectionDivider />
 
-          <SectionLabel label="ふたりを見守る人たち" en="interview & column" />
+          <div style={{ textAlign: "center", marginBottom: 28, padding: "0 4px" }}>
+            <div
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 11,
+                letterSpacing: ".18em",
+                color: "var(--muted)",
+                textTransform: "uppercase",
+                marginBottom: 6,
+              }}
+            >
+              Kinda voices{" "}
+              <em
+                style={{
+                  fontFamily: "Georgia, serif",
+                  fontStyle: "italic",
+                  color: "#8B7355",
+                  textTransform: "lowercase",
+                  margin: "0 2px",
+                }}
+              >
+                より
+              </em>
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: 22,
+                color: "var(--ink)",
+                fontWeight: 500,
+                margin: "4px 0",
+              }}
+            >
+              ふたりを見守る人たち
+            </h2>
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--mid)",
+                marginTop: 6,
+              }}
+            >
+              取材で集めた声と、編集部のコラム
+            </div>
+          </div>
 
           <div
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 16,
+              gap: 14,
               maxWidth: 560,
-              margin: "0 auto 32px",
+              margin: "0 auto 28px",
             }}
           >
-            {ARTICLES.map((article) => (
+            {homeColumns.map((article) => (
               <Link
-                key={article.id}
-                href={`/column/${article.slug}`}
+                key={article.slug}
+                href={`/columns/${article.slug}`}
                 style={{
                   display: "block",
                   background: "var(--white)",
-                  borderRadius: 20,
-                  padding: 24,
-                  border: "1px solid var(--light)",
+                  borderRadius: 18,
+                  padding: 22,
+                  border: "1px solid #E5DACB",
                   textDecoration: "none",
-                  transition: "transform .3s, box-shadow .3s",
+                  transition: "transform .25s, box-shadow .25s",
                 }}
               >
-                {/* 画像プレースホルダー */}
+                {/* カテゴリ + 読了時間 */}
                 <div
                   style={{
-                    width: 120,
-                    height: 120,
-                    borderRadius: 12,
-                    background: "#F5EEE6",
-                    border: "1px solid #EAE0D8",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    marginBottom: 16,
-                    flexShrink: 0,
+                    gap: 8,
+                    marginBottom: 14,
                   }}
                 >
                   <span
                     style={{
                       fontSize: 10,
-                      color: "#B0A090",
-                      fontFamily: "monospace",
-                      textAlign: "center",
-                      padding: "0 8px",
+                      fontFamily: "'DM Sans', sans-serif",
+                      letterSpacing: ".12em",
+                      textTransform: "uppercase",
+                      color: "#8B7355",
+                      background: "#F4ECE0",
+                      padding: "4px 10px",
+                      borderRadius: 999,
                     }}
                   >
-                    [image: {article.slug}]
+                    {article.category}
                   </span>
+                  {article.readTime && (
+                    <span style={{ fontSize: 11, color: "var(--mid)" }}>
+                      読了 {article.readTime}分
+                    </span>
+                  )}
                 </div>
-
-                {/* カテゴリタグ */}
-                <p
-                  style={{
-                    fontSize: 11,
-                    color: "var(--muted)",
-                    letterSpacing: ".14em",
-                    textTransform: "uppercase",
-                    marginBottom: 10,
-                  }}
-                >
-                  {article.category}
-                </p>
 
                 {/* タイトル */}
                 <p
                   style={{
-                    fontFamily: "'DM Serif Display', serif",
-                    fontStyle: "italic",
-                    fontSize: 17,
+                    fontFamily: "var(--font-mincho)",
+                    fontSize: 15,
                     color: "var(--ink)",
-                    lineHeight: 1.7,
-                    marginBottom: 10,
+                    lineHeight: 1.95,
+                    marginBottom: 14,
+                    letterSpacing: ".02em",
                   }}
                 >
                   {article.title}
                 </p>
 
-                {/* 著者（インタビュー記事のみ） */}
-                {article.author && (
-                  <p style={{ fontSize: 12, color: "var(--mid)", marginBottom: 12 }}>
-                    {article.author}
-                    {article.affiliation && `　${article.affiliation}`}
-                  </p>
-                )}
-
-                {/* 読む */}
+                {/* 著者・日付・読む */}
                 <div
                   style={{
-                    textAlign: "right",
-                    fontSize: 11,
-                    color: "var(--accent)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "flex-end",
-                    gap: 4,
+                    justifyContent: "space-between",
+                    gap: 8,
                   }}
                 >
-                  読む
-                  <ArrowRight color="var(--accent)" />
+                  <p style={{ fontSize: 11, color: "var(--mid)" }}>
+                    — {article.author}　{article.publishedAt}
+                  </p>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      color: "#8B7355",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 4,
+                      flexShrink: 0,
+                    }}
+                  >
+                    読む
+                    <ArrowRight color="#8B7355" />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -987,8 +1005,8 @@ export default async function HomePage() {
 
           {/* コラム一覧へ */}
           <div style={{ textAlign: "center" }}>
-            <GhostButton href="/column">
-              コラム一覧へ
+            <GhostButton href="/columns">
+              ぜんぶの記事を読む
               <ArrowRight />
             </GhostButton>
           </div>

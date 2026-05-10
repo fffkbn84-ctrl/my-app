@@ -6430,3 +6430,401 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   max-width: 640px;
   margin: 0 auto;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Kinda voices  /columns 一覧 + 詳細
+   テーマ: ウォームセピア（#8B7355 / #F4ECE0 / #FCF8F2）
+═════════════════════════════════════════════════════════════ */
+.kv-page {
+  min-height: 100vh;
+  background: #FCF8F2;
+  color: var(--ink);
+}
+
+/* ─── 一覧ヒーロー（セピアグラデーション、画像なし） ─── */
+.kv-hero {
+  position: relative;
+  background: #F4ECE0;
+  padding: calc(var(--header-height) + 56px) 20px 60px;
+  overflow: hidden;
+  min-height: 50vh;
+  display: flex;
+  align-items: flex-end;
+}
+.kv-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(212,182,142,.55) 0%, rgba(244,236,224,0) 60%),
+    radial-gradient(ellipse at 75% 75%, rgba(180,148,108,.4) 0%, rgba(244,236,224,0) 55%),
+    linear-gradient(180deg, #F4ECE0 0%, #E8D8BE 100%);
+}
+.kv-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(60,40,20,0) 0%,
+    rgba(60,40,20,0) 35%,
+    rgba(60,40,20,.18) 70%,
+    rgba(40,25,12,.55) 100%);
+}
+.kv-hero-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  width: 100%;
+}
+.kv-hero-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: rgba(255,255,255,.92);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.kv-hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(28px, 6vw, 42px);
+  color: white;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+}
+.kv-hero-title em {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  color: #F4ECE0;
+  font-weight: 400;
+  margin: 0 4px;
+}
+.kv-hero-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,.85);
+  margin-bottom: 18px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+.kv-hero-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(255,255,255,.35);
+  margin: 18px auto;
+}
+.kv-hero-copy {
+  font-family: Georgia, 'Shippori Mincho', serif;
+  font-style: italic;
+  font-size: clamp(15px, 3.4vw, 19px);
+  line-height: 1.95;
+  color: white;
+  max-width: 480px;
+  margin: 0 auto;
+  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+}
+
+/* ─── イントロ ─── */
+.kv-intro {
+  background: #FCF8F2;
+  padding: 56px 20px 40px;
+}
+.kv-intro-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+.kv-intro-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 auto 12px;
+}
+.kv-intro-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+  margin: 0 auto 12px;
+}
+.kv-intro-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 12px 0;
+}
+.kv-intro-text {
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--ink);
+  margin-top: 16px;
+}
+
+/* ─── セクションヘッダー ─── */
+.kv-section-head {
+  text-align: center;
+  padding: 36px 20px 16px;
+}
+.kv-section-divider {
+  width: 40px;
+  height: 1px;
+  background: rgba(0,0,0,.12);
+  margin: 8px auto;
+}
+.kv-section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 4px 0;
+}
+.kv-section-title em {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #8B7355;
+  margin-right: 6px;
+}
+
+/* ─── フィルター（カテゴリピル） ─── */
+.kv-filter-bar {
+  background: #FCF8F2;
+  border-bottom: 1px solid #EBDFCC;
+  padding: 10px 0;
+}
+.kv-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.kv-filter-row::-webkit-scrollbar { display: none; }
+.kv-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: white;
+  border: 1px solid #E5DACB;
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  color: var(--mid);
+  cursor: pointer;
+  transition: all .15s ease;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+.kv-pill:hover {
+  border-color: #8B7355;
+  color: var(--ink);
+}
+.kv-pill.is-active {
+  background: #8B7355;
+  border-color: #8B7355;
+  color: white;
+}
+.kv-pill:focus-visible {
+  outline: 2px solid #8B7355;
+  outline-offset: 2px;
+}
+
+/* ─── 記事グリッド ─── */
+.kv-grid-wrap {
+  background: #FCF8F2;
+  padding: 24px 16px 56px;
+}
+.kv-grid {
+  display: grid;
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: start;
+}
+@media (max-width: 640px) {
+  .kv-grid { grid-template-columns: 1fr !important; }
+  .kv-card-featured { grid-row: auto !important; }
+}
+
+/* ─── 記事カード ─── */
+.kv-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid #E5DACB;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+}
+.kv-card:hover {
+  box-shadow: 0 8px 24px rgba(139,115,85,.12);
+  transform: translateY(-2px);
+  border-color: #8B7355;
+}
+.kv-card-featured {
+  grid-row: 1 / 3;
+}
+.kv-card-thumb {
+  flex-shrink: 0;
+}
+.kv-card-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.kv-card-tag {
+  display: inline-block;
+  width: fit-content;
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 10px;
+  letter-spacing: .04em;
+  font-family: var(--font-sans);
+  color: #8B7355;
+  background: #F4ECE0;
+  border: 1px solid #E5DACB;
+}
+.kv-card-title {
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--ink);
+  flex: 1;
+  letter-spacing: .02em;
+}
+.kv-card-title-featured {
+  font-size: 16px;
+}
+.kv-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.kv-card-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.kv-card-author,
+.kv-card-date,
+.kv-card-read {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--muted);
+}
+.kv-card-dot {
+  color: var(--light);
+  font-size: 10px;
+}
+
+.kv-empty {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--mid);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ─── CTA ─── */
+.kv-cta {
+  background: #FCF8F2;
+  padding: 64px 20px 80px;
+  border-top: 1px solid #EBDFCC;
+}
+.kv-cta-inner {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+.kv-cta-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: #8B7355;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.kv-cta-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: clamp(20px, 4vw, 26px);
+  color: var(--ink);
+  font-weight: 500;
+  margin-bottom: 14px;
+  letter-spacing: .03em;
+}
+.kv-cta-text {
+  font-size: 14px;
+  line-height: 1.95;
+  color: var(--mid);
+  margin-bottom: 24px;
+}
+.kv-cta-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.kv-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 14px;
+  letter-spacing: .03em;
+  text-decoration: none;
+  transition: all .2s ease;
+  min-width: 240px;
+}
+.kv-cta-btn-primary {
+  background: #8B7355;
+  color: white;
+  border: 1px solid #8B7355;
+}
+.kv-cta-btn-primary:hover {
+  background: #6B5640;
+  border-color: #6B5640;
+}
+.kv-cta-btn-ghost {
+  background: white;
+  color: var(--ink);
+  border: 1px solid #E5DACB;
+}
+.kv-cta-btn-ghost:hover {
+  border-color: #8B7355;
+  color: #8B7355;
+}
+
+/* ─── FAQ ─── */
+.kv-faq {
+  background: #FCF8F2;
+  padding: 16px 20px 80px;
+}
+.kv-faq-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
