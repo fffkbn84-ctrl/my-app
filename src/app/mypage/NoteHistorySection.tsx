@@ -109,7 +109,9 @@ export default function NoteHistorySection() {
     } catch {
       /* quota など無視 */
     }
-    router.push(`/kinda-note/result?route=${route}`);
+    // replay=1 を付けることで、結果ページの useEffect が「履歴への保存」を
+    // スキップする。これがないと過去結果を見るたびに履歴が増殖する。
+    router.push(`/kinda-note/result?route=${route}&replay=1`);
   };
 
   return (

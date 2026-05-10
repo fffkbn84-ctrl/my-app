@@ -10,13 +10,18 @@ export const metadata = {
 // iOS Safari が「This page couldn't load」を出す事象を回避するため。
 export const dynamic = "force-dynamic";
 
-type SearchParams = Promise<{ route?: string }>;
+type SearchParams = Promise<{ route?: string; replay?: string }>;
 
 export default async function KindaNoteResultPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  const { route } = await searchParams;
-  return <ResultContent initialRoute={route ?? null} />;
+  const { route, replay } = await searchParams;
+  return (
+    <ResultContent
+      initialRoute={route ?? null}
+      isReplay={replay === "1"}
+    />
+  );
 }

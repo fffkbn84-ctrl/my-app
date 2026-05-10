@@ -41,9 +41,15 @@ type StoredAnswers = {
 type Props = {
   /** Server component から URL の ?route= を渡す */
   initialRoute: string | null;
+  /**
+   * 履歴タイル等から「過去の結果を再表示する」目的で開かれた場合 true。
+   * その場合は履歴への保存（localStorage / Supabase）と完了イベントを
+   * 全てスキップし、純粋な閲覧モードとして扱う。
+   */
+  isReplay?: boolean;
 };
 
-export default function ResultContent({ initialRoute }: Props) {
+export default function ResultContent({ initialRoute, isReplay = false }: Props) {
   const router = useRouter();
   const { user, supabase } = useAuth();
 
@@ -108,6 +114,10 @@ export default function ResultContent({ initialRoute }: Props) {
     setTiltAngle(angle);
     setIsRareTilt(isRare);
 
+    // ?replay=1（マイページから過去の天気をタップして開いた場合）は
+    // 履歴保存・完了イベントを全てスキップ。表示のみ行う。
+    if (isReplay) return;
+
     saveKindaNoteHistory({
       route,
       result_type: typeContent.fullName,
@@ -131,7 +141,7 @@ export default function ResultContent({ initialRoute }: Props) {
       weather_type: weather,
       route,
     });
-  }, [hydrated, stored, typeContent, weather, route, supabase, user]);
+  }, [hydrated, stored, typeContent, weather, route, supabase, user, isReplay]);
 
   // typeContent が見つからないことは原則ないが、安全弁として
   if (!typeContent) {
