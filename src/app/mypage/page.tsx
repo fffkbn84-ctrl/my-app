@@ -5,6 +5,7 @@ import AuthCard from "./AuthCard";
 import SavedSection from "./SavedSection";
 import NoteHistorySection from "./NoteHistorySection";
 import DiagnosisTypeHistorySection from "./DiagnosisTypeHistorySection";
+import ReservationsSection from "./ReservationsSection";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
@@ -22,28 +23,6 @@ const featureItems = [
           stroke="#C8A97A"
           strokeWidth="1.3"
           fill="none"
-        />
-      </svg>
-    ),
-  },
-  {
-    label: "予約履歴の確認・キャンセル",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <rect
-          x="2"
-          y="3"
-          width="14"
-          height="13"
-          rx="2"
-          stroke="#C8A97A"
-          strokeWidth="1.3"
-        />
-        <path
-          d="M2 7h14M6 2v2M12 2v2"
-          stroke="#C8A97A"
-          strokeWidth="1.3"
-          strokeLinecap="round"
         />
       </svg>
     ),
@@ -130,6 +109,9 @@ export default async function MyPage() {
 
         {/* Kinda type 履歴（最新1件ヒーロー表示） */}
         <DiagnosisTypeHistorySection />
+
+        {/* 予約履歴（ログイン時のみ表示） */}
+        <ReservationsSection />
 
         {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
         <div style={{ marginTop: 32 }}>

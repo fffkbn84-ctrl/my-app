@@ -69,6 +69,15 @@ export type Agency = {
    * 未設定時は予約コーナーでデフォルト文言を表示する。
    */
   cancelPolicy?: string;
+  /**
+   * 面談開始時刻から何時間前までキャンセル可能か。
+   * 0 = 当日まで可、24 = 24時間前まで。未設定なら 24 とみなす。
+   */
+  cancelDeadlineHours?: number;
+  /** キャンセル期限切れ時にユーザーへ案内する電話番号 */
+  phone?: string;
+  /** キャンセル期限切れ時にユーザーへ案内するメールアドレス */
+  email?: string;
 };
 
 export type Counselor = {
@@ -147,6 +156,9 @@ export const AGENCIES: Agency[] = [
       { id: "rv2", user: "M.T さん（29歳）", rating: 5, text: "職種への理解があるカウンセラーさんで安心でした。", date: "2025年2月" },
     ],
     cancelPolicy: "面談日の前日23:59までキャンセル無料。当日キャンセルも可（初回のみ）。",
+    cancelDeadlineHours: 0,
+    phone: "03-1234-5678",
+    email: "info@bridal-house-tokyo.example.jp",
     campaign: "初回面談料 無料キャンペーン実施中",
     policy: "「焦らず、急かさず、あなたのペースで」をモットーに、一人ひとりに寄り添ったカウンセリングを行っています。初回面談では婚活の悩みや理想のパートナー像をじっくりお聞きし、無理のないペースで活動を進めていただけるようサポートします。IT・医療・公務員など多様な職種のご成婚実績を持ち、おひとりおひとりのライフスタイルに合わせたご提案が当所の強みです。",
     plan: "premium",
@@ -178,6 +190,9 @@ export const AGENCIES: Agency[] = [
     hours: "11:00〜21:00",
     holiday: "水曜定休",
     cancelPolicy: "面談日の24時間前までキャンセル無料。それ以降のキャンセルはご連絡ください。",
+    cancelDeadlineHours: 24,
+    phone: "03-2345-6789",
+    email: "contact@legal-wedding.example.jp",
     policy: "データと感性の両輪でパートナー探しをサポートします。AI相性診断はあくまでも出会いのきっかけ。大切なのは実際にお会いしたときの「感じ」だと私たちは考えています。20〜30代の方が多く活動されており、同世代の価値観を大切にしながらも、長期的なパートナーシップを見据えたアドバイスを心がけています。",
     reviews: [
       { id: "rv3", user: "K.M さん（28歳）", rating: 5, text: "急かされることなく、自分の希望が整理できた感じ。", date: "2025年3月" },
@@ -213,6 +228,9 @@ export const AGENCIES: Agency[] = [
       { id: "rv4", user: "M.K さん（39歳）", rating: 5, text: "再婚でも全く気にせず話してくれた。最初からリラックスできた。", date: "2025年1月" },
     ],
     cancelPolicy: "キャンセルは面談日前日まで承ります。当日の急なご事情もお気軽にご相談ください。",
+    cancelDeadlineHours: 0,
+    phone: "06-1234-5678",
+    email: "info@simply-marriage.example.jp",
     campaign: "5月限定 入会金20,000円割引",
     plan: "standard",
     photos: [
@@ -246,6 +264,9 @@ export const AGENCIES: Agency[] = [
       { id: "rv5", user: "Y.N さん（34歳）", rating: 5, text: "15年のキャリア。話の引き出しが多く、アドバイスが的確。", date: "2025年2月" },
     ],
     cancelPolicy: "無断キャンセルはご遠慮ください。前日までのご連絡で何度でも日程変更可能です。",
+    cancelDeadlineHours: 24,
+    phone: "045-123-4567",
+    email: "hello@happyroad-salon.example.jp",
     campaign: "ご成婚実績 累計1,000組突破記念 入会金半額",
     plan: "premium",
     photos: [
@@ -279,6 +300,9 @@ export const AGENCIES: Agency[] = [
       { id: "rv6", user: "A.R さん（28歳）", rating: 5, text: "同世代感覚で話せた。自分のペースを一緒に考えてくれた。", date: "2025年1月" },
     ],
     cancelPolicy: "オンライン面談のため当日キャンセル・日程変更も柔軟に対応します。お気軽にどうぞ。",
+    cancelDeadlineHours: 0,
+    phone: "0120-555-1234",
+    email: "support@kotobuki-center.example.jp",
     plan: "fast",
     photos: [
       { caption: "オンライン面談の様子", bg: "linear-gradient(135deg,#C8DDF8,#B0CCEE)" },

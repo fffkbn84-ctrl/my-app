@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { Slot, BookingUserInfo } from "@/types/booking";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { createReservation } from "@/lib/reservations";
 
 interface Props {
   counselorName: string;
@@ -9,7 +11,12 @@ interface Props {
   slot: Slot;
   userInfo: BookingUserInfo;
   showCounselorRow?: boolean;
-  onConfirm: () => void;
+  /** 本物の Supabase counselor UUID（モックなら null） */
+  counselorId?: string | null;
+  /** 本物の Supabase agency UUID（モックなら null） */
+  agencyId?: string | null;
+  /** 予約 INSERT 成功時に呼ばれる。reservationId を渡す */
+  onConfirm: (reservationId: string | null) => void;
   onBack: () => void;
 }
 
@@ -19,21 +26,65 @@ function formatDateJa(dateStr: string) {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${w[d.getDay()]}）`;
 }
 
+/** "YYYY-MM-DD" + "HH:MM" → JST ローカル時刻として ISO 8601 に変換 */
+function toIsoFromDateAndTime(date: string, time: string): string {
+  // タイムゾーン非依存に組み立てる：date と time をそのままローカル時刻として扱う
+  const iso = new Date(`${date}T${time}:00`).toISOString();
+  return iso;
+}
+
 export default function Step4Confirm({
   counselorName,
   agencyName,
   slot,
   userInfo,
   showCounselorRow = false,
+  counselorId = null,
+  agencyId = null,
   onConfirm,
   onBack,
 }: Props) {
+  const { user, supabase } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleConfirm = async () => {
+    if (!user) {
+      setError("ログインが切れているようです。お手数ですが再度ログインしてください。");
+      return;
+    }
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    onConfirm();
+    setError(null);
+
+    const startAt = toIsoFromDateAndTime(slot.date, slot.startTime);
+    const endAt = toIsoFromDateAndTime(slot.date, slot.endTime);
+    const meetingType =
+      userInfo.meetingFormat === "対面" || userInfo.meetingFormat === "オンライン"
+        ? userInfo.meetingFormat
+        : (slot.meetingType ?? null);
+
+    const result = await createReservation(supabase, {
+      userId: user.id,
+      userName: userInfo.fullName,
+      userEmail: userInfo.email || (user.email ?? ""),
+      notes: userInfo.message || null,
+      slotId: slot.id, // UUID なら排他制御が走る、モック ID ならスキップ
+      startAt,
+      endAt,
+      meetingType,
+      counselorId,
+      counselorName,
+      agencyId,
+      agencyName,
+    });
+
+    setLoading(false);
+
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
+    onConfirm(result.reservationId);
   };
 
   const meetingLabel =
@@ -111,9 +162,28 @@ export default function Step4Confirm({
           />
         </svg>
         <div>
-          予約完了後、確認メールをお送りします。入会の強制はありません。前日まで無料でキャンセル可能です。
+          予約完了後、確認メールをお送りします。マイページから日時の確認・キャンセルもできます。
         </div>
       </div>
+
+      {/* エラー表示 */}
+      {error && (
+        <div
+          role="alert"
+          style={{
+            background: "rgba(196,135,122,.08)",
+            border: "1px solid var(--rose)",
+            borderRadius: 10,
+            padding: "12px 16px",
+            color: "var(--rose)",
+            fontSize: 13,
+            lineHeight: 1.7,
+            margin: "16px 0",
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       {/* ナビボタン */}
       <div className="step-nav">

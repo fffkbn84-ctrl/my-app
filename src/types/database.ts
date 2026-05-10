@@ -17,6 +17,11 @@ export interface Database {
           description: string | null;
           logo_url: string | null;
           website_url: string | null;
+          /* 007_reservations_user_id_status.sql で追加 */
+          phone: string | null;
+          email: string | null;
+          cancel_deadline_hours: number;
+          cancel_policy: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -104,8 +109,8 @@ export interface Database {
       reservations: {
         Row: {
           id: string;
-          slot_id: string;
-          counselor_id: string;
+          slot_id: string | null;
+          counselor_id: string | null;
           user_name: string;
           user_email: string;
           user_phone: string | null;
@@ -113,6 +118,17 @@ export interface Database {
           review_token: string | null;
           review_code: string | null;
           review_token_used: boolean;
+          /* 007_reservations_user_id_status.sql で追加 */
+          user_id: string | null;
+          status: "active" | "canceled" | "completed";
+          canceled_at: string | null;
+          cancel_reason: string | null;
+          start_at: string | null;
+          end_at: string | null;
+          meeting_type: "対面" | "オンライン" | null;
+          agency_id: string | null;
+          counselor_name: string | null;
+          agency_name: string | null;
           created_at: string;
           updated_at: string;
         };

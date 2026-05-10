@@ -4,14 +4,20 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { BookingState, BookingUserInfo, Slot } from "@/types/booking";
 import { trackEvent } from "@/lib/analytics";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
 import Step4Confirm from "./Step4Confirm";
+import LoginGuard from "./LoginGuard";
 
 interface Props {
   counselorId: string;
   counselorName: string;
   agencyName: string;
+  /** 本物の Supabase counselor UUID（モック ID なら指定不要） */
+  supabaseCounselorId?: string | null;
+  /** 本物の Supabase agency UUID（モック ID なら指定不要） */
+  supabaseAgencyId?: string | null;
 }
 
 const initialUserInfo: BookingUserInfo = {
@@ -56,13 +62,30 @@ function StepIndicator({ current }: { current: number }) {
 /* ────────────────────────────────────────────────────────────
    BookingFlow
 ──────────────────────────────────────────────────────────── */
-export default function BookingFlow({ counselorId, counselorName, agencyName }: Props) {
+export default function BookingFlow({
+  counselorId,
+  counselorName,
+  agencyName,
+  supabaseCounselorId = null,
+  supabaseAgencyId = null,
+}: Props) {
+  const { user } = useAuth();
   const [state, setState] = useState<BookingState>({
     step: 1,
     selectedDate: null,
     selectedSlot: null,
     userInfo: initialUserInfo,
   });
+
+  // ログイン済みユーザーの email をフォーム初期値に流し込む
+  useEffect(() => {
+    if (!user?.email) return;
+    setState((prev) =>
+      prev.userInfo.email
+        ? prev
+        : { ...prev, userInfo: { ...prev.userInfo, email: user.email ?? "" } },
+    );
+  }, [user?.email]);
 
   const lockedSlotRef = useRef<Slot | null>(null);
 
@@ -110,12 +133,16 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
     setState((prev) => ({ ...prev, userInfo: info }));
   }, []);
 
-  const handleConfirm = useCallback(() => {
-    lockedSlotRef.current = null;
-    goToStep(4);
-  }, [goToStep]);
+  const handleConfirm = useCallback(
+    (_reservationId: string | null) => {
+      lockedSlotRef.current = null;
+      goToStep(4);
+    },
+    [goToStep],
+  );
 
   return (
+    <LoginGuard redirectTo={`/booking/${counselorId}`}>
     <div className="booking-wrap pb-16">
       <StepIndicator current={state.step} />
 
@@ -141,6 +168,8 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
           agencyName={agencyName}
           slot={state.selectedSlot}
           userInfo={state.userInfo}
+          counselorId={supabaseCounselorId}
+          agencyId={supabaseAgencyId}
           onConfirm={handleConfirm}
           onBack={() => goToStep(2)}
         />
@@ -154,6 +183,7 @@ export default function BookingFlow({ counselorId, counselorName, agencyName }: 
         />
       )}
     </div>
+    </LoginGuard>
   );
 }
 
@@ -194,7 +224,7 @@ function CompletionScreen({
       <p className="bk-done-sub">
         確認メールをお送りしました。
         <br />
-        ゆっくり準備して、当日いらしてください。
+        マイページから日時の確認・キャンセルができます。
       </p>
 
       <div className="bk-done-info">
@@ -215,8 +245,8 @@ function CompletionScreen({
         <Link href={`/counselors/${counselorId}`} className="bk-btn bk-btn-secondary">
           カウンセラーページに戻る
         </Link>
-        <Link href="/" className="bk-btn bk-btn-primary">
-          トップに戻る
+        <Link href="/mypage" className="bk-btn bk-btn-primary">
+          マイページで確認する
         </Link>
       </div>
 
