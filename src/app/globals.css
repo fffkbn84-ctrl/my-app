@@ -6108,14 +6108,17 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  /* スケールはコンテナ側で行うことで、next/image が img に付与する
+     インラインスタイル（position/width/height/object-fit）と干渉せず、
+     bfcache から復元しても表示が崩れない。 */
+  transform: scale(1.12);
+  transform-origin: center 30%;
+  will-change: transform;
 }
 .ks-detail-hero-bg img {
   object-fit: cover;
-  /* 画像中央のハートをやや上に配置し、テキストオーバーレイ部分を余白として活かす */
+  /* ハートをやや上に配置し、テキストオーバーレイ部分を余白として活かす */
   object-position: center 28%;
-  /* ほんの少し拡大してフォーカルポイントを強調 */
-  transform: scale(1.12);
-  transform-origin: center 30%;
 }
 .ks-detail-hero-tint {
   position: absolute;
