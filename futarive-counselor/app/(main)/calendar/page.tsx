@@ -9,6 +9,11 @@ import SlotDetailPanel from '@/components/calendar/SlotDetailPanel'
 import SlotForm from '@/components/calendar/SlotForm'
 import ReservationDetailModal from '@/components/calendar/ReservationDetailModal'
 
+// dashboard と共有する context localStorage キー
+// 値が ALL または対象に含まれない場合は最初のカウンセラーへフォールバック
+const SCOPE_STORAGE_KEY = 'kinda-dashboard-context'
+const ALL_SENTINEL = 'ALL'
+
 // "YYYY-MM-DD" + "HH:mm" を端末ローカルTZ ISO 文字列に変換
 function localDateTimeToIsoStr(date: string, time: string): string {
   const [y, m, d] = date.split('-').map(Number)
@@ -31,6 +36,7 @@ export default function CalendarPage() {
     today.toISOString().slice(0, 10)
   )
   const [counselor, setCounselor] = useState<Counselor | null>(null)
+  const [counselorsInScope, setCounselorsInScope] = useState<Counselor[]>([])
   const [agency, setAgency] = useState<Agency | null>(null)
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -62,42 +68,67 @@ export default function CalendarPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      // 1) 自分がカウンセラー本人として持っている行
-      let c: Counselor | null = null
+      // スコープ内のカウンセラーを全取得（本人 + 自分がオーナーの相談所所属）
+      const scoped: Counselor[] = []
       const { data: own } = await supabase
-        .from('counselors').select('*').eq('owner_user_id', user.id).maybeSingle()
-      if (own) c = own as Counselor
+        .from('counselors').select('*').eq('owner_user_id', user.id)
+      if (own) scoped.push(...(own as Counselor[]))
 
-      // 2) なければ、自分がオーナーの相談所に所属する最初のカウンセラー
-      if (!c) {
-        const { data: agencies } = await supabase
-          .from('agencies').select('id').eq('owner_user_id', user.id)
-        const agencyIds = ((agencies as { id: string }[] | null) ?? []).map(a => a.id)
-        if (agencyIds.length > 0) {
-          const { data: rows } = await supabase
-            .from('counselors').select('*')
-            .in('agency_id', agencyIds)
-            .order('created_at', { ascending: true })
-            .limit(1)
-          if (rows && rows[0]) c = rows[0] as Counselor
+      const { data: agencies } = await supabase
+        .from('agencies').select('id').eq('owner_user_id', user.id)
+      const agencyIds = ((agencies as { id: string }[] | null) ?? []).map(a => a.id)
+      if (agencyIds.length > 0) {
+        const { data: rows } = await supabase
+          .from('counselors').select('*')
+          .in('agency_id', agencyIds)
+          .order('created_at', { ascending: true })
+        const ids = new Set(scoped.map(c => c.id))
+        for (const c of (rows as Counselor[] | null) ?? []) {
+          if (!ids.has(c.id)) scoped.push(c)
         }
       }
+      setCounselorsInScope(scoped)
 
-      if (c) {
-        setCounselor(c)
-        await loadSlots(c, year, month)
-        // 所属相談所もロード（営業時間・定休日を取得）
-        if (c.agency_id) {
-          const { data: ag } = await supabase
-            .from('agencies').select('*').eq('id', c.agency_id).maybeSingle()
-          if (ag) setAgency(ag as Agency)
+      if (scoped.length === 0) { setLoading(false); return }
+
+      // localStorage の選択を優先、なければ最初
+      let selected: Counselor | null = null
+      try {
+        const stored = localStorage.getItem(SCOPE_STORAGE_KEY)
+        if (stored && stored !== ALL_SENTINEL) {
+          selected = scoped.find(c => c.id === stored) ?? null
         }
+      } catch {}
+      if (!selected) selected = scoped[0]
+
+      setCounselor(selected)
+      await loadSlots(selected, year, month)
+      if (selected.agency_id) {
+        const { data: ag } = await supabase
+          .from('agencies').select('*').eq('id', selected.agency_id).maybeSingle()
+        if (ag) setAgency(ag as Agency)
       }
       setLoading(false)
     }
     init()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // カウンセラー切替（select の onChange）
+  const handleCounselorChange = async (id: string) => {
+    const next = counselorsInScope.find(c => c.id === id) ?? null
+    if (!next) return
+    setCounselor(next)
+    try { localStorage.setItem(SCOPE_STORAGE_KEY, id) } catch {}
+    if (next.agency_id) {
+      const supabase = createClient()
+      const { data: ag } = await supabase
+        .from('agencies').select('*').eq('id', next.agency_id).maybeSingle()
+      setAgency((ag as Agency | null) ?? null)
+    } else {
+      setAgency(null)
+    }
+  }
 
   useEffect(() => {
     if (counselor) loadSlots(counselor, year, month)
@@ -255,6 +286,36 @@ export default function CalendarPage() {
     <div style={{ padding: '28px 24px', maxWidth: 700, paddingBottom: 80 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>CALENDAR</div>
       <h1 className="page-title" style={{ marginBottom: 12 }}>予約枠管理</h1>
+
+      {/* カウンセラー切替（複数所属の場合のみ） */}
+      {counselorsInScope.length > 1 && counselor && (
+        <div style={{
+          marginBottom: 14,
+          padding: '10px 14px',
+          background: 'var(--bg-elev)',
+          border: '1px solid var(--border)',
+          borderRadius: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 11, color: 'var(--text-light)', letterSpacing: '.05em' }}>
+            COUNSELOR
+          </span>
+          <select
+            className="kc-select"
+            value={counselor.id}
+            onChange={e => handleCounselorChange(e.target.value)}
+            style={{ flex: 1, minWidth: 160 }}
+          >
+            {counselorsInScope.map(c => (
+              <option key={c.id} value={c.id}>{c.name} さん</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {agency?.business_hours_text && (
         <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 18, lineHeight: 1.7 }}>
           営業時間：{agency.business_hours_text}
