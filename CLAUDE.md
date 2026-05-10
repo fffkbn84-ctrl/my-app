@@ -4026,3 +4026,266 @@ color: <サービス固有色>;
 - ブランド方針は本セクションのリファレンスを参照すれば一貫した実装ができる
 - 作業ブランチ `claude/implement-kinda-talk-uDUoW` で継続
 
+
+---
+
+## 実装済み機能（2026-05-10 追記） — Kinda story 新設 + Kinda voices リブランド + フッター刷新 + 法的ページ整備
+
+> ブランチ: `claude/implement-kinda-talk-uDUoW`
+> コミット範囲: `7ac45a6` 〜 `614d2e4`
+> このセッションでは Kinda シリーズ全体の整合性を上げる作業を一気に進めた。
+> 詳細ページの動線・フッター・法的ページ・収益情報まで含めて本番リリース直前の整備に近い状態に。
+
+### A. Kinda story 新設（一覧・詳細ページ + ホーム C' セクション刷新）
+
+**新規ファイル:**
+- `src/lib/mock/stories.ts` — `Story` 型 + 6 件（成婚 4 / 交際中 1 / 活動中 1）。`stage` `ageBand` `periodMonths` でフィルタ可能、`counselorId` `agencyId` で既存データと紐付け
+- `src/app/kinda-story/layout.tsx` — `data-section="story"`
+- `src/app/kinda-story/page.tsx` — 一覧（フルブリードヒーロー / イントロ / フィルタ&グリッド / FAQ / CTA）
+- `src/app/kinda-story/KindaStoryClient.tsx` — 状態 / 年代 / 期間の 3 軸フィルタ
+- `src/app/kinda-story/[id]/page.tsx` — 詳細（ヒーロー画像 + 本文段落 + プルクオート + 共感ボタン + 担当カウンセラー&所属相談所カード + 関連物語 3 件 + CTA）
+- `generateStaticParams` + `generateMetadata` 付き SSG
+
+**ホーム C' セクション:**
+- 旧 `SectionLabel` パターン → B' と同じ Bパターン eyebrow に統一（`Kinda story より | 続いている、ふたりの物語`）
+- ダミー 2 件 → `STORIES.slice(0, 3)` の実データ 3 件
+- 背景 `#F4FAF1` でグリーン主役化、薄カード型で統一
+
+**CSS:** `globals.css` に `.ks-*` プレフィックスで約 500 行追加（ヒーロー / フィルタ / カード / 詳細ヒーロー / プルクオート / 担当カード / CTA）。
+アクセント `#5A8050`（深緑）/ `#E8F4E4`（淡緑）/ `#F4FAF1`（背景緑）。
+
+---
+
+### B. ページ遷移の細部修正（Kinda story 周辺で発見した改善）
+
+#### B-1. パンくず継続（物語 → カウンセラー）
+
+`/kinda-story/[id]` から担当カウンセラー / 所属相談所をタップした際、戻り動線が Kinda story に維持されるように。
+
+- 物語詳細のリンクに `?from=story&fromId=X` を付与
+- `/counselors/[id]` と `/agencies/[id]` が `searchParams` を読み、`from=story` の時のみ Breadcrumb と SectionSubHeader を Kinda story 起点に切替
+- 通常時は今まで通り Kinda talk 起点
+
+```typescript
+const fromStory = from === "story" && fromId ? getStoryById(fromId) : null;
+if (fromStory) {
+  // Kinda story 起点のパンくず
+}
+```
+
+#### B-2. ページ遷移時の「下からせり上がる」モーション解消
+
+**原因:** `html { scroll-behavior: smooth }` がグローバル指定されており、Next.js のページ遷移時の「先頭にスクロール」までスムーズアニメ化していた。
+
+**対処:** `:has(:target)` セレクタで「URL にハッシュがある時だけ smooth」に変更：
+
+```css
+html { scroll-padding-top: var(--header-height, 56px); }
+html:has(:target) { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html:has(:target) { scroll-behavior: auto; }
+}
+```
+
+ページ間遷移は instant、`#section-b` 等のアンカー内ジャンプは smooth を維持。
+
+#### B-3. ヒーロー画像の表示位置と bfcache 安定化
+
+`/kinda-story/[id]` のヒーロー画像（heart on notebook）：
+- `objectPosition: center 28%` → `center 55%`（ハートを viewport 上部に持ち上げ）
+- `transform: scale(1.12)` をコンテナに、`objectFit/objectPosition` を `<Image>` の `style` prop にインライン適用
+- これにより next/image が `<img>` に注入するインラインスタイルとの干渉や CDN/ブラウザの CSS キャッシュ影響を排除し、bfcache 復元時も安定
+
+**重要な学び:** next/image fill モードでは `<img>` に直接インライン style が注入される。CSS cascade で transform を当てると navigation/bfcache 復元時に飛ぶことがある。Critical な視覚調整は `<Image style={{...}}>` で直接書くのが確実。
+
+---
+
+### C. Kinda voices — interview & column のリブランド
+
+旧「ふたりを見守る人たち」（interview & column）を **Kinda voices** に位置づけ直し、Kinda 仕様で統一。
+
+**ホーム C' セクション:**
+- 旧 `SectionLabel` → Bパターン eyebrow（`Kinda voices より | ふたりを見守る人たち | 取材で集めた声と、編集部のコラム`）
+- ダミー `ARTICLES`（壊れたリンク `/column/[slug]` 含む）→ `getAllColumns()` の実 MDX データに置換
+- `/columns/[slug]`（s あり）への正しい遷移に修正
+
+**`/columns` 一覧ページ:**
+- `layout.tsx` 新規（`data-section="voices"`）
+- フルブリードヒーロー（セピアグラデーション、画像なしでも温かみ）
+- Header / Footer 追加（既存は持っていなかった）
+- カテゴリピル + 記事グリッド（`.kv-*` プレフィックス）
+- イントロ + FAQ + CTA セクション
+
+**`/columns/[slug]` 詳細ページ:**
+- Header / Footer 追加
+- `var(--accent)`（ゴールド）→ `#8B7355`（セピア）に変更
+- SubHeader / Breadcrumb 表記を「コラム」→「Kinda voices」
+
+**テーマカラー:** `#8B7355`（ウォームセピア）/ `#F4ECE0`（淡）/ `#FCF8F2`（背景）。
+**CSS:** `.kv-*` プレフィックスで約 400 行追加（ヒーロー / イントロ / フィルタ / カード / CTA / FAQ）。
+
+---
+
+### D. フッター刷新 + 法的ページ整備
+
+#### D-1. Footer リブランド（`src/components/layout/Footer.tsx`）
+
+- 旧「futarive」表記削除 →「Kinda · ふたりへ」に統一
+- 旧 `#` 空リンクを全て実ページへ接続
+- 4 カラム構成に再編：
+  - **Kinda サービス**：type / talk / act / glow / note
+  - **読みもの・アカウント**：Kinda story / Kinda voices / マイページ / ログイン
+  - **Kinda ふたりへ・規約**：about / contact / partners / terms / privacy / tokushou
+- 著作権年は `new Date().getFullYear()` で動的化
+- フッター下部に規約への簡易リンクを追加
+
+#### D-2. 新規 5 ページ（法的ページ + 周辺ページ）
+
+すべて Header / Footer / Breadcrumb 完備の Server Component。`.legal-*` プレフィックスで約 230 行の共通 CSS（ヘッダー / 本文 / リスト / CTA / テーブル / カード）。
+
+| パス | 内容 |
+|---|---|
+| `/contact` | お問い合わせ（メール mailto + LINE 準備中バッジ + Kinda 各 FAQ への導線 + /partners リンク） |
+| `/partners` | 掲載のご相談（相談所オーナー向け / お店オーナー向け / 料金カード / メール CTA） |
+| `/terms` | 利用規約（全 13 条 + お問い合わせ） |
+| `/privacy` | プライバシーポリシー（10 項目 + 業務委託先一覧） |
+| `/tokushou` | 特定商取引法に基づく表記（テーブル形式） |
+
+**プレースホルダー（運営側で本番運用開始時に差し替え必要）:**
+法的に必要だが業務固有の `[会社名]` `[所在地]` `[代表者氏名]` `[電話番号]` 等。サポートメールは `hello@kinda-futari.app` で仮置き。
+
+---
+
+### E. Kinda type 結果ページの CTA カード改善
+
+旧：「お見合い・デートのお店」「婚活コラムを読む」など独立タイトルで、何のページに飛ぶか分かりにくかった。
+
+**改善後（Bパターン書体ルールを適用）:**
+```
+[icon]
+KINDA act               ← 新規追加（DM Sans uppercase + DM Serif italic accent）
+お見合い・デートの場所
+沈黙しない、話せる場所を選ぶ
+見てみる →
+```
+
+3 種類のサブカード:
+- **Kinda act** → `/kinda-act`（沈黙しない、話せる場所を選ぶ）
+- **Kinda glow** → `/kinda-glow`（美容室・ネイル・眉毛・エステ）
+- **Kinda voices** → `/columns`（編集部の取材・コラムを読む）
+
+旧来の `/shops` `/shops?category=beauty` への壊れた導線も全て修正。
+
+`globals.css` に `.ktr-sub-label`（DM Sans 10px uppercase + DM Serif italic accent）を追加。
+
+---
+
+### F. Kinda glow にエステ・ネイル・眉毛のデモデータ追加
+
+旧：美容室 + フォトスタジオの 2 カテゴリのみ。
+新：5 カテゴリで絞り込み可能（フィルタ UI が機能する状態に）。
+
+**`ThumbVariant` に `esthetic` 追加** + 4 ファイルの `Record<ThumbVariant, ...>` を更新：
+- `src/components/kinda-act/PlaceThumb.tsx`
+- `src/components/kinda-act/placeIcons.tsx`
+- `src/components/shops/ShopSearch.tsx`
+- `src/components/home/PlacesSection.tsx`
+
+**SVG アイコン:** 手のひら + 水滴のモチーフ。**グラデ:** `#FCE8E5 → #F0D0CC`（ピンク系）。
+
+**デモ 6 件追加（id: 13〜18）:**
+- エステ：Salon Lumière（東京・銀座）、Aroma Spa Aqua（東京・恵比寿）
+- ネイル：Nail Atelier Soie（東京・表参道）、Beige Nail（大阪・梅田）
+- 眉毛：Brow Studio Arché（東京・原宿）、Eyebrow Salon Lien（名古屋・栄）
+
+`/kinda-glow/page.tsx` の `GLOW_CATEGORY_LABELS` を 5 カテゴリに拡張し、`KindaGlowClient.tsx` の `CATEGORIES` と `useToCategory` URL パラメータマッピング（`?use=eyebrow|nail|esthetic|photo`）も対応。
+
+---
+
+### G. 収益モデルの料金変更
+
+**送客料：¥10,000 / 件 → ¥5,000 / 件**（`/partners` ページ）
+
+将来上げる方針はあるが、現時点では ¥5,000 で公開。CLAUDE.md 上部「収益モデル」記載は古い ¥10,000 のままだが、本セクションを優先（次回見直しタイミングで上部記述も整合させる）。
+
+---
+
+### このセッションのコミット履歴
+
+| コミット | 概要 |
+|---|---|
+| `7ac45a6` | feat(kinda-story): home + listing + detail pages |
+| `b5f348d` | fix: breadcrumb continuation + slide-up + hero crop |
+| `f665259` | fix: hero scale to bg container for bfcache |
+| `218cd7b` | fix: hero scale & position via inline styles |
+| `ddd469f` | fix: hero objectPosition 28% → 55% |
+| `4f03fe6` | feat(kinda-voices): rebrand interview & column |
+| `996f5a3` | feat(footer): rebrand + add legal/info pages |
+| `bfc44bb` | fix(partners): 相談所掲載料 ¥10,000 → ¥5,000 |
+| `614d2e4` | feat: Kinda type CTA + glow demo (エステ/ネイル/眉毛) |
+
+---
+
+## 次セッションで進める todo（優先順）
+
+> 4 項目が積まれている。**マイページ → 営業資料 → E2E 検証 → ライフサイクル管理** の順で進める想定。
+
+### ① マイページ刷新 + Supabase 連携 ★ 次セッションで着手予定
+
+**現状:**
+- `src/app/mypage/page.tsx`（388 行）/ `AuthCard.tsx`（239 行）/ `SavedSection.tsx`（224 行）
+- 既に `useFavorites` で localStorage + Supabase favorites の二重対応済み
+- ログイン状態は `AuthProvider` 経由で取得可能
+
+**実装したい機能（scope 確認の上進める）:**
+1. **お気に入り表示** — useFavorites の表示をマイページに統合（既に部分的にあり）
+2. **診断履歴** — Kinda type / Kinda note の結果を `diagnosis_results` テーブルに保存し、マイページから一覧・再表示
+3. **予約履歴** — `/booking/[counselorId]` の予約を `reservations` テーブルに保存し、マイページから一覧・キャンセル
+4. **口コミ投稿履歴** — `/reviews/new` で投稿した口コミをユーザーと紐付け、マイページから一覧
+
+**Supabase スキーマ拡張案:**
+```sql
+-- diagnosis_results
+CREATE TABLE diagnosis_results (
+  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  kind        TEXT NOT NULL CHECK (kind IN ('type', 'note')),
+  result_key  TEXT NOT NULL,         -- type: A/B/C/D, note: weather key
+  answers     JSONB NOT NULL,
+  created_at  TIMESTAMPTZ DEFAULT now()
+);
+-- RLS: user_id = auth.uid() のみ SELECT/INSERT
+```
+
+予約履歴と口コミ投稿履歴は既存テーブル（reservations / reviews）に user_id カラムを追加する方向。
+
+### ② 相談所営業用資料作成
+
+**Claude Code でやること:**
+- `docs/sales/` に Markdown で素材を作成：
+  1. 提案構成・トーク台本（10〜15 分プレゼン用）
+  2. FAQ 集 / 反論集（よくある質問への切り返し）
+  3. 掲載フローチェックリスト
+  4. 競合比較表（IBJ Connect 等）
+- 必要なら `/partners-deck` オンライン資料ページも作成
+
+**Claude.ai 推奨:**
+- ビジュアルプレゼン（PowerPoint / Keynote / Canva）化は Claude.ai Artifacts の方が効率的。Claude Code が出した素材をコピペして作成
+
+### ③ 実データ投入 → 登録 → 面談予約 → 課金 の E2E 検証
+
+- 実カウンセラー・相談所のデータを Supabase に投入
+- ユーザー登録 → ログイン → 予約フロー → 予約成立を実機で検証
+- 送客料 ¥5,000 課金フロー実装＆テスト：
+  - 課金タイミング：予約成立時 / 面談完了確認後 / 月締め一括 のどれにするか設計
+  - Stripe Connect or 請求書ベースの選択
+  - `agency_billing` テーブル設計（請求対象予約 / 請求済 / 入金済 ステータス）
+
+### ④ 相談所ライフサイクル管理
+
+- 相談所の追加・修正・休止・退会・課金停止を futarive-admin と futarive-counselor の両方で管理
+- 退会時のデータ保存設計（論理削除 / archive flag / 掲載停止状態）
+- 退会した相談所所属のカウンセラー・口コミの扱い：
+  - カウンセラー：自動掲載停止 + アーカイブ
+  - 口コミ：表示は残す（過去の信頼性として価値があるため）が、カウンセラー名はマスク or アーカイブ表示
+
