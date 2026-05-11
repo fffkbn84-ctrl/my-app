@@ -4507,3 +4507,175 @@ CREATE TABLE diagnosis_results (
 - ただしブラウザでの動作確認・スクショ撮影・iOS Safari 固有の動作チェックは不可
 - 実機チェックはふうかさんに依頼する必要がある
 
+---
+
+## 実装済み機能（2026-05-11 セッション） — カウンセラー管理画面の Supabase 連携整理 + user-site への反映
+
+> 作業ブランチ:
+> - カウンセラー管理画面: `claude/fix-profile-creation-1clpG`（旧 `futarive-counselor` 想定だが Vercel preview が `fix-profile-creation-1clpG` に紐づいてるため当面これで継続）
+> - ユーザー用サイト: `claude/implement-kinda-talk-uDUoW`
+
+### このセッションの大方針
+
+カウンセラー管理画面の各ページ（dashboard / profile / reel / calendar / reviews / agency）が
+既にほぼ Supabase 連携されていることを確認し、不足部分の補強・本番運用前の固め直し・
+user-site への反映を行った。
+
+### A. カウンセラー管理画面側の修正（claude/fix-profile-creation-1clpG）
+
+#### 招待リンクの重複登録問題 を根本対策
+
+**背景:** LINE のアプリ内ブラウザで Supabase Auth クッキーが分離されて auth セッションが
+保持されず、招待された人が登録に失敗。オーナーが「もう一度作り直そう」と
+AddCounselorModal を繰り返した結果、未claim カウンセラー行が 6 つ多重発生していた。
+
+- **`AddCounselorModal`**: 開いた時点で未claim 招待を一覧取得して最上部に警告 + リスト表示。
+  各招待に「URLを再表示」「削除」ボタン。既存招待があるとフォームは折り畳まれ、
+  明示的に「別の方を新規追加」を押させて誤操作を抑制。
+  URL 表示画面に LINE 経由送信時の注意書きを追加。
+- **`/claim`**: `lib/inAppBrowser.ts` を新規追加（LINE/Instagram/FB/X/TikTok 検出）。
+  検出時は登録・ログインフォームをブロックし、URLコピー誘導 + LINE 限定の
+  `?openExternalBrowser=1` リンクを提示。
+
+#### Calendar に予約者情報モーダル + Realtime + オーナー切替
+
+- `ReservationDetailModal` を新規追加：booked スロットの「予約者を見る」から起動。
+  面談日時 / 氏名 / メール / 電話 / メモ / ステータス / 申込日時を表示。
+  メール・電話はワンタップでコピー、`logPersonalDataAccess` で監査ログ記録。
+- `Reservation` 型を 007/008 マイグレーション後の実スキーマに合わせて拡張
+  （`user_id` / `status` / `start_at` / `agency_id` / `meeting_type` / `cancel_*`）
+- オーナー複数カウンセラー対応：calendar ヘッダーにカウンセラー切替セレクトを表示
+  （`counselorsInScope.length > 1` のときのみ）。localStorage キー
+  `kinda-dashboard-context` を dashboard と共有してページ間でも選択が伝搬する。
+
+#### Profile step4 ボタン整理
+
+「保存する」ボタンが autosave と二重で形骸化していたため、`handleFinish` に書き換え。
+saveStatus に応じて「保存して完了」「ダッシュボードへ」のラベル動的切替 + 押下時に
+未保存ぶんを保存してから `/dashboard` へ遷移。
+
+#### Agency: キャンセル / 連絡先 / 料金プラン / キャンペーン / 新店舗バッジ / 創業日
+
+- DB マイグレーション 009: `agencies` に `fees JSONB` / `campaign_text` / `campaign_expires_at` 追加
+- DB マイグレーション 010: `agencies.founded_at DATE` 追加（Supabase 登録日 ≠ 創業日 を分離）
+- DB マイグレーション 012: `fees` を「フラット項目配列」から「プラン配列」へ変換。
+  形式: `[{name, popular?, items: [{label, amount, suffix?, note?}]}]`
+- **agency 編集画面**:
+  - CANCELLATION & CONTACT セクション: 電話 / メール / キャンセル可能期限（時間前）/ ポリシー本文
+  - 料金プラン: プラン単位 + 項目単位の 2 階層 UI。
+    プラン名 + 人気バッジトグル + 項目に suffix プルダウン（(税込)/月/回/年/初回）
+  - キャンペーン: 本文 + datetime-local 期限。期限切れは自動非表示
+  - 創業日: date input（手入力）→ 1年以内なら「新店舗」バッジ自動表示の案内
+  - 料金セクションに「金額は税込で入力してください」案内バナー
+
+#### iPhone フリック入力時のページ跳ね対策
+
+- input/select/textarea の `font-size` をモバイルで `16px !important`（ズーム抑止）。
+  素の `input[type=...]` 全タイプにも適用
+- `scroll-margin-bottom: 320px` / `scroll-margin-top: 80px` で iOS の "scroll into view" が
+  毎キー入力で再評価されても同じ位置に揃うように
+- 「相談所プロフィールを保存しました」案内カードの表示条件から `saveStatus === 'saved'` を
+  外して、入力のたびにカードが消えて再表示されページ高さが変動する事象を排除
+
+#### RLS 厳密化（007 → 011）
+
+旧 `auth_all_reservations`（認証ユーザーに全権付与）を削除し、以下 4 ポリシーに置換：
+- `counselor_select_own_reservations` / `counselor_update_own_reservations`:
+  カウンセラー本人が自分の予約のみ参照・更新
+- `agency_owner_select_reservations` / `agency_owner_update_reservations`:
+  相談所オーナーが agency_id 直接 or counselor 経由で自分の相談所の予約を参照・更新
+- DELETE は誰も不可（論理キャンセル `status='canceled'` のみ）
+- `users * own reservations` 既存 3 ポリシーは維持
+- インデックス追加: `reservations(counselor_id, agency_id)` / `counselors(agency_id)`
+
+#### Storage バケット確認
+
+`counselor-media` バケット存在確認、Storage RLS 4ポリシー全て適用済み、
+preview_invite / claim_counselor_by_token RPC 存在確認すべて OK。
+
+### B. user-site 側の反映（claude/implement-kinda-talk-uDUoW）
+
+#### Agency 型・ヘルパーの拡張（src/lib/data.ts）
+
+- `Agency` 型に `fees / campaignText / campaignExpiresAt / foundedAt` を追加（optional）
+- `FeePlan` / `FeeItem` 型を export。FeeItem に suffix を追加
+- ヘルパー: `isCampaignActive` / `isNewShop` / `formatFeeAmount` / `formatFeeItem`
+- `getAgencies()` で Supabase 行を snake_case → camelCase に正規化して返す
+- `getCounselors()` / `getCounselorById()` で agencies.founded_at も取り、
+  Counselor に `agencyFoundedAt` フィールドとして伝搬
+
+#### 相談所詳細ページの表示更新（agencies/[id]）
+
+- 種別タグの先頭に「新店舗」バッジ自動表示（foundedAt から1年以内）
+- キャンペーンは `campaignText` 優先・期限切れ自動非表示。
+  無ければ旧 `campaign` 文字列にフォールバック
+- 料金プラン表示は `fees` 配列があれば優先（複数プランは 2 カラムグリッド、
+  1 プランなら 560px 単一カード）。¥0 は「無料」緑色、`/月` `/回` 等の suffix は
+  そのまま表示、それ以外は「(税込)」自動付与
+
+#### AgencyCardBlock / AgenciesClient（一覧・検索）
+
+カウンセラー詳細の所属相談所カード、相談所一覧（検索）両方で：
+- キャンペーンバナーを `campaignText` 優先表示
+- 種別タグの先頭に「新店舗」バッジ
+
+#### CounselorReelCard / CounselorReelModal の表示崩れ修正
+
+- `style={{ background: bg }}` の shorthand が CSS の `background-size: cover` を
+  上書きしていたため、画像が原寸表示されていた問題を `backgroundImage` 分離で解決
+- カウンセラー名行に「新店舗」バッジ追加（`agencyFoundedAt` 1年以内）
+- リール画像 URL を `url("...")` でクォート安全化
+
+#### /counselors/[id] 詳細ページ：Supabase オンリーカウンセラーで 404 を出さない
+
+- mock counselors{} に名前マッチしない UUID counselor（小山楓華等）で 404 になっていた問題を解消
+- `buildFromSupabase` ヘルパー：Supabase の `bio / intro / message / catchphrase /
+  specialties / qualifications / experience / area / agencyName / agencyId` を mock と同じ
+  shape にマッピング。料金欄は「料金詳細は所属相談所ページをご確認ください」案内に置換
+
+#### カウンセラー詳細ヒーローの黒背景を温かいクリームに変更
+
+- `.hero-strip` の background を `var(--black)` から
+  `linear-gradient(180deg, #FAF4EA → #F5ECDB → #EFE3CB)` に変更
+- 中の文字色（パンくず / 名前 / タグ / 統計）を白系から ink / mid に反転
+- 「急に黒」感を排除して、サイト全体の上質感トーンに揃える
+
+#### 0 件評価の棒グラフを非表示
+
+- 口コミ 0 件のとき、★0.0 表示 +「話しやすさ / 専門知識 / 提案力 / サポート」棒グラフを
+  「まだ口コミはありません」案内に置換
+- 棒グラフは 3 件以上から表示（少数件は平均値が不安定なため食べログ等と同じ運用）
+
+### C. テスト用ログイン緩和の現状確認
+
+`auth.users` のメタを見ると `email_confirmed_at` が `created_at` の 28ms 後に設定されており、
+Supabase Auth の **メール確認が自動 ON（テスト用緩和）** されている。コード側は確認ON/OFFどちらでも
+動くように書かれているため、本番リリース時は Supabase Dashboard → Authentication → Sign In/Sign Up
+→ Email Auth → "Confirm email" を ON にするだけでよい。
+
+### D. 既知の制約（次セッションで取り組む）
+
+- **小山楓華（Supabase オンリーカウンセラー）のプロフィール詳細ページの完成度**：
+  今は最低限「404 を出さず基本情報を表示する」状態だけ。Supabase オンリーで以下が未表示:
+  - プロフィール写真（`photo_url`）— 現状 mock の SVG アバターが出る
+  - 経歴・成婚実績の数値表示（`success_count` / `experience_label`）
+  - 「次回空き枠」（mock の `nextAvailable` 固定値）
+  - 「人気プラン」料金カード（fees は agencies 側で表示）
+  → 1100 行のページを大きく書き換える必要があるため、別タスクとして残す。
+- 招待リンクのカスタムドメイン化（`counselor.futarive.jp`）→ Vercel Deployment Protection
+  オフ + カスタムドメイン設定が必要
+- `Step1Calendar` のモック slot を Supabase の本物 slots テーブルに差し替え
+- `locked_until` + `pg_cron` でロック切れ slot 自動解放
+
+### E. DB マイグレーション一覧（このセッションで適用）
+
+| # | 内容 | ファイル |
+|---|---|---|
+| 009 | agencies に fees / campaign_text / campaign_expires_at を追加 | `futarive-counselor/supabase/migrations/009_agencies_fees_and_campaign.sql` |
+| 010 | agencies に founded_at（手入力創業日）を追加 | `futarive-counselor/supabase/migrations/010_agencies_founded_at.sql` |
+| 011 | reservations RLS 厳密化（auth_all_reservations 削除 + 役割ごとポリシー） | `futarive-counselor/supabase/migrations/011_tighten_reservations_rls.sql` |
+| 012 | agencies.fees を多プラン構造に切替 | `futarive-counselor/supabase/migrations/012_agencies_fees_to_plans.sql` |
+
+すべて MCP の `apply_migration` 経由で Supabase に適用済み。リポジトリにも SQL ファイルが
+存在するので、ローカル DB を再構築するときはここから再現可能。
+
