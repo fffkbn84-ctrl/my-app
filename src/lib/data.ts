@@ -163,6 +163,12 @@ export type Counselor = {
   reelImages?: { bg: string; caption?: string }[];
   /** 所属相談所の創業日（user-side で「新店舗」バッジ判定に使用） */
   agencyFoundedAt?: string | null;
+  /** プロフィール写真 URL（Supabase Storage 等） */
+  photoUrl?: string | null;
+  /** 経歴ラベル（例: 「10年以上」など、数値より柔軟に表現したい時） */
+  experienceLabel?: string | null;
+  /** 成婚実績件数（DB に無ければ undefined。0 / 未設定なら非表示） */
+  successCount?: number | null;
 };
 
 export const AGENCIES: Agency[] = [
@@ -752,6 +758,11 @@ function mapCounselorRowToCounselor(
         caption: m.caption ?? undefined,
       })),
     agencyFoundedAt: agencyFoundedAt ?? null,
+    photoUrl: row.photo_url ?? null,
+    experienceLabel: row.experience_label ?? null,
+    // success_count は現状 counselors テーブルに未追加。
+    // 将来マイグレーションで追加した時にここで row.success_count を拾うよう拡張する。
+    successCount: null,
   }
 }
 
@@ -914,6 +925,44 @@ export function formatFeeItem(item: FeeItem): { main: string; suffix: string | n
   const main = `¥${item.amount.toLocaleString('ja-JP')}`;
   const suffix = item.suffix && item.suffix.trim() ? item.suffix.trim() : '(税込)';
   return { main, suffix };
+}
+
+/* ────────────────────────────────────────────────────────────
+   カウンセラーの次の予約可能枠を取得
+   - status='open' かつ start_at >= 今 の最早行を返す
+   - UUID 以外（mock の数値 id）が渡されたら null（呼び出し側で mock 値を使う）
+──────────────────────────────────────────────────────────── */
+type NextSlotInfo = { startAt: string; endAt: string } | null
+export async function getNextSlotByCounselor(counselorId: string): Promise<NextSlotInfo> {
+  // mock の数値 id（"1" 〜 "105"）は slots テーブルに対応する行が無いのでスキップ
+  if (!counselorId || !/^[0-9a-f-]{36}$/i.test(counselorId)) return null
+  const nowIso = new Date().toISOString()
+  const res = await supabase
+    .from('slots')
+    .select('start_at,end_at,status')
+    .eq('counselor_id', counselorId)
+    .eq('status', 'open')
+    .gte('start_at', nowIso)
+    .order('start_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+  const row = res.data as { start_at: string; end_at: string; status: string } | null
+  if (res.error || !row) return null
+  return { startAt: row.start_at, endAt: row.end_at }
+}
+
+/* ────────────────────────────────────────────────────────────
+   相談所単体取得（normalize 済み AgencyPartial）
+──────────────────────────────────────────────────────────── */
+export async function getAgencyById(id: string | number): Promise<AgencyPartial | null> {
+  if (!id) return null
+  const res = await supabase
+    .from('agencies')
+    .select('*')
+    .eq('id', String(id))
+    .maybeSingle()
+  if (res.error || !res.data) return null
+  return normalizeSupabaseAgency(res.data)
 }
 
 // 相談所一覧取得

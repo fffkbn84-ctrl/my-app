@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -8,9 +9,21 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
 import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
-import { AGENCIES, COUNSELORS, getCounselorById, getReviewsByCounselor } from "@/lib/data";
+import {
+  AGENCIES,
+  COUNSELORS,
+  getCounselorById,
+  getReviewsByCounselor,
+  getNextSlotByCounselor,
+  getAgencyById,
+  formatFeeItem,
+  type FeePlan,
+} from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { getStoryById } from "@/lib/mock/stories";
+
+// ISR：60秒キャッシュで2回目以降の遷移を高速化
+export const revalidate = 60;
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -614,9 +627,11 @@ export default async function CounselorDetailPage({
   const { from, fromId } = await searchParams;
 
   // Supabase から取得を試みる（フォールバック: モックデータ）
-  const [supabaseCounselor, supabaseReviews] = await Promise.all([
+  // 並列化で初回 SSR を短縮（counselor / reviews / 次の空き枠 を 1 ラウンドトリップで）
+  const [supabaseCounselor, supabaseReviews, nextSlot] = await Promise.all([
     getCounselorById(id),
     getReviewsByCounselor(id),
+    getNextSlotByCounselor(id),
   ]);
 
   // Supabase にレコードがある（UUID）が、ローカル counselors{} にエントリが
@@ -659,6 +674,8 @@ export default async function CounselorDetailPage({
     reviewCount: number;
     yearsExp: number;
     successCount: number;
+    /** "10年以上" 等のラベル表示。あれば yearsExp の代わりに優先表示 */
+    experienceLabel?: string | null;
     nextAvailable: string;
     bio: string;
     message: string;
@@ -667,6 +684,10 @@ export default async function CounselorDetailPage({
     monthlyFee: string;
     campaign: null | { label: string; detail?: string; expiry?: string };
     pricing: { plans: PlanShape[]; note: string };
+    /** Supabase 由来の相談所料金プラン（あれば mock pricing.plans より優先表示） */
+    agencyFees?: FeePlan[];
+    /** Supabase オンリーで mock ベースが無いカウンセラーか */
+    isSupabaseOnly?: boolean;
   };
   const buildFromSupabase = (sc: NonNullable<typeof supabaseCounselor>): CounselorShape => {
     const tags = sc.specialties ?? sc.tags ?? [];
@@ -682,15 +703,17 @@ export default async function CounselorDetailPage({
       rating: sc.rating ?? 0,
       reviewCount: sc.reviewCount ?? 0,
       yearsExp: sc.experience ?? 0,
-      successCount: 0,
+      successCount: sc.successCount ?? 0,
+      experienceLabel: sc.experienceLabel ?? null,
       nextAvailable: "",
       bio: sc.bio ?? sc.intro ?? "",
       message: sc.message ?? sc.catchphrase ?? "",
       qualifications: sc.qualifications ?? [],
-      photoUrl: undefined,
+      photoUrl: sc.photoUrl ?? undefined,
       monthlyFee: "",
       campaign: null,
       pricing: { plans: [], note: "※ 料金詳細は所属相談所ページをご確認ください。" },
+      isSupabaseOnly: true,
     };
   };
 
@@ -701,11 +724,38 @@ export default async function CounselorDetailPage({
         ...mockCounselor,
         bio: supabaseCounselor?.bio ?? mockCounselor.bio,
         name: supabaseCounselor?.name ?? mockCounselor.name,
+        photoUrl: supabaseCounselor?.photoUrl ?? mockCounselor.photoUrl,
       } as CounselorShape)
     : supabaseCounselor
       ? buildFromSupabase(supabaseCounselor)
       : undefined;
   if (!counselor) notFound();
+
+  // Supabase オンリーの場合、所属相談所の fees / 創業日を取得して料金プラン表示に使う
+  const supabaseAgency =
+    counselor.isSupabaseOnly && counselor.agencyId
+      ? await getAgencyById(counselor.agencyId)
+      : null;
+  if (supabaseAgency?.fees && supabaseAgency.fees.length > 0) {
+    counselor.agencyFees = supabaseAgency.fees;
+  }
+  if (supabaseAgency?.name && !counselor.agency) {
+    counselor.agency = supabaseAgency.name;
+  }
+
+  // 次の空き枠：Supabase の slots テーブルから取れたらそちらを優先（mock 文字列を上書き）
+  if (nextSlot) {
+    const d = new Date(nextSlot.startAt);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1);
+    const dd = String(d.getDate());
+    const w = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    counselor.nextAvailable = `${yyyy}年${mm}月${dd}日（${w}）${hh}:${mi}〜`;
+  } else if (counselor.isSupabaseOnly && !counselor.nextAvailable) {
+    counselor.nextAvailable = "面談枠の準備中です";
+  }
 
   const mockReviews = reviews.filter((r) => r.counselorId === id);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -797,7 +847,14 @@ export default async function CounselorDetailPage({
               <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 16 }}>
                 <div className="d-avatar">
                   {counselor.photoUrl ? (
-                    <img src={counselor.photoUrl} alt={counselor.name} />
+                    <Image
+                      src={counselor.photoUrl}
+                      alt={counselor.name}
+                      width={80}
+                      height={80}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                      priority
+                    />
                   ) : (
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
                       <circle cx="20" cy="15" r="8" fill="#C8A97A" opacity=".6" />
@@ -890,21 +947,29 @@ export default async function CounselorDetailPage({
               })()}
 
               <div className="d-stats">
-                <div className="d-stat-item">
-                  <div className="d-stat-num">{counselor.successCount}</div>
-                  <div className="d-stat-label">成婚実績</div>
-                </div>
-                <div className="d-stat-item">
-                  <div className="d-stat-num">{counselor.yearsExp}</div>
-                  <div className="d-stat-label">経験年数</div>
-                </div>
+                {counselor.successCount > 0 && (
+                  <div className="d-stat-item">
+                    <div className="d-stat-num">{counselor.successCount}</div>
+                    <div className="d-stat-label">成婚実績</div>
+                  </div>
+                )}
+                {(counselor.experienceLabel || counselor.yearsExp > 0) && (
+                  <div className="d-stat-item">
+                    <div className="d-stat-num">
+                      {counselor.experienceLabel ?? counselor.yearsExp}
+                    </div>
+                    <div className="d-stat-label">経験年数</div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* 右: 予約カード（PCのみ） */}
             <div className="d-book-card">
               <div className="d-book-card-title">初回面談を予約する</div>
-              <div className="d-book-card-sub">次の空き: {counselor.nextAvailable}</div>
+              {counselor.nextAvailable && (
+                <div className="d-book-card-sub">次の空き: {counselor.nextAvailable}</div>
+              )}
               <div className="d-price-row">
                 <span className="d-price-label">面談料金</span>
                 <span className="d-price">¥0</span>
@@ -974,22 +1039,32 @@ export default async function CounselorDetailPage({
 
                   {/* 2カラムグリッド */}
                   <div className="d-profile-grid">
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">専門分野</div>
-                      <div className="d-profile-val">{counselor.specialties.join(" · ")}</div>
-                    </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">エリア</div>
-                      <div className="d-profile-val">{counselor.area}</div>
-                    </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">経験年数</div>
-                      <div className="d-profile-val">{counselor.yearsExp}年</div>
-                    </div>
-                    <div className="d-profile-item">
-                      <div className="d-profile-key">成婚実績</div>
-                      <div className="d-profile-val">{counselor.successCount}組</div>
-                    </div>
+                    {counselor.specialties.length > 0 && (
+                      <div className="d-profile-item">
+                        <div className="d-profile-key">専門分野</div>
+                        <div className="d-profile-val">{counselor.specialties.join(" · ")}</div>
+                      </div>
+                    )}
+                    {counselor.area && (
+                      <div className="d-profile-item">
+                        <div className="d-profile-key">エリア</div>
+                        <div className="d-profile-val">{counselor.area}</div>
+                      </div>
+                    )}
+                    {(counselor.experienceLabel || counselor.yearsExp > 0) && (
+                      <div className="d-profile-item">
+                        <div className="d-profile-key">経験年数</div>
+                        <div className="d-profile-val">
+                          {counselor.experienceLabel ?? `${counselor.yearsExp}年`}
+                        </div>
+                      </div>
+                    )}
+                    {counselor.successCount > 0 && (
+                      <div className="d-profile-item">
+                        <div className="d-profile-key">成婚実績</div>
+                        <div className="d-profile-val">{counselor.successCount}組</div>
+                      </div>
+                    )}
                     {counselor.qualifications.length > 0 && (
                       <div className="d-profile-item" style={{ gridColumn: "1 / -1" }}>
                         <div className="d-profile-key">資格・認定</div>
@@ -1007,7 +1082,71 @@ export default async function CounselorDetailPage({
                   >
                     料金プラン
                   </h2>
-                  <div className="pricing-grid">
+
+                  {/* Supabase 経由のカウンセラー: 所属相談所の fees を表示 */}
+                  {counselor.agencyFees && counselor.agencyFees.length > 0 ? (
+                    <>
+                      <div className="pricing-grid">
+                        {counselor.agencyFees.map((plan, planIdx) => (
+                          <div
+                            key={`${plan.name}-${planIdx}`}
+                            className={`pricing-card${plan.popular ? " featured" : ""}`}
+                          >
+                            <div className="pricing-card-head">
+                              <div className="pricing-plan-name">{plan.name}</div>
+                              {plan.popular && <div className="pricing-popular">人気</div>}
+                            </div>
+                            <div className="pricing-items">
+                              {plan.items.map((item, itemIdx) => {
+                                const fmt = formatFeeItem(item);
+                                const isFree = item.amount === 0;
+                                return (
+                                  <div key={`${item.label}-${itemIdx}`} className="pricing-item">
+                                    <div className="pricing-item-label">{item.label}</div>
+                                    <div className={`pricing-item-val${isFree ? " free" : ""}`}>
+                                      {fmt.main}
+                                      {fmt.suffix && <small>{fmt.suffix}</small>}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="pricing-note">
+                        ※ 料金は所属相談所「{counselor.agency}」が設定したものです。詳細は相談所詳細ページからもご確認いただけます。
+                      </p>
+                    </>
+                  ) : counselor.pricing.plans.length === 0 ? (
+                    /* Supabase オンリーで fees も未登録: 案内のみ */
+                    <div
+                      className="bg-pale rounded-2xl p-6"
+                      style={{ textAlign: "center" }}
+                    >
+                      <p style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.8 }}>
+                        料金プランは所属相談所のページでご確認ください。
+                      </p>
+                      {counselor.agencyId && (
+                        <Link
+                          href={`/agencies/${counselor.agencyId}`}
+                          style={{
+                            display: "inline-block",
+                            marginTop: 12,
+                            padding: "8px 20px",
+                            border: "1px solid var(--accent)",
+                            borderRadius: 20,
+                            fontSize: 12,
+                            color: "var(--accent)",
+                          }}
+                        >
+                          {counselor.agency || "相談所詳細"} を見る
+                        </Link>
+                      )}
+                    </div>
+                  ) : (
+                    /* mock カウンセラー: 従来通り pricing.plans を表示 */
+                    <div className="pricing-grid">
                     {counselor.pricing.plans.map((plan) => (
                       <div key={plan.name} className={`pricing-card${plan.featured ? " featured" : ""}`}>
                         <div className="pricing-card-head">
@@ -1051,8 +1190,13 @@ export default async function CounselorDetailPage({
                         )}
                       </div>
                     ))}
-                  </div>
-                  <p className="pricing-note">{counselor.pricing.note}</p>
+                    </div>
+                  )}
+
+                  {/* mock 表示時のみ pricing.note を出す（agencyFees / 案内ブロック側は独自の注釈あり） */}
+                  {!counselor.agencyFees && counselor.pricing.plans.length > 0 && (
+                    <p className="pricing-note">{counselor.pricing.note}</p>
+                  )}
                 </section>
 
                 {/* メッセージ */}
@@ -1176,13 +1320,17 @@ export default async function CounselorDetailPage({
                   style={{ marginBottom: 20 }}
                 >
                   <div style={{ padding: "24px 24px 0" }}>
-                    <p className="text-xs text-muted mb-2">次の空き枠</p>
-                    <p
-                      className="text-sm text-ink mb-5"
-                      style={{ fontFamily: "var(--font-mincho)" }}
-                    >
-                      {counselor.nextAvailable}
-                    </p>
+                    {counselor.nextAvailable && (
+                      <>
+                        <p className="text-xs text-muted mb-2">次の空き枠</p>
+                        <p
+                          className="text-sm text-ink mb-5"
+                          style={{ fontFamily: "var(--font-mincho)" }}
+                        >
+                          {counselor.nextAvailable}
+                        </p>
+                      </>
+                    )}
                     <div className="d-price-row" style={{ marginBottom: 20 }}>
                       <span className="d-price-label">面談料金</span>
                       <span className="d-price">¥0</span>
