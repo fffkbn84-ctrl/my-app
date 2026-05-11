@@ -49,6 +49,10 @@ export default function AgencyPage() {
     campaign_text: '',
     campaign_expires_at: '',  // ISO 文字列、未設定なら ''
     founded_at: '',           // 'YYYY-MM-DD'、未設定なら ''
+    /* 013 マイグレーションで追加した会場アクセス情報 */
+    address: '',              // 所在地（フリーテキスト）
+    access: '',               // 最寄駅などの簡潔なアクセス
+    directions: '',           // 最寄駅からの行き方（複数行可）
   })
 
   const formRef = useRef(form)
@@ -77,6 +81,9 @@ export default function AgencyPage() {
         ? new Date(ag.campaign_expires_at).toISOString().slice(0, 16)
         : '',
       founded_at: ag.founded_at ?? '',
+      address: ag.address ?? '',
+      access: ag.access ?? '',
+      directions: ag.directions ?? '',
     })
   }
 
@@ -144,6 +151,9 @@ export default function AgencyPage() {
         ? new Date(f.campaign_expires_at).toISOString()
         : null,
       founded_at: f.founded_at || null,
+      address: f.address || null,
+      access: f.access || null,
+      directions: f.directions || null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -410,7 +420,81 @@ export default function AgencyPage() {
           )}
         </div>
 
+        {/* ─── 会場へのアクセス（013 マイグレーション） ───────────────
+            ユーザー画面の「予約完了」「カウンセラー詳細」「マイページ予約詳細」で
+            お客様に表示されます。所在地は Google マップにも自動連動します。
+        ─────────────────────────────────────────────── */}
+        <div
+          style={{
+            padding: '14px 16px',
+            background: 'var(--bg-elev)',
+            border: '1px solid var(--border)',
+            borderRadius: 10,
+            marginTop: 4,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-mincho, "Shippori Mincho", serif)',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--text)',
+              marginBottom: 4,
+            }}
+          >
+            会場へのアクセス
+          </p>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+            ご予約のお客様に表示されます。所在地は Google マップに自動表示されます。
+          </p>
+        </div>
 
+        {/* 所在地 */}
+        <div>
+          <label className="kc-label">所在地</label>
+          <input
+            className="kc-input"
+            type="text"
+            value={form.address}
+            onChange={e => update('address', e.target.value)}
+            placeholder="例：東京都中央区銀座4-12-3 銀座ビル4F"
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            この住所は Google マップの埋め込みクエリにも使われます。
+          </p>
+        </div>
+
+        {/* アクセス（最寄駅） */}
+        <div>
+          <label className="kc-label">アクセス（最寄駅）</label>
+          <input
+            className="kc-input"
+            type="text"
+            value={form.access}
+            onChange={e => update('access', e.target.value)}
+            placeholder="例：東銀座駅 徒歩3分 / 銀座駅 徒歩5分"
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            最寄駅と徒歩時間を1行で。複数駅を「/」で区切ってもOKです。
+          </p>
+        </div>
+
+        {/* 最寄駅からの行き方（自由記述・複数行） */}
+        <div>
+          <label className="kc-label">最寄駅からの行き方</label>
+          <textarea
+            className="kc-textarea"
+            style={{ minHeight: 110 }}
+            value={form.directions}
+            onChange={e => update('directions', e.target.value)}
+            placeholder={
+              '例：\n東銀座駅A1出口を出て地上に上がり、和光方面へ徒歩2分。\n4階建ての茶色いビルの3階に「ブライダルハウス東京」の看板があります。\nビル入口は1階のカフェの右隣です。'
+            }
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            初めて来店される方が迷わないよう、目印・道順を自由に記入してください。改行が反映されます。
+          </p>
+        </div>
 
         {/* 営業時間（自由記述） */}
         <div>

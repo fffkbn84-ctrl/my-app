@@ -32,6 +32,10 @@ export interface Agency {
   campaign_text: string | null             // キャンペーン本文
   campaign_expires_at: string | null       // キャンペーン有効期限 ISO 文字列
   founded_at: string | null                // 創業日 'YYYY-MM-DD'（NULL なら新店舗バッジ非表示）
+  /* 013_agencies_location_and_directions で追加：会場へのアクセス情報 */
+  address: string | null                   // 所在地（フリーテキスト）
+  access: string | null                    // 最寄駅などの簡潔なアクセス（例：銀座駅 徒歩3分）
+  directions: string | null                // 最寄駅からの行き方（フリーテキスト、改行可）
   created_at: string                       // Supabase 登録日（参考のみ）
 }
 
