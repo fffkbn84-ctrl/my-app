@@ -4666,6 +4666,27 @@ Supabase Auth の **メール確認が自動 ON（テスト用緩和）** され
   オフ + カスタムドメイン設定が必要
 - `Step1Calendar` のモック slot を Supabase の本物 slots テーブルに差し替え
 - `locked_until` + `pg_cron` でロック切れ slot 自動解放
+- **ページ遷移速度の改善**：
+  - **カウンセラー管理画面**: ナビゲーション（サイドバー / モバイル下タブ）をタップしてから
+    画面切替まで体感で 1〜2 秒かかる。原因候補：
+    - `middleware.ts` が全ルートで Supabase Auth セッションを毎回確認
+    - 各 page.tsx で `supabase.auth.getUser()` + counselors/agencies の取得を都度実行
+    - `'use client'` ページが多くクライアントバンドルが大きい
+    - 改善案：
+      - 認証チェックをサーバーで一度に done してクライアントに渡す
+      - `useCurrentCounselor` / `useAgencyContext` を Provider 化して 1 回だけ取得
+      - 静的に出せるページ（login / claim）を完全 SSG 化
+      - 画像（プロフィール写真）に `next/image` を使う
+  - **user-site (Kinda talk → カウンセラー詳細)**: リールモーダルの「プロフィールを見る」
+    から `/counselors/[id]` 遷移に体感 1〜2 秒。原因候補：
+    - `/counselors/[id]` がサーバーで getCounselorById + getReviewsByCounselor を毎回叩く
+    - 1100 行のページ全体を SSR で組み立てる
+    - 改善案：
+      - `loading.tsx` を追加して即座にスケルトン表示
+      - `Link` の prefetch を確実に効かせる（モーダルが SPA 内なので prefetch トリガーが弱い可能性）
+      - `getCounselorById` の結果を `unstable_cache` でキャッシュ
+      - Supabase クエリを並列化（既に Promise.all しているが、agency / media の 2 段階を 1 つに統合可）
+      - 静的生成（`generateStaticParams` で全 counselor を ISR）
 
 ### E. DB マイグレーション一覧（このセッションで適用）
 

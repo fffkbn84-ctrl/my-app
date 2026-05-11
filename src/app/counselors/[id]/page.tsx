@@ -825,8 +825,8 @@ export default async function CounselorDetailPage({
                     <svg key={star} width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path
                         d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 2.1.7-4L2.2 5.7l4-.6z"
-                        fill={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(255,255,255,.18)"}
-                        stroke={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(255,255,255,.18)"}
+                        fill={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(46,38,32,.15)"}
+                        stroke={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(46,38,32,.2)"}
                         strokeWidth=".5"
                         strokeLinejoin="round"
                       />
@@ -840,14 +840,14 @@ export default async function CounselorDetailPage({
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                     <path
                       d="M1.5 1.5h10a.8.8 0 01.8.8v6a.8.8 0 01-.8.8H8L6.5 11 5 9.1H1.5a.8.8 0 01-.8-.8v-6a.8.8 0 01.8-.8z"
-                      stroke="rgba(255,255,255,.55)"
+                      stroke="rgba(46,38,32,.55)"
                       strokeWidth="1.1"
-                      fill="rgba(255,255,255,.06)"
+                      fill="rgba(255,255,255,.5)"
                       strokeLinejoin="round"
                     />
                     <path
                       d="M3.5 4.8h6M3.5 6.6h4"
-                      stroke="rgba(255,255,255,.4)"
+                      stroke="rgba(46,38,32,.4)"
                       strokeWidth=".9"
                       strokeLinecap="round"
                     />
