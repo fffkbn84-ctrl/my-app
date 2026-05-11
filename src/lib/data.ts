@@ -78,6 +78,25 @@ export type Agency = {
   phone?: string;
   /** キャンセル期限切れ時にユーザーへ案内するメールアドレス */
   email?: string;
+  /* ───── カウンセラー管理画面から編集されるフィールド ───── */
+  /** 料金プラン配列。空配列なら従来の plans を表示 */
+  fees?: FeeItem[];
+  /** キャンペーン本文（新フィールド。旧 campaign より優先） */
+  campaignText?: string | null;
+  /** キャンペーン有効期限 ISO 文字列。NULL なら無期限 */
+  campaignExpiresAt?: string | null;
+  /** 創業日 'YYYY-MM-DD'（NULL なら新店舗バッジ非表示） */
+  foundedAt?: string | null;
+};
+
+/** 料金プラン1項目（カウンセラー管理画面と共通） */
+export type FeeItem = {
+  /** 例：入会金 / 月会費 / 成婚料 / 独自名 */
+  label: string;
+  /** 円単位の整数。0 は「無料」と表示 */
+  amount: number;
+  /** 補足説明（任意）。「初回のみ」等 */
+  note?: string | null;
 };
 
 export type Counselor = {
@@ -811,14 +830,67 @@ export async function getCounselorMedia(counselorId: string): Promise<CounselorM
   return data
 }
 
+/* ────────────────────────────────────────────────────────────
+   Agency 用ヘルパー
+──────────────────────────────────────────────────────────── */
+
+/** 創業日から「新店舗」表示期間（日数） */
+export const NEW_SHOP_DAYS = 365;
+
+/** Supabase agencies 行（snake_case）を Agency 型の partial にマッピング */
+type AgencyPartial = Omit<Partial<Agency>, 'id'> & { id: number | string };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeSupabaseAgency(row: any): AgencyPartial {
+  if (!row) return { id: '' };
+  return {
+    ...row,
+    fees: Array.isArray(row.fees) ? row.fees : [],
+    campaignText: row.campaign_text ?? null,
+    campaignExpiresAt: row.campaign_expires_at ?? null,
+    foundedAt: row.founded_at ?? null,
+    cancelPolicy: row.cancel_policy ?? row.cancelPolicy ?? undefined,
+    cancelDeadlineHours: row.cancel_deadline_hours ?? row.cancelDeadlineHours ?? undefined,
+  };
+}
+
+/** キャンペーン本文を表示すべきか判定（期限切れ・空文字は false） */
+export function isCampaignActive(
+  text?: string | null,
+  expiresAt?: string | null,
+): boolean {
+  if (!text || !text.trim()) return false;
+  if (!expiresAt) return true;
+  const expiry = new Date(expiresAt);
+  if (isNaN(expiry.getTime())) return true;
+  return expiry > new Date();
+}
+
+/** 新店舗バッジを表示すべきか（創業から NEW_SHOP_DAYS 以内かつ未来でない） */
+export function isNewShop(foundedAt?: string | null): boolean {
+  if (!foundedAt) return false;
+  const founded = new Date(foundedAt.length === 10 ? foundedAt + 'T00:00:00' : foundedAt);
+  if (isNaN(founded.getTime())) return false;
+  const now = new Date();
+  if (founded > now) return false;
+  const expires = new Date(founded.getTime() + NEW_SHOP_DAYS * 24 * 60 * 60 * 1000);
+  return now < expires;
+}
+
+/** 料金額の表示文字列（税込統一） */
+export function formatFeeAmount(amount: number): string {
+  if (amount === 0) return '無料';
+  return `${amount.toLocaleString('ja-JP')}円（税込）`;
+}
+
 // 相談所一覧取得
-export async function getAgencies() {
+export async function getAgencies(): Promise<AgencyPartial[]> {
   const { data, error } = await supabase
     .from('agencies')
     .select('*')
     .order('created_at', { ascending: false })
-  if (error) return AGENCIES
-  return data
+  if (error || !data) return AGENCIES;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any[]).map(normalizeSupabaseAgency);
 }
 
 // お店一覧取得

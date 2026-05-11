@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AGENCIES, COUNSELORS, type Counselor, type Agency } from "@/lib/data";
+import { AGENCIES, COUNSELORS, isCampaignActive, isNewShop, type Counselor, type Agency } from "@/lib/data";
 import { matchesAreaFilter } from "@/lib/areas";
 import Pagination from "@/components/ui/Pagination";
 import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
@@ -51,14 +51,18 @@ function AgencyCard({ a, counselors }: { a: Agency; counselors: Counselor[] }) {
         }
       }}
     >
-      {a.campaign && (
-        <div className="agc-campaign">
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-            <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
-          </svg>
-          <span>{a.campaign}</span>
-        </div>
-      )}
+      {(() => {
+        const banner = isCampaignActive(a.campaignText, a.campaignExpiresAt) ? a.campaignText : a.campaign;
+        if (!banner) return null;
+        return (
+          <div className="agc-campaign">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
+            </svg>
+            <span>{banner}</span>
+          </div>
+        );
+      })()}
 
       <div className="agc-thumb" style={{ background: a.gradient }}>
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
@@ -71,6 +75,20 @@ function AgencyCard({ a, counselors }: { a: Agency; counselors: Counselor[] }) {
           />
         </svg>
         <div className="agc-types">
+          {isNewShop(a.foundedAt) && (
+            <span
+              className="agc-type-pill"
+              style={{
+                color: "var(--accent)",
+                borderColor: "var(--accent)",
+                background: "rgba(255,255,255,.85)",
+                fontWeight: 500,
+              }}
+              title="創業から1年以内の相談所"
+            >
+              新店舗
+            </span>
+          )}
           {a.type.map((t) => (
             <span key={t} className="agc-type-pill">{t}</span>
           ))}

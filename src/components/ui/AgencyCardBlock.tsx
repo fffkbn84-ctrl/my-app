@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { Agency } from "@/lib/data";
+import { isCampaignActive, isNewShop, type Agency } from "@/lib/data";
 
 type Props = {
   agency: Agency | undefined;
@@ -52,26 +52,32 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
         (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
       }}
     >
-      {/* キャンペーンバナー */}
-      {agency.campaign && (
-        <div
-          style={{
-            background: "rgba(200,169,122,.12)",
-            borderBottom: "1px solid rgba(200,169,122,.25)",
-            padding: "7px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-          }}
-        >
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-            <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
-          </svg>
-          <span style={{ fontSize: 11, color: "var(--accent)", letterSpacing: ".04em" }}>
-            {agency.campaign}
-          </span>
-        </div>
-      )}
+      {/* キャンペーンバナー（campaignText 優先、期限切れは非表示） */}
+      {(() => {
+        const banner = isCampaignActive(agency.campaignText, agency.campaignExpiresAt)
+          ? agency.campaignText
+          : agency.campaign;
+        if (!banner) return null;
+        return (
+          <div
+            style={{
+              background: "rgba(200,169,122,.12)",
+              borderBottom: "1px solid rgba(200,169,122,.25)",
+              padding: "7px 16px",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
+            </svg>
+            <span style={{ fontSize: 11, color: "var(--accent)", letterSpacing: ".04em" }}>
+              {banner}
+            </span>
+          </div>
+        );
+      })()}
 
       {/* サムネイル */}
       <div
@@ -95,6 +101,24 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
           />
         </svg>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center", padding: "0 12px" }}>
+          {isNewShop(agency.foundedAt) && (
+            <span
+              style={{
+                fontFamily: "DM Sans, sans-serif",
+                fontSize: 9,
+                letterSpacing: ".15em",
+                color: "var(--accent)",
+                border: "1px solid var(--accent)",
+                borderRadius: 20,
+                padding: "2px 8px",
+                background: "rgba(255,255,255,.85)",
+                fontWeight: 500,
+              }}
+              title="創業から1年以内の相談所"
+            >
+              新店舗
+            </span>
+          )}
           {agency.type.map((t) => (
             <span
               key={t}

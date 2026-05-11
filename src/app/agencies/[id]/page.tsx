@@ -6,7 +6,17 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SaveButton from "@/components/ui/SaveButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
-import { AGENCIES, COUNSELORS, PLAN_PHOTO_LIMITS, getAgencies, type Agency, type Counselor } from "@/lib/data";
+import {
+  AGENCIES,
+  COUNSELORS,
+  PLAN_PHOTO_LIMITS,
+  getAgencies,
+  isCampaignActive,
+  isNewShop,
+  formatFeeAmount,
+  type Agency,
+  type Counselor,
+} from "@/lib/data";
 import { getStoryById } from "@/lib/mock/stories";
 
 /* ────────────────────────────────────────────────────────────
@@ -254,6 +264,24 @@ export default async function AgencyDetailPage({
 
             {/* 種別タグ */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+              {isNewShop(agency.foundedAt) && (
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "var(--accent)",
+                    background: "rgba(200,169,122,.18)",
+                    border: "1px solid var(--accent)",
+                    borderRadius: 20,
+                    padding: "3px 12px",
+                    fontFamily: "DM Sans, sans-serif",
+                    letterSpacing: ".12em",
+                    fontWeight: 500,
+                  }}
+                  title="創業から1年以内の相談所"
+                >
+                  新店舗
+                </span>
+              )}
               {agency.type.map((t) => (
                 <span
                   key={t}
@@ -286,35 +314,41 @@ export default async function AgencyDetailPage({
               {agency.name}
             </h1>
 
-            {/* キャンペーンバナー */}
-            {agency.campaign && (
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: "rgba(200,169,122,.15)",
-                  border: "1px solid rgba(200,169,122,.35)",
-                  borderRadius: 8,
-                  padding: "8px 16px",
-                  marginBottom: 24,
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
-                  <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
-                </svg>
-                <span
+            {/* キャンペーンバナー（campaignText 優先、期限切れは非表示） */}
+            {(() => {
+              const campaignDisplay = isCampaignActive(agency.campaignText, agency.campaignExpiresAt)
+                ? agency.campaignText
+                : agency.campaign;
+              if (!campaignDisplay) return null;
+              return (
+                <div
                   style={{
-                    fontSize: 12,
-                    color: "var(--accent)",
-                    letterSpacing: ".06em",
-                    fontFamily: "Noto Sans JP, sans-serif",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    background: "rgba(200,169,122,.15)",
+                    border: "1px solid rgba(200,169,122,.35)",
+                    borderRadius: 8,
+                    padding: "8px 16px",
+                    marginBottom: 24,
                   }}
                 >
-                  {agency.campaign}
-                </span>
-              </div>
-            )}
+                  <svg width="13" height="13" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="var(--accent)" />
+                  </svg>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: "var(--accent)",
+                      letterSpacing: ".06em",
+                      fontFamily: "Noto Sans JP, sans-serif",
+                    }}
+                  >
+                    {campaignDisplay}
+                  </span>
+                </div>
+              );
+            })()}
 
             {/* 星評価 + 口コミ件数（アンカーリンク） */}
             <a
@@ -637,87 +671,140 @@ export default async function AgencyDetailPage({
               プランを選ぶ
             </h2>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-                gap: 16,
-              }}
-            >
-              {agency.plans.map((plan) => (
-                <div
-                  key={plan.name}
-                  style={{
-                    border: plan.popular ? "1px solid var(--accent)" : "1px solid var(--light)",
-                    borderRadius: 12,
-                    overflow: "hidden",
-                    background: plan.popular ? "rgba(200,169,122,.04)" : "var(--white)",
-                  }}
-                >
-                  {/* プランヘッダー */}
-                  <div
-                    style={{
-                      padding: "16px 20px 12px",
-                      borderBottom: "1px solid var(--pale)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <p
+            {agency.fees && agency.fees.length > 0 ? (
+              /* 新スキーマ：相談所が編集した fees 配列を表示 */
+              <div
+                style={{
+                  border: "1px solid var(--light)",
+                  borderRadius: 12,
+                  overflow: "hidden",
+                  background: "var(--white)",
+                  maxWidth: 560,
+                }}
+              >
+                <div style={{ padding: "4px 20px 16px" }}>
+                  {agency.fees.map((row, i, arr) => (
+                    <div
+                      key={i}
                       style={{
-                        fontFamily: "var(--font-mincho)",
-                        fontSize: 17,
-                        color: "var(--ink)",
-                        fontWeight: 400,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        padding: "14px 0",
+                        gap: 12,
+                        borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
                       }}
                     >
-                      {plan.name}
-                    </p>
-                    {plan.popular && (
-                      <span
-                        style={{
-                          fontSize: 10,
-                          color: "var(--accent)",
-                          background: "rgba(200,169,122,.15)",
-                          borderRadius: 20,
-                          padding: "2px 10px",
-                          letterSpacing: ".06em",
-                        }}
-                      >
-                        人気
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 料金内訳 */}
-                  <div style={{ padding: "4px 20px 16px" }}>
-                    {[
-                      { label: "入会金", value: formatPrice(plan.admission) },
-                      { label: "月会費", value: formatPrice(plan.monthly) },
-                      { label: "お見合い料", value: plan.omiai === 0 ? "含む" : formatPrice(plan.omiai) },
-                      { label: "成婚料", value: formatPrice(plan.marriage) },
-                    ].map((row, i, arr) => (
-                      <div
-                        key={row.label}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          padding: "12px 0",
-                          borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
-                        }}
-                      >
-                        <span style={{ fontSize: 13, color: "var(--mid)" }}>{row.label}</span>
-                        <span style={{ fontSize: 15, fontWeight: 400, color: "var(--black)" }}>
-                          {row.value}
-                        </span>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: 13, color: "var(--ink)" }}>{row.label}</span>
+                        {row.note && (
+                          <span style={{ fontSize: 11, color: "var(--mid)", marginLeft: 8 }}>
+                            {row.note}
+                          </span>
+                        )}
                       </div>
-                    ))}
-                  </div>
+                      <span style={{ fontSize: 15, fontWeight: 400, color: "var(--black)", whiteSpace: "nowrap" }}>
+                        {formatFeeAmount(row.amount)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+                <div
+                  style={{
+                    padding: "8px 20px",
+                    background: "var(--pale)",
+                    fontSize: 11,
+                    color: "var(--mid)",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  ※ 表示金額はすべて税込です。
+                </div>
+              </div>
+            ) : (
+              /* 旧スキーマ：mock の plans を従来通り表示 */
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: 16,
+                }}
+              >
+                {agency.plans.map((plan) => (
+                  <div
+                    key={plan.name}
+                    style={{
+                      border: plan.popular ? "1px solid var(--accent)" : "1px solid var(--light)",
+                      borderRadius: 12,
+                      overflow: "hidden",
+                      background: plan.popular ? "rgba(200,169,122,.04)" : "var(--white)",
+                    }}
+                  >
+                    {/* プランヘッダー */}
+                    <div
+                      style={{
+                        padding: "16px 20px 12px",
+                        borderBottom: "1px solid var(--pale)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontFamily: "var(--font-mincho)",
+                          fontSize: 17,
+                          color: "var(--ink)",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {plan.name}
+                      </p>
+                      {plan.popular && (
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: "var(--accent)",
+                            background: "rgba(200,169,122,.15)",
+                            borderRadius: 20,
+                            padding: "2px 10px",
+                            letterSpacing: ".06em",
+                          }}
+                        >
+                          人気
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 料金内訳 */}
+                    <div style={{ padding: "4px 20px 16px" }}>
+                      {[
+                        { label: "入会金", value: formatPrice(plan.admission) },
+                        { label: "月会費", value: formatPrice(plan.monthly) },
+                        { label: "お見合い料", value: plan.omiai === 0 ? "含む" : formatPrice(plan.omiai) },
+                        { label: "成婚料", value: formatPrice(plan.marriage) },
+                      ].map((row, i, arr) => (
+                        <div
+                          key={row.label}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: "12px 0",
+                            borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
+                          }}
+                        >
+                          <span style={{ fontSize: 13, color: "var(--mid)" }}>{row.label}</span>
+                          <span style={{ fontSize: 15, fontWeight: 400, color: "var(--black)" }}>
+                            {row.value}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* ═══ 在籍カウンセラー（横スクロール） ═══ */}
