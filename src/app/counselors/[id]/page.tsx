@@ -744,15 +744,21 @@ export default async function CounselorDetailPage({
   }
 
   // 次の空き枠：Supabase の slots テーブルから取れたらそちらを優先（mock 文字列を上書き）
+  // サーバー（Vercel）は UTC で動くため、明示的に Asia/Tokyo で日時整形する。
   if (nextSlot) {
     const d = new Date(nextSlot.startAt);
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1);
-    const dd = String(d.getDate());
-    const w = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
-    const hh = String(d.getHours()).padStart(2, "0");
-    const mi = String(d.getMinutes()).padStart(2, "0");
-    counselor.nextAvailable = `${yyyy}年${mm}月${dd}日（${w}）${hh}:${mi}〜`;
+    const parts = new Intl.DateTimeFormat("ja-JP", {
+      timeZone: "Asia/Tokyo",
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(d);
+    const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+    counselor.nextAvailable = `${get("year")}年${get("month")}月${get("day")}日（${get("weekday")}）${get("hour")}:${get("minute")}〜`;
   } else if (counselor.isSupabaseOnly && !counselor.nextAvailable) {
     counselor.nextAvailable = "面談枠の準備中です";
   }
@@ -953,11 +959,9 @@ export default async function CounselorDetailPage({
                     <div className="d-stat-label">成婚実績</div>
                   </div>
                 )}
-                {(counselor.experienceLabel || counselor.yearsExp > 0) && (
+                {counselor.yearsExp > 0 && (
                   <div className="d-stat-item">
-                    <div className="d-stat-num">
-                      {counselor.experienceLabel ?? counselor.yearsExp}
-                    </div>
+                    <div className="d-stat-num">{counselor.yearsExp}</div>
                     <div className="d-stat-label">経験年数</div>
                   </div>
                 )}
@@ -982,7 +986,7 @@ export default async function CounselorDetailPage({
               >
                 空き日時を確認する
               </Link>
-              <p className="d-book-note">当日キャンセル可 · 登録不要</p>
+              <p className="d-book-note">登録不要 · 面談料 無料</p>
             </div>
 
           </div>
@@ -1051,18 +1055,22 @@ export default async function CounselorDetailPage({
                         <div className="d-profile-val">{counselor.area}</div>
                       </div>
                     )}
-                    {(counselor.experienceLabel || counselor.yearsExp > 0) && (
+                    {counselor.yearsExp > 0 && (
                       <div className="d-profile-item">
                         <div className="d-profile-key">経験年数</div>
-                        <div className="d-profile-val">
-                          {counselor.experienceLabel ?? `${counselor.yearsExp}年`}
-                        </div>
+                        <div className="d-profile-val">{counselor.yearsExp}年</div>
                       </div>
                     )}
                     {counselor.successCount > 0 && (
                       <div className="d-profile-item">
                         <div className="d-profile-key">成婚実績</div>
                         <div className="d-profile-val">{counselor.successCount}組</div>
+                      </div>
+                    )}
+                    {counselor.experienceLabel && (
+                      <div className="d-profile-item" style={{ gridColumn: "1 / -1" }}>
+                        <div className="d-profile-key">経歴・実績</div>
+                        <div className="d-profile-val">{counselor.experienceLabel}</div>
                       </div>
                     )}
                     {counselor.qualifications.length > 0 && (
@@ -1341,7 +1349,7 @@ export default async function CounselorDetailPage({
                     <Link href={`/booking/${counselor.id}`} className="cta-book-main">
                       無料面談を予約する
                     </Link>
-                    <p className="cta-book-main-note">当日キャンセル可 · 登録不要 · 完全無料</p>
+                    <p className="cta-book-main-note">登録不要 · 面談料 完全無料</p>
                   </div>
                 </div>
 
