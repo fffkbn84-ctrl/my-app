@@ -572,16 +572,19 @@ export default async function PlaceDetailPage({
         </div>
       </main>
 
-      {/* モバイル用固定CTA — 右端浮遊ボタン */}
+      {/* モバイル用固定CTA — 右端浮遊 pill ボタン */}
       <div className="cta-mobile-bar">
         <a
           href="#"
           target="_blank"
           rel="noopener noreferrer"
           className="cta-mobile-btn"
+          aria-label="お店のサイトを見る"
         >
-          <span>サイトを</span>
-          <span>見る</span>
+          <span>お店を見る</span>
+          <svg className="cta-mobile-btn-arrow" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </a>
       </div>
 

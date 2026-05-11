@@ -1245,12 +1245,13 @@ export default async function AgencyDetailPage({
 
       <ScrollToTopButton />
 
-      {/* モバイル用固定CTA — 右端浮遊ボタン */}
+      {/* モバイル用固定CTA — 右端浮遊 pill ボタン */}
       <div className="cta-mobile-bar">
-        <Link href={`/counselors/booking?agencyId=${agency.id}`} className="cta-mobile-btn">
-          <span>無料</span>
-          <span>面談</span>
-          <span>予約</span>
+        <Link href={`/counselors/booking?agencyId=${agency.id}`} className="cta-mobile-btn" aria-label={`${agency.name}の面談を予約する`}>
+          <span>予約する</span>
+          <svg className="cta-mobile-btn-arrow" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </Link>
       </div>
 

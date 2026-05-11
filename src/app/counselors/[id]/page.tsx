@@ -13,6 +13,7 @@ import {
   AGENCIES,
   COUNSELORS,
   getCounselorById,
+  getCounselors,
   getReviewsByCounselor,
   getNextSlotByCounselor,
   getAgencyById,
@@ -24,6 +25,24 @@ import { getStoryById } from "@/lib/mock/stories";
 
 // ISR：60秒キャッシュで2回目以降の遷移を高速化
 export const revalidate = 60;
+
+/**
+ * mock の 1-6 + 101-105 と、Supabase の公開済みカウンセラーを
+ * ビルド時に事前レンダリングして HTML を Edge にキャッシュする。
+ * これで初回アクセス時の SSR コスト（数百ms）をスキップできる。
+ * 未知の ID（運営後追加されたカウンセラー）は ISR で動的フォールバック。
+ */
+export async function generateStaticParams() {
+  const mockIds = ["1", "2", "3", "4", "5", "6", "101", "102", "103", "104", "105"];
+  try {
+    const list = await getCounselors();
+    const supabaseIds = list.map((c) => String(c.id)).filter((id) => !!id);
+    const all = Array.from(new Set([...mockIds, ...supabaseIds]));
+    return all.map((id) => ({ id }));
+  } catch {
+    return mockIds.map((id) => ({ id }));
+  }
+}
 
 /* ────────────────────────────────────────────────────────────
    モックデータ（後でSupabaseに差し替え）
@@ -1434,12 +1453,13 @@ export default async function CounselorDetailPage({
         />
       </main>
 
-      {/* モバイル用固定CTA — 右端浮遊ボタン */}
+      {/* モバイル用固定CTA — 右端浮遊 pill ボタン */}
       <div className="cta-mobile-bar">
-        <Link href={`/booking/${counselor.id}`} className="cta-mobile-btn">
-          <span>無料</span>
-          <span>面談</span>
-          <span>予約</span>
+        <Link href={`/booking/${counselor.id}`} className="cta-mobile-btn" aria-label={`${counselor.name}カウンセラーの面談を予約する`}>
+          <span>予約する</span>
+          <svg className="cta-mobile-btn-arrow" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </Link>
       </div>
 

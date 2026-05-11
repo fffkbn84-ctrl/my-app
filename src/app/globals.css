@@ -1520,7 +1520,10 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   margin-top: 10px;
   line-height: 1.8;
 }
-/* モバイルフッターCTA — 右端浮遊ボタン */
+/* モバイルフッターCTA — 右端浮遊 pill ボタン
+   旧: 72px 四方の角丸ローズゴールド + 3 行縦書き（緊急感が強かった）
+   新: pill 形・薄白半透明 + accent 細線 + Mincho 1 行 + 矢印（Kinda らしい上質感）
+*/
 .cta-mobile-bar {
   position: fixed;
   bottom: calc(60px + env(safe-area-inset-bottom) + 12px);
@@ -1528,26 +1531,44 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   z-index: 90;
 }
 .cta-mobile-btn {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 3px;
-  width: 72px;
-  height: 72px;
-  background: var(--accent);
-  color: var(--black);
-  border-radius: 16px;
-  font-size: 11px;
-  font-weight: 600;
+  gap: 8px;
+  padding: 13px 22px;
+  background: rgba(255, 255, 255, .92);
+  -webkit-backdrop-filter: saturate(140%) blur(18px);
+  backdrop-filter: saturate(140%) blur(18px);
+  color: var(--ink);
+  border: 1px solid rgba(212, 160, 144, .55);
+  border-radius: 999px;
+  font-family: var(--font-mincho);
+  font-size: 14px;
+  font-weight: 500;
   letter-spacing: .04em;
-  line-height: 1.35;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(212,160,144,.5), 0 1px 4px rgba(0,0,0,.12);
-  transition: opacity .2s, transform .2s;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow:
+    0 8px 28px rgba(212, 160, 144, .28),
+    0 2px 6px rgba(0, 0, 0, .06),
+    inset 0 1px 0 rgba(255, 255, 255, .85);
+  transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
 }
-.cta-mobile-btn:hover { opacity: .9; transform: translateY(-2px); }
-.cta-mobile-btn:active { transform: scale(.96); }
+.cta-mobile-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 10px 32px rgba(212, 160, 144, .35),
+    0 2px 6px rgba(0, 0, 0, .08);
+  transform: translateY(-1px);
+}
+.cta-mobile-btn:active { transform: scale(.97); }
+.cta-mobile-btn-arrow {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: rgba(212, 160, 144, .85);
+  transition: transform .25s ease;
+}
+.cta-mobile-btn:hover .cta-mobile-btn-arrow { transform: translateX(2px); }
 
 /* 予約フロー: 時間スロットグリッド（4列、480px未満は3列） */
 .booking-slots-grid {
