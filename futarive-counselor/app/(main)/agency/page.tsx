@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
-import type { Agency, FeeItem, FeePlan } from '@/lib/types'
+import type { Agency, Discount, FeeItem, FeePlan } from '@/lib/types'
 
 // 「新店舗」バッジが表示される期間（創業から）
 const NEW_SHOP_DAYS = 365
@@ -46,6 +46,7 @@ export default function AgencyPage() {
     cancel_deadline_hours: 24,
     cancel_policy: '',
     fees: [] as FeePlan[],
+    discounts: [] as Discount[],  // 014 マイグレーションで追加（U30 等の割引）
     campaign_text: '',
     campaign_expires_at: '',  // ISO 文字列、未設定なら ''
     founded_at: '',           // 'YYYY-MM-DD'、未設定なら ''
@@ -75,6 +76,7 @@ export default function AgencyPage() {
       cancel_deadline_hours: ag.cancel_deadline_hours ?? 24,
       cancel_policy: ag.cancel_policy ?? '',
       fees: Array.isArray(ag.fees) ? ag.fees : [],
+      discounts: Array.isArray(ag.discounts) ? ag.discounts : [],
       campaign_text: ag.campaign_text ?? '',
       // datetime-local の input value 用に "YYYY-MM-DDTHH:mm" に変換
       campaign_expires_at: ag.campaign_expires_at
@@ -146,6 +148,7 @@ export default function AgencyPage() {
       cancel_deadline_hours: typeof f.cancel_deadline_hours === 'number' ? f.cancel_deadline_hours : null,
       cancel_policy: f.cancel_policy || null,
       fees: f.fees,
+      discounts: f.discounts,
       campaign_text: f.campaign_text || null,
       campaign_expires_at: f.campaign_expires_at
         ? new Date(f.campaign_expires_at).toISOString()
@@ -311,6 +314,26 @@ export default function AgencyPage() {
         return { ...p, items }
       }),
     }))
+  }
+
+  // ──────── 割引（discounts）操作 ────────
+  const addDiscount = () => {
+    setForm(prev => ({
+      ...prev,
+      discounts: [...prev.discounts, { label: '', condition: null, amount: null, percent: null, note: null }],
+    }))
+  }
+  const updateDiscount = (idx: number, key: keyof Discount, value: string | number | null) => {
+    setForm(prev => ({
+      ...prev,
+      discounts: prev.discounts.map((d, i) => i === idx ? { ...d, [key]: value } : d),
+    }))
+  }
+  const removeDiscount = (idx: number) => {
+    setForm(prev => ({ ...prev, discounts: prev.discounts.filter((_, i) => i !== idx) }))
+  }
+  const moveDiscount = (idx: number, dir: -1 | 1) => {
+    setForm(prev => ({ ...prev, discounts: moveInArr(prev.discounts, idx, dir) }))
   }
 
   // 「新店舗」バッジ表示状況（founded_at ベース）
@@ -1108,6 +1131,211 @@ export default function AgencyPage() {
             単位「/月」「/回」を選ぶと、お客様向けには「¥XX,XXX/月」と表示。<br/>
             空欄を選ぶと「¥XX,XXX（税込）」が自動付与されます。
           </p>
+        </div>
+
+        {/* ─── 各種割引・お得情報セクション（014 マイグレーション） ─────────
+            プラン横断の割引（U30 / 乗り換え割 / 学割 等）をここで管理する。
+            料金プラン本体（fees）とは独立。お客様向け詳細ページでは
+            料金プラン直下に小さく一覧表示される予定。
+        ─────────────────────────────────────────── */}
+        <div style={{
+          marginTop: 8,
+          paddingTop: 24,
+          borderTop: '1px solid var(--border)',
+        }}>
+          <div className="eyebrow" style={{ marginBottom: 6 }}>DISCOUNTS</div>
+          <h2 style={{
+            fontFamily: 'Shippori Mincho, serif',
+            fontSize: 18,
+            fontWeight: 500,
+            color: 'var(--text-deep)',
+            marginBottom: 6,
+          }}>
+            各種割引・お得情報
+          </h2>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginBottom: 14, lineHeight: 1.7 }}>
+            U30割引・乗り換え割引・学割など、プラン横断で適用される割引を登録します。
+            <br/>料金プラン本体（上記）とは別枠で表示されます。
+          </p>
+
+          {form.discounts.length === 0 ? (
+            <div className="kc-card" style={{
+              padding: 18,
+              background: 'var(--card-warm)',
+              border: '1px dashed var(--border)',
+              borderRadius: 12,
+              textAlign: 'center',
+            }}>
+              <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 10 }}>
+                まだ割引が登録されていません。
+              </p>
+              <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addDiscount}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                割引を追加
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {form.discounts.map((d, idx) => (
+                <div key={idx} style={{
+                  padding: 12,
+                  background: 'var(--card-warm)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 12,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                }}>
+                  {/* 行1: ラベル + ↑↓ + 削除 */}
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <input
+                      className="kc-input"
+                      value={d.label}
+                      onChange={e => updateDiscount(idx, 'label', e.target.value)}
+                      placeholder="例：U30割引 / 乗り換え割引 / 学割"
+                      style={{ flex: 1, fontSize: 13, fontWeight: 500 }}
+                      maxLength={20}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => moveDiscount(idx, -1)}
+                      disabled={idx === 0}
+                      aria-label="上へ"
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border)',
+                        borderRadius: 4,
+                        color: idx === 0 ? 'var(--text-faint)' : 'var(--text-mid)',
+                        cursor: idx === 0 ? 'not-allowed' : 'pointer',
+                        padding: '3px 5px',
+                        flexShrink: 0,
+                        lineHeight: 1,
+                      }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 7l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveDiscount(idx, 1)}
+                      disabled={idx === form.discounts.length - 1}
+                      aria-label="下へ"
+                      style={{
+                        background: 'none',
+                        border: '1px solid var(--border)',
+                        borderRadius: 4,
+                        color: idx === form.discounts.length - 1 ? 'var(--text-faint)' : 'var(--text-mid)',
+                        cursor: idx === form.discounts.length - 1 ? 'not-allowed' : 'pointer',
+                        padding: '3px 5px',
+                        flexShrink: 0,
+                        lineHeight: 1,
+                      }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                        <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeDiscount(idx)}
+                      aria-label="削除"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-light)',
+                        cursor: 'pointer',
+                        padding: 4,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* 行2: 対象条件 */}
+                  <input
+                    className="kc-input"
+                    value={d.condition ?? ''}
+                    onChange={e => updateDiscount(idx, 'condition', e.target.value || null)}
+                    placeholder="対象条件（任意）— 例：29歳以下の方"
+                    style={{ fontSize: 12 }}
+                    maxLength={50}
+                  />
+
+                  {/* 行3: 割引額 (円) または 割引率 (%) を排他選択 */}
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>割引</span>
+                    <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>¥</span>
+                    <input
+                      className="kc-input"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={d.amount == null || d.amount === 0 ? '' : String(d.amount)}
+                      onChange={e => {
+                        const stripped = e.target.value
+                          .replace(/[^0-9]/g, '')
+                          .replace(/^0+(?=\d)/, '')
+                        const num = stripped === '' ? null : Number(stripped)
+                        updateDiscount(idx, 'amount', num)
+                        // 円を入れたら % は消す
+                        if (num != null) updateDiscount(idx, 'percent', null)
+                      }}
+                      onFocus={e => e.currentTarget.select()}
+                      placeholder="20000"
+                      style={{ flex: '1 1 90px', fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
+                      disabled={d.percent != null}
+                    />
+                    <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>または</span>
+                    <input
+                      className="kc-input"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={d.percent == null || d.percent === 0 ? '' : String(d.percent)}
+                      onChange={e => {
+                        const stripped = e.target.value
+                          .replace(/[^0-9]/g, '')
+                          .replace(/^0+(?=\d)/, '')
+                        const num = stripped === '' ? null : Math.min(100, Number(stripped))
+                        updateDiscount(idx, 'percent', num)
+                        if (num != null) updateDiscount(idx, 'amount', null)
+                      }}
+                      onFocus={e => e.currentTarget.select()}
+                      placeholder="20"
+                      style={{ flex: '0 0 70px', fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
+                      disabled={d.amount != null}
+                    />
+                    <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>%</span>
+                  </div>
+
+                  {/* 行4: 補足 */}
+                  <input
+                    className="kc-input"
+                    value={d.note ?? ''}
+                    onChange={e => updateDiscount(idx, 'note', e.target.value || null)}
+                    placeholder="補足（任意）— 例：他キャンペーンと併用不可"
+                    style={{ fontSize: 12 }}
+                    maxLength={60}
+                  />
+                </div>
+              ))}
+
+              <div style={{ textAlign: 'center', marginTop: 4 }}>
+                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addDiscount}>
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  割引を追加
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* キャンペーンセクション区切り */}

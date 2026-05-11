@@ -16,6 +16,15 @@ export interface FeePlan {
   included?: string[] | null     // 「含まれるもの」箇条書き（短文・3〜6 件想定）
 }
 
+/** 割引（U30割引・乗り換え割引・学割など）— 料金プランと独立した「お得情報」枠 */
+export interface Discount {
+  label: string                  // 例: 'U30割引' '乗り換え割引' '学割'
+  condition?: string | null      // 例: '29歳以下の方' '他社からの乗り換え'
+  amount?: number | null         // 円単位の固定割引額（percent と排他）
+  percent?: number | null        // % 表記の割引率（amount と排他）
+  note?: string | null           // 例: '他キャンペーンと併用不可'
+}
+
 export interface Agency {
   id: string
   name: string
@@ -32,6 +41,7 @@ export interface Agency {
   cancel_deadline_hours: number | null     // キャンセル期限（時間前）
   cancel_policy: string | null             // キャンセルポリシー本文
   fees: FeePlan[]                          // 料金プラン配列（複数プラン対応・税込）
+  discounts: Discount[]                    // 各種割引（U30 等）— 014_agencies_discounts で追加
   campaign_text: string | null             // キャンペーン本文
   campaign_expires_at: string | null       // キャンペーン有効期限 ISO 文字列
   founded_at: string | null                // 創業日 'YYYY-MM-DD'（NULL なら新店舗バッジ非表示）
