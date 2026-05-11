@@ -11,6 +11,7 @@ export interface FeePlan {
   name: string                   // 'ベーシック' / 'フルサポート' / 独自名
   popular?: boolean              // 「人気」バッジ表示するか
   items: FeeItem[]               // 内訳項目
+  notes?: string | null          // プラン単位の注意事項（自由テキスト・複数行可）
 }
 
 export interface Agency {

@@ -260,6 +260,56 @@ export default function AgencyPage() {
       ),
     }))
   }
+  // 配列要素を一個前/後ろに入れ替える小ヘルパー
+  const moveInArr = <T,>(arr: T[], from: number, dir: -1 | 1): T[] => {
+    const to = from + dir
+    if (to < 0 || to >= arr.length) return arr
+    const next = [...arr]
+    ;[next[from], next[to]] = [next[to], next[from]]
+    return next
+  }
+  const movePlan = (planIdx: number, dir: -1 | 1) => {
+    setForm(prev => ({ ...prev, fees: moveInArr(prev.fees, planIdx, dir) }))
+  }
+  const duplicatePlan = (planIdx: number) => {
+    setForm(prev => {
+      const src = prev.fees[planIdx]
+      if (!src) return prev
+      // deep copy（プラン名末尾に "（コピー）" を付与・人気バッジは外す）
+      const copy: FeePlan = {
+        name: src.name ? `${src.name}（コピー）` : '',
+        popular: false,
+        items: src.items.map(i => ({ ...i })),
+        notes: src.notes ?? null,
+      }
+      const next = [...prev.fees]
+      next.splice(planIdx + 1, 0, copy)
+      return { ...prev, fees: next }
+    })
+  }
+  const moveItem = (planIdx: number, itemIdx: number, dir: -1 | 1) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? { ...p, items: moveInArr(p.items, itemIdx, dir) }
+        : p,
+      ),
+    }))
+  }
+  const duplicateItem = (planIdx: number, itemIdx: number) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => {
+        if (i !== planIdx) return p
+        const src = p.items[itemIdx]
+        if (!src) return p
+        const copy: FeeItem = { ...src }
+        const items = [...p.items]
+        items.splice(itemIdx + 1, 0, copy)
+        return { ...p, items }
+      }),
+    }))
+  }
 
   // 「新店舗」バッジ表示状況（founded_at ベース）
   const newShopInfo = (() => {
@@ -675,7 +725,8 @@ export default function AgencyPage() {
                   padding: '14px 14px',
                 }}>
                   {/* プランヘッダー */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+                    {/* プラン名（入力） */}
                     <input
                       className="kc-input"
                       value={plan.name}
@@ -683,6 +734,50 @@ export default function AgencyPage() {
                       placeholder="例：ベーシック / フルサポート"
                       style={{ flex: 1, minWidth: 140, fontSize: 14, fontWeight: 500 }}
                     />
+                    {/* プラン順番入れ替え ↑↓ */}
+                    <div style={{ display: 'inline-flex', gap: 2 }}>
+                      <button
+                        type="button"
+                        onClick={() => movePlan(planIdx, -1)}
+                        disabled={planIdx === 0}
+                        aria-label="プランを上へ"
+                        style={{
+                          background: 'none',
+                          border: '1px solid var(--border)',
+                          borderRadius: 6,
+                          color: planIdx === 0 ? 'var(--text-faint)' : 'var(--text-mid)',
+                          cursor: planIdx === 0 ? 'not-allowed' : 'pointer',
+                          padding: '4px 6px',
+                          lineHeight: 1,
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M3 7l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => movePlan(planIdx, 1)}
+                        disabled={planIdx === form.fees.length - 1}
+                        aria-label="プランを下へ"
+                        style={{
+                          background: 'none',
+                          border: '1px solid var(--border)',
+                          borderRadius: 6,
+                          color: planIdx === form.fees.length - 1 ? 'var(--text-faint)' : 'var(--text-mid)',
+                          cursor: planIdx === form.fees.length - 1 ? 'not-allowed' : 'pointer',
+                          padding: '4px 6px',
+                          lineHeight: 1,
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  {/* プラン操作行2: 人気バッジ + 複製 + 削除 */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
                     <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-mid)', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
@@ -693,6 +788,22 @@ export default function AgencyPage() {
                     </label>
                     <button
                       type="button"
+                      onClick={() => duplicatePlan(planIdx)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--text-mid)',
+                        cursor: 'pointer',
+                        padding: '4px 0',
+                        fontSize: 11,
+                        textDecoration: 'underline',
+                      }}
+                    >
+                      このプランを複製
+                    </button>
+                    <span style={{ flex: 1 }} />
+                    <button
+                      type="button"
                       onClick={() => removePlan(planIdx)}
                       aria-label="プラン削除"
                       style={{
@@ -700,7 +811,7 @@ export default function AgencyPage() {
                         border: 'none',
                         color: 'var(--danger)',
                         cursor: 'pointer',
-                        padding: '6px 8px',
+                        padding: '4px 0',
                         fontSize: 11,
                       }}
                     >
@@ -725,7 +836,7 @@ export default function AgencyPage() {
                           gridTemplateColumns: '1fr',
                           gap: 6,
                         }}>
-                          {/* ラベル + 削除 */}
+                          {/* ラベル + 並び替え + 複製 + 削除 */}
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                             <input
                               className="kc-input"
@@ -734,6 +845,69 @@ export default function AgencyPage() {
                               placeholder="例：入会金 / デート同行"
                               style={{ flex: 1, fontSize: 13, fontWeight: 500 }}
                             />
+                            {/* 項目並び替え ↑↓ */}
+                            <button
+                              type="button"
+                              onClick={() => moveItem(planIdx, itemIdx, -1)}
+                              disabled={itemIdx === 0}
+                              aria-label="項目を上へ"
+                              style={{
+                                background: 'none',
+                                border: '1px solid var(--border)',
+                                borderRadius: 4,
+                                color: itemIdx === 0 ? 'var(--text-faint)' : 'var(--text-mid)',
+                                cursor: itemIdx === 0 ? 'not-allowed' : 'pointer',
+                                padding: '3px 4px',
+                                lineHeight: 1,
+                                flexShrink: 0,
+                              }}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                <path d="M3 7l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveItem(planIdx, itemIdx, 1)}
+                              disabled={itemIdx === plan.items.length - 1}
+                              aria-label="項目を下へ"
+                              style={{
+                                background: 'none',
+                                border: '1px solid var(--border)',
+                                borderRadius: 4,
+                                color: itemIdx === plan.items.length - 1 ? 'var(--text-faint)' : 'var(--text-mid)',
+                                cursor: itemIdx === plan.items.length - 1 ? 'not-allowed' : 'pointer',
+                                padding: '3px 4px',
+                                lineHeight: 1,
+                                flexShrink: 0,
+                              }}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                            {/* 項目複製 */}
+                            <button
+                              type="button"
+                              onClick={() => duplicateItem(planIdx, itemIdx)}
+                              aria-label="項目を複製"
+                              title="項目を複製"
+                              style={{
+                                background: 'none',
+                                border: '1px solid var(--border)',
+                                borderRadius: 4,
+                                color: 'var(--text-mid)',
+                                cursor: 'pointer',
+                                padding: '3px 4px',
+                                lineHeight: 1,
+                                flexShrink: 0,
+                              }}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                                <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.3" fill="none"/>
+                                <path d="M5 1h4a1 1 0 0 1 1 1v4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+                              </svg>
+                            </button>
                             <button
                               type="button"
                               onClick={() => removeItem(planIdx, itemIdx)}
@@ -752,16 +926,28 @@ export default function AgencyPage() {
                               </svg>
                             </button>
                           </div>
-                          {/* 金額 + サフィックス */}
+                          {/* 金額 + サフィックス
+                             バグ修正: 旧 type="number" + value={item.amount} (=0) の構成だと
+                             先頭の "0" が消えず入力しづらかったので、表示用は string にして
+                             amount===0 を空欄表示にする。入力時に非数字を除去し、
+                             先頭ゼロも自動的に取り除く（"0100000" → "100000"）。 */}
                           <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                             <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>¥</span>
                             <input
                               className="kc-input"
-                              type="number"
-                              min={0}
-                              value={item.amount}
-                              onChange={e => updateItem(planIdx, itemIdx, 'amount', e.target.value === '' ? 0 : Number(e.target.value))}
-                              placeholder="100000"
+                              type="text"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              value={item.amount === 0 ? '' : String(item.amount)}
+                              onChange={e => {
+                                const stripped = e.target.value
+                                  .replace(/[^0-9]/g, '')
+                                  .replace(/^0+(?=\d)/, '')
+                                const num = stripped === '' ? 0 : Number(stripped)
+                                updateItem(planIdx, itemIdx, 'amount', num)
+                              }}
+                              onFocus={e => e.currentTarget.select()}
+                              placeholder="0（無料）"
                               style={{ flex: '1 1 100px', fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
                             />
                             <select
@@ -796,6 +982,25 @@ export default function AgencyPage() {
                       </svg>
                       このプランに項目を追加
                     </button>
+                  </div>
+
+                  {/* プラン単位の注意事項（任意・複数行可） */}
+                  <div style={{ marginTop: 14 }}>
+                    <label
+                      className="kc-label"
+                      style={{ fontSize: 11, color: 'var(--text-mid)' }}
+                    >
+                      注意事項（任意）
+                    </label>
+                    <textarea
+                      className="kc-textarea"
+                      style={{ minHeight: 60, fontSize: 12 }}
+                      value={plan.notes ?? ''}
+                      onChange={e => updatePlan(planIdx, 'notes', e.target.value || null)}
+                      placeholder={
+                        '例：\n・別途オプション料金がかかる場合があります\n・お見合い料は月3件目以降から発生'
+                      }
+                    />
                   </div>
                 </div>
               ))}
