@@ -13,7 +13,7 @@ import {
   getAgencies,
   isCampaignActive,
   isNewShop,
-  formatFeeAmount,
+  formatFeeItem,
   type Agency,
   type Counselor,
 } from "@/lib/data";
@@ -672,55 +672,125 @@ export default async function AgencyDetailPage({
             </h2>
 
             {agency.fees && agency.fees.length > 0 ? (
-              /* 新スキーマ：相談所が編集した fees 配列を表示 */
-              <div
-                style={{
-                  border: "1px solid var(--light)",
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  background: "var(--white)",
-                  maxWidth: 560,
-                }}
-              >
-                <div style={{ padding: "4px 20px 16px" }}>
-                  {agency.fees.map((row, i, arr) => (
+              /* 新スキーマ：相談所が編集した fees（多プラン）を表示 */
+              <>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: agency.fees.length === 1
+                      ? "minmax(0, 560px)"
+                      : "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: 16,
+                  }}
+                >
+                  {agency.fees.map((plan, planIdx) => (
                     <div
-                      key={i}
+                      key={planIdx}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                        padding: "14px 0",
-                        gap: 12,
-                        borderBottom: i < arr.length - 1 ? "1px solid var(--pale)" : "none",
+                        border: plan.popular ? "1px solid var(--accent)" : "1px solid var(--light)",
+                        borderRadius: 12,
+                        overflow: "hidden",
+                        background: plan.popular ? "rgba(200,169,122,.04)" : "var(--white)",
                       }}
                     >
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: 13, color: "var(--ink)" }}>{row.label}</span>
-                        {row.note && (
-                          <span style={{ fontSize: 11, color: "var(--mid)", marginLeft: 8 }}>
-                            {row.note}
+                      {/* プランヘッダー */}
+                      <div
+                        style={{
+                          padding: "16px 20px 12px",
+                          borderBottom: "1px solid var(--pale)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 8,
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontFamily: "var(--font-mincho)",
+                            fontSize: 17,
+                            color: "var(--ink)",
+                            fontWeight: 400,
+                          }}
+                        >
+                          {plan.name || "プラン"}
+                        </p>
+                        {plan.popular && (
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: "var(--accent)",
+                              background: "rgba(200,169,122,.15)",
+                              borderRadius: 20,
+                              padding: "2px 10px",
+                              letterSpacing: ".06em",
+                            }}
+                          >
+                            人気
                           </span>
                         )}
                       </div>
-                      <span style={{ fontSize: 15, fontWeight: 400, color: "var(--black)", whiteSpace: "nowrap" }}>
-                        {formatFeeAmount(row.amount)}
-                      </span>
+
+                      {/* 料金内訳 */}
+                      <div style={{ padding: "4px 20px 16px" }}>
+                        {plan.items.map((row, i) => {
+                          const formatted = formatFeeItem(row);
+                          const isFree = row.amount === 0;
+                          const showSeparator = i < plan.items.length - 1;
+                          return (
+                            <div
+                              key={i}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "flex-start",
+                                padding: "12px 0",
+                                gap: 12,
+                                borderBottom: showSeparator ? "1px solid var(--pale)" : "none",
+                              }}
+                            >
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <span style={{ fontSize: 13, color: "var(--mid)" }}>{row.label}</span>
+                                {row.note && (
+                                  <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, lineHeight: 1.6 }}>
+                                    {row.note}
+                                  </p>
+                                )}
+                              </div>
+                              <div style={{ display: "flex", alignItems: "baseline", gap: 4, flexShrink: 0 }}>
+                                <span
+                                  style={{
+                                    fontSize: 15,
+                                    fontWeight: 400,
+                                    color: isFree ? "var(--green)" : "var(--black)",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {formatted.main}
+                                </span>
+                                {formatted.suffix && (
+                                  <span style={{ fontSize: 10, color: "var(--muted)", whiteSpace: "nowrap" }}>
+                                    {formatted.suffix}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div
+                <p
                   style={{
-                    padding: "8px 20px",
-                    background: "var(--pale)",
                     fontSize: 11,
                     color: "var(--mid)",
                     lineHeight: 1.7,
+                    marginTop: 12,
                   }}
                 >
                   ※ 表示金額はすべて税込です。
-                </div>
-              </div>
+                </p>
+              </>
             ) : (
               /* 旧スキーマ：mock の plans を従来通り表示 */
               <div

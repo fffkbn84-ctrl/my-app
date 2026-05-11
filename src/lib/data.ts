@@ -79,8 +79,8 @@ export type Agency = {
   /** キャンセル期限切れ時にユーザーへ案内するメールアドレス */
   email?: string;
   /* ───── カウンセラー管理画面から編集されるフィールド ───── */
-  /** 料金プラン配列。空配列なら従来の plans を表示 */
-  fees?: FeeItem[];
+  /** 料金プラン配列（複数プラン対応）。空配列なら従来の plans を表示 */
+  fees?: FeePlan[];
   /** キャンペーン本文（新フィールド。旧 campaign より優先） */
   campaignText?: string | null;
   /** キャンペーン有効期限 ISO 文字列。NULL なら無期限 */
@@ -95,8 +95,21 @@ export type FeeItem = {
   label: string;
   /** 円単位の整数。0 は「無料」と表示 */
   amount: number;
+  /** 表示サフィックス（任意）。例: '/月' '/回' '/年'。
+   *  未指定 & amount > 0 なら「(税込)」を自動付与 */
+  suffix?: string | null;
   /** 補足説明（任意）。「初回のみ」等 */
   note?: string | null;
+};
+
+/** 料金プラン（複数を agencies.fees に持てる） */
+export type FeePlan = {
+  /** プラン名。例: 'ベーシック' / 'フルサポート' */
+  name: string;
+  /** 「人気」バッジ表示するか */
+  popular?: boolean;
+  /** 内訳項目 */
+  items: FeeItem[];
 };
 
 export type Counselor = {
@@ -148,6 +161,8 @@ export type Counselor = {
   isDemo?: boolean;
   /** リール画像（モック段階ではグラデ + キャプションで表現） */
   reelImages?: { bg: string; caption?: string }[];
+  /** 所属相談所の創業日（user-side で「新店舗」バッジ判定に使用） */
+  agencyFoundedAt?: string | null;
 };
 
 export const AGENCIES: Agency[] = [
@@ -699,6 +714,7 @@ function mapCounselorRowToCounselor(
   row: CounselorRow,
   agencyName?: string,
   reelMedia?: CounselorMediaRow[],
+  agencyFoundedAt?: string | null,
 ): Counselor {
   return {
     id: row.id,
@@ -731,9 +747,11 @@ function mapCounselorRowToCounselor(
     reelImages: (reelMedia ?? [])
       .sort((a, b) => a.display_order - b.display_order)
       .map((m) => ({
-        bg: m.fallback_bg ?? `url(${m.media_url})`,
+        // CSS で双引用符でくるんで URL に空白等が含まれても安全に
+        bg: m.fallback_bg ?? `url("${m.media_url}")`,
         caption: m.caption ?? undefined,
       })),
+    agencyFoundedAt: agencyFoundedAt ?? null,
   }
 }
 
@@ -762,14 +780,14 @@ export async function getCounselors(): Promise<Counselor[]> {
   const counselorIds = counselorRows.map((c) => c.id)
 
   const [agencyRes, mediaRes] = await Promise.all([
-    supabase.from('agencies').select('id,name').in('id', agencyIds),
+    supabase.from('agencies').select('id,name,founded_at').in('id', agencyIds),
     supabase.from('counselor_media').select('*').in('counselor_id', counselorIds),
   ])
-  const agencyRows = agencyRes.data as Array<{ id: string; name: string }> | null
+  const agencyRows = agencyRes.data as Array<{ id: string; name: string; founded_at: string | null }> | null
   const mediaRows = mediaRes.data as CounselorMediaRow[] | null
 
-  const agencyNameById = new Map<string, string>(
-    (agencyRows ?? []).map((a) => [a.id, a.name]),
+  const agencyById = new Map<string, { name: string; founded_at: string | null }>(
+    (agencyRows ?? []).map((a) => [a.id, { name: a.name, founded_at: a.founded_at }]),
   )
   const mediaByCounselor = new Map<string, CounselorMediaRow[]>()
   for (const m of mediaRows ?? []) {
@@ -778,13 +796,15 @@ export async function getCounselors(): Promise<Counselor[]> {
     mediaByCounselor.set(m.counselor_id, list)
   }
 
-  return counselorRows.map((row) =>
-    mapCounselorRowToCounselor(
+  return counselorRows.map((row) => {
+    const ag = agencyById.get(row.agency_id)
+    return mapCounselorRowToCounselor(
       row,
-      agencyNameById.get(row.agency_id),
+      ag?.name,
       mediaByCounselor.get(row.id),
-    ),
-  )
+      ag?.founded_at ?? null,
+    )
+  })
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -876,10 +896,24 @@ export function isNewShop(foundedAt?: string | null): boolean {
   return now < expires;
 }
 
-/** 料金額の表示文字列（税込統一） */
+/** 料金額の表示文字列（税込統一）— suffix 指定なしのレガシー版 */
 export function formatFeeAmount(amount: number): string {
   if (amount === 0) return '無料';
   return `${amount.toLocaleString('ja-JP')}円（税込）`;
+}
+
+/**
+ * 料金 1 項目のフォーマット情報を返す。
+ * - amount === 0 → { main: '無料', suffix: null }
+ * - amount > 0 + suffix なし → { main: '¥XX,XXX', suffix: '(税込)' }
+ * - amount > 0 + suffix あり → { main: '¥XX,XXX', suffix: 'XXX' }（例: '/月'）
+ *   suffix を持つ項目は税込前提のため (税込) は付けない（重複防止）
+ */
+export function formatFeeItem(item: FeeItem): { main: string; suffix: string | null } {
+  if (item.amount === 0) return { main: '無料', suffix: null };
+  const main = `¥${item.amount.toLocaleString('ja-JP')}`;
+  const suffix = item.suffix && item.suffix.trim() ? item.suffix.trim() : '(税込)';
+  return { main, suffix };
 }
 
 // 相談所一覧取得

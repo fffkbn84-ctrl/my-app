@@ -1,6 +1,6 @@
 "use client";
 
-import { Counselor } from "@/lib/data";
+import { Counselor, isNewShop } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
 import { trackEvent } from "@/lib/analytics";
 import KindaTypeBadge from "./KindaTypeBadge";
@@ -15,9 +15,13 @@ type Props = {
 
 export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kinda_talk" }: Props) {
   const cover = counselor.reelImages?.[0];
-  const bg = cover?.bg ?? counselor.gradient;
+  // bg は url() か linear-gradient() の文字列。background shorthand を使うと
+  // CSS 側の background-size: cover が上書きされて画像が原寸表示されるため、
+  // backgroundImage に分離して渡す。
+  const bgImage = cover?.bg ?? counselor.gradient;
   const catchphrase = counselor.catchphrase ?? counselor.message;
   const matchingTypes = (counselor.matchingTypes ?? []) as KindaTypeKey[];
+  const showAgencyNewShop = isNewShop(counselor.agencyFoundedAt);
 
   return (
     <button
@@ -32,7 +36,7 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
         onOpen(counselor);
       }}
     >
-      <div className="kt-reel-card-bg" style={{ background: bg }} aria-hidden />
+      <div className="kt-reel-card-bg" style={{ backgroundImage: bgImage }} aria-hidden />
       <div className="kt-reel-card-overlay" aria-hidden />
 
       <div className="kt-reel-card-top">
@@ -42,6 +46,26 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
           ))}
         </div>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
+          {showAgencyNewShop && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: 9,
+                fontFamily: "DM Sans, sans-serif",
+                letterSpacing: ".12em",
+                fontWeight: 500,
+                padding: "2px 7px",
+                borderRadius: 20,
+                background: "rgba(255,255,255,.92)",
+                color: "var(--accent)",
+                border: "1px solid var(--accent)",
+              }}
+              title="所属相談所が創業から1年以内"
+            >
+              新店舗
+            </span>
+          )}
           {/* 経験年数 1 年未満は「新人」を自動付与（サンプルとは独立したフラグ）*/}
           {counselor.experience < 1 && <NewBadge />}
           {counselor.isDemo && <DemoBadge />}
