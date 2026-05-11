@@ -295,8 +295,11 @@ export default function AgencyPage() {
       <div className="eyebrow" style={{ marginBottom: 8 }}>AGENCY</div>
       <h1 className="page-title" style={{ marginBottom: 24 }}>相談所プロフィール</h1>
 
-      {/* 保存完了後の次ステップ案内 */}
-      {savedOnce && saveStatus === 'saved' && (
+      {/* 保存完了後の次ステップ案内
+          NOTE: saveStatus に連動させると入力のたびに表示/非表示が切替わり、
+          ページ高さが変わって iOS Safari の自動スクロールが暴れてしまう。
+          一度保存できたユーザーには常に表示する。 */}
+      {savedOnce && (
         <div className="kc-card" style={{
           padding: 18, marginBottom: 24,
           background: 'var(--accent-pale)',
