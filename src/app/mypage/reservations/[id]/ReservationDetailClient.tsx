@@ -35,6 +35,23 @@ type AgencyInfo = {
   email?: string;
   cancelDeadlineHours: number;
   cancelPolicy?: string;
+  /* 相談所カード表示用 */
+  area?: string;
+  type?: string[];
+};
+
+type CounselorInfo = {
+  id: string;
+  name: string;
+  area?: string | null;
+  photoUrl?: string | null;
+  specialties?: string[] | null;
+  yearsOfExperience?: number | null;
+  experienceLabel?: string | null;
+  catchphrase?: string | null;
+  message?: string | null;
+  ratingAvg?: number | null;
+  reviewCount?: number | null;
 };
 
 const DEFAULT_INFO: AgencyInfo = {
@@ -60,6 +77,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
   const [row, setRow] = useState<ReservationRow | null>(null);
   const [agencyInfo, setAgencyInfo] = useState<AgencyInfo>(DEFAULT_INFO);
   const [counselorId, setCounselorId] = useState<string | null>(null);
+  const [counselorInfo, setCounselorInfo] = useState<CounselorInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -103,7 +121,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
         const ag = await supabase
           .from("agencies")
           .select(
-            "id, name, address, access, business_hours_text, closed_weekdays, directions, phone, email, cancel_deadline_hours, cancel_policy",
+            "id, name, area, address, access, business_hours_text, closed_weekdays, directions, phone, email, cancel_deadline_hours, cancel_policy",
           )
           .eq("id", r.agency_id)
           .maybeSingle();
@@ -111,6 +129,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           const a = ag.data as {
             id: string;
             name: string | null;
+            area: string | null;
             address: string | null;
             access: string | null;
             business_hours_text: string | null;
@@ -132,6 +151,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           info = {
             id: a.id,
             name: a.name ?? r.agency_name ?? undefined,
+            area: a.area ?? undefined,
             address: a.address ?? undefined,
             access: a.access ?? undefined,
             hours: a.business_hours_text ?? undefined,
@@ -160,10 +180,51 @@ export default function ReservationDetailClient({ reservationId }: { reservation
             email: info.email ?? mock.email,
             cancelDeadlineHours: mock.cancelDeadlineHours ?? info.cancelDeadlineHours,
             cancelPolicy: info.cancelPolicy ?? mock.cancelPolicy,
+            area: info.area ?? mock.area,
+            type: info.type ?? mock.type,
           };
         }
       }
       setAgencyInfo(info);
+
+      // カウンセラー基本情報の取得（counselor_id が UUID の場合のみ）
+      // mock の数値 ID 1〜6 / 101〜105 ではテーブルに存在しないのでスキップ
+      if (r.counselor_id && /^[0-9a-f-]{36}$/i.test(r.counselor_id)) {
+        const ce = await supabase
+          .from("counselors")
+          .select("id, name, area, photo_url, specialties, years_of_experience, experience_label, catchphrase, message, rating_avg, review_count")
+          .eq("id", r.counselor_id)
+          .maybeSingle();
+        if (!cancelled && ce.data) {
+          const c = ce.data as {
+            id: string;
+            name: string;
+            area: string | null;
+            photo_url: string | null;
+            specialties: string[] | null;
+            years_of_experience: number | null;
+            experience_label: string | null;
+            catchphrase: string | null;
+            message: string | null;
+            rating_avg: number | null;
+            review_count: number | null;
+          };
+          setCounselorInfo({
+            id: c.id,
+            name: c.name,
+            area: c.area,
+            photoUrl: c.photo_url,
+            specialties: c.specialties,
+            yearsOfExperience: c.years_of_experience,
+            experienceLabel: c.experience_label,
+            catchphrase: c.catchphrase,
+            message: c.message,
+            ratingAvg: c.rating_avg,
+            reviewCount: c.review_count,
+          });
+        }
+      }
+
       setLoading(false);
     })();
     return () => {
@@ -309,6 +370,212 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           </Link>
         )}
       </section>
+
+      {/* カウンセラー基本情報（Supabase カウンセラーのみ） */}
+      {counselorInfo && (
+        <section
+          style={{
+            background: "white",
+            border: "1px solid var(--border)",
+            borderRadius: 16,
+            padding: "20px 22px",
+            marginBottom: 16,
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "var(--font-mincho)",
+              fontSize: 15,
+              color: "var(--ink)",
+              marginBottom: 14,
+              paddingBottom: 10,
+              borderBottom: "1px solid var(--pale)",
+            }}
+          >
+            担当カウンセラー
+          </h2>
+
+          {/* アバター + 名前 + エリア */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #F5E8D8, #EDD8C0)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+                flexShrink: 0,
+              }}
+            >
+              {counselorInfo.photoUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={counselorInfo.photoUrl}
+                  alt={counselorInfo.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <svg width="34" height="34" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                  <circle cx="20" cy="15" r="8" fill="#C8A97A" opacity=".6" />
+                  <path
+                    d="M4 38c0-8.837 7.163-16 16-16s16 7.163 16 16"
+                    stroke="#C8A97A"
+                    strokeWidth="1.5"
+                    fill="none"
+                    opacity=".4"
+                  />
+                </svg>
+              )}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: 16,
+                  color: "var(--ink)",
+                  marginBottom: 2,
+                }}
+              >
+                {counselorInfo.name}
+              </p>
+              {counselorInfo.area && (
+                <p style={{ fontSize: 11, color: "var(--muted)" }}>{counselorInfo.area}</p>
+              )}
+              {counselorInfo.ratingAvg != null &&
+                counselorInfo.ratingAvg > 0 &&
+                counselorInfo.reviewCount != null &&
+                counselorInfo.reviewCount > 0 && (
+                  <p style={{ fontSize: 11, color: "var(--mid)", marginTop: 2 }}>
+                    <span style={{ color: "var(--accent)" }}>★</span>{" "}
+                    {counselorInfo.ratingAvg.toFixed(1)}（{counselorInfo.reviewCount}件）
+                  </p>
+                )}
+            </div>
+          </div>
+
+          {/* 専門分野・経験 */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {counselorInfo.specialties && counselorInfo.specialties.length > 0 && (
+              <div>
+                <p style={{ fontSize: 10, color: "var(--muted)", letterSpacing: ".06em", marginBottom: 4 }}>
+                  専門分野
+                </p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                  {counselorInfo.specialties.map((s) => (
+                    <span
+                      key={s}
+                      style={{
+                        fontSize: 11,
+                        padding: "3px 10px",
+                        background: "var(--pale)",
+                        color: "var(--mid)",
+                        borderRadius: 20,
+                      }}
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {(counselorInfo.experienceLabel ||
+              (counselorInfo.yearsOfExperience != null && counselorInfo.yearsOfExperience > 0)) && (
+              <Row
+                label="経歴・実績"
+                value={counselorInfo.experienceLabel ?? `${counselorInfo.yearsOfExperience}年`}
+              />
+            )}
+            {counselorInfo.catchphrase && (
+              <div
+                style={{
+                  padding: "12px 14px",
+                  background: "var(--pale)",
+                  borderRadius: 10,
+                  borderLeft: "2px solid var(--accent)",
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: "var(--font-mincho)",
+                    fontSize: 13,
+                    color: "var(--ink)",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  「{counselorInfo.catchphrase}」
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* 所属相談所カード（タップで詳細へ） */}
+      {agencyInfo.id && agencyInfo.name && (
+        <Link
+          href={`/agencies/${agencyInfo.id}`}
+          style={{
+            display: "block",
+            background: "white",
+            border: "1px solid var(--border)",
+            borderRadius: 16,
+            padding: "16px 18px",
+            marginBottom: 16,
+            textDecoration: "none",
+            color: "inherit",
+            transition: "transform .2s, box-shadow .2s",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 10,
+                  color: "var(--muted)",
+                  letterSpacing: ".18em",
+                  textTransform: "uppercase",
+                  marginBottom: 6,
+                }}
+              >
+                所属相談所
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-mincho)",
+                  fontSize: 15,
+                  color: "var(--ink)",
+                  marginBottom: 4,
+                }}
+              >
+                {agencyInfo.name}
+              </p>
+              {agencyInfo.area && (
+                <p style={{ fontSize: 11, color: "var(--muted)" }}>{agencyInfo.area}</p>
+              )}
+            </div>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              aria-hidden="true"
+              style={{ color: "var(--accent)", flexShrink: 0 }}
+            >
+              <path
+                d="M5 2l5 5-5 5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </Link>
+      )}
 
       {/* 相談所情報 */}
       {(agencyInfo.address || agencyInfo.access || agencyInfo.hours || agencyInfo.directions) && (

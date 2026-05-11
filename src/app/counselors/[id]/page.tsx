@@ -9,6 +9,7 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
 import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
+import CounselorReelMini from "@/components/counselors/CounselorReelMini";
 import {
   AGENCIES,
   COUNSELORS,
@@ -1020,77 +1021,12 @@ export default async function CounselorDetailPage({
         </div>
 
         {/* ═══════════════════════════════════════════════════
-            リール画像 サムネイルスライダー（ヒーロー直下）
+            ミニリール（ヒーロー直下）
             Kinda talk のリールから遷移した時の世界観の連続性を保つため、
-            リール画像をミニサムネイルで横スクロール表示する。
+            リール本体と同じ「1 枚ずつスワイプ」の表現で再生する。
         ═══════════════════════════════════════════════════ */}
         {supabaseCounselor?.reelImages && supabaseCounselor.reelImages.length > 0 && (
-          <div
-            style={{
-              borderTop: "1px solid var(--light)",
-              borderBottom: "1px solid var(--light)",
-              background: "var(--pale)",
-              padding: "16px 0",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                padding: "0 20px",
-                overflowX: "auto",
-                scrollbarWidth: "none",
-                WebkitOverflowScrolling: "touch",
-              }}
-              className="hide-scrollbar"
-              aria-label="カウンセラーのリール画像"
-            >
-              {supabaseCounselor.reelImages.map((img, idx) => (
-                <div
-                  key={idx}
-                  role="img"
-                  aria-label={`リール ${idx + 1} 枚目${img.caption ? `: ${img.caption}` : ""}`}
-                  style={{
-                    flexShrink: 0,
-                    width: 84,
-                    height: 150,
-                    borderRadius: 10,
-                    overflow: "hidden",
-                    background: img.bg.startsWith("url(") ? "#EFE3CB" : img.bg,
-                    backgroundImage: img.bg.startsWith("url(") ? img.bg : undefined,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    boxShadow: "0 2px 8px rgba(0,0,0,.08)",
-                    position: "relative",
-                  }}
-                >
-                  {img.caption && (
-                    <span
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        padding: "6px 8px 6px",
-                        background: "linear-gradient(to top, rgba(0,0,0,.7), transparent)",
-                        fontFamily: "var(--font-mincho)",
-                        fontSize: 9,
-                        color: "white",
-                        lineHeight: 1.3,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }}
-                    >
-                      {img.caption}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+          <CounselorReelMini images={supabaseCounselor.reelImages} />
         )}
 
         {/* ═══════════════════════════════════════════════════

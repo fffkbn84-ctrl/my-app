@@ -190,8 +190,36 @@ export default async function AgencyDetailPage({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabaseAgency = (allAgencies as any[]).find((a) => String(a.id) === id);
   const mockAgency: Agency | undefined = AGENCIES.find((a) => a.id === Number(id));
+
+  // Supabase オンリーの相談所（UUID）は mock 由来のフィールドを持たないため、
+  // `.map()` などで NPE を起こさないよう安全デフォルトを敷く。
+  // mock があるときは mock を最優先（仕上がったデモ表示を維持）し、
+  // Supabase だけのときはデフォルト + Supabase を組み合わせる。
+  const SUPABASE_SAFE_DEFAULTS: Partial<Agency> = {
+    area: "",
+    type: [],
+    plans: [],
+    rating: 0,
+    reviewCount: 0,
+    description: "",
+    features: [],
+    gradient: "linear-gradient(135deg,#F4ECE0,#E8DCC8)",
+    counselorIds: [],
+    access: "",
+    address: "",
+    hours: "",
+    holiday: "",
+    reviews: [],
+    plan: "fast",
+    photos: [],
+  };
   const agency: Agency | undefined = supabaseAgency
-    ? { ...mockAgency, ...supabaseAgency, id: mockAgency?.id ?? supabaseAgency.id } as Agency
+    ? ({
+        ...SUPABASE_SAFE_DEFAULTS,
+        ...mockAgency,        // mock があれば SUPABASE_DEFAULTS の上に重ねる
+        ...supabaseAgency,    // Supabase の値が最優先
+        id: mockAgency?.id ?? supabaseAgency.id,
+      } as Agency)
     : mockAgency;
   if (!agency) notFound();
 
