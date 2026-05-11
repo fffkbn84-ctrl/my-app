@@ -381,73 +381,86 @@ function ReservationCard({
         opacity: canceled ? 0.7 : 1,
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              fontSize: 11,
-              color: "var(--muted)",
-              letterSpacing: ".04em",
-              marginBottom: 4,
-            }}
-          >
-            {row.agency_name ?? "—"}
-          </div>
-          <div
-            style={{
-              fontFamily: "var(--font-mincho)",
-              fontSize: 15,
-              color: "var(--ink)",
-              marginBottom: 6,
-            }}
-          >
-            {row.counselor_name ?? "指名なし"} カウンセラー
-          </div>
-          <div style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.7 }}>
-            {dateLabel}
-            {row.meeting_type ? ` ・ ${row.meeting_type}` : ""}
-          </div>
-        </div>
-        <div style={{ flexShrink: 0 }}>
-          {canceled ? (
-            <span
+      {/* タップで予約詳細へ遷移（カウンセラー詳細/相談所情報/Maps を表示） */}
+      <Link
+        href={`/mypage/reservations/${row.id}`}
+        style={{
+          display: "block",
+          textDecoration: "none",
+          color: "inherit",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
               style={{
-                fontSize: 10,
-                background: "var(--pale)",
+                fontSize: 11,
                 color: "var(--muted)",
-                padding: "3px 10px",
-                borderRadius: 20,
+                letterSpacing: ".04em",
+                marginBottom: 4,
               }}
             >
-              キャンセル済み
-            </span>
-          ) : readOnly ? (
-            <span
+              {row.agency_name ?? "—"}
+            </div>
+            <div
               style={{
-                fontSize: 10,
-                background: "rgba(122,158,135,.12)",
-                color: "var(--green)",
-                padding: "3px 10px",
-                borderRadius: 20,
+                fontFamily: "var(--font-mincho)",
+                fontSize: 15,
+                color: "var(--ink)",
+                marginBottom: 6,
               }}
             >
-              終了
-            </span>
-          ) : (
-            <span
-              style={{
-                fontSize: 10,
-                background: "rgba(200,169,122,.14)",
-                color: "var(--accent)",
-                padding: "3px 10px",
-                borderRadius: 20,
-              }}
-            >
-              予約中
-            </span>
-          )}
+              {row.counselor_name ?? "指名なし"} カウンセラー
+            </div>
+            <div style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.7 }}>
+              {dateLabel}
+              {row.meeting_type ? ` ・ ${row.meeting_type}` : ""}
+            </div>
+          </div>
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+            {canceled ? (
+              <span
+                style={{
+                  fontSize: 10,
+                  background: "var(--pale)",
+                  color: "var(--muted)",
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                }}
+              >
+                キャンセル済み
+              </span>
+            ) : readOnly ? (
+              <span
+                style={{
+                  fontSize: 10,
+                  background: "rgba(122,158,135,.12)",
+                  color: "var(--green)",
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                }}
+              >
+                終了
+              </span>
+            ) : (
+              <span
+                style={{
+                  fontSize: 10,
+                  background: "rgba(200,169,122,.14)",
+                  color: "var(--accent)",
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                }}
+              >
+                予約中
+              </span>
+            )}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ color: "var(--muted)", opacity: .6 }}>
+              <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
         </div>
-      </div>
+      </Link>
 
       {!canceled && !readOnly && (
         <div

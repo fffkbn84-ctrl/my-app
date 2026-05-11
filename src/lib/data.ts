@@ -78,6 +78,8 @@ export type Agency = {
   phone?: string;
   /** キャンセル期限切れ時にユーザーへ案内するメールアドレス */
   email?: string;
+  /** 最寄駅からの行き方（相談所が任意で記入する自由テキスト） */
+  directions?: string | null;
   /* ───── カウンセラー管理画面から編集されるフィールド ───── */
   /** 料金プラン配列（複数プラン対応）。空配列なら従来の plans を表示 */
   fees?: FeePlan[];
@@ -881,6 +883,8 @@ function normalizeSupabaseAgency(row: any): AgencyPartial {
     foundedAt: row.founded_at ?? null,
     cancelPolicy: row.cancel_policy ?? row.cancelPolicy ?? undefined,
     cancelDeadlineHours: row.cancel_deadline_hours ?? row.cancelDeadlineHours ?? undefined,
+    // directions は DB 未追加の段階では undefined で渡る（Phase B のマイグレーションで追加予定）
+    directions: row.directions ?? null,
   };
 }
 

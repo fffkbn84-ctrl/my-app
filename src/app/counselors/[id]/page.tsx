@@ -794,6 +794,14 @@ export default async function CounselorDetailPage({
       : counselor.rating;
 
   const matchedAgency = AGENCIES.find((a) => String(a.id) === String(counselor.agencyId));
+  // mock agency が無くて Supabase agency があれば、そちらを AgencyCardBlock に渡して
+  // 「タップ可能な相談所カード」を出す（小山楓華のような Supabase オンリーカウンセラー対応）。
+  // AgencyCardBlock は Partial<Agency> + { id, name } を受け取れるよう拡張済み。
+  const agencyForCard = matchedAgency ?? (
+    supabaseAgency && supabaseAgency.id
+      ? { ...supabaseAgency, id: supabaseAgency.id, name: supabaseAgency.name ?? counselor.agency }
+      : undefined
+  );
   const agencyCounselorCount = COUNSELORS.filter((c) => String(c.agencyId) === String(counselor.agencyId)).length;
   const matchedCounselorData = COUNSELORS.find((c) => String(c.id) === String(id));
   const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? supabaseCounselor?.diagnosisType ?? null;
@@ -1336,6 +1344,97 @@ export default async function CounselorDetailPage({
                   </div>
                 </section>
 
+                {/* 基本情報（ホットペッパー的に下部に配置）
+                   所属相談所の場所・営業時間・定休日 + Google Maps を一箇所にまとめる。
+                   表示可能なフィールドだけ条件付きで出す。Supabase オンリーの相談所は
+                   将来 address/access/hours/holiday カラム追加で完全化する想定 */}
+                {(() => {
+                  // mock agency / Supabase agency の双方から表示用情報を組み立て
+                  const info = {
+                    area: matchedAgency?.area ?? counselor.area ?? null,
+                    address: matchedAgency?.address ?? null,
+                    access: matchedAgency?.access ?? null,
+                    hours: matchedAgency?.hours ?? null,
+                    holiday: matchedAgency?.holiday ?? null,
+                    directions: matchedAgency?.directions ?? supabaseAgency?.directions ?? null,
+                  };
+                  const mapsQuery = info.address ?? agencyForCard?.name ?? null;
+                  const hasAny =
+                    info.area || info.address || info.access || info.hours ||
+                    info.holiday || info.directions || mapsQuery;
+                  if (!hasAny) return null;
+                  return (
+                    <section style={{ marginTop: 48 }}>
+                      <h2
+                        className="text-lg text-ink mb-6 pb-3 border-b border-light"
+                        style={{ fontFamily: "var(--font-mincho)" }}
+                      >
+                        基本情報
+                      </h2>
+                      <div className="d-profile-grid">
+                        {info.area && (
+                          <div className="d-profile-item">
+                            <div className="d-profile-key">エリア</div>
+                            <div className="d-profile-val">{info.area}</div>
+                          </div>
+                        )}
+                        {info.access && (
+                          <div className="d-profile-item">
+                            <div className="d-profile-key">アクセス</div>
+                            <div className="d-profile-val">{info.access}</div>
+                          </div>
+                        )}
+                        {info.hours && (
+                          <div className="d-profile-item">
+                            <div className="d-profile-key">営業時間</div>
+                            <div className="d-profile-val">{info.hours}</div>
+                          </div>
+                        )}
+                        {info.holiday && (
+                          <div className="d-profile-item">
+                            <div className="d-profile-key">定休日</div>
+                            <div className="d-profile-val">{info.holiday}</div>
+                          </div>
+                        )}
+                        {info.address && (
+                          <div className="d-profile-item" style={{ gridColumn: "1 / -1" }}>
+                            <div className="d-profile-key">所在地</div>
+                            <div className="d-profile-val">{info.address}</div>
+                          </div>
+                        )}
+                        {info.directions && (
+                          <div className="d-profile-item" style={{ gridColumn: "1 / -1" }}>
+                            <div className="d-profile-key">最寄駅からの行き方</div>
+                            <div className="d-profile-val" style={{ whiteSpace: "pre-line" }}>
+                              {info.directions}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      {mapsQuery && (
+                        <div
+                          style={{
+                            marginTop: 20,
+                            borderRadius: 14,
+                            overflow: "hidden",
+                            border: "1px solid var(--light)",
+                          }}
+                        >
+                          <iframe
+                            title="Google マップ"
+                            src={`https://www.google.com/maps?q=${encodeURIComponent(mapsQuery)}&output=embed`}
+                            width="100%"
+                            height="240"
+                            style={{ border: 0, display: "block" }}
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                          />
+                        </div>
+                      )}
+                    </section>
+                  );
+                })()}
+
               </div>
 
               {/* ── 右カラム: スティッキーサイドバー ── */}
@@ -1381,7 +1480,7 @@ export default async function CounselorDetailPage({
                     所属相談所
                   </p>
                   <AgencyCardBlock
-                    agency={matchedAgency}
+                    agency={agencyForCard}
                     counselorCount={agencyCounselorCount}
                     fallbackName={counselor.agency}
                     fallbackAddress={counselor.address}

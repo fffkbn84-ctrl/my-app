@@ -3,8 +3,16 @@
 import Link from "next/link";
 import { isCampaignActive, isNewShop, type Agency } from "@/lib/data";
 
+/**
+ * カウンセラー詳細の「所属相談所」枠で使うカード。
+ * mock 相談所（フル Agency 型）と Supabase 相談所（Partial）の両方に対応。
+ * 必須は id と name のみ。他は無ければ表示をスキップする。
+ */
+// id は mock (number) / Supabase (UUID string) の両対応
+type AgencyCard = Omit<Partial<Agency>, "id"> & { id: number | string; name: string };
+
 type Props = {
-  agency: Agency | undefined;
+  agency: AgencyCard | undefined;
   counselorCount: number;
   fallbackName: string;
   fallbackAddress: string;
@@ -29,7 +37,16 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
     );
   }
 
-  const minAdmission = Math.min(...agency.plans.map((p) => p.admission));
+  // Supabase 相談所は plans 未設定。あるときだけ入会金最安を出す
+  const minAdmission =
+    agency.plans && agency.plans.length > 0
+      ? Math.min(...agency.plans.map((p) => p.admission))
+      : null;
+  // Supabase agency は gradient / type 等を持たないので汎用 fallback を用意
+  const gradient = agency.gradient ?? "linear-gradient(135deg,#F4ECE0,#E8DCC8)";
+  const types = agency.type ?? [];
+  const rating = agency.rating ?? 0;
+  const reviewCount = agency.reviewCount ?? 0;
 
   return (
     <Link
@@ -83,7 +100,7 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
       <div
         style={{
           height: 100,
-          background: agency.gradient,
+          background: gradient,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -119,7 +136,7 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
               新店舗
             </span>
           )}
-          {agency.type.map((t) => (
+          {types.map((t) => (
             <span
               key={t}
               style={{
@@ -152,27 +169,33 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
         >
           {agency.name}
         </p>
-        <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>{agency.area}</p>
-        <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 10 }}>
-          入会金 {minAdmission.toLocaleString("ja-JP")}円〜
-        </p>
+        {agency.area && (
+          <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>{agency.area}</p>
+        )}
+        {minAdmission !== null && (
+          <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 10 }}>
+            入会金 {minAdmission.toLocaleString("ja-JP")}円〜
+          </p>
+        )}
 
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
-            {[1, 2, 3, 4, 5].map((s) => (
-              <svg key={s} width="11" height="11" viewBox="0 0 12 12">
-                <path
-                  d="M6 1l1.5 3h3.2L8 6.2l.9 3.3L6 7.8l-2.9 1.7.9-3.3L1.3 4h3.2z"
-                  fill={s <= Math.round(agency.rating) ? "var(--accent)" : "var(--light)"}
-                />
-              </svg>
-            ))}
-          </span>
-          <span style={{ fontSize: 13, fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-            {agency.rating}
-          </span>
-          <span style={{ fontSize: 11, color: "var(--muted)" }}>（{agency.reviewCount}件）</span>
-        </div>
+        {reviewCount > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
+              {[1, 2, 3, 4, 5].map((s) => (
+                <svg key={s} width="11" height="11" viewBox="0 0 12 12">
+                  <path
+                    d="M6 1l1.5 3h3.2L8 6.2l.9 3.3L6 7.8l-2.9 1.7.9-3.3L1.3 4h3.2z"
+                    fill={s <= Math.round(rating) ? "var(--accent)" : "var(--light)"}
+                  />
+                </svg>
+              ))}
+            </span>
+            <span style={{ fontSize: 13, fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+              {rating}
+            </span>
+            <span style={{ fontSize: 11, color: "var(--muted)" }}>（{reviewCount}件）</span>
+          </div>
+        )}
 
         <p style={{ fontSize: 11, color: "var(--muted)" }}>在籍カウンセラー {counselorCount}名</p>
       </div>
