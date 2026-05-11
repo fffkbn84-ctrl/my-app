@@ -83,6 +83,8 @@ export type Agency = {
   /* ───── カウンセラー管理画面から編集されるフィールド ───── */
   /** 料金プラン配列（複数プラン対応）。空配列なら従来の plans を表示 */
   fees?: FeePlan[];
+  /** 各種割引（U30 等）— 料金プラン横断のお得情報枠 */
+  discounts?: Discount[];
   /** キャンペーン本文（新フィールド。旧 campaign より優先） */
   campaignText?: string | null;
   /** キャンペーン有効期限 ISO 文字列。NULL なら無期限 */
@@ -112,6 +114,21 @@ export type FeePlan = {
   popular?: boolean;
   /** 内訳項目 */
   items: FeeItem[];
+  /** プラン単位の注意事項（自由テキスト・複数行可） */
+  notes?: string | null;
+  /** 「こんな方向け」1〜2行の対象セグメント */
+  description?: string | null;
+  /** 「含まれるもの」箇条書き（短文・3〜6 件想定） */
+  included?: string[] | null;
+};
+
+/** 割引（U30 / 乗り換え割 / 学割など）— 料金プランと独立した「お得情報」枠 */
+export type Discount = {
+  label: string;
+  condition?: string | null;
+  amount?: number | null;   // 円表記
+  percent?: number | null;  // % 表記（amount と排他）
+  note?: string | null;
 };
 
 export type Counselor = {
@@ -895,6 +912,7 @@ function normalizeSupabaseAgency(row: any): AgencyPartial {
   return {
     ...row,
     fees: Array.isArray(row.fees) ? row.fees : [],
+    discounts: Array.isArray(row.discounts) ? row.discounts : [],
     campaignText: row.campaign_text ?? null,
     campaignExpiresAt: row.campaign_expires_at ?? null,
     foundedAt: row.founded_at ?? null,

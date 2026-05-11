@@ -30,6 +30,8 @@ export interface Database {
           address: string | null;
           access: string | null;
           directions: string | null;
+          /* 014_agencies_discounts.sql で追加 */
+          discounts: Json;
           created_at: string;
           updated_at: string;
         };

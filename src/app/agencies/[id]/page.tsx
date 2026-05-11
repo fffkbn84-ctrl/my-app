@@ -730,6 +730,57 @@ export default async function AgencyDetailPage({
                         )}
                       </div>
 
+                      {/* 対象セグメント */}
+                      {plan.description && (
+                        <p
+                          style={{
+                            margin: 0,
+                            padding: "12px 20px 0",
+                            fontSize: 12,
+                            color: "var(--mid)",
+                            lineHeight: 1.7,
+                            fontFamily: "var(--font-mincho)",
+                          }}
+                        >
+                          {plan.description}
+                        </p>
+                      )}
+
+                      {/* 含まれるもの */}
+                      {plan.included && plan.included.length > 0 && (
+                        <ul
+                          style={{
+                            margin: 0,
+                            padding: "12px 20px 4px",
+                            listStyle: "none",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 6,
+                          }}
+                        >
+                          {plan.included.map((line, lineIdx) => (
+                            <li
+                              key={lineIdx}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                gap: 8,
+                                fontSize: 12,
+                                color: "var(--ink)",
+                                lineHeight: 1.6,
+                              }}
+                            >
+                              <span style={{ color: "var(--accent)", flexShrink: 0, marginTop: 1 }}>
+                                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                                  <path d="M2 6l2.5 2.5L10 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              </span>
+                              <span>{line}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
                       {/* 料金内訳 */}
                       <div style={{ padding: "4px 20px 16px" }}>
                         {plan.items.map((row, i) => {
@@ -777,9 +828,106 @@ export default async function AgencyDetailPage({
                           );
                         })}
                       </div>
+
+                      {/* プラン単位の注意事項 */}
+                      {plan.notes && (
+                        <div
+                          style={{
+                            margin: "0 20px 16px",
+                            padding: "10px 12px",
+                            background: "var(--pale)",
+                            borderRadius: 8,
+                            fontSize: 11,
+                            color: "var(--mid)",
+                            lineHeight: 1.7,
+                            whiteSpace: "pre-line",
+                          }}
+                        >
+                          {plan.notes}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
+
+                {/* 各種割引・お得情報（プラン横断） */}
+                {agency.discounts && agency.discounts.length > 0 && (
+                  <div style={{ marginTop: 24 }}>
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-mincho)",
+                        fontSize: 15,
+                        color: "var(--ink)",
+                        marginBottom: 12,
+                        paddingBottom: 8,
+                        borderBottom: "1px solid var(--pale)",
+                      }}
+                    >
+                      <span style={{ color: "var(--accent)", marginRight: 6 }}>✦</span>
+                      各種割引・お得情報
+                    </h3>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {agency.discounts.map((d, idx) => {
+                        const value = d.amount != null
+                          ? `¥${d.amount.toLocaleString("ja-JP")} OFF`
+                          : d.percent != null
+                            ? `${d.percent}% OFF`
+                            : null;
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              padding: "12px 14px",
+                              background: "rgba(200,169,122,.06)",
+                              border: "1px solid rgba(200,169,122,.25)",
+                              borderRadius: 10,
+                              display: "flex",
+                              alignItems: "flex-start",
+                              gap: 12,
+                            }}
+                          >
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p
+                                style={{
+                                  fontFamily: "var(--font-mincho)",
+                                  fontSize: 14,
+                                  color: "var(--ink)",
+                                  marginBottom: 2,
+                                }}
+                              >
+                                {d.label}
+                              </p>
+                              {d.condition && (
+                                <p style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.6 }}>
+                                  対象：{d.condition}
+                                </p>
+                              )}
+                              {d.note && (
+                                <p style={{ fontSize: 10, color: "var(--muted)", lineHeight: 1.6, marginTop: 2 }}>
+                                  {d.note}
+                                </p>
+                              )}
+                            </div>
+                            {value && (
+                              <span
+                                style={{
+                                  fontFamily: "var(--font-serif)",
+                                  fontSize: 14,
+                                  color: "var(--accent)",
+                                  fontWeight: 400,
+                                  whiteSpace: "nowrap",
+                                  flexShrink: 0,
+                                }}
+                              >
+                                {value}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
                 <p
                   style={{
                     fontSize: 11,
