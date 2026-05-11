@@ -1,7 +1,16 @@
 export interface FeeItem {
   label: string                  // '入会金' '月会費' '成婚料' or 独自名
   amount: number                 // 円単位（0 = 無料）
-  note?: string | null           // 補足説明（任意）
+  suffix?: string | null         // 表示サフィックス '/月' '/回' '/年' 等。
+                                 // 未指定 & amount > 0 なら user-side で「(税込)」自動付与
+  note?: string | null           // 補足説明（任意）。「初回のみ」等
+}
+
+/** 料金プラン（複数を agencies.fees に持てる） */
+export interface FeePlan {
+  name: string                   // 'ベーシック' / 'フルサポート' / 独自名
+  popular?: boolean              // 「人気」バッジ表示するか
+  items: FeeItem[]               // 内訳項目
 }
 
 export interface Agency {
@@ -19,7 +28,7 @@ export interface Agency {
   email: string | null
   cancel_deadline_hours: number | null     // キャンセル期限（時間前）
   cancel_policy: string | null             // キャンセルポリシー本文
-  fees: FeeItem[]                          // 料金プラン配列（税込金額）
+  fees: FeePlan[]                          // 料金プラン配列（複数プラン対応・税込）
   campaign_text: string | null             // キャンペーン本文
   campaign_expires_at: string | null       // キャンペーン有効期限 ISO 文字列
   founded_at: string | null                // 創業日 'YYYY-MM-DD'（NULL なら新店舗バッジ非表示）

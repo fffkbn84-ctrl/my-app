@@ -4,17 +4,24 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
-import type { Agency, FeeItem } from '@/lib/types'
+import type { Agency, FeeItem, FeePlan } from '@/lib/types'
 
 // 「新店舗」バッジが表示される期間（創業から）
 const NEW_SHOP_DAYS = 365
 
-// 標準料金プランのテンプレート
-const STANDARD_FEES: FeeItem[] = [
-  { label: '入会金', amount: 0, note: null },
-  { label: '月会費', amount: 0, note: null },
-  { label: '成婚料', amount: 0, note: null },
-]
+// 標準料金プランのテンプレート（4 項目入りのスタンダード）
+const STANDARD_PLAN: FeePlan = {
+  name: 'スタンダード',
+  items: [
+    { label: '入会金', amount: 0, suffix: null, note: null },
+    { label: '月会費', amount: 0, suffix: '/月', note: null },
+    { label: 'お見合い料', amount: 0, suffix: '/回', note: null },
+    { label: '成婚料', amount: 0, suffix: null, note: null },
+  ],
+}
+
+// よく使う suffix 候補
+const SUFFIX_OPTIONS = ['', '/月', '/回', '/年', '/初回']
 
 export default function AgencyPage() {
   const [agencies, setAgencies] = useState<Agency[]>([])
@@ -38,7 +45,7 @@ export default function AgencyPage() {
     email: '',
     cancel_deadline_hours: 24,
     cancel_policy: '',
-    fees: [] as FeeItem[],
+    fees: [] as FeePlan[],
     campaign_text: '',
     campaign_expires_at: '',  // ISO 文字列、未設定なら ''
     founded_at: '',           // 'YYYY-MM-DD'、未設定なら ''
@@ -190,21 +197,58 @@ export default function AgencyPage() {
     setForm(prev => ({ ...prev, [key]: value }))
   }
 
-  // 料金プラン操作
-  const addStandardFees = () => {
-    setForm(prev => ({ ...prev, fees: STANDARD_FEES.map(f => ({ ...f })) }))
-  }
-  const addCustomFee = () => {
-    setForm(prev => ({ ...prev, fees: [...prev.fees, { label: '', amount: 0, note: null }] }))
-  }
-  const updateFee = (idx: number, key: keyof FeeItem, value: string | number | null) => {
+  // ──────── 料金プラン操作（プラン単位 + 項目単位）────────
+  const addStandardPlan = () => {
     setForm(prev => ({
       ...prev,
-      fees: prev.fees.map((f, i) => i === idx ? { ...f, [key]: value } : f),
+      fees: [...prev.fees, { ...STANDARD_PLAN, items: STANDARD_PLAN.items.map(i => ({ ...i })) }],
     }))
   }
-  const removeFee = (idx: number) => {
-    setForm(prev => ({ ...prev, fees: prev.fees.filter((_, i) => i !== idx) }))
+  const addEmptyPlan = () => {
+    setForm(prev => ({
+      ...prev,
+      fees: [...prev.fees, { name: '', popular: false, items: [] }],
+    }))
+  }
+  const updatePlan = (planIdx: number, key: keyof FeePlan, value: unknown) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx ? { ...p, [key]: value } : p),
+    }))
+  }
+  const removePlan = (planIdx: number) => {
+    if (!window.confirm(`プラン「${form.fees[planIdx]?.name || '無名'}」を削除しますか？`)) return
+    setForm(prev => ({ ...prev, fees: prev.fees.filter((_, i) => i !== planIdx) }))
+  }
+  const addItem = (planIdx: number) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? { ...p, items: [...p.items, { label: '', amount: 0, suffix: null, note: null }] }
+        : p,
+      ),
+    }))
+  }
+  const updateItem = (planIdx: number, itemIdx: number, key: keyof FeeItem, value: string | number | null) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? {
+            ...p,
+            items: p.items.map((it, j) => j === itemIdx ? { ...it, [key]: value } : it),
+          }
+        : p,
+      ),
+    }))
+  }
+  const removeItem = (planIdx: number, itemIdx: number) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? { ...p, items: p.items.filter((_, j) => j !== itemIdx) }
+        : p,
+      ),
+    }))
   }
 
   // 「新店舗」バッジ表示状況（founded_at ベース）
@@ -511,103 +555,181 @@ export default function AgencyPage() {
           </div>
         </div>
 
-        {/* 料金プラン本体 */}
+        {/* 料金プラン本体（多プラン対応） */}
         <div>
           {form.fees.length === 0 ? (
             <div style={{
-              padding: '16px 14px',
+              padding: '20px 16px',
               background: 'var(--bg-elev)',
               border: '1px dashed var(--border)',
               borderRadius: 12,
               textAlign: 'center',
             }}>
               <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 12, lineHeight: 1.7 }}>
-                料金プランがまだ登録されていません。
+                料金プランがまだ登録されていません。<br/>
+                ベーシック・フルサポートなど、複数プランを作れます。
               </p>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button type="button" className="kc-btn kc-btn-primary kc-btn-sm" onClick={addStandardFees}>
-                  標準プランを追加（入会金 / 月会費 / 成婚料）
+                <button type="button" className="kc-btn kc-btn-primary kc-btn-sm" onClick={addStandardPlan}>
+                  標準プランを追加
                 </button>
-                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addCustomFee}>
-                  + カスタム料金を追加
+                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addEmptyPlan}>
+                  + 空のプランを追加
                 </button>
               </div>
             </div>
           ) : (
-            <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {form.fees.map((fee, idx) => (
-                  <div key={idx} style={{
-                    padding: '12px',
-                    background: 'var(--bg-elev)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 12,
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 130px auto',
-                    gap: 8,
-                    alignItems: 'start',
-                  }}>
-                    <div style={{ gridColumn: 'span 3' }}>
-                      <input
-                        className="kc-input"
-                        value={fee.label}
-                        onChange={e => updateFee(idx, 'label', e.target.value)}
-                        placeholder="例：入会金 / デート同行サポート"
-                        style={{ fontSize: 13, fontWeight: 500 }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>¥</span>
-                      <input
-                        className="kc-input"
-                        type="number"
-                        min={0}
-                        value={fee.amount}
-                        onChange={e => updateFee(idx, 'amount', e.target.value === '' ? 0 : Number(e.target.value))}
-                        placeholder="100000"
-                        style={{ fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
-                      />
-                      <span style={{ fontSize: 10, color: 'var(--text-light)', whiteSpace: 'nowrap' }}>（込）</span>
-                    </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {form.fees.map((plan, planIdx) => (
+                <div key={planIdx} style={{
+                  background: plan.popular ? 'var(--accent-pale)' : 'var(--card-warm)',
+                  border: `1.5px solid ${plan.popular ? 'var(--accent)' : 'var(--border)'}`,
+                  borderRadius: 14,
+                  padding: '14px 14px',
+                }}>
+                  {/* プランヘッダー */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
                     <input
                       className="kc-input"
-                      value={fee.note ?? ''}
-                      onChange={e => updateFee(idx, 'note', e.target.value || null)}
-                      placeholder="補足（任意）"
-                      style={{ fontSize: 12 }}
+                      value={plan.name}
+                      onChange={e => updatePlan(planIdx, 'name', e.target.value)}
+                      placeholder="例：ベーシック / フルサポート"
+                      style={{ flex: 1, minWidth: 140, fontSize: 14, fontWeight: 500 }}
                     />
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--text-mid)', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={plan.popular ?? false}
+                        onChange={e => updatePlan(planIdx, 'popular', e.target.checked)}
+                      />
+                      人気バッジ
+                    </label>
                     <button
                       type="button"
-                      onClick={() => removeFee(idx)}
-                      aria-label="削除"
+                      onClick={() => removePlan(planIdx)}
+                      aria-label="プラン削除"
                       style={{
                         background: 'none',
                         border: 'none',
-                        color: 'var(--text-light)',
+                        color: 'var(--danger)',
                         cursor: 'pointer',
-                        padding: 4,
-                        alignSelf: 'center',
+                        padding: '6px 8px',
+                        fontSize: 11,
                       }}
                     >
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                        <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-                      </svg>
+                      プランを削除
                     </button>
                   </div>
-                ))}
-              </div>
-              <div style={{ marginTop: 10 }}>
-                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addCustomFee}>
+
+                  {/* 項目リスト */}
+                  {plan.items.length === 0 ? (
+                    <p style={{ fontSize: 12, color: 'var(--text-light)', textAlign: 'center', padding: '12px 0' }}>
+                      項目がありません。下のボタンから追加してください。
+                    </p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {plan.items.map((item, itemIdx) => (
+                        <div key={itemIdx} style={{
+                          padding: 10,
+                          background: 'var(--card)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 10,
+                          display: 'grid',
+                          gridTemplateColumns: '1fr',
+                          gap: 6,
+                        }}>
+                          {/* ラベル + 削除 */}
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                            <input
+                              className="kc-input"
+                              value={item.label}
+                              onChange={e => updateItem(planIdx, itemIdx, 'label', e.target.value)}
+                              placeholder="例：入会金 / デート同行"
+                              style={{ flex: 1, fontSize: 13, fontWeight: 500 }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeItem(planIdx, itemIdx)}
+                              aria-label="項目削除"
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--text-light)',
+                                cursor: 'pointer',
+                                padding: 4,
+                                flexShrink: 0,
+                              }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                              </svg>
+                            </button>
+                          </div>
+                          {/* 金額 + サフィックス */}
+                          <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: 13, color: 'var(--text-mid)' }}>¥</span>
+                            <input
+                              className="kc-input"
+                              type="number"
+                              min={0}
+                              value={item.amount}
+                              onChange={e => updateItem(planIdx, itemIdx, 'amount', e.target.value === '' ? 0 : Number(e.target.value))}
+                              placeholder="100000"
+                              style={{ flex: '1 1 100px', fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
+                            />
+                            <select
+                              className="kc-select"
+                              value={item.suffix ?? ''}
+                              onChange={e => updateItem(planIdx, itemIdx, 'suffix', e.target.value || null)}
+                              style={{ flex: '0 0 96px', fontSize: 12 }}
+                              aria-label="表示単位"
+                            >
+                              {SUFFIX_OPTIONS.map(s => (
+                                <option key={s} value={s}>{s === '' ? '(税込)' : s}</option>
+                              ))}
+                            </select>
+                          </div>
+                          {/* 補足 */}
+                          <input
+                            className="kc-input"
+                            value={item.note ?? ''}
+                            onChange={e => updateItem(planIdx, itemIdx, 'note', e.target.value || null)}
+                            placeholder="補足（任意）— 初回のみ / ご希望者のみ 等"
+                            style={{ fontSize: 12 }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: 10 }}>
+                    <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={() => addItem(planIdx)}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      このプランに項目を追加
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 4 }}>
+                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addStandardPlan}>
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   </svg>
-                  料金を追加
+                  標準プランを追加
+                </button>
+                <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={addEmptyPlan}>
+                  + 空のプランを追加
                 </button>
               </div>
-            </>
+            </div>
           )}
-          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 8, lineHeight: 1.7 }}>
-            ¥0 と入力した項目は「無料」と表示されます。補足には「初回のみ」「ご希望者のみ」など短い説明を入れてください。
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 10, lineHeight: 1.7 }}>
+            ¥0 と入力した項目は「無料」（緑色）で表示されます。<br/>
+            単位「/月」「/回」を選ぶと、お客様向けには「¥XX,XXX/月」と表示。<br/>
+            空欄を選ぶと「¥XX,XXX（税込）」が自動付与されます。
           </p>
         </div>
 
