@@ -253,6 +253,13 @@ main {
   transition: border-color .2s;
   outline: none;
 }
+/* iOS Safari は input の font-size が 16px 未満だとフォーカス時にズーム → 入力欄が画面外に飛ぶ。
+   モバイルでは 16px に上げてズーム発生を抑える。 */
+@media (max-width: 768px) {
+  .kc-input, .kc-select, .kc-textarea {
+    font-size: 16px;
+  }
+}
 .kc-input:focus, .kc-select:focus, .kc-textarea:focus {
   border-color: var(--accent);
   background: var(--card);
