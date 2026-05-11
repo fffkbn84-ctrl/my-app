@@ -823,17 +823,17 @@ export async function getCounselorById(id: string): Promise<Counselor | null> {
   if (res.error || !row) return null
 
   const [agencyRes, mediaRes] = await Promise.all([
-    supabase.from('agencies').select('id,name').eq('id', row.agency_id).single(),
+    supabase.from('agencies').select('id,name,founded_at').eq('id', row.agency_id).single(),
     supabase
       .from('counselor_media')
       .select('*')
       .eq('counselor_id', row.id)
       .order('display_order', { ascending: true }),
   ])
-  const agency = agencyRes.data as { id: string; name: string } | null
+  const agency = agencyRes.data as { id: string; name: string; founded_at: string | null } | null
   const media = mediaRes.data as CounselorMediaRow[] | null
 
-  return mapCounselorRowToCounselor(row, agency?.name, media ?? [])
+  return mapCounselorRowToCounselor(row, agency?.name, media ?? [], agency?.founded_at ?? null)
 }
 
 /* ────────────────────────────────────────────────────────────

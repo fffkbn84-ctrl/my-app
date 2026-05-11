@@ -633,14 +633,78 @@ export default async function CounselorDetailPage({
   }
   if (!mockCounselor && !supabaseCounselor) notFound();
 
+  // mock がない & Supabase オンリーの場合のフォールバックビルダー。
+  // 相談所が管理画面から登録したカウンセラー（UUID）でも 404 を出さないために、
+  // Supabase のフィールドを mock と同じ shape にマッピングする。
+  // 料金は「料金は各相談所詳細をご覧ください」と案内し、所属相談所 ID を表示。
+  type PlanShape = {
+    name: string;
+    enrollment: number;
+    monthly: number;
+    matchmaking: number | null;
+    success: number;
+    featured?: boolean;
+    notes?: string;
+  };
+  type CounselorShape = {
+    id: string;
+    name: string;
+    nameKana: string;
+    agency: string;
+    agencyId: string;
+    area: string;
+    address: string;
+    specialties: string[];
+    rating: number;
+    reviewCount: number;
+    yearsExp: number;
+    successCount: number;
+    nextAvailable: string;
+    bio: string;
+    message: string;
+    qualifications: string[];
+    photoUrl: string | undefined;
+    monthlyFee: string;
+    campaign: null | { label: string; detail?: string; expiry?: string };
+    pricing: { plans: PlanShape[]; note: string };
+  };
+  const buildFromSupabase = (sc: NonNullable<typeof supabaseCounselor>): CounselorShape => {
+    const tags = sc.specialties ?? sc.tags ?? [];
+    return {
+      id: String(sc.id),
+      name: sc.name,
+      nameKana: sc.kana ?? "",
+      agency: sc.agencyName ?? "",
+      agencyId: String(sc.agencyId ?? ""),
+      area: sc.area ?? "",
+      address: "",
+      specialties: Array.isArray(tags) ? tags : [],
+      rating: sc.rating ?? 0,
+      reviewCount: sc.reviewCount ?? 0,
+      yearsExp: sc.experience ?? 0,
+      successCount: 0,
+      nextAvailable: "",
+      bio: sc.bio ?? sc.intro ?? "",
+      message: sc.message ?? sc.catchphrase ?? "",
+      qualifications: sc.qualifications ?? [],
+      photoUrl: undefined,
+      monthlyFee: "",
+      campaign: null,
+      pricing: { plans: [], note: "※ 料金詳細は所属相談所ページをご確認ください。" },
+    };
+  };
+
   // Supabase にデータがある場合はフィールドを上書き（フォールバック: モック）
-  const counselor = mockCounselor
-    ? {
+  // mock が無い & Supabase だけある時は Supabase から組み立てる
+  const counselor: CounselorShape | undefined = mockCounselor
+    ? ({
         ...mockCounselor,
         bio: supabaseCounselor?.bio ?? mockCounselor.bio,
         name: supabaseCounselor?.name ?? mockCounselor.name,
-      }
-    : mockCounselor;
+      } as CounselorShape)
+    : supabaseCounselor
+      ? buildFromSupabase(supabaseCounselor)
+      : undefined;
   if (!counselor) notFound();
 
   const mockReviews = reviews.filter((r) => r.counselorId === id);

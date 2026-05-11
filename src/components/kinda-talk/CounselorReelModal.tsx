@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Link from "next/link";
-import { Counselor } from "@/lib/data";
+import { Counselor, isNewShop } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
 import { useFavorites } from "@/hooks/useFavorites";
 import KindaTypeBadge from "./KindaTypeBadge";
@@ -148,7 +148,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
             <div className="kt-reel-modal-stage">
               <div
                 className="kt-reel-modal-image"
-                style={{ background: currentImage?.bg ?? counselor.gradient }}
+                style={{ backgroundImage: currentImage?.bg ?? counselor.gradient }}
               />
             </div>
 
@@ -209,6 +209,19 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
               </div>
               <div className="kt-reel-modal-name">
                 {counselor.name}
+                {isNewShop(counselor.agencyFoundedAt) && (
+                  <span style={{
+                    marginLeft: 8,
+                    fontSize: 10,
+                    color: "var(--accent)",
+                    fontWeight: 600,
+                    border: "1px solid var(--accent)",
+                    borderRadius: 20,
+                    padding: "2px 8px",
+                  }}>
+                    新店舗
+                  </span>
+                )}
                 {counselor.experience < 1 && (
                   <span style={{ marginLeft: 8, fontSize: 10, color: "var(--accent)", fontWeight: 600 }}>
                     新人
