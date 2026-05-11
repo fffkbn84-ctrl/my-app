@@ -281,6 +281,8 @@ export default function AgencyPage() {
         popular: false,
         items: src.items.map(i => ({ ...i })),
         notes: src.notes ?? null,
+        description: src.description ?? null,
+        included: src.included ? [...src.included] : null,
       }
       const next = [...prev.fees]
       next.splice(planIdx + 1, 0, copy)
@@ -816,6 +818,89 @@ export default function AgencyPage() {
                       }}
                     >
                       プランを削除
+                    </button>
+                  </div>
+
+                  {/* 対象セグメント（description）— 1〜2 行・短く
+                     お客様画面でプラン名直下に「こんな方向け」として表示される */}
+                  <div style={{ marginBottom: 10 }}>
+                    <label
+                      className="kc-label"
+                      style={{ fontSize: 11, color: 'var(--text-mid)' }}
+                    >
+                      こんな方向け（任意）
+                    </label>
+                    <input
+                      className="kc-input"
+                      value={plan.description ?? ''}
+                      onChange={e => updatePlan(planIdx, 'description', e.target.value || null)}
+                      placeholder="例：短期成婚を本気で目指す方向け"
+                      style={{ fontSize: 12 }}
+                      maxLength={60}
+                    />
+                  </div>
+
+                  {/* 含まれるもの（included[]）— 短い箇条書き 3〜6 件
+                     お客様画面で「✓ ◯◯」の形式で並ぶ。比較スキャンしやすい設計。 */}
+                  <div style={{ marginBottom: 12 }}>
+                    <label
+                      className="kc-label"
+                      style={{ fontSize: 11, color: 'var(--text-mid)' }}
+                    >
+                      含まれるもの（任意・3〜6件目安）
+                    </label>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {(plan.included ?? []).map((line, lineIdx) => (
+                        <div key={lineIdx} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                          <span style={{ fontSize: 13, color: 'var(--accent)', flexShrink: 0 }}>✓</span>
+                          <input
+                            className="kc-input"
+                            value={line}
+                            onChange={e => {
+                              const next = [...(plan.included ?? [])]
+                              next[lineIdx] = e.target.value
+                              updatePlan(planIdx, 'included', next)
+                            }}
+                            placeholder="例：お見合い 月3件まで"
+                            style={{ flex: 1, fontSize: 12 }}
+                            maxLength={40}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = (plan.included ?? []).filter((_, i) => i !== lineIdx)
+                              updatePlan(planIdx, 'included', next.length === 0 ? null : next)
+                            }}
+                            aria-label="含まれるものを削除"
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--text-light)',
+                              cursor: 'pointer',
+                              padding: 4,
+                              flexShrink: 0,
+                            }}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                              <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      className="kc-btn kc-btn-ghost kc-btn-sm"
+                      onClick={() => {
+                        const next = [...(plan.included ?? []), '']
+                        updatePlan(planIdx, 'included', next)
+                      }}
+                      style={{ marginTop: 6 }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      </svg>
+                      含まれるものを追加
                     </button>
                   </div>
 

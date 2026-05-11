@@ -12,6 +12,8 @@ export interface FeePlan {
   popular?: boolean              // 「人気」バッジ表示するか
   items: FeeItem[]               // 内訳項目
   notes?: string | null          // プラン単位の注意事項（自由テキスト・複数行可）
+  description?: string | null    // 「こんな方向け」1〜2行の対象セグメント
+  included?: string[] | null     // 「含まれるもの」箇条書き（短文・3〜6 件想定）
 }
 
 export interface Agency {
