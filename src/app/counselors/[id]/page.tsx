@@ -1082,29 +1082,48 @@ export default async function CounselorDetailPage({
                   </div>
 
                   {/* 評価サマリー */}
-                  <div className="bg-pale rounded-2xl p-6 mb-6">
-                    <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                      <div className="text-center md:w-32 shrink-0">
-                        <p
-                          className="text-5xl text-ink leading-none mb-2"
-                          style={{ fontFamily: "var(--font-serif)" }}
-                        >
-                          {avgRating.toFixed(1)}
-                        </p>
-                        <StarRating rating={Math.round(avgRating)} size={16} />
-                        <p className="text-xs text-muted mt-1">{counselorReviews.length}件の評価</p>
+                  {counselorReviews.length > 0 ? (
+                    <div className="bg-pale rounded-2xl p-6 mb-6">
+                      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div className="text-center md:w-32 shrink-0">
+                          <p
+                            className="text-5xl text-ink leading-none mb-2"
+                            style={{ fontFamily: "var(--font-serif)" }}
+                          >
+                            {avgRating.toFixed(1)}
+                          </p>
+                          <StarRating rating={Math.round(avgRating)} size={16} />
+                          <p className="text-xs text-muted mt-1">{counselorReviews.length}件の評価</p>
+                        </div>
+                        {/* 評価カテゴリの棒グラフは口コミが一定数集まってから出す。
+                            少数件だと数字に意味が出ないため 3 件以上を閾値にしている */}
+                        {counselorReviews.length >= 3 && (
+                          <div className="flex-1 space-y-2 w-full">
+                            <RatingBar label="話しやすさ" value={4.9} />
+                            <RatingBar label="専門知識" value={4.8} />
+                            <RatingBar label="提案力" value={4.7} />
+                            <RatingBar label="サポート" value={4.9} />
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 space-y-2 w-full">
-                        <RatingBar label="話しやすさ" value={4.9} />
-                        <RatingBar label="専門知識" value={4.8} />
-                        <RatingBar label="提案力" value={4.7} />
-                        <RatingBar label="サポート" value={4.9} />
-                      </div>
+                      <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
+                        ※ Kinda ふたりへ経由で面談した方のみ投稿できます
+                      </p>
                     </div>
-                    <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
-                      ※ Kinda ふたりへ経由で面談した方のみ投稿できます
-                    </p>
-                  </div>
+                  ) : (
+                    <div
+                      className="bg-pale rounded-2xl p-6 mb-6"
+                      style={{ textAlign: "center" }}
+                    >
+                      <p style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.8 }}>
+                        まだ口コミはありません。<br />
+                        面談された方の口コミがここに表示されます。
+                      </p>
+                      <p className="text-xs text-muted mt-3">
+                        ※ Kinda ふたりへ経由で面談した方のみ投稿できます
+                      </p>
+                    </div>
+                  )}
 
                   {/* 口コミ一覧 */}
                   <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
