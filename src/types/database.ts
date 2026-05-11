@@ -22,6 +22,14 @@ export interface Database {
           email: string | null;
           cancel_deadline_hours: number;
           cancel_policy: string | null;
+          /* 004_add_agency_hours.sql で追加（user-site では business_hours_text→hours、
+             closed_weekdays(number[])→holiday(文字列) に変換して扱う） */
+          business_hours_text: string | null;
+          closed_weekdays: number[] | null;
+          /* 013_agencies_location_and_directions.sql で追加 */
+          address: string | null;
+          access: string | null;
+          directions: string | null;
           created_at: string;
           updated_at: string;
         };

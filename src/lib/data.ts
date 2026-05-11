@@ -872,6 +872,23 @@ export const NEW_SHOP_DAYS = 365;
 
 /** Supabase agencies 行（snake_case）を Agency 型の partial にマッピング */
 type AgencyPartial = Omit<Partial<Agency>, 'id'> & { id: number | string };
+
+/**
+ * closed_weekdays 配列（0=日 〜 6=土）を「火・水曜定休」のような表示テキストに変換。
+ * - 空配列 / null → null（表示しない）
+ * - 1 件: 「火曜定休」
+ * - 2 件以上: 「火・水曜定休」
+ * - 全曜日: 「年中無休」ではなく「全日定休」のまま（運用上ありえないので例外なし）
+ */
+function holidayFromClosedWeekdays(weekdays?: number[] | null): string | null {
+  if (!Array.isArray(weekdays) || weekdays.length === 0) return null;
+  const labels = ['日', '月', '火', '水', '木', '金', '土'];
+  const valid = weekdays.filter((w) => Number.isInteger(w) && w >= 0 && w <= 6);
+  if (valid.length === 0) return null;
+  const sorted = [...new Set(valid)].sort((a, b) => a - b);
+  return sorted.map((w) => labels[w]).join('・') + '曜定休';
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeSupabaseAgency(row: any): AgencyPartial {
   if (!row) return { id: '' };
@@ -883,8 +900,15 @@ function normalizeSupabaseAgency(row: any): AgencyPartial {
     foundedAt: row.founded_at ?? null,
     cancelPolicy: row.cancel_policy ?? row.cancelPolicy ?? undefined,
     cancelDeadlineHours: row.cancel_deadline_hours ?? row.cancelDeadlineHours ?? undefined,
-    // directions は DB 未追加の段階では undefined で渡る（Phase B のマイグレーションで追加予定）
+    /* 013 マイグレーションで追加: 会場へのアクセス情報 */
+    address: row.address ?? null,
+    access: row.access ?? null,
     directions: row.directions ?? null,
+    /* 既存カラムを user-site の Agency 型に合わせて命名統一
+       - business_hours_text → hours
+       - closed_weekdays (number[]) → holiday (string) */
+    hours: row.business_hours_text ?? row.hours ?? null,
+    holiday: holidayFromClosedWeekdays(row.closed_weekdays) ?? row.holiday ?? null,
   };
 }
 

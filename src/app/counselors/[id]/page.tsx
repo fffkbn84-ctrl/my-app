@@ -1346,16 +1346,17 @@ export default async function CounselorDetailPage({
 
                 {/* 基本情報（ホットペッパー的に下部に配置）
                    所属相談所の場所・営業時間・定休日 + Google Maps を一箇所にまとめる。
-                   表示可能なフィールドだけ条件付きで出す。Supabase オンリーの相談所は
-                   将来 address/access/hours/holiday カラム追加で完全化する想定 */}
+                   mock agency 優先・Supabase agency へフォールバックして
+                   どちらでも表示できる設計（013 マイグレーション後は Supabase
+                   側の address/access/hours/holiday/directions も読み取れる）。 */}
                 {(() => {
                   // mock agency / Supabase agency の双方から表示用情報を組み立て
                   const info = {
-                    area: matchedAgency?.area ?? counselor.area ?? null,
-                    address: matchedAgency?.address ?? null,
-                    access: matchedAgency?.access ?? null,
-                    hours: matchedAgency?.hours ?? null,
-                    holiday: matchedAgency?.holiday ?? null,
+                    area: matchedAgency?.area ?? supabaseAgency?.area ?? counselor.area ?? null,
+                    address: matchedAgency?.address ?? supabaseAgency?.address ?? null,
+                    access: matchedAgency?.access ?? supabaseAgency?.access ?? null,
+                    hours: matchedAgency?.hours ?? supabaseAgency?.hours ?? null,
+                    holiday: matchedAgency?.holiday ?? supabaseAgency?.holiday ?? null,
                     directions: matchedAgency?.directions ?? supabaseAgency?.directions ?? null,
                   };
                   const mapsQuery = info.address ?? agencyForCard?.name ?? null;

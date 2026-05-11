@@ -95,12 +95,15 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       setCounselorId(r.counselor_id);
 
       // 相談所情報（Supabase 優先・mock フォールバック）
+      // user-side で表示する hours / holiday は DB 上は別カラム名:
+      //   business_hours_text → hours
+      //   closed_weekdays (number[]) → holiday (テキスト変換)
       let info: AgencyInfo = { ...DEFAULT_INFO };
       if (r.agency_id) {
         const ag = await supabase
           .from("agencies")
           .select(
-            "id, name, address, access, hours, holiday, directions, phone, email, cancel_deadline_hours, cancel_policy",
+            "id, name, address, access, business_hours_text, closed_weekdays, directions, phone, email, cancel_deadline_hours, cancel_policy",
           )
           .eq("id", r.agency_id)
           .maybeSingle();
@@ -110,21 +113,29 @@ export default function ReservationDetailClient({ reservationId }: { reservation
             name: string | null;
             address: string | null;
             access: string | null;
-            hours: string | null;
-            holiday: string | null;
+            business_hours_text: string | null;
+            closed_weekdays: number[] | null;
             directions: string | null;
             phone: string | null;
             email: string | null;
             cancel_deadline_hours: number | null;
             cancel_policy: string | null;
           };
+          // closed_weekdays (例: [2,3]) → 「火・水曜定休」
+          const labels = ["日", "月", "火", "水", "木", "金", "土"];
+          const holidayText = Array.isArray(a.closed_weekdays) && a.closed_weekdays.length > 0
+            ? [...new Set(a.closed_weekdays.filter((w) => Number.isInteger(w) && w >= 0 && w <= 6))]
+                .sort((x, y) => x - y)
+                .map((w) => labels[w])
+                .join("・") + "曜定休"
+            : undefined;
           info = {
             id: a.id,
             name: a.name ?? r.agency_name ?? undefined,
             address: a.address ?? undefined,
             access: a.access ?? undefined,
-            hours: a.hours ?? undefined,
-            holiday: a.holiday ?? undefined,
+            hours: a.business_hours_text ?? undefined,
+            holiday: holidayText,
             directions: a.directions ?? undefined,
             phone: a.phone ?? undefined,
             email: a.email ?? undefined,
