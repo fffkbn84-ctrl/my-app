@@ -254,10 +254,32 @@ main {
   outline: none;
 }
 /* iOS Safari は input の font-size が 16px 未満だとフォーカス時にズーム → 入力欄が画面外に飛ぶ。
-   モバイルでは 16px に上げてズーム発生を抑える。 */
+   モバイルでは 16px に上げてズーム発生を抑える。
+   素の input / textarea / select も対象にし、!important で他の style 上書きにも勝つ。 */
 @media (max-width: 768px) {
-  .kc-input, .kc-select, .kc-textarea {
-    font-size: 16px;
+  .kc-input, .kc-select, .kc-textarea,
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  input[type="url"],
+  input[type="search"],
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"],
+  input[type="month"],
+  input[type="week"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  /* キーボードが出たとき iOS が input を画面中央に持ってこようとして
+     文字を打つたびにページがガクッと跳ねる現象がある。
+     scroll-margin で iOS の "scroll into view" が落ち着く位置を保証する。 */
+  input, textarea, select {
+    scroll-margin-bottom: 320px;
+    scroll-margin-top: 80px;
   }
 }
 .kc-input:focus, .kc-select:focus, .kc-textarea:focus {
