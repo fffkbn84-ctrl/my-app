@@ -56,7 +56,12 @@ export default function AgencyPage() {
     directions: '',           // 最寄駅からの行き方（複数行可）
     /* 015 マイグレーションで追加（agency_media テーブルと連動）*/
     logo_url: '',             // 相談所のプロフィール画像（ロゴ）URL
+    /* 016 マイグレーションで追加 */
+    features: [] as string[], // この相談所の特徴（フリーテキストのタグ）
   })
+
+  // features 入力用のドラフト（Enter で確定）
+  const [featureDraft, setFeatureDraft] = useState('')
 
   // リール画像（agency_media テーブル）は form とは別管理。
   // 個別 INSERT/UPDATE/DELETE で Supabase に即時反映する。
@@ -95,6 +100,7 @@ export default function AgencyPage() {
       access: ag.access ?? '',
       directions: ag.directions ?? '',
       logo_url: ag.logo_url ?? '',
+      features: Array.isArray(ag.features) ? ag.features : [],
     })
   }
 
@@ -179,6 +185,7 @@ export default function AgencyPage() {
       access: f.access || null,
       directions: f.directions || null,
       logo_url: f.logo_url || null,
+      features: f.features,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -588,6 +595,97 @@ export default function AgencyPage() {
             onChange={e => update('description', e.target.value)}
             placeholder="当相談所は、おひとりおひとりに寄り添ったサポートを心がけています..." />
         </div>
+
+        {/* この相談所の特徴（016 マイグレーション）— チップ入力
+            お客様画面の /agencies/[id] 「この相談所の特徴」枠にタグ表示される。
+            Enter / カンマで確定、x ボタンで削除。 */}
+        <div>
+          <label className="kc-label">この相談所の特徴</label>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 6,
+              padding: form.features.length > 0 ? '8px 10px' : 0,
+              border: form.features.length > 0 ? '1px dashed var(--border)' : 'none',
+              borderRadius: 10,
+              marginBottom: 8,
+            }}
+          >
+            {form.features.map((tag) => (
+              <span
+                key={tag}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 10px',
+                  fontSize: 12,
+                  background: 'var(--accent-pale)',
+                  color: 'var(--accent-deep)',
+                  border: '1px solid var(--accent-dim)',
+                  borderRadius: 20,
+                }}
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => update('features', form.features.filter((t) => t !== tag))}
+                  aria-label={`${tag} を削除`}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--accent-deep)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    fontSize: 14,
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input
+              className="kc-input"
+              value={featureDraft}
+              onChange={(e) => setFeatureDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault()
+                  const v = featureDraft.trim().replace(/,$/, '')
+                  if (v && !form.features.includes(v) && form.features.length < 10) {
+                    update('features', [...form.features, v])
+                    setFeatureDraft('')
+                  }
+                }
+              }}
+              placeholder="例：専任カウンセラー制（Enter で追加）"
+              maxLength={20}
+              style={{ flex: 1, fontSize: 13 }}
+            />
+            <button
+              type="button"
+              className="kc-btn kc-btn-ghost kc-btn-sm"
+              onClick={() => {
+                const v = featureDraft.trim().replace(/,$/, '')
+                if (v && !form.features.includes(v) && form.features.length < 10) {
+                  update('features', [...form.features, v])
+                  setFeatureDraft('')
+                }
+              }}
+            >
+              追加
+            </button>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            最大 10 個まで。Enter キーまたはカンマで確定します。
+            <br />例：「専任カウンセラー制」「IBJ加盟」「オンライン対応可」「個別最適化」
+          </p>
+        </div>
+
         <div>
           <label className="kc-label">WebサイトURL</label>
           <input className="kc-input" type="url" value={form.website_url}

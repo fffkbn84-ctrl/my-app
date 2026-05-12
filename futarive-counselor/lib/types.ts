@@ -50,6 +50,7 @@ export interface Agency {
   address: string | null                   // 所在地（フリーテキスト）
   access: string | null                    // 最寄駅などの簡潔なアクセス（例：銀座駅 徒歩3分）
   directions: string | null                // 最寄駅からの行き方（フリーテキスト、改行可）
+  features: string[]                       // この相談所の特徴（016 マイグレーション）
   created_at: string                       // Supabase 登録日（参考のみ）
 }
 
