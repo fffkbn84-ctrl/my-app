@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { isCampaignActive, isNewShop, type Agency } from "@/lib/data";
+import { isCampaignActive, isNewShop, type Agency, type FeePlan } from "@/lib/data";
 
 /**
  * カウンセラー詳細の「所属相談所」枠で使うカード。
@@ -13,12 +13,42 @@ type AgencyCard = Omit<Partial<Agency>, "id"> & { id: number | string; name: str
 
 type Props = {
   agency: AgencyCard | undefined;
-  counselorCount: number;
   fallbackName: string;
   fallbackAddress: string;
 };
 
-export default function AgencyCardBlock({ agency, counselorCount, fallbackName, fallbackAddress }: Props) {
+/**
+ * 月会費の最低額を取り出す。
+ * - mock 相談所は plans[].monthly から最小値
+ * - Supabase 相談所は fees[].items[] から「月会費系」項目（suffix='/月' か
+ *   ラベルに「月会費」「月額」を含む）の最小値
+ * - 該当なし or 0 円のみなら null
+ */
+function getMonthlyMin(agency: AgencyCard): number | null {
+  if (agency.plans && agency.plans.length > 0) {
+    const candidates = agency.plans
+      .map((p) => p.monthly)
+      .filter((m) => Number.isFinite(m) && m > 0);
+    if (candidates.length > 0) return Math.min(...candidates);
+  }
+  if (agency.fees && agency.fees.length > 0) {
+    let min: number | null = null;
+    for (const plan of agency.fees as FeePlan[]) {
+      for (const item of plan.items) {
+        const monthly =
+          (item.suffix && item.suffix.includes("/月")) ||
+          (item.label && /月会費|月額|マンスリー/i.test(item.label));
+        if (monthly && item.amount > 0) {
+          if (min === null || item.amount < min) min = item.amount;
+        }
+      }
+    }
+    return min;
+  }
+  return null;
+}
+
+export default function AgencyCardBlock({ agency, fallbackName, fallbackAddress }: Props) {
   if (!agency) {
     return (
       <div
@@ -37,11 +67,7 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
     );
   }
 
-  // Supabase 相談所は plans 未設定。あるときだけ入会金最安を出す
-  const minAdmission =
-    agency.plans && agency.plans.length > 0
-      ? Math.min(...agency.plans.map((p) => p.admission))
-      : null;
+  const monthlyMin = getMonthlyMin(agency);
   // Supabase agency は gradient / type 等を持たないので汎用 fallback を用意
   const gradient = agency.gradient ?? "linear-gradient(135deg,#F4ECE0,#E8DCC8)";
   const types = agency.type ?? [];
@@ -164,22 +190,36 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
             fontFamily: "Noto Sans JP, sans-serif",
             fontSize: 15,
             color: "var(--ink)",
-            marginBottom: 4,
+            marginBottom: 6,
           }}
         >
           {agency.name}
         </p>
-        {agency.area && (
-          <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4 }}>{agency.area}</p>
-        )}
-        {minAdmission !== null && (
-          <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 10 }}>
-            入会金 {minAdmission.toLocaleString("ja-JP")}円〜
-          </p>
+        {/* エリア + 月会費（横並び・小さく） */}
+        {(agency.area || monthlyMin !== null) && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 11,
+              color: "var(--muted)",
+              marginBottom: 10,
+              flexWrap: "wrap",
+            }}
+          >
+            {agency.area && <span>{agency.area}</span>}
+            {agency.area && monthlyMin !== null && (
+              <span style={{ color: "var(--light)" }}>·</span>
+            )}
+            {monthlyMin !== null && (
+              <span>月会費 {monthlyMin.toLocaleString("ja-JP")}円〜</span>
+            )}
+          </div>
         )}
 
         {reviewCount > 0 && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
               {[1, 2, 3, 4, 5].map((s) => (
                 <svg key={s} width="11" height="11" viewBox="0 0 12 12">
@@ -196,8 +236,6 @@ export default function AgencyCardBlock({ agency, counselorCount, fallbackName, 
             <span style={{ fontSize: 11, color: "var(--muted)" }}>（{reviewCount}件）</span>
           </div>
         )}
-
-        <p style={{ fontSize: 11, color: "var(--muted)" }}>在籍カウンセラー {counselorCount}名</p>
       </div>
     </Link>
   );

@@ -553,6 +553,20 @@ const reviews = [
 /* ────────────────────────────────────────────────────────────
    コンポーネント
 ──────────────────────────────────────────────────────────── */
+/**
+ * 成婚実績の表示ヘルパー。
+ * カウンセラー管理画面の入力 UI は select で「1〜9 / 10/15/20/30/50/100/200/300 組以上」を
+ * 選ぶ仕様（DB は number のまま）。10 以上を選んだら user-site では「○組以上」表示に切替。
+ */
+function formatSuccessCount(n: number): { num: string; label: string } {
+  // ヒーローの大きな数字部分は「10+」のようにコンパクトに表示し、
+  // プロフィールセクションでは「10組以上」と読みやすく出す。
+  if (n >= 10) {
+    return { num: `${n}+`, label: `${n}組以上` };
+  }
+  return { num: String(n), label: `${n}組` };
+}
+
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
   return (
     <div className="flex items-center gap-0.5">
@@ -803,7 +817,6 @@ export default async function CounselorDetailPage({
       ? { ...supabaseAgency, id: supabaseAgency.id, name: supabaseAgency.name ?? counselor.agency }
       : undefined
   );
-  const agencyCounselorCount = COUNSELORS.filter((c) => String(c.agencyId) === String(counselor.agencyId)).length;
   const matchedCounselorData = COUNSELORS.find((c) => String(c.id) === String(id));
   const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? supabaseCounselor?.diagnosisType ?? null;
 
@@ -983,7 +996,9 @@ export default async function CounselorDetailPage({
               <div className="d-stats">
                 {counselor.successCount > 0 && (
                   <div className="d-stat-item">
-                    <div className="d-stat-num">{counselor.successCount}</div>
+                    <div className="d-stat-num">
+                      {formatSuccessCount(counselor.successCount).num}
+                    </div>
                     <div className="d-stat-label">成婚実績</div>
                   </div>
                 )}
@@ -1101,7 +1116,9 @@ export default async function CounselorDetailPage({
                     {counselor.successCount > 0 && (
                       <div className="d-profile-item">
                         <div className="d-profile-key">成婚実績</div>
-                        <div className="d-profile-val">{counselor.successCount}組</div>
+                        <div className="d-profile-val">
+                          {formatSuccessCount(counselor.successCount).label}
+                        </div>
                       </div>
                     )}
                     {counselor.experienceLabel && (
@@ -1642,7 +1659,6 @@ export default async function CounselorDetailPage({
                   </p>
                   <AgencyCardBlock
                     agency={agencyForCard}
-                    counselorCount={agencyCounselorCount}
                     fallbackName={counselor.agency}
                     fallbackAddress={counselor.address}
                   />
