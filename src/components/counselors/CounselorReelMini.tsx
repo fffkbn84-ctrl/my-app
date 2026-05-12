@@ -7,42 +7,25 @@
  *
  * 設計：
  * - 1 枚ずつスワイプで切り替わる横スクロール（scroll-snap）
- * - リール本体と同じ 9:16 比率（375×667 想定で、画面幅で自動調整）
- * - 上部に進捗バー（現在何枚目か）
- * - 下部にキャプションオーバーレイ（あれば）
- * - prefers-reduced-motion を尊重
+ * - 5 秒ごとに自動で次の画像へ進む（ユーザー操作中は休止）
+ * - リール本体と同じ 9:16 比率
+ * - 上部に進捗バー、下部にキャプションオーバーレイ
+ * - prefers-reduced-motion / 画面外なら自動スワイプ OFF
+ *
+ * 共通ロジックは useAutoSwipeReel フックに切り出してある。
  */
-import { useRef, useState, useEffect } from "react";
+import { useAutoSwipeReel } from "@/hooks/useAutoSwipeReel";
 
 type ReelImage = { bg: string; caption?: string };
 
 export default function CounselorReelMini({ images }: { images: ReelImage[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-
-  // スクロール位置から現在表示中の画像インデックスを算出
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const idx = Math.round(el.scrollLeft / el.clientWidth);
-        setActive(Math.max(0, Math.min(images.length - 1, idx)));
-      });
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [images.length]);
+  const { sectionRef, scrollRef, active } = useAutoSwipeReel(images.length);
 
   if (images.length === 0) return null;
 
   return (
     <section
+      ref={sectionRef}
       style={{
         background: "var(--pale)",
         borderTop: "1px solid var(--light)",

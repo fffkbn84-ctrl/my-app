@@ -3,42 +3,23 @@
 /**
  * 相談所詳細ヒーロー直下に置く「ミニリール」。
  *
- * 役割：相談所の店内・カウンセリングルーム・スタッフ等の写真を、
- * Kinda talk のリールと同じ世界観（1 枚ずつスワイプ）で見せる。
+ * 役割：相談所の店内・カウンセリングルーム・スタッフ等の写真を
+ * Kinda talk のリールと同じ世界観（1 枚ずつスワイプ + 自動進行）で見せる。
  *
- * 設計：CounselorReelMini と同等。共通化も可能だが、今は相談所/カウンセラーで
- * 微妙にデザイン要件が変わる可能性があるため、別ファイルで複製しておく。
+ * 設計は CounselorReelMini と同等。共通ロジックは useAutoSwipeReel に切り出し済み。
  */
-import { useEffect, useRef, useState } from "react";
+import { useAutoSwipeReel } from "@/hooks/useAutoSwipeReel";
 
 type ReelImage = { bg: string; caption?: string };
 
 export default function AgencyReelMini({ images }: { images: ReelImage[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const idx = Math.round(el.scrollLeft / el.clientWidth);
-        setActive(Math.max(0, Math.min(images.length - 1, idx)));
-      });
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [images.length]);
+  const { sectionRef, scrollRef, active } = useAutoSwipeReel(images.length);
 
   if (images.length === 0) return null;
 
   return (
     <section
+      ref={sectionRef}
       style={{
         background: "var(--pale)",
         borderTop: "1px solid var(--light)",
