@@ -146,10 +146,28 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
             </button>
 
             <div className="kt-reel-modal-stage">
-              <div
-                className="kt-reel-modal-image"
-                style={{ backgroundImage: currentImage?.bg ?? counselor.gradient }}
-              />
+              {/*
+                クロスフェード切替:
+                全画像レイヤーを重ねて常時ロードしておき、active 以外を opacity:0 にする。
+                旧実装は単一 div の backgroundImage を差し替えていたため、新画像の
+                デコード中に短時間「黒い空白」が見えていた。レイヤースタックなら
+                どのレイヤーも事前ロード済みなので、切り替えが完全に滑らか。
+              */}
+              {images.length > 0 ? (
+                images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    aria-hidden={idx !== imgIndex}
+                    className={`kt-reel-modal-image-layer${idx === imgIndex ? " is-active" : ""}`}
+                    style={{ backgroundImage: img.bg }}
+                  />
+                ))
+              ) : (
+                <div
+                  className="kt-reel-modal-image-layer is-active"
+                  style={{ backgroundImage: counselor.gradient }}
+                />
+              )}
             </div>
 
             <div className="kt-reel-modal-tap-zone is-left" onClick={handlePrev} aria-hidden />

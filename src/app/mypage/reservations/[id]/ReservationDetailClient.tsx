@@ -117,14 +117,25 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       //   business_hours_text → hours
       //   closed_weekdays (number[]) → holiday (テキスト変換)
       let info: AgencyInfo = { ...DEFAULT_INFO };
-      if (r.agency_id) {
-        const ag = await supabase
+      const AGENCY_COLUMNS =
+        "id, name, area, address, access, business_hours_text, closed_weekdays, directions, phone, email, cancel_deadline_hours, cancel_policy";
+      let agencyQuery = null;
+      // UUID なら直接 id で引く。UUID 以外（mock 数値 / NULL）なら agency_name で引く
+      if (r.agency_id && /^[0-9a-f-]{36}$/i.test(r.agency_id)) {
+        agencyQuery = await supabase
           .from("agencies")
-          .select(
-            "id, name, area, address, access, business_hours_text, closed_weekdays, directions, phone, email, cancel_deadline_hours, cancel_policy",
-          )
+          .select(AGENCY_COLUMNS)
           .eq("id", r.agency_id)
           .maybeSingle();
+      } else if (r.agency_name) {
+        agencyQuery = await supabase
+          .from("agencies")
+          .select(AGENCY_COLUMNS)
+          .eq("name", r.agency_name)
+          .maybeSingle();
+      }
+      {
+        const ag = agencyQuery ?? { data: null };
         if (!cancelled && ag.data) {
           const a = ag.data as {
             id: string;
@@ -189,40 +200,52 @@ export default function ReservationDetailClient({ reservationId }: { reservation
 
       // カウンセラー基本情報の取得（counselor_id が UUID の場合のみ）
       // mock の数値 ID 1〜6 / 101〜105 ではテーブルに存在しないのでスキップ
+      // カウンセラー基本情報の取得
+      // UUID なら id で直接引く。mock 経由予約（counselor_id が数値や NULL）でも
+      // counselor_name で名前一致検索を試みる。
+      const COUNSELOR_COLUMNS =
+        "id, name, area, photo_url, specialties, years_of_experience, experience_label, catchphrase, message, rating_avg, review_count";
+      let counselorQuery = null;
       if (r.counselor_id && /^[0-9a-f-]{36}$/i.test(r.counselor_id)) {
-        const ce = await supabase
+        counselorQuery = await supabase
           .from("counselors")
-          .select("id, name, area, photo_url, specialties, years_of_experience, experience_label, catchphrase, message, rating_avg, review_count")
+          .select(COUNSELOR_COLUMNS)
           .eq("id", r.counselor_id)
           .maybeSingle();
-        if (!cancelled && ce.data) {
-          const c = ce.data as {
-            id: string;
-            name: string;
-            area: string | null;
-            photo_url: string | null;
-            specialties: string[] | null;
-            years_of_experience: number | null;
-            experience_label: string | null;
-            catchphrase: string | null;
-            message: string | null;
-            rating_avg: number | null;
-            review_count: number | null;
-          };
-          setCounselorInfo({
-            id: c.id,
-            name: c.name,
-            area: c.area,
-            photoUrl: c.photo_url,
-            specialties: c.specialties,
-            yearsOfExperience: c.years_of_experience,
-            experienceLabel: c.experience_label,
-            catchphrase: c.catchphrase,
-            message: c.message,
-            ratingAvg: c.rating_avg,
-            reviewCount: c.review_count,
-          });
-        }
+      } else if (r.counselor_name) {
+        counselorQuery = await supabase
+          .from("counselors")
+          .select(COUNSELOR_COLUMNS)
+          .eq("name", r.counselor_name)
+          .maybeSingle();
+      }
+      if (!cancelled && counselorQuery?.data) {
+        const c = counselorQuery.data as {
+          id: string;
+          name: string;
+          area: string | null;
+          photo_url: string | null;
+          specialties: string[] | null;
+          years_of_experience: number | null;
+          experience_label: string | null;
+          catchphrase: string | null;
+          message: string | null;
+          rating_avg: number | null;
+          review_count: number | null;
+        };
+        setCounselorInfo({
+          id: c.id,
+          name: c.name,
+          area: c.area,
+          photoUrl: c.photo_url,
+          specialties: c.specialties,
+          yearsOfExperience: c.years_of_experience,
+          experienceLabel: c.experience_label,
+          catchphrase: c.catchphrase,
+          message: c.message,
+          ratingAvg: c.rating_avg,
+          reviewCount: c.review_count,
+        });
       }
 
       setLoading(false);

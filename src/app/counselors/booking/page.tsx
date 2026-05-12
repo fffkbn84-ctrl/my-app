@@ -3,7 +3,13 @@ import Header from "@/components/layout/Header";
 import AgencyBookingFlow from "@/components/booking/AgencyBookingFlow";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
-import { AGENCIES, COUNSELORS } from "@/lib/data";
+import {
+  AGENCIES,
+  COUNSELORS,
+  getAgencyById,
+  getCounselors,
+  type Counselor,
+} from "@/lib/data";
 
 export default async function CounselorBookingPage({
   searchParams,
@@ -13,10 +19,26 @@ export default async function CounselorBookingPage({
   const { agencyId } = await searchParams;
   if (!agencyId) notFound();
 
-  const agency = AGENCIES.find((a) => String(a.id) === String(agencyId));
-  if (!agency) notFound();
+  // mock を最優先（1〜6）。無ければ Supabase から取得して同じ shape にマップする。
+  // Supabase オンリー相談所（UUID）で notFound にならないようにするため。
+  const mockAgency = AGENCIES.find((a) => String(a.id) === String(agencyId));
+  let agencyName = mockAgency?.name;
+  if (!agencyName) {
+    const supabaseAgency = await getAgencyById(agencyId);
+    if (supabaseAgency) {
+      agencyName = supabaseAgency.name;
+    }
+  }
+  if (!agencyName) notFound();
 
-  const counselors = COUNSELORS.filter((c) => String(c.agencyId) === String(agencyId));
+  // 在籍カウンセラー: mock を最優先、Supabase なら getCounselors で agency_id 一致を抽出
+  let counselors: Counselor[] = COUNSELORS.filter(
+    (c) => String(c.agencyId) === String(agencyId),
+  );
+  if (counselors.length === 0) {
+    const all = await getCounselors();
+    counselors = all.filter((c) => String(c.agencyId) === String(agencyId));
+  }
 
   return (
     <>
@@ -27,7 +49,7 @@ export default async function CounselorBookingPage({
           items={[
             { label: "ホーム", href: "/" },
             { label: "Kinda talk", href: "/kinda-talk" },
-            { label: agency.name, href: `/agencies/${agencyId}` },
+            { label: agencyName, href: `/agencies/${agencyId}` },
             { label: "予約" },
           ]}
         />
@@ -76,13 +98,13 @@ export default async function CounselorBookingPage({
             面談を予約する
           </h1>
           <p style={{ fontSize: 13, color: "var(--mid)", lineHeight: 2 }}>
-            {agency.name}
+            {agencyName}
           </p>
         </div>
 
         <AgencyBookingFlow
           agencyId={String(agencyId)}
-          agencyName={agency.name}
+          agencyName={agencyName}
           counselors={counselors}
         />
       </main>

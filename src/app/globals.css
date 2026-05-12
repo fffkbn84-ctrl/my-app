@@ -3929,6 +3929,24 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   background-size: cover;
   background-position: center;
 }
+/* クロスフェード式の画像レイヤー（黒い空白を消すため全画像を常時ロード） */
+.kt-reel-modal-image-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity .35s ease;
+  pointer-events: none;
+  will-change: opacity;
+}
+.kt-reel-modal-image-layer.is-active {
+  opacity: 1;
+}
+/* prefers-reduced-motion を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  .kt-reel-modal-image-layer { transition: none; }
+}
 .kt-reel-modal-tap-zone {
   position: absolute;
   top: 0;

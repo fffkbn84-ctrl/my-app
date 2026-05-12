@@ -11,6 +11,7 @@ import {
   COUNSELORS,
   PLAN_PHOTO_LIMITS,
   getAgencies,
+  getCounselors,
   isCampaignActive,
   isNewShop,
   formatFeeItem,
@@ -223,7 +224,13 @@ export default async function AgencyDetailPage({
     : mockAgency;
   if (!agency) notFound();
 
-  const counselors = COUNSELORS.filter((c) => agency.counselorIds?.some((cid) => String(cid) === String(c.id)));
+  // 在籍カウンセラー：mock の counselorIds で引いてくる。
+  // 0 件 & Supabase 相談所のときは Supabase counselors から agency_id 一致で再取得する。
+  let counselors = COUNSELORS.filter((c) => agency.counselorIds?.some((cid) => String(cid) === String(c.id)));
+  if (counselors.length === 0 && supabaseAgency) {
+    const all = await getCounselors();
+    counselors = all.filter((c) => String(c.agencyId) === String(agency.id));
+  }
 
   return (
     <>
