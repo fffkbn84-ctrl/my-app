@@ -31,6 +31,7 @@ export interface Agency {
   description: string | null
   website_url: string | null
   owner_user_id: string | null
+  logo_url: string | null                  // 相談所のプロフィール画像（ロゴ・代表写真）
   business_hours_text: string | null
   consultation_start_time: string | null  // "HH:mm:ss" or "HH:mm"
   consultation_end_time: string | null
@@ -87,6 +88,19 @@ export interface CounselorMedia {
   caption: string | null
   display_order: number
   created_at: string
+}
+
+/** 015_agency_media で追加。相談所のリール画像メタデータ。 */
+export interface AgencyMedia {
+  id: string
+  agency_id: string
+  media_url: string
+  media_type: 'image' | 'video'
+  caption: string | null
+  display_order: number
+  fallback_bg: string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface Slot {

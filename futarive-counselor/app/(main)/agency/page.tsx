@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
-import type { Agency, Discount, FeeItem, FeePlan } from '@/lib/types'
+import type { Agency, AgencyMedia, Discount, FeeItem, FeePlan } from '@/lib/types'
 
 // 「新店舗」バッジが表示される期間（創業から）
 const NEW_SHOP_DAYS = 365
@@ -54,7 +54,15 @@ export default function AgencyPage() {
     address: '',              // 所在地（フリーテキスト）
     access: '',               // 最寄駅などの簡潔なアクセス
     directions: '',           // 最寄駅からの行き方（複数行可）
+    /* 015 マイグレーションで追加（agency_media テーブルと連動）*/
+    logo_url: '',             // 相談所のプロフィール画像（ロゴ）URL
   })
+
+  // リール画像（agency_media テーブル）は form とは別管理。
+  // 個別 INSERT/UPDATE/DELETE で Supabase に即時反映する。
+  const [media, setMedia] = useState<AgencyMedia[]>([])
+  const [uploadingMedia, setUploadingMedia] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
 
   const formRef = useRef(form)
   const selectedIdRef = useRef(selectedId)
@@ -86,6 +94,7 @@ export default function AgencyPage() {
       address: ag.address ?? '',
       access: ag.access ?? '',
       directions: ag.directions ?? '',
+      logo_url: ag.logo_url ?? '',
     })
   }
 
@@ -101,6 +110,7 @@ export default function AgencyPage() {
         setSelectedId(list[0].id)
         syncFromAgency(list[0])
         setSavedOnce(true)
+        await loadMedia(list[0].id)
       }
       setLoading(false)
       // 次tickでhydratedを立てる（初期セットで自動保存が走らないように）
@@ -108,6 +118,17 @@ export default function AgencyPage() {
     }
     load()
   }, [])
+
+  // リール画像（agency_media）の取得
+  const loadMedia = async (agencyId: string) => {
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('agency_media')
+      .select('*')
+      .eq('agency_id', agencyId)
+      .order('display_order', { ascending: true })
+    setMedia((data as AgencyMedia[]) ?? [])
+  }
 
   // 自動保存：form変更を2秒デバウンスで保存
   useEffect(() => {
@@ -157,6 +178,7 @@ export default function AgencyPage() {
       address: f.address || null,
       access: f.access || null,
       directions: f.directions || null,
+      logo_url: f.logo_url || null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -199,6 +221,126 @@ export default function AgencyPage() {
     setSelectedId(id)
     const ag = agencies.find(a => a.id === id)
     if (ag) syncFromAgency(ag)
+    void loadMedia(id)
+  }
+
+  // ──────── ロゴアップロード ────────
+  const handleLogoUpload = async (file: File) => {
+    if (!selectedId) return
+    setUploadingLogo(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const filename = `logo-${Date.now()}.${ext}`
+      const path = `${selectedId}/${filename}`
+      const { error: uploadErr } = await supabase.storage
+        .from('agency-media')
+        .upload(path, file, { upsert: false, cacheControl: '3600' })
+      if (uploadErr) {
+        showToast(`ロゴアップロード失敗：${uploadErr.message}`)
+        return
+      }
+      const { data: pub } = supabase.storage.from('agency-media').getPublicUrl(path)
+      const url = pub.publicUrl
+      // form だけ更新 → 自動保存に乗る
+      setForm(prev => ({ ...prev, logo_url: url }))
+      showToast('ロゴをアップロードしました')
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+  const handleLogoRemove = () => {
+    setForm(prev => ({ ...prev, logo_url: '' }))
+    showToast('ロゴを取り外しました')
+  }
+
+  // ──────── リール画像（agency_media）操作 ────────
+  const handleMediaUpload = async (file: File) => {
+    if (!selectedId) return
+    if (media.length >= 6) {
+      showToast('リール画像は最大6枚までです')
+      return
+    }
+    setUploadingMedia(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const filename = `reel-${Date.now()}.${ext}`
+      const path = `${selectedId}/${filename}`
+      const { error: uploadErr } = await supabase.storage
+        .from('agency-media')
+        .upload(path, file, { upsert: false, cacheControl: '3600' })
+      if (uploadErr) {
+        showToast(`アップロード失敗：${uploadErr.message}`)
+        return
+      }
+      const { data: pub } = supabase.storage.from('agency-media').getPublicUrl(path)
+      const url = pub.publicUrl
+      const nextOrder = media.length
+      const { data, error } = await supabase
+        .from('agency_media')
+        .insert({
+          agency_id: selectedId,
+          media_url: url,
+          media_type: 'image',
+          display_order: nextOrder,
+        })
+        .select()
+        .maybeSingle()
+      if (error || !data) {
+        showToast(`DB登録失敗：${error?.message ?? '不明'}`)
+        return
+      }
+      setMedia(prev => [...prev, data as AgencyMedia])
+      showToast('リール画像を追加しました')
+    } finally {
+      setUploadingMedia(false)
+    }
+  }
+  const handleMediaCaptionChange = async (id: string, caption: string) => {
+    setMedia(prev => prev.map(m => m.id === id ? { ...m, caption } : m))
+  }
+  const handleMediaCaptionBlur = async (id: string) => {
+    const item = media.find(m => m.id === id)
+    if (!item) return
+    const supabase = createClient()
+    await supabase.from('agency_media').update({ caption: item.caption || null }).eq('id', id)
+  }
+  const handleMediaMove = async (id: string, dir: -1 | 1) => {
+    const idx = media.findIndex(m => m.id === id)
+    const to = idx + dir
+    if (idx === -1 || to < 0 || to >= media.length) return
+    const reordered = [...media]
+    ;[reordered[idx], reordered[to]] = [reordered[to], reordered[idx]]
+    // 全件の display_order を 0..N-1 で振り直して一括更新
+    const withOrder = reordered.map((m, i) => ({ ...m, display_order: i }))
+    setMedia(withOrder)
+    const supabase = createClient()
+    // 個別 UPDATE（並列）
+    await Promise.all(withOrder.map(m =>
+      supabase.from('agency_media').update({ display_order: m.display_order }).eq('id', m.id),
+    ))
+  }
+  const handleMediaDelete = async (id: string) => {
+    if (!window.confirm('このリール画像を削除しますか？')) return
+    const supabase = createClient()
+    const target = media.find(m => m.id === id)
+    if (!target) return
+    // 表示上は即時削除
+    setMedia(prev => prev.filter(m => m.id !== id))
+    await supabase.from('agency_media').delete().eq('id', id)
+    // Storage 上のファイルも削除（agency_id/filename パスを URL から逆算）
+    try {
+      const url = target.media_url
+      const marker = '/object/public/agency-media/'
+      const idx = url.indexOf(marker)
+      if (idx >= 0) {
+        const path = url.slice(idx + marker.length)
+        await supabase.storage.from('agency-media').remove([path])
+      }
+    } catch {
+      // ベストエフォート。失敗しても DB は消えているので無視
+    }
   }
 
   const handleManualSave = async () => {
@@ -451,6 +593,277 @@ export default function AgencyPage() {
           <input className="kc-input" type="url" value={form.website_url}
             onChange={e => update('website_url', e.target.value)}
             placeholder="https://example.com" />
+        </div>
+
+        {/* ─── 相談所写真セクション（015 マイグレーション） ────────────
+            ロゴ（プロフィール画像）+ リール画像（最大6枚）
+            お客様画面では agency 詳細ヒーロー直下にリール式で表示される。
+        ─────────────────────────────────────── */}
+        <div
+          style={{
+            padding: '14px 16px',
+            background: 'var(--bg-elev)',
+            border: '1px solid var(--border)',
+            borderRadius: 10,
+            marginTop: 4,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: 'var(--font-mincho, "Shippori Mincho", serif)',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--text)',
+              marginBottom: 4,
+            }}
+          >
+            相談所写真
+          </p>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+            ロゴ（プロフィール画像）と、店内・スタッフ等のリール画像（最大6枚）を登録できます。
+            <br/>お客様画面の詳細ページに表示されます。
+          </p>
+        </div>
+
+        {/* ロゴ（プロフィール画像） */}
+        <div>
+          <label className="kc-label">プロフィール画像（ロゴ）</label>
+          {form.logo_url ? (
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={form.logo_url}
+                alt="ロゴ"
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 12,
+                  objectFit: 'cover',
+                  border: '1px solid var(--border)',
+                }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label
+                  className="kc-btn kc-btn-ghost kc-btn-sm"
+                  style={{ cursor: 'pointer', display: 'inline-flex' }}
+                >
+                  差し替える
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) void handleLogoUpload(f)
+                      e.target.value = ''
+                    }}
+                    disabled={uploadingLogo}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={handleLogoRemove}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--danger)',
+                    fontSize: 11,
+                    cursor: 'pointer',
+                    padding: '4px 0',
+                    textAlign: 'left',
+                  }}
+                >
+                  取り外す
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label
+              className="kc-btn kc-btn-ghost kc-btn-sm"
+              style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              ロゴをアップロード
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={e => {
+                  const f = e.target.files?.[0]
+                  if (f) void handleLogoUpload(f)
+                  e.target.value = ''
+                }}
+                disabled={uploadingLogo}
+              />
+            </label>
+          )}
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            正方形に近い画像が綺麗に表示されます（推奨：500×500px 以上）。
+          </p>
+        </div>
+
+        {/* リール画像（agency_media） */}
+        <div>
+          <label className="kc-label">リール画像（最大6枚）</label>
+          {media.length === 0 ? (
+            <div
+              style={{
+                padding: '18px',
+                background: 'var(--card-warm)',
+                border: '1px dashed var(--border)',
+                borderRadius: 12,
+                textAlign: 'center',
+              }}
+            >
+              <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 10 }}>
+                まだリール画像が登録されていません。
+              </p>
+              <label
+                className="kc-btn kc-btn-ghost kc-btn-sm"
+                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
+                画像を追加
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={e => {
+                    const f = e.target.files?.[0]
+                    if (f) void handleMediaUpload(f)
+                    e.target.value = ''
+                  }}
+                  disabled={uploadingMedia}
+                />
+              </label>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {media.map((m, idx) => (
+                <div
+                  key={m.id}
+                  style={{
+                    padding: 10,
+                    background: 'var(--card-warm)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 12,
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={m.media_url}
+                    alt={m.caption ?? `リール ${idx + 1}`}
+                    style={{
+                      width: 72,
+                      height: 128,
+                      objectFit: 'cover',
+                      borderRadius: 8,
+                      flexShrink: 0,
+                      background: '#EFE3CB',
+                    }}
+                  />
+                  <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <input
+                      className="kc-input"
+                      value={m.caption ?? ''}
+                      onChange={e => handleMediaCaptionChange(m.id, e.target.value)}
+                      onBlur={() => handleMediaCaptionBlur(m.id)}
+                      placeholder="キャプション（任意）— 例：エントランス"
+                      style={{ fontSize: 12 }}
+                      maxLength={40}
+                    />
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleMediaMove(m.id, -1)}
+                        disabled={idx === 0}
+                        aria-label="上へ"
+                        style={{
+                          background: 'none',
+                          border: '1px solid var(--border)',
+                          borderRadius: 4,
+                          color: idx === 0 ? 'var(--text-faint)' : 'var(--text-mid)',
+                          cursor: idx === 0 ? 'not-allowed' : 'pointer',
+                          padding: '3px 6px',
+                          lineHeight: 1,
+                        }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                          <path d="M3 7l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMediaMove(m.id, 1)}
+                        disabled={idx === media.length - 1}
+                        aria-label="下へ"
+                        style={{
+                          background: 'none',
+                          border: '1px solid var(--border)',
+                          borderRadius: 4,
+                          color: idx === media.length - 1 ? 'var(--text-faint)' : 'var(--text-mid)',
+                          cursor: idx === media.length - 1 ? 'not-allowed' : 'pointer',
+                          padding: '3px 6px',
+                          lineHeight: 1,
+                        }}
+                      >
+                        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                          <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <span style={{ flex: 1 }} />
+                      <button
+                        type="button"
+                        onClick={() => handleMediaDelete(m.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--danger)',
+                          fontSize: 11,
+                          cursor: 'pointer',
+                          padding: '3px 6px',
+                        }}
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {media.length < 6 && (
+                <label
+                  className="kc-btn kc-btn-ghost kc-btn-sm"
+                  style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, alignSelf: 'center' }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                    <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                  画像を追加（あと {6 - media.length} 枚）
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) void handleMediaUpload(f)
+                      e.target.value = ''
+                    }}
+                    disabled={uploadingMedia}
+                  />
+                </label>
+              )}
+            </div>
+          )}
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            縦長の画像（9:16）が綺麗に表示されます。お客様画面の詳細ページに「1枚ずつスワイプ」のリール式で並びます。
+          </p>
         </div>
 
         {/* 創業日（手入力） */}
