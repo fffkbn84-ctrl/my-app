@@ -917,6 +917,8 @@ function normalizeSupabaseAgency(row: any): AgencyPartial {
     ...row,
     fees: Array.isArray(row.fees) ? row.fees : [],
     discounts: Array.isArray(row.discounts) ? row.discounts : [],
+    /* 016 マイグレーション: この相談所の特徴 */
+    features: Array.isArray(row.features) ? row.features : [],
     campaignText: row.campaign_text ?? null,
     campaignExpiresAt: row.campaign_expires_at ?? null,
     foundedAt: row.founded_at ?? null,

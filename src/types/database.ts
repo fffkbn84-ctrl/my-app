@@ -32,6 +32,8 @@ export interface Database {
           directions: string | null;
           /* 014_agencies_discounts.sql で追加 */
           discounts: Json;
+          /* 016_agencies_features.sql で追加 */
+          features: string[];
           created_at: string;
           updated_at: string;
         };
