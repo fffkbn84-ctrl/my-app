@@ -540,10 +540,44 @@ export default function ProfilePage() {
             </select>
           </div>
           <div>
-            <label className="kc-label">成婚実績（件）</label>
-            <input className="kc-input" type="number" min={0} value={form.success_count}
-              onChange={e => updateForm('success_count', e.target.value)}
-              placeholder="12" style={{ maxWidth: 160 }} />
+            <label className="kc-label">成婚実績</label>
+            {/*
+              ユーザー画面の表示ルール:
+              - 1〜9: 「N組」（具体数）
+              - 10 以上: 「N組以上」（10/15/20/30/50/100/200/300 の刻み）
+              「10 組以上は具体数より、ふんわり選びたい」要望に合わせた select。
+              DB は number のままで、選択値の数値（例: 50）が success_count に入る。
+            */}
+            <select
+              className="kc-select"
+              value={form.success_count}
+              onChange={(e) => updateForm('success_count', e.target.value)}
+              style={{ maxWidth: 220 }}
+            >
+              <option value="">選択してください</option>
+              <option value="0">非公開（表示しない）</option>
+              <option value="1">1組</option>
+              <option value="2">2組</option>
+              <option value="3">3組</option>
+              <option value="4">4組</option>
+              <option value="5">5組</option>
+              <option value="6">6組</option>
+              <option value="7">7組</option>
+              <option value="8">8組</option>
+              <option value="9">9組</option>
+              <option value="10">10組以上</option>
+              <option value="15">15組以上</option>
+              <option value="20">20組以上</option>
+              <option value="30">30組以上</option>
+              <option value="50">50組以上</option>
+              <option value="100">100組以上</option>
+              <option value="200">200組以上</option>
+              <option value="300">300組以上</option>
+            </select>
+            <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+              1〜9 はそのまま「N組」、10 以上を選ぶと お客様画面では「N組以上」と表示されます。
+              <br />まだ実績が無い場合は「非公開」を選ぶと表示されません。
+            </p>
           </div>
           <div>
             <label className="kc-label">経験ラベル（自由記述）</label>
