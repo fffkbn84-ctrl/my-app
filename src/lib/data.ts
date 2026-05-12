@@ -91,6 +91,10 @@ export type Agency = {
   campaignExpiresAt?: string | null;
   /** 創業日 'YYYY-MM-DD'（NULL なら新店舗バッジ非表示） */
   foundedAt?: string | null;
+  /** 相談所のロゴ・プロフィール画像 URL（015 マイグレーション以降に登録される） */
+  logoUrl?: string | null;
+  /** 相談所のリール画像（CounselorReelMini と同じ shape） */
+  reelImages?: { bg: string; caption?: string }[];
 };
 
 /** 料金プラン1項目（カウンセラー管理画面と共通） */
@@ -927,7 +931,29 @@ function normalizeSupabaseAgency(row: any): AgencyPartial {
        - closed_weekdays (number[]) → holiday (string) */
     hours: row.business_hours_text ?? row.hours ?? null,
     holiday: holidayFromClosedWeekdays(row.closed_weekdays) ?? row.holiday ?? null,
+    /* 015 マイグレーション: ロゴ画像 URL */
+    logoUrl: row.logo_url ?? null,
   };
+}
+
+/** Supabase agency_media 行を user-site の reel 画像 shape にマッピング */
+type AgencyMediaRow = {
+  id: string;
+  agency_id: string;
+  media_url: string;
+  media_type: 'image' | 'video';
+  caption: string | null;
+  display_order: number;
+  fallback_bg: string | null;
+};
+function mapAgencyMediaToReelImage(rows: AgencyMediaRow[]): { bg: string; caption?: string }[] {
+  return rows
+    .slice()
+    .sort((a, b) => a.display_order - b.display_order)
+    .map((m) => ({
+      bg: m.fallback_bg ?? `url("${m.media_url}")`,
+      caption: m.caption ?? undefined,
+    }));
 }
 
 /** キャンペーン本文を表示すべきか判定（期限切れ・空文字は false） */
@@ -1002,16 +1028,21 @@ export async function getNextSlotByCounselor(counselorId: string): Promise<NextS
 ──────────────────────────────────────────────────────────── */
 export async function getAgencyById(id: string | number): Promise<AgencyPartial | null> {
   if (!id) return null
-  const res = await supabase
-    .from('agencies')
-    .select('*')
-    .eq('id', String(id))
-    .maybeSingle()
-  if (res.error || !res.data) return null
-  return normalizeSupabaseAgency(res.data)
+  // agency + agency_media を並列取得（JOIN は型推論が壊れるため別クエリ）
+  const [agencyRes, mediaRes] = await Promise.all([
+    supabase.from('agencies').select('*').eq('id', String(id)).maybeSingle(),
+    supabase.from('agency_media').select('*').eq('agency_id', String(id)).order('display_order', { ascending: true }),
+  ])
+  if (agencyRes.error || !agencyRes.data) return null
+  const normalized = normalizeSupabaseAgency(agencyRes.data)
+  const mediaRows = mediaRes.data as AgencyMediaRow[] | null
+  if (mediaRows && mediaRows.length > 0) {
+    normalized.reelImages = mapAgencyMediaToReelImage(mediaRows)
+  }
+  return normalized
 }
 
-// 相談所一覧取得
+// 相談所一覧取得（reelImages は付けない・一覧では使わないため軽量化）
 export async function getAgencies(): Promise<AgencyPartial[]> {
   const { data, error } = await supabase
     .from('agencies')
@@ -1020,6 +1051,19 @@ export async function getAgencies(): Promise<AgencyPartial[]> {
   if (error || !data) return AGENCIES;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data as any[]).map(normalizeSupabaseAgency);
+}
+
+/** 相談所のリール画像（agency_media）を別クエリで取得（JOIN は型推論が壊れるため避ける） */
+export async function getAgencyMedia(agencyId: string | number): Promise<{ bg: string; caption?: string }[]> {
+  if (!agencyId) return []
+  const res = await supabase
+    .from('agency_media')
+    .select('*')
+    .eq('agency_id', String(agencyId))
+    .order('display_order', { ascending: true })
+  const rows = res.data as AgencyMediaRow[] | null
+  if (res.error || !rows) return []
+  return mapAgencyMediaToReelImage(rows)
 }
 
 // お店一覧取得

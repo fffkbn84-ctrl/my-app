@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
@@ -6,6 +7,7 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SaveButton from "@/components/ui/SaveButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
+import AgencyReelMini from "@/components/agencies/AgencyReelMini";
 import {
   AGENCIES,
   COUNSELORS,
@@ -297,6 +299,31 @@ export default async function AgencyDetailPage({
               <SaveButton type="agency" id={String(agency.id)} variant="light" />
             </div>
 
+            {/* 相談所ロゴ（プロフィール画像）— 登録があれば表示 */}
+            {agency.logoUrl && (
+              <div
+                style={{
+                  width: 88,
+                  height: 88,
+                  borderRadius: 18,
+                  overflow: "hidden",
+                  marginBottom: 18,
+                  background: "rgba(255,255,255,.65)",
+                  border: "1px solid rgba(255,255,255,.7)",
+                  boxShadow: "0 6px 24px rgba(0,0,0,.08)",
+                  position: "relative",
+                }}
+              >
+                <Image
+                  src={agency.logoUrl}
+                  alt={`${agency.name} のロゴ`}
+                  fill
+                  sizes="88px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            )}
+
             {/* 種別タグ */}
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
               {isNewShop(agency.foundedAt) && (
@@ -447,6 +474,13 @@ export default async function AgencyDetailPage({
             </div>
           </div>
         </section>
+
+        {/* ═══ 相談所のリール画像（015 マイグレーション以降）═══
+            ヒーロー直下に「1 枚ずつスワイプ式」で表示。
+            counselors のリールと同じ表現言語で世界観を統一。 */}
+        {agency.reelImages && agency.reelImages.length > 0 && (
+          <AgencyReelMini images={agency.reelImages} />
+        )}
 
         <div style={{ maxWidth: 1120, margin: "0 auto", padding: "0 24px" }}>
           {/* ═══ 特徴 ═══ */}

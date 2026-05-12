@@ -98,6 +98,26 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["counselor_media"]["Insert"]>;
       };
+      /* 015_agency_media.sql で追加 */
+      agency_media: {
+        Row: {
+          id: string;
+          agency_id: string;
+          media_url: string;
+          media_type: "image" | "video";
+          caption: string | null;
+          display_order: number;
+          fallback_bg: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["agency_media"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["agency_media"]["Insert"]>;
+      };
       slots: {
         Row: {
           id: string;
