@@ -12,7 +12,7 @@ import {
   AGENCIES,
   COUNSELORS,
   PLAN_PHOTO_LIMITS,
-  getAgencies,
+  getAgencyById,
   getCounselors,
   isCampaignActive,
   isNewShop,
@@ -188,10 +188,12 @@ export default async function AgencyDetailPage({
   const { id } = await params;
   const { from, fromId } = await searchParams;
 
-  // Supabase から相談所一覧を取得（フォールバック: モックデータ）
-  const allAgencies = await getAgencies();
+  // Supabase の単体取得（agency_media（reelImages）も同時に取得される）。
+  // UUID じゃない mock 数値 ID（"1"〜"6"）でも空振り → 後段の mock 解決でカバー。
+  // 旧実装の getAgencies() は agency_media を取らないため、リール画像が
+  // user-site に出ない問題があった。
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabaseAgency = (allAgencies as any[]).find((a) => String(a.id) === id);
+  const supabaseAgency = await getAgencyById(id) as any;
   const mockAgency: Agency | undefined = AGENCIES.find((a) => a.id === Number(id));
 
   // Supabase オンリーの相談所（UUID）は mock 由来のフィールドを持たないため、
