@@ -30,7 +30,7 @@ export default async function ReviewNewPage({
           <div className="max-w-[640px] mx-auto px-6 text-center">
             <p
               className="text-xs tracking-[0.2em] uppercase mb-3"
-              style={{ color: "var(--accent)", fontFamily: "var(--font-serif)" }}
+              style={{ color: "var(--accent)", fontFamily: "'DM Sans', sans-serif" }}
             >
               write a review
             </p>

@@ -103,10 +103,10 @@ function AuthGate({ onVerified }: { onVerified: (data: ReviewToken) => void }) {
         </svg>
       </div>
 
-      {/* 見出し */}
+      {/* 見出し（H1「口コミを書く」と同じウェイトで階層を維持） */}
       <h2
         style={{
-          fontFamily: "var(--font-serif)",
+          fontFamily: "var(--font-mincho)",
           fontSize: 24,
           color: "var(--ink)",
           fontWeight: 400,
