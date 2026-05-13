@@ -120,7 +120,11 @@ export default async function KindaStoryDetailPage({
             </div>
 
             {/* 共感ボタン */}
-            <SympathyButton initialCount={story.sympathyCount} />
+            <SympathyButton
+              initialCount={story.sympathyCount}
+              targetType="story"
+              targetId={story.id}
+            />
 
             {/* 担当 */}
             <div className="ks-article-divider" />

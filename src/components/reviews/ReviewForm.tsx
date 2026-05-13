@@ -2,6 +2,8 @@
 
 import { useState, Fragment } from "react";
 import type { ReviewToken, ReviewCategoryRatings } from "@/types/review";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { isUuid } from "@/lib/reservations";
 
 /* ────────────────────────────────────────────────────────────
    定数
@@ -131,6 +133,9 @@ export default function ReviewForm({
   const [ageGroup, setAgeGroup] = useState("");
   const [occupation, setOccupation] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  const { user, supabase } = useAuth();
 
   const bodyLength = body.trim().length;
   const isValid = overallRating > 0 && bodyLength >= MIN_BODY;
@@ -149,8 +154,48 @@ export default function ReviewForm({
     e.preventDefault();
     if (!isValid || submitting) return;
     setSubmitting(true);
-    // TODO: Supabase reviews テーブルへ INSERT
-    await new Promise((r) => setTimeout(r, 1000));
+    setSubmitError("");
+
+    // 本物の Supabase counselor (UUID) の場合のみ INSERT。
+    // モック counselor（数値 ID）の場合はデモフローのまま完了画面へ。
+    const counselorIdIsUuid = isUuid(tokenData.counselorId);
+
+    if (counselorIdIsUuid && supabase) {
+      try {
+        const ageMap: Record<string, string> = {
+          "非公開": "non_disclosed",
+          "20代": "20s",
+          "30代": "30s",
+          "40代": "40s",
+          "50代以上": "50s_plus",
+        };
+        const { error } = await supabase.from("reviews").insert({
+          counselor_id: tokenData.counselorId,
+          rating: overallRating,
+          body: body.trim(),
+          source_type: "face_to_face",
+          is_published: false, // 運営承認後に公開
+          reviewer_age_range: ageGroup ? ageMap[ageGroup] ?? ageGroup : null,
+          // user_id は authenticated 時のみ埋める。未ログイン投稿は NULL のまま。
+          user_id: user?.id ?? null,
+        });
+        if (error) {
+          setSubmitting(false);
+          setSubmitError(error.message || "投稿に失敗しました。もう一度お試しください。");
+          return;
+        }
+      } catch (err) {
+        setSubmitting(false);
+        setSubmitError(
+          err instanceof Error ? err.message : "投稿に失敗しました。もう一度お試しください。",
+        );
+        return;
+      }
+    } else {
+      // モックフロー：軽い遅延だけ入れて完了画面へ
+      await new Promise((r) => setTimeout(r, 800));
+    }
+
     onSubmitted();
   };
 
@@ -621,6 +666,19 @@ export default function ReviewForm({
           ご本人からの修正・削除申請のみ対応します。
         </span>
       </div>
+
+      {submitError && (
+        <p
+          style={{
+            marginTop: 16,
+            fontSize: 12,
+            color: "var(--rose)",
+            textAlign: "center",
+          }}
+        >
+          {submitError}
+        </p>
+      )}
 
       {/* ──────────────────────────────────────────────
           投稿ボタン

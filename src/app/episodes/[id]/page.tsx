@@ -189,7 +189,11 @@ export default async function EpisodeDetailPage({
           </div>
 
           {/* 共感ボタン */}
-          <SympathyButton initialCount={episode.sympathyCount} />
+          <SympathyButton
+            initialCount={episode.sympathyCount}
+            targetType="story"
+            targetId={episode.id}
+          />
 
           {/* 相談所・カウンセラーリンクカード */}
           <div

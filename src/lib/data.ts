@@ -1077,15 +1077,72 @@ export async function getShops() {
 }
 
 // 口コミ取得（カウンセラー別）
+// counselor 詳細ページの表示シェイプに整形して返す（id/rating/title/text/author/date/verified）。
+// user_id が紐づく口コミは profiles.nickname を別クエリで取得して author に流す（JOIN は型推論を壊すため使わない）。
 export async function getReviewsByCounselor(counselorId: string) {
   const { data, error } = await supabase
     .from('reviews')
-    .select('*')
+    .select('id, rating, body, source_type, created_at, reviewer_age_range, user_id, counselor_id')
     .eq('counselor_id', counselorId)
     .eq('is_published', true)
     .order('created_at', { ascending: false })
-  if (error) return []
-  return data
+  if (error || !data) return []
+
+  type ReviewRow = {
+    id: string
+    rating: number
+    body: string
+    source_type: string
+    created_at: string
+    reviewer_age_range: string | null
+    user_id: string | null
+    counselor_id: string
+  }
+  const rows = data as unknown as ReviewRow[]
+
+  // ニックネームをまとめて取得
+  const userIds = Array.from(new Set(rows.map((r) => r.user_id).filter((x): x is string => !!x)))
+  const nicknameById: Record<string, string> = {}
+  if (userIds.length > 0) {
+    const p = await supabase.from('profiles').select('id, nickname').in('id', userIds)
+    const profiles = (p.data ?? []) as unknown as { id: string; nickname: string | null }[]
+    for (const pr of profiles) {
+      if (pr.nickname && pr.nickname.trim().length > 0) {
+        nicknameById[pr.id] = pr.nickname.trim()
+      }
+    }
+  }
+
+  const ageLabel = (raw: string | null): string => {
+    if (!raw) return ''
+    const map: Record<string, string> = {
+      '20s': '20代',
+      '30s': '30代',
+      '40s': '40代',
+      '50s_plus': '50代以上',
+      non_disclosed: '',
+    }
+    return map[raw] ?? raw
+  }
+
+  return rows.map((r) => {
+    const nickname = r.user_id ? nicknameById[r.user_id] : undefined
+    const age = ageLabel(r.reviewer_age_range)
+    const author = [age, nickname || (r.user_id ? 'ゲスト' : 'ゲスト')]
+      .filter((s) => s && s.length > 0)
+      .join('・')
+    const d = new Date(r.created_at)
+    return {
+      id: r.id,
+      counselorId: r.counselor_id,
+      rating: r.rating,
+      title: '口コミ',
+      text: r.body,
+      author: author || 'ゲスト',
+      date: isNaN(d.getTime()) ? '' : `${d.getFullYear()}年${d.getMonth() + 1}月`,
+      verified: r.source_type === 'face_to_face',
+    }
+  })
 }
 
 // エピソード一覧取得

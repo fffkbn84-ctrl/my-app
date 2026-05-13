@@ -275,6 +275,8 @@ export default async function ColumnDetailPage({ params }: Props) {
             }
             label="この記事に共感"
             hint="共感した数は押したあとに表示されます"
+            targetType="voice"
+            targetId={column.slug}
           />
 
           {/* SNSシェアボタン */}

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 
-export type FavoriteType = "counselor" | "agency" | "place";
+export type FavoriteType = "counselor" | "agency" | "place" | "story" | "voice";
 
 const STORAGE_KEY = "kinda-favorites-v2";
 

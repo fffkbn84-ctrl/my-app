@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import { AGENCIES, COUNSELORS, getCounselors, type Counselor } from "@/lib/data";
 import { placesHomeData } from "@/lib/mock/places-home";
+import { getAllColumns } from "@/lib/columns";
 import AuthCard from "./AuthCard";
+import AccountSettingsSection from "./AccountSettingsSection";
 import SavedSection from "./SavedSection";
+import SympathySavedSection from "./SympathySavedSection";
+import ReviewHistorySection from "./ReviewHistorySection";
 import NoteHistorySection from "./NoteHistorySection";
 import DiagnosisTypeHistorySection from "./DiagnosisTypeHistorySection";
 import ReservationsSection from "./ReservationsSection";
@@ -13,41 +17,6 @@ export const metadata: Metadata = {
   description: "マイページ — お気に入り・予約履歴・口コミ投稿を管理できます。",
 };
 
-const featureItems = [
-  {
-    label: "共感したエピソードを保存",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path
-          d="M9 15C9 15 2.5 10.5 2.5 6C2.5 4 4 2.5 6 2.5C7 2.5 8 3 9 4C10 3 11 2.5 12 2.5C14 2.5 15.5 4 15.5 6C15.5 10.5 9 15 9 15Z"
-          stroke="#C8A97A"
-          strokeWidth="1.3"
-          fill="none"
-        />
-      </svg>
-    ),
-  },
-  {
-    label: "口コミ投稿履歴",
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path
-          d="M4 2h7l4 4v10H4V2z"
-          stroke="#C8A97A"
-          strokeWidth="1.3"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M11 2v4h4M6 9h6M6 12h4"
-          stroke="#C8A97A"
-          strokeWidth="1.3"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
-  },
-];
-
 export default async function MyPage() {
   // 「気になる」一覧の表示用に、Supabase + mock の両方からカウンセラーを集めて
   // 重複排除（古い localStorage 保存も拾えるようにするため）
@@ -57,6 +26,9 @@ export default async function MyPage() {
     counselorById.set(String(c.id), c);
   }
   const allCounselors = Array.from(counselorById.values());
+
+  // コラム（Kinda voices）のメタデータを取得
+  const allColumns = await getAllColumns();
 
   return (
     <main
@@ -104,6 +76,9 @@ export default async function MyPage() {
         {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
         <AuthCard />
 
+        {/* アカウント設定（ニックネーム / メール / パスワード） */}
+        <AccountSettingsSection />
+
         {/* Kinda note 履歴（天気予報風 横スクロール） */}
         <NoteHistorySection />
 
@@ -122,60 +97,11 @@ export default async function MyPage() {
           />
         </div>
 
-        {/* 機能紹介リスト */}
-        <div
-          style={{
-            marginTop: 32,
-            background: "white",
-            border: "1px solid var(--border)",
-            borderRadius: "16px",
-            overflow: "hidden",
-          }}
-        >
-          {featureItems.map((item, index) => (
-            <div
-              key={index}
-              style={{
-                padding: "18px 20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "14px",
-                borderBottom:
-                  index < featureItems.length - 1
-                    ? "1px solid var(--pale)"
-                    : "none",
-              }}
-            >
-              <span style={{ flexShrink: 0 }}>{item.icon}</span>
-              <span
-                style={{
-                  fontFamily: "var(--font-sans)",
-                  fontSize: "13px",
-                  color: "var(--ink)",
-                  flex: 1,
-                  lineHeight: 1.5,
-                }}
-              >
-                {item.label}
-              </span>
-              <span
-                style={{
-                  fontSize: "10px",
-                  background: "var(--pale)",
-                  color: "var(--muted)",
-                  padding: "3px 10px",
-                  borderRadius: "20px",
-                  marginLeft: "auto",
-                  flexShrink: 0,
-                  fontFamily: "'DM Sans', sans-serif",
-                  letterSpacing: ".04em",
-                }}
-              >
-                準備中
-              </span>
-            </div>
-          ))}
-        </div>
+        {/* 共感した（Kinda story / Kinda voices） */}
+        <SympathySavedSection allColumns={allColumns} />
+
+        {/* 投稿した口コミ（ログイン時かつ投稿がある時のみ） */}
+        <ReviewHistorySection />
       </div>
     </main>
   );
