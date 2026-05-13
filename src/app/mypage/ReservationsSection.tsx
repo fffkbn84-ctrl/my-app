@@ -366,6 +366,11 @@ function ReservationCard({
 }) {
   const cancellable = !readOnly && isCancellable(row.start_at, contact.cancelDeadlineHours);
   const canceled = row.status === "canceled";
+  const completed = row.status === "completed";
+  const isPastActive =
+    !canceled && !completed && row.start_at
+      ? new Date(row.start_at).getTime() <= Date.now()
+      : false;
   const dateLabel = row.start_at
     ? `${formatDateJa(row.start_at)} ${formatTimeJa(row.start_at)}〜`
     : "日時未定";
@@ -430,17 +435,36 @@ function ReservationCard({
               >
                 キャンセル済み
               </span>
-            ) : readOnly ? (
+            ) : completed ? (
               <span
                 style={{
                   fontSize: 10,
-                  background: "rgba(122,158,135,.12)",
+                  background: "rgba(122,158,135,.16)",
                   color: "var(--green)",
                   padding: "3px 10px",
                   borderRadius: 20,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
                 }}
               >
-                終了
+                <svg width="9" height="9" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M2 6.5L4.5 9l5.5-6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                面談完了
+              </span>
+            ) : isPastActive ? (
+              <span
+                style={{
+                  fontSize: 10,
+                  background: "rgba(212,168,90,.16)",
+                  color: "#8B7A4D",
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                }}
+                title="カウンセラーが完了を確認するとマークが切り替わります"
+              >
+                確認待ち
               </span>
             ) : (
               <span

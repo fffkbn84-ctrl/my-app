@@ -304,8 +304,9 @@ export default function ReservationDetailClient({ reservationId }: { reservation
   }
 
   const canceled = row.status === "canceled";
+  const completed = row.status === "completed";
   const isFuture = row.start_at ? new Date(row.start_at).getTime() > Date.now() : false;
-  const cancellable = !canceled && isFuture && isCancellable(row.start_at, agencyInfo.cancelDeadlineHours);
+  const cancellable = !canceled && !completed && isFuture && isCancellable(row.start_at, agencyInfo.cancelDeadlineHours);
   const mapsQuery = agencyInfo.address ?? agencyInfo.name ?? "";
 
   return (
@@ -335,9 +336,59 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           予約の詳細
         </h1>
         <p style={{ fontSize: 12, color: "var(--muted)" }}>
-          {canceled ? "この予約はキャンセル済みです" : isFuture ? "ご予約ありがとうございます" : "面談は終了しました"}
+          {canceled
+            ? "この予約はキャンセル済みです"
+            : completed
+              ? "面談完了済みです。口コミでこの体験を残せます。"
+              : isFuture
+                ? "ご予約ありがとうございます"
+                : "面談予定の時刻を過ぎました。担当の確認をお待ちください。"}
         </p>
       </div>
+
+      {/* 面談完了済みなら口コミ導線を上部に出す */}
+      {completed && (
+        <div
+          style={{
+            background: "rgba(122,158,135,.08)",
+            border: "1px solid rgba(122,158,135,.3)",
+            borderRadius: 14,
+            padding: "14px 18px",
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="8.5" stroke="var(--green)" strokeWidth="1.4" />
+            <path d="M6 10.5L9 13l5-6" stroke="var(--green)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 13, color: "var(--ink)", marginBottom: 2 }}>
+              面談完了 — 口コミを残しませんか？
+            </p>
+            <p style={{ fontSize: 11, color: "var(--muted)" }}>
+              実際に会った方だけの言葉が、次の誰かを助けます。
+            </p>
+          </div>
+          <Link
+            href={`/reviews/new?reservation=${row.id}`}
+            style={{
+              flexShrink: 0,
+              fontSize: 12,
+              padding: "8px 14px",
+              border: "1px solid var(--green)",
+              borderRadius: 50,
+              color: "var(--green)",
+              textDecoration: "none",
+              fontFamily: "var(--font-mincho)",
+            }}
+          >
+            口コミを書く →
+          </Link>
+        </div>
+      )}
 
       {/* 予約サマリ — Kinda talk カラー（パステルイエロー）でハイライト */}
       <section
