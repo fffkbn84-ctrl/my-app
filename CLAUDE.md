@@ -4700,3 +4700,221 @@ Supabase Auth の **メール確認が自動 ON（テスト用緩和）** され
 すべて MCP の `apply_migration` 経由で Supabase に適用済み。リポジトリにも SQL ファイルが
 存在するので、ローカル DB を再構築するときはここから再現可能。
 
+---
+
+## 実装済み機能（2026-05-13 セッション） — Supabase 完全対応・相談所写真・予約詳細・自動スワイプ・特徴 / 月会費 / 成婚実績選択式
+
+> 作業ブランチ:
+> - ユーザー用サイト: `claude/implement-kinda-talk-uDUoW`（最新コミット `078ed34`）
+> - カウンセラー管理画面: `claude/fix-profile-creation-1clpG`（最新コミット `82ace28`）
+
+### このセッションの大方針
+
+「相談所オーナーが管理画面で入れたデータが、お客様画面に過不足なく反映される」状態まで
+持っていく。具体的にはカウンセラー詳細 / 相談所詳細 / マイページ予約詳細を Supabase
+完全対応にしつつ、相談所オーナーが必要な編集 UI を全部揃える。
+
+### A. `/counselors/[id]` の Supabase 完全対応 + 速度改善
+
+**user-site / claude/implement-kinda-talk-uDUoW**
+
+- mock 11 件（ID 1〜6 + 101〜105）+ Supabase オンリー（小山楓華のような UUID 持ち）の
+  両方に対応する `buildFromSupabase` を強化
+- `Counselor` 型に `photoUrl` / `experienceLabel` / `successCount` を追加
+- `mapCounselorRowToCounselor` で `photo_url` / `experience_label` をマッピング
+- プロフィール写真は `next/image` 表示（next.config.ts に Supabase Storage の
+  remotePatterns 追加）
+- 「次の空き枠」を `slots` テーブルから Asia/Tokyo で取得（UTC ずれを修正）
+- 料金プランは所属相談所の `fees` を表示（mock 無しでも `getAgencyById` で取得）
+- 成婚実績 0 / 未設定なら非表示。経験年数も `experienceLabel` を別行「経歴・実績」に分離
+- 「当日キャンセル可」固定文言を削除し「登録不要 · 面談料 無料」だけに
+
+**速度改善:**
+- `export const revalidate = 60` (ISR)
+- `loading.tsx` でクリック直後にスケルトン表示
+- 並列クエリ 3 つに拡張（counselor / reviews / nextSlot）
+- `generateStaticParams` で公開済みカウンセラーを事前ビルド
+  （※ searchParams 使用のため完全 SSG にはならない。ISR キャッシュは効く）
+
+### B. `/booking/[counselorId]` を UUID 対応 + フローティング CTA リデザイン
+
+- `/booking/[counselorId]` で mock の数値 ID（1〜6）以外は 404 だったのを、
+  `getCounselorById` で Supabase フォールバック取得
+- フローティング CTA（72×72px 四角ローズゴールド + 3 行縦書き）→ Kinda 風の
+  pill 形（薄白半透明 + accent 細線 + Mincho 1 行「予約する →」）に刷新
+- 3 詳細ページ共通（counselors / agencies / places）
+
+### C. `/counselors/booking?agencyId=UUID` 対応
+
+- 旧: `AGENCIES.find` のみで Supabase UUID 相談所だと notFound
+- 新: `getAgencyById` + `getCounselors().filter(agency_id)` でフォールバック
+- 「カウンセラーを選んで予約する」ボタンが couldn't load になっていたバグを解消
+
+### D. マイページ予約詳細ページ新設
+
+**新規:** `/mypage/reservations/[id]/page.tsx` + `ReservationDetailClient.tsx`
+
+- 予約履歴の各カードを `<Link href="/mypage/reservations/{id}">` でラップ
+- 未ログインなら `/login?redirect=...` に誘導（RLS で他人の予約は引けない）
+- 表示:
+  1. 予約サマリ（日時 / 形式 / メモ）
+  2. 「このカウンセラーのプロフィールを見る →」ボタン
+  3. **担当カウンセラー基本情報カード**（photo / specialties / experience_label /
+     catchphrase / rating）
+  4. **所属相談所カード**（タップで /agencies/{id} へ）
+  5. 会場へのアクセス：所在地 / アクセス / 営業時間 / 定休日 / 最寄駅からの行き方
+  6. Google Maps 埋め込み（住所クエリ、API キー不要）
+  7. キャンセル可なら期限内ボタン、期限切れなら相談所連絡先表示
+
+agency_id / counselor_id が UUID でも mock 数値でも、name で fallback fetch する設計。
+
+### E. 相談所詳細 `/agencies/[id]` の整備
+
+- Supabase オンリー相談所で `agency.type.map()` 等が `undefined.map()` で
+  クラッシュしていた「this page couldn't load」を解消（SUPABASE_SAFE_DEFAULTS）
+- 在籍カウンセラー枠を Supabase counselors からも取得
+- リール画像表示: 旧 `getAgencies()` は agency_media を取らないバグを修正、
+  `getAgencyById` に切り替え
+
+### F. 相談所写真機能（DB 015）
+
+**DB マイグレーション 015 + 015b:** `agency_media` テーブル新設 + `agency-media`
+Storage bucket + RLS。**015b** で Storage policy のバグ修正
+（`storage.foldername(a.name)` → `storage.foldername(name)`）。
+
+**カウンセラー管理画面（agency 編集）に追加:**
+- プロフィール画像（ロゴ）アップロード — `agencies.logo_url` を流用
+- リール画像（最大 6 枚）— ↑↓ 並び替え / キャプション / 削除
+
+**user-site `/agencies/[id]`:**
+- ヒーローのパンくず直下に 88×88px のロゴカード
+- ヒーロー直下に `AgencyReelMini`（1 枚ずつスワイプ + 進捗バー + キャプション）
+
+### G. ミニリールの自動スワイプ
+
+**新規 hook:** `src/hooks/useAutoSwipeReel.ts`
+
+- 5 秒ごとに次画像へ smooth scroll（ループ）
+- prefers-reduced-motion / 画面外 / ユーザー操作（10 秒）で停止
+- `CounselorReelMini` と `AgencyReelMini` から共通利用
+
+リール本体（kt-reel-modal）はクロスフェード方式（全レイヤー重ねて opacity 切替）に
+改修済みで「黒い空白」を解消。プログレスバー / 下部テキストの視認性も向上
+（暗色グラデ + 多層 text-shadow）。
+
+### H. プラン詳細 + 割引 + 相談所の特徴
+
+**DB マイグレーション:**
+- **013** `agencies.address / access / directions`（会場アクセス）
+- **014** `agencies.discounts JSONB`（U30 等のお得情報）
+- **016** `agencies.features text[]`（「この相談所の特徴」）
+
+**`FeePlan` 型を拡張:** `description` / `included[]` / `notes`
+
+**agency 編集画面に追加:**
+- 「会場へのアクセス」セクション（所在地 / アクセス / 行き方）
+- 「各種割引・お得情報」セクション（¥◯円 OFF または ◯% OFF を排他選択）
+- 各プランに対象（description）+ 含まれるもの（included[]）+ 注意事項（notes）
+- プラン単位の ↑↓ 並び替え / 複製 / 各項目の ↑↓ / 複製
+- **金額入力の 0 が残るバグを修正**（string 表示 + 先頭ゼロストリップ）
+- 「この相談所の特徴」チップ入力（最大 10 件・20 字）
+
+**user-site で表示:**
+- `/agencies/[id]` と `/counselors/[id]` の料金プランカードに description /
+  included / notes / 割引一覧を反映
+- カウンセラー詳細「基本情報」セクションを新設（口コミ直後）
+
+### I. 表示制御の微調整
+
+**所属相談所カード（AgencyCardBlock）:**
+- 「在籍カウンセラー N 名」を削除
+- 代わりに「エリア · 月会費 XX,XXX円〜」を表示
+  - mock 相談所は `plans[].monthly` 最小値
+  - Supabase 相談所は `fees[].items[]` から月会費系項目を抽出して最小値
+
+**成婚実績の表示:**
+- カウンセラー管理画面: number 自由入力 → **select** に変更
+  - 選択肢: 非公開 / 1〜9 組（具体数） / 10/15/20/30/50/100/200/300 組以上
+- user-site:
+  - 1〜9 → 「N組」（具体数）
+  - 10 以上 → ヒーロー「N+」、プロフィールセクション「N組以上」
+
+### J. その他の細かい修正
+
+- カウンセラー詳細ヒーロー直下のサムネイル列を **1 枚ずつスワイプの「ミニリール」** に
+  置き換え（CounselorReelMini）。Kinda talk リールからの世界観連続性を維持
+- 相談所カードを Supabase オンリー相談所でもタップ可能化（AgencyCardBlock を
+  `Partial<Agency> + { id, name }` 対応）
+- `**/.next/` を .gitignore に追加（nested 階層対応）
+
+### DB マイグレーション一覧（このセッションで適用）
+
+| # | 内容 | ファイル |
+|---|---|---|
+| 013 | agencies に address / access / directions（会場アクセス） | `013_agencies_location_and_directions.sql` |
+| 014 | agencies に discounts JSONB | `014_agencies_discounts.sql` |
+| 015 | agency_media テーブル + agency-media Storage bucket + RLS | `015_agency_media.sql` |
+| 015b | 015 の Storage RLS バグ修正（foldername(a.name) → foldername(name)） | `015b_fix_agency_media_storage_rls.sql` |
+| 016 | agencies.features text[] | `016_agencies_features.sql` |
+
+すべて MCP の `apply_migration` で適用済み。
+
+### 主要なコミットハッシュ
+
+**user-site（`claude/implement-kinda-talk-uDUoW`）:**
+
+| 用途 | コミット |
+|---|---|
+| Phase A: `/counselors/[id]` Supabase 完全対応 + 速度改善 | `ae6f721` |
+| 時刻/キャンセル/経歴ラベル 3 点修正 | `3e972fa` |
+| `/booking/[counselorId]` UUID + フローティング CTA + ISR | `56c07b1` |
+| 予約詳細ページ新設 + 所属相談所カードタップ + カウンセラー詳細「基本情報」 | `5088ba2` |
+| Phase B 連携（address/access/directions/hours/holiday） | `d4f6f78` |
+| 料金プランフィールド + 割引一覧 + リール画像サムネイル | `6effe05` |
+| `/agencies/[id]` クラッシュ修正 + ミニリール + 予約詳細 + リール視認性 | `bf977b2` |
+| 在籍カウンセラー / リール表示の Supabase 対応 + クロスフェード | `71c9e21` |
+| ロゴ + AgencyReelMini を表示 | `8001988` |
+| getAgencyById でリール画像取得 | `8f1e8e0` |
+| ミニリール自動スワイプ | `916bfad` |
+| 「この相談所の特徴」連携 | `889d2c6` |
+| 月会費表示 + 成婚実績 N組以上 | `078ed34` |
+
+**counselor admin（`claude/fix-profile-creation-1clpG`）:**
+
+| 用途 | コミット |
+|---|---|
+| 「会場へのアクセス」セクション + DB 013 | `13bd830` |
+| 料金プラン UX 改善（0 修正 / 並び替え / 複製 / 注意事項） | `4b67e09` |
+| プラン description + included[] | `b4b16ee` |
+| 割引セクション + DB 014 | `1f89d88` |
+| 相談所写真（ロゴ + リール）+ DB 015 | `4f7c4e5` |
+| Storage RLS バグ修正（015b） | `cbcaf3d` |
+| 「この相談所の特徴」フィールド + DB 016 | `5dc8690` |
+| 成婚実績 select 化 | `82ace28` |
+
+### 残課題 / 次セッションへ
+
+- **Kinda act / Kinda glow（`/places/[id]`）のミニリール** 未実装。`place_media` テーブル + Storage + 編集 UI が必要（agency_media と同型でコピーすれば OK）
+- カウンセラー管理画面のページ遷移速度改善（既知制約）
+- 本番リリース前: Supabase Auth の Email Confirm を ON、SMTP 設定、利用規約 / 特商法 / プライバシー の最終確認、本番カウンセラー情報の投入
+- mock カウンセラー（ID 1-6 + 101-105）はまだ Supabase に移行していない。順次 DB 投入したい
+
+### 新セッション開始時の引き継ぎテンプレート
+
+```
+作業ブランチ:
+- ユーザー用サイト: claude/implement-kinda-talk-uDUoW
+- カウンセラー管理画面: claude/fix-profile-creation-1clpG
+
+以下を読んでから始めてください:
+1. CLAUDE.md（特に末尾の「2026-05-13 セッション」セクション）
+2. 必要なら docs/phase1-instructions-v3.md
+
+【今回の作業】
+[依頼内容を箇条書きで]
+
+おすすめの順で進めてほしいです。
+読み終わったら「読みました。○から始めます」と宣言してから進めてください。
+途中壊れそう、おかしいと思ったら無理に進めず止めてください。
+おかしくない場合デプロイまで完了していいのでコミット番号を教えてください。
+```
