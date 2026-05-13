@@ -4918,3 +4918,310 @@ Storage bucket + RLS。**015b** で Storage policy のバグ修正
 途中壊れそう、おかしいと思ったら無理に進めず止めてください。
 おかしくない場合デプロイまで完了していいのでコミット番号を教えてください。
 ```
+
+---
+
+## 実装済み機能（2026-05-13 セッション②） — 8 機能改善 + 面談完了フロー + アフォーダンス修正 + 文言統一 + About 強調
+
+> 作業ブランチ:
+> - ユーザー用サイト: `claude/implement-kinda-talk-uDUoW`
+> - カウンセラー管理画面: `claude/fix-profile-creation-1clpG`
+>
+> 一日で 2 つのセッションを跨いだため、上の「2026-05-13 セッション」と区別して
+> 「②」と表記。
+
+### このセッションで触ったこと
+
+ユーザーから 8 項目 + 2 項目 + 3 項目の連続依頼を、ブランチを切り替えながら
+小さなまとまりに分けて push したセッション。Task 2（Kinda act/glow ミニリール）は
+スコープ未確定のため次回セッションへ送り。
+
+---
+
+### A. user-site（`claude/implement-kinda-talk-uDUoW`）
+
+#### A-1. 8 タスクのうち 5 つを一括（`67ac5d6`）
+
+| Task | 内容 |
+|---|---|
+| 1 | Kinda story の年代フィルターに `50代` / `60代` を追加（`StoryAgeBand` 型 + `AGE_OPTIONS`） |
+| 4 | `/mypage/reservations/[id]` トップ予約サマリカードを Kinda talk 系パステルイエロー（`linear-gradient(135deg, #FFF8E1, #FEFAF0)`）でハイライト + ゴールド系アクセントライン |
+| 6 | 右上ハンバーガーメニューを実装。`createPortal` 不使用の `<aside>` で右からスライドイン、Esc / 背景タップ / 遷移で自動クローズ、4 セクション構成（自分から動く / ふたりを知る / アカウント / サービス） |
+| 7 | Kinda voices（コラム詳細）に共感ボタンを追加。`slug` ハッシュベースの安定モック件数 |
+| 8 | `SympathyButton` を「押すまで件数非表示」仕様に変更（atHome 方式）。`label` / `hint` / `size` を props 化し Kinda story / Kinda voices で共用 |
+
+#### A-2. Kinda note / Kinda type 説明画面のアフォーダンス修正（`a27a575`）
+
+ユーザー指摘「カードが押せそうなのに押せない」「①②③番号バッジがスタート
+できそうに見える」を解消。**A 案（最小修正）** を採用：
+
+- `/kinda-note`: 「気持ちを整理できる」「そのままカウンセラーへ」の 2 カラー
+  カードをアイコン付き縦リストに置き換え。①②③ ステップカードを白背景＋
+  ボーダー＋丸い数字バッジから、小さい DM Sans カラーテキスト + dashed
+  セパレータの軽量リストに刷新
+- `/kinda-type`: 同様に `.ktl-cards` の 2 枚カード → `.ktl-points` リストへ、
+  `.ktl-step`（カード）→ `.ktl-step-list` / `.ktl-step-row` /
+  `.ktl-step-num-plain` の軽量リストへ。`globals.css` に新クラス追加
+
+不採用：B 案（lemme スタイル 1 ビュー完結）。理由は Kinda note/type が無料の
+感情ツールで、anxious user に「本当に 1 分？」「登録不要？」と確認させる
+情報量が必要だから。情報量は維持しつつ affordance だけ調整した。
+
+#### A-3. 面談完了ステータス — user-site 側（`fa31272`）+ DB マイグレーション 017
+
+**DB マイグレーション `017_reservations_counselor_completion_rls.sql` 適用済み（MCP）：**
+
+```sql
+ALTER TABLE reservations
+  ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
+
+-- カウンセラー本人 / 相談所オーナーが自分の予約を SELECT / UPDATE 可
+CREATE POLICY "counselor reads own reservations" ON reservations
+  FOR SELECT TO authenticated
+  USING (counselor_id IN (
+    SELECT id FROM counselors WHERE owner_user_id = auth.uid()
+  ));
+-- 同様に counselor_id 経由 UPDATE / agency_id 経由 SELECT / UPDATE
+```
+
+**`/mypage/ReservationsSection.tsx` の予約バッジを 4 状態に細分化：**
+
+| 旧 | 新 |
+|---|---|
+| 予約中 | 予約中（future + active） |
+| 終了（readOnly prop） | **確認待ち**（past + active、カウンセラー確認待ち） |
+| キャンセル済み | **面談完了**（status='completed'、✓グリーン）／ キャンセル済み |
+
+`/mypage/reservations/[id]` の `ReservationDetailClient` には completed の場合
+「面談完了 — 口コミを残しませんか？」グリーンカードを上部に表示し、
+`/reviews/new?reservation={id}` へ誘導。
+
+#### A-4. /reviews/new フォント修正（`f7f7834`）
+
+- 「WRITE A REVIEW」eyebrow: `var(--font-serif)`（DM Serif Display）→
+  `'DM Sans', sans-serif`。予約詳細ページの「RESERVATION」と統一
+- 「面談済み確認」サブ見出し: `var(--font-serif)`（Latin 専用、日本語は
+  システム代替に落ちていた）→ `var(--font-mincho)`（Shippori Mincho）。
+  H1「口コミを書く」と同じ weight 400 で階層を維持
+
+#### A-5. Kinda type 文言統一 + /about 強調（`db75ac4`）
+
+**「合うカウンセラーを見つける」→「診断するだけで合うカウンセラーが見つかる」一括変更：**
+
+| 適用箇所 |
+|---|
+| `src/components/layout/Header.tsx`（ハンバーガー Kinda type sub） |
+| `src/components/layout/Footer.tsx`（Kinda サービス一覧） |
+| `src/app/page.tsx`（B カード `DECIDED_CARDS` desc） |
+| `src/app/about/page.tsx`（Kinda series カード desc） |
+| `src/components/home/KindaSearchBar.tsx`（検索モーダルツール sub） |
+
+理由：「自分の性格・状況にぴったりのカウンセラーが診断するだけで見つかる」
+ことを訴求するページのため、能動表現に揃えた。
+
+**/about「出会いは、人で決まる。」セクション強調：**
+
+- 背景：`rgba(240,238,235,.55)` → `linear-gradient(180deg, #F4E8D2 0%, #E8D6B0 100%)`
+  温かい amber グラデーションに変更（黒系を避けつつ周囲セクションから浮く）
+- 上端中央に accent ゴールドの装飾ライン（左右フェード）
+- 上下に accent 35% の罫線でセクション境界を明確化
+- 文字色を `var(--black)`/`var(--mid)` → `#3A2A14` / `#6B5538` に調整して
+  amber 背景でのコントラストを確保
+
+---
+
+### B. counselor-admin（`claude/fix-profile-creation-1clpG`）
+
+#### B-1. 面談完了マーク機能 — 当初版（`931cb93`）
+
+`PendingCompletionsSection.tsx` を新規追加。過去 + active な予約を一覧化し、
+ワンタップで `status='completed'` + `completed_at=now()` に UPDATE。
+**最初はダッシュボードの独立カードとして配置。**
+
+#### B-2. 「しなきゃ」カードへの統合 + 予約枠ゴミ箱はみ出し修正（`82ed4d2`）
+
+ユーザー指摘「面談完了待ちは『しなきゃ』セクションに入れて」を受けて再構築：
+
+- `PendingCompletionsSection` → `PendingCompletionsRows`（行のみ返す）に refactor
+- 件数を `onCountChange` で親に通知し、しなきゃカードの件数バッジ
+  （`{todos.length + pendingCount}件`）に合算
+- `todo-card` を常時 1 箇所だけにマウントして二重フェッチを回避
+- 「完了」用に `todo-tag-complete`（accent カラー）スタイル追加
+- `.pending-row` の hover 背景を透明化（ボタン操作行のため cursor も default）
+
+**予約枠ページ（`/calendar`）SlotDetailPanel の修正：**
+
+iPhone 16 でスロット行右端のゴミ箱アイコンが rounded 背景の外に
+オーバーフローしていた問題を解消：
+
+- 右側コントロール（select + 🗑 / 予約者を見る）を 1 つの flex グループ化
+- 行に `flex-wrap: wrap` + `rowGap: 8` を付与し、幅が足りないとグループごと
+  次行に折り返す
+- 時刻ラベルの固定 `minWidth: 110` → `flexShrink: 0` + `whiteSpace: nowrap`
+- select に `maxWidth: 130` を付け、過剰な幅取りを防止
+- 行に `overflow: hidden` で万一の数 px 漏れも吸収
+
+---
+
+### このセッションのコミット履歴（時系列）
+
+**user-site:**
+| コミット | 内容 |
+|---|---|
+| `67ac5d6` | 5 機能バンドル（Task 1/4/6/7/8） |
+| `a27a575` | Kinda note / Kinda type アフォーダンス修正（Task 5） |
+| `fa31272` | 面談完了ステータス user-site + DB 017（Task 3） |
+| `f7f7834` | /reviews/new フォント 2 箇所修正 |
+| `db75ac4` | Kinda type 文言統一 + /about 強調 |
+
+**counselor-admin:**
+| コミット | 内容 |
+|---|---|
+| `931cb93` | 面談完了マーク機能（独立カード版） |
+| `82ed4d2` | 「しなきゃ」統合 + 予約枠ゴミ箱はみ出し修正 |
+
+---
+
+### 次セッション以降の TODO（このセッションで決まった方針付き）
+
+#### ★ 最優先：マイページ アカウント機能まとめ実装（1 セッション分）
+
+このセッションの最後に詳細スコープを詰めた。**先にやる理由：本番リリースの
+ブロッカー。「ユーザーが自分のアカウントを管理できない」という根幹の欠落を解消する。**
+
+**ユーザー確定回答（このセッションで取得）：**
+
+| 論点 | 確定 |
+|---|---|
+| ニックネームを口コミに使う？ | **Yes** |
+| ニックネームを共感に使う？ | **No**（atHome 方式で数のみ表示） |
+| 既存口コミに過去 user_id を後付け？ | **No**（手動マッピング不要・新規以降のみ） |
+
+**実装スコープ（次セッション 1 つで全部）：**
+
+1. **`profiles` テーブル新設** — Supabase マイグレーション 018
+   ```sql
+   CREATE TABLE profiles (
+     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+     nickname TEXT,
+     created_at TIMESTAMPTZ DEFAULT now(),
+     updated_at TIMESTAMPTZ DEFAULT now()
+   );
+   -- RLS: 本人だけが SELECT/UPDATE、他者は SELECT のみ（口コミ表示で必要）
+   ```
+
+2. **マイページ「アカウント設定」セクション**
+   - メール変更（Supabase Auth `updateUser({ email })` + 確認メール）
+     ※ SMTP 設定未完了の間は UI だけ準備し、確認メール送信は実装するが
+     プロジェクト管理画面で SMTP を入れたら有効化される設計
+   - パスワード変更（current-password 再入力フロー）
+   - ニックネーム編集（`profiles.nickname` を upsert）
+
+3. **`reviews.user_id` カラム + RLS（マイグレーション 019）**
+   - 投稿時に `auth.uid()` を埋める
+   - 過去データは NULL のまま放置（user 確定済み）
+   - 表示時：ニックネームを `profiles.nickname` から JOIN（または個別取得）して表示
+
+4. **`SympathyButton` を `favorites` 連携に書き換え（マイグレーション 020）**
+   - `favorites` テーブルに `target_type` で `'story'`, `'voice'` を許容
+   - ログイン時は DB、未ログイン時は localStorage（既存パターン踏襲）
+   - 「押すまで件数非表示」仕様は維持
+
+5. **マイページに新セクション追加：**
+   - 「共感したエピソード」一覧
+   - 「共感した記事（Kinda voices）」一覧
+   - 「口コミ履歴」一覧（自分が投稿した `reviews`）
+
+**注意点：**
+- SMTP 未設定だとメール変更の確認メールが届かないため、UI は完成しても
+  実運用は SMTP 設定後になる。設計はそのまま入れておく
+- 過去口コミに user_id を遡って付けない方針なので、既存口コミは
+  「ニックネーム未設定」または「ゲスト」表示にする
+
+---
+
+#### Task 2：Kinda act / Kinda glow の場所管理 — スコープ討議が先
+
+CLAUDE.md 2026-05-13 セッション末尾の残課題。
+
+**先に決めること（コード書く前）：**
+
+| 案 | 説明 | 推奨度 |
+|---|---|---|
+| **A. 運営 admin だけが管理** | `futarive-admin` を拡張し place_media テーブル + Storage を管理。店舗オーナーには管理画面なし。営業初期は運営が代理掲載 | ★★★（初期は推奨） |
+| **B. 店舗オーナー専用画面を新設** | `futarive-counselor` の構造をコピーして `futarive-shop`（仮）を作成。店舗オーナーがログインして自店情報・写真を編集 | ★（V2 で） |
+| **C. ハイブリッド** | 初期は A、店舗数が増えたら B にスムーズ移行できるように DB スキーマだけ B 想定で設計 | ★★（折衷） |
+
+**私の推奨：C（DB は B 想定で作り、UI は A から始める）**
+
+理由：
+- 初期の店舗数 10〜30 件規模なら運営代理掲載で十分（カウンセラー本人と違って
+  店舗オーナーが直接編集する動機が薄い）
+- でも DB に `places.owner_user_id` を入れておけば、後で B の画面を追加するだけで
+  移行できる。スキーマ変更を二度しなくていい
+
+**討議すべき周辺項目：**
+- `places` テーブルは既存？それともモック `placesHomeData` だけで動いている？
+  → 確認必要。Supabase に places テーブルがあるかどうかで作業量が大きく変わる
+- 写真は何枚まで？（Kinda talk は最大 10 枚、agency は 6 枚）
+- 動画も許容するか？（Kinda act 想定のお店はカフェ・レストラン中心なので画像のみで十分？）
+- バッジ機構（取材済み / 相談所おすすめ）は今後も使うか？
+
+---
+
+#### セッションの分け方・順番（推奨）
+
+**次セッション（N+1）：マイページ アカウント機能まとめ** ★最優先
+- 上記 5 項目を一気通貫で実装
+- 規模感：6〜8 コミット程度、DB マイグレーション 3 本
+
+**次々セッション（N+2）：Task 2 のスコープ討議 → 実装**
+- まず 30 分くらいで C 案（ハイブリッド）の DB 設計を決める
+- `places` テーブルの現状確認（あれば拡張、なければ新設）
+- 残時間で `futarive-admin` 側に place_media 編集 UI を作る
+
+**理由：**
+- N+1 はユーザー影響が直接的（アカウント管理できない＝ローンチ不能）
+- N+2 は管理者影響（運営が手動代理掲載でしのげる）
+- 2 つを混ぜると DB スキーマ判断が散漫になる
+
+#### 新セッション開始時の引き継ぎテンプレート（次回用）
+
+```
+作業ブランチ:
+- ユーザー用サイト: claude/implement-kinda-talk-uDUoW
+- カウンセラー管理画面: claude/fix-profile-creation-1clpG
+
+以下を読んでから始めてください:
+1. CLAUDE.md（特に末尾の「2026-05-13 セッション②」セクション）
+
+【今回の作業】マイページ アカウント機能まとめ実装
+1. profiles テーブル新設（マイグレーション 018）
+2. マイページに「アカウント設定」セクション（メール/パスワード/ニックネーム）
+3. reviews.user_id 追加（マイグレーション 019）+ ニックネーム JOIN 表示
+4. SympathyButton を favorites 連携（マイグレーション 020）
+5. マイページに共感保存一覧 + 口コミ履歴一覧
+
+ニックネーム方針:
+- 口コミに表示する（Yes）
+- 共感には使わない（数のみ atHome 方式）
+- 既存口コミに過去 user_id を後付けしない（新規以降のみ user_id 紐付け）
+
+おすすめの順で進めてほしいです。
+読み終わったら「読みました。○から始めます」と宣言してから進めてください。
+途中壊れそう、おかしいと思ったら無理に進めず止めてください。
+おかしくない場合デプロイまで完了していいのでコミット番号を教えてください。
+```
+
+---
+
+#### この時点で保留中の TODO 一覧（次々セッション以降）
+
+- **Task 2**：Kinda act / Kinda glow 場所管理（C 案推奨。スコープ討議が先）
+- **メール再送ダイアログ**（C 案）：/reviews/new「メールが届かない場合はこちら」
+  リンクの実装。SMTP 設定完了が前提
+- カウンセラー管理画面のページ遷移速度改善（既知制約）
+- 本番リリース前：SMTP 設定、利用規約 / 特商法 / プライバシーの最終確認、
+  本番カウンセラー情報の投入
+- mock カウンセラー（ID 1-6 + 101-105）を Supabase に順次移行
+
