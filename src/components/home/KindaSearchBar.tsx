@@ -143,7 +143,7 @@ export default function KindaSearchBar() {
                     />
                   </div>
                   <div className="ks-modal-tool-name"><em>Kinda</em> type</div>
-                  <p className="ks-modal-tool-sub">合うカウンセラーを見つける</p>
+                  <p className="ks-modal-tool-sub">診断するだけで合うカウンセラーが見つかる</p>
                   <span className="ks-modal-tool-badge">登録不要 · 約2分 · 無料</span>
                 </Link>
               </div>

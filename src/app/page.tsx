@@ -62,7 +62,7 @@ const DECIDED_CARDS = [
     key: "type",
     href: "/kinda-type",
     kindaLabel: "type",
-    desc: "自分に合うカウンセラーを見つける",
+    desc: "診断するだけで合うカウンセラーが見つかる",
     img: "/images/section-kinda-type.webp",
     alt: "Kinda type",
     bg: "#E0ECF8",

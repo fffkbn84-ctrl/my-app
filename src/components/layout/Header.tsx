@@ -10,7 +10,7 @@ const MENU_SECTIONS: { label: string; items: { href: string; label: string; sub?
   {
     label: "自分から動く",
     items: [
-      { href: "/kinda-type", label: "Kinda type", sub: "合うカウンセラーを見つける" },
+      { href: "/kinda-type", label: "Kinda type", sub: "診断するだけで合うカウンセラーが見つかる" },
       { href: "/kinda-talk", label: "Kinda talk", sub: "カウンセラーを見る" },
       { href: "/kinda-act", label: "Kinda act", sub: "お見合い・デートの場所" },
       { href: "/kinda-glow", label: "Kinda glow", sub: "自分を整える" },

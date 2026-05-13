@@ -22,7 +22,7 @@ export default function Footer() {
         <div className="ft-col">
           <h5>Kinda サービス</h5>
           <ul>
-            <li><Link href="/kinda-type">Kinda type — 合うカウンセラーを見つける</Link></li>
+            <li><Link href="/kinda-type">Kinda type — 診断するだけで合うカウンセラーが見つかる</Link></li>
             <li><Link href="/kinda-talk">Kinda talk — カウンセラーを見る</Link></li>
             <li><Link href="/kinda-act">Kinda act — お見合い・デートの場所</Link></li>
             <li><Link href="/kinda-glow">Kinda glow — 自分を整える</Link></li>

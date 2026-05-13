@@ -116,22 +116,38 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ② メインコピー
+          ② メインコピー（背景を温かい amber トーンで強調 / 上下 accent gradient line）
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "rgba(240,238,235,.55)",
-          padding: "80px 32px",
+          background: "linear-gradient(180deg, #F4E8D2 0%, #E8D6B0 100%)",
+          padding: "88px 32px",
           textAlign: "center",
+          position: "relative",
+          borderTop: "1px solid rgba(200,169,122,.35)",
+          borderBottom: "1px solid rgba(200,169,122,.35)",
         }}
       >
+        {/* 装飾：上端 accent gradient line */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "min(120px, 30%)",
+            height: 2,
+            background: "linear-gradient(90deg, transparent, #C8A97A, transparent)",
+          }}
+        />
         <div style={{ maxWidth: 720, margin: "0 auto" }}>
           <h2
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
               fontSize: "clamp(24px, 4vw, 44px)",
-              color: "var(--black)",
+              color: "#3A2A14",
               letterSpacing: ".08em",
               margin: 0,
             }}
@@ -142,7 +158,7 @@ export default function AboutPage() {
             style={{
               marginTop: 20,
               fontSize: 15,
-              color: "var(--mid)",
+              color: "#6B5538",
               lineHeight: 2.2,
               fontFamily: "'Noto Sans JP', sans-serif",
             }}
@@ -612,7 +628,7 @@ export default function AboutPage() {
                 suffix: "type",
                 accent: "#5A7FAF",
                 bg: "#E0ECF8",
-                desc: "自分に合うカウンセラーを見つける",
+                desc: "診断するだけで合うカウンセラーが見つかる",
               },
               {
                 key: "talk",
