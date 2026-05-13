@@ -49,77 +49,92 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
               <div key={slot.id} style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
+                flexWrap: 'wrap',
+                gap: 8,
+                rowGap: 8,
                 padding: '10px 12px',
                 background: 'var(--bg-elev)',
                 borderRadius: 10,
+                overflow: 'hidden',          // 万一の数 px 漏れも吸収
               }}>
                 <span style={{
                   fontFamily: 'DM Sans, sans-serif',
                   fontSize: 13,
                   fontWeight: 500,
                   color: 'var(--text-deep)',
-                  minWidth: 110,
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap',
                 }}>
                   {timeStr}
                 </span>
 
-                <span className={`kc-badge kc-badge-${slot.status}`}>
+                <span className={`kc-badge kc-badge-${slot.status}`} style={{ flexShrink: 0 }}>
                   {STATUS_LABELS[slot.status]}
                 </span>
 
-                {slot.status === 'booked' ? (
-                  <button
-                    onClick={() => onViewReservation(slot.id)}
-                    className="kc-btn kc-btn-ghost kc-btn-sm"
-                    style={{ marginLeft: 'auto' }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <circle cx="6" cy="4" r="2" stroke="currentColor" strokeWidth="1.3"/>
-                      <path d="M2 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-                    </svg>
-                    予約者を見る
-                  </button>
-                ) : (
-                  <>
-                    <select
-                      value={slot.status}
-                      onChange={e => onStatusChange(slot.id, e.target.value as Slot['status'])}
-                      style={{
-                        marginLeft: 'auto',
-                        fontSize: 12,
-                        padding: '4px 8px',
-                        borderRadius: 8,
-                        border: '1px solid var(--border)',
-                        background: 'var(--card)',
-                        color: 'var(--text)',
-                        cursor: 'pointer',
-                      }}
+                {/* 右側コントロール群：1つの flex グループにまとめて、
+                    必要なら一括で次の行に折り返す（iPhone 16 などの幅で
+                    ゴミ箱がはみ出るバグ対策） */}
+                <div style={{
+                  marginLeft: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  flexShrink: 0,
+                  minWidth: 0,
+                }}>
+                  {slot.status === 'booked' ? (
+                    <button
+                      onClick={() => onViewReservation(slot.id)}
+                      className="kc-btn kc-btn-ghost kc-btn-sm"
                     >
-                      <option value="open">空きに変更</option>
-                      <option value="locked">ロックに変更</option>
-                    </select>
-
-                    {slot.status === 'open' && (
-                      <button
-                        onClick={() => onDelete(slot.id)}
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <circle cx="6" cy="4" r="2" stroke="currentColor" strokeWidth="1.3"/>
+                        <path d="M2 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                      </svg>
+                      予約者を見る
+                    </button>
+                  ) : (
+                    <>
+                      <select
+                        value={slot.status}
+                        onChange={e => onStatusChange(slot.id, e.target.value as Slot['status'])}
                         style={{
-                          marginLeft: 4,
-                          background: 'none',
-                          border: 'none',
+                          fontSize: 12,
+                          padding: '4px 8px',
+                          borderRadius: 8,
+                          border: '1px solid var(--border)',
+                          background: 'var(--card)',
+                          color: 'var(--text)',
                           cursor: 'pointer',
-                          color: 'var(--text-light)',
-                          padding: 4,
+                          maxWidth: 130,
                         }}
-                        aria-label="削除"
                       >
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-                        </svg>
-                      </button>
-                    )}
-                  </>
-                )}
+                        <option value="open">空きに変更</option>
+                        <option value="locked">ロックに変更</option>
+                      </select>
+
+                      {slot.status === 'open' && (
+                        <button
+                          onClick={() => onDelete(slot.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'var(--text-light)',
+                            padding: 4,
+                            flexShrink: 0,
+                          }}
+                          aria-label="削除"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                          </svg>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}

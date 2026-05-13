@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AddCounselorModal from '@/components/dashboard/AddCounselorModal'
-import PendingCompletionsSection from '@/components/dashboard/PendingCompletionsSection'
+import PendingCompletionsRows from '@/components/dashboard/PendingCompletionsSection'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -47,6 +47,7 @@ export default function DashboardPage() {
   const [agencyName, setAgencyName] = useState('')
   const [isOwner, setIsOwner] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [pendingCount, setPendingCount] = useState(0)
   const [showAddCounselor, setShowAddCounselor] = useState(false)
 
   // localStorage に永続化するラッパー
@@ -328,36 +329,41 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* 面談完了待ち（HP-B 方式：店舗側が面談完了を押す）— 0 件のときは非表示 */}
-      <PendingCompletionsSection scopedCounselors={counselors} />
-
-      {/* ちいさな「しなきゃ」 */}
-      {todos.length > 0 && (
-        <div className="todo-card">
-          <div className="todo-head">
-            <span className="todo-head-title">ちいさな「しなきゃ」</span>
-            <span className="todo-head-count">{todos.length}件</span>
-          </div>
-          {todos.map((t, i) => (
-            <Link key={i} href={t.href} className="todo-row">
-              <span className={`todo-tag todo-tag-${t.type}`}>
-                {t.type === 'urgent' ? '返信' : t.type === 'reply' ? '返信' : t.type === 'booking' ? '予約' : '推奨'}
-              </span>
-              <span className="todo-body">{t.label}</span>
-              <span className="todo-action">{t.action}</span>
-            </Link>
-          ))}
+      {/* ちいさな「しなきゃ」 — 面談完了待ち + 通常の todo を同一カードに集約 */}
+      <div className="todo-card">
+        <div className="todo-head">
+          <span className="todo-head-title">ちいさな「しなきゃ」</span>
+          <span className="todo-head-count">{todos.length + pendingCount}件</span>
         </div>
-      )}
 
-      {todos.length === 0 && (
-        <div className="todo-card" style={{ padding: 20, textAlign: 'center' }}>
-          <div style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
-            今日の「しなきゃ」はありません。<br/>
-            プロフィールやリールを整えてみませんか？
+        {/* 面談完了待ち（先頭：押せばその場で完了マーク。
+            0 件のときはコンポーネント側で何も描画しないが、件数フェッチは行う） */}
+        <PendingCompletionsRows
+          scopedCounselors={counselors}
+          onCountChange={setPendingCount}
+        />
+
+        {/* 既存の todo */}
+        {todos.map((t, i) => (
+          <Link key={i} href={t.href} className="todo-row">
+            <span className={`todo-tag todo-tag-${t.type}`}>
+              {t.type === 'urgent' ? '返信' : t.type === 'reply' ? '返信' : t.type === 'booking' ? '予約' : '推奨'}
+            </span>
+            <span className="todo-body">{t.label}</span>
+            <span className="todo-action">{t.action}</span>
+          </Link>
+        ))}
+
+        {/* どちらも 0 件のときのヒント */}
+        {todos.length === 0 && pendingCount === 0 && (
+          <div style={{ padding: 20, textAlign: 'center' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
+              今日の「しなきゃ」はありません。<br/>
+              プロフィールやリールを整えてみませんか？
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
