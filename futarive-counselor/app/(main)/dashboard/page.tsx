@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AddCounselorModal from '@/components/dashboard/AddCounselorModal'
+import PendingCompletionsSection from '@/components/dashboard/PendingCompletionsSection'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -326,6 +327,9 @@ export default function DashboardPage() {
           </Link>
         </div>
       )}
+
+      {/* 面談完了待ち（HP-B 方式：店舗側が面談完了を押す）— 0 件のときは非表示 */}
+      <PendingCompletionsSection scopedCounselors={counselors} />
 
       {/* ちいさな「しなきゃ」 */}
       {todos.length > 0 && (

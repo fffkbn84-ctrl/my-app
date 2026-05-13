@@ -135,6 +135,7 @@ export interface Reservation {
   agency_name: string | null
   canceled_at: string | null
   cancel_reason: string | null
+  completed_at: string | null    // 017: 面談完了マークがついた時刻
   created_at: string
 }
 
