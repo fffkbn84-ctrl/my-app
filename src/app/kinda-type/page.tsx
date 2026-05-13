@@ -65,54 +65,44 @@ export default function KindaTypeLandingPage() {
             </div>
           </section>
 
-          {/* ② 価値訴求カード 2枚 */}
-          <div className="ktl-cards">
-            {/* 自分のタイプがわかる */}
-            <div className="ktl-card ktl-card-gold">
-              <div className="ktl-card-icon">
-                {/* 鏡 / リフレクション SVG */}
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-                  <circle cx="11" cy="11" r="6" stroke="#A88858" strokeWidth="1.4" />
-                  <path d="M11 5v12M5 11h12" stroke="#A88858" strokeWidth="1.2" strokeLinecap="round" opacity=".4" />
-                  <circle cx="11" cy="11" r="9" stroke="#A88858" strokeWidth="1" opacity=".5" />
+          {/* ② できることリスト（カード風 = タップできそう問題を回避） */}
+          <ul className="ktl-points">
+            <li className="ktl-point">
+              <span className="ktl-point-icon ktl-point-icon-gold" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.4" />
+                  <circle cx="11" cy="11" r="9" stroke="currentColor" strokeWidth="1" opacity=".5" />
                 </svg>
-              </div>
-              <p className="ktl-card-text">
-                自分のタイプが
-                <br />
-                わかる
-              </p>
-            </div>
-
-            {/* ぴったりの担当者と出会える */}
-            <div className="ktl-card ktl-card-sage">
-              <div className="ktl-card-icon">
-                {/* 重なる円（相性 / マッチング） SVG */}
-                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-                  <circle cx="8" cy="11" r="5" stroke="#5A8A6A" strokeWidth="1.4" />
-                  <circle cx="14" cy="11" r="5" stroke="#5A8A6A" strokeWidth="1.4" />
+              </span>
+              自分のタイプがわかる
+            </li>
+            <li className="ktl-point">
+              <span className="ktl-point-icon ktl-point-icon-sage" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+                  <circle cx="8" cy="11" r="5" stroke="currentColor" strokeWidth="1.4" />
+                  <circle cx="14" cy="11" r="5" stroke="currentColor" strokeWidth="1.4" />
                 </svg>
-              </div>
-              <p className="ktl-card-text">
-                ぴったりの
-                <br />
-                担当者と出会える
-              </p>
-            </div>
-          </div>
+              </span>
+              ぴったりの担当者と出会える
+            </li>
+          </ul>
 
-          {/* ③ 使い方ステップ */}
+          {/* ③ 使い方ステップ（カードではなく軽量縦リスト） */}
           <div className="ktl-steps">
             <p className="ktl-steps-eyebrow">HOW IT WORKS</p>
-            {STEPS.map((step) => (
-              <div key={step.num} className="ktl-step">
-                <div className="ktl-step-num" aria-hidden="true">{step.num}</div>
-                <div>
-                  <p className="ktl-step-title">{step.title}</p>
-                  <p className="ktl-step-desc">{step.desc}</p>
-                </div>
-              </div>
-            ))}
+            <ol className="ktl-step-list">
+              {STEPS.map((step) => (
+                <li key={step.num} className="ktl-step-row">
+                  <span className="ktl-step-num-plain" aria-hidden="true">
+                    {String(step.num).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <p className="ktl-step-title">{step.title}</p>
+                    <p className="ktl-step-desc">{step.desc}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
 
           {/* ④ CTA */}

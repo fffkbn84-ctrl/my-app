@@ -174,111 +174,44 @@ export default function KindaNotePage() {
           </div>
         </div>
 
-        {/* ③ 説明カード 2枚横並び */}
-        <div
+        {/* ③ できることリスト（チップではなく、説明文として読ませる） */}
+        <ul
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 12,
-            marginBottom: 36,
+            listStyle: "none",
+            padding: 0,
+            margin: "0 0 32px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
           }}
         >
-          {/* カード1：気持ちを整理できる */}
-          <div
-            style={{
-              background: "#F0D8D0",
-              borderRadius: 20,
-              padding: "22px 14px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.65)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 12px",
-              }}
+          <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#3A2E26" }}>
+            <span
+              aria-hidden="true"
+              style={{ display: "inline-flex", flexShrink: 0, color: "#C4876A" }}
             >
-              {/* ノートSVG */}
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <rect x="3" y="2" width="13" height="17" rx="2" stroke="#C4876A" strokeWidth="1.4" />
-                <path d="M7 6h6M7 9.5h6M7 13h4" stroke="#C4876A" strokeWidth="1.4" strokeLinecap="round" />
-                <path d="M3 6h2M3 9.5h2M3 13h2" stroke="#C4876A" strokeWidth="1.4" strokeLinecap="round" />
+              <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+                <rect x="3" y="2" width="13" height="17" rx="2" stroke="currentColor" strokeWidth="1.4" />
+                <path d="M7 6h6M7 9.5h6M7 13h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </svg>
-            </div>
-            <p
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                color: "#3A2E26",
-                lineHeight: 1.7,
-              }}
+            </span>
+            気持ちを整理できる
+          </li>
+          <li style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: "#3A2E26" }}>
+            <span
+              aria-hidden="true"
+              style={{ display: "inline-flex", flexShrink: 0, color: "#5A8A6A" }}
             >
-              気持ちを
-              <br />
-              整理できる
-            </p>
-          </div>
-
-          {/* カード2：そのままカウンセラーへ */}
-          <div
-            style={{
-              background: "#E8F4E4",
-              borderRadius: 20,
-              padding: "22px 14px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.65)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 12px",
-              }}
-            >
-              {/* カウンセラー（人+矢印）SVG */}
-              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <circle cx="8" cy="6.5" r="2.5" stroke="#5A8A6A" strokeWidth="1.4" />
-                <path
-                  d="M3 19c0-2.8 2.2-5 5-5s5 2.2 5 5"
-                  stroke="#5A8A6A"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M15 9l3 3-3 3"
-                  stroke="#5A8A6A"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path d="M18 12h-5" stroke="#5A8A6A" strokeWidth="1.4" strokeLinecap="round" />
+              <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+                <circle cx="8" cy="6.5" r="2.5" stroke="currentColor" strokeWidth="1.4" />
+                <path d="M3 19c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                <path d="M15 9l3 3-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M18 12h-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </svg>
-            </div>
-            <p
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                color: "#3A2E26",
-                lineHeight: 1.7,
-              }}
-            >
-              そのまま
-              <br />
-              カウンセラーへ
-            </p>
-          </div>
-        </div>
+            </span>
+            そのままカウンセラーに渡せる
+          </li>
+        </ul>
 
         {/* ④ 使い方ステップ */}
         <div style={{ marginBottom: 36 }}>
@@ -295,65 +228,60 @@ export default function KindaNotePage() {
             HOW IT WORKS
           </p>
 
-          {steps.map((step) => (
-            <div
-              key={step.num}
-              style={{
-                background: "#FDFAF7",
-                border: "1.5px solid #EAE0D8",
-                borderRadius: 16,
-                padding: "16px 18px",
-                marginBottom: 10,
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 14,
-              }}
-            >
-              {/* ステップ番号バッジ */}
-              <div
+          {/* ステップは「カード」ではなく軽量な縦リスト
+              （カード風 = タップできそう問題を回避） */}
+          <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            {steps.map((step, idx) => (
+              <li
+                key={step.num}
                 style={{
-                  flexShrink: 0,
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  background: "#D4A090",
-                  color: "white",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 13,
-                  fontWeight: 600,
-                  fontFamily: "'DM Sans', sans-serif",
+                  alignItems: "flex-start",
+                  gap: 12,
+                  padding: "10px 4px",
+                  borderTop: idx === 0 ? "none" : "1px dashed #EAE0D8",
                 }}
               >
-                {step.num}
-              </div>
-
-              {/* テキスト */}
-              <div>
-                <p
+                {/* ステップ番号：小ぶり・透明背景・テキストカラー（押せそう感を抑える） */}
+                <span
+                  aria-hidden="true"
                   style={{
-                    fontSize: 14,
-                    fontWeight: 500,
-                    color: "#3A2E26",
-                    marginBottom: 4,
-                    lineHeight: 1.4,
+                    flexShrink: 0,
+                    fontSize: 11,
+                    fontFamily: "'DM Sans', sans-serif",
+                    letterSpacing: ".1em",
+                    color: "#D4A090",
+                    minWidth: 18,
+                    lineHeight: "22px",
                   }}
                 >
-                  {step.title}
-                </p>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "#7A6A5A",
-                    lineHeight: 1.7,
-                  }}
-                >
-                  {step.desc}
-                </p>
-              </div>
-            </div>
-          ))}
+                  {String(step.num).padStart(2, "0")}
+                </span>
+                <div>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: "#3A2E26",
+                      marginBottom: 2,
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {step.title}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      color: "#7A6A5A",
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {step.desc}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
 
         {/* ⑤ 装飾スペース */}

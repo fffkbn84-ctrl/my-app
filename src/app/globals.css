@@ -5216,6 +5216,29 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   line-height: 1.7;
 }
 
+/* できることリスト（旧 .ktl-cards 置き換え。affordance を抑えるためフラットなリストに） */
+.ktl-points {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ktl-point {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--black);
+}
+.ktl-point-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.ktl-point-icon-gold { color: #A88858; }
+.ktl-point-icon-sage { color: #5A8A6A; }
+
 /* HOW IT WORKS */
 .ktl-steps { margin-bottom: 36px; }
 .ktl-steps-eyebrow {
@@ -5224,31 +5247,31 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   color: var(--accent);
   font-family: 'DM Sans', sans-serif;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
-.ktl-step {
-  background: var(--pale);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  padding: 16px 18px;
-  margin-bottom: 10px;
+/* 軽量縦リスト（旧 .ktl-step カード差し替え） */
+.ktl-step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ktl-step-row {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
+  padding: 10px 4px;
 }
-.ktl-step-num {
+.ktl-step-row + .ktl-step-row {
+  border-top: 1px dashed var(--border);
+}
+.ktl-step-num-plain {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
   font-family: 'DM Sans', sans-serif;
+  letter-spacing: .1em;
+  color: var(--accent);
+  min-width: 18px;
+  line-height: 22px;
 }
 .ktl-step-title {
   font-size: 14px;
