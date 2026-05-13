@@ -9,7 +9,7 @@ type AgeFilter = "すべて" | StoryAgeBand;
 type PeriodFilter = "すべて" | "〜半年" | "半年〜1年" | "1年以上";
 
 const STAGE_OPTIONS: StageFilter[] = ["すべて", "成婚", "交際中", "活動中"];
-const AGE_OPTIONS: AgeFilter[] = ["すべて", "20代", "30代前半", "30代後半", "40代"];
+const AGE_OPTIONS: AgeFilter[] = ["すべて", "20代", "30代前半", "30代後半", "40代", "50代", "60代"];
 const PERIOD_OPTIONS: PeriodFilter[] = ["すべて", "〜半年", "半年〜1年", "1年以上"];
 
 function inPeriod(months: number, filter: PeriodFilter): boolean {

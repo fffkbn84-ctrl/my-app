@@ -5,7 +5,7 @@
 
 export type StoryStage = "成婚" | "交際中" | "活動中";
 
-export type StoryAgeBand = "20代" | "30代前半" | "30代後半" | "40代";
+export type StoryAgeBand = "20代" | "30代前半" | "30代後半" | "40代" | "50代" | "60代";
 
 export interface Story {
   id: string;

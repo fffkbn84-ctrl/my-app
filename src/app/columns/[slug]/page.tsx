@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllColumns, getColumnBySlug } from "@/lib/columns";
 import ShareButtons from "./ShareButtons";
+import SympathyButton from "@/components/episodes/SympathyButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Header from "@/components/layout/Header";
@@ -262,6 +263,19 @@ export default async function ColumnDetailPage({ params }: Props) {
               </Link>
             ))}
           </div>
+
+          {/* 共感ボタン（押すまで件数非表示） */}
+          <SympathyButton
+            initialCount={
+              // slug から安定して算出するモック件数（Supabase 連携後は DB から取得に差し替え）
+              12 +
+              column.slug
+                .split("")
+                .reduce((acc, ch) => acc + ch.charCodeAt(0), 0) % 80
+            }
+            label="この記事に共感"
+            hint="共感した数は押したあとに表示されます"
+          />
 
           {/* SNSシェアボタン */}
           <ShareButtons title={column.title} slug={column.slug} />

@@ -339,18 +339,33 @@ export default function ReservationDetailClient({ reservationId }: { reservation
         </p>
       </div>
 
-      {/* 予約サマリ */}
+      {/* 予約サマリ — Kinda talk カラー（パステルイエロー）でハイライト */}
       <section
         style={{
-          background: "white",
-          border: "1px solid var(--border)",
+          background: "linear-gradient(135deg, #FFF8E1 0%, #FEFAF0 100%)",
+          border: "1px solid #F0E4C2",
           borderRadius: 16,
           padding: "20px 22px",
           marginBottom: 16,
           opacity: canceled ? 0.7 : 1,
+          boxShadow: "0 2px 12px rgba(212, 168, 90, .08)",
+          position: "relative",
         }}
       >
-        <p style={{ fontSize: 11, color: "var(--muted)", marginBottom: 4, letterSpacing: ".04em" }}>
+        {/* 上端アクセントライン */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 22,
+            right: 22,
+            height: 2,
+            background: "linear-gradient(90deg, transparent, #D4A85A, transparent)",
+            borderRadius: 2,
+          }}
+        />
+        <p style={{ fontSize: 11, color: "#8B7A4D", marginBottom: 4, letterSpacing: ".04em" }}>
           {row.agency_name ?? "—"}
         </p>
         <p
