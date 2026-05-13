@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { COUNSELORS } from "@/lib/data";
 import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
+import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
@@ -53,5 +54,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...counselorEntries, ...areaEntries, ...typeEntries];
+  const weatherListEntry: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/note/weather`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+  ];
+
+  const weatherEntries: MetadataRoute.Sitemap = getAllWeathers().map((w) => ({
+    url: `${SITE_URL}/note/weather/${w.slug}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [
+    ...staticEntries,
+    ...counselorEntries,
+    ...areaEntries,
+    ...typeEntries,
+    ...weatherListEntry,
+    ...weatherEntries,
+  ];
 }
