@@ -291,10 +291,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "晴れ間",
     description:
       "雲の切れ目から、まっすぐに光が差し込む瞬間。\n世界が少しだけ明るく見える、そのまぶしさの中にあなたはいます。",
-    sub_title: "晴れ間の天気にいるあなたへ",
+    sub_title: "お見合いで「いい人だった」と感じた、その日のあなたへ",
     meta_description:
-      "雲の切れ目から、まっすぐに光が差し込む瞬間のような気持ち。世界が少しだけ明るく見えるまぶしさの中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "お見合いで手応えがあった日の、晴れ間のような気持ち。期待していいのか怖いとき、その明るさを長く持つために。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["angels_ladder", "windy_day", "faint_sunlight"],
+    column_slug: "weather-sun-break-omiai-tegotae",
   },
   angels_ladder: {
     key: "angels_ladder",
@@ -349,10 +350,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "迷い雲",
     description:
       "ゆっくりと形を変えながら流れていく雲。\nどこへ行くかは決まっていない、そのたゆたう空の下にあなたはいます。",
-    sub_title: "迷い雲の天気にいるあなたへ",
+    sub_title: "デートを続けるか迷う、その夜にいるあなたへ",
     meta_description:
-      "ゆっくりと形を変えながら流れていく雲のような気持ち。どこへ行くかは決まっていない、そのたゆたう空の下で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "デートを数回重ねたけれど、続けるべきか分からない。「好き」とも「違う」とも言い切れない迷い雲のような気持ち。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["light_sunrise", "cold_wind", "mist"],
+    column_slug: "weather-wandering-clouds-date-mayoi",
   },
   cold_wind: {
     key: "cold_wind",
