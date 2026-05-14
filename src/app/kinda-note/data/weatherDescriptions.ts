@@ -179,10 +179,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "花曇り",
     description:
       "桜の咲く頃、空がうすく曇る日のこと。\n華やかさと静けさが同居する、その光の下にあなたはいます。",
-    sub_title: "花曇りの天気にいるあなたへ",
+    sub_title: "結婚相談所に入る前、不安と期待が同居するあなたへ",
     meta_description:
-      "桜の咲く頃、空がうすく曇る日のような気持ち。華やかさと静けさが同居する場所にいるあなたへ。Kinda noteの60秒で、いまの天気を確かめる。",
+      "結婚相談所に入る前の、なんとなく重い気持ち。桜の頃の花曇りのように、華やかさと不安が同居する時間。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["morning_mist", "pre_dawn", "faint_sunlight"],
+    column_slug: "weather-flower-overcast-konkatsu-fuan",
   },
 
   // ─── waitingルート（4タイプ） ─────────────────
@@ -195,10 +196,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "降り始め",
     description:
       "ぽつり、と最初のひと粒が落ちる瞬間。\nこれから何が来るのか、まだ誰も知らない時間にあなたはいます。",
-    sub_title: "降り始めの天気にいるあなたへ",
+    sub_title: "入会したばかり、お見合いを待つ時間にいるあなたへ",
     meta_description:
-      "ぽつり、と最初のひと粒が落ちる瞬間。これから何が来るのか、まだ誰も知らない時間。Kinda noteの60秒で、いまの天気を確かめる。",
+      "結婚相談所に入会したけれど、まだお見合いがない。降り始めのような、これから何が来るか分からない時間。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["light_rain", "rain_cloud", "thunderstorm"],
+    column_slug: "weather-light-rain-start-omiai-machi",
   },
   light_rain: {
     key: "light_rain",
@@ -306,10 +308,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "天使の梯子",
     description:
       "雲の隙間から、幾筋もの光が静かに降りる現象。\n確信ではなく予感のような、そのやわらかな光の中にあなたはいます。",
-    sub_title: "天使の梯子の天気にいるあなたへ",
+    sub_title: "お見合いの後、ふと「いいかも」と感じたあなたへ",
     meta_description:
-      "雲の隙間から、幾筋もの光が静かに降りる現象のような気持ち。確信ではなく予感のような、やわらかな光の中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "お見合いの後、確信ではないけれど「いいかもしれない」と感じた時。雲の隙間から降りる天使の梯子のような、やわらかな予感の中で。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["sun_break", "windy_day", "light_sunrise"],
+    column_slug: "weather-angels-ladder-kari-kosai",
   },
   windy_day: {
     key: "windy_day",
@@ -320,10 +323,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "風の日",
     description:
       "草も木も、すべてが同じ方向にゆれる日。\n心の中の何かが小さく動いている、その風の中にあなたはいます。",
-    sub_title: "風の日の天気にいるあなたへ",
+    sub_title: "お見合いの後、心が動いた気がしたあなたへ",
     meta_description:
-      "草も木も、すべてが同じ方向にゆれる日のような気持ち。心の中の何かが小さく動いている、その風の中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "お見合いの後、自分の中で何かが少し動いた気がする日。すべてが同じ方向にゆれる風の日のような、小さな変化の合図。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["sun_break", "angels_ladder", "windy_sunshine"],
+    column_slug: "weather-windy-day-omiai-yokan",
   },
 
   // ─── date1ルート（3タイプ） ───────────────────
@@ -433,10 +437,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "薄日",
     description:
       "雲ごしに、やわらかく届く太陽の光。\n強くはないけれど確かにそこにある、そのおだやかな明るさの中にあなたはいます。",
-    sub_title: "薄日の天気にいるあなたへ",
+    sub_title: "複数の人と会っていて、本命が分からないあなたへ",
     meta_description:
-      "雲ごしに、やわらかく届く太陽の光のような気持ち。強くはないけれど確かにそこにある、おだやかな明るさの中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "複数の人と仮交際していて、誰が本命か分からない。雲ごしの薄日のような、どの光も強くないけれど確かにある気持ち。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["windy_sunshine", "twilight", "sun_break"],
+    column_slug: "weather-faint-sunlight-honmei-mayoi",
   },
   twilight: {
     key: "twilight",
