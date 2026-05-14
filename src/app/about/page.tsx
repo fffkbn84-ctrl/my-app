@@ -9,8 +9,30 @@ export const metadata = {
 };
 
 export default function AboutPage() {
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Kinda ふたりへ",
+    alternateName: ["Kinda", "カインダ ふたりへ"],
+    url: "https://www.kinda-futari.app",
+    description:
+      "担当者を自分の目で選んで納得してから始められる婚活サービス。面談した人だけが書ける口コミと、カウンセラーへの直接予約を提供しています。",
+    founder: {
+      "@type": "Person",
+      name: "ふうか",
+      jobTitle: "代表",
+      description:
+        "結婚相談所で5年間勤務しトップレベルの成婚率を維持したのち独立。FP2級技能士・証券外務員一種・宅地建物取引士の資格を持ち、婚活とお金の両面から伴走する。Kinda ふたりへ の創業者。",
+      knowsAbout: ["結婚相談所", "婚活", "ファイナンシャルプランニング"],
+    },
+  };
+
   return (
     <div className="about-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+      />
       {/* Kinda 村のクレイ風背景（ぼかし固定） */}
       <div className="about-village-bg" aria-hidden="true" />
       <main>
@@ -841,6 +863,76 @@ export default function AboutPage() {
             運営チームより
           </h2>
 
+          {/* 代表（ふうか）— 経歴つきフィーチャーカード */}
+          <div
+            style={{
+              background: "rgba(255,253,247,.6)",
+              border: "1px solid rgba(180,140,90,.14)",
+              borderRadius: 20,
+              padding: "32px 28px",
+              marginBottom: 40,
+              textAlign: "left",
+              boxShadow: "0 4px 18px rgba(180,140,90,.08), inset 0 1px 0 rgba(255,255,255,.5)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 18, marginBottom: 20 }}>
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  flexShrink: 0,
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #EDE0D4, #D4C4B0)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 4px 14px rgba(180,140,110,.14), inset 0 1px 0 rgba(255,255,255,.5)",
+                }}
+                aria-hidden="true"
+              >
+                <span
+                  style={{
+                    fontFamily: "'DM Serif Display', serif",
+                    fontStyle: "italic",
+                    fontSize: 30,
+                    color: "rgba(255,255,255,.92)",
+                    textShadow: "0 1px 2px rgba(0,0,0,.06)",
+                  }}
+                >
+                  F
+                </span>
+              </div>
+              <div>
+                <p style={{ fontFamily: "'Shippori Mincho', serif", fontWeight: 500, fontSize: 20, color: "var(--black)", marginBottom: 4 }}>
+                  ふうか
+                </p>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 10, letterSpacing: ".15em", color: "var(--muted)", textTransform: "uppercase" }}>
+                  代表 / Founder
+                </p>
+              </div>
+            </div>
+
+            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
+              新卒で大手自動車メーカーの接客・提案の仕事を経験したのち、結婚相談所に5年間勤務。
+              在籍中はトップレベルの成婚率を維持してきました。婚活の現場ではお金にまつわる相談も多く、
+              よりお客様の側に立って伴走するために、FP2級技能士・証券外務員一種・宅地建物取引士の資格を取得。
+              その後、独立して Kinda ふたりへ を立ち上げました。
+            </p>
+            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
+              相談所に勤めるなかで、改善したいことを伝えても、企業の中ではなかなかスピードが出せないもどかしさがありました。
+              そのうちに気づいたのは、相談所とユーザーのあいだにある「気持ち」のこと。
+              人の心は0か100ではなく、たいてい複雑な感情と一緒にあります。
+              悩んだり、嬉しかったりしながら、ゆるく進んでいける場所がほしい。
+              そして、カウンセラーとの相性で婚活の進み方は驚くほど変わる——だからこそ、
+              不透明になりがちなカウンセラーを「見える」ようにしたかった。
+              自分の気持ちも見えて、カウンセラーのことも見える。見えることで、ようやく自分と向き合いながら進んでいける。
+              そう思って Kinda をつくりました。
+            </p>
+            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--muted)", lineHeight: 1.9, margin: 0 }}>
+              趣味はサーキット場に通うこと。いつか自分でも走れるようになるのが目標です。
+            </p>
+          </div>
+
           <div
             style={{
               display: "grid",
@@ -851,24 +943,17 @@ export default function AboutPage() {
           >
             {[
               {
-                name: "ふうか",
-                initial: "F",
-                role: "代表",
-                quote: "ここでの出会いが一生ものになる、そんな瞬間を作っていきます",
-                gradient: "linear-gradient(135deg, #EDE0D4, #D4C4B0)",
-              },
-              {
                 name: "るな",
                 initial: "R",
                 role: "設計 / デザイン",
-                quote: "使うたびに、少し前に進める場所にしたい",
+                quote: "楽天的だけど、繊細な寄り添いができる唯一無二の存在。",
                 gradient: "linear-gradient(135deg, #D8E4D8, #C0D4C2)",
               },
               {
                 name: "つよし",
                 initial: "T",
                 role: "共同代表 / 全国取材",
-                quote: "みなさんのために駆け抜けます！",
+                quote: "予約の取れない金融の専門家。お金のことなら、この人に聞けばたいてい分かる。",
                 gradient: "linear-gradient(135deg, #D4DDE8, #C0CCDA)",
               },
               {
@@ -934,6 +1019,28 @@ export default function AboutPage() {
               </div>
             ))}
           </div>
+
+          {/* 編集ポリシー・運営の透明性への導線 */}
+          <p
+            style={{
+              fontFamily: "'Noto Sans JP', sans-serif",
+              fontSize: 12,
+              color: "var(--mid)",
+              lineHeight: 1.9,
+              textAlign: "center",
+              marginTop: 40,
+            }}
+          >
+            わたしたちの取材・執筆の方針は{" "}
+            <Link href="/about/editorial-policy" style={{ color: "var(--accent-deep, #A88858)", textDecoration: "underline" }}>
+              編集ポリシー
+            </Link>
+            、運営の収益や並び順の考え方は{" "}
+            <Link href="/about/transparency" style={{ color: "var(--accent-deep, #A88858)", textDecoration: "underline" }}>
+              運営の透明性
+            </Link>{" "}
+            にまとめています。
+          </p>
         </div>
       </section>
 
