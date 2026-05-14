@@ -353,7 +353,7 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     route: "date1",
     type_name: "冷たい風",
     description:
-      "通り過ぎた風が、ふと冷たかった日。\nあたたかさがそこにあったことを教える、そのつめたさの中にあなたはいます。",
+      "頬にあたると、ふと我に返るような風。\n熱だけでは進めないことを教える、そのつめたさの中にあなたはいます。",
     sub_title: "デートの後、ひとりで冷たさを抱えるあなたへ",
     meta_description:
       "デートやお見合いの後、なぜか冷たい風が吹いた気がする時。その違和感を言葉にすると、いま起きていることが見えはじめる。Kinda noteの60秒で、今日の天気を確かめる。",
