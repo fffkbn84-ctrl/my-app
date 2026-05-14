@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { ColumnMeta } from "@/lib/columns";
 
-const CATEGORIES = ["すべて", "取材レポート", "お見合い準備", "デートプラン"];
+const CATEGORIES = ["すべて", "気持ちの整理", "取材レポート", "お見合い準備", "デートプラン"];
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);

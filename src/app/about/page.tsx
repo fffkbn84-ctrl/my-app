@@ -3,9 +3,33 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
 export const metadata = {
-  title: "このサービスについて",
+  title: "Kinda ふたりへとは｜担当を選んで予約できる婚活サービス",
   description:
-    "Kinda ふたりへは、担当者を自分の目で選んで納得してから始められる婚活サービスです。面談した人だけが書けるレビューと、カウンセラーへの直接予約を提供しています。",
+    "Kinda ふたりへは、担当カウンセラーを自分の目で選んで納得してから始められる婚活サービスです。面談した人だけが書ける口コミ、カウンセラーへの直接予約、気持ちを整理する Kinda note を提供しています。運営チーム・編集ポリシー・収益のしくみも公開しています。",
+  keywords: [
+    "Kinda ふたりへ",
+    "Kinda ふたりへ とは",
+    "結婚相談所 サービス",
+    "婚活 カウンセラー 口コミ",
+    "結婚相談所 比較",
+    "婚活 サービス 運営",
+  ],
+  alternates: { canonical: "/about" },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: "Kinda ふたりへとは｜担当を選んで予約できる婚活サービス",
+    description:
+      "担当カウンセラーを自分の目で選んで、納得してから始める。面談した人だけが書ける口コミと、気持ちを整理する Kinda note。運営の透明性も公開しています。",
+    type: "website",
+    locale: "ja_JP",
+    siteName: "Kinda ふたりへ",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kinda ふたりへとは｜担当を選んで予約できる婚活サービス",
+    description:
+      "担当を自分の目で選んで、納得してから始める婚活サービス。運営チーム・編集ポリシー・収益のしくみも公開。",
+  },
 };
 
 export default function AboutPage() {
