@@ -164,10 +164,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "夜明け前",
     description:
       "一日でいちばん深い闇のあと、\n空がしずかに色を持ちはじめる時間。その境目にあなたはいます。",
-    sub_title: "夜明け前の天気にいるあなたへ",
+    sub_title: "決めたのに動けない、その境目にいるあなたへ",
     meta_description:
-      "一日でいちばん深い闇のあと、空がしずかに色を持ちはじめる時間。その境目に立つ気持ちを、急いで照らさなくていい。Kinda noteの60秒で、いまの天気を確かめる。",
+      "結婚相談所に入ると決めたのに、申し込みボタンが押せない。それは迷いではなく、恐れに名前がついていないだけ。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["morning_mist", "flower_overcast", "light_sunrise"],
+    column_slug: "weather-pre-dawn-konkatsu-ketsudan",
   },
   flower_overcast: {
     key: "flower_overcast",
@@ -273,10 +274,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "雷雨",
     description:
       "空が音を立てて、自分の中のものを放つ夜。\n通り過ぎたあとに澄んだ空気が残る、その嵐の中にあなたはいます。",
-    sub_title: "雷雨の天気にいるあなたへ",
+    sub_title: "婚活で限界がきた、その夜にいるあなたへ",
     meta_description:
-      "空が音を立てて、自分の中のものを放つ夜のような気持ち。通り過ぎたあとに澄んだ空気が残る嵐の中にいるあなたへ。Kinda noteの60秒で、いまの天気を確かめる。",
+      "婚活で限界を感じた夜。お見合いが組まれない、断られ続けた。雷雨のような気持ちは我慢しなくていい。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["rain_cloud", "light_rain", "light_rain_start"],
+    column_slug: "weather-thunderstorm-konkatsu-genkai",
   },
 
   // ─── omiaiルート（3タイプ） ───────────────────
