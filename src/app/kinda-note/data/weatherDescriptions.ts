@@ -423,10 +423,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "風の強い晴れ",
     description:
       "日差しは明るいのに、風が止まらない日。\n光と揺らぎが同時にある、そのまぶしくも忙しない空にあなたはいます。",
-    sub_title: "風の強い晴れの天気にいるあなたへ",
+    sub_title: "複数交際で疲れてきた、その夜にいるあなたへ",
     meta_description:
-      "日差しは明るいのに、風が止まらない日のような気持ち。光と揺らぎが同時にある、まぶしくも忙しない空の中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "複数の人と並行して会っていて、明るいはずなのに疲れている。風の強い晴れのような、光と揺らぎが同時にある時間。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["faint_sunlight", "twilight", "windy_day"],
+    column_slug: "weather-windy-sunshine-fukusu-kosai",
   },
   faint_sunlight: {
     key: "faint_sunlight",
@@ -452,10 +453,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "夕暮れ",
     description:
       "空が一日でいちばんゆたかな色を見せる時間。\n明るさと暗さが混ざりあう、その揺らぎの中にあなたはいます。",
-    sub_title: "夕暮れの天気にいるあなたへ",
+    sub_title: "複数交際で誰かを断る前の、その夜にいるあなたへ",
     meta_description:
-      "空が一日でいちばんゆたかな色を見せる時間のような気持ち。明るさと暗さが混ざりあう、その揺らぎの中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "複数の人と仮交際していて、誰かを断らないといけない時。明るさと暗さが混ざる夕暮れのような、選ぶことの重さと罪悪感の中で。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["windy_sunshine", "faint_sunlight", "sunrise"],
+    column_slug: "weather-twilight-fukusu-zaiakukan",
   },
 
   // ─── kousaiルート（4タイプ） ─────────────────
