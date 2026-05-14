@@ -211,10 +211,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "小雨",
     description:
       "傘をさすほどでもない、やさしい雨の日。\n音もなく地面を濡らしていく、そのしずかさの中にあなたはいます。",
-    sub_title: "小雨の天気にいるあなたへ",
+    sub_title: "婚活がマンネリ化してきた、その時にいるあなたへ",
     meta_description:
-      "傘をさすほどでもない、やさしい雨の日のような気持ち。音もなく地面を濡らしていくしずかさの中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "お見合いが組まれない日が続いて、活動が止まったように感じる。傘をさすほどでもない小雨のような、しずかに続く婚活のマンネリ。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["light_rain_start", "rain_cloud", "quiet_overcast"],
+    column_slug: "weather-light-rain-konkatsu-mannneri",
   },
   rain_cloud: {
     key: "rain_cloud",
