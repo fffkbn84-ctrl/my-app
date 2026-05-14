@@ -12,7 +12,6 @@ import { getColumnBySlug } from "@/lib/columns";
 
 import WeatherHero from "../_components/WeatherHero";
 import RelatedWeathers from "../_components/RelatedWeathers";
-import RelatedColumns from "../_components/RelatedColumns";
 import WeatherCTA from "../_components/WeatherCTA";
 import { W, MAX_W } from "../_components/styles";
 
@@ -214,7 +213,6 @@ export default async function WeatherDetailPage({ params }: Props) {
         )}
 
         <RelatedWeathers keys={weather.related_weather_keys} />
-        <RelatedColumns slugs={weather.related_columns} />
 
         <WeatherCTA />
       </main>

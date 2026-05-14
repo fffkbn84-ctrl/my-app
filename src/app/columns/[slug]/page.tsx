@@ -3,6 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getAllColumns, getColumnBySlug } from "@/lib/columns";
+import {
+  WEATHER_DESCRIPTIONS,
+  type WeatherKey,
+} from "@/app/kinda-note/data/weatherDescriptions";
 import ShareButtons from "./ShareButtons";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -72,11 +76,29 @@ export default async function ColumnDetailPage({ params }: Props) {
     notFound();
   }
 
-  // 関連記事（同カテゴリの他記事を2件）
   const allColumns = await getAllColumns();
-  const related = allColumns
-    .filter((c) => c.category === column.category && c.slug !== column.slug)
-    .slice(0, 2);
+
+  // 関連記事：
+  // - 天気コラム（weatherKey あり）→ related_weather_keys に対応するコラムを優先
+  //   （天気タイプの「近い気持ち」同士をクラスター相互リンクする）
+  // - それ以外 → 同カテゴリの他記事
+  let related: typeof allColumns = [];
+  if (column.weatherKey && column.weatherKey in WEATHER_DESCRIPTIONS) {
+    const wd = WEATHER_DESCRIPTIONS[column.weatherKey as WeatherKey];
+    const relatedColumnSlugs = wd.related_weather_keys
+      .map((k) => WEATHER_DESCRIPTIONS[k].column_slug)
+      .filter((s): s is string => !!s);
+    related = relatedColumnSlugs
+      .map((s) => allColumns.find((c) => c.slug === s))
+      .filter((c): c is (typeof allColumns)[number] => !!c && c.slug !== column.slug)
+      .slice(0, 3);
+  }
+  // フォールバック：同カテゴリの他記事を2件
+  if (related.length === 0) {
+    related = allColumns
+      .filter((c) => c.category === column.category && c.slug !== column.slug)
+      .slice(0, 2);
+  }
 
   const canonical = `${SITE_URL}/columns/${column.slug}`;
 
@@ -587,6 +609,38 @@ export default async function ColumnDetailPage({ params }: Props) {
                 ))}
               </div>
             </section>
+          )}
+
+          {/* 天気コラムからハブ（20の天気タイプ一覧）への逆リンク */}
+          {column.weatherKey && (
+            <div style={{ marginTop: "40px", textAlign: "center" }}>
+              <Link
+                href="/note/weather"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontFamily: "var(--font-sans)",
+                  fontSize: "13px",
+                  color: "#8B7355",
+                  textDecoration: "none",
+                  border: "1px solid #D8C9B0",
+                  borderRadius: "999px",
+                  padding: "10px 22px",
+                }}
+              >
+                20の天気タイプを見る
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+                  <path
+                    d="M2 7h10M7 2l5 5-5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
+            </div>
           )}
         </article>
       </div>

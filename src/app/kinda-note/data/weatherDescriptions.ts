@@ -91,8 +91,6 @@ export type WeatherDescription = {
 
   /** ⑧近い気持ち（2-3個） */
   related_weather_keys: WeatherKey[];
-  /** ⑨関連コラム slug（0-2個・SEO 用補助リンク） */
-  related_columns?: string[];
 
   /**
    * この天気と 1:1 で対応する濃いコラム記事の slug。
