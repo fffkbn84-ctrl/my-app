@@ -336,10 +336,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "淡い朝焼け",
     description:
       "夜が明けるとき、空がそっと桃色をまとう時間。\nまだ太陽は昇りきらない、そのほのかな色の中にあなたはいます。",
-    sub_title: "淡い朝焼けの天気にいるあなたへ",
+    sub_title: "デートが楽しかった、その夜にいるあなたへ",
     meta_description:
-      "夜が明けるとき、空がそっと桃色をまとう時間のような気持ち。まだ太陽は昇りきらない、ほのかな色の中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "デートが楽しかった夜の、淡い朝焼けのようなほのかな気持ち。期待していいのか分からないとき、その色をそっと持っていていい。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["wandering_clouds", "cold_wind", "sunrise"],
+    column_slug: "weather-light-sunrise-date-yokan",
   },
   wandering_clouds: {
     key: "wandering_clouds",
@@ -462,10 +463,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "朝焼け",
     description:
       "夜が完全にあけて、空が燃えるように色づく瞬間。\n一日のはじまりを告げる、そのあざやかな光の中にあなたはいます。",
-    sub_title: "朝焼けの天気にいるあなたへ",
+    sub_title: "「この人と」と思った、その夜にいるあなたへ",
     meta_description:
-      "夜が完全にあけて、空が燃えるように色づく瞬間のような気持ち。一日のはじまりを告げるあざやかな光の中で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "真剣交際で「この人と決めていいかもしれない」と感じた夜。前向きな気持ちと決めることへの怖さが同居する朝焼けの中で。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["quiet_overcast", "dissonance_wind", "light_sunrise"],
+    column_slug: "weather-sunrise-shinken-zenmuki",
   },
   dissonance_wind: {
     key: "dissonance_wind",
@@ -527,10 +529,11 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
     type_name: "静かな曇り",
     description:
       "強い光も雨もない、ただ静かに灰色の空が続く日。\n何かが足りないわけではない、そのおだやかな曇り空の下にあなたはいます。",
-    sub_title: "静かな曇りの天気にいるあなたへ",
+    sub_title: "「これでいいのか」と立ち止まる、その夜にいるあなたへ",
     meta_description:
-      "強い光も雨もない、ただ静かに灰色の空が続く日のような気持ち。何かが足りないわけではない、おだやかな曇り空の下で。Kinda noteの60秒で、いまの天気を確かめる。",
+      "真剣交際で、特に問題はないのに「これでいいのか」とふと立ち止まる夜。静かな曇り空のような気持ちは、何かが足りないわけではない。Kinda noteの60秒で、いまの天気を確かめる。",
     related_weather_keys: ["mist", "dissonance_wind", "sunrise"],
+    column_slug: "weather-quiet-overcast-shinken-fuan",
   },
   mist: {
     key: "mist",
