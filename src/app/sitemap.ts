@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { COUNSELORS } from "@/lib/data";
 import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
+import { getAllColumns } from "@/lib/columns";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
@@ -9,7 +10,7 @@ const SITE_URL =
 
 const AREA_SLUGS = ["tokyo", "osaka", "nagoya", "fukuoka", "online"];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -63,11 +64,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const weatherEntries: MetadataRoute.Sitemap = getAllWeathers().map((w) => ({
-    url: `${SITE_URL}/note/weather/${w.slug}`,
-    lastModified: now,
+  // 紐づくコラムがある天気のみ sitemap に含める（薄いページは除外）
+  const weatherEntries: MetadataRoute.Sitemap = getAllWeathers()
+    .filter((w) => !!w.column_slug)
+    .map((w) => ({
+      url: `${SITE_URL}/note/weather/${w.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    }));
+
+  // コラム本体（MDX 全件、publishedAt を lastmod に使用）
+  const columns = await getAllColumns();
+  const columnEntries: MetadataRoute.Sitemap = columns.map((c) => ({
+    url: `${SITE_URL}/columns/${c.slug}`,
+    lastModified: c.updatedAt
+      ? new Date(c.updatedAt)
+      : c.publishedAt
+        ? new Date(c.publishedAt)
+        : now,
     changeFrequency: "monthly" as const,
-    priority: 0.7,
+    priority: 0.8,
   }));
 
   return [
@@ -77,5 +94,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...typeEntries,
     ...weatherListEntry,
     ...weatherEntries,
+    ...columnEntries,
   ];
 }

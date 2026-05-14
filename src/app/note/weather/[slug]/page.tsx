@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -7,16 +8,13 @@ import {
   findWeatherBySlug,
   getAllWeatherSlugs,
 } from "@/app/kinda-note/data/weatherDescriptions";
+import { getColumnBySlug } from "@/lib/columns";
 
 import WeatherHero from "../_components/WeatherHero";
-import WeatherEssence from "../_components/WeatherEssence";
-import WeatherScenes from "../_components/WeatherScenes";
-import WeatherScience from "../_components/WeatherScience";
-import WeatherActions from "../_components/WeatherActions";
 import RelatedWeathers from "../_components/RelatedWeathers";
 import RelatedColumns from "../_components/RelatedColumns";
 import WeatherCTA from "../_components/WeatherCTA";
-import { W } from "../_components/styles";
+import { W, MAX_W } from "../_components/styles";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
@@ -36,18 +34,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Kinda ${weather.name_ja} ｜ ${weather.sub_title} - Kinda note`;
   const url = `${SITE_URL}/note/weather/${weather.slug}`;
-  const ogImage = `${SITE_URL}/og/weather/${weather.slug}.png`;
+
+  // 紐づくコラムが無いページ（15件）は noindex で除外。
+  // ドメイン全体の E-E-A-T を毀損しないため。
+  const noindex = !weather.column_slug;
 
   return {
     title,
     description: weather.meta_description,
     alternates: { canonical: url },
+    robots: noindex ? { index: false, follow: true } : undefined,
     openGraph: {
       title,
       description: weather.meta_description,
       url,
       type: "article",
-      images: [{ url: ogImage, width: 1200, height: 630 }],
       siteName: "Kinda",
       locale: "ja_JP",
     },
@@ -55,7 +56,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description: weather.meta_description,
-      images: [ogImage],
     },
   };
 }
@@ -66,34 +66,16 @@ export default async function WeatherDetailPage({ params }: Props) {
   if (!weather) notFound();
 
   const pageUrl = `${SITE_URL}/note/weather/${weather.slug}`;
-  const ogImage = `${SITE_URL}/og/weather/${weather.slug}.png`;
 
-  const articleLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: `Kinda ${weather.name_ja} ｜ ${weather.sub_title}`,
-    description: weather.meta_description,
-    image: ogImage,
-    author: {
-      "@type": "Organization",
-      name: "Kinda",
-      url: SITE_URL,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Kinda",
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/logo.png`,
-      },
-    },
-    datePublished: "2026-05-13",
-    dateModified: "2026-05-13",
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": pageUrl,
-    },
-  };
+  // 紐づくコラム（あれば取得）
+  let linkedColumn = null;
+  if (weather.column_slug) {
+    try {
+      linkedColumn = await getColumnBySlug(weather.column_slug);
+    } catch {
+      linkedColumn = null;
+    }
+  }
 
   const breadcrumbLd = {
     "@context": "https://schema.org",
@@ -111,15 +93,8 @@ export default async function WeatherDetailPage({ params }: Props) {
     ],
   };
 
-  const hasFullBody =
-    !!weather.body_essence && !!weather.body_scenes && !!weather.body_science && !!weather.body_actions;
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
@@ -139,17 +114,87 @@ export default async function WeatherDetailPage({ params }: Props) {
 
         <WeatherHero weather={weather} />
 
-        {weather.body_essence && <WeatherEssence body={weather.body_essence} />}
-        {weather.body_scenes && weather.body_scenes.length > 0 && (
-          <WeatherScenes scenes={weather.body_scenes} />
-        )}
-        {weather.body_science && <WeatherScience body={weather.body_science} />}
-        {weather.body_actions && weather.body_actions.length > 0 && (
-          <WeatherActions actions={weather.body_actions} />
-        )}
-
-        {!hasFullBody && (
-          <section style={{ padding: "24px 16px", background: W.bg }}>
+        {/* コラムがある天気：濃いコラムへ誘導カードを表示 */}
+        {linkedColumn ? (
+          <section style={{ padding: "16px 16px 32px", background: W.bg }}>
+            <Link
+              href={`/columns/${linkedColumn.slug}`}
+              style={{
+                display: "block",
+                maxWidth: MAX_W,
+                margin: "0 auto",
+                background: "linear-gradient(135deg,#FFFFFF 0%,#FAF3EC 100%)",
+                border: `1px solid ${W.borderSoft}`,
+                borderRadius: 16,
+                padding: "24px 22px",
+                textDecoration: "none",
+                color: "inherit",
+                boxShadow: "0 4px 24px rgba(180,140,110,0.10)",
+                transition: "transform .2s, box-shadow .2s",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  color: W.accentDeep,
+                  textTransform: "uppercase",
+                  margin: "0 0 8px",
+                }}
+              >
+                READ THE FULL ARTICLE
+              </p>
+              <h2
+                style={{
+                  fontFamily: "'Shippori Mincho', serif",
+                  fontSize: "clamp(17px, 2.6vw, 20px)",
+                  fontWeight: 500,
+                  color: W.ink,
+                  margin: "0 0 10px",
+                  lineHeight: 1.6,
+                }}
+              >
+                {linkedColumn.title}
+              </h2>
+              <p
+                style={{
+                  fontFamily: "'Noto Sans JP', sans-serif",
+                  fontSize: 13.5,
+                  lineHeight: 1.9,
+                  color: W.inkSub,
+                  margin: "0 0 14px",
+                }}
+              >
+                {linkedColumn.description}
+              </p>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontFamily: "'Noto Sans JP', sans-serif",
+                  fontSize: 13,
+                  color: W.accentDeep,
+                  fontWeight: 500,
+                }}
+              >
+                コラムで深く読む
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
+                  <path
+                    d="M2 7h10M7 2l5 5-5 5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </Link>
+          </section>
+        ) : (
+          // コラム未連携 (= noindex 対象) のページには簡潔な近日公開メッセージ
+          <section style={{ padding: "16px 16px 24px", background: W.bg }}>
             <p
               style={{
                 maxWidth: 520,
@@ -163,7 +208,7 @@ export default async function WeatherDetailPage({ params }: Props) {
             >
               この天気の詳しい解説は、近日公開予定です。
               <br />
-              いまの気持ちを整理したい方は、下のKinda noteからどうぞ。
+              いまの気持ちを整理したい方は、下の Kinda note からどうぞ。
             </p>
           </section>
         )}

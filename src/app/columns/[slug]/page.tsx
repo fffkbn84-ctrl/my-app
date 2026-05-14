@@ -10,6 +10,9 @@ import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+
 type Props = {
   params: Promise<{ slug: string }>;
 };
@@ -28,16 +31,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {};
   }
 
+  const canonical = `${SITE_URL}/columns/${column.slug}`;
+
   return {
-    title: `${column.title} | Kinda ふたりへコラム`,
+    title: `${column.title} | Kinda ふたりへ`,
     description: column.description,
+    alternates: { canonical },
     openGraph: {
       title: column.title,
       description: column.description,
       type: "article",
+      url: canonical,
       publishedTime: column.publishedAt,
+      modifiedTime: column.updatedAt ?? column.publishedAt,
       authors: [column.author],
       tags: column.tags,
+      siteName: "Kinda ふたりへ",
+      locale: "ja_JP",
     },
     twitter: {
       card: "summary_large_image",
@@ -68,30 +78,62 @@ export default async function ColumnDetailPage({ params }: Props) {
     .filter((c) => c.category === column.category && c.slug !== column.slug)
     .slice(0, 2);
 
-  const jsonLd = {
+  const canonical = `${SITE_URL}/columns/${column.slug}`;
+
+  const articleLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: column.title,
     description: column.description,
+    image: `${canonical}/opengraph-image`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
     author: {
       "@type": "Person",
       name: column.author,
+      url: `${SITE_URL}/about`,
     },
     publisher: {
       "@type": "Organization",
       name: "Kinda ふたりへ",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/images/toppage_name.PNG`,
+      },
     },
     datePublished: column.publishedAt,
+    dateModified: column.updatedAt ?? column.publishedAt,
     keywords: column.tags.join(","),
+    inLanguage: "ja",
   };
+
+  const faqLd =
+    column.faq && column.faq.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: column.faq.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }
+      : null;
 
   return (
     <>
-      {/* 構造化データ */}
+      {/* 構造化データ：Article（Person+Organization 完備） */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
       />
+      {/* 構造化データ：FAQPage（AI 引用最適化） */}
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
 
       <Header />
       <div className="kv-page" style={{ background: "#FCF8F2", minHeight: "100vh" }}>
@@ -224,6 +266,17 @@ export default async function ColumnDetailPage({ params }: Props) {
               <span style={{ fontSize: "12px", color: "var(--mid)", fontFamily: "DM Sans, sans-serif" }}>
                 {formatDate(column.publishedAt)}
               </span>
+              {column.updatedAt && column.updatedAt !== column.publishedAt && (
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--mid)",
+                    fontFamily: "DM Sans, sans-serif",
+                  }}
+                >
+                  更新: {formatDate(column.updatedAt)}
+                </span>
+              )}
               <span style={{ fontSize: "12px", color: "var(--mid)", fontFamily: "DM Sans, sans-serif" }}>
                 {column.readTime} min read
               </span>
@@ -231,12 +284,143 @@ export default async function ColumnDetailPage({ params }: Props) {
           </header>
 
           {/* 区切り線 */}
-          <div style={{ borderBottom: "1px solid var(--pale)", marginBottom: "40px" }} />
+          <div style={{ borderBottom: "1px solid var(--pale)", marginBottom: "32px" }} />
+
+          {/* Atomic Answer ブロック（40-60字の結論を冒頭に置く / AI 引用最適化） */}
+          {column.atomicAnswer && (
+            <aside
+              aria-label="この記事の結論"
+              style={{
+                background: "linear-gradient(135deg, #FBF7F1 0%, #F4ECE0 100%)",
+                border: "1px solid #E5DCC8",
+                borderLeft: "3px solid #B89A4A",
+                borderRadius: 12,
+                padding: "20px 22px",
+                marginBottom: 36,
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  color: "#8B7355",
+                  margin: "0 0 8px",
+                  textTransform: "uppercase",
+                  fontWeight: 500,
+                }}
+              >
+                Answer / 結論
+              </p>
+              <p
+                style={{
+                  fontFamily: "'Noto Sans JP', sans-serif",
+                  fontSize: 15,
+                  lineHeight: 1.95,
+                  color: "var(--ink)",
+                  margin: 0,
+                  fontWeight: 400,
+                }}
+              >
+                {column.atomicAnswer}
+              </p>
+            </aside>
+          )}
 
           {/* MDXコンテンツ */}
           <div className="mdx-content">
             <MDXRemote source={column.content} />
           </div>
+
+          {/* FAQ セクション（FAQPage schema と対応） */}
+          {column.faq && column.faq.length > 0 && (
+            <section
+              style={{
+                marginTop: 48,
+                paddingTop: 32,
+                borderTop: "1px solid var(--pale)",
+              }}
+              aria-label="よくある質問"
+            >
+              <p
+                style={{
+                  fontFamily: "DM Serif Display, serif",
+                  fontSize: 11,
+                  letterSpacing: "0.18em",
+                  color: "#8B7355",
+                  marginBottom: 12,
+                  textTransform: "lowercase",
+                }}
+              >
+                frequently asked
+              </p>
+              <h2
+                style={{
+                  fontFamily: "'Shippori Mincho', serif",
+                  fontSize: "clamp(18px, 2.5vw, 22px)",
+                  fontWeight: 500,
+                  color: "var(--black)",
+                  margin: "0 0 24px",
+                }}
+              >
+                よくある質問
+              </h2>
+              <div style={{ display: "grid", gap: 14 }}>
+                {column.faq.map((f, i) => (
+                  <details
+                    key={i}
+                    style={{
+                      background: "var(--white)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 12,
+                      padding: "16px 18px",
+                    }}
+                  >
+                    <summary
+                      style={{
+                        fontFamily: "'Noto Sans JP', sans-serif",
+                        fontSize: 14,
+                        fontWeight: 500,
+                        color: "var(--black)",
+                        cursor: "pointer",
+                        listStyle: "none",
+                        display: "flex",
+                        alignItems: "start",
+                        gap: 10,
+                      }}
+                    >
+                      <span
+                        aria-hidden
+                        style={{
+                          fontFamily: "DM Serif Display, serif",
+                          color: "#8B7355",
+                          fontSize: 16,
+                          flexShrink: 0,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        Q.
+                      </span>
+                      <span>{f.q}</span>
+                    </summary>
+                    <p
+                      style={{
+                        fontFamily: "'Noto Sans JP', sans-serif",
+                        fontSize: 13.5,
+                        lineHeight: 2,
+                        color: "var(--mid)",
+                        margin: "12px 0 0",
+                        paddingLeft: 24,
+                        fontWeight: 300,
+                      }}
+                    >
+                      {f.a}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* 区切り線 */}
           <div style={{ borderBottom: "1px solid var(--pale)", margin: "48px 0 32px" }} />

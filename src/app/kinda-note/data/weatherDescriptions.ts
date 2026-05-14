@@ -91,8 +91,15 @@ export type WeatherDescription = {
 
   /** ⑧近い気持ち（2-3個） */
   related_weather_keys: WeatherKey[];
-  /** ⑨関連コラム slug（0-2個） */
+  /** ⑨関連コラム slug（0-2個・SEO 用補助リンク） */
   related_columns?: string[];
+
+  /**
+   * この天気と 1:1 で対応する濃いコラム記事の slug。
+   * 設定されている天気は /note/weather/[slug] の本文セクションを置かず、
+   * コラム（/columns/{column_slug}）へ誘導する（カニバリ回避）。
+   */
+  column_slug?: string;
 };
 
 export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
@@ -146,7 +153,7 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
       },
     ],
     related_weather_keys: ["pre_dawn", "flower_overcast", "wandering_clouds"],
-    related_columns: ["konkatsu-tsukareta"],
+    column_slug: "weather-morning-mist-konkatsu-start",
   },
   pre_dawn: {
     key: "pre_dawn",
@@ -255,7 +262,7 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
       },
     ],
     related_weather_keys: ["thunderstorm", "light_rain", "mist"],
-    related_columns: ["konkatsu-tsukareta"],
+    column_slug: "weather-rain-cloud-konkatsu-tsukareta",
   },
   thunderstorm: {
     key: "thunderstorm",
@@ -394,7 +401,7 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
       },
     ],
     related_weather_keys: ["wandering_clouds", "dissonance_wind", "light_sunrise"],
-    related_columns: ["date-fuan"],
+    column_slug: "weather-cold-wind-date-fuan",
   },
 
   // ─── multipleルート（3タイプ） ────────────────
@@ -505,7 +512,7 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
       },
     ],
     related_weather_keys: ["mist", "rain_cloud", "quiet_overcast"],
-    related_columns: ["kimochi-seiri"],
+    column_slug: "weather-dissonance-wind-iwakan",
   },
   quiet_overcast: {
     key: "quiet_overcast",
@@ -570,7 +577,7 @@ export const WEATHER_DESCRIPTIONS: Record<WeatherKey, WeatherDescription> = {
       },
     ],
     related_weather_keys: ["dissonance_wind", "quiet_overcast", "rain_cloud"],
-    related_columns: ["konkatsu-tsukareta", "kimochi-seiri"],
+    column_slug: "weather-mist-shinken-mayoi",
   },
 };
 
