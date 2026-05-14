@@ -528,6 +528,15 @@ export default async function ColumnDetailPage({ params }: Props) {
               <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>
                 Kinda ふたりへ編集部
               </p>
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", marginTop: "8px" }}>
+                <Link href="/about/editorial-policy" style={{ color: "#8B7355", textDecoration: "underline" }}>
+                  編集ポリシー
+                </Link>
+                <span style={{ color: "var(--muted)", margin: "0 6px" }}>·</span>
+                <Link href="/about/transparency" style={{ color: "#8B7355", textDecoration: "underline" }}>
+                  運営の透明性
+                </Link>
+              </p>
             </div>
           </div>
 
