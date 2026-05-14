@@ -39,6 +39,8 @@ export type ColumnMeta = {
   faq?: ColumnFAQ[];
   /** 紐づく天気タイプ（/note/weather/[slug] と双方向リンク） */
   weatherKey?: string;
+  /** 引用した公的データの ID 配列（src/lib/publicData.ts の PUBLIC_DATA キー） */
+  sources?: string[];
 };
 
 export type Column = ColumnMeta & {
@@ -65,6 +67,7 @@ function readFrontmatter(filepath: string, slug: string): ColumnMeta & { content
     atomicAnswer: data.atomicAnswer ?? undefined,
     faq: Array.isArray(data.faq) ? data.faq : undefined,
     weatherKey: data.weatherKey ?? undefined,
+    sources: Array.isArray(data.sources) ? data.sources : undefined,
     content,
   };
 }

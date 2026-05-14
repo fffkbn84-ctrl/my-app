@@ -11,6 +11,8 @@ import ShareButtons from "./ShareButtons";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
+import SourceCitation from "@/components/ui/SourceCitation";
+import { getPublicData } from "@/lib/publicData";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -102,6 +104,9 @@ export default async function ColumnDetailPage({ params }: Props) {
 
   const canonical = `${SITE_URL}/columns/${column.slug}`;
 
+  // 引用した公的データ（YMYL / E-E-A-T 対応）
+  const citationSources = getPublicData(column.sources);
+
   const articleLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -109,6 +114,13 @@ export default async function ColumnDetailPage({ params }: Props) {
     description: column.description,
     image: `${canonical}/opengraph-image`,
     mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+    ...(citationSources.length > 0 && {
+      citation: citationSources.map((s) => ({
+        "@type": "CreativeWork",
+        name: `${s.org}「${s.surveyName}」`,
+        url: s.url,
+      })),
+    }),
     author: {
       "@type": "Person",
       name: column.author,
@@ -443,6 +455,9 @@ export default async function ColumnDetailPage({ params }: Props) {
               </div>
             </section>
           )}
+
+          {/* 出典・参考にした公的データ（YMYL / E-E-A-T 対応） */}
+          <SourceCitation sources={citationSources} />
 
           {/* 区切り線 */}
           <div style={{ borderBottom: "1px solid var(--pale)", margin: "48px 0 32px" }} />
