@@ -73,6 +73,41 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
       </div>
 
       <div className="kt-reel-card-bottom">
+        {/* カウンセラー個別キャンペーンバッジ（任意） — campaignLabel 優先、なければ旧 campaign 文字列 */}
+        {(counselor.campaignLabel || counselor.campaign) && (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "3px 9px",
+              borderRadius: 20,
+              background: "rgba(200,169,122,.92)",
+              color: "#fff",
+              fontSize: 10,
+              fontFamily: "Noto Sans JP, sans-serif",
+              fontWeight: 500,
+              letterSpacing: ".04em",
+              marginBottom: 6,
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              boxShadow: "0 2px 6px rgba(200,169,122,.35)",
+            }}
+            title={
+              counselor.campaignDetail ??
+              counselor.campaignLabel ??
+              counselor.campaign ??
+              ""
+            }
+          >
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M6 1l1.1 3.4H10L7.5 6.6l.9 3L6 8.1l-2.4 1.5.9-3L2 5.4h2.9z" fill="currentColor" />
+            </svg>
+            {counselor.campaignLabel ?? counselor.campaign}
+          </div>
+        )}
         <div className="kt-reel-catchphrase">{catchphrase}</div>
         <div className="kt-reel-name">{counselor.name}</div>
         <div className="kt-reel-meta">

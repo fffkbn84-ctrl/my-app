@@ -193,6 +193,61 @@ export function PlacePriceTooltipContent(): ReactElement {
 }
 
 /**
+ * 面談形式（対面 / オンライン）表記の補足。
+ * オンラインの場合の接続方法、対面の場合の場所案内方法など、
+ * ユーザーがよく持つ疑問を共通文言で。
+ */
+export function MeetingFormatTooltipContent(): ReactElement {
+  const liStyle = { margin: "0 0 6px", padding: 0 } as const;
+  return (
+    <>
+      <p style={{ fontWeight: 500, margin: "0 0 6px", color: "var(--ink, #2A2A2A)" }}>
+        面談形式について
+      </p>
+      <ul style={{ listStyle: "disc outside", paddingLeft: 18, margin: 0 }}>
+        <li style={liStyle}>
+          <span style={{ fontWeight: 500 }}>対面</span>：
+          相談所のオフィスにご来店いただきます。住所・アクセス方法は予約確定メールでお送りします。
+        </li>
+        <li style={liStyle}>
+          <span style={{ fontWeight: 500 }}>オンライン</span>：
+          Zoom を使います。当日までに参加用 URL を相談所からお送りします。
+        </li>
+        <li style={liStyle}>
+          所要時間はどちらも約60分です。
+        </li>
+      </ul>
+    </>
+  );
+}
+
+/**
+ * 予約の日時変更についての案内。
+ * 現状は「変更ボタン」ではなく「キャンセル → 再予約」フローのため、その手順を明示。
+ */
+export function ReschedulingTooltipContent(): ReactElement {
+  const liStyle = { margin: "0 0 6px", padding: 0 } as const;
+  return (
+    <>
+      <p style={{ fontWeight: 500, margin: "0 0 6px", color: "var(--ink, #2A2A2A)" }}>
+        日時の変更について
+      </p>
+      <ul style={{ listStyle: "disc outside", paddingLeft: 18, margin: 0 }}>
+        <li style={liStyle}>
+          現在のところ、マイページから直接の日時変更はできません。
+        </li>
+        <li style={liStyle}>
+          いったんキャンセルしてから、希望日時で新たにご予約ください。
+        </li>
+        <li style={liStyle}>
+          キャンセル期限後の変更は、相談所へ直接ご連絡いただくとスムーズです。
+        </li>
+      </ul>
+    </>
+  );
+}
+
+/**
  * お店の営業時間・定休日表記の補足。
  * 祝日・季節・予約状況で変わることが多いので、再確認を促す。
  */

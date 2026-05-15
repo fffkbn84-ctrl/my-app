@@ -34,6 +34,9 @@ export interface Database {
           discounts: Json;
           /* 016_agencies_features.sql で追加 */
           features: string[];
+          /* 021_counselor_campaign_agency_documents.sql で追加 */
+          required_documents: string[] | null;
+          general_notes: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -71,6 +74,10 @@ export interface Database {
           reel_enabled: boolean | null;
           reel_order: number | null;
           message: string | null;
+          /* 021_counselor_campaign_agency_documents.sql で追加 */
+          campaign_label: string | null;
+          campaign_detail: string | null;
+          campaign_expiry: string | null;
           created_at: string;
           updated_at: string;
         };

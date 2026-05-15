@@ -7,7 +7,10 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { cancelReservation, isCancellable } from "@/lib/reservations";
 import { AGENCIES, type Agency } from "@/lib/data";
 import InfoTooltip from "@/components/ui/InfoTooltip";
-import { CancelPolicyTooltipContent } from "@/lib/policyMessages";
+import {
+  CancelPolicyTooltipContent,
+  ReschedulingTooltipContent,
+} from "@/lib/policyMessages";
 
 type ReservationRow = {
   id: string;
@@ -760,6 +763,15 @@ export default function ReservationDetailClient({ reservationId }: { reservation
               >
                 この予約をキャンセルする
               </button>
+              <p style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.8, marginTop: 12, display: "inline-flex", alignItems: "center" }}>
+                <span>日時を変えたい場合は、いったんキャンセル後に再予約してください。</span>
+                <InfoTooltip
+                  ariaLabel="予約日時の変更方法を見る"
+                  variant="muted"
+                >
+                  <ReschedulingTooltipContent />
+                </InfoTooltip>
+              </p>
             </>
           ) : (
             <>

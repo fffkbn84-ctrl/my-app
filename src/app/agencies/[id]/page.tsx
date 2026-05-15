@@ -873,7 +873,7 @@ export default async function AgencyDetailPage({
                       )}
 
                       {/* 料金内訳 */}
-                      <div style={{ padding: "4px 20px 16px" }}>
+                      <div style={{ padding: "4px 20px 8px" }}>
                         {plan.items.map((row, i) => {
                           const formatted = formatFeeItem(row);
                           const isFree = row.amount === 0;
@@ -919,6 +919,85 @@ export default async function AgencyDetailPage({
                           );
                         })}
                       </div>
+
+                      {/* プランオプション（追加料金項目）— items の直後に表示 */}
+                      {plan.options && plan.options.length > 0 && (
+                        <div
+                          style={{
+                            margin: "8px 20px 12px",
+                            padding: "10px 12px",
+                            background: "rgba(200,169,122,.05)",
+                            border: "1px solid rgba(200,169,122,.2)",
+                            borderRadius: 8,
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: 10,
+                              letterSpacing: ".14em",
+                              textTransform: "uppercase",
+                              color: "var(--accent)",
+                              fontFamily: "DM Sans, sans-serif",
+                              marginBottom: 8,
+                              fontWeight: 500,
+                            }}
+                          >
+                            OPTIONS · 追加オプション
+                          </div>
+                          {plan.options.map((opt, oi) => {
+                            const formatted = formatFeeItem(opt);
+                            const last = oi === (plan.options?.length ?? 0) - 1;
+                            return (
+                              <div
+                                key={oi}
+                                style={{
+                                  padding: "8px 0",
+                                  borderBottom: last ? "none" : "1px dashed rgba(200,169,122,.18)",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "flex-start",
+                                    gap: 12,
+                                  }}
+                                >
+                                  <span style={{ fontSize: 12, color: "var(--ink)", flex: 1 }}>{opt.label || "（無題）"}</span>
+                                  <span
+                                    style={{
+                                      fontFamily: "DM Sans, sans-serif",
+                                      fontSize: 13,
+                                      color: "var(--ink)",
+                                      whiteSpace: "nowrap",
+                                    }}
+                                  >
+                                    {formatted.main}
+                                    {formatted.suffix && (
+                                      <span style={{ fontSize: 10, color: "var(--muted)", marginLeft: 2 }}>
+                                        {formatted.suffix}
+                                      </span>
+                                    )}
+                                  </span>
+                                </div>
+                                {opt.note && (
+                                  <p
+                                    style={{
+                                      fontSize: 11,
+                                      color: "var(--mid)",
+                                      lineHeight: 1.7,
+                                      marginTop: 3,
+                                      whiteSpace: "pre-line",
+                                    }}
+                                  >
+                                    {opt.note}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
 
                       {/* プラン単位の注意事項 */}
                       {plan.notes && (
@@ -1115,6 +1194,132 @@ export default async function AgencyDetailPage({
               </div>
             )}
           </section>
+
+          {/* ═══ 入会時の提出書類 + 全体注意事項（021 マイグレーション）═══
+             相談所オーナーが管理画面で登録した内容を表示。両方とも未設定なら丸ごと非表示。 */}
+          {((agency.requiredDocuments && agency.requiredDocuments.length > 0) || agency.generalNotes) && (
+            <section style={{ padding: "32px 0 0" }}>
+              <div
+                style={{
+                  maxWidth: 880,
+                  margin: "0 auto",
+                  padding: "0 24px",
+                  display: "grid",
+                  gap: 20,
+                  gridTemplateColumns: agency.requiredDocuments && agency.requiredDocuments.length > 0 && agency.generalNotes
+                    ? "repeat(auto-fit, minmax(280px, 1fr))"
+                    : "minmax(0, 1fr)",
+                }}
+              >
+                {/* 入会時の提出書類 */}
+                {agency.requiredDocuments && agency.requiredDocuments.length > 0 && (
+                  <div
+                    style={{
+                      padding: 20,
+                      background: "var(--white)",
+                      border: "1px solid var(--light)",
+                      borderRadius: 14,
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: ".28em",
+                        color: "var(--accent)",
+                        fontFamily: "DM Sans, sans-serif",
+                        textTransform: "uppercase",
+                        marginBottom: 6,
+                      }}
+                    >
+                      Documents
+                    </p>
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-mincho)",
+                        fontSize: 18,
+                        color: "var(--ink)",
+                        fontWeight: 400,
+                        marginBottom: 14,
+                      }}
+                    >
+                      入会時に必要な書類
+                    </h3>
+                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}>
+                      {agency.requiredDocuments.map((doc) => (
+                        <li
+                          key={doc}
+                          style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 8,
+                            fontSize: 13,
+                            color: "var(--ink)",
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, marginTop: 2 }} aria-hidden="true">
+                            <path d="M2.5 1.5h6L11 4v8a.5.5 0 01-.5.5h-8A.5.5 0 012 12V2a.5.5 0 01.5-.5z" stroke="var(--accent)" strokeWidth="1.1" strokeLinejoin="round" fill="none" />
+                            <path d="M8.5 1.5V4H11" stroke="var(--accent)" strokeWidth="1.1" strokeLinejoin="round" fill="none" />
+                            <path d="M4 7h5M4 9.5h5" stroke="var(--accent)" strokeWidth="1.1" strokeLinecap="round" />
+                          </svg>
+                          {doc}
+                        </li>
+                      ))}
+                    </ul>
+                    <p style={{ fontSize: 11, color: "var(--mid)", marginTop: 12, lineHeight: 1.7 }}>
+                      ※ 入会時に必要な書類です。面談の段階ではまだご準備不要です。
+                    </p>
+                  </div>
+                )}
+
+                {/* 注意事項（相談所全体） */}
+                {agency.generalNotes && (
+                  <div
+                    style={{
+                      padding: 20,
+                      background: "var(--pale)",
+                      border: "1px solid var(--light)",
+                      borderRadius: 14,
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: ".28em",
+                        color: "var(--accent)",
+                        fontFamily: "DM Sans, sans-serif",
+                        textTransform: "uppercase",
+                        marginBottom: 6,
+                      }}
+                    >
+                      Notes
+                    </p>
+                    <h3
+                      style={{
+                        fontFamily: "var(--font-mincho)",
+                        fontSize: 18,
+                        color: "var(--ink)",
+                        fontWeight: 400,
+                        marginBottom: 12,
+                      }}
+                    >
+                      ご利用にあたって
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: 13,
+                        color: "var(--ink)",
+                        lineHeight: 1.9,
+                        whiteSpace: "pre-line",
+                      }}
+                    >
+                      {agency.generalNotes}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           {/* ═══ 在籍カウンセラー（横スクロール） ═══ */}
           <section style={{ padding: "56px 0 0" }}>

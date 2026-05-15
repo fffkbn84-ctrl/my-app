@@ -4,6 +4,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import { PlacePriceTooltipContent } from "@/lib/policyMessages";
 import { placesHomeData } from "@/lib/mock/places-home";
 import type { BadgeType } from "@/lib/mock/places-home";
 
@@ -136,15 +138,21 @@ export default async function ShopDetailPage({
                     )}
 
                     <div className="space-y-2 mb-4">
-                      {[
-                        { label: "カテゴリ", value: shop.categoryLabel },
-                        ...(shop.priceRange ? [{ label: "価格帯", value: shop.priceRange }] : []),
-                      ].map((item) => (
-                        <div key={item.label} className="flex justify-between text-sm">
-                          <span className="text-muted text-xs">{item.label}</span>
-                          <span className="text-ink text-xs">{item.value}</span>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted text-xs">カテゴリ</span>
+                        <span className="text-ink text-xs">{shop.categoryLabel}</span>
+                      </div>
+                      {shop.priceRange && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted text-xs" style={{ display: "inline-flex", alignItems: "center" }}>
+                            価格帯
+                            <InfoTooltip ariaLabel="価格帯の注意点を見る">
+                              <PlacePriceTooltipContent />
+                            </InfoTooltip>
+                          </span>
+                          <span className="text-ink text-xs">{shop.priceRange}</span>
                         </div>
-                      ))}
+                      )}
                     </div>
 
                     <div className="flex flex-wrap gap-1.5">

@@ -95,6 +95,11 @@ export type Agency = {
   logoUrl?: string | null;
   /** 相談所のリール画像（CounselorReelMini と同じ shape） */
   reelImages?: { bg: string; caption?: string }[];
+  /** 入会時に提出が必要な書類リスト（021 マイグレーション）
+   *  例：["独身証明書", "住民票", "本人確認書類", "所得証明書"] */
+  requiredDocuments?: string[] | null;
+  /** 相談所全体の注意事項（021 マイグレーション）— 複数行可 */
+  generalNotes?: string | null;
 };
 
 /** 料金プラン1項目（カウンセラー管理画面と共通） */
@@ -124,6 +129,8 @@ export type FeePlan = {
   description?: string | null;
   /** 「含まれるもの」箇条書き（短文・3〜6 件想定） */
   included?: string[] | null;
+  /** プラン単位の追加オプション（写真撮影・追加カウンセリング 等）— FeeItem と同 shape */
+  options?: FeeItem[] | null;
 };
 
 /** 割引（U30 / 乗り換え割 / 学割など）— 料金プランと独立した「お得情報」枠 */
@@ -192,6 +199,16 @@ export type Counselor = {
   experienceLabel?: string | null;
   /** 成婚実績件数（DB に無ければ undefined。0 / 未設定なら非表示） */
   successCount?: number | null;
+  /* ───── カウンセラー個別キャンペーン（021 マイグレーション） ─────
+     既存の `campaign?: string`（短文）と並列で、構造化されたキャンペーン情報を持つ。
+     カードでは campaignLabel を優先表示、未設定なら旧 campaign 文字列にフォールバック。
+     詳細ページでは campaignLabel / campaignDetail / campaignExpiry を組で表示。 */
+  /** カウンセラー個別キャンペーンの見出し */
+  campaignLabel?: string | null;
+  /** カウンセラー個別キャンペーンの説明 */
+  campaignDetail?: string | null;
+  /** カウンセラー個別キャンペーンの期限表記（例：「〜2026-06-30」） */
+  campaignExpiry?: string | null;
 };
 
 export const AGENCIES: Agency[] = [
@@ -786,6 +803,10 @@ function mapCounselorRowToCounselor(
     // success_count は現状 counselors テーブルに未追加。
     // 将来マイグレーションで追加した時にここで row.success_count を拾うよう拡張する。
     successCount: null,
+    // カウンセラー個別キャンペーン（021 マイグレーション）
+    campaignLabel: row.campaign_label ?? null,
+    campaignDetail: row.campaign_detail ?? null,
+    campaignExpiry: row.campaign_expiry ?? null,
   }
 }
 
@@ -935,6 +956,9 @@ function normalizeSupabaseAgency(row: any): AgencyPartial {
     holiday: holidayFromClosedWeekdays(row.closed_weekdays) ?? row.holiday ?? null,
     /* 015 マイグレーション: ロゴ画像 URL */
     logoUrl: row.logo_url ?? null,
+    /* 021 マイグレーション: 入会時の提出書類 + 全体注意事項 */
+    requiredDocuments: Array.isArray(row.required_documents) ? row.required_documents : null,
+    generalNotes: row.general_notes ?? null,
   };
 }
 

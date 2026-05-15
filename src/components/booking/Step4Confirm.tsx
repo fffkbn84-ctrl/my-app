@@ -8,6 +8,7 @@ import InfoTooltip from "@/components/ui/InfoTooltip";
 import {
   CancelPolicyTooltipContent,
   FreeMeetingTooltipContent,
+  MeetingFormatTooltipContent,
 } from "@/lib/policyMessages";
 
 export interface AgencyCancelInfo {
@@ -160,6 +161,14 @@ export default function Step4Confirm({
                   variant="muted"
                 >
                   <FreeMeetingTooltipContent />
+                </InfoTooltip>
+              )}
+              {key === "形式" && (
+                <InfoTooltip
+                  ariaLabel="面談形式（対面 / オンライン）の詳細を見る"
+                  variant="muted"
+                >
+                  <MeetingFormatTooltipContent />
                 </InfoTooltip>
               )}
             </span>

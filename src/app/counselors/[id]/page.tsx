@@ -750,7 +750,13 @@ export default async function CounselorDetailPage({
       qualifications: sc.qualifications ?? [],
       photoUrl: sc.photoUrl ?? undefined,
       monthlyFee: "",
-      campaign: null,
+      campaign: sc.campaignLabel
+        ? {
+            label: sc.campaignLabel,
+            detail: sc.campaignDetail ?? "",
+            expiry: sc.campaignExpiry ?? "",
+          }
+        : null,
       pricing: { plans: [], note: "※ 料金詳細は所属相談所ページをご確認ください。" },
       isSupabaseOnly: true,
     };
@@ -764,6 +770,14 @@ export default async function CounselorDetailPage({
         bio: supabaseCounselor?.bio ?? mockCounselor.bio,
         name: supabaseCounselor?.name ?? mockCounselor.name,
         photoUrl: supabaseCounselor?.photoUrl ?? mockCounselor.photoUrl,
+        // Supabase 由来のカウンセラー個別キャンペーンを優先（mock より新しい設定）
+        campaign: supabaseCounselor?.campaignLabel
+          ? {
+              label: supabaseCounselor.campaignLabel,
+              detail: supabaseCounselor.campaignDetail ?? "",
+              expiry: supabaseCounselor.campaignExpiry ?? "",
+            }
+          : mockCounselor.campaign,
       } as CounselorShape)
     : supabaseCounselor
       ? buildFromSupabase(supabaseCounselor)
@@ -1249,6 +1263,77 @@ export default async function CounselorDetailPage({
                                 );
                               })}
                             </div>
+
+                            {/* プランオプション（追加料金項目）— items の直後に表示 */}
+                            {plan.options && plan.options.length > 0 && (
+                              <div
+                                style={{
+                                  margin: "4px 20px 12px",
+                                  padding: "10px 12px",
+                                  background: "rgba(200,169,122,.05)",
+                                  border: "1px solid rgba(200,169,122,.2)",
+                                  borderRadius: 8,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: 10,
+                                    letterSpacing: ".14em",
+                                    textTransform: "uppercase",
+                                    color: "var(--accent)",
+                                    fontFamily: "DM Sans, sans-serif",
+                                    marginBottom: 8,
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  OPTIONS · 追加オプション
+                                </div>
+                                {plan.options.map((opt, oi) => {
+                                  const fmt = formatFeeItem(opt);
+                                  const last = oi === (plan.options?.length ?? 0) - 1;
+                                  return (
+                                    <div
+                                      key={oi}
+                                      style={{
+                                        padding: "8px 0",
+                                        borderBottom: last ? "none" : "1px dashed rgba(200,169,122,.18)",
+                                      }}
+                                    >
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "space-between",
+                                          alignItems: "flex-start",
+                                          gap: 12,
+                                        }}
+                                      >
+                                        <span style={{ fontSize: 12, color: "var(--ink)", flex: 1 }}>{opt.label || "（無題）"}</span>
+                                        <span
+                                          style={{
+                                            fontFamily: "DM Sans, sans-serif",
+                                            fontSize: 13,
+                                            color: "var(--ink)",
+                                            whiteSpace: "nowrap",
+                                          }}
+                                        >
+                                          {fmt.main}
+                                          {fmt.suffix && (
+                                            <span style={{ fontSize: 10, color: "var(--muted)", marginLeft: 2 }}>
+                                              {fmt.suffix}
+                                            </span>
+                                          )}
+                                        </span>
+                                      </div>
+                                      {opt.note && (
+                                        <p style={{ fontSize: 11, color: "var(--mid)", lineHeight: 1.7, marginTop: 3, whiteSpace: "pre-line" }}>
+                                          {opt.note}
+                                        </p>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
 
                             {/* プラン単位の注意事項 */}
                             {plan.notes && (
