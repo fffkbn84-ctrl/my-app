@@ -126,6 +126,7 @@ export default function KindaSearchBar() {
                       src="/images/section-kinda-note.webp"
                       alt="Kinda note"
                       fill
+                      sizes="(min-width: 768px) 280px, 45vw"
                       style={{ objectFit: 'cover', objectPosition: 'center 30%', transform: 'scale(1.3)', transformOrigin: 'center 30%' }}
                     />
                   </div>
@@ -139,6 +140,7 @@ export default function KindaSearchBar() {
                       src="/images/section-kinda-type.webp"
                       alt="Kinda type"
                       fill
+                      sizes="(min-width: 768px) 280px, 45vw"
                       style={{ objectFit: 'cover' }}
                     />
                   </div>

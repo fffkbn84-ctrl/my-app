@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -58,12 +59,14 @@ export default function KindaGlowPage() {
         <section className="kt-hero">
           <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             {/* 既存の section-beauty 画像を流用。専用画像できたら差し替え */}
-            <img
+            <Image
               src="/images/section-beauty-n2.png.jpg"
               alt=""
+              fill
+              priority
+              fetchPriority="high"
+              sizes="100vw"
               style={{
-                width: "100%",
-                height: "100%",
                 objectFit: "cover",
                 objectPosition: "center 40%",
               }}

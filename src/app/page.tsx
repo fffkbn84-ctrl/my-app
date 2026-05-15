@@ -587,6 +587,7 @@ export default async function HomePage() {
                     src={card.img}
                     alt={card.alt}
                     fill
+                    sizes="(min-width: 768px) 240px, 50vw"
                     style={{ objectFit: "cover" }}
                   />
                 </div>
@@ -902,7 +903,7 @@ export default async function HomePage() {
                 marginTop: 6,
               }}
             >
-              取材で集めた声と、編集部のコラム
+              気持ちの整理から、ふたりに寄り添う読みもの
             </div>
           </div>
 

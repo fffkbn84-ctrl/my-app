@@ -8,6 +8,9 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.kinda-futari.app"
+  ),
   title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
   description:
     "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと探す、本音の口コミで選ぶ結婚相談所。婚活カウンセラーの相性診断は60秒・無料・登録不要。お見合いのカフェ、デートの場所、ふたりに必要な美容まで、ふたりに寄り添うすべてが Kinda に。",
