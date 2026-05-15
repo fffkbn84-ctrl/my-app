@@ -4,6 +4,11 @@ import Header from "@/components/layout/Header";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import {
+  PlacePriceTooltipContent,
+  PlaceHoursTooltipContent,
+} from "@/lib/policyMessages";
 import { places } from "@/lib/mock/places";
 import type { Place } from "@/lib/mock/places";
 
@@ -378,7 +383,12 @@ export default async function PlaceDetailPage({
                       <div className="clay-info-val">{place.access}</div>
                     </div>
                     <div className="clay-info-item">
-                      <div className="clay-info-key">営業時間</div>
+                      <div className="clay-info-key" style={{ display: "inline-flex", alignItems: "center" }}>
+                        営業時間
+                        <InfoTooltip ariaLabel="営業時間の注意点を見る">
+                          <PlaceHoursTooltipContent />
+                        </InfoTooltip>
+                      </div>
                       <div className="clay-info-val">{place.hours}</div>
                     </div>
                     <div className="clay-info-item">
@@ -386,7 +396,12 @@ export default async function PlaceDetailPage({
                       <div className="clay-info-val">{place.holiday}</div>
                     </div>
                     <div className="clay-info-item">
-                      <div className="clay-info-key">価格帯</div>
+                      <div className="clay-info-key" style={{ display: "inline-flex", alignItems: "center" }}>
+                        価格帯
+                        <InfoTooltip ariaLabel="価格帯の注意点を見る">
+                          <PlacePriceTooltipContent />
+                        </InfoTooltip>
+                      </div>
                       <div className="clay-info-val">{place.priceRange}</div>
                     </div>
                     <div className="clay-info-item">

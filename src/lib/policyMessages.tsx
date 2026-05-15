@@ -132,3 +132,88 @@ export function FreeMeetingTooltipContent(): ReactElement {
     </>
   );
 }
+
+/**
+ * キャンペーン表記の補足。期限・適用条件・併用可否などを共通文言で。
+ * 期限テキスト（例「〜2026-04-30」）が分かれば渡す。
+ */
+export function CampaignTooltipContent({
+  expiry,
+}: {
+  expiry?: string;
+}): ReactElement {
+  const liStyle = { margin: "0 0 6px", padding: 0 } as const;
+  return (
+    <>
+      <p style={{ fontWeight: 500, margin: "0 0 6px", color: "var(--ink, #2A2A2A)" }}>
+        キャンペーンについて
+      </p>
+      <ul style={{ listStyle: "disc outside", paddingLeft: 18, margin: 0 }}>
+        {expiry && (
+          <li style={liStyle}>
+            適用期限：<span style={{ fontWeight: 500 }}>{expiry}</span>
+          </li>
+        )}
+        <li style={liStyle}>
+          適用条件は相談所により異なります。詳細は面談時にご確認ください。
+        </li>
+        <li style={liStyle}>
+          他キャンペーンとの併用や、すでに会員の方への適用可否は相談所の規定によります。
+        </li>
+      </ul>
+    </>
+  );
+}
+
+/**
+ * お店の価格帯表記の補足。
+ * カウンセラー / 相談所の料金プランと違い、お店は時間帯・メニュー・人数で変動するため、
+ * 表示はあくまで目安であることを明示。
+ */
+export function PlacePriceTooltipContent(): ReactElement {
+  const liStyle = { margin: "0 0 6px", padding: 0 } as const;
+  return (
+    <>
+      <p style={{ fontWeight: 500, margin: "0 0 6px", color: "var(--ink, #2A2A2A)" }}>
+        価格帯について
+      </p>
+      <ul style={{ listStyle: "disc outside", paddingLeft: 18, margin: 0 }}>
+        <li style={liStyle}>
+          表示は1人あたりの目安です。注文内容・時間帯・人数によって変動します。
+        </li>
+        <li style={liStyle}>
+          席料・サービス料・お通し代が別途かかる場合があります。
+        </li>
+        <li style={liStyle}>
+          最新のメニュー・価格は、お店のサイトでご確認ください。
+        </li>
+      </ul>
+    </>
+  );
+}
+
+/**
+ * お店の営業時間・定休日表記の補足。
+ * 祝日・季節・予約状況で変わることが多いので、再確認を促す。
+ */
+export function PlaceHoursTooltipContent(): ReactElement {
+  const liStyle = { margin: "0 0 6px", padding: 0 } as const;
+  return (
+    <>
+      <p style={{ fontWeight: 500, margin: "0 0 6px", color: "var(--ink, #2A2A2A)" }}>
+        営業時間について
+      </p>
+      <ul style={{ listStyle: "disc outside", paddingLeft: 18, margin: 0 }}>
+        <li style={liStyle}>
+          祝日や年末年始など、表示と異なる場合があります。
+        </li>
+        <li style={liStyle}>
+          ラストオーダーは閉店時刻より早いことがあります。
+        </li>
+        <li style={liStyle}>
+          ご来店前に、お店のサイトでの確認をおすすめします。
+        </li>
+      </ul>
+    </>
+  );
+}

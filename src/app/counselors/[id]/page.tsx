@@ -9,7 +9,10 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
 import InfoTooltip from "@/components/ui/InfoTooltip";
-import { FeeTooltipContent } from "@/lib/policyMessages";
+import {
+  FeeTooltipContent,
+  CampaignTooltipContent,
+} from "@/lib/policyMessages";
 import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
 import CounselorReelMini from "@/components/counselors/CounselorReelMini";
 import {
@@ -1059,7 +1062,15 @@ export default async function CounselorDetailPage({
                 </svg>
               </div>
               <div>
-                <div className="d-campaign-label">{counselor.campaign.label}</div>
+                <div className="d-campaign-label" style={{ display: "inline-flex", alignItems: "center" }}>
+                  {counselor.campaign.label}
+                  <InfoTooltip
+                    ariaLabel="キャンペーンの適用条件を見る"
+                    variant="accent"
+                  >
+                    <CampaignTooltipContent expiry={counselor.campaign.expiry} />
+                  </InfoTooltip>
+                </div>
                 <div className="d-campaign-detail">{counselor.campaign.detail}</div>
               </div>
               <div className="d-campaign-expiry">{counselor.campaign.expiry}</div>

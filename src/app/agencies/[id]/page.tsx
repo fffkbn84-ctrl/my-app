@@ -8,7 +8,10 @@ import SaveButton from "@/components/ui/SaveButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import InfoTooltip from "@/components/ui/InfoTooltip";
-import { FeeTooltipContent } from "@/lib/policyMessages";
+import {
+  FeeTooltipContent,
+  CampaignTooltipContent,
+} from "@/lib/policyMessages";
 import AgencyReelMini from "@/components/agencies/AgencyReelMini";
 import {
   AGENCIES,
@@ -412,6 +415,12 @@ export default async function AgencyDetailPage({
                   >
                     {campaignDisplay}
                   </span>
+                  <InfoTooltip
+                    ariaLabel="キャンペーンの適用条件を見る"
+                    variant="accent"
+                  >
+                    <CampaignTooltipContent expiry={agency.campaignExpiresAt ?? undefined} />
+                  </InfoTooltip>
                 </div>
               );
             })()}
