@@ -3,7 +3,7 @@ import Header from "@/components/layout/Header";
 import BookingFlow from "@/components/booking/BookingFlow";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
-import { getCounselorById } from "@/lib/data";
+import { AGENCIES, getAgencyById, getCounselorById } from "@/lib/data";
 
 const counselors: Record<string, { name: string; agency: string }> = {
   "1": { name: "田中 美咲", agency: "ブライダルサロン エクラン" },
@@ -24,10 +24,24 @@ export default async function BookingPage({
   // mock を最優先（1〜6）。無ければ Supabase から取得して同じ shape に
   // マッピングする（小山楓華のような UUID カウンセラーで 404 にならないように）。
   let counselor: { name: string; agency: string } | undefined = counselors[counselorId];
+  let agencyCancelInfo: { policy?: string; phone?: string; email?: string } | undefined;
   if (!counselor) {
     const sc = await getCounselorById(counselorId);
     if (sc) {
       counselor = { name: sc.name, agency: sc.agencyName ?? "" };
+      // Supabase 由来のカウンセラー：所属相談所を取得して cancel 情報を引く
+      if (sc.agencyId) {
+        const ag = await getAgencyById(String(sc.agencyId));
+        if (ag) {
+          agencyCancelInfo = { policy: ag.cancelPolicy, phone: ag.phone, email: ag.email };
+        }
+      }
+    }
+  } else {
+    // mock カウンセラー：名前で mock 相談所を引く
+    const mockAg = AGENCIES.find((a) => a.name === counselor!.agency);
+    if (mockAg) {
+      agencyCancelInfo = { policy: mockAg.cancelPolicy, phone: mockAg.phone, email: mockAg.email };
     }
   }
   if (!counselor) notFound();
@@ -72,6 +86,7 @@ export default async function BookingPage({
           counselorId={counselorId}
           counselorName={counselor.name}
           agencyName={counselor.agency}
+          agencyCancelInfo={agencyCancelInfo}
         />
       </main>
     </>

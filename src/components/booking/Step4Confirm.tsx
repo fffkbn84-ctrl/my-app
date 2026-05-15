@@ -4,6 +4,17 @@ import { useState } from "react";
 import type { Slot, BookingUserInfo } from "@/types/booking";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { createReservation } from "@/lib/reservations";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import {
+  CancelPolicyTooltipContent,
+  FreeMeetingTooltipContent,
+} from "@/lib/policyMessages";
+
+export interface AgencyCancelInfo {
+  policy?: string;
+  phone?: string;
+  email?: string;
+}
 
 interface Props {
   counselorName: string;
@@ -15,6 +26,8 @@ interface Props {
   counselorId?: string | null;
   /** 本物の Supabase agency UUID（モックなら null） */
   agencyId?: string | null;
+  /** 相談所のキャンセル規定・連絡先（InfoTooltip 表示用） */
+  agencyCancelInfo?: AgencyCancelInfo;
   /** 予約 INSERT 成功時に呼ばれる。reservationId を渡す */
   onConfirm: (reservationId: string | null) => void;
   onBack: () => void;
@@ -41,6 +54,7 @@ export default function Step4Confirm({
   showCounselorRow = false,
   counselorId = null,
   agencyId = null,
+  agencyCancelInfo,
   onConfirm,
   onBack,
 }: Props) {
@@ -131,8 +145,23 @@ export default function Step4Confirm({
         {rows.map(({ key, val, green }) => (
           <div key={key} className="bk-confirm-row">
             <span className="bk-confirm-key">{key}</span>
-            <span className="bk-confirm-val" style={green ? { color: "var(--green)" } : undefined}>
+            <span
+              className="bk-confirm-val"
+              style={{
+                ...(green ? { color: "var(--green)" } : {}),
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
               {val}
+              {key === "費用" && (
+                <InfoTooltip
+                  ariaLabel="面談料が無料である条件を見る"
+                  variant="muted"
+                >
+                  <FreeMeetingTooltipContent />
+                </InfoTooltip>
+              )}
             </span>
           </div>
         ))}
@@ -162,7 +191,18 @@ export default function Step4Confirm({
           />
         </svg>
         <div>
-          予約完了後、確認メールをお送りします。マイページから日時の確認・キャンセルもできます。
+          予約完了後、確認メールをお送りします。マイページから日時の確認・キャンセル
+          <InfoTooltip
+            ariaLabel="キャンセル規定の詳細を見る"
+            variant="muted"
+          >
+            <CancelPolicyTooltipContent
+              policy={agencyCancelInfo?.policy}
+              phone={agencyCancelInfo?.phone}
+              email={agencyCancelInfo?.email}
+            />
+          </InfoTooltip>
+          もできます。
         </div>
       </div>
 

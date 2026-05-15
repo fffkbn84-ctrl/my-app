@@ -9,13 +9,17 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { isUuid } from "@/lib/reservations";
 import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
-import Step4Confirm from "./Step4Confirm";
+import Step4Confirm, { type AgencyCancelInfo } from "./Step4Confirm";
 import LoginGuard from "./LoginGuard";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import { CancelPolicyTooltipContent } from "@/lib/policyMessages";
 
 interface Props {
   agencyId: string;
   agencyName: string;
   counselors: Counselor[];
+  /** 相談所のキャンセル規定・連絡先（ⓘ ツールチップ表示用） */
+  agencyCancelInfo?: AgencyCancelInfo;
 }
 
 const initialUserInfo: BookingUserInfo = {
@@ -408,12 +412,14 @@ function AgencyCompletionScreen({
   agencyId,
   counselorId,
   slot,
+  agencyCancelInfo,
 }: {
   counselorName: string;
   agencyName: string;
   agencyId: string;
   counselorId: number | string | null;
   slot: Slot;
+  agencyCancelInfo?: AgencyCancelInfo;
 }) {
   return (
     <div className="bk-done-wrap">
@@ -438,7 +444,18 @@ function AgencyCompletionScreen({
       <p className="bk-done-sub">
         確認メールをお送りしました。
         <br />
-        マイページから日時の確認・キャンセルができます。
+        マイページから日時の確認・キャンセル
+        <InfoTooltip
+          ariaLabel="キャンセル規定の詳細を見る"
+          variant="muted"
+        >
+          <CancelPolicyTooltipContent
+            policy={agencyCancelInfo?.policy}
+            phone={agencyCancelInfo?.phone}
+            email={agencyCancelInfo?.email}
+          />
+        </InfoTooltip>
+        ができます。
       </p>
 
       <div className="bk-done-info">
@@ -500,7 +517,7 @@ interface AgencyState {
   userInfo: BookingUserInfo;
 }
 
-export default function AgencyBookingFlow({ agencyId, agencyName, counselors }: Props) {
+export default function AgencyBookingFlow({ agencyId, agencyName, counselors, agencyCancelInfo }: Props) {
   const { user } = useAuth();
   const [state, setState] = useState<AgencyState>({
     step: 1,
@@ -648,6 +665,7 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors }: 
           userInfo={state.userInfo}
           counselorId={supabaseCounselorId}
           agencyId={supabaseAgencyId}
+          agencyCancelInfo={agencyCancelInfo}
           showCounselorRow
           onConfirm={handleConfirm}
           onBack={() => goToStep(3)}
@@ -662,6 +680,7 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors }: 
           agencyId={agencyId}
           counselorId={state.selectedCounselorId}
           slot={state.selectedSlot}
+          agencyCancelInfo={agencyCancelInfo}
         />
       )}
     </div>

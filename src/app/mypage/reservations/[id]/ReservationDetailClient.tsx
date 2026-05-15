@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { cancelReservation, isCancellable } from "@/lib/reservations";
 import { AGENCIES, type Agency } from "@/lib/data";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import { CancelPolicyTooltipContent } from "@/lib/policyMessages";
 
 type ReservationRow = {
   id: string;
@@ -726,8 +728,21 @@ export default function ReservationDetailClient({ reservationId }: { reservation
         >
           {cancellable ? (
             <>
-              <p style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.8, marginBottom: 12 }}>
-                {agencyInfo.cancelPolicy ?? "面談前であればマイページからキャンセルできます。"}
+              <p style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.8, marginBottom: 12, display: "inline-flex", alignItems: "flex-start", flexWrap: "wrap" }}>
+                <span>
+                  {agencyInfo.cancelPolicy ?? "面談前であればマイページからキャンセルできます。"}
+                </span>
+                <InfoTooltip
+                  ariaLabel="キャンセル規定の詳細を見る"
+                  variant="muted"
+                  align="left-anchor"
+                >
+                  <CancelPolicyTooltipContent
+                    policy={agencyInfo.cancelPolicy}
+                    phone={agencyInfo.phone}
+                    email={agencyInfo.email}
+                  />
+                </InfoTooltip>
               </p>
               <button
                 type="button"

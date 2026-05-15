@@ -8,6 +8,8 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import { FeeTooltipContent } from "@/lib/policyMessages";
 import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
 import CounselorReelMini from "@/components/counselors/CounselorReelMini";
 import {
@@ -1140,9 +1142,20 @@ export default async function CounselorDetailPage({
                 <section style={{ marginBottom: 48 }}>
                   <h2
                     className="text-lg text-ink mb-6 pb-3 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)" }}
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
                   >
                     料金プラン
+                    <InfoTooltip
+                      ariaLabel="料金プランの注意点を見る"
+                      variant="muted"
+                      align="left-anchor"
+                    >
+                      <FeeTooltipContent note={counselor.pricing.note} />
+                    </InfoTooltip>
                   </h2>
 
                   {/* Supabase 経由のカウンセラー: 所属相談所の fees を表示 */}

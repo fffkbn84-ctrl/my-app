@@ -7,6 +7,8 @@ import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SaveButton from "@/components/ui/SaveButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import { FeeTooltipContent } from "@/lib/policyMessages";
 import AgencyReelMini from "@/components/agencies/AgencyReelMini";
 import {
   AGENCIES,
@@ -737,9 +739,18 @@ export default async function AgencyDetailPage({
                 color: "var(--ink)",
                 fontWeight: 400,
                 marginBottom: 24,
+                display: "inline-flex",
+                alignItems: "center",
               }}
             >
               プランを選ぶ
+              <InfoTooltip
+                ariaLabel="料金プランの注意点を見る"
+                variant="muted"
+                align="left-anchor"
+              >
+                <FeeTooltipContent />
+              </InfoTooltip>
             </h2>
 
             {agency.fees && agency.fees.length > 0 ? (

@@ -7,8 +7,10 @@ import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
-import Step4Confirm from "./Step4Confirm";
+import Step4Confirm, { type AgencyCancelInfo } from "./Step4Confirm";
 import LoginGuard from "./LoginGuard";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import { CancelPolicyTooltipContent } from "@/lib/policyMessages";
 
 interface Props {
   counselorId: string;
@@ -18,6 +20,8 @@ interface Props {
   supabaseCounselorId?: string | null;
   /** 本物の Supabase agency UUID（モック ID なら指定不要） */
   supabaseAgencyId?: string | null;
+  /** 相談所のキャンセル規定・連絡先（ⓘ ツールチップ表示用） */
+  agencyCancelInfo?: AgencyCancelInfo;
 }
 
 const initialUserInfo: BookingUserInfo = {
@@ -68,6 +72,7 @@ export default function BookingFlow({
   agencyName,
   supabaseCounselorId = null,
   supabaseAgencyId = null,
+  agencyCancelInfo,
 }: Props) {
   const { user } = useAuth();
   const [state, setState] = useState<BookingState>({
@@ -170,6 +175,7 @@ export default function BookingFlow({
           userInfo={state.userInfo}
           counselorId={supabaseCounselorId}
           agencyId={supabaseAgencyId}
+          agencyCancelInfo={agencyCancelInfo}
           onConfirm={handleConfirm}
           onBack={() => goToStep(2)}
         />
@@ -180,6 +186,7 @@ export default function BookingFlow({
           counselorName={counselorName}
           agencyName={agencyName}
           slot={state.selectedSlot}
+          agencyCancelInfo={agencyCancelInfo}
         />
       )}
     </div>
@@ -201,11 +208,13 @@ function CompletionScreen({
   counselorName,
   agencyName,
   slot,
+  agencyCancelInfo,
 }: {
   counselorId: string;
   counselorName: string;
   agencyName: string;
   slot: Slot;
+  agencyCancelInfo?: AgencyCancelInfo;
 }) {
   return (
     <div className="bk-done-wrap">
@@ -224,7 +233,18 @@ function CompletionScreen({
       <p className="bk-done-sub">
         確認メールをお送りしました。
         <br />
-        マイページから日時の確認・キャンセルができます。
+        マイページから日時の確認・キャンセル
+        <InfoTooltip
+          ariaLabel="キャンセル規定の詳細を見る"
+          variant="muted"
+        >
+          <CancelPolicyTooltipContent
+            policy={agencyCancelInfo?.policy}
+            phone={agencyCancelInfo?.phone}
+            email={agencyCancelInfo?.email}
+          />
+        </InfoTooltip>
+        ができます。
       </p>
 
       <div className="bk-done-info">

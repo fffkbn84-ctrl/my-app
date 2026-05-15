@@ -23,10 +23,18 @@ export default async function CounselorBookingPage({
   // Supabase オンリー相談所（UUID）で notFound にならないようにするため。
   const mockAgency = AGENCIES.find((a) => String(a.id) === String(agencyId));
   let agencyName = mockAgency?.name;
+  let agencyCancelInfo: { policy?: string; phone?: string; email?: string } | undefined = mockAgency
+    ? { policy: mockAgency.cancelPolicy, phone: mockAgency.phone, email: mockAgency.email }
+    : undefined;
   if (!agencyName) {
     const supabaseAgency = await getAgencyById(agencyId);
     if (supabaseAgency) {
       agencyName = supabaseAgency.name;
+      agencyCancelInfo = {
+        policy: supabaseAgency.cancelPolicy,
+        phone: supabaseAgency.phone,
+        email: supabaseAgency.email,
+      };
     }
   }
   if (!agencyName) notFound();
@@ -106,6 +114,7 @@ export default async function CounselorBookingPage({
           agencyId={String(agencyId)}
           agencyName={agencyName}
           counselors={counselors}
+          agencyCancelInfo={agencyCancelInfo}
         />
       </main>
     </>
