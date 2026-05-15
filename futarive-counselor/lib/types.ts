@@ -14,6 +14,9 @@ export interface FeePlan {
   notes?: string | null          // プラン単位の注意事項（自由テキスト・複数行可）
   description?: string | null    // 「こんな方向け」1〜2行の対象セグメント
   included?: string[] | null     // 「含まれるもの」箇条書き（短文・3〜6 件想定）
+  /** プラン単位の追加オプション（写真撮影・追加カウンセリング 等）
+   *  FeeItem と同じ shape。お客様画面ではプラン内訳のすぐ下にカード表示。 */
+  options?: FeeItem[] | null
 }
 
 /** 割引（U30割引・乗り換え割引・学割など）— 料金プランと独立した「お得情報」枠 */
@@ -51,6 +54,11 @@ export interface Agency {
   access: string | null                    // 最寄駅などの簡潔なアクセス（例：銀座駅 徒歩3分）
   directions: string | null                // 最寄駅からの行き方（フリーテキスト、改行可）
   features: string[]                       // この相談所の特徴（016 マイグレーション）
+  /** 入会時に提出が必要な書類リスト（021 マイグレーション）
+   *  例：['独身証明書', '住民票', '本人確認書類', '所得証明書'] */
+  required_documents: string[] | null
+  /** 相談所全体の注意事項（021 マイグレーション）— 複数行可 */
+  general_notes: string | null
   created_at: string                       // Supabase 登録日（参考のみ）
 }
 
@@ -78,6 +86,12 @@ export interface Counselor {
   owner_user_id: string | null
   diagnosis_type: string | null
   invite_token: string | null
+  /** カウンセラー個別キャンペーンの見出し */
+  campaign_label: string | null
+  /** カウンセラー個別キャンペーンの説明 */
+  campaign_detail: string | null
+  /** カウンセラー個別キャンペーンの期限（例：「〜2026-06-30」） */
+  campaign_expiry: string | null
   created_at: string
 }
 

@@ -92,6 +92,9 @@ export default function ProfilePage() {
     fee: '',
     success_count: '',
     experience_label: '',
+    campaign_label: '',
+    campaign_detail: '',
+    campaign_expiry: '',
     is_published: false,
   })
   const [chipInput, setChipInput] = useState({ specialties: '', qualifications: '' })
@@ -134,6 +137,9 @@ export default function ProfilePage() {
           fee: c.fee ?? '',
           success_count: c.success_count != null ? String(c.success_count) : '',
           experience_label: c.experience_label ?? '',
+          campaign_label: c.campaign_label ?? '',
+          campaign_detail: c.campaign_detail ?? '',
+          campaign_expiry: c.campaign_expiry ?? '',
           is_published: c.is_published ?? false,
         })
       } else if (owns && agRows?.[0]?.id) {
@@ -189,6 +195,9 @@ export default function ProfilePage() {
       fee: f.fee || null,
       success_count: f.success_count !== '' ? parseInt(f.success_count) : null,
       experience_label: f.experience_label || null,
+      campaign_label: f.campaign_label.trim() || null,
+      campaign_detail: f.campaign_detail.trim() || null,
+      campaign_expiry: f.campaign_expiry.trim() || null,
       is_published: f.is_published,
       owner_user_id: userId,
     }
@@ -584,6 +593,64 @@ export default function ProfilePage() {
             <input className="kc-input" value={form.experience_label}
               onChange={e => updateForm('experience_label', e.target.value)}
               placeholder="例: 10年以上の婚活支援経験" />
+          </div>
+
+          {/* カウンセラー個別キャンペーン
+             入力すると、Kinda talk のリールカードと カウンセラー詳細ページに
+             キャンペーンバナーが表示されます。所属相談所のキャンペーンとは
+             独立して設定できます。 */}
+          <div className="kc-card" style={{ padding: 18, borderRadius: 16 }}>
+            <div className="eyebrow" style={{ marginBottom: 4 }}>YOUR CAMPAIGN</div>
+            <h3 style={{ fontFamily: 'Shippori Mincho, serif', fontWeight: 500, fontSize: 16, marginBottom: 6, color: 'var(--text-deep)' }}>
+              個別キャンペーン（任意）
+            </h3>
+            <p style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.8, marginBottom: 14 }}>
+              入力すると Kinda talk のリールカードと カウンセラー詳細にキャンペーンバナーが表示されます。
+              <br />空欄なら表示されません。相談所のキャンペーンとは独立して設定できます。
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label className="kc-label" style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+                  見出し（任意・最大40字）
+                </label>
+                <input
+                  className="kc-input"
+                  value={form.campaign_label}
+                  onChange={e => updateForm('campaign_label', e.target.value)}
+                  placeholder="例：春の婚活応援キャンペーン"
+                  maxLength={40}
+                />
+              </div>
+              <div>
+                <label className="kc-label" style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+                  説明（任意・最大100字）
+                </label>
+                <textarea
+                  className="kc-textarea"
+                  value={form.campaign_detail}
+                  onChange={e => updateForm('campaign_detail', e.target.value)}
+                  placeholder="例：4/30までのご入会で入会金10%オフ"
+                  style={{ fontSize: 13, minHeight: 72, lineHeight: 1.7 }}
+                  maxLength={100}
+                  rows={2}
+                />
+              </div>
+              <div>
+                <label className="kc-label" style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+                  期限表記（任意）
+                </label>
+                <input
+                  className="kc-input"
+                  value={form.campaign_expiry}
+                  onChange={e => updateForm('campaign_expiry', e.target.value)}
+                  placeholder="例：〜2026-06-30"
+                  maxLength={40}
+                />
+                <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 4 }}>
+                  カードのバッジに小さく表示されます。「〜2026-06-30」のように自由に書けます。
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

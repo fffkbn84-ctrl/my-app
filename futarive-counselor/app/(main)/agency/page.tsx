@@ -58,10 +58,15 @@ export default function AgencyPage() {
     logo_url: '',             // 相談所のプロフィール画像（ロゴ）URL
     /* 016 マイグレーションで追加 */
     features: [] as string[], // この相談所の特徴（フリーテキストのタグ）
+    /* 021 マイグレーションで追加 */
+    required_documents: [] as string[], // 入会時の提出書類リスト
+    general_notes: '',        // 相談所全体の注意事項（複数行）
   })
 
   // features 入力用のドラフト（Enter で確定）
   const [featureDraft, setFeatureDraft] = useState('')
+  // required_documents 入力用のドラフト
+  const [docDraft, setDocDraft] = useState('')
 
   // リール画像（agency_media テーブル）は form とは別管理。
   // 個別 INSERT/UPDATE/DELETE で Supabase に即時反映する。
@@ -101,6 +106,8 @@ export default function AgencyPage() {
       directions: ag.directions ?? '',
       logo_url: ag.logo_url ?? '',
       features: Array.isArray(ag.features) ? ag.features : [],
+      required_documents: Array.isArray(ag.required_documents) ? ag.required_documents : [],
+      general_notes: ag.general_notes ?? '',
     })
   }
 
@@ -186,6 +193,8 @@ export default function AgencyPage() {
       directions: f.directions || null,
       logo_url: f.logo_url || null,
       features: f.features,
+      required_documents: f.required_documents.length > 0 ? f.required_documents : null,
+      general_notes: f.general_notes.trim() || null,
     }
     const { error } = await supabase.from('agencies').update(payload).eq('id', id)
     if (error) {
@@ -412,6 +421,35 @@ export default function AgencyPage() {
       ),
     }))
   }
+  // ──────── プランオプション操作（plan.options[]）────────
+  // 写真撮影・追加カウンセリング 等。FeeItem と同じ shape。
+  const addOption = (planIdx: number) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? { ...p, options: [...(p.options ?? []), { label: '', amount: 0, suffix: null, note: null }] }
+        : p,
+      ),
+    }))
+  }
+  const updateOption = (planIdx: number, optIdx: number, key: keyof FeeItem, value: string | number | null) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? { ...p, options: (p.options ?? []).map((o, j) => j === optIdx ? { ...o, [key]: value } : o) }
+        : p,
+      ),
+    }))
+  }
+  const removeOption = (planIdx: number, optIdx: number) => {
+    setForm(prev => ({
+      ...prev,
+      fees: prev.fees.map((p, i) => i === planIdx
+        ? { ...p, options: (p.options ?? []).filter((_, j) => j !== optIdx) }
+        : p,
+      ),
+    }))
+  }
   // 配列要素を一個前/後ろに入れ替える小ヘルパー
   const moveInArr = <T,>(arr: T[], from: number, dir: -1 | 1): T[] => {
     const to = from + dir
@@ -435,6 +473,7 @@ export default function AgencyPage() {
         notes: src.notes ?? null,
         description: src.description ?? null,
         included: src.included ? [...src.included] : null,
+        options: src.options ? src.options.map(o => ({ ...o })) : null,
       }
       const next = [...prev.fees]
       next.splice(planIdx + 1, 0, copy)
@@ -683,6 +722,113 @@ export default function AgencyPage() {
           <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
             最大 10 個まで。Enter キーまたはカンマで確定します。
             <br />例：「専任カウンセラー制」「IBJ加盟」「オンライン対応可」「個別最適化」
+          </p>
+        </div>
+
+        {/* 入会時の提出書類（021 マイグレーション）— チップ入力
+            お客様画面の /agencies/[id] に「入会時に必要な書類」として一覧表示される。 */}
+        <div>
+          <label className="kc-label">入会時の提出書類</label>
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 6,
+              padding: form.required_documents.length > 0 ? '8px 10px' : 0,
+              border: form.required_documents.length > 0 ? '1px dashed var(--border)' : 'none',
+              borderRadius: 10,
+              marginBottom: 8,
+            }}
+          >
+            {form.required_documents.map((doc) => (
+              <span
+                key={doc}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '5px 10px',
+                  fontSize: 12,
+                  background: 'var(--bg-elev)',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 20,
+                }}
+              >
+                {doc}
+                <button
+                  type="button"
+                  onClick={() => update('required_documents', form.required_documents.filter((d) => d !== doc))}
+                  aria-label={`${doc} を削除`}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-mid)',
+                    cursor: 'pointer',
+                    padding: 0,
+                    fontSize: 14,
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input
+              className="kc-input"
+              value={docDraft}
+              onChange={(e) => setDocDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                  e.preventDefault()
+                  const v = docDraft.trim().replace(/,$/, '')
+                  if (v && !form.required_documents.includes(v) && form.required_documents.length < 12) {
+                    update('required_documents', [...form.required_documents, v])
+                  }
+                  setDocDraft('')
+                }
+              }}
+              placeholder="例：独身証明書"
+              style={{ flex: 1 }}
+            />
+            <button
+              type="button"
+              className="kc-btn kc-btn-ghost kc-btn-sm"
+              onClick={() => {
+                const v = docDraft.trim().replace(/,$/, '')
+                if (v && !form.required_documents.includes(v) && form.required_documents.length < 12) {
+                  update('required_documents', [...form.required_documents, v])
+                }
+                setDocDraft('')
+              }}
+            >
+              追加
+            </button>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            最大 12 個まで。Enter キーまたはカンマで確定します。
+            <br />例：「独身証明書」「住民票」「本人確認書類」「所得証明書」「職業証明書」「学歴証明書」
+          </p>
+        </div>
+
+        {/* 全体注意事項（021 マイグレーション）— 複数行 textarea
+            お客様画面の /agencies/[id] に「ご利用にあたって」として表示される。 */}
+        <div>
+          <label className="kc-label">注意事項（相談所全体）</label>
+          <textarea
+            className="kc-textarea"
+            value={form.general_notes}
+            onChange={e => update('general_notes', e.target.value)}
+            placeholder={
+              '例：\n・面談はご本人さまのみのご来店をお願いしております\n・写真撮影サービスは予約状況により後日となる場合があります\n・契約後の途中退会も対応可能です（詳細は面談時にご案内）'
+            }
+            style={{ minHeight: 160, fontSize: 13, lineHeight: 1.8 }}
+          />
+          <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+            プランによらず相談所全体に当てはまる事項を書いてください。
+            プランごとの注意事項は、料金プランの各カード内にある「注意事項」欄に書きます。
           </p>
         </div>
 
@@ -1362,15 +1508,16 @@ export default function AgencyPage() {
                       className="kc-label"
                       style={{ fontSize: 11, color: 'var(--text-mid)' }}
                     >
-                      こんな方向け（任意）
+                      こんな方向け（任意・最大120字）
                     </label>
-                    <input
-                      className="kc-input"
+                    <textarea
+                      className="kc-textarea"
                       value={plan.description ?? ''}
                       onChange={e => updatePlan(planIdx, 'description', e.target.value || null)}
-                      placeholder="例：短期成婚を本気で目指す方向け"
-                      style={{ fontSize: 12 }}
-                      maxLength={60}
+                      placeholder="例：短期成婚を本気で目指す方向け / お見合い経験ゼロでも安心の伴走プラン"
+                      style={{ fontSize: 13, minHeight: 64, lineHeight: 1.6 }}
+                      maxLength={120}
+                      rows={2}
                     />
                   </div>
 
@@ -1581,13 +1728,14 @@ export default function AgencyPage() {
                               ))}
                             </select>
                           </div>
-                          {/* 補足 */}
-                          <input
-                            className="kc-input"
+                          {/* 補足（任意・短文） */}
+                          <textarea
+                            className="kc-textarea"
                             value={item.note ?? ''}
                             onChange={e => updateItem(planIdx, itemIdx, 'note', e.target.value || null)}
-                            placeholder="補足（任意）— 初回のみ / ご希望者のみ 等"
-                            style={{ fontSize: 12 }}
+                            placeholder="補足（任意）— 初回のみ / ご希望者のみ / 別途事務手数料あり 等"
+                            style={{ fontSize: 13, minHeight: 56, lineHeight: 1.7 }}
+                            rows={2}
                           />
                         </div>
                       ))}
@@ -1603,6 +1751,133 @@ export default function AgencyPage() {
                     </button>
                   </div>
 
+                  {/* プラン単位の追加オプション（plan.options[]）
+                     写真撮影・追加カウンセリング 等の追加料金項目。お客様画面では
+                     プラン料金内訳のすぐ下に「オプション」として表示される。 */}
+                  <div
+                    style={{
+                      marginTop: 18,
+                      padding: '12px 14px',
+                      background: 'var(--bg-elev)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 10,
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <label
+                        className="kc-label"
+                        style={{ fontSize: 12, color: 'var(--text)', margin: 0, fontWeight: 500 }}
+                      >
+                        追加オプション（任意）
+                      </label>
+                      <span style={{ fontSize: 10, color: 'var(--text-light)' }}>
+                        {(plan.options ?? []).length} 件
+                      </span>
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7, marginBottom: 10 }}>
+                      写真撮影・追加カウンセリング・休会など、このプランで別途料金がかかる項目を登録できます。
+                    </p>
+                    {(plan.options ?? []).length === 0 ? (
+                      <p style={{ fontSize: 11, color: 'var(--text-light)', fontStyle: 'italic', marginBottom: 10 }}>
+                        オプションはまだ登録されていません。
+                      </p>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {(plan.options ?? []).map((opt, optIdx) => (
+                          <div
+                            key={optIdx}
+                            style={{
+                              padding: 10,
+                              background: 'var(--card)',
+                              border: '1px solid var(--border)',
+                              borderRadius: 8,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 8,
+                            }}
+                          >
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                              <input
+                                className="kc-input"
+                                value={opt.label}
+                                onChange={e => updateOption(planIdx, optIdx, 'label', e.target.value)}
+                                placeholder="オプション名（例：プロフィール写真撮影）"
+                                style={{ flex: '1 1 auto', fontSize: 13 }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => removeOption(planIdx, optIdx)}
+                                aria-label="このオプションを削除"
+                                style={{
+                                  flexShrink: 0,
+                                  width: 28,
+                                  height: 28,
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  background: 'transparent',
+                                  border: '1px solid var(--border)',
+                                  borderRadius: 6,
+                                  cursor: 'pointer',
+                                  color: 'var(--text-mid)',
+                                }}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                  <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                                </svg>
+                              </button>
+                            </div>
+                            <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                              <input
+                                className="kc-input"
+                                type="text"
+                                inputMode="numeric"
+                                value={opt.amount === 0 && (opt.label || opt.note) ? '0' : (opt.amount ? String(opt.amount) : '')}
+                                onChange={e => {
+                                  const stripped = e.target.value
+                                    .replace(/[^0-9]/g, '')
+                                    .replace(/^0+(?=\d)/, '')
+                                  const num = stripped === '' ? 0 : Number(stripped)
+                                  updateOption(planIdx, optIdx, 'amount', num)
+                                }}
+                                onFocus={e => e.currentTarget.select()}
+                                placeholder="0"
+                                style={{ flex: '1 1 100px', fontFamily: 'DM Sans, sans-serif', textAlign: 'right' }}
+                              />
+                              <select
+                                className="kc-select"
+                                value={opt.suffix ?? ''}
+                                onChange={e => updateOption(planIdx, optIdx, 'suffix', e.target.value || null)}
+                                style={{ flex: '0 0 96px', fontSize: 12 }}
+                                aria-label="表示単位"
+                              >
+                                {SUFFIX_OPTIONS.map(s => (
+                                  <option key={s} value={s}>{s === '' ? '(税込)' : s}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <textarea
+                              className="kc-textarea"
+                              value={opt.note ?? ''}
+                              onChange={e => updateOption(planIdx, optIdx, 'note', e.target.value || null)}
+                              placeholder="補足（任意）— 例：ご希望者のみ / プラン契約後3ヶ月以内"
+                              style={{ fontSize: 13, minHeight: 52, lineHeight: 1.7 }}
+                              rows={2}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ marginTop: 10 }}>
+                      <button type="button" className="kc-btn kc-btn-ghost kc-btn-sm" onClick={() => addOption(planIdx)}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        オプションを追加
+                      </button>
+                    </div>
+                  </div>
+
                   {/* プラン単位の注意事項（任意・複数行可） */}
                   <div style={{ marginTop: 14 }}>
                     <label
@@ -1613,7 +1888,7 @@ export default function AgencyPage() {
                     </label>
                     <textarea
                       className="kc-textarea"
-                      style={{ minHeight: 60, fontSize: 12 }}
+                      style={{ minHeight: 140, fontSize: 13, lineHeight: 1.8 }}
                       value={plan.notes ?? ''}
                       onChange={e => updatePlan(planIdx, 'notes', e.target.value || null)}
                       placeholder={
