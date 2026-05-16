@@ -76,9 +76,6 @@ export default async function MyPage() {
         {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
         <AuthCard />
 
-        {/* アカウント設定（ニックネーム / メール / パスワード） */}
-        <AccountSettingsSection />
-
         {/* Kinda note 履歴（天気予報風 横スクロール） */}
         <NoteHistorySection />
 
@@ -102,6 +99,9 @@ export default async function MyPage() {
 
         {/* 投稿した口コミ（ログイン時かつ投稿がある時のみ） */}
         <ReviewHistorySection />
+
+        {/* アカウント設定（ニックネーム / メール / パスワード）— 最下部 collapse */}
+        <AccountSettingsSection />
       </div>
     </main>
   );
