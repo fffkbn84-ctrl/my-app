@@ -84,6 +84,20 @@ html:has(:target) {
   html:has(:target) { scroll-behavior: auto; }
 }
 
+/* iOS Safari の input フォーカス時オートズーム抑止。
+   font-size が 16px 未満の input / textarea / select にフォーカスが入ると
+   iOS が自動でズームし、ページが「アップになっている」状態で残ることがある。
+   モバイル幅でだけ font-size を 16px 以上に上書きしてズームを発動させない。
+   見た目のサイズは padding / line-height で調整しているため、フォントサイズだけ
+   16px に統一しても UI のレイアウトは崩れない。 */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 html,
 body {
   max-width: 100vw;

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Counselor, isNewShop } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -23,6 +24,16 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
   const [demoNoticeOpen, setDemoNoticeOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
+
+  // モーダルが開いている間に、その後遷移しうるページを prefetch
+  // （/booking/<id> と /counselors/<id>）
+  useEffect(() => {
+    if (!counselor) return;
+    const id = counselor.id;
+    router.prefetch(`/booking/${id}`);
+    router.prefetch(`/counselors/${id}`);
+  }, [counselor, router]);
 
   // Hooks は top-level で呼ぶ必要があるため、counselor が null の時は
   // sentinel ID を渡して effect 側で reflect させない
@@ -82,7 +93,8 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
       setDemoNoticeOpen(true);
       return;
     }
-    window.location.href = `/booking/${counselor.id}`;
+    // SPA 遷移（loading.tsx スケルトンが即時表示される / フルリロードしない）
+    router.push(`/booking/${counselor.id}`);
   };
 
   if (!mounted) return null;

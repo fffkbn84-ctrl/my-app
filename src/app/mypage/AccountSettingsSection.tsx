@@ -12,59 +12,103 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
  * - パスワード変更（current-password 再入力）
  *
  * 未ログイン時は何も表示しない（AuthCard が促進カードを出すため）。
+ * 通常時は折りたたまれており、ヘッダーをタップすると 3 行（ニックネーム / メール / パスワード）が展開。
  */
 export default function AccountSettingsSection() {
   const { user, loading, supabase } = useAuth();
+  const [open, setOpen] = useState(false);
 
   if (loading) return null;
   if (!user || !supabase) return null;
 
   return (
     <div style={{ marginTop: 32 }}>
-      <SectionHeader />
-
-      <div
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-controls="account-settings-body"
         style={{
+          width: "100%",
+          textAlign: "left",
           background: "white",
           border: "1px solid var(--border)",
-          borderRadius: 16,
-          overflow: "hidden",
+          borderRadius: open ? "16px 16px 0 0" : 16,
+          padding: "18px 20px",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 12,
+          transition: "border-radius .2s",
         }}
       >
-        <NicknameRow />
-        <Divider />
-        <EmailRow currentEmail={user.email ?? ""} />
-        <Divider />
-        <PasswordRow currentEmail={user.email ?? ""} />
-      </div>
-    </div>
-  );
-}
+        <div>
+          <p
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 11,
+              letterSpacing: ".14em",
+              color: "var(--muted)",
+              marginBottom: 4,
+            }}
+          >
+            ACCOUNT
+          </p>
+          <h2
+            style={{
+              fontFamily: "var(--font-mincho)",
+              fontSize: 18,
+              fontWeight: 500,
+              color: "var(--ink)",
+              margin: 0,
+            }}
+          >
+            アカウント設定
+          </h2>
+        </div>
+        <span
+          aria-hidden="true"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--mid)",
+            transition: "transform .2s",
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            flexShrink: 0,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path
+              d="M4 6l4 4 4-4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </button>
 
-function SectionHeader() {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <p
-        style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: 11,
-          letterSpacing: ".14em",
-          color: "var(--muted)",
-          marginBottom: 4,
-        }}
-      >
-        ACCOUNT
-      </p>
-      <h2
-        style={{
-          fontFamily: "var(--font-mincho)",
-          fontSize: 18,
-          fontWeight: 500,
-          color: "var(--ink)",
-        }}
-      >
-        アカウント設定
-      </h2>
+      {open && (
+        <div
+          id="account-settings-body"
+          style={{
+            background: "white",
+            border: "1px solid var(--border)",
+            borderTop: "none",
+            borderRadius: "0 0 16px 16px",
+            overflow: "hidden",
+          }}
+        >
+          <NicknameRow />
+          <Divider />
+          <EmailRow currentEmail={user.email ?? ""} />
+          <Divider />
+          <PasswordRow currentEmail={user.email ?? ""} />
+        </div>
+      )}
     </div>
   );
 }

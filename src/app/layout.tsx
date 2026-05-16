@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -40,6 +40,18 @@ export const metadata: Metadata = {
     description:
       "好きな人を見つけて、一緒に過ごす日々まで。本音の口コミと相性診断、お見合いから美容まで。",
   },
+};
+
+/**
+ * viewport を明示することで iOS Safari の意図せぬズーム挙動を抑止する。
+ * - maximumScale: 1 はアクセシビリティ上の懸念があるため指定しない（ユーザーは
+ *   ピンチで自由にズーム可能のまま）
+ * - viewportFit: 'cover' で iPhone X 以降のセーフエリアにも対応
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

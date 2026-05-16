@@ -5,6 +5,10 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { AGENCIES, getAgencyById, getCounselorById } from "@/lib/data";
 
+// カウンセラー情報・所属相談所のキャンセル情報は頻繁には変わらない。
+// 60 秒の ISR でリール→予約 への遷移を高速化。
+export const revalidate = 60;
+
 const counselors: Record<string, { name: string; agency: string }> = {
   "1": { name: "田中 美咲", agency: "ブライダルサロン エクラン" },
   "2": { name: "佐藤 あかり", agency: "マリーナ結婚相談所" },

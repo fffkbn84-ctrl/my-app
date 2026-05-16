@@ -14,6 +14,7 @@ import type {
   RouteKey,
   WeatherKey,
 } from "@/app/kinda-note/data/weatherDescriptions";
+import { WEATHER_IMAGE } from "@/app/note/weather/_components/weatherImages";
 
 /**
  * Kinda note 履歴セクション。
@@ -34,10 +35,13 @@ const ROUTE_LABEL: Record<RouteKey, string> = {
   multiple: "複数の人",
 };
 
-// .webp に統一されているが rain_cloud だけ .jpg
+/**
+ * weather key → 画像 URL。WEATHER_IMAGE を共通で参照することで、
+ * dissonance_wind が w_uneasy_wind.webp を指す等のキー名差異を一箇所に集約。
+ * fallback として未登録キーは `/images/w_${weather}.webp` を組み立て。
+ */
 function weatherImagePath(weather: WeatherKey): string {
-  if (weather === "rain_cloud") return "/images/w_rain_cloud.jpg";
-  return `/images/w_${weather}.webp`;
+  return WEATHER_IMAGE[weather] ?? `/images/w_${weather}.webp`;
 }
 
 function formatMonthDay(iso: string): string {
