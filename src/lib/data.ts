@@ -1050,6 +1050,67 @@ export async function getNextSlotByCounselor(counselorId: string): Promise<NextS
 }
 
 /* ────────────────────────────────────────────────────────────
+   カウンセラーの予約枠一覧（指定期間・Asia/Tokyo 表記）
+   - UUID 以外（mock の数値 id）は null を返す → 呼び出し側で mock 生成にフォールバック
+   - 戻り値の date/startTime/endTime は Asia/Tokyo 表記
+──────────────────────────────────────────────────────────── */
+export type SupabaseSlot = {
+  id: string
+  date: string         // 'YYYY-MM-DD' (Asia/Tokyo)
+  startTime: string    // 'HH:mm' (Asia/Tokyo)
+  endTime: string      // 'HH:mm' (Asia/Tokyo)
+  status: 'open' | 'locked' | 'booked'
+}
+
+/** UTC ISO timestamp を Asia/Tokyo の YYYY-MM-DD と HH:mm に分解する */
+function isoToTokyo(iso: string): { date: string; time: string } {
+  // Asia/Tokyo に変換（UTC+9 固定。サマータイム無し）
+  const utc = new Date(iso)
+  const tokyo = new Date(utc.getTime() + 9 * 60 * 60 * 1000)
+  const yyyy = tokyo.getUTCFullYear()
+  const mm = String(tokyo.getUTCMonth() + 1).padStart(2, '0')
+  const dd = String(tokyo.getUTCDate()).padStart(2, '0')
+  const hh = String(tokyo.getUTCHours()).padStart(2, '0')
+  const mi = String(tokyo.getUTCMinutes()).padStart(2, '0')
+  return { date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${mi}` }
+}
+
+export async function getSlotsByCounselor(
+  counselorId: string,
+  fromIso: string,
+  toIso: string,
+): Promise<SupabaseSlot[] | null> {
+  // mock の数値 id（"1" 〜 "105"）は slots テーブルに行が無いので null
+  if (!counselorId || !/^[0-9a-f-]{36}$/i.test(counselorId)) return null
+  const res = await supabase
+    .from('slots')
+    .select('id,start_at,end_at,status')
+    .eq('counselor_id', counselorId)
+    .gte('start_at', fromIso)
+    .lte('start_at', toIso)
+    .order('start_at', { ascending: true })
+  if (res.error) {
+    console.error('[getSlotsByCounselor] error', res.error)
+    return null
+  }
+  type Row = { id: string; start_at: string; end_at: string; status: string }
+  const rows = (res.data as Row[]) ?? []
+  return rows
+    .filter((r) => r.status === 'open' || r.status === 'locked' || r.status === 'booked')
+    .map((r) => {
+      const start = isoToTokyo(r.start_at)
+      const end = isoToTokyo(r.end_at)
+      return {
+        id: r.id,
+        date: start.date,
+        startTime: start.time,
+        endTime: end.time,
+        status: r.status as 'open' | 'locked' | 'booked',
+      }
+    })
+}
+
+/* ────────────────────────────────────────────────────────────
    相談所単体取得（normalize 済み AgencyPartial）
 ──────────────────────────────────────────────────────────── */
 export async function getAgencyById(id: string | number): Promise<AgencyPartial | null> {

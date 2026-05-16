@@ -74,12 +74,13 @@ function Divider() {
 }
 
 /* ──────────────────────────────────────────────
-   ニックネーム
+   ニックネーム（Email / Password と同じく「変更する」ボタン → 展開式）
 ────────────────────────────────────────────── */
 function NicknameRow() {
   const { user, supabase } = useAuth();
   const [nickname, setNickname] = useState("");
-  const [originalNickname, setOriginalNickname] = useState("");
+  const [draft, setDraft] = useState("");
+  const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(true);
@@ -98,7 +99,7 @@ function NicknameRow() {
       const data = res.data as { nickname: string | null } | null;
       const initial = data?.nickname ?? "";
       setNickname(initial);
-      setOriginalNickname(initial);
+      setDraft(initial);
       setLoading(false);
     })();
     return () => {
@@ -106,9 +107,9 @@ function NicknameRow() {
     };
   }, [user, supabase]);
 
-  const trimmed = nickname.trim();
-  const isDirty = trimmed !== originalNickname.trim();
-  const isValid = trimmed.length === 0 || (trimmed.length >= 1 && trimmed.length <= 30);
+  const trimmed = draft.trim();
+  const isDirty = trimmed !== nickname.trim();
+  const isValid = trimmed.length <= 30;
 
   const handleSave = async () => {
     if (!user || !supabase || !isValid || !isDirty || status === "saving") return;
@@ -128,10 +129,19 @@ function NicknameRow() {
       setErrorMsg(error.message || "保存に失敗しました");
       return;
     }
-    setOriginalNickname(trimmed);
+    setNickname(trimmed);
     setStatus("saved");
-    setTimeout(() => setStatus((s) => (s === "saved" ? "idle" : s)), 2000);
+    setTimeout(() => {
+      setOpen(false);
+      setStatus((s) => (s === "saved" ? "idle" : s));
+    }, 1200);
   };
+
+  // 表示用文字列（未設定なら控えめにグレー）
+  const displayValue =
+    nickname.trim() === ""
+      ? { text: "未設定（ゲスト表示）", muted: true }
+      : { text: nickname, muted: false };
 
   return (
     <div style={rowStyle}>
@@ -141,32 +151,84 @@ function NicknameRow() {
           口コミに表示されます（未設定なら「ゲスト」表示）
         </span>
       </div>
-      <div style={rowControlStyle}>
-        <input
-          type="text"
-          value={nickname}
-          onChange={(e) => {
-            setNickname(e.target.value);
-            if (status === "saved" || status === "error") setStatus("idle");
-          }}
-          placeholder={loading ? "読み込み中…" : "例: あかり"}
-          disabled={loading}
-          maxLength={30}
-          style={inputStyle}
-        />
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={!isValid || !isDirty || status === "saving"}
-          style={{
-            ...primaryBtnStyle,
-            opacity: isValid && isDirty && status !== "saving" ? 1 : 0.45,
-            cursor: isValid && isDirty && status !== "saving" ? "pointer" : "not-allowed",
-          }}
-        >
-          {status === "saving" ? "保存中…" : "保存"}
-        </button>
-      </div>
+      {!open ? (
+        <div style={rowControlStyle}>
+          <span
+            style={{
+              flex: 1,
+              fontSize: 13,
+              color: displayValue.muted ? "var(--muted)" : "var(--ink)",
+              fontStyle: displayValue.muted ? "italic" : "normal",
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {loading ? "読み込み中…" : displayValue.text}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(true);
+              setDraft(nickname);
+              setStatus("idle");
+              setErrorMsg("");
+            }}
+            disabled={loading}
+            style={{
+              ...secondaryBtnStyle,
+              opacity: loading ? 0.45 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+          >
+            変更する
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={rowControlStyle}>
+            <input
+              type="text"
+              value={draft}
+              onChange={(e) => {
+                setDraft(e.target.value);
+                if (status === "saved" || status === "error") setStatus("idle");
+              }}
+              placeholder="例: あかり"
+              maxLength={30}
+              autoFocus
+              style={inputStyle}
+            />
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={!isValid || !isDirty || status === "saving"}
+              style={{
+                ...primaryBtnStyle,
+                opacity: isValid && isDirty && status !== "saving" ? 1 : 0.45,
+                cursor: isValid && isDirty && status !== "saving" ? "pointer" : "not-allowed",
+              }}
+            >
+              {status === "saving" ? "保存中…" : "保存"}
+            </button>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setDraft(nickname);
+                setStatus("idle");
+                setErrorMsg("");
+              }}
+              style={ghostBtnStyle}
+            >
+              キャンセル
+            </button>
+          </div>
+        </>
+      )}
       {status === "saved" && <Hint kind="ok">保存しました</Hint>}
       {status === "error" && <Hint kind="error">{errorMsg}</Hint>}
     </div>

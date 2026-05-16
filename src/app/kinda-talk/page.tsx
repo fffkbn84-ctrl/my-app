@@ -123,8 +123,8 @@ export default async function KindaTalkPage() {
               それだけで、不思議と「この人なら話せそう」が見えてきます。
             </p>
 
-            <Link href="/about" className="kt-guide-link">
-              もっと詳しく
+            <Link href="/kinda-type" className="kt-guide-link">
+              相性チェックで自分に合う担当を見つける
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M2 7h10M7 2l5 5-5 5" />
               </svg>

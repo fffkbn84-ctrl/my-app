@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Slot } from "@/types/booking";
+import { getSlotsByCounselor, type SupabaseSlot } from "@/lib/data";
 
 /* ────────────────────────────────────────────────────────────
-   空き日付を今日から動的生成（後でSupabase に差し替え）
+   モック動作（mock counselor id 用フォールバック）
+   - UUID のカウンセラーは Supabase の slots テーブルから読む
+   - 数値 ID（1〜6, 101〜105）は従来通り疑似データを生成
 ──────────────────────────────────────────────────────────── */
-function generateAvailableDates(): Set<string> {
+function generateMockAvailableDates(): Set<string> {
   const dates = new Set<string>();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -25,19 +28,12 @@ function generateAvailableDates(): Set<string> {
   return dates;
 }
 
-const AVAILABLE_DATES = generateAvailableDates();
+const MOCK_AVAILABLE_DATES = generateMockAvailableDates();
 const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
-function pad2(n: number) { return String(n).padStart(2, "0"); }
-function toKey(year: number, month: number, day: number) { return `${year}-${pad2(month + 1)}-${pad2(day)}`; }
-function formatYM(year: number, month: number) { return `${year}年${month + 1}月`; }
-
-/* ────────────────────────────────────────────────────────────
-   時間スロット生成（後で Supabase Realtime に差し替え）
-──────────────────────────────────────────────────────────── */
 const MEETING_TYPES = ["対面", "対面", "対面", "オンライン", "対面", "オンライン", "対面", "対面"] as const;
 
-function generateSlots(date: string): Slot[] {
+function generateMockSlots(date: string): Slot[] {
   const times = [
     ["10:00", "11:00"], ["11:00", "12:00"], ["13:00", "14:00"], ["14:00", "15:00"],
     ["15:00", "16:00"], ["16:00", "17:00"], ["17:00", "18:00"], ["18:00", "19:00"],
@@ -51,6 +47,12 @@ function generateSlots(date: string): Slot[] {
   });
 }
 
+function pad2(n: number) { return String(n).padStart(2, "0"); }
+function toKey(year: number, month: number, day: number) { return `${year}-${pad2(month + 1)}-${pad2(day)}`; }
+function formatYM(year: number, month: number) { return `${year}年${month + 1}月`; }
+
+const isUuid = (s: string) => /^[0-9a-f-]{36}$/i.test(s);
+
 interface Props {
   counselorId: string;
   selectedDate: string | null;
@@ -58,12 +60,80 @@ interface Props {
   onNext: (date: string, slot: Slot) => void;
 }
 
-export default function Step1DateTime({ selectedDate: initDate, selectedSlot: initSlot, onNext }: Props) {
+export default function Step1DateTime({ counselorId, selectedDate: initDate, selectedSlot: initSlot, onNext }: Props) {
   const today = new Date();
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(initDate);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(initSlot);
+
+  // Supabase 連携：UUID の counselor だけ DB から slots を取りに行く
+  const useSupabase = isUuid(counselorId);
+  const [supabaseSlots, setSupabaseSlots] = useState<SupabaseSlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  // 表示中の月が変わったら fetch（前後 1 ヶ月分まとめて取る）
+  useEffect(() => {
+    if (!useSupabase) return;
+    let cancelled = false;
+    setLoadingSlots(true);
+    // 表示月の前月1日 〜 翌月末を Asia/Tokyo の境界で計算
+    const fromLocal = new Date(viewYear, viewMonth - 1, 1, 0, 0, 0);
+    const toLocal = new Date(viewYear, viewMonth + 2, 0, 23, 59, 59);
+    getSlotsByCounselor(counselorId, fromLocal.toISOString(), toLocal.toISOString())
+      .then((res) => {
+        if (cancelled) return;
+        setSupabaseSlots(res ?? []);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingSlots(false);
+      });
+    return () => { cancelled = true; };
+  }, [counselorId, viewYear, viewMonth, useSupabase]);
+
+  // 当日の現在時刻（Asia/Tokyo）— 過去スロットを除外する判定に使う
+  const nowMs = Date.now();
+
+  // Supabase 由来の slots を「日付 → Slot[]」に変換し、将来の open/locked のみを残す
+  const slotsByDate = useMemo(() => {
+    const map = new Map<string, Slot[]>();
+    if (!useSupabase) return map;
+    for (const s of supabaseSlots) {
+      // 既に予約済みは候補から外し、今より過去のスロットも候補から外す
+      // （カウンセラー画面で「過去枠を消し忘れ」でも user-side では混乱しない）
+      const startMs = new Date(`${s.date}T${s.startTime}:00+09:00`).getTime();
+      if (startMs < nowMs) continue;
+      // 「ロック中」は他の人が予約フロー中の可能性 → ユーザー側では選べないが、
+      // 表示上は「満席（仮押さえ含む）」として disable する
+      const slot: Slot = {
+        id: s.id,
+        date: s.date,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        status: s.status,
+        // meetingType は将来 slots テーブルにカラム追加するまで未指定（== 対面相当）
+      };
+      const arr = map.get(s.date) ?? [];
+      arr.push(slot);
+      map.set(s.date, arr);
+    }
+    // 各日内で時刻順
+    for (const [k, arr] of map.entries()) {
+      arr.sort((a, b) => a.startTime.localeCompare(b.startTime));
+      map.set(k, arr);
+    }
+    return map;
+  }, [supabaseSlots, useSupabase, nowMs]);
+
+  // 「予約可能」と判定する日付の集合（Supabase なら open が 1 つでもある日 / mock なら従来）
+  const availableDates: Set<string> = useMemo(() => {
+    if (!useSupabase) return MOCK_AVAILABLE_DATES;
+    const s = new Set<string>();
+    for (const [date, arr] of slotsByDate.entries()) {
+      if (arr.some((x) => x.status === "open")) s.add(date);
+    }
+    return s;
+  }, [slotsByDate, useSupabase]);
 
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -101,7 +171,13 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
     setSelectedSlot(null);
   };
 
-  const slots = selectedDate ? generateSlots(selectedDate) : [];
+  // その日の時間スロット
+  const slots: Slot[] = selectedDate
+    ? useSupabase
+      ? slotsByDate.get(selectedDate) ?? []
+      : generateMockSlots(selectedDate)
+    : [];
+
   const canProceed = selectedDate !== null && selectedSlot !== null;
 
   return (
@@ -143,7 +219,7 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
 
               const key = toKey(viewYear, viewMonth, day);
               const past = isPast(day);
-              const available = AVAILABLE_DATES.has(key);
+              const available = availableDates.has(key);
               const selected = selectedDate === key;
               const todayDay = isToday(day);
               const canSelect = available && !past;
@@ -179,6 +255,18 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
             })}
           </div>
         </div>
+        {useSupabase && loadingSlots && (
+          <p style={{ fontSize: 11, color: "var(--muted)", textAlign: "center", marginTop: 12 }}>
+            空き状況を読み込み中…
+          </p>
+        )}
+        {useSupabase && !loadingSlots && availableDates.size === 0 && (
+          <p style={{ fontSize: 12, color: "var(--mid)", textAlign: "center", marginTop: 16, lineHeight: 1.8 }}>
+            この月に予約可能な枠はまだ登録されていません。
+            <br />
+            前後の月もご確認ください。
+          </p>
+        )}
       </div>
 
       {/* 時間スロット */}
@@ -186,6 +274,11 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
         <div>
           <p className="time-slots-title">空き時間を選ぶ</p>
           <div className="bk-time-slots">
+            {slots.length === 0 && (
+              <p style={{ fontSize: 12, color: "var(--mid)", padding: "12px 4px" }}>
+                この日の枠はありません。
+              </p>
+            )}
             {slots.map((slot) => {
               const unavailable = slot.status !== "open";
               const isSelected = selectedSlot?.id === slot.id;
@@ -197,7 +290,7 @@ export default function Step1DateTime({ selectedDate: initDate, selectedSlot: in
                   className={`time-slot${isSelected ? " selected" : ""}${unavailable ? " unavailable" : ""}`}
                 >
                   <span className="ts-time">{slot.startTime}</span>
-                  <span className="ts-type">{unavailable ? "満席" : slot.meetingType}</span>
+                  <span className="ts-type">{unavailable ? "満席" : slot.meetingType ?? "対面"}</span>
                 </button>
               );
             })}
