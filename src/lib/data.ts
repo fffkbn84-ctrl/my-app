@@ -1084,7 +1084,7 @@ export async function getSlotsByCounselor(
   if (!counselorId || !/^[0-9a-f-]{36}$/i.test(counselorId)) return null
   const res = await supabase
     .from('slots')
-    .select('id,start_at,end_at,status')
+    .select('id,start_at,end_at,status,locked_until')
     .eq('counselor_id', counselorId)
     .gte('start_at', fromIso)
     .lte('start_at', toIso)
@@ -1093,19 +1093,27 @@ export async function getSlotsByCounselor(
     console.error('[getSlotsByCounselor] error', res.error)
     return null
   }
-  type Row = { id: string; start_at: string; end_at: string; status: string }
+  type Row = { id: string; start_at: string; end_at: string; status: string; locked_until: string | null }
   const rows = (res.data as Row[]) ?? []
+  // 「ロック切れ slot は実質 open」として user-side で扱う（pg_cron 不要の遅延クリーンアップ）。
+  // locked_until が NULL の場合は相談所オーナーの手動ロックなので open に戻さない。
+  const nowMs = Date.now()
   return rows
     .filter((r) => r.status === 'open' || r.status === 'locked' || r.status === 'booked')
     .map((r) => {
       const start = isoToTokyo(r.start_at)
       const end = isoToTokyo(r.end_at)
+      let effective = r.status as 'open' | 'locked' | 'booked'
+      if (r.status === 'locked' && r.locked_until) {
+        const lockedUntilMs = new Date(r.locked_until).getTime()
+        if (lockedUntilMs < nowMs) effective = 'open'
+      }
       return {
         id: r.id,
         date: start.date,
         startTime: start.time,
         endTime: end.time,
-        status: r.status as 'open' | 'locked' | 'booked',
+        status: effective,
       }
     })
 }

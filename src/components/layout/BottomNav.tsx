@@ -25,44 +25,50 @@ const navItems = [
     ),
   },
   {
-    label: "診断",
+    label: "気持ち",
     href: "/kinda-note",
     icon: (
+      // 雲＋太陽（天気 = Kinda note のメタファー）
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.4" />
+        {/* 太陽（右上） */}
+        <circle cx="17" cy="7" r="2.6" stroke="currentColor" strokeWidth="1.3" />
         <path
-          d="M12 7v2M12 15v2M7 12h2M15 12h2"
+          d="M17 2.5v1.4M17 10.1v1.4M12.4 7h1.4M20.2 7h1.4M13.7 3.7l1 1M19.3 10.3l1 1M13.7 10.3l1-1M19.3 3.7l1-1"
           stroke="currentColor"
-          strokeWidth="1.3"
+          strokeWidth="1.1"
           strokeLinecap="round"
         />
+        {/* 雲（左下） */}
         <path
-          d="M14.5 9.5l-3 2.5-1.5 3 3-2.5 1.5-3z"
+          d="M6.5 19a3.2 3.2 0 010-6.4h.4a4.3 4.3 0 018.4-1A3.4 3.4 0 0114.5 19h-8z"
           stroke="currentColor"
-          strokeWidth="1.2"
+          strokeWidth="1.4"
           strokeLinejoin="round"
+          fill="none"
         />
       </svg>
     ),
   },
   {
-    label: "相談所",
+    label: "担当",
     href: "/kinda-talk",
     icon: (
+      // 人 + 吹き出し（カウンセラーとの対話）
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <circle cx="9" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.4" />
+        <circle cx="9" cy="9" r="3.5" stroke="currentColor" strokeWidth="1.4" />
         <path
-          d="M2 19c0-3.866 3.134-7 7-7"
+          d="M2.5 20c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5"
           stroke="currentColor"
           strokeWidth="1.4"
           strokeLinecap="round"
         />
-        <circle cx="17" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.3" />
+        {/* 吹き出し（右上） */}
         <path
-          d="M13 19c0-2.761 1.791-5 4-5s4 2.239 4 5"
+          d="M14.5 4h6a1 1 0 011 1v3.5a1 1 0 01-1 1h-3l-1.5 1.5V9.5h-1.5a1 1 0 01-1-1V5a1 1 0 011-1z"
           stroke="currentColor"
-          strokeWidth="1.3"
-          strokeLinecap="round"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          fill="none"
         />
       </svg>
     ),
