@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { ColumnMeta } from "@/lib/columns";
+import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
+import type { WeatherKey } from "@/app/kinda-note/data/weatherDescriptions";
 
 const CATEGORIES = ["すべて", "気持ちの整理", "取材レポート", "お見合い準備", "デートプラン"];
 
@@ -18,21 +20,38 @@ function ColumnCard({
   column: ColumnMeta;
   featured?: boolean;
 }) {
+  // 「気持ちの整理」カテゴリ (= weatherKey あり) はポラロイド風サムネを使う
+  const hasWeatherKey = !!column.weatherKey;
+
   return (
     <Link
       href={`/columns/${column.slug}`}
       className={`kv-card ${featured ? "kv-card-featured" : ""}`}
     >
-      {/* サムネイル — thumbnail 未設定なら Kinda voices 共通フォールバック画像 */}
+      {/* サムネイル */}
       <div
         className="kv-card-thumb"
         style={{
-          background: column.thumbnail
-            ? column.thumbnail
-            : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
+          // weatherKey 記事は背景を WeatherColumnThumb 側で制御。
+          // 通常記事は thumbnail（gradient）or フォールバック画像。
+          background: hasWeatherKey
+            ? undefined
+            : column.thumbnail
+              ? column.thumbnail
+              : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
           height: featured ? "260px" : "160px",
+          overflow: "hidden",
         }}
-      />
+      >
+        {hasWeatherKey && (
+          <WeatherColumnThumb
+            weatherKey={column.weatherKey as WeatherKey}
+            featured={featured}
+            slug={column.slug}
+            height={featured ? 260 : 160}
+          />
+        )}
+      </div>
 
       {/* テキストエリア */}
       <div className="kv-card-body">

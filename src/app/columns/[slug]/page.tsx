@@ -10,6 +10,7 @@ import {
 import ShareButtons from "./ShareButtons";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
+import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import SourceCitation from "@/components/ui/SourceCitation";
@@ -188,12 +189,14 @@ export default async function ColumnDetailPage({ params }: Props) {
           }}
         >
 
-          {/* サムネイル — thumbnail 未設定なら Kinda voices 共通フォールバック画像 */}
+          {/* サムネイル — weatherKey ありなら polaroid 風、無ければ gradient or fallback */}
           <div
             style={{
-              background: column.thumbnail
-                ? column.thumbnail
-                : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
+              background: column.weatherKey
+                ? undefined
+                : column.thumbnail
+                  ? column.thumbnail
+                  : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
               height: "240px",
               borderRadius: "16px",
               marginBottom: "32px",
@@ -201,6 +204,14 @@ export default async function ColumnDetailPage({ params }: Props) {
               overflow: "hidden",
             }}
           >
+            {column.weatherKey && (
+              <WeatherColumnThumb
+                weatherKey={column.weatherKey as WeatherKey}
+                featured
+                slug={column.slug}
+                height={240}
+              />
+            )}
             {/* カテゴリタグ（左下） */}
             <span
               style={{
