@@ -116,6 +116,9 @@ export default function Step4Confirm({
     { key: "所要時間", val: "約60分" },
     { key: "お名前", val: userInfo.fullName || "—" },
     { key: "メール", val: userInfo.email || "—" },
+    ...(userInfo.message && userInfo.message.trim().length > 0
+      ? [{ key: "事前に伝えたいこと", val: userInfo.message.trim(), multiline: true }]
+      : []),
     { key: "費用", val: "無料", green: true },
   ];
 
@@ -143,15 +146,31 @@ export default function Step4Confirm({
 
       {/* 予約詳細カード */}
       <div className="bk-confirm-card">
-        {rows.map(({ key, val, green }) => (
-          <div key={key} className="bk-confirm-row">
+        {rows.map(({ key, val, green, multiline }) => (
+          <div
+            key={key}
+            className="bk-confirm-row"
+            style={multiline ? { alignItems: "flex-start", flexDirection: "column", gap: 6 } : undefined}
+          >
             <span className="bk-confirm-key">{key}</span>
             <span
               className="bk-confirm-val"
               style={{
                 ...(green ? { color: "var(--green)" } : {}),
-                display: "inline-flex",
+                display: multiline ? "block" : "inline-flex",
                 alignItems: "center",
+                ...(multiline
+                  ? {
+                      whiteSpace: "pre-wrap",
+                      lineHeight: 1.85,
+                      padding: "10px 12px",
+                      background: "var(--pale)",
+                      borderRadius: 10,
+                      fontSize: 13,
+                      color: "var(--ink)",
+                      width: "100%",
+                    }
+                  : {}),
               }}
             >
               {val}
@@ -175,6 +194,19 @@ export default function Step4Confirm({
           </div>
         ))}
       </div>
+
+      {/* 自分の入力を見直すための案内（押し付けない一言） */}
+      <p
+        style={{
+          fontSize: 11,
+          color: "var(--muted)",
+          textAlign: "center",
+          margin: "8px 0 0",
+          lineHeight: 1.8,
+        }}
+      >
+        ここに表示されている内容で予約が確定します。修正したい場合は「戻る」から編集できます。
+      </p>
 
       {/* グリーンnotice */}
       <div className="bk-confirm-notice">
