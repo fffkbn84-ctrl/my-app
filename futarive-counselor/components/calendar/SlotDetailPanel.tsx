@@ -6,6 +6,8 @@ interface SlotDetailPanelProps {
   date: string
   slots: Slot[]
   onStatusChange: (slotId: string, status: Slot['status']) => void
+  /** 022_slots_meeting_type — 面談形式の事前指定変更 */
+  onMeetingTypeChange: (slotId: string, meetingType: '対面' | 'オンライン' | null) => void
   onDelete: (slotId: string) => void
   onAddNew: () => void
   onViewReservation: (slotId: string) => void
@@ -17,7 +19,14 @@ const STATUS_LABELS: Record<Slot['status'], string> = {
   booked: '予約済み',
 }
 
-export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete, onAddNew, onViewReservation }: SlotDetailPanelProps) {
+/** 面談形式の表示ラベル + 色 */
+const MEETING_TYPE_LABEL = (mt: Slot['meeting_type']): { label: string; color: string; bg: string } => {
+  if (mt === '対面') return { label: '対面', color: '#A88858', bg: 'rgba(168,136,88,.12)' }
+  if (mt === 'オンライン') return { label: 'オンライン', color: '#5A7FAF', bg: 'rgba(90,127,175,.12)' }
+  return { label: '両方', color: 'var(--text-mid)', bg: 'var(--bg-elev)' }
+}
+
+export default function SlotDetailPanel({ date, slots, onStatusChange, onMeetingTypeChange, onDelete, onAddNew, onViewReservation }: SlotDetailPanelProps) {
   const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('ja-JP', {
     month: 'long', day: 'numeric', weekday: 'short',
   })
@@ -72,6 +81,28 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
                   {STATUS_LABELS[slot.status]}
                 </span>
 
+                {/* 面談形式バッジ（022_slots_meeting_type） */}
+                {(() => {
+                  const m = MEETING_TYPE_LABEL(slot.meeting_type)
+                  return (
+                    <span
+                      style={{
+                        flexShrink: 0,
+                        fontSize: 10,
+                        padding: '2px 7px',
+                        borderRadius: 20,
+                        background: m.bg,
+                        color: m.color,
+                        fontFamily: 'var(--font-sans)',
+                        letterSpacing: '.04em',
+                      }}
+                      aria-label={`面談形式 ${m.label}`}
+                    >
+                      {m.label}
+                    </span>
+                  )
+                })()}
+
                 {/* 右側コントロール群：1つの flex グループにまとめて、
                     必要なら一括で次の行に折り返す（iPhone 16 などの幅で
                     ゴミ箱がはみ出るバグ対策） */}
@@ -112,6 +143,31 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
                       >
                         <option value="open">空きに変更</option>
                         <option value="locked">ロックに変更</option>
+                      </select>
+
+                      {/* 面談形式の変更（022_slots_meeting_type） */}
+                      <select
+                        value={slot.meeting_type ?? 'both'}
+                        onChange={e => {
+                          const v = e.target.value
+                          const next = v === '対面' || v === 'オンライン' ? v : null
+                          onMeetingTypeChange(slot.id, next)
+                        }}
+                        aria-label="面談形式を変更"
+                        style={{
+                          fontSize: 12,
+                          padding: '4px 8px',
+                          borderRadius: 8,
+                          border: '1px solid var(--border)',
+                          background: 'var(--card)',
+                          color: 'var(--text)',
+                          cursor: 'pointer',
+                          maxWidth: 120,
+                        }}
+                      >
+                        <option value="both">両方OK</option>
+                        <option value="対面">対面のみ</option>
+                        <option value="オンライン">オンラインのみ</option>
                       </select>
 
                       {slot.status === 'open' && (

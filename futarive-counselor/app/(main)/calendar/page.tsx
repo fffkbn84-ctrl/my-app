@@ -147,7 +147,11 @@ export default function CalendarPage() {
     return () => { supabase.removeChannel(channel) }
   }, [counselor, year, month, loadSlots])
 
-  const handleAddSlot = async (startTime: string, endTime: string) => {
+  const handleAddSlot = async (
+    startTime: string,
+    endTime: string,
+    meetingType: '対面' | 'オンライン' | null,
+  ) => {
     if (!counselor) { showToast('カウンセラー情報が読み込めていません', 5000); return }
     if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください', 4000); return }
     setAddingSlot(true)
@@ -157,6 +161,7 @@ export default function CalendarPage() {
       start_at: startTime,
       end_at: endTime,
       status: 'open' as const,
+      meeting_type: meetingType,
     }
     console.log('[slot add] payload', payload)
     const { data: inserted, error } = await supabase.from('slots').insert(payload).select().maybeSingle()
@@ -184,6 +189,19 @@ export default function CalendarPage() {
     const supabase = createClient()
     await supabase.from('slots').update({ status }).eq('id', slotId)
     setSlots(prev => prev.map(s => s.id === slotId ? { ...s, status } : s))
+  }
+
+  /** 022_slots_meeting_type — 面談形式の更新 */
+  const handleMeetingTypeChange = async (slotId: string, meetingType: '対面' | 'オンライン' | null) => {
+    const supabase = createClient()
+    const { error } = await supabase.from('slots').update({ meeting_type: meetingType }).eq('id', slotId)
+    if (error) {
+      console.error('[slot meeting_type] error', error)
+      showToast(`面談形式の変更に失敗：${describeError(error)}`, 5000)
+      return
+    }
+    setSlots(prev => prev.map(s => s.id === slotId ? { ...s, meeting_type: meetingType } : s))
+    showToast(meetingType ? `${meetingType}のみに変更しました` : '両方OKに変更しました')
   }
 
   const handleDelete = async (slotId: string) => {
@@ -413,6 +431,7 @@ export default function CalendarPage() {
           date={selectedDate}
           slots={selectedSlots}
           onStatusChange={handleStatusChange}
+          onMeetingTypeChange={handleMeetingTypeChange}
           onDelete={handleDelete}
           onAddNew={() => setShowForm(true)}
           onViewReservation={setViewingReservationSlotId}

@@ -32,9 +32,12 @@ function buildTimes(startMin: number, endMin: number): string[] {
   return out
 }
 
+type MeetingType = '対面' | 'オンライン' | null
+
 interface SlotFormProps {
   date: string // YYYY-MM-DD
-  onAdd: (startTime: string, endTime: string) => void
+  /** meetingType: NULL = 両方OK、'対面' / 'オンライン' = 形式固定 */
+  onAdd: (startTime: string, endTime: string, meetingType: MeetingType) => void
   onClose: () => void
   loading: boolean
   consultationStart?: string | null  // "HH:mm[:ss]"
@@ -63,6 +66,8 @@ export default function SlotForm({ date, onAdd, onClose, loading, consultationSt
   const [endTime, setEndTime] = useState(
     endTimes.includes(suggestedEnd) ? suggestedEnd : (endTimes.find(t => t > initialStart) ?? endTimes[0] ?? '11:00')
   )
+  // 面談形式（'both' = NULL = 両方OK / '対面' / 'オンライン'）
+  const [meetingType, setMeetingType] = useState<'both' | '対面' | 'オンライン'>('both')
 
   // 開始時刻が変わったら所要時間ぶん後の終了時刻に自動セット
   useEffect(() => {
@@ -78,7 +83,8 @@ export default function SlotForm({ date, onAdd, onClose, loading, consultationSt
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onAdd(localDateTimeToIso(date, startTime), localDateTimeToIso(date, endTime))
+    const mt: MeetingType = meetingType === 'both' ? null : meetingType
+    onAdd(localDateTimeToIso(date, startTime), localDateTimeToIso(date, endTime), mt)
   }
 
   const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('ja-JP', {
@@ -93,7 +99,7 @@ export default function SlotForm({ date, onAdd, onClose, loading, consultationSt
     <form onSubmit={handleSubmit}>
       <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 6 }}>{dateLabel}</p>
       <p style={{ fontSize: 11, color: 'var(--text-light)', marginBottom: 18 }}>{hoursHint}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
         <div>
           <label className="kc-label">開始時刻</label>
           <select className="kc-select" value={startTime} onChange={e => setStartTime(e.target.value)}>
@@ -106,6 +112,24 @@ export default function SlotForm({ date, onAdd, onClose, loading, consultationSt
             {endTimes.filter(t => t > startTime).map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
+      </div>
+
+      {/* 022_slots_meeting_type — 枠ごとに対面/オンラインを事前固定可 */}
+      <div style={{ marginBottom: 20 }}>
+        <label className="kc-label">面談形式</label>
+        <select
+          className="kc-select"
+          value={meetingType}
+          onChange={e => setMeetingType(e.target.value as 'both' | '対面' | 'オンライン')}
+        >
+          <option value="both">対面 / オンライン どちらも可</option>
+          <option value="対面">対面のみ</option>
+          <option value="オンライン">オンラインのみ</option>
+        </select>
+        <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+          「どちらも可」にするとユーザーが予約時に選択できます。
+          <br />「対面のみ」「オンラインのみ」にするとその形式に固定されます。
+        </p>
       </div>
       <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
         <button type="button" className="kc-btn kc-btn-ghost" onClick={onClose}>キャンセル</button>
