@@ -91,9 +91,6 @@ export default function ColumnsClient({ columns }: { columns: ColumnMeta[] }) {
       ? columns
       : columns.filter((c) => c.category === activeCategory);
 
-  const featured = filtered.find((c) => c.featured);
-  const rest = filtered.filter((c) => !c.featured || c !== featured);
-
   return (
     <>
       {/* セクション見出し */}
@@ -124,7 +121,9 @@ export default function ColumnsClient({ columns }: { columns: ColumnMeta[] }) {
         </div>
       </div>
 
-      {/* 記事グリッド */}
+      {/* 記事グリッド — 全カード同サイズで均一に並べる
+         （以前は featured 1 枚を 5fr / 残りを 3fr の非対称グリッドにしていたが、
+         「サイズが間違っている」と誤読されやすいので統一） */}
       <div className="kv-grid-wrap">
         {filtered.length === 0 ? (
           <div className="kv-empty">
@@ -141,13 +140,10 @@ export default function ColumnsClient({ columns }: { columns: ColumnMeta[] }) {
           <div
             className="kv-grid"
             style={{
-              gridTemplateColumns: featured
-                ? "5fr 3fr"
-                : "repeat(auto-fill, minmax(280px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
             }}
           >
-            {featured && <ColumnCard column={featured} featured />}
-            {rest.map((col) => (
+            {filtered.map((col) => (
               <ColumnCard key={col.slug} column={col} />
             ))}
           </div>

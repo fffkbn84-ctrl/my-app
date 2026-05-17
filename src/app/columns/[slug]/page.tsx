@@ -613,11 +613,24 @@ export default async function ColumnDetailPage({ params }: Props) {
                   >
                     <div
                       style={{
-                        background: col.thumbnail,
+                        background: col.weatherKey
+                          ? undefined
+                          : col.thumbnail
+                            ? col.thumbnail
+                            : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
                         height: "120px",
                         flexShrink: 0,
+                        overflow: "hidden",
                       }}
-                    />
+                    >
+                      {col.weatherKey && (
+                        <WeatherColumnThumb
+                          weatherKey={col.weatherKey as WeatherKey}
+                          slug={col.slug}
+                          height={120}
+                        />
+                      )}
+                    </div>
                     <div style={{ padding: "14px 16px" }}>
                       <span
                         style={{
