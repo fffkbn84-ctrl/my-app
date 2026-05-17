@@ -6806,6 +6806,17 @@ body:has(.cta-mobile-bar) .floating-back {
   color: inherit;
   transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
 }
+/* ピックアップ枠 — 編集部おすすめの太枠 + 暖色背景 */
+.kv-card-pickup {
+  border: 2px solid var(--accent);
+  background: linear-gradient(180deg, rgba(200,169,122,.06) 0%, white 50%);
+  box-shadow: 0 4px 14px rgba(200,169,122,.16), 0 1px 3px rgba(180,140,90,.08);
+}
+.kv-card-pickup:hover {
+  border-color: var(--accent-deep, #A88858);
+  box-shadow: 0 10px 28px rgba(200,169,122,.24);
+}
+
 .kv-card:hover {
   box-shadow: 0 8px 24px rgba(139,115,85,.12);
   transform: translateY(-2px);
