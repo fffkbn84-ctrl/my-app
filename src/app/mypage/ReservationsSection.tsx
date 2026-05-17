@@ -26,6 +26,8 @@ type ReservationRow = {
   status: "active" | "canceled" | "completed";
   canceled_at: string | null;
   created_at: string;
+  /** 023_reservations_agency_message — リスト表示の「メッセージあり」バッジ判定用 */
+  agency_message: string | null;
 };
 
 type AgencyContact = {
@@ -85,7 +87,7 @@ export default function ReservationsSection() {
       const { data, error } = await supabase
         .from("reservations")
         .select(
-          "id, slot_id, counselor_id, counselor_name, agency_id, agency_name, start_at, end_at, meeting_type, notes, status, canceled_at, created_at",
+          "id, slot_id, counselor_id, counselor_name, agency_id, agency_name, start_at, end_at, meeting_type, notes, status, canceled_at, created_at, agency_message",
         )
         .order("start_at", { ascending: false, nullsFirst: false });
       if (cancelled) return;
@@ -421,6 +423,26 @@ function ReservationCard({
               {dateLabel}
               {row.meeting_type ? ` ・ ${row.meeting_type}` : ""}
             </div>
+            {/* 023_reservations_agency_message — 相談所からメッセージあれば小バッジ */}
+            {row.agency_message && (
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  marginTop: 8,
+                  fontSize: 11,
+                  color: "var(--accent)",
+                  fontFamily: "var(--font-mincho)",
+                }}
+                aria-label="相談所からのメッセージがあります"
+              >
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path d="M2 4a1 1 0 011-1h8a1 1 0 011 1v5a1 1 0 01-1 1H6l-3 2v-2H3a1 1 0 01-1-1V4z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="rgba(200,169,122,.12)" />
+                </svg>
+                相談所からメッセージあり
+              </div>
+            )}
           </div>
           <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
             {canceled ? (

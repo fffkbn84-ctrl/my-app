@@ -170,6 +170,9 @@ export interface Database {
           agency_id: string | null;
           counselor_name: string | null;
           agency_name: string | null;
+          /* 023_reservations_agency_message — 相談所からの単方向メッセージ */
+          agency_message: string | null;
+          agency_message_at: string | null;
           created_at: string;
           updated_at: string;
         };

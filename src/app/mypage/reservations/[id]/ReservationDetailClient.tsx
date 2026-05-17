@@ -26,6 +26,9 @@ type ReservationRow = {
   status: "active" | "canceled" | "completed";
   canceled_at: string | null;
   created_at: string;
+  /** 023_reservations_agency_message — 相談所からの単方向メッセージ */
+  agency_message: string | null;
+  agency_message_at: string | null;
 };
 
 type AgencyInfo = {
@@ -103,7 +106,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       const res = await supabase
         .from("reservations")
         .select(
-          "id, slot_id, counselor_id, counselor_name, agency_id, agency_name, start_at, end_at, meeting_type, notes, status, canceled_at, created_at",
+          "id, slot_id, counselor_id, counselor_name, agency_id, agency_name, start_at, end_at, meeting_type, notes, status, canceled_at, created_at, agency_message, agency_message_at",
         )
         .eq("id", reservationId)
         .maybeSingle();
@@ -439,6 +442,60 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           {row.meeting_type && <Row label="形式" value={row.meeting_type} />}
           {row.notes && <Row label="メモ" value={row.notes} multiline />}
         </div>
+
+        {/* 023_reservations_agency_message — 相談所からのメッセージ */}
+        {row.agency_message && (
+          <div
+            style={{
+              marginTop: 16,
+              padding: "14px 16px",
+              background: "rgba(200,169,122,.10)",
+              border: "1px solid rgba(200,169,122,.30)",
+              borderLeft: "3px solid var(--accent)",
+              borderRadius: 12,
+            }}
+            aria-label="相談所からのメッセージ"
+          >
+            <p
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 10,
+                letterSpacing: ".18em",
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                margin: 0,
+                marginBottom: 4,
+              }}
+            >
+              Message from {row.agency_name ?? "相談所"}
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: 13,
+                color: "var(--ink)",
+                lineHeight: 1.85,
+                whiteSpace: "pre-line",
+                margin: 0,
+              }}
+            >
+              {row.agency_message}
+            </p>
+            {row.agency_message_at && (
+              <p
+                style={{
+                  fontSize: 10,
+                  color: "var(--muted)",
+                  marginTop: 8,
+                  marginBottom: 0,
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+              >
+                {formatDateTimeJa(row.agency_message_at)}
+              </p>
+            )}
+          </div>
+        )}
 
         {counselorId && (
           <Link
