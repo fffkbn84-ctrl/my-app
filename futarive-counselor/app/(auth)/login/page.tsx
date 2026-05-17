@@ -61,20 +61,21 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ marginBottom: 10 }}>
             <span style={{
+              fontFamily: 'DM Serif Display, serif',
+              fontWeight: 400,
+              fontStyle: 'italic',
+              fontSize: '26px',
+              color: 'var(--accent)',
+              letterSpacing: '.04em',
+            }}>Kinda</span>
+            <span style={{ color: 'var(--accent)', margin: '0 8px', fontSize: '22px' }}>·</span>
+            <span style={{
               fontFamily: 'Shippori Mincho, serif',
               fontWeight: 600,
-              fontSize: '24px',
+              fontSize: '22px',
               color: 'var(--text-deep)',
               letterSpacing: '.1em',
             }}>ふたりへ</span>
-            <span style={{ color: 'var(--accent)', margin: '0 7px', fontSize: '20px' }}>·</span>
-            <span style={{
-              fontFamily: 'DM Sans, sans-serif',
-              fontWeight: 200,
-              fontSize: '19px',
-              color: 'var(--text-mid)',
-              letterSpacing: '.08em',
-            }}>futarive</span>
           </div>
           <div style={{
             display: 'inline-block',
@@ -86,6 +87,13 @@ export default function LoginPage() {
             letterSpacing: '.12em',
             color: 'var(--accent)',
           }}>COUNSELOR ADMIN</div>
+          <p style={{
+            marginTop: 8,
+            fontSize: 12,
+            color: 'var(--text-mid)',
+            fontFamily: 'Shippori Mincho, serif',
+            letterSpacing: '.04em',
+          }}>カウンセラー専用サイト</p>
         </div>
 
         {!showReset ? (

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import AddCounselorModal from '@/components/dashboard/AddCounselorModal'
 import PendingCompletionsRows from '@/components/dashboard/PendingCompletionsSection'
+import UpcomingReservationsSection from '@/components/dashboard/UpcomingReservationsSection'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -328,6 +329,15 @@ export default function DashboardPage() {
           </Link>
         </div>
       )}
+
+      {/* これからの面談（前日リマインダー + 直近 7 日）— context に応じてフィルタ */}
+      <UpcomingReservationsSection
+        scopedCounselors={
+          context === ALL_SENTINEL
+            ? counselors
+            : counselors.filter((c) => c.id === context)
+        }
+      />
 
       {/* ちいさな「しなきゃ」 — 面談完了待ち + 通常の todo を同一カードに集約 */}
       <div className="todo-card">
