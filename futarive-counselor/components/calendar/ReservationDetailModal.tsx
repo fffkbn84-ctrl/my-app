@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { logPersonalDataAccess } from '@/lib/supabase/audit'
 import { describeError } from '@/lib/errors'
 import type { Reservation } from '@/lib/types'
+import { KINDA_TYPE_LABEL, KINDA_NOTE_WEATHER, type KindaTypeKey } from '@/lib/diagnosisLabels'
 
 interface Props {
   slotId: string
@@ -184,6 +185,44 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
                   borderRadius: 10,
                 }}>
                   {reservation.cancel_reason}
+                </div>
+              </div>
+            )}
+
+            {/* 024_reservations_shared_diagnosis — ユーザーが共有した診断結果 */}
+            {(reservation.shared_kinda_type_key || reservation.shared_kinda_note_key) && (
+              <div style={{
+                paddingTop: 12,
+                borderTop: '1px solid var(--border)',
+              }}>
+                <div style={{
+                  fontSize: 10,
+                  color: 'var(--accent)',
+                  marginBottom: 8,
+                  letterSpacing: '.18em',
+                  textTransform: 'uppercase',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontWeight: 500,
+                }}>
+                  Shared by user · 事前共有
+                </div>
+                <p style={{ fontSize: 11, color: 'var(--text-mid)', margin: '0 0 10px', lineHeight: 1.7 }}>
+                  予約時に「担当者に伝える」を選んだ診断結果です。面談前にざっと目を通しておくとスムーズです。
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {reservation.shared_kinda_type_key && (
+                    <KindaTypeCard
+                      typeKey={reservation.shared_kinda_type_key as KindaTypeKey}
+                      diagnosedAt={reservation.shared_kinda_type_at}
+                    />
+                  )}
+                  {reservation.shared_kinda_note_key && (
+                    <KindaNoteCard
+                      noteKey={reservation.shared_kinda_note_key}
+                      diagnosedAt={reservation.shared_kinda_note_at}
+                    />
+                  )}
                 </div>
               </div>
             )}
@@ -371,6 +410,140 @@ function Field({ label, value, copyable }: { label: string; value: string; copya
             {copied ? '✓' : 'コピー'}
           </button>
         )}
+      </div>
+    </div>
+  )
+}
+
+/* ─── 024 — 共有された Kinda type / Kinda note の表示カード ─── */
+
+function formatJpDate(iso: string | null): string {
+  if (!iso) return ''
+  try {
+    const d = new Date(iso)
+    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()} 受診`
+  } catch {
+    return ''
+  }
+}
+
+function KindaTypeCard({ typeKey, diagnosedAt }: { typeKey: KindaTypeKey; diagnosedAt: string | null }) {
+  const t = KINDA_TYPE_LABEL[typeKey]
+  if (!t) return null
+  return (
+    <div style={{
+      padding: '12px 14px',
+      background: 'var(--card)',
+      border: '1px solid var(--border)',
+      borderRadius: 10,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+        <span style={{
+          fontSize: 10,
+          color: 'var(--text-light)',
+          letterSpacing: '.06em',
+          fontFamily: 'DM Sans, sans-serif',
+        }}>
+          Kinda type
+        </span>
+        <span style={{
+          background: t.bg,
+          color: 'white',
+          fontSize: 11,
+          padding: '2px 10px',
+          borderRadius: 20,
+          fontFamily: 'Shippori Mincho, serif',
+          fontWeight: 500,
+        }}>
+          {t.name}
+        </span>
+        {diagnosedAt && (
+          <span style={{ fontSize: 10, color: 'var(--text-light)', marginLeft: 'auto' }}>
+            {formatJpDate(diagnosedAt)}
+          </span>
+        )}
+      </div>
+      <p style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.75, margin: '0 0 8px' }}>
+        {t.description}
+      </p>
+      <p style={{
+        fontSize: 11,
+        color: 'var(--text-mid)',
+        lineHeight: 1.75,
+        padding: '8px 10px',
+        background: 'rgba(168,136,88,.08)',
+        borderLeft: '2px solid var(--accent)',
+        borderRadius: 6,
+        margin: 0,
+      }}>
+        <span style={{ fontWeight: 500, color: 'var(--accent)' }}>担当者へ：</span>
+        {t.advice}
+      </p>
+    </div>
+  )
+}
+
+function KindaNoteCard({ noteKey, diagnosedAt }: { noteKey: string; diagnosedAt: string | null }) {
+  const label = KINDA_NOTE_WEATHER[noteKey]
+  // 画像パスは user-site と同じ規則（rain_cloud だけ webp、その他も webp）
+  const imageUrl = `/images/w_${noteKey === 'dissonance_wind' ? 'uneasy_wind' : noteKey}.webp`
+  return (
+    <div style={{
+      padding: '12px 14px',
+      background: 'var(--card)',
+      border: '1px solid var(--border)',
+      borderRadius: 10,
+      display: 'flex',
+      gap: 12,
+      alignItems: 'center',
+    }}>
+      {/* 天気アイコン（user-site と同じ画像） */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={imageUrl}
+        alt=""
+        width={56}
+        height={56}
+        style={{
+          width: 56,
+          height: 56,
+          objectFit: 'cover',
+          borderRadius: 8,
+          flexShrink: 0,
+          border: '1px solid var(--border)',
+        }}
+        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+      />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+          <span style={{
+            fontSize: 10,
+            color: 'var(--text-light)',
+            letterSpacing: '.06em',
+            fontFamily: 'DM Sans, sans-serif',
+          }}>
+            Kinda note
+          </span>
+          <span style={{
+            background: '#D4A090',
+            color: 'white',
+            fontSize: 11,
+            padding: '2px 10px',
+            borderRadius: 20,
+            fontFamily: 'Shippori Mincho, serif',
+            fontWeight: 500,
+          }}>
+            {label ?? noteKey}
+          </span>
+        </div>
+        {diagnosedAt && (
+          <p style={{ fontSize: 10, color: 'var(--text-light)', margin: 0, lineHeight: 1.6 }}>
+            {formatJpDate(diagnosedAt)} · 今の気持ちの天気として共有
+          </p>
+        )}
+        <p style={{ fontSize: 10, color: 'var(--text-mid)', margin: '4px 0 0', lineHeight: 1.6 }}>
+          ※ 面談中はこの「いまの気持ち」を起点に話を進めると、ユーザー満足度が上がりやすいです。
+        </p>
       </div>
     </div>
   )

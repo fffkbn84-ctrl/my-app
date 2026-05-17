@@ -155,6 +155,11 @@ export interface Reservation {
   /** 023_reservations_agency_message — 相談所からの単方向メッセージ */
   agency_message: string | null
   agency_message_at: string | null
+  /** 024_reservations_shared_diagnosis — ユーザーが共有を選んだ診断結果のスナップショット */
+  shared_kinda_type_key: 'A' | 'B' | 'C' | 'D' | null
+  shared_kinda_type_at: string | null
+  shared_kinda_note_key: string | null
+  shared_kinda_note_at: string | null
   created_at: string
 }
 

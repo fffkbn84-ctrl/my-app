@@ -12,9 +12,11 @@ import type { Counselor, Reservation } from '@/lib/types'
  *  1. 明日の面談（強調・前日リマインダー）
  *  2. 直近 7 日の面談（通常表示）
  *  3. 質問あり（notes 入力あり）の予約は「要返信」or「返信済」バッジを併記
+ *  4. ユーザーが Kinda type / Kinda note を共有してる予約は「事前共有あり」バッジ
  *
  * 予約が 0 件なら丸ごと非表示。
  * カウンセラーが「予約確定したもの・明日来るもの」を朝イチ確認できる箱。
+ * トーン: ユーザー満足度に直結する仕事のため、業務責任を促す表現を使う。
  */
 
 interface Props {
@@ -24,6 +26,13 @@ interface Props {
 // Reservation 型に notes が無いので Row 取得用に extend（DB の実カラムは notes）
 type ReservationWithNotes = Reservation & {
   notes?: string | null
+}
+
+/**
+ * 「事前共有あり」判定 — Kinda type または Kinda note が共有されている
+ */
+function hasSharedDiagnosis(r: ReservationWithNotes): boolean {
+  return !!(r.shared_kinda_type_key || r.shared_kinda_note_key)
 }
 
 export default function UpcomingReservationsSection({ scopedCounselors }: Props) {
@@ -205,20 +214,25 @@ export default function UpcomingReservationsSection({ scopedCounselors }: Props)
         </div>
       )}
 
-      <p
+      <div
         style={{
-          fontSize: 11,
-          color: 'var(--text-mid)',
-          lineHeight: 1.75,
           marginTop: 14,
-          marginBottom: 0,
-          paddingTop: 10,
+          paddingTop: 12,
           borderTop: '1px solid rgba(168,136,88,.18)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
         }}
       >
-        質問付きの予約は、面談前日までに「カレンダー → 予約者を見る」からメッセージ返信できます。
-        夜中の予約も翌朝の確認で十分。返信は必須ではありません。
-      </p>
+        <p style={{ fontSize: 11, color: 'var(--text)', lineHeight: 1.75, margin: 0, fontWeight: 500 }}>
+          ⓘ ご対応の目安
+        </p>
+        <ul style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.85, margin: 0, paddingLeft: 18 }}>
+          <li><span style={{ color: '#A88858', fontWeight: 500 }}>要返信</span>の予約は<span style={{ color: '#A88858', fontWeight: 500 }}>24時間以内</span>のご対応をお願いします（ユーザー満足度に直結します）</li>
+          <li>明日の面談は<span style={{ fontWeight: 500 }}>前日中に予習</span>。共有された診断結果がある場合は必ず目を通してください</li>
+          <li>カレンダー → 予約者を見る → 「予約者へメッセージを送る」から返信できます</li>
+        </ul>
+      </div>
     </div>
   )
 }
@@ -324,6 +338,28 @@ function ReservationLine({
           }}
         >
           返信済
+        </span>
+      )}
+      {hasSharedDiagnosis(reservation) && (
+        <span
+          style={{
+            fontSize: 10,
+            color: 'var(--accent)',
+            padding: '2px 8px',
+            borderRadius: 10,
+            background: 'rgba(200,169,122,.12)',
+            border: '1px solid rgba(200,169,122,.3)',
+            flexShrink: 0,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+          title="ユーザーが Kinda type または Kinda note の結果を共有しています"
+        >
+          <svg width="9" height="9" viewBox="0 0 12 12" fill="none" aria-hidden>
+            <path d="M3 6.5l2 2 4-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          事前共有
         </span>
       )}
     </div>
