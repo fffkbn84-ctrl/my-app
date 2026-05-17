@@ -1,54 +1,62 @@
 import Image from "next/image";
 
 /**
- * セクション間の視覚的な区切り。中央にぷっくり丸みのあるハート（Kindaロゴ風の
- * もちもち感）、両サイドに細線。装飾用なので aria-hidden。
+ * セクション間の視覚的な区切り。中央に小さなシンボル + 両サイドに細線。
+ * 装飾用なので aria-hidden。
  *
- * 既定はハート（Mochi 系のSVG・完全透過・ブランド色で塗ってある）。
- * 将来シーズン演出で starfish 等の画像オーナメントに切り替えられるよう
- * ornament prop を受け取る。
+ * デフォルトは「噴水」シンボル（細線・accent 色・フラット）。
+ * シーズン演出や記事末用に starfish 画像版も切り替え可能。
  *
- * 旧: WebPの ornamental-heartwopal.webp を使っていたが、
- *      VP8 形式でアルファチャンネル無し → 透過されず灰色背景が出てしまう問題があり、
- *      SVG に置き換えた。
+ * デザイン方針（2026-05-17 リデザイン）:
+ *   - 旧: もちもち 3D ハート（44px・ぷっくり gradient）
+ *   - 新: シンプルな線画シンボル（小さめ・フラット・ブランド色）
+ *   トップページの他要素（細い文字組み、フラットなカードボーダー）と調和させる。
  */
-type OrnamentKey = "heart" | "starfish";
+type OrnamentKey = "fountain" | "starfish";
 
 /**
- * ぷっくり丸みのあるハート。
- * - radial gradient で 3D っぽい光沢
- * - 上部左に白いハイライトを2重に重ねて「もちもち」感
- * - 色は #D4A090 系（ヒーロー主CTAと統一）
+ * 噴水シンボル（線画・フラット）。
+ *  - 上に小さな水滴
+ *  - 中央から左右に弧を描く水流
+ *  - 下に basin（受け皿）の曲線
+ * 「ふたつの流れが交わり、ひとところに集まる」イメージ。
  */
-function MochiHeart({ size }: { size: number }) {
+function FountainIcon({ size }: { size: number }) {
   return (
     <svg
-      viewBox="0 0 100 100"
+      viewBox="0 0 24 24"
       width={size}
       height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       aria-hidden="true"
-      style={{ flexShrink: 0, display: "block" }}
+      style={{
+        flexShrink: 0,
+        display: "block",
+        color: "var(--accent)",
+      }}
     >
-      <defs>
-        <radialGradient id="kinda-heart-mochi" cx="38%" cy="30%" r="72%">
-          <stop offset="0%" stopColor="#F4CFC0" />
-          <stop offset="55%" stopColor="#DCA897" />
-          <stop offset="100%" stopColor="#B0866F" />
-        </radialGradient>
-      </defs>
-      {/* もちもちハート本体（上部の谷を浅く・全体を寸詰まりに丸く） */}
-      <path
-        d="M50 88 C 20 76, 6 56, 6 32 C 6 18, 18 7, 30 7 C 40 7, 47 14, 50 22 C 53 14, 60 7, 70 7 C 82 7, 94 18, 94 32 C 94 56, 80 76, 50 88 Z"
-        fill="url(#kinda-heart-mochi)"
-      />
-      {/* 大きめのソフトハイライト（左上の頬っぺた） */}
-      <ellipse cx="32" cy="28" rx="9" ry="5" fill="white" opacity="0.42" />
-      {/* 小さな艶の点（一段明るく） */}
-      <ellipse cx="35" cy="30" rx="2.5" ry="1.5" fill="white" opacity="0.7" />
+      {/* 上の水滴（accent fill） */}
+      <ellipse cx="12" cy="4" rx="1.2" ry="1.6" fill="currentColor" stroke="none" />
+      {/* 中央の細い水流 */}
+      <path d="M 12 6.4 L 12 12.2" />
+      {/* 左右に広がるアーチ状の水流 */}
+      <path d="M 12 7 Q 7 11, 5.5 16" />
+      <path d="M 12 7 Q 17 11, 18.5 16" />
+      {/* basin（受け皿）の曲線 */}
+      <path d="M 4 16.4 Q 12 19.6, 20 16.4" />
+      {/* basin 下の薄い影線（水面の余韻） */}
+      <path d="M 6.4 17.6 Q 12 19.4, 17.6 17.6" opacity="0.45" />
     </svg>
   );
 }
 
+/**
+ * シーズン演出用：starfish 画像。WebP に透過あり。
+ */
 function StarfishImage({ size }: { size: number }) {
   return (
     <div
@@ -75,8 +83,8 @@ function StarfishImage({ size }: { size: number }) {
 }
 
 export default function SectionDivider({
-  ornament = "heart",
-  size = 44,
+  ornament = "fountain",
+  size = 28,
 }: {
   ornament?: OrnamentKey;
   size?: number;
@@ -88,18 +96,14 @@ export default function SectionDivider({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        gap: 16,
-        maxWidth: 320,
+        gap: 14,
+        maxWidth: 280,
         margin: "0 auto",
-        padding: "8px 24px 24px",
+        padding: "10px 24px 18px",
       }}
     >
       <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
-      {ornament === "heart" ? (
-        <MochiHeart size={size} />
-      ) : (
-        <StarfishImage size={size} />
-      )}
+      {ornament === "starfish" ? <StarfishImage size={size} /> : <FountainIcon size={size} />}
       <div style={{ flex: 1, height: 1, background: "var(--light)" }} />
     </div>
   );

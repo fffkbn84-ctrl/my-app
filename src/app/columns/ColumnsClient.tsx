@@ -23,11 +23,13 @@ function ColumnCard({
       href={`/columns/${column.slug}`}
       className={`kv-card ${featured ? "kv-card-featured" : ""}`}
     >
-      {/* サムネイル */}
+      {/* サムネイル — thumbnail 未設定なら Kinda voices 共通フォールバック画像 */}
       <div
         className="kv-card-thumb"
         style={{
-          background: column.thumbnail,
+          background: column.thumbnail
+            ? column.thumbnail
+            : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
           height: featured ? "260px" : "160px",
         }}
       />

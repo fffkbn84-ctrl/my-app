@@ -188,10 +188,12 @@ export default async function ColumnDetailPage({ params }: Props) {
           }}
         >
 
-          {/* サムネイル */}
+          {/* サムネイル — thumbnail 未設定なら Kinda voices 共通フォールバック画像 */}
           <div
             style={{
-              background: column.thumbnail,
+              background: column.thumbnail
+                ? column.thumbnail
+                : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
               height: "240px",
               borderRadius: "16px",
               marginBottom: "32px",
