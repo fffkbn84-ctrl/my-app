@@ -111,7 +111,9 @@ export default function Step1DateTime({ counselorId, selectedDate: initDate, sel
         startTime: s.startTime,
         endTime: s.endTime,
         status: s.status,
-        // meetingType は将来 slots テーブルにカラム追加するまで未指定（== 対面相当）
+        // 022_slots_meeting_type で追加: 事前指定があれば使う、無ければ未指定
+        // （未指定の場合 UI 上は「対面/オンライン」両方アイコン表示）
+        meetingType: s.meetingType ?? undefined,
       };
       const arr = map.get(s.date) ?? [];
       arr.push(slot);
@@ -290,7 +292,13 @@ export default function Step1DateTime({ counselorId, selectedDate: initDate, sel
                   className={`time-slot${isSelected ? " selected" : ""}${unavailable ? " unavailable" : ""}`}
                 >
                   <span className="ts-time">{slot.startTime}</span>
-                  <span className="ts-type">{unavailable ? "満席" : slot.meetingType ?? "対面"}</span>
+                  <span className="ts-type">
+                    {unavailable
+                      ? "満席"
+                      : slot.meetingType
+                        ? slot.meetingType
+                        : "対面 / オンライン"}
+                  </span>
                 </button>
               );
             })}

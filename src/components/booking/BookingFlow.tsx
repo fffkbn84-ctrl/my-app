@@ -165,6 +165,7 @@ export default function BookingFlow({
           onChange={handleUserInfoChange}
           onNext={() => goToStep(3)}
           onBack={() => goToStep(1)}
+          lockedMeetingFormat={state.selectedSlot?.meetingType ?? null}
         />
       )}
       {state.step === 3 && state.selectedSlot && (

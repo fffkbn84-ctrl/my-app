@@ -18,6 +18,12 @@ interface Props {
   onChange: (info: BookingUserInfo) => void;
   onNext: () => void;
   onBack: () => void;
+  /**
+   * 選択中の slot に事前指定された面談形式があれば渡す。
+   * 渡されると面談形式の radio はその選択肢でロックされる
+   *（022_slots_meeting_type 対応）
+   */
+  lockedMeetingFormat?: "対面" | "オンライン" | null;
 }
 
 function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, string>> {
@@ -35,7 +41,7 @@ function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, 
   return errors;
 }
 
-export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props) {
+export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMeetingFormat }: Props) {
   const [errors, setErrors] = useState<Partial<Record<keyof BookingUserInfo, string>>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -140,32 +146,59 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack }: Props)
         }
       </div>
 
-      {/* 面談形式 */}
+      {/* 面談形式（slot に事前指定があればロック表示） */}
       <div className="bk-form-group">
         <label className="bk-form-label">面談形式<span>*</span></label>
-        <div className="bk-form-radio-group">
-          {(["対面", "オンライン"] as const).map((fmt) => {
-            const selected = userInfo.meetingFormat === fmt;
-            return (
-              <div
-                key={fmt}
-                onClick={() => update("meetingFormat", fmt)}
-                className={`bk-form-radio${selected ? " selected" : ""}`}
-              >
-                <input
-                  type="radio"
-                  name="meetingFormat"
-                  value={fmt}
-                  checked={selected}
-                  onChange={() => update("meetingFormat", fmt)}
-                />
-                <span className="bk-form-radio-label">
-                  {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {lockedMeetingFormat ? (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "14px 18px",
+              background: "var(--pale)",
+              border: "1px solid var(--light)",
+              borderRadius: 10,
+              fontSize: 14,
+              color: "var(--ink)",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="8" cy="8" r="7" fill="var(--accent)" opacity=".15" />
+              <path d="M4.5 8.2l2.4 2.4 5-5" stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {lockedMeetingFormat === "対面"
+              ? "対面（カウンセラーオフィス）"
+              : "オンライン（Zoom）"}
+            <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: "auto" }}>
+              この枠は{lockedMeetingFormat}専用です
+            </span>
+          </div>
+        ) : (
+          <div className="bk-form-radio-group">
+            {(["対面", "オンライン"] as const).map((fmt) => {
+              const selected = userInfo.meetingFormat === fmt;
+              return (
+                <div
+                  key={fmt}
+                  onClick={() => update("meetingFormat", fmt)}
+                  className={`bk-form-radio${selected ? " selected" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="meetingFormat"
+                    value={fmt}
+                    checked={selected}
+                    onChange={() => update("meetingFormat", fmt)}
+                  />
+                  <span className="bk-form-radio-label">
+                    {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
         {errors.meetingFormat && <p className="bk-form-hint" style={{ color: "var(--rose)", marginTop: "8px" }}>{errors.meetingFormat}</p>}
       </div>
 

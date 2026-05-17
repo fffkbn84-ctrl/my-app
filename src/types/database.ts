@@ -135,6 +135,8 @@ export interface Database {
           end_at: string;
           status: "open" | "locked" | "booked";
           locked_until: string | null;
+          /* 022_slots_meeting_type で追加。NULL = 両方 OK */
+          meeting_type: "対面" | "オンライン" | null;
           created_at: string;
           updated_at: string;
         };

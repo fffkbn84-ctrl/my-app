@@ -653,6 +653,7 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors, ag
           onChange={handleUserInfoChange}
           onNext={() => goToStep(4)}
           onBack={() => goToStep(2)}
+          lockedMeetingFormat={state.selectedSlot?.meetingType ?? null}
         />
       )}
 

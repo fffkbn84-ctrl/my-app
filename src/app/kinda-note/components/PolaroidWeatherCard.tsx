@@ -29,7 +29,7 @@ const IMAGE_PATHS: Record<WeatherKey, string> = {
   flower_overcast: "/images/w_flower_overcast.webp",
   light_rain_start: "/images/w_light_rain_start.webp",
   light_rain: "/images/w_light_rain.webp",
-  rain_cloud: "/images/w_rain_cloud.jpg",
+  rain_cloud: "/images/w_rain_cloud.webp",
   thunderstorm: "/images/w_thunderstorm.webp",
   sun_break: "/images/w_sun_break.webp",
   angels_ladder: "/images/w_angels_ladder.webp",

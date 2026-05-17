@@ -1060,6 +1060,8 @@ export type SupabaseSlot = {
   startTime: string    // 'HH:mm' (Asia/Tokyo)
   endTime: string      // 'HH:mm' (Asia/Tokyo)
   status: 'open' | 'locked' | 'booked'
+  /** 事前指定された面談形式。null = ユーザー側で選択可（両方OK） */
+  meetingType: '対面' | 'オンライン' | null
 }
 
 /** UTC ISO timestamp を Asia/Tokyo の YYYY-MM-DD と HH:mm に分解する */
@@ -1084,7 +1086,7 @@ export async function getSlotsByCounselor(
   if (!counselorId || !/^[0-9a-f-]{36}$/i.test(counselorId)) return null
   const res = await supabase
     .from('slots')
-    .select('id,start_at,end_at,status,locked_until')
+    .select('id,start_at,end_at,status,locked_until,meeting_type')
     .eq('counselor_id', counselorId)
     .gte('start_at', fromIso)
     .lte('start_at', toIso)
@@ -1093,7 +1095,14 @@ export async function getSlotsByCounselor(
     console.error('[getSlotsByCounselor] error', res.error)
     return null
   }
-  type Row = { id: string; start_at: string; end_at: string; status: string; locked_until: string | null }
+  type Row = {
+    id: string;
+    start_at: string;
+    end_at: string;
+    status: string;
+    locked_until: string | null;
+    meeting_type: string | null;
+  }
   const rows = (res.data as Row[]) ?? []
   // 「ロック切れ slot は実質 open」として user-side で扱う（pg_cron 不要の遅延クリーンアップ）。
   // locked_until が NULL の場合は相談所オーナーの手動ロックなので open に戻さない。
@@ -1108,12 +1117,15 @@ export async function getSlotsByCounselor(
         const lockedUntilMs = new Date(r.locked_until).getTime()
         if (lockedUntilMs < nowMs) effective = 'open'
       }
+      const meetingType: '対面' | 'オンライン' | null =
+        r.meeting_type === '対面' || r.meeting_type === 'オンライン' ? r.meeting_type : null
       return {
         id: r.id,
         date: start.date,
         startTime: start.time,
         endTime: end.time,
         status: effective,
+        meetingType,
       }
     })
 }
