@@ -26,7 +26,7 @@ const ITEMS = [
     id: 'change',
     label: 'change',
     sub: '美容室・エステ',
-    img: '/images/section-beauty-n2.png.jpg',
+    img: '/images/section-beauty-n2.png.webp',
     href: '/shops',
     bg: '#EDF4FF',
   },

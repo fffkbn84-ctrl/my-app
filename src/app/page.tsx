@@ -93,7 +93,7 @@ const DECIDED_CARDS = [
     href: "/kinda-glow",
     kindaLabel: "glow",
     desc: "好きな人に会う前に、自分を整える",
-    img: "/images/section-beauty-n2.png.jpg",
+    img: "/images/section-beauty-n2.png.webp",
     alt: "Kinda glow",
     bg: "#EDE0F4",
     accent: "#8A66B0",

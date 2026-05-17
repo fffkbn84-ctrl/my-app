@@ -27,7 +27,7 @@ export default function KindaActPage() {
         <section className="kt-hero">
           <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             <Image
-              src="/images/kinda-act-hero.jpg"
+              src="/images/kinda-act-hero.webp"
               alt=""
               fill
               priority

@@ -60,7 +60,7 @@ export default function KindaGlowPage() {
           <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
             {/* 既存の section-beauty 画像を流用。専用画像できたら差し替え */}
             <Image
-              src="/images/section-beauty-n2.png.jpg"
+              src="/images/section-beauty-n2.png.webp"
               alt=""
               fill
               priority
