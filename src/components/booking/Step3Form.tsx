@@ -1,7 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import type { BookingUserInfo } from "@/types/booking";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { DIAGNOSIS_TYPES, type DiagnosisTypeId } from "@/lib/diagnosis";
+import { WEATHER_DESCRIPTIONS, type WeatherKey } from "@/app/kinda-note/data/weatherDescriptions";
+
+type LatestDiagnosis = {
+  type?: { result_key: DiagnosisTypeId; created_at: string };
+  note?: { result_key: WeatherKey; created_at: string };
+};
+
+function isTypeKey(k: string): k is DiagnosisTypeId {
+  return k === "A" || k === "B" || k === "C" || k === "D";
+}
 
 const PREFECTURES = [
   "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
@@ -44,12 +57,71 @@ function validate(info: BookingUserInfo): Partial<Record<keyof BookingUserInfo, 
 export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMeetingFormat }: Props) {
   const [errors, setErrors] = useState<Partial<Record<keyof BookingUserInfo, string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const { user, supabase } = useAuth();
+  const [latest, setLatest] = useState<LatestDiagnosis>({});
+  const [latestLoaded, setLatestLoaded] = useState(false);
 
   const update = (field: keyof BookingUserInfo, value: string) => {
     const next = { ...userInfo, [field]: value };
     onChange(next);
     if (submitted) setErrors(validate(next));
   };
+
+  // 共有トグルの一括更新（複数フィールドを同時に変更するため update() を経由しない）
+  const updateShared = (patch: Partial<BookingUserInfo>) => {
+    const next = { ...userInfo, ...patch };
+    onChange(next);
+  };
+
+  // ログイン済みなら直近の Kinda type / note 結果を取得（共有候補の提示用）
+  useEffect(() => {
+    if (!user || !supabase) {
+      setLatestLoaded(true);
+      return;
+    }
+    let active = true;
+    (async () => {
+      const { data } = await supabase
+        .from("diagnosis_results")
+        .select("kind, result_key, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (!active) return;
+      type Row = { kind: string; result_key: string; created_at: string };
+      const rows = (data as Row[]) ?? [];
+      const typeRow = rows.find((r) => r.kind === "type" && isTypeKey(r.result_key));
+      const noteRow = rows.find((r) => r.kind === "note" && r.result_key in WEATHER_DESCRIPTIONS);
+      const next: LatestDiagnosis = {};
+      if (typeRow && isTypeKey(typeRow.result_key)) {
+        next.type = { result_key: typeRow.result_key, created_at: typeRow.created_at };
+      }
+      if (noteRow) {
+        next.note = { result_key: noteRow.result_key as WeatherKey, created_at: noteRow.created_at };
+      }
+      setLatest(next);
+      setLatestLoaded(true);
+
+      // 初期値：自動で共有 ON（ユーザーはトグルで OFF にできる）
+      // すでにユーザーが操作している場合は上書きしない
+      const patch: Partial<BookingUserInfo> = {};
+      if (next.type && userInfo.sharedKindaTypeKey === undefined) {
+        patch.sharedKindaTypeKey = next.type.result_key;
+        patch.sharedKindaTypeAt = next.type.created_at;
+      }
+      if (next.note && userInfo.sharedKindaNoteKey === undefined) {
+        patch.sharedKindaNoteKey = next.note.result_key;
+        patch.sharedKindaNoteAt = next.note.created_at;
+      }
+      if (Object.keys(patch).length > 0) {
+        onChange({ ...userInfo, ...patch });
+      }
+    })();
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, supabase]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,6 +286,118 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
         />
       </div>
 
+      {/* 024 — Kinda type / Kinda note の結果共有トグル
+         事前に問診票が手に入る・カウンセラーが準備して臨めるようにする */}
+      {latestLoaded && (latest.type || latest.note) && (
+        <div className="bk-form-group">
+          <label className="bk-form-label">担当者に伝える（任意）</label>
+          <div
+            style={{
+              padding: "14px 16px",
+              background: "var(--pale)",
+              border: "1px solid var(--light)",
+              borderRadius: 12,
+              display: "flex",
+              flexDirection: "column",
+              gap: 10,
+            }}
+          >
+            <p style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.8, margin: 0 }}>
+              事前に共有しておくと、担当者が当日の面談前に目を通して準備してくれます。
+              いつでもオフにできます。
+            </p>
+
+            {latest.type && (
+              <SharedToggleRow
+                label="Kinda type の結果"
+                resultBadge={
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span
+                      style={{
+                        background: DIAGNOSIS_TYPES[latest.type.result_key].gradient,
+                        color: "white",
+                        fontSize: 10,
+                        padding: "2px 8px",
+                        borderRadius: 20,
+                        fontFamily: "var(--font-mincho)",
+                      }}
+                    >
+                      {DIAGNOSIS_TYPES[latest.type.result_key].name}
+                    </span>
+                  </span>
+                }
+                checked={!!userInfo.sharedKindaTypeKey}
+                onToggle={(on) => {
+                  updateShared(
+                    on
+                      ? {
+                          sharedKindaTypeKey: latest.type!.result_key,
+                          sharedKindaTypeAt: latest.type!.created_at,
+                        }
+                      : { sharedKindaTypeKey: null, sharedKindaTypeAt: null },
+                  );
+                }}
+              />
+            )}
+
+            {latest.note && (
+              <SharedToggleRow
+                label="Kinda note の結果"
+                resultBadge={
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    <span
+                      style={{
+                        background: "#D4A090",
+                        color: "white",
+                        fontSize: 10,
+                        padding: "2px 8px",
+                        borderRadius: 20,
+                        fontFamily: "var(--font-mincho)",
+                      }}
+                    >
+                      {WEATHER_DESCRIPTIONS[latest.note.result_key].name_ja}
+                    </span>
+                  </span>
+                }
+                checked={!!userInfo.sharedKindaNoteKey}
+                onToggle={(on) => {
+                  updateShared(
+                    on
+                      ? {
+                          sharedKindaNoteKey: latest.note!.result_key,
+                          sharedKindaNoteAt: latest.note!.created_at,
+                        }
+                      : { sharedKindaNoteKey: null, sharedKindaNoteAt: null },
+                  );
+                }}
+              />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* 未受診ユーザーへの誘導（ログイン済みかつ どちらも受診歴なし） */}
+      {latestLoaded && user && !latest.type && !latest.note && (
+        <div className="bk-form-group">
+          <div
+            style={{
+              padding: "14px 16px",
+              background: "rgba(212,160,144,.06)",
+              border: "1px dashed rgba(212,160,144,.4)",
+              borderRadius: 12,
+              fontSize: 12,
+              color: "var(--mid)",
+              lineHeight: 1.85,
+            }}
+          >
+            事前に <Link href="/kinda-type" style={{ color: "#5A7FAF", textDecoration: "underline" }}>Kinda type</Link>{" "}
+            や{" "}
+            <Link href="/kinda-note" style={{ color: "#D4A090", textDecoration: "underline" }}>Kinda note</Link>{" "}
+            を受けておくと、結果をそのまま担当者に共有できます（任意）。
+          </div>
+        </div>
+      )}
+
       {/* ナビボタン */}
       <div className="step-nav">
         <button type="button" onClick={onBack} className="bk-btn bk-btn-secondary">
@@ -230,5 +414,46 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
         </button>
       </div>
     </form>
+  );
+}
+
+/* 共有トグル 1 行（チェックボックス + ラベル + 結果バッジ） */
+function SharedToggleRow({
+  label,
+  resultBadge,
+  checked,
+  onToggle,
+}: {
+  label: string;
+  resultBadge: React.ReactNode;
+  checked: boolean;
+  onToggle: (next: boolean) => void;
+}) {
+  return (
+    <label
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        cursor: "pointer",
+        padding: "6px 0",
+        userSelect: "none",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onToggle(e.target.checked)}
+        style={{
+          width: 18,
+          height: 18,
+          accentColor: "var(--accent)",
+          flexShrink: 0,
+          margin: 0,
+        }}
+      />
+      <span style={{ fontSize: 13, color: "var(--ink)", flex: 1 }}>{label}</span>
+      {resultBadge}
+    </label>
   );
 }

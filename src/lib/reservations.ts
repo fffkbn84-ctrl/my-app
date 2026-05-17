@@ -35,6 +35,12 @@ export type CreateReservationInput = {
   /** モック agency の場合は null */
   agencyId?: string | null;
   agencyName: string;
+  /** ユーザーが共有を選んだ Kinda type の result_key（A/B/C/D）と診断日時 */
+  sharedKindaTypeKey?: "A" | "B" | "C" | "D" | null;
+  sharedKindaTypeAt?: string | null;
+  /** ユーザーが共有を選んだ Kinda note の天気キーと診断日時 */
+  sharedKindaNoteKey?: string | null;
+  sharedKindaNoteAt?: string | null;
 };
 
 export type CreateReservationResult =
@@ -104,6 +110,11 @@ export async function createReservation(
       end_at: input.endAt,
       meeting_type: input.meetingType,
       status: "active",
+      // 024_reservations_shared_diagnosis — Kinda type / Kinda note の共有スナップショット
+      shared_kinda_type_key: input.sharedKindaTypeKey ?? null,
+      shared_kinda_type_at: input.sharedKindaTypeAt ?? null,
+      shared_kinda_note_key: input.sharedKindaNoteKey ?? null,
+      shared_kinda_note_at: input.sharedKindaNoteAt ?? null,
     })
     .select("id")
     .maybeSingle();

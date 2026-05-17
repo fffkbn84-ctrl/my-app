@@ -17,6 +17,12 @@ export interface BookingUserInfo {
   email: string;
   meetingFormat: "対面" | "オンライン" | "";
   message: string;
+  /** 024 — 予約時に共有する Kinda type 結果（NULL = 共有しない） */
+  sharedKindaTypeKey?: "A" | "B" | "C" | "D" | null;
+  sharedKindaTypeAt?: string | null;
+  /** 024 — 予約時に共有する Kinda note 結果（NULL = 共有しない） */
+  sharedKindaNoteKey?: string | null;
+  sharedKindaNoteAt?: string | null;
 }
 
 export interface BookingState {

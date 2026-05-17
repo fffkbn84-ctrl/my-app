@@ -3,6 +3,8 @@
 import { useState } from "react";
 import type { Slot, BookingUserInfo } from "@/types/booking";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { DIAGNOSIS_TYPES, type DiagnosisTypeId } from "@/lib/diagnosis";
+import { WEATHER_DESCRIPTIONS, type WeatherKey } from "@/app/kinda-note/data/weatherDescriptions";
 import { createReservation } from "@/lib/reservations";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 import {
@@ -91,6 +93,11 @@ export default function Step4Confirm({
       counselorName,
       agencyId,
       agencyName,
+      // 024 — 共有を選んだ診断結果のスナップショット
+      sharedKindaTypeKey: userInfo.sharedKindaTypeKey ?? null,
+      sharedKindaTypeAt: userInfo.sharedKindaTypeAt ?? null,
+      sharedKindaNoteKey: userInfo.sharedKindaNoteKey ?? null,
+      sharedKindaNoteAt: userInfo.sharedKindaNoteAt ?? null,
     });
 
     setLoading(false);
@@ -109,6 +116,17 @@ export default function Step4Confirm({
       ? "オンライン（Zoom）"
       : slot.meetingType ?? "対面";
 
+  // 024 — 共有予定の診断結果（あれば確認画面に表示）
+  const sharedItems: string[] = [];
+  if (userInfo.sharedKindaTypeKey) {
+    const t = DIAGNOSIS_TYPES[userInfo.sharedKindaTypeKey as DiagnosisTypeId];
+    sharedItems.push(`Kinda type：${t?.name ?? userInfo.sharedKindaTypeKey}`);
+  }
+  if (userInfo.sharedKindaNoteKey) {
+    const w = WEATHER_DESCRIPTIONS[userInfo.sharedKindaNoteKey as WeatherKey];
+    sharedItems.push(`Kinda note：${w?.name_ja ?? userInfo.sharedKindaNoteKey}`);
+  }
+
   const rows = [
     ...(showCounselorRow ? [{ key: "担当カウンセラー", val: counselorName }] : []),
     { key: "日時", val: `${formatDateJa(slot.date)} ${slot.startTime}〜` },
@@ -118,6 +136,9 @@ export default function Step4Confirm({
     { key: "メール", val: userInfo.email || "—" },
     ...(userInfo.message && userInfo.message.trim().length > 0
       ? [{ key: "事前に伝えたいこと", val: userInfo.message.trim(), multiline: true }]
+      : []),
+    ...(sharedItems.length > 0
+      ? [{ key: "担当者に共有", val: sharedItems.join("\n"), multiline: true }]
       : []),
     { key: "費用", val: "無料", green: true },
   ];
