@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import BottomNav from "@/components/layout/BottomNav";
 import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
+import FloatingBackButton from "@/components/ui/FloatingBackButton";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
@@ -96,6 +97,7 @@ export default function RootLayout({
 
           {children}
           <FloatingScrollToTop />
+          <FloatingBackButton />
           <BottomNav />
         </AuthProvider>
         <Analytics />

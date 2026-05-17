@@ -4380,9 +4380,36 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   transition: transform .15s ease, opacity .2s ease, bottom .2s ease;
 }
 
+/* 一つ前へ戻るボタン — scroll-top の 12px 上に積み重ね */
+.floating-back {
+  position: fixed;
+  right: 16px;
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 44px + 10px);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: 0 4px 14px rgba(184,128,110,.18), 0 1px 4px rgba(0,0,0,.08);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 95;
+  cursor: pointer;
+  transition: transform .15s ease, opacity .2s ease, bottom .2s ease;
+}
+.floating-back:hover { transform: translateX(-2px); }
+.floating-back:active { transform: translateX(0); }
+
 /* CTA がある詳細ページでは、CTA より上に配置して overlap 回避 */
 body:has(.cta-mobile-bar) .floating-scroll-top {
   bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px);
+}
+body:has(.cta-mobile-bar) .floating-back {
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px + 44px + 10px);
 }
 
 /* ─────────────────────────────────────────────────────────
