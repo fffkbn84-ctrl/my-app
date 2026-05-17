@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import AccountDeleteSection from "./AccountDeleteSection";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
@@ -107,6 +108,7 @@ export default function AccountSettingsSection() {
           <EmailRow currentEmail={user.email ?? ""} />
           <Divider />
           <PasswordRow currentEmail={user.email ?? ""} />
+          <AccountDeleteSection />
         </div>
       )}
     </div>
