@@ -9,6 +9,7 @@ import {
 } from "@/app/kinda-note/data/weatherDescriptions";
 import ShareButtons from "./ShareButtons";
 import SympathyButton from "@/components/episodes/SympathyButton";
+import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import SourceCitation from "@/components/ui/SourceCitation";
@@ -554,6 +555,9 @@ export default async function ColumnDetailPage({ params }: Props) {
               </p>
             </div>
           </div>
+
+          {/* Conversion Footer（読了 → 行動への橋）— 関連記事の上に配置 */}
+          <ReadingConversionFooter variant="voices" />
 
           {/* 関連記事 */}
           {related.length > 0 && (

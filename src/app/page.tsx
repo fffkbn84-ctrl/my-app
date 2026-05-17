@@ -743,6 +743,10 @@ export default async function HomePage() {
               }}
             >
               成婚の先輩・活動中の声、ぜんぶそのまま
+              <br />
+              <span style={{ fontSize: 11, color: "var(--muted)", fontStyle: "italic" }}>
+                読んだあとも、Kinda が次の一歩まで伴走します。
+              </span>
             </div>
           </div>
 
@@ -904,6 +908,10 @@ export default async function HomePage() {
               }}
             >
               気持ちの整理から、ふたりに寄り添う読みもの
+              <br />
+              <span style={{ fontSize: 11, color: "var(--muted)", fontStyle: "italic" }}>
+                読みものから、次の一歩へ繋がります。
+              </span>
             </div>
           </div>
 

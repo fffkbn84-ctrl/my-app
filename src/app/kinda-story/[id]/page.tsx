@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SympathyButton from "@/components/episodes/SympathyButton";
+import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
+import InlineBridgeCta from "@/components/reading/InlineBridgeCta";
 import { STORIES, getStoryById } from "@/lib/mock/stories";
 import { COUNSELORS, AGENCIES } from "@/lib/data";
 
@@ -95,11 +97,17 @@ export default async function KindaStoryDetailPage({
         {/* ─── 本文 ─── */}
         <article className="ks-article">
           <div className="ks-article-inner">
-            {story.body.map((para, i) => (
-              <p key={i} className="ks-article-p">
-                {para}
-              </p>
-            ))}
+            {story.body.map((para, i) => {
+              // 本文の中盤に、押し付けない 1 行のサブ CTA を差し込む（自然な橋）
+              const midIndex = Math.floor(story.body.length / 2);
+              const showMidCta = i === midIndex && story.body.length >= 3;
+              return (
+                <div key={i}>
+                  <p className="ks-article-p">{para}</p>
+                  {showMidCta && <InlineBridgeCta variant="story" />}
+                </div>
+              );
+            })}
 
             {story.pullQuote && (
               <blockquote className="ks-pullquote">
@@ -246,28 +254,28 @@ export default async function KindaStoryDetailPage({
           </section>
         )}
 
-        {/* ─── CTA ─── */}
-        <section className="ks-cta">
-          <div className="ks-cta-inner">
-            <p className="ks-cta-eyebrow">next step</p>
-            <h2 className="ks-cta-title">あなたの物語を、ここから</h2>
-            <p className="ks-cta-text">
-              読んで「自分も話してみたい」と思ったら、
-              <br />
-              気になるカウンセラーに直接予約できます。
-            </p>
-            <div className="ks-cta-actions">
-              <Link href="/kinda-talk" className="ks-cta-btn ks-cta-btn-primary">
-                カウンセラーを見る
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M2 7h10M7 2l5 5-5 5" />
-                </svg>
-              </Link>
-              <Link href="/kinda-story" className="ks-cta-btn ks-cta-btn-ghost">
-                ぜんぶの物語を見る
-              </Link>
-            </div>
-          </div>
+        {/* ─── Conversion Footer（読了 → 行動への橋）─── */}
+        <ReadingConversionFooter variant="story" />
+
+        {/* ─── 物語の閲覧ループ ─── */}
+        <section style={{ textAlign: "center", padding: "32px 24px 8px" }}>
+          <Link
+            href="/kinda-story"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              fontSize: 12,
+              color: "var(--mid)",
+              textDecoration: "underline",
+              fontFamily: "var(--font-sans)",
+            }}
+          >
+            ぜんぶの物語を見る
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              <path d="M2 7h10M7 2l5 5-5 5" />
+            </svg>
+          </Link>
         </section>
       </main>
 

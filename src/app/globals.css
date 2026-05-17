@@ -6553,13 +6553,13 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   color: var(--ink);
 }
 
-/* ─── 一覧ヒーロー（セピアグラデーション、画像なし） ─── */
+/* ─── 一覧ヒーロー（クレイミニチュア背景 + セピアオーバーレイ） ─── */
 .kv-hero {
   position: relative;
   background: #F4ECE0;
   padding: calc(var(--header-height) + 56px) 20px 60px;
   overflow: hidden;
-  min-height: 50vh;
+  min-height: 60vh;
   display: flex;
   align-items: flex-end;
 }
@@ -6568,8 +6568,10 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   inset: 0;
   z-index: 0;
   background:
-    radial-gradient(ellipse at 30% 20%, rgba(212,182,142,.55) 0%, rgba(244,236,224,0) 60%),
-    radial-gradient(ellipse at 75% 75%, rgba(180,148,108,.4) 0%, rgba(244,236,224,0) 55%),
+    /* セピア radial を画像の上にうっすら被せて、文字エリアと統一感を出す */
+    radial-gradient(ellipse at 30% 20%, rgba(212,182,142,.25) 0%, rgba(244,236,224,0) 60%),
+    radial-gradient(ellipse at 75% 75%, rgba(180,148,108,.20) 0%, rgba(244,236,224,0) 55%),
+    url("/images/kinda-voices-hero.webp") center/cover no-repeat,
     linear-gradient(180deg, #F4ECE0 0%, #E8D8BE 100%);
 }
 .kv-hero-overlay {
@@ -6579,8 +6581,8 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   background: linear-gradient(180deg,
     rgba(60,40,20,0) 0%,
     rgba(60,40,20,0) 35%,
-    rgba(60,40,20,.18) 70%,
-    rgba(40,25,12,.55) 100%);
+    rgba(60,40,20,.32) 70%,
+    rgba(40,25,12,.72) 100%);
 }
 .kv-hero-inner {
   position: relative;
