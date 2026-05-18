@@ -152,10 +152,12 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
               />
             )}
 
-            {reservation.memo && (
+            {/* 「事前に伝えたいこと」— ユーザーが予約フォームで書いた質問・要望
+                DB の実カラムは notes（旧コードで memo を読んでいたバグの修正） */}
+            {reservation.notes && (
               <div>
                 <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 4, letterSpacing: '.05em' }}>
-                  ご相談メモ
+                  事前に伝えたいこと
                 </div>
                 <div style={{
                   fontSize: 13,
@@ -166,7 +168,7 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
                   borderRadius: 10,
                   whiteSpace: 'pre-wrap',
                 }}>
-                  {reservation.memo}
+                  {reservation.notes}
                 </div>
               </div>
             )}
@@ -221,6 +223,7 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
                     <KindaNoteCard
                       noteKey={reservation.shared_kinda_note_key}
                       diagnosedAt={reservation.shared_kinda_note_at}
+                      freeText={reservation.shared_kinda_note_freetext}
                     />
                   )}
                 </div>
@@ -483,7 +486,15 @@ function KindaTypeCard({ typeKey, diagnosedAt }: { typeKey: KindaTypeKey; diagno
   )
 }
 
-function KindaNoteCard({ noteKey, diagnosedAt }: { noteKey: string; diagnosedAt: string | null }) {
+function KindaNoteCard({
+  noteKey,
+  diagnosedAt,
+  freeText,
+}: {
+  noteKey: string
+  diagnosedAt: string | null
+  freeText?: string | null
+}) {
   const label = KINDA_NOTE_WEATHER[noteKey]
   // 画像パスは user-site と同じ規則（rain_cloud だけ webp、その他も webp）
   const imageUrl = `/images/w_${noteKey === 'dissonance_wind' ? 'uneasy_wind' : noteKey}.webp`
@@ -493,6 +504,11 @@ function KindaNoteCard({ noteKey, diagnosedAt }: { noteKey: string; diagnosedAt:
       background: 'var(--card)',
       border: '1px solid var(--border)',
       borderRadius: 10,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+    }}>
+    <div style={{
       display: 'flex',
       gap: 12,
       alignItems: 'center',
@@ -545,6 +561,48 @@ function KindaNoteCard({ noteKey, diagnosedAt }: { noteKey: string; diagnosedAt:
           ※ 面談中はこの「いまの気持ち」を起点に話を進めると、ユーザー満足度が上がりやすいです。
         </p>
       </div>
+    </div>
+
+      {/* 025 — Kinda note の自由記述（your words）— ユーザーが「結果に含める」を ON で
+         共有を選んだ場合のみ表示。最重要：これを必ず読んでから面談に臨む */}
+      {freeText && (
+        <div style={{
+          padding: '10px 12px 12px',
+          background: 'rgba(212,160,144,.08)',
+          borderLeft: '3px solid #D4A090',
+          borderRadius: 6,
+        }}>
+          <div style={{
+            fontSize: 10,
+            color: '#B8806E',
+            letterSpacing: '.18em',
+            textTransform: 'uppercase',
+            fontFamily: 'DM Sans, sans-serif',
+            fontWeight: 500,
+            marginBottom: 6,
+          }}>
+            Your words · ご本人の言葉
+          </div>
+          <p style={{
+            fontSize: 13,
+            color: 'var(--text-deep)',
+            lineHeight: 1.85,
+            margin: 0,
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'Shippori Mincho, serif',
+          }}>
+            {freeText}
+          </p>
+          <p style={{
+            fontSize: 10,
+            color: 'var(--text-mid)',
+            margin: '8px 0 0',
+            lineHeight: 1.6,
+          }}>
+            ※ ご本人が「カウンセラーに伝える」と判断した自身の言葉です。必ず目を通してから面談に臨んでください。
+          </p>
+        </div>
+      )}
     </div>
   )
 }

@@ -140,7 +140,10 @@ export interface Reservation {
   user_name: string
   user_email: string
   user_phone: string | null
-  memo: string | null
+  /** DB の実カラムは notes（旧 memo は legacy・実体なし。新コード書く時は notes を使う） */
+  notes: string | null
+  /** @deprecated DB に存在しないカラム。常に undefined。新コード書く時は notes を使ってください */
+  memo?: string | null
   review_token: string | null
   review_code: string | null
   status: 'active' | 'canceled' | 'completed'
@@ -160,6 +163,8 @@ export interface Reservation {
   shared_kinda_type_at: string | null
   shared_kinda_note_key: string | null
   shared_kinda_note_at: string | null
+  /** 025 — Kinda note の「your words」自由記述本文 */
+  shared_kinda_note_freetext: string | null
   created_at: string
 }
 

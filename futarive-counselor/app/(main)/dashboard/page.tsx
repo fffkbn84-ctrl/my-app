@@ -166,6 +166,36 @@ export default function DashboardPage() {
       .from('reviews').select('id, rating, agency_reply')
       .in('counselor_id', ids).eq('is_published', true)
 
+    // 直近 7 日の active reservations を取得（todo 生成用）
+    const nowIso = new Date().toISOString()
+    const sevenDaysIso = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+    const { data: upcomingRows } = await supabase
+      .from('reservations')
+      .select('id, start_at, notes, agency_message, shared_kinda_type_key, shared_kinda_note_key')
+      .in('counselor_id', ids)
+      .eq('status', 'active')
+      .gte('start_at', nowIso)
+      .lte('start_at', sevenDaysIso)
+
+    type UR = { id: string; start_at: string | null; notes: string | null; agency_message: string | null; shared_kinda_type_key: string | null; shared_kinda_note_key: string | null }
+    const upcoming = (upcomingRows as UR[] | null) ?? []
+
+    // 明日の予約・未返信質問・事前共有あり をカウント
+    const now2 = new Date()
+    const tomorrow = new Date(now2)
+    tomorrow.setDate(now2.getDate() + 1)
+    tomorrow.setHours(0, 0, 0, 0)
+    const dayAfter = new Date(tomorrow)
+    dayAfter.setDate(tomorrow.getDate() + 1)
+    const tomorrowCount = upcoming.filter((r) => {
+      if (!r.start_at) return false
+      const t = new Date(r.start_at).getTime()
+      return t >= tomorrow.getTime() && t < dayAfter.getTime()
+    }).length
+    const needsReplyCount = upcoming.filter(
+      (r) => r.notes && r.notes.trim().length > 0 && !r.agency_message,
+    ).length
+
     const reviews = (reviewRows ?? []) as { id: string; rating: number; agency_reply: string | null }[]
     const unreplied = reviews.filter(r => !r.agency_reply)
     const unrepliedLow = unreplied.filter(r => r.rating <= 3)
@@ -176,6 +206,27 @@ export default function DashboardPage() {
 
     // Todo 生成
     const newTodos: TodoItem[] = []
+
+    // ─── 予約系（最優先）— ユーザー満足度に直結するため上位に積む ───
+    // 1) 質問付き未返信予約（最重要・要返信）
+    if (needsReplyCount > 0) {
+      newTodos.push({
+        type: 'urgent',
+        label: `予約者からの質問が${needsReplyCount}件未返信です — 24時間以内のご対応を`,
+        action: '予約を見る →',
+        href: '/calendar',
+      })
+    }
+    // 2) 明日の面談リマインダー
+    if (tomorrowCount > 0) {
+      newTodos.push({
+        type: 'booking',
+        label: `明日の面談が${tomorrowCount}件あります — 共有された診断結果に必ず目を通してください`,
+        action: 'カレンダーで確認 →',
+        href: '/calendar',
+      })
+    }
+
     unrepliedLow.slice(0, 1).forEach(r => {
       newTodos.push({
         type: 'urgent',
