@@ -2,10 +2,30 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { Counselor, Slot } from '@/lib/types'
+import { describeError } from '@/lib/errors'
+import type { Counselor, Slot, Agency } from '@/lib/types'
 import MonthGrid from '@/components/calendar/MonthGrid'
 import SlotDetailPanel from '@/components/calendar/SlotDetailPanel'
 import SlotForm from '@/components/calendar/SlotForm'
+import ReservationDetailModal from '@/components/calendar/ReservationDetailModal'
+
+// dashboard と共有する context localStorage キー
+// 値が ALL または対象に含まれない場合は最初のカウンセラーへフォールバック
+const SCOPE_STORAGE_KEY = 'kinda-dashboard-context'
+const ALL_SENTINEL = 'ALL'
+
+// "YYYY-MM-DD" + "HH:mm" を端末ローカルTZ ISO 文字列に変換
+function localDateTimeToIsoStr(date: string, time: string): string {
+  const [y, m, d] = date.split('-').map(Number)
+  const [hh, mm] = time.split(':').map(Number)
+  const local = new Date(y, m - 1, d, hh, mm, 0)
+  const tzMin = -local.getTimezoneOffset()
+  const sign = tzMin >= 0 ? '+' : '-'
+  const abs = Math.abs(tzMin)
+  const tzStr = `${sign}${String(Math.floor(abs / 60)).padStart(2, '0')}:${String(abs % 60).padStart(2, '0')}`
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${y}-${pad(m)}-${pad(d)}T${pad(hh)}:${pad(mm)}:00${tzStr}`
+}
 
 export default function CalendarPage() {
   const today = new Date()
@@ -16,12 +36,16 @@ export default function CalendarPage() {
     today.toISOString().slice(0, 10)
   )
   const [counselor, setCounselor] = useState<Counselor | null>(null)
+  const [counselorsInScope, setCounselorsInScope] = useState<Counselor[]>([])
+  const [agency, setAgency] = useState<Agency | null>(null)
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [addingSlot, setAddingSlot] = useState(false)
+  const [bulkGenerating, setBulkGenerating] = useState(false)
   const [toast, setToast] = useState('')
+  const [viewingReservationSlotId, setViewingReservationSlotId] = useState<string | null>(null)
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2500) }
+  const showToast = (msg: string, durationMs = 2500) => { setToast(msg); setTimeout(() => setToast(''), durationMs) }
 
   const loadSlots = useCallback(async (c: Counselor, y: number, m: number) => {
     const supabase = createClient()
@@ -32,9 +56,9 @@ export default function CalendarPage() {
       .from('slots')
       .select('*')
       .eq('counselor_id', c.id)
-      .gte('start_time', from)
-      .lte('start_time', to + 'T23:59:59')
-      .order('start_time')
+      .gte('start_at', from)
+      .lte('start_at', to + 'T23:59:59')
+      .order('start_at')
     setSlots((data as Slot[]) ?? [])
   }, [])
 
@@ -43,16 +67,68 @@ export default function CalendarPage() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const { data: c } = await supabase.from('counselors').select('*').eq('owner_user_id', user.id).maybeSingle()
-      if (c) {
-        setCounselor(c as Counselor)
-        await loadSlots(c as Counselor, year, month)
+
+      // スコープ内のカウンセラーを全取得（本人 + 自分がオーナーの相談所所属）
+      const scoped: Counselor[] = []
+      const { data: own } = await supabase
+        .from('counselors').select('*').eq('owner_user_id', user.id)
+      if (own) scoped.push(...(own as Counselor[]))
+
+      const { data: agencies } = await supabase
+        .from('agencies').select('id').eq('owner_user_id', user.id)
+      const agencyIds = ((agencies as { id: string }[] | null) ?? []).map(a => a.id)
+      if (agencyIds.length > 0) {
+        const { data: rows } = await supabase
+          .from('counselors').select('*')
+          .in('agency_id', agencyIds)
+          .order('created_at', { ascending: true })
+        const ids = new Set(scoped.map(c => c.id))
+        for (const c of (rows as Counselor[] | null) ?? []) {
+          if (!ids.has(c.id)) scoped.push(c)
+        }
+      }
+      setCounselorsInScope(scoped)
+
+      if (scoped.length === 0) { setLoading(false); return }
+
+      // localStorage の選択を優先、なければ最初
+      let selected: Counselor | null = null
+      try {
+        const stored = localStorage.getItem(SCOPE_STORAGE_KEY)
+        if (stored && stored !== ALL_SENTINEL) {
+          selected = scoped.find(c => c.id === stored) ?? null
+        }
+      } catch {}
+      if (!selected) selected = scoped[0]
+
+      setCounselor(selected)
+      await loadSlots(selected, year, month)
+      if (selected.agency_id) {
+        const { data: ag } = await supabase
+          .from('agencies').select('*').eq('id', selected.agency_id).maybeSingle()
+        if (ag) setAgency(ag as Agency)
       }
       setLoading(false)
     }
     init()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // カウンセラー切替（select の onChange）
+  const handleCounselorChange = async (id: string) => {
+    const next = counselorsInScope.find(c => c.id === id) ?? null
+    if (!next) return
+    setCounselor(next)
+    try { localStorage.setItem(SCOPE_STORAGE_KEY, id) } catch {}
+    if (next.agency_id) {
+      const supabase = createClient()
+      const { data: ag } = await supabase
+        .from('agencies').select('*').eq('id', next.agency_id).maybeSingle()
+      setAgency((ag as Agency | null) ?? null)
+    } else {
+      setAgency(null)
+    }
+  }
 
   useEffect(() => {
     if (counselor) loadSlots(counselor, year, month)
@@ -71,20 +147,40 @@ export default function CalendarPage() {
     return () => { supabase.removeChannel(channel) }
   }, [counselor, year, month, loadSlots])
 
-  const handleAddSlot = async (startTime: string, endTime: string) => {
-    if (!counselor) return
+  const handleAddSlot = async (
+    startTime: string,
+    endTime: string,
+    meetingType: '対面' | 'オンライン' | null,
+  ) => {
+    if (!counselor) { showToast('カウンセラー情報が読み込めていません', 5000); return }
+    if (startTime >= endTime) { showToast('終了時刻は開始時刻より後にしてください', 4000); return }
     setAddingSlot(true)
     const supabase = createClient()
-    const { data: inserted } = await supabase.from('slots').insert({
+    const payload = {
       counselor_id: counselor.id,
-      start_time: startTime,
-      end_time: endTime,
-      status: 'open',
-    }).select().maybeSingle()
-    if (inserted) {
-      setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_time.localeCompare(b.start_time)))
+      start_at: startTime,
+      end_at: endTime,
+      status: 'open' as const,
+      meeting_type: meetingType,
     }
+    console.log('[slot add] payload', payload)
+    const { data: inserted, error } = await supabase.from('slots').insert(payload).select().maybeSingle()
+
     setAddingSlot(false)
+    if (error) {
+      console.error('[slot add] full error object', error)
+      const code = error.code ? `[${error.code}] ` : ''
+      showToast(`追加失敗：${code}${describeError(error)}`, 7000)
+      return
+    }
+    if (!inserted) {
+      console.warn('[slot add] no row returned (possibly RLS read block)')
+      showToast('追加できたか確認できませんでした。一覧を再読み込みします', 5000)
+      if (counselor) await loadSlots(counselor, year, month)
+      setShowForm(false)
+      return
+    }
+    setSlots(prev => [...prev, inserted as Slot].sort((a, b) => a.start_at.localeCompare(b.start_at)))
     setShowForm(false)
     showToast('予約枠を追加しました')
   }
@@ -93,6 +189,19 @@ export default function CalendarPage() {
     const supabase = createClient()
     await supabase.from('slots').update({ status }).eq('id', slotId)
     setSlots(prev => prev.map(s => s.id === slotId ? { ...s, status } : s))
+  }
+
+  /** 022_slots_meeting_type — 面談形式の更新 */
+  const handleMeetingTypeChange = async (slotId: string, meetingType: '対面' | 'オンライン' | null) => {
+    const supabase = createClient()
+    const { error } = await supabase.from('slots').update({ meeting_type: meetingType }).eq('id', slotId)
+    if (error) {
+      console.error('[slot meeting_type] error', error)
+      showToast(`面談形式の変更に失敗：${describeError(error)}`, 5000)
+      return
+    }
+    setSlots(prev => prev.map(s => s.id === slotId ? { ...s, meeting_type: meetingType } : s))
+    showToast(meetingType ? `${meetingType}のみに変更しました` : '両方OKに変更しました')
   }
 
   const handleDelete = async (slotId: string) => {
@@ -112,8 +221,80 @@ export default function CalendarPage() {
   }
 
   const selectedSlots = selectedDate
-    ? slots.filter(s => s.start_time.slice(0, 10) === selectedDate)
+    ? slots.filter(s => {
+        const dt = new Date(s.start_at)
+        const local = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+        return local === selectedDate
+      })
     : []
+
+  // 選択日の曜日が定休日か
+  const isClosedDay = (() => {
+    if (!selectedDate || !agency?.closed_weekdays || agency.closed_weekdays.length === 0) return false
+    const [y, m, d] = selectedDate.split('-').map(Number)
+    const dow = new Date(y, m - 1, d).getDay() // 0=日 ... 6=土
+    return agency.closed_weekdays.includes(dow)
+  })()
+
+  // 面談可能時間帯で agency 設定の所要時間スロットを一括生成
+  const handleBulkGenerate = async () => {
+    if (!counselor || !selectedDate) return
+    const startStr = (agency?.consultation_start_time ?? '10:00').slice(0, 5)
+    const endStr = (agency?.consultation_end_time ?? '19:00').slice(0, 5)
+    const slotMin = agency?.default_slot_minutes ?? 60
+    const [sh, sm] = startStr.split(':').map(Number)
+    const [eh, em] = endStr.split(':').map(Number)
+    const startMin = sh * 60 + sm
+    const endMin = eh * 60 + em
+    if (endMin <= startMin) { showToast('面談可能時間が不正です'); return }
+
+    setBulkGenerating(true)
+    const supabase = createClient()
+
+    // 既存のその日のスロット（重複回避）
+    const existingStarts = new Set(
+      selectedSlots.map(s => {
+        const dt = new Date(s.start_at)
+        return `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`
+      })
+    )
+
+    const minutesToHHMM = (mm: number) => {
+      const h = Math.floor(mm / 60)
+      const m = mm % 60
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+    }
+
+    const toInsert: { counselor_id: string; start_at: string; end_at: string; status: 'open' }[] = []
+    for (let mm = startMin; mm + slotMin <= endMin; mm += slotMin) {
+      const t = minutesToHHMM(mm)
+      if (existingStarts.has(t)) continue
+      toInsert.push({
+        counselor_id: counselor.id,
+        start_at: localDateTimeToIsoStr(selectedDate, t),
+        end_at: localDateTimeToIsoStr(selectedDate, minutesToHHMM(mm + slotMin)),
+        status: 'open',
+      })
+    }
+
+    if (toInsert.length === 0) {
+      setBulkGenerating(false)
+      showToast('既にすべての枠が登録されています')
+      return
+    }
+
+    const { data, error } = await supabase.from('slots').insert(toInsert).select()
+    setBulkGenerating(false)
+    if (error) {
+      console.error('[bulk add] error', error)
+      showToast(`一括生成失敗：${describeError(error)}`, 6000)
+      return
+    }
+    if (data) {
+      setSlots(prev => [...prev, ...(data as Slot[])].sort((a, b) => a.start_at.localeCompare(b.start_at)))
+    }
+    showToast(`${toInsert.length}件の枠を生成しました`)
+  }
 
   const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
 
@@ -122,28 +303,56 @@ export default function CalendarPage() {
   return (
     <div style={{ padding: '28px 24px', maxWidth: 700, paddingBottom: 80 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>CALENDAR</div>
-      <h1 className="page-title" style={{ marginBottom: 24 }}>予約枠管理</h1>
+      <h1 className="page-title" style={{ marginBottom: 12 }}>予約枠管理</h1>
 
-      <div className="kc-card" style={{ padding: 20 }}>
+      {/* カウンセラー切替（複数所属の場合のみ） */}
+      {counselorsInScope.length > 1 && counselor && (
+        <div style={{
+          marginBottom: 14,
+          padding: '10px 14px',
+          background: 'var(--bg-elev)',
+          border: '1px solid var(--border)',
+          borderRadius: 12,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+        }}>
+          <span style={{ fontSize: 11, color: 'var(--text-light)', letterSpacing: '.05em' }}>
+            COUNSELOR
+          </span>
+          <select
+            className="kc-select"
+            value={counselor.id}
+            onChange={e => handleCounselorChange(e.target.value)}
+            style={{ flex: 1, minWidth: 160 }}
+          >
+            {counselorsInScope.map(c => (
+              <option key={c.id} value={c.id}>{c.name} さん</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {agency?.business_hours_text && (
+        <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 18, lineHeight: 1.7 }}>
+          営業時間：{agency.business_hours_text}
+        </p>
+      )}
+
+      <div className="kc-card cal-wrap" style={{ padding: 20 }}>
         {/* カレンダーヘッダー */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <button onClick={prevMonth} className="kc-btn kc-btn-ghost kc-btn-sm" style={{ padding: '6px 10px' }}>
+        <div className="cal-header">
+          <div className="cal-header-nav">
+            <button onClick={prevMonth} className="kc-btn kc-btn-ghost kc-btn-sm" aria-label="前月">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <span style={{
-              fontFamily: 'DM Sans, sans-serif',
-              fontWeight: 600,
-              fontSize: 16,
-              color: 'var(--text-deep)',
-              minWidth: 80,
-              textAlign: 'center',
-            }}>
+            <span className="cal-header-month">
               {year}年 {MONTH_NAMES[month]}
             </span>
-            <button onClick={nextMonth} className="kc-btn kc-btn-ghost kc-btn-sm" style={{ padding: '6px 10px' }}>
+            <button onClick={nextMonth} className="kc-btn kc-btn-ghost kc-btn-sm" aria-label="翌月">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
@@ -159,14 +368,30 @@ export default function CalendarPage() {
         </div>
 
         {/* 凡例 */}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 14, flexWrap: 'wrap' }}>
+        <div className="cal-legend">
           <LegendDot cls="cal-dot-open" label="空き" />
           <LegendDot cls="cal-dot-booked" label="予約済み" />
           <LegendDot cls="cal-dot-locked" label="ロック中" />
         </div>
 
-        {/* 一括操作ボタン */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+        {/* 定休日バナー */}
+        {isClosedDay && (
+          <div style={{
+            padding: '10px 14px',
+            background: 'var(--warning-pale)',
+            border: '1px solid var(--warning)',
+            borderRadius: 10,
+            fontSize: 12,
+            color: 'var(--text-deep)',
+            marginBottom: 12,
+            lineHeight: 1.7,
+          }}>
+            この日は相談所の <strong>定休日</strong> に設定されています。それでも追加する場合は下記から登録できます。
+          </div>
+        )}
+
+        {/* 一括操作ボタン（凡例の下に独立配置） */}
+        <div className="cal-actions">
           <button
             className="kc-btn kc-btn-ghost kc-btn-sm"
             onClick={() => { if (selectedDate) setShowForm(true) }}
@@ -177,6 +402,17 @@ export default function CalendarPage() {
             </svg>
             枠を追加
           </button>
+          <button
+            className="kc-btn kc-btn-ghost kc-btn-sm"
+            onClick={handleBulkGenerate}
+            disabled={!selectedDate || bulkGenerating}
+            title="面談可能時間内に60分の空き枠をまとめて作成"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 4h8M2 8h6M2 6h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {bulkGenerating ? '生成中…' : 'この日の枠を一括生成'}
+          </button>
         </div>
 
         <MonthGrid
@@ -185,6 +421,7 @@ export default function CalendarPage() {
           slots={slots}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
+          closedWeekdays={agency?.closed_weekdays}
         />
       </div>
 
@@ -194,8 +431,18 @@ export default function CalendarPage() {
           date={selectedDate}
           slots={selectedSlots}
           onStatusChange={handleStatusChange}
+          onMeetingTypeChange={handleMeetingTypeChange}
           onDelete={handleDelete}
           onAddNew={() => setShowForm(true)}
+          onViewReservation={setViewingReservationSlotId}
+        />
+      )}
+
+      {/* 予約者情報モーダル */}
+      {viewingReservationSlotId && (
+        <ReservationDetailModal
+          slotId={viewingReservationSlotId}
+          onClose={() => setViewingReservationSlotId(null)}
         />
       )}
 
@@ -216,6 +463,9 @@ export default function CalendarPage() {
               onAdd={handleAddSlot}
               onClose={() => setShowForm(false)}
               loading={addingSlot}
+              consultationStart={agency?.consultation_start_time}
+              consultationEnd={agency?.consultation_end_time}
+              slotMinutes={agency?.default_slot_minutes ?? 60}
             />
           </div>
         </div>

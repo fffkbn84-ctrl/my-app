@@ -1,0 +1,146 @@
+'use client'
+
+/**
+ * 「面談完了待ち」— ダッシュボードの「ちいさな『しなきゃ』」カード内に
+ * 行として埋め込むコンポーネント。
+ *
+ * Hot Pepper Beauty 方式：店舗（カウンセラー/相談所）側がワンタップで
+ * 面談完了をマークし、お客様の口コミ投稿を解禁する設計。
+ *
+ * 親（dashboard）には件数を onCountChange で通知し、しなきゃ全体の件数バッジに
+ * 合算してもらう。0 件のときは何もレンダリングしない。
+ */
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+import type { Counselor, Reservation } from '@/lib/types'
+
+interface Props {
+  scopedCounselors: Counselor[]
+  /** 完了待ち件数が変化したときに親へ通知（しなきゃ件数バッジ用） */
+  onCountChange?: (count: number) => void
+}
+
+function formatJa(iso: string | null): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  const w = ['日', '月', '火', '水', '木', '金', '土']
+  return `${d.getMonth() + 1}/${d.getDate()}（${w[d.getDay()]}）${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+export default function PendingCompletionsRows({ scopedCounselors, onCountChange }: Props) {
+  const [rows, setRows] = useState<Reservation[]>([])
+  const [completingId, setCompletingId] = useState<string | null>(null)
+  const [toast, setToast] = useState('')
+
+  useEffect(() => {
+    const load = async () => {
+      const ids = scopedCounselors.map(c => c.id)
+      if (ids.length === 0) {
+        setRows([])
+        onCountChange?.(0)
+        return
+      }
+      const supabase = createClient()
+      const nowIso = new Date().toISOString()
+      const { data } = await supabase
+        .from('reservations')
+        .select('*')
+        .in('counselor_id', ids)
+        .eq('status', 'active')
+        .lte('start_at', nowIso)
+        .order('start_at', { ascending: false })
+        .limit(30)
+      const list = (data as Reservation[]) ?? []
+      setRows(list)
+      onCountChange?.(list.length)
+    }
+    load()
+    // onCountChange は親で useCallback されない想定なので依存に含めない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scopedCounselors])
+
+  const handleComplete = async (reservation: Reservation) => {
+    const ok = window.confirm(
+      `この予約を「面談完了」としてマークしますか？\n\n${formatJa(reservation.start_at)}\n${reservation.user_name} さん / ${reservation.counselor_name ?? ''} カウンセラー\n\n※ 完了マーク後、お客様の口コミ投稿が可能になります。`
+    )
+    if (!ok) return
+    setCompletingId(reservation.id)
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('reservations')
+      .update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+      })
+      .eq('id', reservation.id)
+    setCompletingId(null)
+    if (error) {
+      window.alert(`完了マークに失敗しました：${error.message}`)
+      return
+    }
+    setRows(prev => {
+      const next = prev.filter(r => r.id !== reservation.id)
+      onCountChange?.(next.length)
+      return next
+    })
+    setToast('面談完了をマークしました')
+    setTimeout(() => setToast(''), 2500)
+  }
+
+  if (rows.length === 0) return null
+
+  return (
+    <>
+      {rows.map(r => {
+        const completing = completingId === r.id
+        return (
+          <div key={r.id} className="todo-row pending-row">
+            <span className="todo-tag todo-tag-complete">完了</span>
+            <div className="todo-body" style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-deep)' }}>
+                {r.user_name} さん
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+                {formatJa(r.start_at)}
+                {r.meeting_type ? ` ・${r.meeting_type}` : ''}
+                {r.counselor_name ? ` ・担当: ${r.counselor_name}` : ''}
+              </span>
+            </div>
+            <button
+              type="button"
+              className="kc-btn kc-btn-primary kc-btn-sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleComplete(r)
+              }}
+              disabled={completing}
+              style={{ flexShrink: 0 }}
+            >
+              {completing ? (
+                '...'
+              ) : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                    <path
+                      d="M2 7.5L6 11l6-8"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  面談完了
+                </>
+              )}
+            </button>
+          </div>
+        )
+      })}
+      {toast && (
+        <div className="kc-toast" style={{ position: 'fixed' }}>
+          {toast}
+        </div>
+      )}
+    </>
+  )
+}
