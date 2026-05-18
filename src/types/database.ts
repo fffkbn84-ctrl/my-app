@@ -178,6 +178,8 @@ export interface Database {
           shared_kinda_type_at: string | null;
           shared_kinda_note_key: string | null;
           shared_kinda_note_at: string | null;
+          /* 025 — Kinda note の自由記述（your words） */
+          shared_kinda_note_freetext: string | null;
           created_at: string;
           updated_at: string;
         };

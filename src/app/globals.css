@@ -4380,11 +4380,12 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   transition: transform .15s ease, opacity .2s ease, bottom .2s ease;
 }
 
-/* 一つ前へ戻るボタン — scroll-top の 12px 上に積み重ね */
+/* 一つ前へ戻るボタン — 左下に配置（戻る矢印の方向と一致）
+   ↑（ページトップへ戻る）は右下のまま。左右に分離して動線を直感的に。 */
 .floating-back {
   position: fixed;
-  right: 16px;
-  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 44px + 10px);
+  left: 16px;
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px);
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -4409,7 +4410,7 @@ body:has(.cta-mobile-bar) .floating-scroll-top {
   bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px);
 }
 body:has(.cta-mobile-bar) .floating-back {
-  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px + 44px + 10px);
+  bottom: calc(60px + env(safe-area-inset-bottom) + 12px + 72px + 12px);
 }
 
 /* ─────────────────────────────────────────────────────────

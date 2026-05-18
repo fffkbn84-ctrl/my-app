@@ -63,7 +63,30 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
   // デフォルト ON：ユーザーが自分で書いた言葉なので、結果画面で見返せて、
   // メモ・画像にもそのまま含まれる方が自然。チェックを外すと結果画面から消え、
   // コピー・画像にも含まれなくなる。
+  // 予約フローでも「カウンセラーに自由記述を共有するか」の判断に使われる。
+  // localStorage に永続化（kinda_note_share_freetext）して Step3Form が読む。
   const [includeFreeText, setIncludeFreeText] = useState(true);
+
+  // mount 時に localStorage から復元（過去にトグル OFF にしていたユーザーの判断を尊重）
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem("kinda_note_share_freetext");
+      if (stored === "false") setIncludeFreeText(false);
+    } catch {
+      /* private mode 等は無視 */
+    }
+  }, []);
+
+  // includeFreeText が変わるたびに localStorage に書き込む
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("kinda_note_share_freetext", includeFreeText ? "true" : "false");
+    } catch {
+      /* noop */
+    }
+  }, [includeFreeText]);
   // ポラロイドカードの傾き（3% 確率のレア演出）。SSR では常に 0deg。
   // hydration 後の useEffect で一度だけ算出する。
   const [tiltAngle, setTiltAngle] = useState<string>("rotate(0deg)");
@@ -356,12 +379,13 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
         {/* メイン CTA */}
         <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
           {isPre ? (
-            <PreButtons />
+            <PreButtons isLoggedIn={!!user} />
           ) : (
             <ActiveButtons
               onCopy={handleCopy}
               onSaveImage={handleSaveImage}
               saving={saving}
+              isLoggedIn={!!user}
             />
           )}
           <RestartButton />
@@ -907,16 +931,21 @@ const storyBtnStyle: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
-function PreButtons() {
+function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
+  // 未ログインなら結果保存のためログイン誘導、ログイン済みなら直接 Kinda talk へ
+  const talkHref = isLoggedIn
+    ? "/kinda-talk?from=note"
+    : "/login?redirect=" + encodeURIComponent("/kinda-talk?from=note");
   return (
     <>
-      {/* 1. Kinda type（primary、最大） */}
+      {/* 1. この結果を持って担当を探す（最重要・主CTA） */}
       <Link
-        href="/kinda-type"
+        href={talkHref}
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          gap: 8,
           background: "#D4A090",
           color: "white",
           textDecoration: "none",
@@ -928,12 +957,15 @@ function PreButtons() {
           letterSpacing: "0.04em",
         }}
       >
-        Kinda type であなたに合うカウンセラーを
+        この結果を持って担当を探す
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2 7h10M7 2l5 5-5 5" />
+        </svg>
       </Link>
 
-      {/* 2. Kinda talk（secondary） */}
-      <Link href="/kinda-talk" style={secondaryStyle}>
-        Kinda talk でカウンセラーを見てみる
+      {/* 2. Kinda type（副CTA・相性チェック） */}
+      <Link href="/kinda-type" style={secondaryStyle}>
+        相性チェックも試してみる
       </Link>
 
       {/* 3. Kinda glow（secondary） */}
@@ -982,15 +1014,23 @@ function ActiveButtons({
   onCopy,
   onSaveImage,
   saving,
+  isLoggedIn,
 }: {
   onCopy: () => void;
   onSaveImage: () => void;
   saving: boolean;
+  isLoggedIn: boolean;
 }) {
+  // この結果のままカウンセラーへ持っていける動線（主CTA）
+  // 未ログインなら結果を保存してもらうためにログインへ誘導
+  const talkHref = isLoggedIn
+    ? "/kinda-talk?from=note"
+    : "/login?redirect=" + encodeURIComponent("/kinda-talk?from=note");
   return (
     <>
-      <button
-        onClick={onCopy}
+      {/* 最重要：この結果のままカウンセラーに渡す（自然な動線） */}
+      <Link
+        href={talkHref}
         style={{
           display: "flex",
           alignItems: "center",
@@ -998,21 +1038,59 @@ function ActiveButtons({
           gap: 10,
           background: "#D4A090",
           color: "white",
-          border: "none",
+          textDecoration: "none",
           borderRadius: 999,
           padding: "18px",
           fontSize: 15,
           fontWeight: 500,
           boxShadow: "0 5px 0 #B8806E",
           letterSpacing: "0.04em",
+        }}
+      >
+        この結果を見てもらえる担当を探す
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M2 7h10M7 2l5 5-5 5" />
+        </svg>
+      </Link>
+
+      {!isLoggedIn && (
+        <p
+          style={{
+            fontSize: 11,
+            color: "#8B7A6D",
+            textAlign: "center",
+            margin: "-4px 0 4px",
+            lineHeight: 1.6,
+          }}
+        >
+          ログインすると、予約時にこの結果が自動で担当者に届きます
+        </p>
+      )}
+
+      {/* 自分でコピーして他で使う動線（副CTA） */}
+      <button
+        onClick={onCopy}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10,
+          background: "#FDFAF7",
+          color: "#3A2E26",
+          border: "1.5px solid #EAE0D8",
+          borderRadius: 999,
+          padding: "14px",
+          fontSize: 14,
+          fontWeight: 500,
+          letterSpacing: "0.04em",
           cursor: "pointer",
         }}
       >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="4" y="3" width="9" height="11" rx="1.5" stroke="white" strokeWidth="1.4" />
-          <path d="M3 6V12.5C3 13.6 3.9 14.5 5 14.5H10" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
+          <rect x="4" y="3" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+          <path d="M3 6V12.5C3 13.6 3.9 14.5 5 14.5H10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
         </svg>
-        この気持ちを、そのまま渡す
+        コピーして他で使う
       </button>
 
       <button

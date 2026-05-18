@@ -41,6 +41,8 @@ export type CreateReservationInput = {
   /** ユーザーが共有を選んだ Kinda note の天気キーと診断日時 */
   sharedKindaNoteKey?: string | null;
   sharedKindaNoteAt?: string | null;
+  /** Kinda note の自由記述本文（your words）。結果画面で「結果に含める」が ON だった人のみ */
+  sharedKindaNoteFreetext?: string | null;
 };
 
 export type CreateReservationResult =
@@ -115,6 +117,7 @@ export async function createReservation(
       shared_kinda_type_at: input.sharedKindaTypeAt ?? null,
       shared_kinda_note_key: input.sharedKindaNoteKey ?? null,
       shared_kinda_note_at: input.sharedKindaNoteAt ?? null,
+      shared_kinda_note_freetext: input.sharedKindaNoteFreetext ?? null,
     })
     .select("id")
     .maybeSingle();

@@ -9,7 +9,7 @@ import { WEATHER_DESCRIPTIONS, type WeatherKey } from "@/app/kinda-note/data/wea
 
 type LatestDiagnosis = {
   type?: { result_key: DiagnosisTypeId; created_at: string };
-  note?: { result_key: WeatherKey; created_at: string };
+  note?: { result_key: WeatherKey; created_at: string; freeText: string | null };
 };
 
 function isTypeKey(k: string): k is DiagnosisTypeId {
@@ -81,14 +81,20 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
     }
     let active = true;
     (async () => {
+      // answers JSONB も含めて取得（your words = freeTexts を抽出するため）
       const { data } = await supabase
         .from("diagnosis_results")
-        .select("kind, result_key, created_at")
+        .select("kind, result_key, answers, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(20);
       if (!active) return;
-      type Row = { kind: string; result_key: string; created_at: string };
+      type Row = {
+        kind: string;
+        result_key: string;
+        answers: unknown;
+        created_at: string;
+      };
       const rows = (data as Row[]) ?? [];
       const typeRow = rows.find((r) => r.kind === "type" && isTypeKey(r.result_key));
       const noteRow = rows.find((r) => r.kind === "note" && r.result_key in WEATHER_DESCRIPTIONS);
@@ -97,10 +103,39 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
         next.type = { result_key: typeRow.result_key, created_at: typeRow.created_at };
       }
       if (noteRow) {
-        next.note = { result_key: noteRow.result_key as WeatherKey, created_at: noteRow.created_at };
+        // answers.freeTexts の最初の非空テキストを your words として抽出
+        let freeText: string | null = null;
+        try {
+          const ans = noteRow.answers as { freeTexts?: Record<string, string> } | null;
+          const ft = ans?.freeTexts;
+          if (ft) {
+            const first = Object.values(ft).find(
+              (v) => typeof v === "string" && v.trim().length > 0,
+            );
+            if (first) freeText = first.trim();
+          }
+        } catch {
+          /* malformed answers JSON は無視 */
+        }
+        next.note = {
+          result_key: noteRow.result_key as WeatherKey,
+          created_at: noteRow.created_at,
+          freeText,
+        };
       }
       setLatest(next);
       setLatestLoaded(true);
+
+      // localStorage の「結果に含める」状態を読む（Kinda note 結果画面で OFF にしたユーザーの意思を尊重）
+      let includeFreeTextDefault = true;
+      try {
+        if (typeof window !== "undefined") {
+          const stored = window.localStorage.getItem("kinda_note_share_freetext");
+          if (stored === "false") includeFreeTextDefault = false;
+        }
+      } catch {
+        /* noop */
+      }
 
       // 初期値：自動で共有 ON（ユーザーはトグルで OFF にできる）
       // すでにユーザーが操作している場合は上書きしない
@@ -112,6 +147,10 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
       if (next.note && userInfo.sharedKindaNoteKey === undefined) {
         patch.sharedKindaNoteKey = next.note.result_key;
         patch.sharedKindaNoteAt = next.note.created_at;
+        // 自由記述は ON だった人だけ初期共有
+        if (next.note.freeText && includeFreeTextDefault) {
+          patch.sharedKindaNoteFreetext = next.note.freeText;
+        }
       }
       if (Object.keys(patch).length > 0) {
         onChange({ ...userInfo, ...patch });
@@ -341,36 +380,104 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
             )}
 
             {latest.note && (
-              <SharedToggleRow
-                label="Kinda note の結果"
-                resultBadge={
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                    <span
+              <>
+                <SharedToggleRow
+                  label="Kinda note の結果"
+                  resultBadge={
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      <span
+                        style={{
+                          background: "#D4A090",
+                          color: "white",
+                          fontSize: 10,
+                          padding: "2px 8px",
+                          borderRadius: 20,
+                          fontFamily: "var(--font-mincho)",
+                        }}
+                      >
+                        {WEATHER_DESCRIPTIONS[latest.note.result_key].name_ja}
+                      </span>
+                    </span>
+                  }
+                  checked={!!userInfo.sharedKindaNoteKey}
+                  onToggle={(on) => {
+                    if (on) {
+                      // ON: Kinda note 結果画面で結果に含める ON にしてた人だけ自由記述も自動共有
+                      let includeFt = true;
+                      try {
+                        if (typeof window !== "undefined") {
+                          const v = window.localStorage.getItem("kinda_note_share_freetext");
+                          if (v === "false") includeFt = false;
+                        }
+                      } catch {
+                        /* noop */
+                      }
+                      updateShared({
+                        sharedKindaNoteKey: latest.note!.result_key,
+                        sharedKindaNoteAt: latest.note!.created_at,
+                        sharedKindaNoteFreetext:
+                          latest.note!.freeText && includeFt ? latest.note!.freeText : null,
+                      });
+                    } else {
+                      // OFF: Kinda note 全部解除（freetext も含めて）
+                      updateShared({
+                        sharedKindaNoteKey: null,
+                        sharedKindaNoteAt: null,
+                        sharedKindaNoteFreetext: null,
+                      });
+                    }
+                  }}
+                />
+
+                {/* your words 共有のサブトグル — note 共有 ON かつ自由記述があれば表示 */}
+                {userInfo.sharedKindaNoteKey && latest.note.freeText && (
+                  <div
+                    style={{
+                      marginLeft: 28,
+                      padding: "8px 12px",
+                      background: "white",
+                      border: "1px dashed var(--light)",
+                      borderRadius: 10,
+                    }}
+                  >
+                    <label
                       style={{
-                        background: "#D4A090",
-                        color: "white",
-                        fontSize: 10,
-                        padding: "2px 8px",
-                        borderRadius: 20,
-                        fontFamily: "var(--font-mincho)",
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 8,
+                        cursor: "pointer",
+                        fontSize: 12,
+                        color: "var(--ink)",
                       }}
                     >
-                      {WEATHER_DESCRIPTIONS[latest.note.result_key].name_ja}
-                    </span>
-                  </span>
-                }
-                checked={!!userInfo.sharedKindaNoteKey}
-                onToggle={(on) => {
-                  updateShared(
-                    on
-                      ? {
-                          sharedKindaNoteKey: latest.note!.result_key,
-                          sharedKindaNoteAt: latest.note!.created_at,
+                      <input
+                        type="checkbox"
+                        checked={!!userInfo.sharedKindaNoteFreetext}
+                        onChange={(e) =>
+                          updateShared({
+                            sharedKindaNoteFreetext: e.target.checked
+                              ? latest.note!.freeText
+                              : null,
+                          })
                         }
-                      : { sharedKindaNoteKey: null, sharedKindaNoteAt: null },
-                  );
-                }}
-              />
+                        style={{
+                          width: 16,
+                          height: 16,
+                          accentColor: "#D4A090",
+                          flexShrink: 0,
+                          marginTop: 2,
+                        }}
+                      />
+                      <span>
+                        <span style={{ fontWeight: 500 }}>あなたの言葉</span>も担当者に伝える
+                        <span style={{ fontSize: 10, color: "var(--muted)", marginLeft: 6 }}>
+                          （Kinda note で書いた自由記述）
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

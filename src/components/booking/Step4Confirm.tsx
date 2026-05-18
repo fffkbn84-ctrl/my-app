@@ -98,6 +98,7 @@ export default function Step4Confirm({
       sharedKindaTypeAt: userInfo.sharedKindaTypeAt ?? null,
       sharedKindaNoteKey: userInfo.sharedKindaNoteKey ?? null,
       sharedKindaNoteAt: userInfo.sharedKindaNoteAt ?? null,
+      sharedKindaNoteFreetext: userInfo.sharedKindaNoteFreetext ?? null,
     });
 
     setLoading(false);
@@ -124,7 +125,11 @@ export default function Step4Confirm({
   }
   if (userInfo.sharedKindaNoteKey) {
     const w = WEATHER_DESCRIPTIONS[userInfo.sharedKindaNoteKey as WeatherKey];
-    sharedItems.push(`Kinda note：${w?.name_ja ?? userInfo.sharedKindaNoteKey}`);
+    let line = `Kinda note：${w?.name_ja ?? userInfo.sharedKindaNoteKey}`;
+    if (userInfo.sharedKindaNoteFreetext) {
+      line += `\n　└ あなたの言葉：「${userInfo.sharedKindaNoteFreetext.slice(0, 60)}${userInfo.sharedKindaNoteFreetext.length > 60 ? "…" : ""}」`;
+    }
+    sharedItems.push(line);
   }
 
   const rows = [

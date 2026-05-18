@@ -23,6 +23,8 @@ export interface BookingUserInfo {
   /** 024 — 予約時に共有する Kinda note 結果（NULL = 共有しない） */
   sharedKindaNoteKey?: string | null;
   sharedKindaNoteAt?: string | null;
+  /** 025 — Kinda note の自由記述（your words）。NULL = 共有しない or 結果画面で OFF */
+  sharedKindaNoteFreetext?: string | null;
 }
 
 export interface BookingState {
