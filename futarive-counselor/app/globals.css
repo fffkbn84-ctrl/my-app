@@ -677,6 +677,10 @@ main {
   align-items: center;
   justify-content: center;
   padding: 20px;
+  /* iOS Safari: ボディに overflow:hidden をかけない代わりに、オーバーレイ側で
+     縦スクロールを完全に閉じ込める。これでモーダル外をなぞってもページが動かない。 */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .kc-modal {
   background: var(--card);
@@ -685,6 +689,11 @@ main {
   width: 100%;
   max-width: 440px;
   box-shadow: var(--sh-lg);
+  /* 高さ超過時はモーダル内部でスクロール。iPhone Safari でも安定 */
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 .kc-modal-title {
   font-family: 'Shippori Mincho', serif;
@@ -696,7 +705,13 @@ main {
 
 @media (max-width: 560px) {
   .kc-overlay { align-items: flex-end; padding: 0; }
-  .kc-modal { border-radius: 20px 20px 0 0; max-width: 100%; }
+  .kc-modal {
+    border-radius: 20px 20px 0 0;
+    max-width: 100%;
+    /* モバイル: 画面の 90% を上限に。iPhone のホームインジケータ・URL バー考慮 */
+    max-height: 90dvh;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  }
 }
 
 /* ─── SAVE BAR ─── */

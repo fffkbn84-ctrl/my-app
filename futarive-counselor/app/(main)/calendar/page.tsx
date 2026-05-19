@@ -32,6 +32,8 @@ export default function CalendarPage() {
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
   const [slots, setSlots] = useState<Slot[]>([])
+  /** 質問付き未返信予約がある日付（YYYY-MM-DD ローカルTZ） — MonthGrid に渡す */
+  const [needsReplyDates, setNeedsReplyDates] = useState<Set<string>>(new Set())
   const [selectedDate, setSelectedDate] = useState<string | null>(
     today.toISOString().slice(0, 10)
   )
@@ -52,14 +54,39 @@ export default function CalendarPage() {
     const from = `${y}-${String(m + 1).padStart(2, '0')}-01`
     const lastDay = new Date(y, m + 1, 0).getDate()
     const to = `${y}-${String(m + 1).padStart(2, '0')}-${lastDay}`
-    const { data } = await supabase
-      .from('slots')
-      .select('*')
-      .eq('counselor_id', c.id)
-      .gte('start_at', from)
-      .lte('start_at', to + 'T23:59:59')
-      .order('start_at')
-    setSlots((data as Slot[]) ?? [])
+    const [slotsRes, resRes] = await Promise.all([
+      supabase
+        .from('slots')
+        .select('*')
+        .eq('counselor_id', c.id)
+        .gte('start_at', from)
+        .lte('start_at', to + 'T23:59:59')
+        .order('start_at'),
+      // 質問付き未返信予約（事前に伝えたいことに記述あり & 返信なし & active）を取得し、
+      // 日付セットを作る。MonthGrid のセルバッジに使う
+      supabase
+        .from('reservations')
+        .select('start_at, notes, agency_message, status')
+        .eq('counselor_id', c.id)
+        .eq('status', 'active')
+        .not('notes', 'is', null)
+        .is('agency_message', null)
+        .gte('start_at', from)
+        .lte('start_at', to + 'T23:59:59'),
+    ])
+    setSlots((slotsRes.data as Slot[]) ?? [])
+
+    type ResRow = { start_at: string | null; notes: string | null; agency_message: string | null; status: string }
+    const reservedDates = new Set<string>()
+    for (const r of ((resRes.data as ResRow[] | null) ?? [])) {
+      if (!r.start_at) continue
+      if (!r.notes || r.notes.trim().length === 0) continue
+      if (r.agency_message) continue
+      const d = new Date(r.start_at)
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+      reservedDates.add(key)
+    }
+    setNeedsReplyDates(reservedDates)
   }, [])
 
   useEffect(() => {
@@ -422,6 +449,7 @@ export default function CalendarPage() {
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
           closedWeekdays={agency?.closed_weekdays}
+          needsReplyDates={needsReplyDates}
         />
       </div>
 

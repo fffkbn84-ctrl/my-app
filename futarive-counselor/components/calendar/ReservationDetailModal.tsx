@@ -23,6 +23,57 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
   const [sendingMessage, setSendingMessage] = useState(false)
   const [messageSavedFlash, setMessageSavedFlash] = useState(false)
 
+  // 025 — 面談完了 + 口コミトークン発行（active → completed への遷移）
+  const [completing, setCompleting] = useState(false)
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
+  const [completedTokenInfo, setCompletedTokenInfo] = useState<{
+    token: string
+    code: string
+  } | null>(null)
+
+  /** ランダムな 6 桁英数（紛らわしい O / 0 / I / 1 は除外） */
+  function generateReviewCode(): string {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    let s = ''
+    for (let i = 0; i < 6; i++) {
+      s += chars[Math.floor(Math.random() * chars.length)]
+    }
+    return `TKN-${s}`
+  }
+
+  async function handleComplete() {
+    if (!reservation) return
+    setCompleting(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      // 既に発行済みのトークンを使い回す（再発行で混乱を生まない）
+      const token = reservation.review_token ?? crypto.randomUUID()
+      const code = reservation.review_code ?? generateReviewCode()
+      const { error } = await supabase
+        .from('reservations')
+        .update({
+          status: 'completed',
+          review_token: token,
+          review_code: code,
+        })
+        .eq('id', reservation.id)
+      if (error) throw error
+      setReservation({
+        ...reservation,
+        status: 'completed',
+        review_token: token,
+        review_code: code,
+      })
+      setCompletedTokenInfo({ token, code })
+      setShowCompleteConfirm(false)
+    } catch (e) {
+      setError('面談完了の処理に失敗しました: ' + describeError(e))
+    } finally {
+      setCompleting(false)
+    }
+  }
+
   useEffect(() => {
     const load = async () => {
       const supabase = createClient()
@@ -367,7 +418,113 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 18 }}>
+        {/* 完了後にトークン情報を表示 — レビュー依頼 URL とコードを案内 */}
+        {completedTokenInfo && reservation && (
+          <div style={{
+            marginTop: 16,
+            padding: '14px 16px',
+            background: 'rgba(122,158,135,.1)',
+            border: '1px solid rgba(122,158,135,.4)',
+            borderRadius: 12,
+          }}>
+            <div style={{
+              fontSize: 11,
+              color: 'var(--success)',
+              fontFamily: 'DM Sans, sans-serif',
+              letterSpacing: '.16em',
+              marginBottom: 8,
+              fontWeight: 600,
+            }}>
+              ✓ 面談完了 · 口コミトークンを発行しました
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: '0 0 10px' }}>
+              下記のリンクまたは認証コードを <b>{reservation.user_name}</b> 様にお送りください。
+              これがあれば「面談済み口コミ」として投稿できます。
+            </p>
+            <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>口コミ受付 URL</div>
+            <div style={{
+              fontFamily: 'monospace',
+              fontSize: 11,
+              padding: '6px 10px',
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              marginBottom: 8,
+              wordBreak: 'break-all',
+              userSelect: 'all',
+            }}>
+              {typeof window !== 'undefined'
+                ? `${window.location.origin.replace(/counselor\./, '').replace(/-counselor\b/, '')}/reviews/new?token=${completedTokenInfo.token}`
+                : `/reviews/new?token=${completedTokenInfo.token}`}
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>認証コード（手動入力用）</div>
+            <div style={{
+              fontFamily: 'monospace',
+              fontSize: 14,
+              fontWeight: 600,
+              padding: '6px 10px',
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              letterSpacing: '.1em',
+              userSelect: 'all',
+            }}>
+              {completedTokenInfo.code}
+            </div>
+          </div>
+        )}
+
+        {/* 面談完了の確認ダイアログ（インライン） */}
+        {showCompleteConfirm && (
+          <div style={{
+            marginTop: 16,
+            padding: '14px 16px',
+            background: 'var(--bg-elev)',
+            border: '1px solid var(--accent-dim)',
+            borderRadius: 12,
+          }}>
+            <p style={{ fontSize: 13, color: 'var(--text-deep)', margin: '0 0 12px', lineHeight: 1.7 }}>
+              この面談を完了とマークしますか？<br/>
+              <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+                完了すると自動で口コミ用 URL が発行され、ご本人にお送りいただけます。
+              </span>
+            </p>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                className="kc-btn kc-btn-ghost kc-btn-sm"
+                onClick={() => setShowCompleteConfirm(false)}
+                disabled={completing}
+              >
+                やめる
+              </button>
+              <button
+                className="kc-btn kc-btn-primary kc-btn-sm"
+                onClick={handleComplete}
+                disabled={completing}
+              >
+                {completing ? '処理中…' : '面談完了にする'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 18, gap: 8, flexWrap: 'wrap' }}>
+          {/* active 中の予約のみ「面談完了」を表示。canceled / completed では非表示 */}
+          {reservation?.status === 'active' && !completedTokenInfo && (
+            <button
+              className="kc-btn kc-btn-primary"
+              onClick={() => setShowCompleteConfirm(true)}
+              disabled={completing || showCompleteConfirm}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M3 7l3 3 5-6" />
+              </svg>
+              面談完了にする
+            </button>
+          )}
+          {/* スペーサー（左寄せ完了ボタンと右寄せ閉じるを両立） */}
+          <div style={{ flex: 1 }} />
           <button className="kc-btn kc-btn-ghost" onClick={onClose}>
             閉じる
           </button>

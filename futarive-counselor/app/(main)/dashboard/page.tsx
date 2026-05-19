@@ -180,13 +180,20 @@ export default function DashboardPage() {
     type UR = { id: string; start_at: string | null; notes: string | null; agency_message: string | null; shared_kinda_type_key: string | null; shared_kinda_note_key: string | null }
     const upcoming = (upcomingRows as UR[] | null) ?? []
 
-    // 明日の予約・未返信質問・事前共有あり をカウント
+    // 今日・明日・直近の予約 をカウント。
+    // 「ちいさなしなきゃ」は『今日と明日の予定』『未返信質問』『近日の事前共有あり』を全部見えるように。
     const now2 = new Date()
-    const tomorrow = new Date(now2)
-    tomorrow.setDate(now2.getDate() + 1)
-    tomorrow.setHours(0, 0, 0, 0)
+    const todayStart = new Date(now2)
+    todayStart.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(todayStart)
+    tomorrow.setDate(todayStart.getDate() + 1)
     const dayAfter = new Date(tomorrow)
     dayAfter.setDate(tomorrow.getDate() + 1)
+    const todayCount = upcoming.filter((r) => {
+      if (!r.start_at) return false
+      const t = new Date(r.start_at).getTime()
+      return t >= todayStart.getTime() && t < tomorrow.getTime()
+    }).length
     const tomorrowCount = upcoming.filter((r) => {
       if (!r.start_at) return false
       const t = new Date(r.start_at).getTime()
@@ -195,6 +202,8 @@ export default function DashboardPage() {
     const needsReplyCount = upcoming.filter(
       (r) => r.notes && r.notes.trim().length > 0 && !r.agency_message,
     ).length
+    // 今日も明日もない場合でも「直近 N 件の予約」表示は出す
+    const upcomingTotalCount = upcoming.length
 
     const reviews = (reviewRows ?? []) as { id: string; rating: number; agency_reply: string | null }[]
     const unreplied = reviews.filter(r => !r.agency_reply)
@@ -208,7 +217,7 @@ export default function DashboardPage() {
     const newTodos: TodoItem[] = []
 
     // ─── 予約系（最優先）— ユーザー満足度に直結するため上位に積む ───
-    // 1) 質問付き未返信予約（最重要・要返信）
+    // 1) 質問付き未返信予約（最重要・要返信）— 事前に伝えたいことに記述あり & 未返信
     if (needsReplyCount > 0) {
       newTodos.push({
         type: 'urgent',
@@ -217,12 +226,30 @@ export default function DashboardPage() {
         href: '/calendar',
       })
     }
-    // 2) 明日の面談リマインダー
+    // 2) 今日の面談リマインダー
+    if (todayCount > 0) {
+      newTodos.push({
+        type: 'booking',
+        label: `今日の面談が${todayCount}件あります — 開始前に共有された Kinda 結果に目を通してください`,
+        action: 'カレンダーで確認 →',
+        href: '/calendar',
+      })
+    }
+    // 3) 明日の面談リマインダー
     if (tomorrowCount > 0) {
       newTodos.push({
         type: 'booking',
-        label: `明日の面談が${tomorrowCount}件あります — 共有された診断結果に必ず目を通してください`,
+        label: `明日の面談が${tomorrowCount}件あります — 事前に Kinda note / type を確認しておきましょう`,
         action: 'カレンダーで確認 →',
+        href: '/calendar',
+      })
+    }
+    // 4) 今日も明日もないが、7日以内に予約がある場合のソフトリマインダー
+    if (todayCount === 0 && tomorrowCount === 0 && upcomingTotalCount > 0) {
+      newTodos.push({
+        type: 'rec',
+        label: `今後7日以内に${upcomingTotalCount}件の面談予定があります`,
+        action: 'カレンダーを開く →',
         href: '/calendar',
       })
     }
