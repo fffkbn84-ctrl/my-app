@@ -4,6 +4,7 @@ import BookingFlow from "@/components/booking/BookingFlow";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { AGENCIES, getAgencyById, getCounselorById } from "@/lib/data";
+import { isUuid } from "@/lib/reservations";
 
 // カウンセラー情報・所属相談所のキャンセル情報は頻繁には変わらない。
 // 60 秒の ISR でリール→予約 への遷移を高速化。
@@ -29,12 +30,17 @@ export default async function BookingPage({
   // マッピングする（小山楓華のような UUID カウンセラーで 404 にならないように）。
   let counselor: { name: string; agency: string } | undefined = counselors[counselorId];
   let agencyCancelInfo: { policy?: string; phone?: string; email?: string } | undefined;
+  // Supabase 由来カウンセラーの UUID を予約 INSERT 時に使うため保持しておく
+  let supabaseCounselorId: string | null = null;
+  let supabaseAgencyId: string | null = null;
   if (!counselor) {
     const sc = await getCounselorById(counselorId);
     if (sc) {
       counselor = { name: sc.name, agency: sc.agencyName ?? "" };
+      if (isUuid(String(sc.id))) supabaseCounselorId = String(sc.id);
       // Supabase 由来のカウンセラー：所属相談所を取得して cancel 情報を引く
       if (sc.agencyId) {
+        if (isUuid(String(sc.agencyId))) supabaseAgencyId = String(sc.agencyId);
         const ag = await getAgencyById(String(sc.agencyId));
         if (ag) {
           agencyCancelInfo = { policy: ag.cancelPolicy, phone: ag.phone, email: ag.email };
@@ -90,6 +96,8 @@ export default async function BookingPage({
           counselorId={counselorId}
           counselorName={counselor.name}
           agencyName={counselor.agency}
+          supabaseCounselorId={supabaseCounselorId}
+          supabaseAgencyId={supabaseAgencyId}
           agencyCancelInfo={agencyCancelInfo}
         />
       </main>
