@@ -27,6 +27,16 @@ function formatJa(iso: string | null): string {
   return `${d.getMonth() + 1}/${d.getDate()}（${w[d.getDay()]}）${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
+/** ランダムな 6 桁英数（紛らわしい O / 0 / I / 1 は除外） */
+function generateReviewCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let s = ''
+  for (let i = 0; i < 6; i++) {
+    s += chars[Math.floor(Math.random() * chars.length)]
+  }
+  return `TKN-${s}`
+}
+
 export default function PendingCompletionsRows({ scopedCounselors, onCountChange }: Props) {
   const [rows, setRows] = useState<Reservation[]>([])
   const [completingId, setCompletingId] = useState<string | null>(null)
@@ -66,11 +76,16 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
     if (!ok) return
     setCompletingId(reservation.id)
     const supabase = createClient()
+    // 既に発行済みなら使い回す（再発行で混乱を生まない）
+    const token = reservation.review_token ?? crypto.randomUUID()
+    const code = reservation.review_code ?? generateReviewCode()
     const { error } = await supabase
       .from('reservations')
       .update({
         status: 'completed',
         completed_at: new Date().toISOString(),
+        review_token: token,
+        review_code: code,
       })
       .eq('id', reservation.id)
     setCompletingId(null)
@@ -83,8 +98,8 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
       onCountChange?.(next.length)
       return next
     })
-    setToast('面談完了をマークしました')
-    setTimeout(() => setToast(''), 2500)
+    setToast(`面談完了をマークしました（口コミトークン ${code} を発行・カレンダーから確認できます）`)
+    setTimeout(() => setToast(''), 5000)
   }
 
   if (rows.length === 0) return null

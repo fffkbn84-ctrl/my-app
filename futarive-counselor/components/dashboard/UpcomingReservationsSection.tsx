@@ -237,6 +237,20 @@ export default function UpcomingReservationsSection({ scopedCounselors }: Props)
   )
 }
 
+/** 予約からの経過時間を「N分前 / N時間前 / N日前」で返す */
+function formatTimeSinceBooking(createdAt: string | null): { label: string; hoursElapsed: number } | null {
+  if (!createdAt) return null
+  const diffMs = Date.now() - new Date(createdAt).getTime()
+  if (diffMs < 0) return null
+  const minutes = Math.floor(diffMs / 1000 / 60)
+  if (minutes < 1) return { label: 'たった今予約', hoursElapsed: 0 }
+  if (minutes < 60) return { label: `${minutes}分前に予約`, hoursElapsed: 0 }
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return { label: `${hours}時間前に予約`, hoursElapsed: hours }
+  const days = Math.floor(hours / 24)
+  return { label: `${days}日前に予約`, hoursElapsed: hours }
+}
+
 function ReservationLine({
   reservation,
   highlight = false,
@@ -250,18 +264,26 @@ function ReservationLine({
   const hasMessage = !!reservation.agency_message
   const dt = reservation.start_at ? new Date(reservation.start_at) : null
   const counselor = scopedCounselors.find((c) => c.id === reservation.counselor_id)
+  const bookingAge = formatTimeSinceBooking(reservation.created_at ?? null)
+  // 24時間以上経過 & 質問あり & 未返信 → 赤枠で警告
+  const isOverdue = hasQuestion && !hasMessage && bookingAge !== null && bookingAge.hoursElapsed >= 24
 
   return (
     <div
       style={{
         padding: '10px 12px',
-        background: highlight ? 'rgba(168,136,88,.10)' : 'var(--bg-elev)',
+        background: isOverdue
+          ? 'rgba(192,122,110,.08)'
+          : highlight
+            ? 'rgba(168,136,88,.10)'
+            : 'var(--bg-elev)',
         borderRadius: 10,
         display: 'flex',
         alignItems: 'center',
         gap: 10,
         flexWrap: 'wrap',
-        border: '1px solid var(--border)',
+        border: isOverdue ? '1.5px solid rgba(192,122,110,.7)' : '1px solid var(--border)',
+        boxShadow: isOverdue ? '0 0 0 3px rgba(192,122,110,.08)' : undefined,
       }}
     >
       <span
@@ -360,6 +382,24 @@ function ReservationLine({
             <path d="M3 6.5l2 2 4-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           事前共有
+        </span>
+      )}
+      {/* 予約からの経過時間。24時間以上 & 質問未返信なら赤系で強調 */}
+      {bookingAge && (
+        <span
+          style={{
+            fontSize: 10,
+            color: isOverdue ? '#C07A6E' : 'var(--text-light)',
+            padding: '2px 8px',
+            borderRadius: 10,
+            background: isOverdue ? 'rgba(192,122,110,.12)' : 'transparent',
+            border: isOverdue ? '1px solid rgba(192,122,110,.5)' : 'none',
+            flexShrink: 0,
+            fontWeight: isOverdue ? 600 : 400,
+          }}
+          title={reservation.created_at ? `予約申込: ${new Date(reservation.created_at).toLocaleString('ja-JP')}` : ''}
+        >
+          {isOverdue ? `24時間経過 · ${bookingAge.label}` : bookingAge.label}
         </span>
       )}
     </div>

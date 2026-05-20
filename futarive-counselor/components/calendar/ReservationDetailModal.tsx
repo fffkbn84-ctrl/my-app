@@ -31,6 +31,11 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
     code: string
   } | null>(null)
 
+  // 手動キャンセル（active → canceled）
+  const [cancelling, setCancelling] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [cancelReasonDraft, setCancelReasonDraft] = useState('')
+
   /** ランダムな 6 桁英数（紛らわしい O / 0 / I / 1 は除外） */
   function generateReviewCode(): string {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -54,6 +59,7 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
         .from('reservations')
         .update({
           status: 'completed',
+          completed_at: new Date().toISOString(),
           review_token: token,
           review_code: code,
         })
@@ -71,6 +77,47 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
       setError('面談完了の処理に失敗しました: ' + describeError(e))
     } finally {
       setCompleting(false)
+    }
+  }
+
+  /** 手動キャンセル — 紐付く slot があれば 'open' に戻して再販可能にする */
+  async function handleCancel() {
+    if (!reservation) return
+    setCancelling(true)
+    setError('')
+    try {
+      const supabase = createClient()
+      const reason = cancelReasonDraft.trim()
+      const { error: upErr } = await supabase
+        .from('reservations')
+        .update({
+          status: 'canceled',
+          canceled_at: new Date().toISOString(),
+          cancel_reason: reason.length > 0 ? reason : null,
+        })
+        .eq('id', reservation.id)
+      if (upErr) throw upErr
+
+      // 紐付く slot を 'open' に戻して他のユーザーが取れるようにする
+      if (reservation.slot_id) {
+        await supabase
+          .from('slots')
+          .update({ status: 'open' })
+          .eq('id', reservation.slot_id)
+      }
+
+      setReservation({
+        ...reservation,
+        status: 'canceled',
+        canceled_at: new Date().toISOString(),
+        cancel_reason: reason.length > 0 ? reason : null,
+      })
+      setShowCancelConfirm(false)
+      setCancelReasonDraft('')
+    } catch (e) {
+      setError('キャンセル処理に失敗しました: ' + describeError(e))
+    } finally {
+      setCancelling(false)
     }
   }
 
@@ -418,61 +465,69 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
           </div>
         )}
 
-        {/* 完了後にトークン情報を表示 — レビュー依頼 URL とコードを案内 */}
-        {completedTokenInfo && reservation && (
-          <div style={{
-            marginTop: 16,
-            padding: '14px 16px',
-            background: 'rgba(122,158,135,.1)',
-            border: '1px solid rgba(122,158,135,.4)',
-            borderRadius: 12,
-          }}>
+        {/* トークン情報を表示 — レビュー依頼 URL とコードを案内
+            完了直後（completedTokenInfo）でも、過去に完了済みで再度開いた場合
+            （reservation.review_token がある）でも表示する */}
+        {(() => {
+          const displayToken = completedTokenInfo?.token ?? reservation?.review_token ?? null
+          const displayCode = completedTokenInfo?.code ?? reservation?.review_code ?? null
+          if (!displayToken || !displayCode || !reservation) return null
+          const justCompleted = !!completedTokenInfo
+          return (
             <div style={{
-              fontSize: 11,
-              color: 'var(--success)',
-              fontFamily: 'DM Sans, sans-serif',
-              letterSpacing: '.16em',
-              marginBottom: 8,
-              fontWeight: 600,
+              marginTop: 16,
+              padding: '14px 16px',
+              background: 'rgba(122,158,135,.1)',
+              border: '1px solid rgba(122,158,135,.4)',
+              borderRadius: 12,
             }}>
-              ✓ 面談完了 · 口コミトークンを発行しました
+              <div style={{
+                fontSize: 11,
+                color: 'var(--success)',
+                fontFamily: 'DM Sans, sans-serif',
+                letterSpacing: '.16em',
+                marginBottom: 8,
+                fontWeight: 600,
+              }}>
+                ✓ {justCompleted ? '面談完了 · 口コミトークンを発行しました' : '口コミ受付 URL（発行済み）'}
+              </div>
+              <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: '0 0 10px' }}>
+                下記のリンクまたは認証コードを <b>{reservation.user_name}</b> 様にお送りください。
+                これがあれば「面談済み口コミ」として投稿できます。
+              </p>
+              <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>口コミ受付 URL</div>
+              <div style={{
+                fontFamily: 'monospace',
+                fontSize: 11,
+                padding: '6px 10px',
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                marginBottom: 8,
+                wordBreak: 'break-all',
+                userSelect: 'all',
+              }}>
+                {typeof window !== 'undefined'
+                  ? `${window.location.origin.replace(/counselor\./, '').replace(/-counselor\b/, '')}/reviews/new?token=${displayToken}`
+                  : `/reviews/new?token=${displayToken}`}
+              </div>
+              <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>認証コード（手動入力用）</div>
+              <div style={{
+                fontFamily: 'monospace',
+                fontSize: 14,
+                fontWeight: 600,
+                padding: '6px 10px',
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                letterSpacing: '.1em',
+                userSelect: 'all',
+              }}>
+                {displayCode}
+              </div>
             </div>
-            <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: '0 0 10px' }}>
-              下記のリンクまたは認証コードを <b>{reservation.user_name}</b> 様にお送りください。
-              これがあれば「面談済み口コミ」として投稿できます。
-            </p>
-            <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>口コミ受付 URL</div>
-            <div style={{
-              fontFamily: 'monospace',
-              fontSize: 11,
-              padding: '6px 10px',
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              marginBottom: 8,
-              wordBreak: 'break-all',
-              userSelect: 'all',
-            }}>
-              {typeof window !== 'undefined'
-                ? `${window.location.origin.replace(/counselor\./, '').replace(/-counselor\b/, '')}/reviews/new?token=${completedTokenInfo.token}`
-                : `/reviews/new?token=${completedTokenInfo.token}`}
-            </div>
-            <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>認証コード（手動入力用）</div>
-            <div style={{
-              fontFamily: 'monospace',
-              fontSize: 14,
-              fontWeight: 600,
-              padding: '6px 10px',
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              letterSpacing: '.1em',
-              userSelect: 'all',
-            }}>
-              {completedTokenInfo.code}
-            </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* 面談完了の確認ダイアログ（インライン） */}
         {showCompleteConfirm && (
@@ -508,22 +563,89 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
           </div>
         )}
 
+        {/* キャンセルの確認ダイアログ（インライン）— 理由入力は任意 */}
+        {showCancelConfirm && (
+          <div style={{
+            marginTop: 16,
+            padding: '14px 16px',
+            background: 'rgba(192,122,110,.06)',
+            border: '1px solid rgba(192,122,110,.4)',
+            borderRadius: 12,
+          }}>
+            <p style={{ fontSize: 13, color: 'var(--text-deep)', margin: '0 0 10px', lineHeight: 1.7 }}>
+              この予約をキャンセルしますか？<br/>
+              <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+                キャンセル後は予約枠が再度ご利用可能になります。お客様への連絡は別途お願いします。
+              </span>
+            </p>
+            <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>
+              キャンセル理由（任意・内部メモ）
+            </div>
+            <textarea
+              value={cancelReasonDraft}
+              onChange={(e) => setCancelReasonDraft(e.target.value)}
+              placeholder="例: お客様のご都合により / カウンセラー側都合"
+              rows={2}
+              maxLength={200}
+              style={{
+                width: '100%',
+                fontSize: 12,
+                padding: '8px 10px',
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                resize: 'vertical',
+                fontFamily: 'inherit',
+                marginBottom: 10,
+                color: 'var(--text-deep)',
+              }}
+              disabled={cancelling}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button
+                className="kc-btn kc-btn-ghost kc-btn-sm"
+                onClick={() => { setShowCancelConfirm(false); setCancelReasonDraft('') }}
+                disabled={cancelling}
+              >
+                やめる
+              </button>
+              <button
+                className="kc-btn kc-btn-danger kc-btn-sm"
+                onClick={handleCancel}
+                disabled={cancelling}
+              >
+                {cancelling ? '処理中…' : 'キャンセルする'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 18, gap: 8, flexWrap: 'wrap' }}>
-          {/* active 中の予約のみ「面談完了」を表示。canceled / completed では非表示 */}
+          {/* active 中の予約のみ「面談完了」「キャンセル」を表示。canceled / completed では非表示 */}
           {reservation?.status === 'active' && !completedTokenInfo && (
-            <button
-              className="kc-btn kc-btn-primary"
-              onClick={() => setShowCompleteConfirm(true)}
-              disabled={completing || showCompleteConfirm}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M3 7l3 3 5-6" />
-              </svg>
-              面談完了にする
-            </button>
+            <>
+              <button
+                className="kc-btn kc-btn-primary"
+                onClick={() => setShowCompleteConfirm(true)}
+                disabled={completing || showCompleteConfirm || cancelling || showCancelConfirm}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 7l3 3 5-6" />
+                </svg>
+                面談完了にする
+              </button>
+              <button
+                className="kc-btn kc-btn-ghost"
+                onClick={() => setShowCancelConfirm(true)}
+                disabled={completing || showCompleteConfirm || cancelling || showCancelConfirm}
+                style={{ color: '#C07A6E', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                予約をキャンセル
+              </button>
+            </>
           )}
-          {/* スペーサー（左寄せ完了ボタンと右寄せ閉じるを両立） */}
+          {/* スペーサー（左寄せ完了/キャンセルボタンと右寄せ閉じるを両立） */}
           <div style={{ flex: 1 }} />
           <button className="kc-btn kc-btn-ghost" onClick={onClose}>
             閉じる
