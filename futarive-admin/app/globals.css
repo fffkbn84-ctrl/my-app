@@ -58,7 +58,7 @@ body {
 .admin-table td {
   padding: 12px 12px;
   border-bottom: 1px solid var(--border);
-  vertical-align: middle;
+  vertical-align: top;
 }
 .admin-table tr:last-child td {
   border-bottom: none;

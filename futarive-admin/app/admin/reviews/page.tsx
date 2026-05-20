@@ -143,8 +143,8 @@ export default function ReviewsPage() {
                     </td>
                     <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>{r.counselor_name}</td>
                     <td style={{ whiteSpace: 'nowrap' }}><StarRating rating={r.rating} /></td>
-                    <td style={{ fontSize: 12, maxWidth: 240 }}>
-                      <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <td style={{ fontSize: 12, maxWidth: 360, minWidth: 240 }}>
+                      <div style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.6 }}>
                         {r.body}
                       </div>
                     </td>

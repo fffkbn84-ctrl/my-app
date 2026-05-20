@@ -183,8 +183,8 @@ const navSections: NavSection[] = [
   {
     title: 'コンテンツ',
     items: [
-      { label: '成婚エピソード', href: '/admin/episodes', icon: <IconHeart /> },
-      { label: 'コラム管理', href: '/admin/columns', icon: <IconDocument /> },
+      { label: 'Kinda story', href: '/admin/episodes', icon: <IconHeart /> },
+      { label: 'Kinda voices', href: '/admin/columns', icon: <IconDocument /> },
     ],
   },
 ]

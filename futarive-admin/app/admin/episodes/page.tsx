@@ -114,7 +114,7 @@ export default function EpisodesPage() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">成婚エピソード管理</h1>
+        <h1 className="page-title">Kinda story 管理</h1>
         <button onClick={() => setShowModal(true)} className="btn btn-primary" style={{ gap: 6 }}>
           <IconPlus /> 新規追加
         </button>

@@ -274,7 +274,7 @@ export default function DashboardPage() {
           <Link href="/admin/reviews" className="btn btn-ghost btn-sm">口コミ承認</Link>
           <Link href="/admin/reviews/new" className="btn btn-primary btn-sm">新規代理入力</Link>
           <Link href="/admin/slots" className="btn btn-ghost btn-sm">スロット追加</Link>
-          <Link href="/admin/episodes" className="btn btn-ghost btn-sm">エピソード追加</Link>
+          <Link href="/admin/episodes" className="btn btn-ghost btn-sm">Kinda story 追加</Link>
           <Link href="/admin/billing" className="btn btn-ghost btn-sm">課金管理</Link>
         </div>
       </div>

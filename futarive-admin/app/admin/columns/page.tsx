@@ -101,7 +101,7 @@ export default function ColumnsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('このコラムを削除しますか？この操作は元に戻せません。')) return
+    if (!confirm('この Kinda voice を削除しますか？この操作は元に戻せません。')) return
     await createClient().from('columns').delete().eq('id', id)
     loadColumns()
   }
@@ -115,7 +115,7 @@ export default function ColumnsPage() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">コラム管理</h1>
+        <h1 className="page-title">Kinda voices 管理</h1>
         <button onClick={openNew} className="btn btn-primary" style={{ gap: 6 }}>
           <IconPlus /> 新規追加
         </button>
@@ -127,7 +127,7 @@ export default function ColumnsPage() {
             <div className="spinner" style={{ width: 28, height: 28 }} />
           </div>
         ) : columns.length === 0 ? (
-          <div className="empty-state">コラムがありません</div>
+          <div className="empty-state">Kinda voices がありません</div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table className="admin-table">
@@ -180,7 +180,7 @@ export default function ColumnsPage() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-box" style={{ maxWidth: 640 }}>
-            <div className="modal-title">{editTarget ? 'コラム編集' : '新規コラム追加'}</div>
+            <div className="modal-title">{editTarget ? 'Kinda voice 編集' : '新規 Kinda voice 追加'}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label className="form-label">タイトル <span style={{ color: '#DC2626' }}>*</span></label>
