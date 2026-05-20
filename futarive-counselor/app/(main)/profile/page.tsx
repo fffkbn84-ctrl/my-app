@@ -89,6 +89,7 @@ export default function ProfilePage() {
     message: '',
     specialties: [] as string[],
     qualifications: [] as string[],
+    diagnosis_type: '' as '' | 'A' | 'B' | 'C' | 'D',
     fee: '',
     success_count: '',
     experience_label: '',
@@ -134,6 +135,7 @@ export default function ProfilePage() {
           message: c.message ?? '',
           specialties: userSpecialties(c.specialties),
           qualifications: c.qualifications ?? [],
+          diagnosis_type: (c.diagnosis_type === 'A' || c.diagnosis_type === 'B' || c.diagnosis_type === 'C' || c.diagnosis_type === 'D') ? c.diagnosis_type : '',
           fee: c.fee ?? '',
           success_count: c.success_count != null ? String(c.success_count) : '',
           experience_label: c.experience_label ?? '',
@@ -192,6 +194,7 @@ export default function ProfilePage() {
       message: f.message || null,
       specialties: merged.length > 0 ? merged : null,
       qualifications: f.qualifications.length > 0 ? f.qualifications : null,
+      diagnosis_type: f.diagnosis_type || null,
       fee: f.fee || null,
       success_count: f.success_count !== '' ? parseInt(f.success_count) : null,
       experience_label: f.experience_label || null,
@@ -536,6 +539,18 @@ export default function ProfilePage() {
               />
             </div>
           </div>
+
+          <div>
+            <label className="kc-label">相性の良い Kinda type（任意）</label>
+            <p style={{ fontSize: 12, color: 'var(--text-mid)', marginTop: 2, marginBottom: 10, lineHeight: 1.7 }}>
+              あなたが特に得意とする・寄り添いやすいユーザーのタイプを1つ選んでください。<br />
+              選んでおくと、診断を受けたユーザーがあなたを見つけやすくなります。
+            </p>
+            <KindaTypePicker
+              value={form.diagnosis_type}
+              onChange={(v) => updateForm('diagnosis_type', v)}
+            />
+          </div>
         </div>
       )}
 
@@ -757,6 +772,103 @@ export default function ProfilePage() {
           onConfirm={handleCropConfirm}
           onCancel={() => setCropFile(null)}
         />
+      )}
+    </div>
+  )
+}
+
+// === Kinda type picker ===
+const KINDA_TYPES: Array<{
+  id: 'A' | 'B' | 'C' | 'D'
+  name: string
+  description: string
+  color: string
+  bg: string
+}> = [
+  { id: 'A', name: '慎重分析タイプ',   description: 'じっくり比較検討して進めたい方', color: '#B8912A', bg: '#FBF4E0' },
+  { id: 'B', name: '自信低下タイプ',   description: '一人だと不安、寄り添いがほしい方', color: '#8B6240', bg: '#F6EBE0' },
+  { id: 'C', name: '環境影響タイプ',   description: '周囲の影響を受けやすく、整理が必要な方', color: '#2D5A3D', bg: '#E5F0E8' },
+  { id: 'D', name: '直感型',           description: 'スピード重視・行動派の方',           color: '#3D2D5A', bg: '#EAE3F2' },
+]
+
+function KindaTypePicker({
+  value,
+  onChange,
+}: {
+  value: '' | 'A' | 'B' | 'C' | 'D'
+  onChange: (v: '' | 'A' | 'B' | 'C' | 'D') => void
+}) {
+  return (
+    <div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+        gap: 10,
+      }}>
+        {KINDA_TYPES.map(t => {
+          const selected = value === t.id
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => onChange(selected ? '' : t.id)}
+              style={{
+                background: selected ? t.bg : 'var(--surface)',
+                border: `1.5px solid ${selected ? t.color : 'var(--border)'}`,
+                borderRadius: 12,
+                padding: '12px 14px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                transition: 'all .15s',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                minHeight: 80,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 22, height: 22,
+                  borderRadius: '50%',
+                  background: t.color,
+                  color: 'white',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  flexShrink: 0,
+                }}>{t.id}</span>
+                <span style={{
+                  fontFamily: 'Shippori Mincho, serif',
+                  fontWeight: 500,
+                  fontSize: 14,
+                  color: selected ? t.color : 'var(--text-deep)',
+                }}>{t.name}</span>
+              </div>
+              <p style={{ fontSize: 11, color: 'var(--text-mid)', margin: 0, lineHeight: 1.6 }}>{t.description}</p>
+            </button>
+          )
+        })}
+      </div>
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          style={{
+            marginTop: 10,
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-mid)',
+            fontSize: 11,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            padding: 0,
+          }}
+        >
+          選択を解除
+        </button>
       )}
     </div>
   )
