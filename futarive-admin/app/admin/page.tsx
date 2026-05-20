@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+
 interface ReviewRow {
   id: string
   counselor_id: string | null
@@ -30,6 +31,22 @@ interface ReservationRow {
 type PendingReview = ReviewRow & { counselor_name: string }
 type RecentReservation = ReservationRow & { counselor_name: string; start_at: string | null }
 
+type ActionRequired = {
+  pendingReviews: number
+  disputedBilling: number
+  urgent24h: number
+}
+
+type KpiStats = {
+  thisMonthReservations: number
+  lastMonthReservations: number
+  thisMonthBilling: number
+  lastMonthBilling: number
+  totalReviews: number
+  publishedCounselors: number
+  totalCounselors: number
+}
+
 function IconCheck() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -44,6 +61,13 @@ function IconX() {
     </svg>
   )
 }
+function IconArrow() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -53,8 +77,19 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
+const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`
+
 export default function DashboardPage() {
-  const [stats, setStats] = useState({ pending: 0, total: 0, published: 0, monthly: 0 })
+  const [action, setAction] = useState<ActionRequired>({ pendingReviews: 0, disputedBilling: 0, urgent24h: 0 })
+  const [kpi, setKpi] = useState<KpiStats>({
+    thisMonthReservations: 0,
+    lastMonthReservations: 0,
+    thisMonthBilling: 0,
+    lastMonthBilling: 0,
+    totalReviews: 0,
+    publishedCounselors: 0,
+    totalCounselors: 0,
+  })
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([])
   const [recentReservations, setRecentReservations] = useState<RecentReservation[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,14 +101,46 @@ export default function DashboardPage() {
   async function loadData() {
     const supabase = createClient()
     const now = new Date()
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
+    const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
 
-    const [pending, total, published, monthly, reviews, reservations] = await Promise.all([
+    const [
+      pendingReviewsCount,
+      disputedBillingCount,
+      urgent24hCount,
+      thisMonthResCount,
+      lastMonthResCount,
+      thisMonthBillingData,
+      lastMonthBillingData,
+      totalReviewsCount,
+      publishedCounselorsCount,
+      totalCounselorsCount,
+      reviewsList,
+      reservationsList,
+    ] = await Promise.all([
       supabase.from('reviews').select('*', { count: 'exact', head: true })
         .eq('is_published', false).eq('source_type', 'face_to_face'),
+      supabase.from('billing_events').select('*', { count: 'exact', head: true })
+        .eq('status', 'disputed'),
+      supabase.from('reservations').select('*', { count: 'exact', head: true })
+        .eq('status', 'active')
+        .lt('created_at', past24h)
+        .is('agency_message_at', null)
+        .not('notes', 'is', null),
+      supabase.from('reservations').select('*', { count: 'exact', head: true })
+        .gte('created_at', thisMonthStart)
+        .in('status', ['active', 'completed']),
+      supabase.from('reservations').select('*', { count: 'exact', head: true })
+        .gte('created_at', lastMonthStart).lt('created_at', thisMonthStart)
+        .in('status', ['active', 'completed']),
+      supabase.from('billing_events').select('amount_jpy')
+        .eq('status', 'confirmed').gte('confirmed_at', thisMonthStart),
+      supabase.from('billing_events').select('amount_jpy')
+        .eq('status', 'confirmed').gte('confirmed_at', lastMonthStart).lt('confirmed_at', thisMonthStart),
       supabase.from('reviews').select('*', { count: 'exact', head: true }),
       supabase.from('counselors').select('*', { count: 'exact', head: true }).eq('is_published', true),
-      supabase.from('reservations').select('*', { count: 'exact', head: true }).gte('created_at', monthStart),
+      supabase.from('counselors').select('*', { count: 'exact', head: true }),
       supabase.from('reviews').select('*, counselors(name)')
         .eq('is_published', false).eq('source_type', 'face_to_face')
         .order('created_at', { ascending: false }).limit(5),
@@ -81,22 +148,34 @@ export default function DashboardPage() {
         .order('created_at', { ascending: false }).limit(5),
     ])
 
-    setStats({
-      pending: pending.count ?? 0,
-      total: total.count ?? 0,
-      published: published.count ?? 0,
-      monthly: monthly.count ?? 0,
+    setAction({
+      pendingReviews: pendingReviewsCount.count ?? 0,
+      disputedBilling: disputedBillingCount.count ?? 0,
+      urgent24h: urgent24hCount.count ?? 0,
+    })
+
+    const sumAmount = (rows: { amount_jpy: number }[] | null) =>
+      (rows ?? []).reduce((a, r) => a + (r.amount_jpy ?? 0), 0)
+
+    setKpi({
+      thisMonthReservations: thisMonthResCount.count ?? 0,
+      lastMonthReservations: lastMonthResCount.count ?? 0,
+      thisMonthBilling: sumAmount(thisMonthBillingData.data as { amount_jpy: number }[] | null),
+      lastMonthBilling: sumAmount(lastMonthBillingData.data as { amount_jpy: number }[] | null),
+      totalReviews: totalReviewsCount.count ?? 0,
+      publishedCounselors: publishedCounselorsCount.count ?? 0,
+      totalCounselors: totalCounselorsCount.count ?? 0,
     })
 
     setPendingReviews(
-      (reviews.data ?? []).map((r: Record<string, unknown>) => ({
+      (reviewsList.data ?? []).map((r: Record<string, unknown>) => ({
         ...r,
         counselor_name: (r.counselors as { name?: string } | null)?.name ?? '—',
       })) as PendingReview[]
     )
 
     setRecentReservations(
-      (reservations.data ?? []).map((r: Record<string, unknown>) => ({
+      (reservationsList.data ?? []).map((r: Record<string, unknown>) => ({
         ...r,
         counselor_name: (r.counselors as { name?: string } | null)?.name ?? '—',
         start_at: (r.slots as { start_at?: string } | null)?.start_at ?? null,
@@ -136,27 +215,59 @@ export default function DashboardPage() {
         </span>
       </div>
 
-      {/* Stats */}
-      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 24 }}>
-        <div className="stat-card">
-          <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>承認待ち口コミ</div>
-          <div className="stat-value" style={{ color: stats.pending > 0 ? '#EA580C' : 'var(--ink)' }}>{stats.pending}</div>
-        </div>
-        <div className="stat-card">
-          <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>累計口コミ</div>
-          <div className="stat-value">{stats.total}</div>
-        </div>
-        <div className="stat-card">
-          <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>掲載カウンセラー</div>
-          <div className="stat-value">{stats.published}</div>
-        </div>
-        <div className="stat-card">
-          <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>今月の予約</div>
-          <div className="stat-value">{stats.monthly}</div>
-        </div>
+      {/* ① 要対応 */}
+      <SectionLabel>要対応</SectionLabel>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
+        <ActionCard
+          label="承認待ち口コミ"
+          count={action.pendingReviews}
+          href="/admin/reviews"
+        />
+        <ActionCard
+          label="課金 異議申立中"
+          count={action.disputedBilling}
+          href="/admin/billing"
+        />
+        <ActionCard
+          label="24h 未連絡の予約"
+          count={action.urgent24h}
+          href="/admin/reservations"
+          hint="質問あり・カウンセラー未連絡"
+        />
       </div>
 
-      {/* Quick actions */}
+      {/* ② 主要KPI */}
+      <SectionLabel>今月のKPI</SectionLabel>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 24 }}>
+        <KpiCard
+          label="今月の予約成立"
+          value={`${kpi.thisMonthReservations}件`}
+          delta={kpi.thisMonthReservations - kpi.lastMonthReservations}
+          deltaLabel={`先月 ${kpi.lastMonthReservations}件`}
+        />
+        <KpiCard
+          label="今月の確定課金"
+          value={yen(kpi.thisMonthBilling)}
+          delta={kpi.thisMonthBilling - kpi.lastMonthBilling}
+          deltaLabel={`先月 ${yen(kpi.lastMonthBilling)}`}
+          isCurrency
+        />
+        <KpiCard
+          label="累計口コミ"
+          value={`${kpi.totalReviews}件`}
+        />
+        <KpiCard
+          label="掲載カウンセラー"
+          value={`${kpi.publishedCounselors} / ${kpi.totalCounselors}名`}
+          deltaLabel={
+            kpi.totalCounselors > 0
+              ? `掲載率 ${Math.round((kpi.publishedCounselors / kpi.totalCounselors) * 100)}%`
+              : undefined
+          }
+        />
+      </div>
+
+      {/* ③ クイックアクション */}
       <div className="card" style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, color: 'var(--ink)' }}>クイックアクション</div>
         <div className="quick-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -164,10 +275,11 @@ export default function DashboardPage() {
           <Link href="/admin/reviews/new" className="btn btn-primary btn-sm">新規代理入力</Link>
           <Link href="/admin/slots" className="btn btn-ghost btn-sm">スロット追加</Link>
           <Link href="/admin/episodes" className="btn btn-ghost btn-sm">エピソード追加</Link>
+          <Link href="/admin/billing" className="btn btn-ghost btn-sm">課金管理</Link>
         </div>
       </div>
 
-      {/* Pending reviews */}
+      {/* ④ 承認待ち口コミ */}
       <div className="card" style={{ marginBottom: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600 }}>承認待ち口コミ（最新5件）</div>
@@ -220,7 +332,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Recent reservations */}
+      {/* ⑤ 最近の予約 */}
       <div className="card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600 }}>最近の予約（最新5件）</div>
@@ -261,6 +373,132 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      fontSize: 11,
+      fontFamily: 'DM Sans, sans-serif',
+      fontWeight: 600,
+      letterSpacing: '.1em',
+      textTransform: 'uppercase',
+      color: 'var(--muted)',
+      marginBottom: 10,
+      marginTop: 4,
+    }}>{children}</div>
+  )
+}
+
+function ActionCard({
+  label,
+  count,
+  href,
+  hint,
+}: {
+  label: string
+  count: number
+  href: string
+  hint?: string
+}) {
+  const isActive = count > 0
+  return (
+    <Link
+      href={href}
+      style={{
+        background: isActive ? '#FEF3E2' : 'var(--surface)',
+        border: `1px solid ${isActive ? '#F59E0B' : 'var(--border)'}`,
+        borderRadius: 12,
+        padding: '14px 16px',
+        textDecoration: 'none',
+        color: 'inherit',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4,
+        transition: 'transform .15s, box-shadow .15s',
+      }}
+      onMouseEnter={(e) => {
+        if (isActive) e.currentTarget.style.boxShadow = '0 2px 8px rgba(245,158,11,.15)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = 'none'
+      }}
+    >
+      <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em' }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+        <span style={{
+          fontFamily: 'DM Sans, sans-serif',
+          fontWeight: 700,
+          fontSize: 28,
+          color: isActive ? '#C2410C' : 'var(--muted)',
+          lineHeight: 1,
+        }}>{count}</span>
+        <span style={{ fontSize: 12, color: isActive ? '#C2410C' : 'var(--muted)' }}>
+          {isActive ? '件' : '✓ なし'}
+        </span>
+      </div>
+      {hint && (
+        <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>{hint}</div>
+      )}
+      <div style={{
+        marginTop: 'auto',
+        paddingTop: 6,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        fontSize: 11,
+        color: isActive ? '#C2410C' : 'var(--muted)',
+        fontFamily: 'DM Sans, sans-serif',
+      }}>
+        管理画面へ <IconArrow />
+      </div>
+    </Link>
+  )
+}
+
+function KpiCard({
+  label,
+  value,
+  delta,
+  deltaLabel,
+  isCurrency,
+}: {
+  label: string
+  value: string
+  delta?: number
+  deltaLabel?: string
+  isCurrency?: boolean
+}) {
+  const hasDelta = delta !== undefined && delta !== 0
+  const isUp = (delta ?? 0) > 0
+  const deltaColor = !hasDelta ? 'var(--muted)' : isUp ? '#15803D' : '#DC2626'
+  const deltaText = !hasDelta
+    ? null
+    : isCurrency
+      ? `${isUp ? '+' : '−'}${yen(Math.abs(delta!))}`
+      : `${isUp ? '+' : '−'}${Math.abs(delta!)}`
+
+  return (
+    <div className="stat-card">
+      <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>{label}</div>
+      <div className="stat-value">{value}</div>
+      {(deltaText || deltaLabel) && (
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+          {deltaText && (
+            <span style={{
+              fontSize: 12,
+              fontFamily: 'DM Sans, sans-serif',
+              fontWeight: 600,
+              color: deltaColor,
+            }}>{deltaText}</span>
+          )}
+          {deltaLabel && (
+            <span style={{ fontSize: 11, color: 'var(--muted)' }}>{deltaLabel}</span>
+          )}
+        </div>
+      )}
     </div>
   )
 }
