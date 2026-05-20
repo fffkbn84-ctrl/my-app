@@ -10,24 +10,23 @@
 
 ### A. UI 修正（小）
 
-- [ ] **A-1** `/admin/reviews`：口コミ本文が ellipsis で全文見えない → 全文表示 or モーダル
+- [x] **A-1** `/admin/reviews`：口コミ本文を全文表示（2026-05-20）
 - [x] **A-2** `futarive-admin` モバイル対応の追加調整（2026-05-20 ダッシュボード）
 
-### B. 機能リネーム（フロントサイト + 管理画面）
+### B. 機能リネーム
 
-- [ ] **B-1** コラム → **Kinda voices** 表記統一（UI 文言のみ・テーブル名は `columns` のまま）
-- [ ] **B-2** 成婚エピソード → **Kinda story** 表記統一
-
-対象範囲：
-- フロントサイト（`my-app/src/`）：ナビ・ページタイトル・カード見出し
-- futarive-admin（`futarive-admin/`）：サイドバー「コラム管理」「成婚エピソード」のラベル
-- futarive-counselor（`futarive-counselor/`）：ダッシュボード等で言及があれば
+- [x] **B-1** コラム → **Kinda voices**（futarive-admin 完了 2026-05-20）
+  - [ ] フロントサイト（`my-app/src/`）のリネームは別ブランチで対応必要
+  - [ ] futarive-counselor 側の言及あれば別ブランチで対応必要
+- [x] **B-2** 成婚エピソード → **Kinda story**（futarive-admin 完了 2026-05-20）
+  - [ ] フロントサイト側のリネームは別ブランチで対応必要
+  - [ ] futarive-counselor 側の言及あれば別ブランチで対応必要
 
 ### C. Kinda type 関連の機能追加
 
-- [ ] **C-1** カウンセラー側 Kinda type タイプ分け
-  - `futarive-counselor/app/(main)/profile/page.tsx` 編集 4 ステップに、カウンセラー本人が自分の `diagnosis_type` (A/B/C/D) を選択できる UI を追加
-  - admin 側（`futarive-admin/app/admin/counselors/`）では既に編集可能（CLAUDE.md 1882）
+- [x] **C-1** カウンセラー側 Kinda type タイプ分け（2026-05-20）
+  - `futarive-counselor/app/(main)/profile/page.tsx` Step 2 に「相性の良い Kinda type」セクション追加
+  - 4タイプカード型ピッカー（A/B/C/D + 色付きバッジ + 説明文）
 - [ ] **C-2** `/kinda-type` ページ（カウンセラータイプ診断）
   - CLAUDE.md 2235 で「未実装・`/diagnosis` とは別フロー想定」と明記
   - 仕様の再確認から必要
@@ -93,7 +92,11 @@
 
 ## 完了済み（ログ）
 
+- [x] **A-1** `/admin/reviews` 口コミ本文の全文表示（2026-05-20）
 - [x] **A-2** futarive-admin モバイル対応（2026-05-20）
+- [x] **B-1** コラム → Kinda voices（admin 側のみ・2026-05-20）
+- [x] **B-2** 成婚エピソード → Kinda story（admin 側のみ・2026-05-20）
+- [x] **C-1** カウンセラー側 Kinda type 編集 UI（2026-05-20）
 - [x] 課金イベント基盤（billing_events + RPC + RLS + pg_cron） — counselor / admin 両側（2026-05-20）
 - [x] futarive-admin TypeScript 型エラー修正（5 箇所）→ Vercel ビルド復活（2026-05-20）
 - [x] futarive-admin ダッシュボード再構成（要対応 + 今月のKPI）（2026-05-20）
