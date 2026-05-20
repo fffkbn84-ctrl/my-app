@@ -98,15 +98,6 @@ function IconDocument() {
     </svg>
   )
 }
-function IconBilling() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-      <path d="M1.5 6.5h13" stroke="currentColor" strokeWidth="1.3"/>
-      <path d="M4 10h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-    </svg>
-  )
-}
 function IconBell() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -172,12 +163,6 @@ const navSections: NavSection[] = [
     items: [
       { label: 'スロット管理', href: '/admin/slots', icon: <IconCalendar /> },
       { label: '予約管理', href: '/admin/reservations', icon: <IconBooking /> },
-    ],
-  },
-  {
-    title: '請求・課金',
-    items: [
-      { label: '課金管理', href: '/admin/billing', icon: <IconBilling /> },
     ],
   },
   {
