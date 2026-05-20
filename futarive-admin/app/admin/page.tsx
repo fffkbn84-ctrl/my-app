@@ -137,7 +137,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 24 }}>
         <div className="stat-card">
           <div style={{ fontSize: 11, color: 'var(--muted)', fontFamily: 'DM Sans', letterSpacing: '.06em', marginBottom: 8 }}>承認待ち口コミ</div>
           <div className="stat-value" style={{ color: stats.pending > 0 ? '#EA580C' : 'var(--ink)' }}>{stats.pending}</div>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
       {/* Quick actions */}
       <div className="card" style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, color: 'var(--ink)' }}>クイックアクション</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <div className="quick-actions" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           <Link href="/admin/reviews" className="btn btn-ghost btn-sm">口コミ承認</Link>
           <Link href="/admin/reviews/new" className="btn btn-primary btn-sm">新規代理入力</Link>
           <Link href="/admin/slots" className="btn btn-ghost btn-sm">スロット追加</Link>

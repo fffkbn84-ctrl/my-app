@@ -283,16 +283,16 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         </button>
 
         {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
           <span style={{
             fontFamily: 'Shippori Mincho, serif',
             fontWeight: 500,
             fontSize: '18px',
             color: 'var(--ink)',
             letterSpacing: '.1em',
+            whiteSpace: 'nowrap',
           }}>ふたりへ</span>
-          <span style={{
-            display: 'inline-block',
+          <span className="hide-on-mobile" style={{
             padding: '2px 10px',
             border: '1px solid var(--accent)',
             borderRadius: '20px',
@@ -300,6 +300,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             fontFamily: 'DM Sans, sans-serif',
             color: 'var(--accent)',
             letterSpacing: '.08em',
+            whiteSpace: 'nowrap',
           }}>統括管理</span>
         </div>
 
@@ -311,23 +312,23 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-ghost btn-sm"
-          style={{ gap: 6 }}
+          style={{ gap: 6, flexShrink: 0 }}
         >
           <IconExternal />
-          <span style={{ fontFamily: 'DM Sans', fontSize: 12 }}>サイトを見る</span>
+          <span className="hide-on-mobile" style={{ fontFamily: 'DM Sans', fontSize: 12 }}>サイトを見る</span>
         </a>
 
         {/* Bell */}
-        <button className="btn btn-ghost btn-sm" style={{ padding: '6px', position: 'relative' }}>
+        <button className="btn btn-ghost btn-sm" style={{ padding: '6px', position: 'relative', flexShrink: 0 }}>
           <IconBell />
         </button>
 
         {/* User + Logout */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '13px', color: 'var(--muted)' }}>ふうか</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <span className="hide-on-mobile" style={{ fontSize: '13px', color: 'var(--muted)' }}>ふうか</span>
           <button onClick={handleLogout} className="btn btn-ghost btn-sm" style={{ gap: 6 }}>
             <IconLogout />
-            <span style={{ fontSize: 12 }}>ログアウト</span>
+            <span className="hide-on-mobile" style={{ fontSize: 12 }}>ログアウト</span>
           </button>
         </div>
       </header>

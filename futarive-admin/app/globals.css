@@ -409,3 +409,64 @@ body {
   color: var(--muted);
   font-size: 14px;
 }
+
+/* === Responsive (mobile: ≤768px) === */
+.hide-on-mobile { display: inline-flex; }
+.show-on-mobile { display: none; }
+
+@media (max-width: 768px) {
+  .hide-on-mobile { display: none !important; }
+  .show-on-mobile { display: inline-flex !important; }
+
+  .admin-main {
+    padding: 16px !important;
+  }
+  .stat-card {
+    padding: 14px 16px;
+  }
+  .stat-value {
+    font-size: 26px;
+  }
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  .page-title {
+    font-size: 18px;
+  }
+
+  /* Dashboard stats: 2 columns → 1 column on mobile */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Quick actions: horizontal scroll instead of wrap */
+  .quick-actions {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+  }
+  .quick-actions > * {
+    flex-shrink: 0;
+  }
+  .quick-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Card padding shrinks on mobile */
+  .card {
+    padding: 14px !important;
+  }
+
+  /* Admin tables: keep horizontal scroll */
+  .admin-table {
+    font-size: 12px;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 8px 10px !important;
+  }
+}
