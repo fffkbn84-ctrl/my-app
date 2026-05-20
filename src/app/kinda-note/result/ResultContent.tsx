@@ -932,10 +932,9 @@ const storyBtnStyle: React.CSSProperties = {
 };
 
 function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
-  // 未ログインなら結果保存のためログイン誘導、ログイン済みなら直接 Kinda talk へ
-  const talkHref = isLoggedIn
-    ? "/kinda-talk?from=note"
-    : "/login?redirect=" + encodeURIComponent("/kinda-talk?from=note");
+  // ログイン状態に関わらず Kinda talk へ。結果は localStorage に永続化済み。
+  // 予約フローで初めてログインが必要になる（その時に localStorage の結果が DB に同期される）。
+  const talkHref = "/kinda-talk?from=note";
   return (
     <>
       {/* 1. この結果を持って担当を探す（最重要・主CTA） */}
@@ -977,6 +976,21 @@ function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
       <Link href="/kinda-story" style={tertiaryStyle}>
         Kinda story を見てみる
       </Link>
+
+      {!isLoggedIn && (
+        <p
+          style={{
+            fontSize: 11,
+            color: "#8B7A6D",
+            textAlign: "center",
+            margin: "4px 0 0",
+            lineHeight: 1.6,
+          }}
+        >
+          ログイン不要で担当を見てまわれます。予約のタイミングでログインすれば、
+          この結果が自動で担当者に届きます。
+        </p>
+      )}
     </>
   );
 }
@@ -1022,10 +1036,9 @@ function ActiveButtons({
   isLoggedIn: boolean;
 }) {
   // この結果のままカウンセラーへ持っていける動線（主CTA）
-  // 未ログインなら結果を保存してもらうためにログインへ誘導
-  const talkHref = isLoggedIn
-    ? "/kinda-talk?from=note"
-    : "/login?redirect=" + encodeURIComponent("/kinda-talk?from=note");
+  // ログイン状態に関わらず Kinda talk へ遷移。結果は localStorage 永続化済み。
+  // 予約フローで初めてログインが必要になる（その時に localStorage の結果が DB に同期される）。
+  const talkHref = "/kinda-talk?from=note";
   return (
     <>
       {/* 最重要：この結果のままカウンセラーに渡す（自然な動線） */}
@@ -1063,7 +1076,8 @@ function ActiveButtons({
             lineHeight: 1.6,
           }}
         >
-          ログインすると、予約時にこの結果が自動で担当者に届きます
+          ログイン不要で担当を見てまわれます。予約のタイミングでログインすれば、
+          この結果が自動で担当者に届きます。
         </p>
       )}
 
