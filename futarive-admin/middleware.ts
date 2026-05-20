@@ -2,6 +2,12 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // /api/webhooks/* は外部システム（Supabase Database Webhook 等）からの POST を受け取るため、
+  // 認証ガードの対象外にする。Route Handler 内で別途シークレット検証を行う。
+  if (request.nextUrl.pathname.startsWith('/api/webhooks/')) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
