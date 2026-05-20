@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { FRONTSITE_URL } from '@/lib/config'
 interface ColumnRow {
   id: string
   title: string
@@ -38,6 +39,14 @@ function IconTrash() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
       <path d="M3 5h10M6 5V3h4v2M5 5l1 8h4l1-8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+function IconExternal() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+      <path d="M5 2H2v10h10V9" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M8 2h4v4M12 2L7 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
@@ -156,10 +165,22 @@ export default function ColumnsPage() {
                       {c.published_at ? new Date(c.published_at).toLocaleDateString('ja-JP') : '—'}
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: 6 }}>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         <button onClick={() => openEdit(c)} className="btn btn-ghost btn-sm" style={{ gap: 4 }}>
                           <IconEdit /> 編集
                         </button>
+                        {c.published_at && (
+                          <a
+                            href={`${FRONTSITE_URL}/columns/${c.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-ghost btn-sm"
+                            style={{ gap: 4, fontSize: 11 }}
+                            title="公開ページを別タブで開く"
+                          >
+                            <IconExternal /> プレビュー
+                          </a>
+                        )}
                         <button onClick={() => togglePublish(c)} className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
                           {c.published_at ? '非公開' : '公開'}
                         </button>

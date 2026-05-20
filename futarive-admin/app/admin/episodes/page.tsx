@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { FRONTSITE_URL } from '@/lib/config'
 interface EpisodeRow {
   id: string
   agency_id: string | null
@@ -158,7 +159,19 @@ export default function EpisodesPage() {
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>
                     {e.agency_name}{e.period && ` · ${e.period}`}
                   </div>
-                  <button onClick={() => togglePublish(e.id, true)} className="btn btn-sm btn-ghost" style={{ fontSize: 11 }}>非公開にする</button>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    <a
+                      href={`${FRONTSITE_URL}/episodes/${e.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-ghost"
+                      style={{ fontSize: 11, gap: 4 }}
+                      title="公開ページを別タブで開く"
+                    >
+                      ↗ プレビュー
+                    </a>
+                    <button onClick={() => togglePublish(e.id, true)} className="btn btn-sm btn-ghost" style={{ fontSize: 11 }}>非公開にする</button>
+                  </div>
                 </div>
               ))}
             </div>

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { FRONTSITE_URL } from '@/lib/config'
 
 interface NavItem {
   label: string
@@ -308,7 +309,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
         {/* Site link */}
         <a
-          href="https://my-app-git-integration-redesign-772ffb-fffkbn84-4095s-projects.vercel.app"
+          href={FRONTSITE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-ghost btn-sm"
