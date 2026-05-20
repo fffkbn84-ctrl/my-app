@@ -40,7 +40,16 @@ function generateReviewCode(): string {
 export default function PendingCompletionsRows({ scopedCounselors, onCountChange }: Props) {
   const [rows, setRows] = useState<Reservation[]>([])
   const [completingId, setCompletingId] = useState<string | null>(null)
-  const [toast, setToast] = useState('')
+  // 完了直後に発行された口コミ受付情報。閉じるまで永続表示する。
+  // ふうかさん要望：トースト一瞬で消えるとトークンを控え忘れるため、
+  // 明示的に「閉じる」を押すまで URL とコードを画面に残す。
+  const [completedInfo, setCompletedInfo] = useState<{
+    reservationId: string
+    userName: string
+    token: string
+    code: string
+  } | null>(null)
+  const [copyFlash, setCopyFlash] = useState<'url' | 'code' | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -98,11 +107,30 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
       onCountChange?.(next.length)
       return next
     })
-    setToast(`面談完了をマークしました（口コミトークン ${code} を発行・カレンダーから確認できます）`)
-    setTimeout(() => setToast(''), 5000)
+    setCompletedInfo({
+      reservationId: reservation.id,
+      userName: reservation.user_name ?? '',
+      token,
+      code,
+    })
   }
 
-  if (rows.length === 0) return null
+  const reviewUrl = (token: string): string => {
+    if (typeof window === 'undefined') return `/reviews/new?token=${token}`
+    return `${window.location.origin.replace(/counselor\./, '').replace(/-counselor\b/, '')}/reviews/new?token=${token}`
+  }
+
+  const handleCopy = async (kind: 'url' | 'code', text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopyFlash(kind)
+      setTimeout(() => setCopyFlash(null), 1800)
+    } catch {
+      /* clipboard 拒否は無視（クリック&選択で代替可能） */
+    }
+  }
+
+  if (rows.length === 0 && !completedInfo) return null
 
   return (
     <>
@@ -151,9 +179,123 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
           </div>
         )
       })}
-      {toast && (
-        <div className="kc-toast" style={{ position: 'fixed' }}>
-          {toast}
+
+      {/* 完了直後の口コミ受付情報カード — 閉じるまで永続表示 */}
+      {completedInfo && (
+        <div
+          style={{
+            marginTop: 12,
+            padding: '14px 16px',
+            background: 'rgba(122,158,135,.1)',
+            border: '1.5px solid rgba(122,158,135,.5)',
+            borderRadius: 12,
+            position: 'relative',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setCompletedInfo(null)}
+            aria-label="閉じる"
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 10,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'var(--text-mid)',
+              fontSize: 18,
+              lineHeight: 1,
+              padding: 4,
+            }}
+          >
+            ×
+          </button>
+          <div
+            style={{
+              fontSize: 11,
+              color: 'var(--success, #7A9E87)',
+              fontFamily: 'DM Sans, sans-serif',
+              letterSpacing: '.16em',
+              marginBottom: 8,
+              fontWeight: 600,
+            }}
+          >
+            ✓ 面談完了 · 口コミ受付 URL を発行しました
+          </div>
+          <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: '0 0 10px' }}>
+            下記のリンクまたは認証コードを <b>{completedInfo.userName}</b> 様にお送りください。
+            これがあれば「面談済み口コミ」として投稿いただけます。
+          </p>
+          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>口コミ受付 URL</span>
+            <button
+              type="button"
+              onClick={() => handleCopy('url', reviewUrl(completedInfo.token))}
+              style={{
+                fontSize: 10,
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                padding: '2px 8px',
+                cursor: 'pointer',
+                color: copyFlash === 'url' ? 'var(--success, #7A9E87)' : 'var(--text-mid)',
+              }}
+            >
+              {copyFlash === 'url' ? '✓ コピーしました' : 'コピー'}
+            </button>
+          </div>
+          <div
+            style={{
+              fontFamily: 'monospace',
+              fontSize: 11,
+              padding: '6px 10px',
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              marginBottom: 8,
+              wordBreak: 'break-all',
+              userSelect: 'all',
+            }}
+          >
+            {reviewUrl(completedInfo.token)}
+          </div>
+          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>認証コード（手動入力用）</span>
+            <button
+              type="button"
+              onClick={() => handleCopy('code', completedInfo.code)}
+              style={{
+                fontSize: 10,
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: 6,
+                padding: '2px 8px',
+                cursor: 'pointer',
+                color: copyFlash === 'code' ? 'var(--success, #7A9E87)' : 'var(--text-mid)',
+              }}
+            >
+              {copyFlash === 'code' ? '✓ コピーしました' : 'コピー'}
+            </button>
+          </div>
+          <div
+            style={{
+              fontFamily: 'monospace',
+              fontSize: 14,
+              fontWeight: 600,
+              padding: '6px 10px',
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              letterSpacing: '.1em',
+              userSelect: 'all',
+            }}
+          >
+            {completedInfo.code}
+          </div>
+          <p style={{ fontSize: 10, color: 'var(--text-mid)', margin: '10px 0 0', lineHeight: 1.6 }}>
+            後からカレンダーの該当予約を開いても同じ情報を確認できます。
+          </p>
         </div>
       )}
     </>
