@@ -2816,3 +2816,73 @@ Vercel の Settings → Domains でカスタムドメインを追加し、Settin
 - `supabase.from('agencies').select('id')` は戻り値の型推論が壊れて `null` になり `.map(a => a.id)` の `a` が implicit any 化 → `(rows as { id: string }[] | null) ?? []` でキャスト
 - `React.TouchEvent.touches[i]` は `React.Touch` 型で DOM `Touch` より少ないプロパティ → 関数引数は最小型 `{ clientX: number; clientY: number }` で受ける
 - Supabase v2 SDK で `.update()` の引数型が `never` 化する場合は `createBrowserClient<Database>()` の generic を外す
+
+---
+
+## 実装済み機能（2026-05-20 追記）
+
+### 課金イベント基盤（Billing Events）— カウンセラー側
+
+**ブランチ：** `claude/fix-profile-creation-1clpG`
+
+#### ビジネスモデルと課金ルール
+
+| 立場 | 関係 |
+|---|---|
+| **ユーザー → 相談所** | 初回面談料 ¥0（無料面談）。キャンセル料も¥0 |
+| **相談所 → Kinda** | 予約成立で **¥10,000**（集客代行費・広告費の位置づけ） |
+
+Zocdoc / OpenTable の booking-fee モデルに準拠した「**予約成立から24時間 grace**」方式：
+
+| イベント | billing_events.status |
+|---|---|
+| 予約成立（reservations INSERT で status='active'） | `pending`（DBトリガー自動作成） |
+| 予約成立から **24時間以内** にユーザー取消 | `voided`（healthy cancellation window） |
+| 予約成立から **24時間超** のユーザー取消 | `confirmed`（課金維持） |
+| 当日キャンセル / no-show | `confirmed` |
+| 相談所都合キャンセル | 管理画面で運営が `voided` 化 |
+| 面談時刻 + 24h 経過した `pending` | pg_cron が自動で `confirmed` 化（10分ごと） |
+
+**重要な設計判断：** grace 時間は**全相談所共通の固定値（24h）**。`agencies` テーブルに `cancel_free_until_hours` 等のカラムは追加しない。ユーザー視点の `agencies.cancelPolicy`（自由文）は表示用として既存のまま据え置く。
+
+#### マイグレーション
+
+**`futarive-counselor/supabase/migrations/025_billing_events.sql`**（手動実行・冪等）
+
+- `billing_events` テーブル（`reservation_id` UNIQUE / `agency_id` / `counselor_id` / `amount_jpy` / `status` / `grace_until` / `reservation_at` / 異議・運営解決フィールド）
+- `reservations` の `AFTER INSERT WHEN status='active'` トリガー → `billing_events` を pending 作成
+- `reservations` の `AFTER UPDATE OF status` トリガー → status='canceled' で grace 判定し `voided` or `confirmed`
+- `pg_cron` ジョブ `billing_events_auto_confirm`（10分ごとに面談時刻 +24h 経過の pending を confirmed 化）
+- RLS：相談所オーナーは自社の SELECT のみ・カウンセラー本人は自分の SELECT のみ・`admin_users.role='admin'` は全件 SELECT/UPDATE 可
+- RPC `submit_billing_dispute(p_event_id, p_note)`：相談所オーナーが異議申し立て（status='disputed' 化）。5文字以上の理由必須・1回のみ
+- RPC `resolve_billing_dispute(p_event_id, p_decision, p_admin_note)`：運営が `void` / `confirm` を判定（admin のみ）
+
+**前提：** `admin_users` テーブルが未作成の場合、admin 用 RLS と `resolve_billing_dispute` の admin チェックが失敗する。先に作成すること。
+
+#### `/billing` ページ
+
+**ファイル：**
+- `futarive-counselor/app/(main)/billing/page.tsx` — `'use client'`。課金履歴一覧 + 異議申し立て
+- `futarive-counselor/lib/types-billing.ts` — `BillingEvent` / `BillingStatus` 型
+
+**機能：**
+- サマリーカード（今月の確定 / 保留中見込み / 件数）
+- 状態フィルター（すべて / 保留中 / 確定 / 無効 / 異議申立中）
+- 課金イベント一覧（カウンセラー名・利用者名・面談予定日時・金額・状態バッジ・void 理由）
+- `pending` / `confirmed` 状態の行に「異議を申し立てる」ボタン → モーダルで理由入力 → `submit_billing_dispute` RPC 呼び出し
+- 直接 UPDATE は行わない（RLS で防御）。状態遷移は RPC 経由のみ
+- サイドバーに「課金履歴」ナビアイテム追加（`components/shell/Sidebar.tsx`）
+
+#### 設計上の落とし穴と回避策
+
+| 落とし穴 | 対策 |
+|---|---|
+| `reservations.status` の値は `'active' \| 'completed' \| 'canceled'`（**US スペル・単一 L**） | トリガーで `'canceled'` と一致を取る |
+| 相談所別 grace 時間にすると課金回避の余地が生まれる | grace は全相談所共通 24h で固定 |
+| pg_cron が未インストール | `CREATE EXTENSION IF NOT EXISTS pg_cron` を migration 冒頭に |
+| `select('*, table(col)')` の JOIN で型が `never` になる | `(r.reservations as { user_name?: string } \| null)?.user_name` で安全に取り出す |
+| 相談所が直接 status を更新できると課金回避できてしまう | RLS で SELECT のみ許可・状態遷移は RPC 経由のみ |
+
+#### 運営側ページ（参考）
+
+統括管理画面 `/admin/billing` は別ブランチ（`claude/futarive-admin-dashboard-iKBfw`）で実装している。相談所別集計・月次フィルター・異議解決を担当。

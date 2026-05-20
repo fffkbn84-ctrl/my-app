@@ -81,6 +81,17 @@ const NAV_ITEMS = [
       </svg>
     ),
   },
+  {
+    href: '/billing',
+    label: '課金履歴',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M1.5 6.5h13" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M4 10h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
 ]
 
 export default function Sidebar() {
