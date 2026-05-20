@@ -60,8 +60,8 @@ export default function EpisodesPage() {
   useEffect(() => {
     loadEpisodes()
     const sb = createClient()
-    sb.from('agencies').select('*').order('name').then(({ data }) => setAgencies(data ?? []))
-    sb.from('counselors').select('*').order('name').then(({ data }) => setCounselors(data ?? []))
+    sb.from('agencies').select('*').order('name').then(({ data }: { data: AgencyRow[] | null }) => setAgencies(data ?? []))
+    sb.from('counselors').select('*').order('name').then(({ data }: { data: CounselorRow[] | null }) => setCounselors(data ?? []))
   }, [])
 
   async function loadEpisodes() {

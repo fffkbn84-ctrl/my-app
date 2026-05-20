@@ -45,7 +45,7 @@ export default function SlotsPage() {
 
   useEffect(() => {
     loadSlots()
-    createClient().from('counselors').select('*').order('name').then(({ data }) => setCounselors(data ?? []))
+    createClient().from('counselors').select('*').order('name').then(({ data }: { data: CounselorRow[] | null }) => setCounselors(data ?? []))
   }, [])
 
   async function loadSlots() {

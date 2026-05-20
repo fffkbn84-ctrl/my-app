@@ -79,14 +79,14 @@ export default function NewReviewPage() {
   })
 
   useEffect(() => {
-    createClient().from('agencies').select('*').order('name').then(({ data }) => setAgencies(data ?? []))
+    createClient().from('agencies').select('*').order('name').then(({ data }: { data: AgencyRow[] | null }) => setAgencies(data ?? []))
   }, [])
 
   useEffect(() => {
     if (form.agencyId) {
       createClient().from('counselors').select('*')
         .eq('agency_id', form.agencyId).order('name')
-        .then(({ data }) => setCounselors(data ?? []))
+        .then(({ data }: { data: CounselorRow[] | null }) => setCounselors(data ?? []))
     } else {
       setCounselors([])
     }
