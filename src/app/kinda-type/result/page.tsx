@@ -436,8 +436,9 @@ export default async function DiagnosisResultPage({
 
           {/* ══════════════════════════════════
               ⑤ あとから見返したい人向けリンク
+              /mypage は未ログイン時 AuthCard でログイン/新規登録を促す。
+              履歴は DiagnosisTypeHistorySection が表示する。
           ══════════════════════════════════ */}
-          {/* TODO: Supabase Auth 実装後、マイページの登録・ログイン画面（/mypage/register 等）に差し替え */}
           <div className="ktr-recall">
             <Link href="/mypage" className="ktr-recall-link">
               あとから見返したい人はこちら（無料）
