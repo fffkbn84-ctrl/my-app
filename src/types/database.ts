@@ -232,6 +232,14 @@ export interface Database {
           holiday: string | null;
           access: string | null;
           scenes: string[] | null;
+          area: string | null;
+          price_range: string | null;
+          tags: string[] | null;
+          /* F-3 (2026-05-21) で追加。PlaceHome 型と整合させるための表示用フィールド */
+          thumb_variant: "cafe" | "lounge" | "hair" | "nail" | "brow" | "photo-studio" | "esthetic" | null;
+          category_label: string | null;
+          area_label: string | null;
+          location: string | null;
           created_at: string;
           updated_at: string;
         };

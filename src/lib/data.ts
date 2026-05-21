@@ -4,11 +4,12 @@
 import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'
 import { places } from '@/lib/mock/places'
-import { placesHomeData } from '@/lib/mock/places-home'
+import { placesHomeData, type PlaceHome, type PlaceTabCategory, type ThumbVariant } from '@/lib/mock/places-home'
 import type { Database } from '@/types/database'
 
 type CounselorRow = Database['public']['Tables']['counselors']['Row']
 type CounselorMediaRow = Database['public']['Tables']['counselor_media']['Row']
+type ShopRow = Database['public']['Tables']['shops']['Row']
 
 export type Plan = {
   name: string;
@@ -893,12 +894,73 @@ export async function getAgencyMedia(agencyId: string | number): Promise<{ bg: s
   return mapAgencyMediaToReelImage(rows)
 }
 
-// お店一覧取得
-// NOTE: Supabase shops テーブルのスキーマは PlaceHome 型と未整合のため
-// 現時点ではモックデータを返す。スキーマ整合後に Supabase データに切り替える。
-export async function getShops() {
-  void places // 将来 Supabase 利用時の参照用
-  return placesHomeData
+/* ────────────────────────────────────────────────────────────
+   Shop Row → PlaceHome マッパー
+   F-3（2026-05-21）: shops テーブルを PlaceHome 型と整合させる
+   不足カラムは NULL fallback で安全に空文字を返す。
+──────────────────────────────────────────────────────────── */
+
+/** shops.category（自由テキスト）→ PlaceTabCategory のマッピング */
+function inferTabCategory(category: string | null, thumbVariant: ThumbVariant | null): PlaceTabCategory {
+  // 美容系
+  if (thumbVariant === 'hair' || thumbVariant === 'nail' || thumbVariant === 'brow' || thumbVariant === 'esthetic') {
+    return 'beauty'
+  }
+  if (thumbVariant === 'photo-studio') return 'photo'
+
+  // 食事系: 自由テキストをキーワードで判別
+  if (!category) return 'all'
+  if (/カフェ|喫茶|甘味|和カフェ/.test(category)) return 'omiai'
+  if (/レストラン|和食|鉄板|ホテルラウンジ|ラウンジ|フレンチ|イタリアン|焼肉|寿司/.test(category)) return 'date'
+
+  // それ以外は all（フィルター全合致）
+  return 'all'
+}
+
+function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
+  const thumbVariant = (row.thumb_variant ?? 'cafe') as ThumbVariant
+  return {
+    id: String(row.id),
+    name: row.name,
+    category: inferTabCategory(row.category, row.thumb_variant as ThumbVariant | null),
+    stage: row.stage ?? '',
+    location: row.location ?? row.area ?? '',
+    rating: Number(row.rating_avg ?? 0),
+    reviewCount: row.review_count ?? 0,
+    badgeType: row.badge_type,
+    thumbVariant,
+    description: row.description ?? '',
+    features: row.features ?? [],
+    categoryLabel: row.category_label ?? row.category ?? '',
+    areaLabel: row.area_label ?? row.area ?? '',
+    priceRange: row.price_range ?? undefined,
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   お店一覧取得
+   F-3 (2026-05-21): shops テーブルを PlaceHome 型と整合させて
+   Supabase からのデータ取得を有効化。
+   - 公開データ 0 件 or エラー時は mock fallback（既存パターン踏襲）
+──────────────────────────────────────────────────────────── */
+export async function getShops(): Promise<PlaceHome[]> {
+  void places // 将来 /places/[id] 詳細ページから参照する想定（mock）
+
+  const { data, error } = await supabase
+    .from('shops')
+    .select('*')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+
+  // Supabase SDK v2 の型推論を avoid（CLAUDE.md 参照）
+  const rows = data as ShopRow[] | null
+
+  if (error || !rows || rows.length === 0) {
+    if (error) console.error('getShops error (fallback to mock):', error.message)
+    return placesHomeData
+  }
+
+  return rows.map(mapShopRowToPlaceHome)
 }
 
 // 口コミ取得（カウンセラー別）
