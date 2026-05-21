@@ -727,6 +727,8 @@ export default async function CounselorDetailPage({
     agencyFees?: FeePlan[];
     /** Supabase オンリーで mock ベースが無いカウンセラーか */
     isSupabaseOnly?: boolean;
+    /** 個別カウンセラーのキャンセルポリシー（未設定なら所属相談所→デフォルトにフォールバック） */
+    cancelPolicy?: string;
   };
   const buildFromSupabase = (sc: NonNullable<typeof supabaseCounselor>): CounselorShape => {
     const tags = sc.specialties ?? sc.tags ?? [];
@@ -838,6 +840,17 @@ export default async function CounselorDetailPage({
   );
   const matchedCounselorData = COUNSELORS.find((c) => String(c.id) === String(id));
   const diagnosisTypeId = matchedCounselorData?.diagnosisType ?? supabaseCounselor?.diagnosisType ?? null;
+
+  /**
+   * キャンセルポリシー表示文言：counselor → agency → デフォルト の順でフォールバック。
+   * counselor.cancelPolicy が設定されていればそれを優先（個別カウンセラーの方針）、
+   * 無ければ所属相談所の cancelPolicy、それも無ければ共通デフォルト文言を使う。
+   */
+  const effectiveCancelPolicy =
+    counselor.cancelPolicy ??
+    matchedAgency?.cancelPolicy ??
+    supabaseAgency?.cancelPolicy ??
+    "当日キャンセル可 · 登録不要 · 完全無料";
 
   return (
     <>
@@ -1048,7 +1061,36 @@ export default async function CounselorDetailPage({
               >
                 空き日時を確認する
               </Link>
-              <p className="d-book-note">登録不要 · 面談料 無料</p>
+              {/* キャンセルポリシー（counselor → agency → デフォルト の順でフォールバック） */}
+              <p
+                style={{
+                  marginTop: 12,
+                  fontSize: 11,
+                  color: "var(--muted)",
+                  lineHeight: 1.6,
+                  display: "flex",
+                  gap: 6,
+                  alignItems: "flex-start",
+                }}
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                  style={{ flexShrink: 0, marginTop: 2 }}
+                  aria-hidden="true"
+                >
+                  <circle cx="7" cy="7" r="6" stroke="var(--muted)" strokeWidth="1.2" />
+                  <path
+                    d="M7 6v4M7 4.5v.5"
+                    stroke="var(--muted)"
+                    strokeWidth="1.2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                {effectiveCancelPolicy}
+              </p>
             </div>
 
           </div>
@@ -1754,7 +1796,36 @@ export default async function CounselorDetailPage({
                     <Link href={`/booking/${counselor.id}`} className="cta-book-main">
                       無料面談を予約する
                     </Link>
-                    <p className="cta-book-main-note">登録不要 · 面談料 完全無料</p>
+                    {/* キャンセルポリシー（counselor → agency → デフォルト の順でフォールバック） */}
+                    <p
+                      style={{
+                        marginTop: 14,
+                        fontSize: 12,
+                        color: "var(--muted)",
+                        lineHeight: 1.7,
+                        display: "flex",
+                        gap: 8,
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 14 14"
+                        fill="none"
+                        style={{ flexShrink: 0, marginTop: 2 }}
+                        aria-hidden="true"
+                      >
+                        <circle cx="7" cy="7" r="6" stroke="var(--muted)" strokeWidth="1.2" />
+                        <path
+                          d="M7 6v4M7 4.5v.5"
+                          stroke="var(--muted)"
+                          strokeWidth="1.2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      {effectiveCancelPolicy}
+                    </p>
                   </div>
                 </div>
 
