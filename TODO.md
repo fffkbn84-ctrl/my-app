@@ -2,7 +2,7 @@
 
 ふたりへプロジェクトの未対応タスク一覧。完了したものは `[x]` でチェック、もしくは ~~取り消し線~~ で消し込み。
 
-最終更新: 2026-05-20
+最終更新: 2026-05-21（セッション③）
 
 ---
 
@@ -86,11 +86,31 @@
 
 ### G. 検索・フィルター
 
-- [ ] **G-1** 診断結果ページの「すべて見る」→ `/search?type={typeId}` でカウンセラーをフィルタリング（CLAUDE.md 1096, 1220）
+- [x] **G-1** 診断結果ページの「すべて見る」→ `/search?type={typeId}` でカウンセラーをフィルタリング（2026-05-21 セッション③・コミット `fb76ec5`）
+  - Kinda talk 側は既に `?type=A|B|C|D` の絞り込みに対応済みだったため、結果ページのリンクから typeId を渡すだけで完了
+  - 古い「6タイプとのマッピング表」TODO コメント（4タイプ統一前の名残）を削除
 
 ### H. キャンセルポリシー連動
 
-- [ ] **H-1** カウンセラー詳細：`counselor.cancelPolicy ?? agency.cancelPolicy ?? デフォルト` のフォールバック実装（CLAUDE.md 1028）
+- [x] **H-1** カウンセラー詳細：`counselor.cancelPolicy ?? agency.cancelPolicy ?? デフォルト` のフォールバック実装（2026-05-21 セッション② / コミット `a14dbe5`）
+  - CounselorShape 型に `cancelPolicy?: string` を追加
+  - hero d-book-card / sidebar PC card の「登録不要 · 面談料 無料」テキストを ⓘ アイコン付きキャンセルポリシー表示に置換
+  - mock counselors（cancelPolicy 未設定）→ 所属相談所のポリシーが自動で出る
+
+### サンプル絞り込み（2026-05-21 セッション③）
+
+- [x] **mock 整理 Phase 1**（コミット `abf6bad`）
+  - COUNSELORS: ID 4, 5, 101〜105 を削除 → 4 名（1/2/3/6）に絞り込み
+  - AGENCIES: ID 3, 4 を削除 → 3 社（1/2/5）に絞り込み
+  - Agency 型に `isDemo?: boolean` 追加し、残り全カウンセラー・全相談所に `isDemo: true` 付与
+  - 既存 DemoBadge コンポーネントで「サンプル」バッジが自動表示
+- [x] **mock 整理 Phase 2**（コミット `6ed86b7`）— **名前不整合解消**
+  - `/counselors/[id]/page.tsx` の hardcoded counselors{} と `src/lib/data.ts` の COUNSELORS で
+    同 ID なのに別人（田中 美紀 ⇄ 田中 美咲 等）の不整合を全面解消
+  - hardcoded 側を src/lib/data.ts の人物に書き換え、reviews 本文も新キャラに合わせて書き直し
+  - `src/app/booking/[counselorId]/page.tsx` / `src/app/counselors/page.tsx` /
+    `src/components/reviews/ReviewGate.tsx` / `src/lib/mock/{episodes,stories}.ts` も同期
+  - ID 6 の hardcoded `agencyId="6"`（AGENCIES 未存在）バグも `"5"` に修正
 
 ---
 
@@ -175,6 +195,11 @@
 - [x] futarive-admin TypeScript 型エラー修正（5 箇所）→ Vercel ビルド復活（2026-05-20）
 - [x] futarive-admin ダッシュボード再構成（要対応 + 今月のKPI）（2026-05-20）
 - [x] GA4 連携準備：docs + `.env.example` 枠（2026-05-20）
+- [x] **G-1** 診断結果ページ「すべて見る」を `?type={typeId}` 付きに（2026-05-21 セッション③）
+- [x] **H-1** カウンセラー詳細キャンセルポリシー fallback（2026-05-21 セッション②）
+- [x] **mock 整理 Phase 1** — カウンセラー 4 名 + 相談所 3 社に絞り込み + isDemo フラグ（2026-05-21 セッション③）
+- [x] **mock 整理 Phase 2** — 名前不整合解消（hardcoded counselors と src/lib/data.ts の人物統一）（2026-05-21 セッション③）
+- [x] /kinda-type/quiz / /kinda-note/quiz でフローティング戻るボタンを非表示（2026-05-21 セッション③ / コミット `7367f65`）
 
 ---
 
@@ -283,15 +308,19 @@ esac
 
 ### 残タスク（次セッション候補）
 
+セッション③（2026-05-21）で G-1 / H-1 / 名前不整合解消は完了済み。
+
 | ID | 内容 | 規模 |
 |---|---|---|
-| **G-1** | 診断結果ページ「すべて見る」を `?type={typeId}` フィルター付きに | 小（既対応の可能性あり・要確認） |
-| **F-1 / F-2 / F-3** | モックデータ（AGENCIES / COUNSELORS / places / shops）を Supabase 化 | 大 |
+| **B-1 / B-2 フロント側** | コラム → Kinda voices / 成婚エピソード → Kinda story のフロント側リネーム実態確認（既対応の可能性高） | 小 |
+| **F-3** | shops テーブルにカラム追加 + `getShops()` を Supabase に戻す | 中 |
+| **iPhone PWA 化** | K-5 のブラウザ通知を iPhone Safari でも動かす | 中 |
+| **main マージ運用整備** | Production Branch を切替 or main へのマージフロー確立 | 中 |
+| **F-1** | AGENCIES / COUNSELORS の Supabase 化（mock 整理済みで着手しやすくなった） | 大 |
+| **F-2** | places.ts を Supabase 化 | 大 |
 | **I-1 / I-2** | GA4 連携（docs 準備済み） | 大 |
 | **K-1 続編（profile）** | profile ページもオーナー切替可能に | 中〜大（RLS 拡張要・本人が保留判断） |
-| iPhone PWA 化 | K-5 のブラウザ通知を iPhone Safari でも動かす | 中 |
-| main マージ運用整備 | Production Branch を切替 or main へのマージフロー確立 | 中 |
-| 名前不整合解消 | `/counselors/[id]/page.tsx` の hardcoded counselors と `src/lib/data.ts` COUNSELORS の名前統一（F-1 と同時にやれる） | 小〜中 |
+| **C-2** | `/kinda-type` ページ（カウンセラータイプ診断・仕様再確認から） | 中〜大 |
 
 ### 次セッションの開始時にやること
 
