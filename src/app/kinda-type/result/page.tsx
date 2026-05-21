@@ -322,12 +322,9 @@ export default async function DiagnosisResultPage({
               <p className="ktr-empty">近日公開予定です。</p>
             )}
 
-            {/* もっと見るリンク */}
-            {/* TODO: 将来、Kinda type 4タイプ（A/B/C/D）と Kinda talk の 6タイプ
-                （anshin / jibunjiku / zenryoku / senryaku / lifestyle / restart）の
-                マッピング表を作って、/kinda-talk/type/{mappedType} へ飛ばす */}
+            {/* もっと見るリンク — type パラメータで Kinda talk の絞り込みを引き継ぐ */}
             <Link
-              href="/kinda-talk"
+              href={`/kinda-talk?type=${typeId}`}
               className="ktr-more-link"
               style={{ color: diagType.color }}
             >
