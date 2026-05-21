@@ -195,6 +195,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  // 印刷専用ページ（請求書）では Shell（ヘッダー・サイドバー）を表示しない
+  if (pathname.startsWith('/admin/billing/invoice/')) {
+    return <>{children}</>
+  }
+
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
     return pathname.startsWith(href)

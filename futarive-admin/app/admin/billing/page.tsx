@@ -225,6 +225,33 @@ export default function AdminBillingPage() {
     await load()
   }
 
+  // 月次請求書を発行（agency × 月）
+  // - 月フィルター未指定の場合は今月を対象
+  // - 該当月の confirmed events に invoice_number を一括付与（assign_monthly_invoice RPC）
+  // - その後、印刷用ページを別タブで開く
+  const issueMonthlyInvoice = async (targetAgencyId: string, agencyName: string) => {
+    const now = new Date()
+    const ym = monthFilter !== 'all' ? monthFilter : `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    const [year, month] = ym.split('-').map(Number)
+
+    if (!confirm(`${agencyName} の ${year}年${month}月 分の請求書を発行します。\n（未付与の confirmed イベントに請求書番号を一括付与します）`)) return
+
+    const invoiceNumber = `INV-${year}-${String(month).padStart(2, '0')}-${targetAgencyId.slice(0, 8)}`
+
+    const supabase = createClient()
+    const { error } = await supabase.rpc('assign_monthly_invoice', {
+      p_agency_id: targetAgencyId,
+      p_year: year,
+      p_month: month,
+      p_invoice_number: invoiceNumber,
+    })
+    if (error) { alert(`請求書発行に失敗しました: ${error.message}`); return }
+
+    // 別タブで印刷用ページを開く
+    window.open(`/admin/billing/invoice/${targetAgencyId}/${ym}`, '_blank')
+    await load()
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -277,6 +304,7 @@ export default function AdminBillingPage() {
                   <th style={{ textAlign: 'right' }}>未払い</th>
                   <th style={{ textAlign: 'right' }}>件数</th>
                   <th style={{ textAlign: 'right' }}>異議</th>
+                  <th>請求書</th>
                 </tr>
               </thead>
               <tbody>
@@ -290,6 +318,17 @@ export default function AdminBillingPage() {
                     </td>
                     <td style={{ textAlign: 'right' }}>{a.count}</td>
                     <td style={{ textAlign: 'right', color: a.disputed > 0 ? 'var(--danger)' : 'var(--muted)' }}>{a.disputed}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-ghost"
+                        onClick={() => issueMonthlyInvoice(a.id, a.name)}
+                        disabled={a.confirmed === 0}
+                        title={a.confirmed === 0 ? '確定額が無いため発行できません' : `${a.name} の請求書を発行`}
+                        style={{ fontSize: 11, gap: 4 }}
+                      >
+                        🖨 発行
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

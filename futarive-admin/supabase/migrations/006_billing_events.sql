@@ -402,3 +402,36 @@ BEGIN
   RETURN v_event;
 END $$;
 GRANT EXECUTE ON FUNCTION unmark_billing_paid(UUID) TO authenticated;
+
+-- ===========================================================================
+-- 追加: J-1 月次請求書 invoice_number 一括付与 RPC（2026-05-21）
+-- ===========================================================================
+CREATE OR REPLACE FUNCTION assign_monthly_invoice(
+  p_agency_id      UUID,
+  p_year           INTEGER,
+  p_month          INTEGER,
+  p_invoice_number TEXT
+) RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE
+  v_start TIMESTAMPTZ;
+  v_end   TIMESTAMPTZ;
+  v_count INTEGER;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM admin_users u WHERE u.id = auth.uid() AND u.role = 'admin') THEN
+    RAISE EXCEPTION 'not authorized: admin only';
+  END IF;
+  v_start := make_timestamptz(p_year, p_month, 1, 0, 0, 0, 'Asia/Tokyo');
+  v_end   := v_start + interval '1 month';
+
+  UPDATE billing_events
+    SET invoice_number = p_invoice_number
+    WHERE agency_id = p_agency_id
+      AND status = 'confirmed'
+      AND confirmed_at >= v_start
+      AND confirmed_at <  v_end
+      AND (invoice_number IS NULL OR invoice_number = '');
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  RETURN v_count;
+END $$;
+GRANT EXECUTE ON FUNCTION assign_monthly_invoice(UUID, INTEGER, INTEGER, TEXT) TO authenticated;
