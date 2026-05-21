@@ -5225,3 +5225,95 @@ CLAUDE.md 2026-05-13 セッション末尾の残課題。
   本番カウンセラー情報の投入
 - mock カウンセラー（ID 1-6 + 101-105）を Supabase に順次移行
 
+---
+
+## 2026-05-21 セッション③ 引き継ぎメモ
+
+> 作業ブランチ:
+> - ユーザー用サイト: `claude/implement-kinda-talk-uDUoW`（最新コミット `c64b3d0`）
+> - 統括管理画面: `claude/futarive-admin-dashboard-iKBfw`（最新コミット `bd3ac86`、TODO.md 更新）
+> - カウンセラー管理画面: `claude/fix-profile-creation-1clpG`（変更なし）
+
+### このセッションで完了したタスク
+
+| # | タスク | コミット |
+|---|---|---|
+| 1 | Vercel デプロイキュー詰まり調査・対応説明 | （UI 操作のみ） |
+| 2 | /kinda-type/quiz / /kinda-note/quiz でフローティング戻るボタンを非表示 | `7367f65` |
+| 3 | **mock 整理 Phase 1** — カウンセラー 4 名 + 相談所 3 社に絞り込み + isDemo フラグ | `abf6bad` |
+| 4 | **mock 整理 Phase 2** — 名前不整合解消（hardcoded counselors と src/lib/data.ts の人物統一） | `6ed86b7` |
+| 5 | **G-1 / H-1 / mock 整理を TODO.md に反映**（iKBfw ブランチ） | `16504e3` |
+| 6 | **B-1 / B-2 フロント側リブランド残箇所**（/episodes/[id] → /kinda-story/[id] リダイレクト含む） | `7495079` |
+| 7 | **F-3 完了** — shops Supabase 化 + getShops() 切替 | `705805e` |
+| 8 | **F-2 / F-3 / 実在名全廃 / Kinda glow グリッド修正 を一括対応** | `c64b3d0` |
+| 9 | **TODO.md セッション③ 終了時点の更新**（iKBfw ブランチ） | `bd3ac86` |
+
+### 重要な変更点（次セッションで把握すべき）
+
+1. **Supabase shops は 9 件構成**
+   - カフェ 2 / レストラン 2 / ラウンジ 1 / 美容室 1 / ネイル 1 / 眉毛 1 / エステ 1
+   - フォトスタジオはタブのみ残し初期サンプル 0
+   - すべて架空名 + 「（サンプル）」表記を name に含めて表示
+
+2. **Kinda act / Kinda glow / /places/[id] は Supabase 一本化**
+   - mock placesHomeData / places は型定義 fallback として残置するが、user-site の表示は Supabase
+   - filter キーは `categoryLabel`（脆い）→ `thumbVariant`（安定）に変更
+   - `getShopById(id)` 関数を新設（`src/lib/data.ts`）
+
+3. **mock COUNSELORS / AGENCIES は 4 名 + 3 社構成**
+   - 田中 美紀（B）/ 山田 健太郎（A）/ 佐藤 綾乃（C）/ 林 俊介（D）
+   - Atelier Mariage 銀座 / Wedding Note 渋谷 / Marry Hub 新宿
+   - 全員 `isDemo: true`
+
+4. **Supabase agencies / counselors に旧 mock 残骸が残っている**
+   - 旧名（田中 美咲・佐藤 あかり 等）は「（サンプル）」付き架空名にリネーム済み
+   - **整理（DELETE / is_published=false）は運営判断で別途実施**
+   - 「Emma〜そろそろ結婚してみようかな〜」「小山楓華」はふうかさん本人の実データなので残す
+
+5. **shops 編集 UI は futarive-admin に未実装**
+   - 次セッション最優先タスク：`/admin/shops/new` + `/admin/shops/[id]/edit` 実装
+   - SNS 予約導線（`booking_url` / `instagram_url` / `other_social_url`）対応も同時に
+
+### 実機動作確認待ち（次セッション冒頭で確認）
+
+ふうかさん側で以下を確認してほしい：
+
+| 確認項目 | 期待する状態 |
+|---|---|
+| `/kinda-act` 表示 | 食事系 **5 件**（カフェ 2 / レストラン 2 / ラウンジ 1） |
+| `/kinda-glow` 表示 | 美容系 **4 件**（美容室 / ネイル / 眉毛 / エステ 各 1）+ photo タブは「該当なし」 |
+| Kinda glow グリッド | Kinda act と同じ 2/3/4 列レスポンシブ（巨大表示が直っているか） |
+| リール → 詳細遷移 | 同じ店舗が表示される（別店舗にならない） |
+| 実在店舗・相談所名の露出 | サイト全体で **0 件**（すべて架空名 + サンプル表記） |
+| `/episodes/[id]` | `/kinda-story/[id]` に 308 リダイレクト |
+| マイページ「共感した」 | KINDA STORY / KINDA VOICES の eyebrow + 日本語見出し（Bパターン） |
+| 診断画面のフローティング戻るボタン | 非表示（画面内「前の質問」「もどる」のみ） |
+
+### 適用済み Supabase マイグレーション（このセッション）
+
+| 名前 | 内容 |
+|---|---|
+| `f3_shops_align_with_place_home_type` | shops に thumb_variant / category_label / area_label / location 追加 |
+| `f3_shops_backfill_existing_8_rows` | 既存 8 件の追加カラム backfill |
+| `f3_shops_rename_to_fictional` | 実在 8 件を架空名にリネーム + 番地レベルの実住所をぼかし |
+| `f3_shops_sample_curation_9_stores` | 食事系 3 件削除 + 美容系 4 件 INSERT（合計 9 件構成） |
+| `f3_rename_legacy_mock_agencies_and_counselors_to_sample` | Supabase agencies 6 件 + counselors 6 件を架空名 + is_demo=true |
+
+### 次セッションでの優先タスク
+
+1. **動作確認の結果ヒアリング**（ふうかさんに実機チェック報告をもらう）
+2. 残バグがあれば修正
+3. **L-1: admin お店登録ページ実装**（中規模 / 作業ブランチ `claude/futarive-admin-dashboard-iKBfw`）
+4. **L-2: SNS 予約導線フィールド追加**（DB migration → admin UI → user-site 表示 の 3 段階）
+
+### 作業ブランチ運用ルール（CLAUDE.md 上部「作業ブランチの運用ルール（2026-05-03 確定）」と整合）
+
+| 対象 | 作業ブランチ |
+|---|---|
+| user-site（`src/` 配下） | `claude/implement-kinda-talk-uDUoW` |
+| カウンセラー管理画面（`futarive-counselor/`） | `claude/fix-profile-creation-1clpG` |
+| 統括管理画面（`futarive-admin/`） + TODO.md | `claude/futarive-admin-dashboard-iKBfw` |
+
+新規ブランチを切らない。明日の admin お店登録ページは
+**`claude/futarive-admin-dashboard-iKBfw`** で作業する。
+
