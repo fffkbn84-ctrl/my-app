@@ -1876,3 +1876,64 @@ https://futarive-admin-fffkbn84-4095s-projects.vercel.app/api/webhooks/billing-d
   > Kinda は予約成立ごとに **¥5,000 の集客代行費（送客料）**をいただいています。
   > このページでは過去の請求履歴と保留中の見込み額を確認できます。
 - 「今月の確定」→「今月の確定請求額」
+
+---
+
+## 2026-05-21 セッション末引き継ぎメモ
+
+### 完了タスク（今日のセッション）
+
+- **J-1**: 月次請求書 HTML 発行ページ + invoice_number 一括付与 RPC + Safari popup blocker 対応
+- **J-2**: 課金異議申立て自動メール通知（Resend + Webhook + 判定材料追加）
+- **J-3**: 支払いステータス管理（paid_at + invoice_number + RPC + UI）
+- **K-1（最小）**: useAgencyScope hook + ScopeSwitcher UI + reel ページに統合
+- **送客料 ¥5,000 統一**: DB / migration / UI 全箇所
+- **口コミ URL 修正**: `futarive-counselor/lib/config.ts` の FRONTSITE_URL に集約
+
+### 設定済み・運用中の主要ポイント
+
+| 項目 | 値 / 場所 |
+|---|---|
+| 送客料 | `¥5,000 / 1件`（成果報酬のみ・初期費用なし） |
+| 24h grace | 全相談所共通の固定値（プラットフォーム規約） |
+| admin_users | `fffkbn84@gmail.com` 登録済み・他スタッフ追加方法は TODO.md 参照 |
+| Supabase Webhook URL | branch alias `https://futarive-admin-git-claude-futari-fcf6db-fffkbn84-4095s-projects.vercel.app/api/webhooks/billing-disputed` |
+| FRONTSITE_URL（counselor） | `https://my-app-rp9u-1lpidus3d-fffkbn84-4095s-projects.vercel.app`（`futarive-counselor/lib/config.ts` ハードコード）|
+| Resend 送信元 | `onboarding@resend.dev`（共有ドメイン・本番ではカスタムドメイン Verify が必要） |
+| Vercel Deployment Protection | futarive-admin は **Disabled**（Webhook 受信のため） |
+| middleware（futarive-admin） | `/api/webhooks/*` は認証ガード対象外（先頭で early-return） |
+
+### main マージ時に対応必要な項目
+
+- **Supabase Database Webhook URL**: branch alias → Production URL に変更（CLAUDE.md J-2 セクション参照）
+- **FRONTSITE_URL**: 本番カスタムドメインが決まったら `futarive-counselor/lib/config.ts` を書き換え or Vercel 環境変数 `NEXT_PUBLIC_FRONTSITE_URL` で管理
+- **請求書 PDF の振込先・住所**: `futarive-admin/app/admin/billing/invoice/[agencyId]/[ym]/page.tsx` 内の「〇〇〇〇〇〇」プレースホルダーを実際の情報に書き換え
+- **Resend カスタムドメイン**: ユーザー宛メール送信機能を追加する時に Verify 必要（運営宛通知のみなら不要）
+
+### 既知の保留・未対応
+
+- profile ページのオーナー切替（未実装・後で考える方針）
+- リール画像アップロードの Storage RLS 拡張（オーナーが他カウンセラーの画像をアップする運用なら必要。現状は本人のみアップ可能で問題なし）
+- futarive-counselor のエラーメール根本対応（D-1）
+- フロントサイト側の Kinda voices / Kinda story リネーム（SEO考慮で対応不要と判断済み）
+
+### このセッションでハマったこと（次回回避用）
+
+1. **Vercel deployment が CANCELED 連鎖**: Ignored Build Step + Build Machine 未割当 + 連続 push の auto-cancel が複合して、まともに deploy できない期間があった → `Settings → Build & Deployment` の各セクションを最初にきちんと見るべき
+2. **middleware.ts が `/api/webhooks/*` をリダイレクト**: 405 Method Not Allowed の原因。Route Handler を新設する時は middleware の matcher / early-return を必ず確認
+3. **Webhook URL が Production URL のままだと main 未deploy で破綻**: branch alias を使う方が確実（main に deploy がない時期は特に）
+4. **`window.open()` を await 後に呼ぶと Safari の popup blocker が発火**: ユーザーアクションのコンテキスト内（同期で）`window.open('about:blank')` してから後で `location.href` で navigate する
+5. **`admin_users` テーブル未登録のままで RPC 呼ぶと "not authorized" エラー**: J-2/J-3 系 RPC 実装時は admin_users に運営ユーザーを INSERT する手順を忘れない
+6. **frontsite URL を `window.location.origin.replace(...)` で推測するロジックは脆い**: プロジェクト名規則の前提が崩れると 404。明示的に環境変数 or 定数で管理する
+
+### 次セッション開始時にすること
+
+1. **TODO.md の「🟠 次セッション用の引き継ぎ」セクションを読む**
+2. **動作確認**が完了したかふうかさんに聞く（J-1 popup / 口コミ URL / K-1 reel）
+3. 動いていなければ個別修正、動いていれば次の優先タスクをふうかさんに相談
+
+### このセッションでの私の反省
+
+- 後半、context が長くなった影響でふうかさんから「精度が落ちている」と指摘あり
+- 複数タスクを並行で進めすぎた → 1つずつ動作確認してから次に行くべきだった
+- 次セッションは **1タスク → 動作確認 → 次** のサイクルを徹底する

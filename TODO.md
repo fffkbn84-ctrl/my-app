@@ -138,3 +138,64 @@
 - このファイルは `main` ブランチに置きたいが、現状は各作業ブランチに分散して管理されているため、最新は **`claude/futarive-admin-dashboard-iKBfw` ブランチ**を参照
 - 各ブランチで修正したタスクは、そのブランチ上で `[x]` チェックを入れる
 - ブランチが分岐している場合、競合が起きたら最新の `[x]` を採用する
+
+### 運営スタッフ追加方法（admin 権限付与）
+
+新しい運営スタッフを admin として追加する場合：
+
+```sql
+-- 1. その人が futarive-admin にログインして、auth.users に存在することを確認
+SELECT id, email FROM auth.users WHERE email = '新スタッフのメール';
+
+-- 2. その id を admin_users に登録
+INSERT INTO admin_users (id, role)
+VALUES ('上記で取得したUUID', 'admin')
+ON CONFLICT (id) DO UPDATE SET role = 'admin';
+```
+
+これは Supabase SQL Editor から実行。2026-05-21 時点で fffkbn84@gmail.com は登録済み。
+
+---
+
+## 🟠 次セッション用の引き継ぎ（2026-05-21 終了時）
+
+### 動作確認待ちのもの（このセッションで実装 → 次回ふうかさんが触る）
+
+- [ ] **J-1 popup blocker 修正**: Safari で「🖨 発行」が別タブで開くか確認（`/admin/billing` → 相談所別集計の「発行」ボタン）
+- [ ] **口コミ URL 404 修正**: `lib/config.ts` の FRONTSITE_URL を環境変数化。futarive-counselor で発行する口コミ URL が新しいフロントサイトに繋がるか確認
+- [ ] **K-1 reel ScopeSwitcher**: オーナーモードでカウンセラー切替してリール編集できるか
+
+### 既知の未解決事項
+
+- **profile ページのオーナー切替**: 未実装（ユーザー判断で保留）。実装する場合は K-1 続編として
+- **リール画像アップロード（オーナー → 他カウンセラー画像）**: 現状の RLS のままで OK（山田さん本人なら問題なし、ふうかさんが他カウンセラーの画像をアップする運用はしない方針）。やる場合は Storage RLS 拡張が必要
+- **フロントサイト URL のメンテナンス性**: 現在 `FRONTSITE_URL` は branch alias（deployment hash 入り）でハードコード。新 deploy で URL が変わる可能性。長期運用するなら:
+  1. main ブランチに merge し Production URL を使う
+  2. カスタムドメインを設定（例: `futarive.jp`）
+  3. Vercel 環境変数 `NEXT_PUBLIC_FRONTSITE_URL` で管理する
+- **Vercel 全プロジェクトの deployment が CANCELED 状態**: my-app-rp9u / futarive-counselor / futarive-admin の3つとも、最新の push が CANCELED されている。Ignored Build Step の許可ブランチ設定の影響。各プロジェクトの「許可ブランチ」を確認し、必要なら branch を更新（このセッション中に admin 側は対応済み・他2つも同様に確認必要）
+
+### 次セッションの開始時にやること
+
+1. **このメモを読む**（TODO.md + CLAUDE.md 末尾の「2026-05-21 引き継ぎ」セクション）
+2. **動作確認**が完了しているか聞く（J-1 / 口コミ URL / K-1 reel）
+3. うまく動いていなかったら個別に修正
+4. うまく動いていたら、次の優先タスクをふうかさんに聞く（候補は下記）
+
+### 次の優先候補（ふうかさんに確認して進める）
+
+| 候補 | 内容 | 規模 |
+|---|---|---|
+| **K-1 続編（profile）** | profile ページもオーナー切替可能に | 中〜大（RLS 拡張要） |
+| **K-2** | Supabase Realtime（カレンダー同期） | 中 |
+| **K-3** | カレンダー画面から booked スロットの予約者情報表示 | 小〜中 |
+| **K-4** | プロフィール写真トリミング | 中 |
+| **K-5** | ブラウザ通知（新規予約・新規口コミ） | 中 |
+| **E-1 / E-2** | マイページの Supabase Auth 連携（診断履歴表示等） | 大 |
+| **F-1 / F-2 / F-3** | モックデータ（agencies / counselors / shops）の Supabase 化 | 大 |
+| **G-1** | 診断結果ページ「すべて見る」を `?type={typeId}` フィルター付きに | 小 |
+| **H-1** | カウンセラー詳細ページのキャンセルポリシーフォールバック | 小 |
+| **I-1 / I-2** | GA4 連携（docs 準備済み） | 大 |
+| **D-1** | futarive-counselor のエラーメール根本対応 | 小〜中 |
+
+ふうかさんは「精度低下が気になる」と感じていたので、**1つのタスクに集中して終わらせてから次へ**を意識する。複数タスクを並行しすぎない。
