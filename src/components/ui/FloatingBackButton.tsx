@@ -27,7 +27,15 @@ export default function FloatingBackButton() {
   }, [pathname]);
 
   // ホーム / ログイン直後など、戻る先が無いケースは非表示
-  if (pathname === "/" || pathname === "/login" || !canGoBack) return null;
+  // 診断フロー中（Kinda type / Kinda note）は画面内に専用の戻る UI があるため非表示
+  if (
+    pathname === "/" ||
+    pathname === "/login" ||
+    pathname === "/kinda-type/quiz" ||
+    pathname === "/kinda-note/quiz" ||
+    !canGoBack
+  )
+    return null;
 
   return (
     <button
