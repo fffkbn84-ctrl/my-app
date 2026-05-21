@@ -1,4 +1,5 @@
 export type BillingStatus = 'pending' | 'confirmed' | 'voided' | 'disputed'
+export type PaymentMethod = 'bank_transfer' | 'card' | 'other'
 
 export interface BillingEvent {
   id: string
@@ -17,6 +18,10 @@ export interface BillingEvent {
   admin_resolved_by: string | null
   admin_resolved_at: string | null
   admin_note: string | null
+  paid_at: string | null
+  invoice_number: string | null
+  payment_method: PaymentMethod | null
+  payment_note: string | null
   created_at: string
   updated_at: string
 }

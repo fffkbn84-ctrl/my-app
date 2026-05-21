@@ -88,8 +88,10 @@ export default function BillingPage() {
 
   const totals = useMemo(() => {
     const confirmed = rows.filter(r => r.status === 'confirmed').reduce((a, r) => a + r.amount_jpy, 0)
+    const paid      = rows.filter(r => r.status === 'confirmed' && r.paid_at).reduce((a, r) => a + r.amount_jpy, 0)
+    const unpaid    = rows.filter(r => r.status === 'confirmed' && !r.paid_at).reduce((a, r) => a + r.amount_jpy, 0)
     const pending   = rows.filter(r => r.status === 'pending').reduce((a, r) => a + r.amount_jpy, 0)
-    return { confirmed, pending }
+    return { confirmed, paid, unpaid, pending }
   }, [rows])
 
   const filtered = filter === 'all' ? rows : rows.filter(r => r.status === filter)
@@ -145,8 +147,9 @@ export default function BillingPage() {
         gap: 12, marginBottom: 20,
       }}>
         <SumCard label="今月の確定請求額" value={yen(totals.confirmed)} accent />
+        <SumCard label="うち支払い済み" value={yen(totals.paid)} />
+        <SumCard label="お支払い待ち" value={yen(totals.unpaid)} />
         <SumCard label="保留中（見込み）" value={yen(totals.pending)} />
-        <SumCard label="件数" value={`${rows.length}件`} />
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
@@ -210,16 +213,29 @@ function SumCard({ label, value, accent }: { label: string; value: string; accen
 function BillingRow({ row, onDispute }: { row: Row; onDispute: () => void }) {
   const color = STATUS_COLOR[row.status]
   const canDispute = (row.status === 'pending' || row.status === 'confirmed') && !row.dispute_at
+  const isPaid = row.status === 'confirmed' && !!row.paid_at
 
   return (
     <div className="kc-card" style={{ padding: '14px 18px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ minWidth: 0, flex: '1 1 auto' }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 4, flexWrap: 'wrap' }}>
             <span style={{
               fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
               background: color.bg, color: color.fg,
             }}>{STATUS_LABEL[row.status]}</span>
+            {isPaid && (
+              <span style={{
+                fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
+                background: '#DCFCE7', color: '#166534',
+              }}>✓ 支払い済み</span>
+            )}
+            {row.status === 'confirmed' && !row.paid_at && (
+              <span style={{
+                fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
+                background: '#FEF3E2', color: '#C2410C',
+              }}>お支払い待ち</span>
+            )}
             <span style={{ fontSize: 11, color: 'var(--text-light)' }}>{STATUS_HINT[row.status]}</span>
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-deep)', fontWeight: 500 }}>
@@ -228,6 +244,12 @@ function BillingRow({ row, onDispute }: { row: Row; onDispute: () => void }) {
           <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 2 }}>
             面談予定: {fmt(row.reservation_at)} ・ 予約日: {fmt(row.created_at)}
           </div>
+          {isPaid && (
+            <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 4 }}>
+              支払い日: {fmt(row.paid_at)}
+              {row.invoice_number && <> ・ 請求書番号: {row.invoice_number}</>}
+            </div>
+          )}
           {row.status === 'voided' && row.void_reason && (
             <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 4 }}>
               理由: {VOID_REASON_LABEL[row.void_reason] ?? row.void_reason}

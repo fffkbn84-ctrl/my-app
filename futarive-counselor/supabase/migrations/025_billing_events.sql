@@ -341,3 +341,20 @@ GRANT EXECUTE ON FUNCTION resolve_billing_dispute(UUID, TEXT, TEXT) TO authentic
 -- 2. pg_cron は Supabase Dashboard > Database > Extensions で事前に有効化されていない場合、
 --    CREATE EXTENSION で失敗することがある。その場合は手動で有効化してから再実行する。
 -- 3. このマイグレーションは冪等。再実行しても既存データ・job は破壊しない。
+
+-- ===========================================================================
+-- 追加: J-3 支払いステータス管理（2026-05-21）
+-- futarive-admin/supabase/migrations/006_billing_events.sql と同一内容
+-- ===========================================================================
+ALTER TABLE billing_events
+  ADD COLUMN IF NOT EXISTS paid_at        TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS invoice_number TEXT,
+  ADD COLUMN IF NOT EXISTS payment_method TEXT CHECK (payment_method IN ('bank_transfer','card','other')),
+  ADD COLUMN IF NOT EXISTS payment_note   TEXT,
+  ADD COLUMN IF NOT EXISTS marked_paid_by UUID REFERENCES auth.users(id);
+
+CREATE INDEX IF NOT EXISTS idx_billing_events_paid_at        ON billing_events(paid_at);
+CREATE INDEX IF NOT EXISTS idx_billing_events_invoice_number ON billing_events(invoice_number);
+CREATE INDEX IF NOT EXISTS idx_billing_events_unpaid         ON billing_events(agency_id, confirmed_at) WHERE status = 'confirmed' AND paid_at IS NULL;
+
+-- RPC は futarive-admin 側で apply 済み（mark_billing_paid / mark_invoice_paid / unmark_billing_paid）
