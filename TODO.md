@@ -37,9 +37,30 @@
 
 ### D. インフラ・運用
 
-- [ ] **D-1** futarive-counselor のエラーメール根本対応
-  - `claude/fix-profile-creation-1clpG` に push した billing 関連コードに futarive-counselor 側の type/build エラーがあるか確認・修正
-  - Skip-deployments-no-changes の効果待ち
+- [x] **D-1** futarive-counselor / futarive-admin のエラーメール根本対応（2026-05-21）
+  - 原因：iKBfw branch / uDUow branch には `futarive-counselor/` ディレクトリが、
+    fix-profile-creation-1clpG branch には `futarive-admin/` ディレクトリが
+    存在せず、Vercel が "Root Directory does not exist" でビルド失敗 → エラーメール
+  - 対応：futarive-counselor / futarive-admin の両プロジェクトに
+    Vercel Settings → Git → Ignored Build Step を設定
+  - 仕組み：許可ブランチ判定 + Root Directory 存在確認の二段ガード
+    ```bash
+    # futarive-counselor 用
+    case "$VERCEL_GIT_COMMIT_REF" in
+      main|claude/fix-profile-creation-1clpG)
+        [ -d futarive-counselor ] && exit 1 || exit 0 ;;
+      *) exit 0 ;;
+    esac
+    ```
+    ```bash
+    # futarive-admin 用
+    case "$VERCEL_GIT_COMMIT_REF" in
+      main|claude/futarive-admin-dashboard-iKBfw)
+        [ -d futarive-admin ] && exit 1 || exit 0 ;;
+      *) exit 0 ;;
+    esac
+    ```
+  - exit 0 = ビルドスキップ（エラー扱いにならない）, exit 1 = ビルド実行
 
 ### E. 認証・ログイン後対応
 
