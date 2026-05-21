@@ -229,12 +229,20 @@ export default function AdminBillingPage() {
   // - 月フィルター未指定の場合は今月を対象
   // - 該当月の confirmed events に invoice_number を一括付与（assign_monthly_invoice RPC）
   // - その後、印刷用ページを別タブで開く
+  //
+  // Safari popup blocker 対策:
+  // async await の後に window.open() を呼ぶとユーザーアクションのコンテキストが
+  // 切れて popup blocker が発火する。confirm 直後に空タブを開いておき、
+  // RPC 成功後に location.href で navigate する。
   const issueMonthlyInvoice = async (targetAgencyId: string, agencyName: string) => {
     const now = new Date()
     const ym = monthFilter !== 'all' ? monthFilter : `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
     const [year, month] = ym.split('-').map(Number)
 
     if (!confirm(`${agencyName} の ${year}年${month}月 分の請求書を発行します。\n（未付与の confirmed イベントに請求書番号を一括付与します）`)) return
+
+    // ★ confirm を通った直後＝ユーザーアクションのコンテキスト内で空タブを開く
+    const newTab = window.open('about:blank', '_blank')
 
     const invoiceNumber = `INV-${year}-${String(month).padStart(2, '0')}-${targetAgencyId.slice(0, 8)}`
 
@@ -245,10 +253,19 @@ export default function AdminBillingPage() {
       p_month: month,
       p_invoice_number: invoiceNumber,
     })
-    if (error) { alert(`請求書発行に失敗しました: ${error.message}`); return }
+    if (error) {
+      newTab?.close()
+      alert(`請求書発行に失敗しました: ${error.message}`)
+      return
+    }
 
-    // 別タブで印刷用ページを開く
-    window.open(`/admin/billing/invoice/${targetAgencyId}/${ym}`, '_blank')
+    const invoiceUrl = `/admin/billing/invoice/${targetAgencyId}/${ym}`
+    if (newTab) {
+      newTab.location.href = invoiceUrl
+    } else {
+      // popup blocker でタブが開けなかった場合は同タブで開く
+      window.location.href = invoiceUrl
+    }
     await load()
   }
 
