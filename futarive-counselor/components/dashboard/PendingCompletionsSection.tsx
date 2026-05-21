@@ -13,6 +13,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Reservation } from '@/lib/types'
+import { FRONTSITE_URL } from '@/lib/config'
 
 interface Props {
   scopedCounselors: Counselor[]
@@ -115,10 +116,7 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
     })
   }
 
-  const reviewUrl = (token: string): string => {
-    if (typeof window === 'undefined') return `/reviews/new?token=${token}`
-    return `${window.location.origin.replace(/counselor\./, '').replace(/-counselor\b/, '')}/reviews/new?token=${token}`
-  }
+  const reviewUrl = (token: string): string => `${FRONTSITE_URL}/reviews/new?token=${token}`
 
   const handleCopy = async (kind: 'url' | 'code', text: string) => {
     try {

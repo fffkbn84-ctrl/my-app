@@ -6,6 +6,7 @@ import { logPersonalDataAccess } from '@/lib/supabase/audit'
 import { describeError } from '@/lib/errors'
 import type { Reservation } from '@/lib/types'
 import { KINDA_TYPE_LABEL, KINDA_NOTE_WEATHER, type KindaTypeKey } from '@/lib/diagnosisLabels'
+import { FRONTSITE_URL } from '@/lib/config'
 
 interface Props {
   slotId: string
@@ -507,9 +508,7 @@ export default function ReservationDetailModal({ slotId, onClose }: Props) {
                 wordBreak: 'break-all',
                 userSelect: 'all',
               }}>
-                {typeof window !== 'undefined'
-                  ? `${window.location.origin.replace(/counselor\./, '').replace(/-counselor\b/, '')}/reviews/new?token=${displayToken}`
-                  : `/reviews/new?token=${displayToken}`}
+                {`${FRONTSITE_URL}/reviews/new?token=${displayToken}`}
               </div>
               <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>認証コード（手動入力用）</div>
               <div style={{
