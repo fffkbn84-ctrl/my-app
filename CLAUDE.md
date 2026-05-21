@@ -1937,3 +1937,74 @@ https://futarive-admin-fffkbn84-4095s-projects.vercel.app/api/webhooks/billing-d
 - 後半、context が長くなった影響でふうかさんから「精度が落ちている」と指摘あり
 - 複数タスクを並行で進めすぎた → 1つずつ動作確認してから次に行くべきだった
 - 次セッションは **1タスク → 動作確認 → 次** のサイクルを徹底する
+
+---
+
+## 2026-05-21 セッション② 末引き継ぎメモ
+
+### このセッションで完了したタスク
+
+| 種別 | ID | 内容 | 検証 |
+|---|---|---|---|
+| 動作確認 | J-1 popup | Safari 別タブで請求書発行 | 完璧に動作（ふうかさん iPhone 実機 OK） |
+| 動作確認 | 口コミ URL 404 | Vercel Auth 解除 → uDUow を Production Promote → config.ts 修正 | iPhone で口コミフォーム表示 OK |
+| 新規修正 | 口コミ星評価 UI | 総合評価 SVG40px / 項目別評価 縦並び28px | iPhone 実機 OK |
+| 新規実装 | H-1 | カウンセラー詳細キャンセルポリシー fallback | 田中美咲/山田健太/中村涼子で OK |
+| 新規実装 | D-1 | エラーメール根本対応（.gitkeep + IBS）| ERROR メール停止確認 |
+| 既存確認 | E-1 / E-2 | マイページ Supabase 連携・古い TODO 整理 | コード確認 + 文言調整 |
+| 新規実装 | K-2 | カレンダー Realtime（publication 追加） | iPad/iPhone 同時編集 OK |
+| 既存確認 | K-3 | カレンダーの予約者情報表示 | 既存対応済み |
+| 既存確認 | K-4 | プロフィール写真トリミング（`PhotoCropModal.tsx`） | 既存対応済み |
+| 新規実装 | K-5 | ブラウザ通知（reservations/reviews publication + listener + 設定 UI） | 表示確認 OK |
+
+### 主な変更ファイル
+
+**uDUow ブランチ（フロントサイト）:**
+- `src/components/reviews/ReviewForm.tsx`（星評価 UI 刷新）
+- `src/app/counselors/[id]/page.tsx`（H-1 キャンセルポリシー）
+- `src/app/kinda-type/result/page.tsx`（古い TODO コメント削除）
+- ルート `futarive-counselor/.gitkeep` + `futarive-admin/.gitkeep`（D-1）
+
+**fix-profile-creation-1clpG ブランチ（counselor）:**
+- `futarive-counselor/lib/config.ts`（FRONTSITE_URL production alias 化）
+- `futarive-counselor/lib/notifications.ts`（K-5 新規）
+- `futarive-counselor/components/shell/NotificationListener.tsx`（K-5 新規）
+- `futarive-counselor/components/shared/NotificationSettingsCard.tsx`（K-5 新規）
+- `futarive-counselor/app/(main)/layout.tsx`（NotificationListener マウント）
+- `futarive-counselor/app/(main)/dashboard/page.tsx`（設定カード追加）
+
+**iKBfw ブランチ（admin）:**
+- `TODO.md`（完了マーク + 次セッション引き継ぎ）
+- ルート `futarive-counselor/.gitkeep`（D-1）
+
+**Supabase migrations:**
+- `enable_realtime_for_slots`（K-2）
+- `enable_realtime_for_reservations_and_reviews`（K-5）
+
+### Vercel 設定変更（このセッション中に実施）
+
+1. **my-app-rp9u**: Vercel Authentication を Disabled（外部ユーザー口コミ URL アクセス用）
+2. **my-app-rp9u**: uDUow の preview を Production に Promote（`my-app-rp9u.vercel.app` がアクティブに）
+3. **futarive-counselor / futarive-admin**: Ignored Build Step を設定（D-1 対応）
+   - 最終形のコマンドは TODO.md D-1 セクション参照
+   - ⚠️ 初期版に `[ -d ディレクトリ名 ]` のロジックバグがあったため、簡略版に訂正済み
+
+### ⚠️ 次回ハマらないように覚えておく落とし穴
+
+1. **Vercel IBS は Root Directory の中で実行される** → 入れ子のディレクトリチェック書くと常に false。
+2. **Vercel の Promote to Production は git main マージとは別物**。production target が一時的に紐づくだけ。
+3. **iPhone Safari の Web Notifications は PWA 化が必要**。K-5 は当面 desktop / Android Chrome 想定。
+4. **Supabase Realtime はテーブル単位で publication 追加必要**。クライアント側 subscribe だけでは動かない。
+5. **branch alias と production alias は別**。alias を config に書くと deploy 切り替えで壊れる → production alias を使う。
+
+### 次セッション開始時にやること
+
+1. このメモと TODO.md 末尾「🟠 次セッション用の引き継ぎ」セクションを読む
+2. ふうかさんに前回からの状況確認（実機での運用上の問題はないか等）
+3. 残タスクから優先順位を相談（候補は TODO.md 参照）
+
+### このセッションでよかった点
+
+- 1タスクずつ動作確認するスタイルを徹底できた
+- 既に対応済みだったタスク（K-3, K-4, E-1）を実装し直さず、確認だけで素早く閉じられた
+- ふうかさんとの会話で「実は対応済みかも？」というヒントを拾えるようになった

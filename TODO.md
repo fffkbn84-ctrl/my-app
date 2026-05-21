@@ -143,7 +143,11 @@
   - migration `enable_realtime_for_slots` で `ALTER PUBLICATION supabase_realtime ADD TABLE public.slots` を適用
   - iPad/iPhone 2台同時テストで実機確認済み
 - [x] **K-3** カレンダー画面から booked スロットの予約者情報を表示（既存対応済み）
-- [ ] **K-4** プロフィール写真トリミング（ブラウザ内クロップ UI）
+- [x] **K-4** プロフィール写真トリミング（既存対応済み・2026-05-21 確認）
+  - `futarive-counselor/components/profile/PhotoCropModal.tsx`（357 行）
+  - 丸型クロップ UI / タッチドラッグ / ピンチイン・アウト / マウスホイールズーム
+  - 出力 512x512 JPG（品質0.9）
+  - 既存写真の再編集（`photo_url` から fetch → File 変換 → モーダル再起動）対応
 - [x] **K-5** 通知機能：新規予約・新規口コミ着信時のブラウザ通知（2026-05-21）
   - DB: `enable_realtime_for_reservations_and_reviews` migration で publication 追加
   - `futarive-counselor/lib/notifications.ts`: Web Notifications API ラッパー（permission/preference/show）
@@ -198,45 +202,101 @@ ON CONFLICT (id) DO UPDATE SET role = 'admin';
 
 ---
 
-## 🟠 次セッション用の引き継ぎ（2026-05-21 終了時）
+## 🟠 次セッション用の引き継ぎ（2026-05-21 セッション② 終了時）
 
-### 動作確認待ちのもの（このセッションで実装 → 次回ふうかさんが触る）
+### このセッションで完了したタスク
 
-- [ ] **J-1 popup blocker 修正**: Safari で「🖨 発行」が別タブで開くか確認（`/admin/billing` → 相談所別集計の「発行」ボタン）
-- [ ] **口コミ URL 404 修正**: `lib/config.ts` の FRONTSITE_URL を環境変数化。futarive-counselor で発行する口コミ URL が新しいフロントサイトに繋がるか確認
-- [ ] **K-1 reel ScopeSwitcher**: オーナーモードでカウンセラー切替してリール編集できるか
+| ID | 内容 |
+|---|---|
+| 動作確認 J-1 popup | Safari 別タブで請求書発行 → 完璧に動作 |
+| 動作確認 口コミ URL 404 | Vercel Auth 解除 + uDUow を Production に Promote + `futarive-counselor/lib/config.ts` FRONTSITE_URL を production alias に変更 |
+| 口コミフォーム星評価 UI | 総合評価 SVG40px ボタン化 + 項目別評価 縦並び28px |
+| H-1 | カウンセラー詳細ページのキャンセルポリシー fallback（counselor → agency → デフォルト） |
+| D-1 | Vercel エラーメール根本対応（.gitkeep + IBS 設定。**IBS ロジック注意点あり** ↓ 参照） |
+| E-1 / E-2 | マイページ Supabase 連携（実装済み確認）+ 古い TODO コメント整理 |
+| K-2 | カレンダー Realtime（`supabase_realtime` publication に slots 追加） |
+| K-3 / K-4 | 既に実装済みを確認しマーク |
+| K-5 | ブラウザ通知（reservations/reviews publication 追加 + NotificationListener + 設定 UI） |
 
-### 既知の未解決事項
+### 作業ブランチと役割
 
-- **profile ページのオーナー切替**: 未実装（ユーザー判断で保留）。実装する場合は K-1 続編として
-- **リール画像アップロード（オーナー → 他カウンセラー画像）**: 現状の RLS のままで OK（山田さん本人なら問題なし、ふうかさんが他カウンセラーの画像をアップする運用はしない方針）。やる場合は Storage RLS 拡張が必要
-- **フロントサイト URL のメンテナンス性**: 現在 `FRONTSITE_URL` は branch alias（deployment hash 入り）でハードコード。新 deploy で URL が変わる可能性。長期運用するなら:
-  1. main ブランチに merge し Production URL を使う
-  2. カスタムドメインを設定（例: `futarive.jp`）
-  3. Vercel 環境変数 `NEXT_PUBLIC_FRONTSITE_URL` で管理する
-- **Vercel 全プロジェクトの deployment が CANCELED 状態**: my-app-rp9u / futarive-counselor / futarive-admin の3つとも、最新の push が CANCELED されている。Ignored Build Step の許可ブランチ設定の影響。各プロジェクトの「許可ブランチ」を確認し、必要なら branch を更新（このセッション中に admin 側は対応済み・他2つも同様に確認必要）
+| プロジェクト | 開発ブランチ | Vercel deploy 対象ディレクトリ |
+|---|---|---|
+| **my-app-rp9u**（フロントサイト） | `claude/implement-kinda-talk-uDUoW` | `.`（リポジトリルート） |
+| **futarive-counselor**（カウンセラー管理画面） | `claude/fix-profile-creation-1clpG` | `futarive-counselor/` |
+| **futarive-admin**（運営管理画面） | `claude/futarive-admin-dashboard-iKBfw` | `futarive-admin/` |
+
+Vercel 各プロジェクトの「許可ブランチ」（Ignored Build Step）：
+- my-app-rp9u: `main`, `claude/implement-kinda-talk-uDUoW`
+- futarive-counselor: `main`, `claude/fix-profile-creation-1clpG`
+- futarive-admin: `main`, `claude/futarive-admin-dashboard-iKBfw`
+
+各 IBS コマンドの最終版（**前回のロジックバグを訂正済み**）：
+
+```bash
+# futarive-counselor 用
+case "$VERCEL_GIT_COMMIT_REF" in
+  main|claude/fix-profile-creation-1clpG) exit 1 ;;
+  *) exit 0 ;;
+esac
+```
+
+```bash
+# futarive-admin 用
+case "$VERCEL_GIT_COMMIT_REF" in
+  main|claude/futarive-admin-dashboard-iKBfw) exit 1 ;;
+  *) exit 0 ;;
+esac
+```
+
+### 重要な運用ポイント（次セッションでも継続）
+
+1. **production deploy は手動 Promote が必要**
+   - Vercel の Production Branch 設定が `main` のまま、開発は他ブランチで行っているため
+   - 大事な変更を本番反映したい時は uDUow の最新 deploy を Vercel UI から「Promote to Production」する
+   - 将来的には main マージ or Production Branch 切替 or カスタムドメイン設定で自動化したい
+
+2. **`.gitkeep` を消さない**
+   - 各ブランチで存在しないはずの `futarive-counselor/.gitkeep` / `futarive-admin/.gitkeep` は
+     Vercel の Root Directory check を通すための placeholder
+   - これを消すと D-1 で対応したエラーメール問題が再発する
+
+3. **DB Realtime publication 追加が必要なテーブル**
+   - 既追加: `slots`, `reservations`, `reviews`
+   - 今後追加するなら：`billing_events`（運営の即時表示用）, `agencies`（多店舗管理時）
+
+### ⚠️ ハマりポイント（次回回避用）
+
+1. **Vercel Ignored Build Step は Root Directory の中で実行される**
+   - そこから `[ -d futarive-counselor ]` などのチェックを書くと入れ子になり常に false
+   - Root Directory 存在の保証は .gitkeep で、IBS は許可ブランチ判定のみが正解
+
+2. **Promote to Production と main マージは別物**
+   - Promote しても git の main には何もマージされない（Vercel の production target に紐づくだけ）
+
+3. **iPhone Safari の Web Notifications は PWA 化必須**
+   - K-5 のブラウザ通知は当面 desktop / Android Chrome 想定
+
+4. **Supabase Realtime はテーブル単位で publication 追加が必要**
+   - クライアント側の `supabase.channel(...).subscribe()` だけでは動かない
+   - `ALTER PUBLICATION supabase_realtime ADD TABLE <name>` が必要
+
+### 残タスク（次セッション候補）
+
+| ID | 内容 | 規模 |
+|---|---|---|
+| **G-1** | 診断結果ページ「すべて見る」を `?type={typeId}` フィルター付きに | 小（既対応の可能性あり・要確認） |
+| **F-1 / F-2 / F-3** | モックデータ（AGENCIES / COUNSELORS / places / shops）を Supabase 化 | 大 |
+| **I-1 / I-2** | GA4 連携（docs 準備済み） | 大 |
+| **K-1 続編（profile）** | profile ページもオーナー切替可能に | 中〜大（RLS 拡張要・本人が保留判断） |
+| iPhone PWA 化 | K-5 のブラウザ通知を iPhone Safari でも動かす | 中 |
+| main マージ運用整備 | Production Branch を切替 or main へのマージフロー確立 | 中 |
+| 名前不整合解消 | `/counselors/[id]/page.tsx` の hardcoded counselors と `src/lib/data.ts` COUNSELORS の名前統一（F-1 と同時にやれる） | 小〜中 |
 
 ### 次セッションの開始時にやること
 
-1. **このメモを読む**（TODO.md + CLAUDE.md 末尾の「2026-05-21 引き継ぎ」セクション）
-2. **動作確認**が完了しているか聞く（J-1 / 口コミ URL / K-1 reel）
-3. うまく動いていなかったら個別に修正
-4. うまく動いていたら、次の優先タスクをふうかさんに聞く（候補は下記）
+1. **このメモを読む**（TODO.md 末尾 + CLAUDE.md の対応セクション）
+2. **動作確認**が完了したかふうかさんに聞く（実機テストが残っているもの）
+3. その後、上記候補から優先タスクをふうかさんに確認して進める
 
-### 次の優先候補（ふうかさんに確認して進める）
-
-| 候補 | 内容 | 規模 |
-|---|---|---|
-| **K-1 続編（profile）** | profile ページもオーナー切替可能に | 中〜大（RLS 拡張要） |
-| **K-2** | Supabase Realtime（カレンダー同期） | 中 |
-| **K-3** | カレンダー画面から booked スロットの予約者情報表示 | 小〜中 |
-| **K-4** | プロフィール写真トリミング | 中 |
-| **K-5** | ブラウザ通知（新規予約・新規口コミ） | 中 |
-| **E-1 / E-2** | マイページの Supabase Auth 連携（診断履歴表示等） | 大 |
-| **F-1 / F-2 / F-3** | モックデータ（agencies / counselors / shops）の Supabase 化 | 大 |
-| **G-1** | 診断結果ページ「すべて見る」を `?type={typeId}` フィルター付きに | 小 |
-| **H-1** | カウンセラー詳細ページのキャンセルポリシーフォールバック | 小 |
-| **I-1 / I-2** | GA4 連携（docs 準備済み） | 大 |
-| **D-1** | futarive-counselor のエラーメール根本対応 | 小〜中 |
-
-ふうかさんは「精度低下が気になる」と感じていたので、**1つのタスクに集中して終わらせてから次へ**を意識する。複数タスクを並行しすぎない。
+ふうかさんから「1タスクに集中して終わらせてから次へ」というスタイル指針あり。複数並行しない。
