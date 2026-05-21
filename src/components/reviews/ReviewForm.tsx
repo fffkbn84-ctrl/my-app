@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Fragment } from "react";
+import { useState } from "react";
 import type { ReviewToken, ReviewCategoryRatings } from "@/types/review";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { isUuid } from "@/lib/reservations";
@@ -46,13 +46,13 @@ function formatDate(dateStr: string) {
 }
 
 /* ────────────────────────────────────────────────────────────
-   SVGスター（カテゴリ評価用）
+   SVGスター（総合 / カテゴリ評価共通）
 ──────────────────────────────────────────────────────────── */
-function StarIcon({ filled }: { filled: boolean }) {
+function StarIcon({ filled, size = 20 }: { filled: boolean; size?: number }) {
   return (
     <svg
-      width="20"
-      height="20"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill={filled ? "var(--accent)" : "none"}
       stroke={filled ? "var(--accent)" : "var(--light)"}
@@ -273,10 +273,7 @@ export default function ReviewForm({
       </div>
 
       {/* ──────────────────────────────────────────────
-          ① 総合評価（CSS-only 星）
-          DOM順序: input5,label5,input4,label4,...,input1,label1
-          flex-direction:row-reverse で視覚上 1→2→3→4→5 に並ぶ
-          input:checked ~ label で選択した星以降（DOM後方＝視覚上左）を塗りつぶす
+          ① 総合評価（SVG ボタン・大きめ）
       ────────────────────────────────────────────── */}
       <div style={{ marginBottom: 32 }}>
         <label
@@ -291,22 +288,46 @@ export default function ReviewForm({
           <span style={{ color: "var(--rose)", marginLeft: 4 }}>*</span>
         </label>
 
-        <div className="star-input">
-          {[5, 4, 3, 2, 1].map((star) => (
-            <Fragment key={star}>
-              <input
-                type="radio"
-                id={`overall-star-${star}`}
-                name="overall-rating"
-                value={star}
-                onChange={() => setOverallRating(star)}
-              />
-              <label htmlFor={`overall-star-${star}`} title={`${star}点`}>
-                ★
-              </label>
-            </Fragment>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 6,
+          }}
+        >
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setOverallRating(star)}
+              style={{
+                background: "none",
+                border: "none",
+                padding: 6,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                WebkitTapHighlightColor: "transparent",
+              }}
+              aria-label={`総合評価 ${star}点`}
+            >
+              <StarIcon size={40} filled={star <= overallRating} />
+            </button>
           ))}
         </div>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: 11,
+            color: "var(--muted)",
+            marginTop: 6,
+            minHeight: 14,
+          }}
+        >
+          {overallRating > 0 ? `${overallRating} / 5` : "タップして評価"}
+        </p>
       </div>
 
       {/* ──────────────────────────────────────────────
@@ -323,14 +344,14 @@ export default function ReviewForm({
         >
           項目別評価
         </label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {CATEGORY_ITEMS.map(({ key, label }) => (
             <div
               key={key}
               style={{
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                flexDirection: "column",
+                gap: 6,
               }}
             >
               <span style={{ fontSize: 13, color: "var(--ink)" }}>{label}</span>
@@ -343,17 +364,16 @@ export default function ReviewForm({
                     style={{
                       background: "none",
                       border: "none",
-                      padding: 0,
+                      padding: 4,
                       cursor: "pointer",
-                      width: 24,
-                      height: 24,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      WebkitTapHighlightColor: "transparent",
                     }}
                     aria-label={`${label} ${star}点`}
                   >
-                    <StarIcon filled={star <= categoryRatings[key]} />
+                    <StarIcon size={28} filled={star <= categoryRatings[key]} />
                   </button>
                 ))}
               </div>
