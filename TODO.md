@@ -64,8 +64,14 @@
 
 ### E. 認証・ログイン後対応
 
-- [ ] **E-1** マイページ：ログイン後に `diagnosis_results` から診断履歴を取得して表示（CLAUDE.md 1165）
-- [ ] **E-2** 診断結果ページの「あとから見返したい人はこちら」遷移先を `/mypage/register` 等に変更（CLAUDE.md 1213）
+- [x] **E-1** マイページ：ログイン後に `diagnosis_results` から診断履歴を取得して表示（2026-05-21）
+  - `src/app/mypage/DiagnosisTypeHistorySection.tsx`（397 行・Kinda type 履歴）
+  - `src/app/mypage/NoteHistorySection.tsx`（451 行・Kinda note 履歴・天気予報風横スクロール）
+  - 両方とも `useAuth()` + Supabase `diagnosis_results` 読み取りで実装済み
+- [x] **E-2** 診断結果ページの「あとから見返したい人はこちら」（2026-05-21）
+  - 遷移先は `/mypage` のまま据え置き（未ログイン時 AuthCard で登録/ログインを促す）
+  - 古い TODO コメントを `src/app/kinda-type/result/page.tsx` から削除
+  - 当初想定の `/mypage/register` 専用ページは作らない方針
 
 ### F. データ統合（モック → Supabase）
 
