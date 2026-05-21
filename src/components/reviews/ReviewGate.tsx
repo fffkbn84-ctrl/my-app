@@ -19,9 +19,9 @@ const MOCK_TOKENS: Record<string, ReviewToken> = {
   },
   "TKN-2026-DEMO2": {
     token: "TKN-2026-DEMO2",
-    counselorId: "2",
-    counselorName: "佐藤 あかり",
-    agencyName: "マリーナ結婚相談所",
+    counselorId: "3",
+    counselorName: "佐藤 綾乃",
+    agencyName: "リーガルウェディング",
     meetingDate: "2026-03-15",
     expiresAt: "2099-01-01T00:00:00Z",
     used: false,

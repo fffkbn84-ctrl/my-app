@@ -70,31 +70,6 @@ export const episodesData: Episode[] = [
     sympathyCount: 47,
   },
   {
-    id: "2",
-    agencyName: "シンプリーマリッジ",
-    agencyId: 3,
-    counselorName: "鈴木 麻衣",
-    counselorId: 4,
-    period: "6ヶ月で成婚",
-    year: "2024年9月",
-    title: "「再婚への偏見がなかったカウンセラーさんに出会えて、本当によかった」",
-    excerpt:
-      "再婚を考えていたMさん。「偏見を持たれるかも」という不安を抱えながらも、口コミを見て予約を決意。6ヶ月で成婚。",
-    coupleLabel: "M さん（39）× K さん（41）",
-    thumbVariant: "cool",
-    gradient: "linear-gradient(135deg,#D4DDE8,#C0CCDA)",
-    person1: { initial: "M", age: 39, color: "#9B7AB5" },
-    person2: { initial: "K", age: 41, color: "#6B8FBF" },
-    story: [
-      "Mさんは一度目の結婚を経験した後、「再婚希望というだけで難しい顔をされるのでは」という不安から婚活を踏み出せずにいました。",
-      "Kinda ふたりへで鈴木カウンセラーの口コミに「再婚の方に寄り添ってくれた」という声を見つけ、予約を決意。初回面談で「再婚は全く問題ない」と言われた瞬間、肩の荷が降りた気がしたといいます。",
-    ],
-    quote:
-      "「最初の面談で『再婚だから難しい』ではなく『あなたの希望を聞かせてください』と言われた。その一言で、この人に任せようと思いました。」",
-    tags: ["再婚", "40代", "関西エリア", "6ヶ月で成婚"],
-    sympathyCount: 31,
-  },
-  {
     id: "3",
     agencyName: "コトブキ相談センター",
     agencyId: 5,
