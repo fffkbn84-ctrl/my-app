@@ -310,3 +310,95 @@ GRANT EXECUTE ON FUNCTION resolve_billing_dispute(UUID, TEXT, TEXT) TO authentic
 -- 1. admin_users テーブルが未作成の場合は admin 系ポリシー / RPC がエラー。先に作成すること
 -- 2. pg_cron は Supabase Dashboard > Database > Extensions で事前に有効化
 -- 3. 冪等。再実行しても既存データ・job は破壊しない
+
+-- ===========================================================================
+-- 追加: J-3 支払いステータス管理（2026-05-21）
+-- ===========================================================================
+ALTER TABLE billing_events
+  ADD COLUMN IF NOT EXISTS paid_at        TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS invoice_number TEXT,
+  ADD COLUMN IF NOT EXISTS payment_method TEXT CHECK (payment_method IN ('bank_transfer','card','other')),
+  ADD COLUMN IF NOT EXISTS payment_note   TEXT,
+  ADD COLUMN IF NOT EXISTS marked_paid_by UUID REFERENCES auth.users(id);
+
+CREATE INDEX IF NOT EXISTS idx_billing_events_paid_at        ON billing_events(paid_at);
+CREATE INDEX IF NOT EXISTS idx_billing_events_invoice_number ON billing_events(invoice_number);
+CREATE INDEX IF NOT EXISTS idx_billing_events_unpaid         ON billing_events(agency_id, confirmed_at) WHERE status = 'confirmed' AND paid_at IS NULL;
+
+-- RPC: 単一 event の支払い確認（admin のみ）
+CREATE OR REPLACE FUNCTION mark_billing_paid(
+  p_event_id        UUID,
+  p_invoice_number  TEXT,
+  p_payment_method  TEXT,
+  p_payment_note    TEXT DEFAULT NULL
+) RETURNS billing_events LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE
+  v_event billing_events;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM admin_users u WHERE u.id = auth.uid() AND u.role = 'admin') THEN
+    RAISE EXCEPTION 'not authorized: admin only';
+  END IF;
+  IF p_payment_method NOT IN ('bank_transfer','card','other') THEN
+    RAISE EXCEPTION 'invalid payment_method';
+  END IF;
+
+  UPDATE billing_events
+    SET paid_at        = COALESCE(paid_at, now()),
+        invoice_number = p_invoice_number,
+        payment_method = p_payment_method,
+        payment_note   = p_payment_note,
+        marked_paid_by = auth.uid()
+    WHERE id = p_event_id AND status = 'confirmed'
+    RETURNING * INTO v_event;
+  IF NOT FOUND THEN RAISE EXCEPTION 'billing_event not found or not in confirmed state'; END IF;
+  RETURN v_event;
+END $$;
+GRANT EXECUTE ON FUNCTION mark_billing_paid(UUID, TEXT, TEXT, TEXT) TO authenticated;
+
+-- RPC: agency × invoice_number で一括支払い確認
+CREATE OR REPLACE FUNCTION mark_invoice_paid(
+  p_agency_id       UUID,
+  p_invoice_number  TEXT,
+  p_payment_method  TEXT,
+  p_payment_note    TEXT DEFAULT NULL
+) RETURNS INTEGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE v_count INTEGER;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM admin_users u WHERE u.id = auth.uid() AND u.role = 'admin') THEN
+    RAISE EXCEPTION 'not authorized: admin only';
+  END IF;
+  IF p_payment_method NOT IN ('bank_transfer','card','other') THEN
+    RAISE EXCEPTION 'invalid payment_method';
+  END IF;
+  UPDATE billing_events
+    SET paid_at = COALESCE(paid_at, now()),
+        invoice_number = p_invoice_number,
+        payment_method = p_payment_method,
+        payment_note = p_payment_note,
+        marked_paid_by = auth.uid()
+    WHERE agency_id = p_agency_id AND invoice_number = p_invoice_number
+      AND status = 'confirmed' AND paid_at IS NULL;
+  GET DIAGNOSTICS v_count = ROW_COUNT;
+  RETURN v_count;
+END $$;
+GRANT EXECUTE ON FUNCTION mark_invoice_paid(UUID, TEXT, TEXT, TEXT) TO authenticated;
+
+-- RPC: 支払い済みを取り消す（誤操作救済）
+CREATE OR REPLACE FUNCTION unmark_billing_paid(p_event_id UUID)
+RETURNS billing_events LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE v_event billing_events;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM admin_users u WHERE u.id = auth.uid() AND u.role = 'admin') THEN
+    RAISE EXCEPTION 'not authorized: admin only';
+  END IF;
+  UPDATE billing_events
+    SET paid_at = NULL, payment_method = NULL, payment_note = NULL, marked_paid_by = NULL
+    WHERE id = p_event_id
+    RETURNING * INTO v_event;
+  IF NOT FOUND THEN RAISE EXCEPTION 'billing_event not found'; END IF;
+  RETURN v_event;
+END $$;
+GRANT EXECUTE ON FUNCTION unmark_billing_paid(UUID) TO authenticated;
