@@ -119,16 +119,32 @@ export default function BillingPage() {
   return (
     <div style={{ padding: '28px 24px', maxWidth: 980, paddingBottom: 80 }}>
       <div className="eyebrow" style={{ marginBottom: 8 }}>BILLING</div>
-      <h1 className="page-title">課金履歴</h1>
-      <p style={{ fontSize: 13, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
-        予約成立から24時間以内のユーザー取消は無料です。それ以降の取消・当日キャンセル・no-show は確定（請求対象）となります。
-      </p>
+      <h1 className="page-title">Kinda 請求履歴</h1>
+
+      <div style={{
+        marginTop: 14,
+        marginBottom: 18,
+        padding: '14px 16px',
+        background: 'var(--card-warm, #F7F4EF)',
+        border: '1px solid var(--border)',
+        borderLeft: '3px solid var(--accent)',
+        borderRadius: 10,
+      }}>
+        <div style={{ fontSize: 13, color: 'var(--text-deep)', lineHeight: 1.7 }}>
+          Kinda は予約成立ごとに <strong>¥5,000 の集客代行費（送客料）</strong>をいただいています。
+          このページでは過去の請求履歴と保留中の見込み額を確認できます。
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
+          ※ 予約成立から24時間以内のユーザー取消は <strong>無料</strong>です。それ以降の取消・当日キャンセル・no-show は確定（請求対象）となります。
+          初期費用・月額費用は不要で、成果報酬のみ。
+        </div>
+      </div>
 
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: 12, marginTop: 20, marginBottom: 20,
+        gap: 12, marginBottom: 20,
       }}>
-        <SumCard label="今月の確定" value={yen(totals.confirmed)} accent />
+        <SumCard label="今月の確定請求額" value={yen(totals.confirmed)} accent />
         <SumCard label="保留中（見込み）" value={yen(totals.pending)} />
         <SumCard label="件数" value={`${rows.length}件`} />
       </div>
@@ -152,7 +168,7 @@ export default function BillingPage() {
 
       {filtered.length === 0 ? (
         <div className="kc-card" style={{ padding: 32, textAlign: 'center', color: 'var(--text-light)', fontSize: 13 }}>
-          該当する課金イベントはありません
+          該当する請求はありません
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
