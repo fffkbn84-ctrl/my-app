@@ -15,6 +15,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: '/inbox',
+    label: '受信トレイ',
+    icon: (active: boolean) => (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M3 11V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill={active ? 'var(--accent-pale)' : 'none'}/>
+        <path d="M3 11h4l1.2 2.4h3.6L13 11h4v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
     href: '/profile',
     label: 'プロフィール',
     icon: (active: boolean) => (
@@ -32,16 +42,6 @@ const NAV_ITEMS = [
         <rect x="2" y="2" width="16" height="16" rx="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
         <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.4"/>
         <circle cx="10" cy="10" r="1" fill="currentColor"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/calendar',
-    label: '予約枠',
-    icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <rect x="2" y="4" width="16" height="14" rx="2.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
-        <path d="M6 2v4M14 2v4M2 9h16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },

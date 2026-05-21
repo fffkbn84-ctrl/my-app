@@ -4,6 +4,18 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { logAuthEvent } from '@/lib/supabase/audit'
+import ThemeToggle from './ThemeToggle'
+
+const AGENCY_ITEM = {
+  href: '/agency',
+  label: '相談所プロフィール',
+  icon: (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M2 14V6l6-4 6 4v8" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      <path d="M6 14v-4h4v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  ),
+}
 
 const NAV_ITEMS = [
   {
@@ -15,6 +27,16 @@ const NAV_ITEMS = [
         <rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
         <rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
         <rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/inbox',
+    label: '受信トレイ',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <path d="M2 9h3l1 2h4l1-2h3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
       </svg>
     ),
   },
@@ -56,6 +78,17 @@ const NAV_ITEMS = [
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H6l-3 2v-2H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.4"/>
         <path d="M5 6h6M5 9h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/billing',
+    label: 'Kinda 請求履歴',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M1.5 6.5h13" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M4 10h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
@@ -107,7 +140,7 @@ export default function Sidebar() {
           <div className="eyebrow" style={{ fontSize: '9px', padding: '0 12px', marginBottom: 8 }}>
             MENU
           </div>
-          {NAV_ITEMS.map(item => (
+          {[...NAV_ITEMS, AGENCY_ITEM].map(item => (
             <Link
               key={item.href}
               href={item.href}
@@ -122,6 +155,9 @@ export default function Sidebar() {
 
       {/* フッター */}
       <div className="kc-sidebar-footer">
+        <div style={{ padding: '0 12px 8px' }}>
+          <ThemeToggle />
+        </div>
         <button onClick={handleLogout} className="kc-nav-item" style={{ width: '100%' }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>

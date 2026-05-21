@@ -8,9 +8,13 @@ interface MonthGridProps {
   slots: Slot[]
   selectedDate: string | null
   onSelectDate: (date: string) => void
+  closedWeekdays?: number[] | null  // 0=Sun..6=Sat
+  /** 質問付き未返信予約がある日付（YYYY-MM-DD ローカルTZ）。バッジ表示用 */
+  needsReplyDates?: Set<string>
 }
 
-export default function MonthGrid({ year, month, slots, selectedDate, onSelectDate }: MonthGridProps) {
+export default function MonthGrid({ year, month, slots, selectedDate, onSelectDate, closedWeekdays, needsReplyDates }: MonthGridProps) {
+  const closedSet = new Set(closedWeekdays ?? [])
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -19,10 +23,11 @@ export default function MonthGrid({ year, month, slots, selectedDate, onSelectDa
   const startDow = firstDay.getDay() // 0=Sun
   const daysInMonth = lastDay.getDate()
 
-  // スロットを日付でグループ化
+  // スロットを日付でグループ化（ローカルタイムゾーンの日付で）
   const slotsByDate: Record<string, { open: number; booked: number; locked: number }> = {}
   slots.forEach(s => {
-    const d = s.start_time.slice(0, 10)
+    const dt = new Date(s.start_at)
+    const d = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
     if (!slotsByDate[d]) slotsByDate[d] = { open: 0, booked: 0, locked: 0 }
     slotsByDate[d][s.status]++
   })
@@ -63,19 +68,51 @@ export default function MonthGrid({ year, month, slots, selectedDate, onSelectDa
           const isSelected = dateStr === selectedDate
           const dotData = slotsByDate[dateStr]
           const dow = cellDate.getDay()
+          const isClosed = closedSet.has(dow)
+          const hasUnreadQuestion = needsReplyDates?.has(dateStr) ?? false
 
           return (
             <div
               key={dateStr}
-              className={`cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}`}
+              className={`cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}${isClosed ? ' closed' : ''}`}
               onClick={() => onSelectDate(dateStr)}
+              title={isClosed ? '定休日' : hasUnreadQuestion ? '予約者からの未返信の質問があります' : undefined}
+              style={{ position: 'relative' }}
             >
               <span className="cal-day-num" style={{
                 color: dow === 0 ? 'var(--danger)' : dow === 6 ? 'var(--accent)' : undefined,
                 fontWeight: isToday ? 700 : undefined,
+                opacity: isClosed ? .4 : 1,
               }}>
                 {day}
               </span>
+              {/* 質問付き未返信予約のバッジ — 右上に赤丸 + ! */}
+              {hasUnreadQuestion && (
+                <span
+                  aria-label="未返信の質問あり"
+                  style={{
+                    position: 'absolute',
+                    top: 3,
+                    right: 3,
+                    minWidth: 14,
+                    height: 14,
+                    padding: '0 3px',
+                    borderRadius: 7,
+                    background: 'var(--danger)',
+                    color: 'white',
+                    fontSize: 9,
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    lineHeight: 1,
+                    boxShadow: '0 1px 3px rgba(192,122,110,.4)',
+                    fontFamily: 'DM Sans, sans-serif',
+                  }}
+                >
+                  ?
+                </span>
+              )}
               {dotData && (
                 <div className="cal-dots">
                   {dotData.open > 0 && <div className="cal-dot cal-dot-open" />}
