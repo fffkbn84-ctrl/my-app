@@ -3,7 +3,7 @@
 --
 -- ビジネスモデル:
 --   ユーザー → 相談所 : 面談料 0円（無料面談）
---   相談所 → Kinda   : 予約成立で 10,000円（集客代行費）
+--   相談所 → Kinda   : 予約成立で 5,000円（送客料・成果報酬）
 --
 -- 課金判定ルール（全相談所共通・プラットフォーム規約として固定）:
 --   - 予約成立で billing_events を pending 作成
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS billing_events (
   reservation_id    UUID NOT NULL UNIQUE REFERENCES reservations(id) ON DELETE RESTRICT,
   agency_id         UUID NOT NULL REFERENCES agencies(id) ON DELETE RESTRICT,
   counselor_id      UUID REFERENCES counselors(id) ON DELETE SET NULL,
-  amount_jpy        INTEGER NOT NULL DEFAULT 10000,
+  amount_jpy        INTEGER NOT NULL DEFAULT 5000,
   status            TEXT    NOT NULL DEFAULT 'pending'
                     CHECK (status IN ('pending','confirmed','voided','disputed')),
   grace_until       TIMESTAMPTZ NOT NULL,
@@ -98,7 +98,7 @@ BEGIN
     grace_until, reservation_at
   ) VALUES (
     NEW.id, v_agency_id, NEW.counselor_id,
-    10000, 'pending',
+    5000, 'pending',
     now() + interval '24 hours',
     COALESCE(v_reservation_at, now() + interval '24 hours')
   );

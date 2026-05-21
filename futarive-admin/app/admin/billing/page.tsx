@@ -30,6 +30,9 @@ type Row = BillingEventRow & {
   agency_name: string
   counselor_name: string
   user_name: string
+  user_note: string | null
+  agency_message: string | null
+  agency_message_at: string | null
 }
 
 const STATUS_LABEL: Record<BillingStatus, string> = {
@@ -73,15 +76,26 @@ export default function AdminBillingPage() {
     const supabase = createClient()
     const { data } = await supabase
       .from('billing_events')
-      .select('*, agencies(name), counselors(name), reservations(user_name)')
+      .select('*, agencies(name), counselors(name), reservations(user_name, notes, agency_message, agency_message_at)')
       .order('created_at', { ascending: false })
 
-    const mapped: Row[] = (data ?? []).map((r: Record<string, unknown>) => ({
-      ...(r as unknown as BillingEventRow),
-      agency_name: (r.agencies as { name?: string } | null)?.name ?? '—',
-      counselor_name: (r.counselors as { name?: string } | null)?.name ?? '—',
-      user_name: (r.reservations as { user_name?: string } | null)?.user_name ?? '—',
-    }))
+    const mapped: Row[] = (data ?? []).map((r: Record<string, unknown>) => {
+      const reservation = r.reservations as {
+        user_name?: string
+        notes?: string | null
+        agency_message?: string | null
+        agency_message_at?: string | null
+      } | null
+      return {
+        ...(r as unknown as BillingEventRow),
+        agency_name: (r.agencies as { name?: string } | null)?.name ?? '—',
+        counselor_name: (r.counselors as { name?: string } | null)?.name ?? '—',
+        user_name: reservation?.user_name ?? '—',
+        user_note: reservation?.notes ?? null,
+        agency_message: reservation?.agency_message ?? null,
+        agency_message_at: reservation?.agency_message_at ?? null,
+      }
+    })
     setRows(mapped)
     setLoading(false)
   }
@@ -263,16 +277,41 @@ export default function AdminBillingPage() {
 
       {resolving && (
         <div className="modal-overlay" onClick={() => setResolving(null)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="modal-title">異議の解決</div>
             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.7 }}>
-              {resolving.agency_name} / {resolving.counselor_name}<br />
-              面談予定: {fmt(resolving.reservation_at)}（{yen(resolving.amount_jpy)}）
+              <strong>{resolving.agency_name}</strong> / {resolving.counselor_name} / 利用者 {resolving.user_name}<br />
+              予約日: {fmt(resolving.created_at)} ・ 面談予定: {fmt(resolving.reservation_at)} ・ 異議申立: {fmt(resolving.dispute_at)}<br />
+              金額: <strong>{yen(resolving.amount_jpy)}</strong>
             </div>
-            <div style={{ background: 'var(--bg)', padding: '10px 12px', borderRadius: 6, fontSize: 12, marginBottom: 14 }}>
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>相談所側の異議内容:</div>
-              {resolving.dispute_note ?? '（なし）'}
+
+            <div style={{ background: 'var(--bg)', padding: '10px 12px', borderRadius: 6, fontSize: 12, marginBottom: 12 }}>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>相談所からの異議内容</div>
+              <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{resolving.dispute_note ?? '（なし）'}</div>
             </div>
+
+            {resolving.user_note && (
+              <div style={{ background: '#FDF8F0', borderLeft: '3px solid var(--accent)', padding: '10px 12px', borderRadius: 6, fontSize: 12, marginBottom: 12 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>利用者からの事前メッセージ</div>
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{resolving.user_note}</div>
+              </div>
+            )}
+
+            {resolving.agency_message ? (
+              <div style={{ background: '#F0F4F8', borderLeft: '3px solid #6B8FBF', padding: '10px 12px', borderRadius: 6, fontSize: 12, marginBottom: 14 }}>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>
+                  相談所からの最後のメッセージ
+                  {resolving.agency_message_at && (
+                    <span style={{ fontWeight: 400, color: 'var(--muted)', marginLeft: 6 }}>（{fmt(resolving.agency_message_at)}）</span>
+                  )}
+                </div>
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{resolving.agency_message}</div>
+              </div>
+            ) : (
+              <div style={{ background: '#FEF3E2', padding: '8px 12px', borderRadius: 6, fontSize: 11, color: '#C2410C', marginBottom: 14 }}>
+                ⚠ 相談所からの連絡記録がありません
+              </div>
+            )}
 
             <label className="form-label">判定</label>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>

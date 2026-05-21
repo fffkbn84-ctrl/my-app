@@ -86,14 +86,33 @@ export async function POST(req: NextRequest) {
     event.counselor_id
       ? supabase.from('counselors').select('name').eq('id', event.counselor_id).maybeSingle()
       : Promise.resolve({ data: null }),
-    supabase.from('reservations').select('user_name, start_at').eq('id', event.reservation_id).maybeSingle(),
+    supabase.from('reservations')
+      .select('user_name, start_at, created_at, notes, agency_message, agency_message_at')
+      .eq('id', event.reservation_id).maybeSingle(),
   ])
 
   const agencyName = (agencyRes.data as { name?: string } | null)?.name ?? '—'
   const counselorName = (counselorRes.data as { name?: string } | null)?.name ?? '（指名なし）'
-  const userName = (reservationRes.data as { user_name?: string } | null)?.user_name ?? '—'
-  const startAt = (reservationRes.data as { start_at?: string } | null)?.start_at
+  const reservation = reservationRes.data as {
+    user_name?: string
+    start_at?: string
+    created_at?: string
+    notes?: string | null
+    agency_message?: string | null
+    agency_message_at?: string | null
+  } | null
+
+  const userName = reservation?.user_name ?? '—'
+  const startAt = reservation?.start_at
   const reservationAt = startAt ? new Date(startAt).toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }) : '—'
+  const bookedAt = reservation?.created_at
+    ? new Date(reservation.created_at).toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }) : '—'
+  const disputedAt = event.dispute_at
+    ? new Date(event.dispute_at).toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }) : '—'
+  const userNote = reservation?.notes ?? null
+  const agencyMessage = reservation?.agency_message ?? null
+  const agencyMessageAt = reservation?.agency_message_at
+    ? new Date(reservation.agency_message_at).toLocaleString('ja-JP', { dateStyle: 'medium', timeStyle: 'short' }) : null
 
   // 5. メール送信
   if (!ADMIN_NOTIFY_EMAIL) {
@@ -105,6 +124,16 @@ export async function POST(req: NextRequest) {
     : 'https://futarive-admin-fffkbn84-4095s-projects.vercel.app/admin/billing'
 
   const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+  const userNoteBlock = userNote
+    ? `<h3 style="font-size: 14px; color: #1A1612; margin-top: 24px;">利用者からの事前メッセージ</h3>
+       <div style="background: #FDF8F0; padding: 14px 16px; border-radius: 8px; border-left: 3px solid #C8A97A; font-size: 13px; line-height: 1.7; white-space: pre-wrap;">${escape(userNote)}</div>`
+    : ''
+
+  const agencyMessageBlock = agencyMessage
+    ? `<h3 style="font-size: 14px; color: #1A1612; margin-top: 24px;">相談所からの最後のメッセージ${agencyMessageAt ? `（${agencyMessageAt}）` : ''}</h3>
+       <div style="background: #F0F4F8; padding: 14px 16px; border-radius: 8px; border-left: 3px solid #6B8FBF; font-size: 13px; line-height: 1.7; white-space: pre-wrap;">${escape(agencyMessage)}</div>`
+    : `<p style="font-size: 12px; color: #C2410C; margin-top: 16px; background: #FEF3E2; padding: 8px 12px; border-radius: 6px;">⚠ 相談所からの連絡記録がありません</p>`
 
   const result = await sendEmail({
     to: ADMIN_NOTIFY_EMAIL,
@@ -118,11 +147,15 @@ export async function POST(req: NextRequest) {
           <tr><td style="color: #8C8480; padding: 4px 0; width: 110px;">相談所</td><td>${escape(agencyName)}</td></tr>
           <tr><td style="color: #8C8480; padding: 4px 0;">カウンセラー</td><td>${escape(counselorName)}</td></tr>
           <tr><td style="color: #8C8480; padding: 4px 0;">利用者</td><td>${escape(userName)}</td></tr>
+          <tr><td style="color: #8C8480; padding: 4px 0;">予約日</td><td>${escape(bookedAt)}</td></tr>
           <tr><td style="color: #8C8480; padding: 4px 0;">面談予定</td><td>${escape(reservationAt)}</td></tr>
+          <tr><td style="color: #8C8480; padding: 4px 0;">異議申立日</td><td>${escape(disputedAt)}</td></tr>
           <tr><td style="color: #8C8480; padding: 4px 0;">金額</td><td><strong>¥${(event.amount_jpy ?? 0).toLocaleString('ja-JP')}</strong></td></tr>
         </table>
-        <h3 style="font-size: 14px; color: #1A1612; margin-top: 24px;">異議内容</h3>
+        <h3 style="font-size: 14px; color: #1A1612; margin-top: 24px;">相談所からの異議内容</h3>
         <div style="background: #F7F4EF; padding: 14px 16px; border-radius: 8px; font-size: 13px; line-height: 1.7; white-space: pre-wrap;">${escape(event.dispute_note ?? '（記載なし）')}</div>
+        ${userNoteBlock}
+        ${agencyMessageBlock}
         <p style="margin-top: 24px;">
           <a href="${adminBillingUrl}" style="display: inline-block; background: #A87C2A; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-size: 13px;">
             統括管理画面で確認・解決する
