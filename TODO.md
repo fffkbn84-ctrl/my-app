@@ -77,8 +77,17 @@
 ### J. 課金関連の発展
 
 - [ ] **J-1** 月次請求書 PDF 出力（agency 別）
-- [ ] **J-2** 異議申立てに対する自動通知（メール / プッシュ）
+- [x] **J-2** 異議申立てに対する自動通知（メール）（2026-05-21 完了）
+  - Resend 連携 + Supabase Database Webhook → Vercel Route Handler → メール送信
+  - メール内容に判定材料追加（予約日・異議申立日・利用者メッセージ・相談所メッセージ）
+  - 統括画面の解決モーダルにも同様の情報を表示
+  - **TODO**: main ブランチに merge する際、Supabase Webhook の URL を branch alias から
+    Production URL（`https://futarive-admin-fffkbn84-4095s-projects.vercel.app/...`）に戻す
+  - **TODO**: プッシュ通知は未着手（次フェーズ）
 - [ ] **J-3** 支払いステータス（`paid_at` カラム）と請求 ID の紐付け
+- [ ] **J-4** 送客料 ¥5,000 への変更を反映済み（2026-05-21）
+  - DB: `billing_events.amount_jpy` DEFAULT 5000
+  - migration ファイル（admin / counselor 両方）のコメントと固定値も同期
 
 ### K. futarive-counselor の機能拡張
 
@@ -97,6 +106,9 @@
 - [x] **B-1** コラム → Kinda voices（admin 側のみ・2026-05-20）
 - [x] **B-2** 成婚エピソード → Kinda story（admin 側のみ・2026-05-20）
 - [x] **C-1** カウンセラー側 Kinda type 編集 UI（2026-05-20）
+- [x] **J-2** 課金異議申立て自動メール通知（Resend + Supabase Webhook + Vercel Route Handler）（2026-05-21）
+- [x] 送客料 ¥10,000 → ¥5,000 への統一（DB + migration ファイル + UI 全箇所）（2026-05-21）
+- [x] counselor `/billing` 表記改善（Kinda 請求履歴 + 説明セクション追加）（2026-05-21）
 - [x] 課金イベント基盤（billing_events + RPC + RLS + pg_cron） — counselor / admin 両側（2026-05-20）
 - [x] futarive-admin TypeScript 型エラー修正（5 箇所）→ Vercel ビルド復活（2026-05-20）
 - [x] futarive-admin ダッシュボード再構成（要対応 + 今月のKPI）（2026-05-20）
