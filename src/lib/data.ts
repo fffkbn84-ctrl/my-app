@@ -217,7 +217,7 @@ export type Counselor = {
 export const AGENCIES: Agency[] = [
   {
     id: 1,
-    name: "ブライダルハウス東京",
+    name: "Atelier Mariage 銀座",
     area: "東京・銀座",
     type: ["仲人型", "IBJ加盟"],
     plans: [
@@ -256,7 +256,7 @@ export const AGENCIES: Agency[] = [
   },
   {
     id: 2,
-    name: "リーガルウェディング",
+    name: "Wedding Note 渋谷",
     area: "東京・渋谷",
     type: ["データ婚活", "IBJ加盟"],
     plans: [
@@ -292,7 +292,7 @@ export const AGENCIES: Agency[] = [
   },
   {
     id: 5,
-    name: "コトブキ相談センター",
+    name: "Marry Hub 新宿",
     area: "東京・新宿",
     type: ["オンライン専門"],
     plans: [
@@ -331,7 +331,7 @@ export const COUNSELORS: Counselor[] = [
     name: "田中 美紀",
     kana: "たなか みき",
     agencyId: 1,
-    agencyName: "ブライダルハウス東京",
+    agencyName: "Atelier Mariage 銀座",
     area: "東京・銀座",
     role: "シニアブライダルカウンセラー",
     experience: 11,
@@ -365,7 +365,7 @@ export const COUNSELORS: Counselor[] = [
     name: "山田 健太郎",
     kana: "やまだ けんたろう",
     agencyId: 1,
-    agencyName: "ブライダルハウス東京",
+    agencyName: "Atelier Mariage 銀座",
     area: "東京・銀座",
     role: "ブライダルカウンセラー",
     experience: 8,
@@ -398,7 +398,7 @@ export const COUNSELORS: Counselor[] = [
     name: "佐藤 綾乃",
     kana: "さとう あやの",
     agencyId: 2,
-    agencyName: "リーガルウェディング",
+    agencyName: "Wedding Note 渋谷",
     area: "東京・渋谷",
     role: "シニアブライダルカウンセラー",
     experience: 12,
@@ -431,7 +431,7 @@ export const COUNSELORS: Counselor[] = [
     name: "林 俊介",
     kana: "はやし しゅんすけ",
     agencyId: 5,
-    agencyName: "コトブキ相談センター",
+    agencyName: "Marry Hub 新宿",
     area: "東京・新宿",
     role: "ブライダルカウンセラー",
     experience: 4,
@@ -944,7 +944,7 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
    - 公開データ 0 件 or エラー時は mock fallback（既存パターン踏襲）
 ──────────────────────────────────────────────────────────── */
 export async function getShops(): Promise<PlaceHome[]> {
-  void places // 将来 /places/[id] 詳細ページから参照する想定（mock）
+  void places // /places/[id] 詳細用 mock（getShopById で fallback 参照）
 
   const { data, error } = await supabase
     .from('shops')
@@ -961,6 +961,45 @@ export async function getShops(): Promise<PlaceHome[]> {
   }
 
   return rows.map(mapShopRowToPlaceHome)
+}
+
+/* ────────────────────────────────────────────────────────────
+   お店詳細取得（/places/[id] 用）
+   F-3 (2026-05-21): /places/[id] が mock `places` の Number 型 ID で動いていた
+   ため、Kinda act リールから遷移すると別店舗が表示される不整合を解消。
+   Supabase shops (UUID) からの取得を有効化。
+
+   返却 shape は PlaceHome + 詳細表示用フィールド（hours/holiday/access/scenes）
+   を含む拡張型。reviews は別途 getReviewsByShop() で取得する想定（未実装）。
+──────────────────────────────────────────────────────────── */
+export type ShopDetail = PlaceHome & {
+  category: PlaceTabCategory
+  hours: string | null
+  holiday: string | null
+  access: string | null
+  scenes: string[] | null
+  address: string | null
+}
+
+export async function getShopById(id: string): Promise<ShopDetail | null> {
+  const res = await supabase
+    .from('shops')
+    .select('*')
+    .eq('id', id)
+    .eq('is_published', true)
+    .single()
+  const row = res.data as ShopRow | null
+  if (res.error || !row) return null
+
+  const base = mapShopRowToPlaceHome(row)
+  return {
+    ...base,
+    hours: row.hours,
+    holiday: row.holiday,
+    access: row.access,
+    scenes: row.scenes,
+    address: row.address,
+  }
 }
 
 // 口コミ取得（カウンセラー別）

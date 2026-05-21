@@ -4,18 +4,22 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import { placesHomeData } from "@/lib/mock/places-home";
+import { getShops } from "@/lib/data";
 import KindaActClient from "./KindaActClient";
 
 /**
- * Kinda act はお見合い・デートで使う「カフェ・レストラン」のみ。
- * 美容室・ネイル・眉毛・フォトスタジオは Kinda glow へ分離する想定。
+ * Kinda act はお見合い・デートで使う「食事系」のみ。
+ * Supabase の thumb_variant が cafe / lounge のお店を表示する。
+ * 美容室・ネイル・眉毛・エステ・フォトスタジオは Kinda glow へ分離。
  */
-const ACT_CATEGORY_LABELS = new Set(["カフェ", "レストラン"]);
+const ACT_THUMB_VARIANTS = new Set(["cafe", "lounge"]);
 
-export default function KindaActPage() {
-  // モックデータから act 対象カテゴリのみ抽出（Supabase 連携時は getPlaces({ scope: 'act' }) に差し替える）
-  const places = placesHomeData.filter((p) => ACT_CATEGORY_LABELS.has(p.categoryLabel));
+export default async function KindaActPage() {
+  // F-3 (2026-05-21): Supabase 経由に統一。
+  // 以前は placesHomeData (mock) を直接 filter していたため、
+  // Supabase 9 件構成と Kinda act 表示 10 件がズレていた。
+  const allPlaces = await getShops();
+  const places = allPlaces.filter((p) => ACT_THUMB_VARIANTS.has(p.thumbVariant));
 
   return (
     <div className="kt-page">

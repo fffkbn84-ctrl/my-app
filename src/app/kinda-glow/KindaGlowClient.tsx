@@ -310,8 +310,9 @@ export default function KindaGlowClient({ places }: Props) {
         </p>
       </div>
 
-      {/* グリッド */}
-      <div className="kt-reel-grid">
+      {/* グリッド — Kinda act と同じ kt-grid（2/3/4 列レスポンシブ）に統一 */}
+      <div className="kt-grid-wrap">
+        <div className="kt-grid">
         {filtered.length > 0 ? (
           filtered.map((place) => (
             <PlaceReelCard
@@ -333,6 +334,7 @@ export default function KindaGlowClient({ places }: Props) {
             条件に合うお店が見つかりませんでした。
           </div>
         )}
+        </div>
       </div>
 
       {/* モーダル */}

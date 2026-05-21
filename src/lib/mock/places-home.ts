@@ -36,7 +36,7 @@ export interface PlaceHome {
 export const placesHomeData: PlaceHome[] = [
   {
     id: "1",
-    name: "カフェ ソワレ",
+    name: "カフェ ノエル 表参道",
     category: "omiai",
     stage: "カフェ · お見合い",
     location: "東京・表参道",
@@ -66,7 +66,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "3",
-    name: "ヘアサロン ルーシュ",
+    name: "Hair Atelier Cieli",
     category: "beauty",
     stage: "美容室 · 婚活準備",
     location: "東京・南青山",
@@ -81,7 +81,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "4",
-    name: "スタジオ クラリス",
+    name: "フォトスタジオ Sereno",
     category: "photo",
     stage: "フォトスタジオ",
     location: "東京・代官山",
@@ -96,7 +96,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "5",
-    name: "THE STRINGS OMOTESANDO",
+    name: "Atelier Lumi 表参道",
     category: "omiai",
     stage: "レストラン · お見合い",
     location: "東京・表参道",
@@ -112,7 +112,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "6",
-    name: "茶寮 つぼ市",
+    name: "銀座 茶房 月光",
     category: "omiai",
     stage: "カフェ · お見合い",
     location: "東京・銀座",
@@ -128,7 +128,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "7",
-    name: "CICADA",
+    name: "TRATTORIA STELLA 南青山",
     category: "date",
     stage: "レストラン · デート",
     location: "東京・南青山",
@@ -144,7 +144,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "8",
-    name: "カフェ ド クリエ 丸の内店",
+    name: "カフェ ロワール 丸の内",
     category: "omiai",
     stage: "カフェ · お見合い前",
     location: "東京・丸の内",
@@ -160,7 +160,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "9",
-    name: "鉄板焼 青山 三谷",
+    name: "鉄板焼 青山 蒼月",
     category: "date",
     stage: "レストラン · 記念日",
     location: "東京・青山",
@@ -176,7 +176,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "10",
-    name: "HIGASHIYA GINZA",
+    name: "銀座 和菓子 月詠",
     category: "omiai",
     stage: "カフェ · お見合い",
     location: "東京・銀座",
@@ -192,7 +192,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "11",
-    name: "THE LOBBY at Park Hotel Tokyo",
+    name: "ラウンジ オーロラ 汐留",
     category: "date",
     stage: "ラウンジ · デート",
     location: "東京・汐留",
@@ -208,7 +208,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "12",
-    name: "麻布十番 更科堀井",
+    name: "麻布 そば処 ノルテ",
     category: "date",
     stage: "和食 · デート",
     location: "東京・麻布十番",
@@ -230,7 +230,7 @@ export const placesHomeData: PlaceHome[] = [
   ────────────────────────────────────────────────────────── */
   {
     id: "13",
-    name: "Salon Lumière",
+    name: "Salon Atelier Verde",
     category: "beauty",
     stage: "エステ",
     location: "東京・銀座",
@@ -246,7 +246,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "14",
-    name: "Aroma Spa Aqua",
+    name: "Aroma Spa Mirei",
     category: "beauty",
     stage: "エステ",
     location: "東京・恵比寿",
@@ -262,7 +262,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "15",
-    name: "Nail Atelier Soie",
+    name: "Nail Atelier Lunelle",
     category: "beauty",
     stage: "ネイルサロン",
     location: "東京・表参道",
@@ -278,7 +278,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "16",
-    name: "Beige Nail",
+    name: "Nail Studio Latte",
     category: "beauty",
     stage: "ネイルサロン",
     location: "大阪・梅田",
@@ -294,7 +294,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "17",
-    name: "Brow Studio Arché",
+    name: "Brow Atelier Aria",
     category: "beauty",
     stage: "眉毛サロン",
     location: "東京・原宿",
@@ -310,7 +310,7 @@ export const placesHomeData: PlaceHome[] = [
   },
   {
     id: "18",
-    name: "Eyebrow Salon Lien",
+    name: "Eyebrow Atelier Toni",
     category: "beauty",
     stage: "眉毛サロン",
     location: "名古屋・栄",

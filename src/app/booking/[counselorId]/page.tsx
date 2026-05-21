@@ -11,10 +11,10 @@ import { isUuid } from "@/lib/reservations";
 export const revalidate = 60;
 
 const counselors: Record<string, { name: string; agency: string }> = {
-  "1": { name: "田中 美紀", agency: "ブライダルハウス東京" },
-  "2": { name: "山田 健太郎", agency: "ブライダルハウス東京" },
-  "3": { name: "佐藤 綾乃", agency: "リーガルウェディング" },
-  "6": { name: "林 俊介", agency: "コトブキ相談センター" },
+  "1": { name: "田中 美紀", agency: "Atelier Mariage 銀座" },
+  "2": { name: "山田 健太郎", agency: "Atelier Mariage 銀座" },
+  "3": { name: "佐藤 綾乃", agency: "Wedding Note 渋谷" },
+  "6": { name: "林 俊介", agency: "Marry Hub 新宿" },
 };
 
 export default async function BookingPage({

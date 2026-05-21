@@ -33,7 +33,7 @@ export type Place = {
 export const places: Place[] = [
   {
     id: 1,
-    name: "カフェ ソワレ",
+    name: "カフェ ノエル 表参道",
     category: "カフェ",
     stage: "お見合い",
     area: "東京・表参道",
@@ -56,7 +56,7 @@ export const places: Place[] = [
   },
   {
     id: 2,
-    name: "ヘアサロン ルーシュ",
+    name: "Hair Atelier Cieli",
     category: "美容室",
     stage: "婚活準備",
     area: "東京・南青山",
@@ -77,7 +77,7 @@ export const places: Place[] = [
   },
   {
     id: 3,
-    name: "ネイル ブルーム",
+    name: "Nail Vento",
     category: "ネイルサロン",
     stage: "婚活準備",
     area: "東京・恵比寿",
@@ -98,7 +98,7 @@ export const places: Place[] = [
   },
   {
     id: 4,
-    name: "Arch eyebrow studio",
+    name: "Arc Brow Atelier",
     category: "眉毛サロン",
     stage: "婚活準備",
     area: "大阪・北堀江",
@@ -119,7 +119,7 @@ export const places: Place[] = [
   },
   {
     id: 5,
-    name: "スタジオ クラリス",
+    name: "フォトスタジオ Sereno",
     category: "フォトスタジオ",
     stage: "婚活準備",
     area: "東京・代官山",
@@ -140,7 +140,7 @@ export const places: Place[] = [
   },
   {
     id: 6,
-    name: "リストランテ イル フィオーレ",
+    name: "リストランテ Bella Notte",
     category: "レストラン",
     stage: "記念日",
     area: "東京・広尾",

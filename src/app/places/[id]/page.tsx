@@ -9,8 +9,63 @@ import {
   PlacePriceTooltipContent,
   PlaceHoursTooltipContent,
 } from "@/lib/policyMessages";
-import { places } from "@/lib/mock/places";
-import type { Place } from "@/lib/mock/places";
+import { getShopById, type ShopDetail } from "@/lib/data";
+import type { PlaceReview, Place } from "@/lib/mock/places";
+
+/* ────────────────────────────────────────────────────────────
+   Supabase ShopDetail → Place 型互換オブジェクトに変換
+   F-3 (2026-05-21): mock places.ts を廃止し Supabase 一本化したが、
+   既存 UI コンポーネントが Place 型に依存しているため
+   shape adapter として変換する。
+──────────────────────────────────────────────────────────── */
+const THUMB_VARIANT_GRADIENTS: Record<string, string> = {
+  cafe: "linear-gradient(135deg,#F5E8D8,#EDD8C0)",
+  lounge: "linear-gradient(135deg,#E8E0D4,#D8CCB8)",
+  hair: "linear-gradient(135deg,#E8DCEA,#D4C0DC)",
+  nail: "linear-gradient(135deg,#FCE8E5,#F0D0CC)",
+  brow: "linear-gradient(135deg,#F0E5D6,#E0D0BC)",
+  "photo-studio": "linear-gradient(135deg,#E8F0EC,#C8E0D4)",
+  esthetic: "linear-gradient(135deg,#F4E5E1,#E8C8C5)",
+};
+const THUMB_VARIANT_SVG_COLORS: Record<string, string> = {
+  cafe: "#C8A97A",
+  lounge: "#9B8772",
+  hair: "#9B7AB5",
+  nail: "#C89090",
+  brow: "#B0A090",
+  "photo-studio": "#7AC8A9",
+  esthetic: "#C49890",
+};
+
+function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[] } {
+  return {
+    // Supabase の id は UUID 文字列だが、Place 型は number。
+    // UI 側で id は文字列比較しないので、表示用に Number 変換を避けて 0 を入れる。
+    // /places/[id] への URL は string UUID として動く（Next.js の [id] route）。
+    id: 0,
+    name: shop.name,
+    category: shop.categoryLabel || "カフェ",
+    stage: shop.stage,
+    area: shop.location,
+    badge: shop.badgeType,
+    gradient:
+      THUMB_VARIANT_GRADIENTS[shop.thumbVariant] ?? THUMB_VARIANT_GRADIENTS.cafe,
+    svgColor:
+      THUMB_VARIANT_SVG_COLORS[shop.thumbVariant] ?? THUMB_VARIANT_SVG_COLORS.cafe,
+    rating: shop.rating,
+    reviewCount: shop.reviewCount,
+    priceRange: shop.priceRange ?? "-",
+    hours: shop.hours ?? "営業時間はお店にお問合せください",
+    holiday: shop.holiday ?? "-",
+    access: shop.access ?? "-",
+    description: shop.description,
+    features: shop.features,
+    scenes: shop.scenes ?? [],
+    // Supabase shop_reviews テーブル未実装のため空配列を返す。
+    // 将来的に shop_reviews を作る or reviews テーブルに place_id 追加で対応。
+    reviews: [],
+  };
+}
 
 /* ────────────────────────────────────────────────────────────
    サブコンポーネント
@@ -140,8 +195,11 @@ export default async function PlaceDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const place = places.find((p) => p.id === Number(id));
-  if (!place) notFound();
+
+  // F-3 (2026-05-21): Supabase shops 一本化。mock places.ts は廃止。
+  const shop = await getShopById(id);
+  if (!shop) notFound();
+  const place = buildPlaceFromShop(shop);
 
   const avgRating =
     place.reviews.length > 0

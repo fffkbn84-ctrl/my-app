@@ -5,7 +5,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import { placesHomeData } from "@/lib/mock/places-home";
+import { getShops } from "@/lib/data";
 import KindaGlowClient from "./KindaGlowClient";
 
 const SITE_URL =
@@ -36,17 +36,15 @@ export const metadata: Metadata = {
 /**
  * Kinda glow は「好きな人に会う前に、自分を整える」ための場所。
  * 美容室・フォトスタジオ・ネイル・眉毛・エステの 5 カテゴリ。
+ * Supabase の thumb_variant が hair / nail / brow / esthetic / photo-studio を表示。
  */
-const GLOW_CATEGORY_LABELS = new Set([
-  "美容室",
-  "フォトスタジオ",
-  "ネイルサロン",
-  "眉毛サロン",
-  "エステ",
-]);
+const GLOW_THUMB_VARIANTS = new Set(["hair", "nail", "brow", "esthetic", "photo-studio"]);
 
-export default function KindaGlowPage() {
-  const places = placesHomeData.filter((p) => GLOW_CATEGORY_LABELS.has(p.categoryLabel));
+export default async function KindaGlowPage() {
+  // F-3 (2026-05-21): Supabase 経由に統一。
+  // 旧 placesHomeData (mock) → getShops() に切替。
+  const allPlaces = await getShops();
+  const places = allPlaces.filter((p) => GLOW_THUMB_VARIANTS.has(p.thumbVariant));
 
   return (
     <div className="kt-page" data-section="glow">

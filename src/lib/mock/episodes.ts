@@ -44,7 +44,7 @@ export interface Episode {
 export const episodesData: Episode[] = [
   {
     id: "1",
-    agencyName: "ブライダルハウス東京",
+    agencyName: "Atelier Mariage 銀座",
     agencyId: 1,
     counselorName: "田中 美紀",
     counselorId: 1,
@@ -71,7 +71,7 @@ export const episodesData: Episode[] = [
   },
   {
     id: "3",
-    agencyName: "コトブキ相談センター",
+    agencyName: "Marry Hub 新宿",
     agencyId: 5,
     counselorName: "林 俊介",
     counselorId: 6,
