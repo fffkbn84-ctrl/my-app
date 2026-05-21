@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Sidebar from '@/components/shell/Sidebar'
 import MobileTopBar from '@/components/shell/MobileTopBar'
 import MobileBottomNav from '@/components/shell/MobileBottomNav'
+import NotificationListener from '@/components/shell/NotificationListener'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -39,6 +40,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
       <main className="kc-main">
         {children}
       </main>
+
+      {/* K-5: ブラウザ通知 グローバル listener（permission/preference が無効なら no-op） */}
+      <NotificationListener />
 
       {/* モバイル：ボトムナビ (<860px) */}
       <div className="hidden-desktop">

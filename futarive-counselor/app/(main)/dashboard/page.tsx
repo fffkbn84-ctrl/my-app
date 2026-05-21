@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import AddCounselorModal from '@/components/dashboard/AddCounselorModal'
 import PendingCompletionsRows from '@/components/dashboard/PendingCompletionsSection'
 import UpcomingReservationsSection from '@/components/dashboard/UpcomingReservationsSection'
+import NotificationSettingsCard from '@/components/shared/NotificationSettingsCard'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -312,6 +313,11 @@ export default function DashboardPage() {
       <p className="dash-sub">
         今日 · {getDayString()}。{isOwner ? 'あなたの相談所の全体のようすです。' : '今日のあなたのようすです。'}
       </p>
+
+      {/* K-5: ブラウザ通知 設定カード */}
+      <div style={{ marginTop: 20 }}>
+        <NotificationSettingsCard />
+      </div>
 
       {/* コンテキストカード：オーナーのみ */}
       {isOwner && counselors.length > 0 && (
