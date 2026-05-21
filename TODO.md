@@ -41,26 +41,31 @@
   - 原因：iKBfw branch / uDUow branch には `futarive-counselor/` ディレクトリが、
     fix-profile-creation-1clpG branch には `futarive-admin/` ディレクトリが
     存在せず、Vercel が "Root Directory does not exist" でビルド失敗 → エラーメール
-  - 対応：futarive-counselor / futarive-admin の両プロジェクトに
-    Vercel Settings → Git → Ignored Build Step を設定
-  - 仕組み：許可ブランチ判定 + Root Directory 存在確認の二段ガード
+  - 対応：
+    1. 各ブランチに `futarive-counselor/.gitkeep` / `futarive-admin/.gitkeep` の placeholder を追加
+       して Root Directory が常に存在するように
+    2. futarive-counselor / futarive-admin の両プロジェクトに
+       Vercel Settings → Git → Ignored Build Step を設定（**許可ブランチ判定のみ**）
+  - 最終 IBS コマンド（シンプル版）:
     ```bash
     # futarive-counselor 用
     case "$VERCEL_GIT_COMMIT_REF" in
-      main|claude/fix-profile-creation-1clpG)
-        [ -d futarive-counselor ] && exit 1 || exit 0 ;;
+      main|claude/fix-profile-creation-1clpG) exit 1 ;;
       *) exit 0 ;;
     esac
     ```
     ```bash
     # futarive-admin 用
     case "$VERCEL_GIT_COMMIT_REF" in
-      main|claude/futarive-admin-dashboard-iKBfw)
-        [ -d futarive-admin ] && exit 1 || exit 0 ;;
+      main|claude/futarive-admin-dashboard-iKBfw) exit 1 ;;
       *) exit 0 ;;
     esac
     ```
-  - exit 0 = ビルドスキップ（エラー扱いにならない）, exit 1 = ビルド実行
+  - exit 0 = ビルドスキップ（エラー扱いにならない・メール飛ばない）, exit 1 = ビルド実行
+  - ⚠️ ハマりポイント（初期版で誤った）: Vercel は **Root Directory の中で IBS を実行する**ので、
+    その中から `[ -d futarive-counselor ]` を確認すると入れ子のディレクトリ
+    （`futarive-counselor/futarive-counselor/`）を探すことになり、常に false → 全 push がスキップされていた。
+    Root Directory 存在チェックはディレクトリ側（.gitkeep）で担保し、IBS は許可ブランチ判定のみに絞るのが正解。
 
 ### E. 認証・ログイン後対応
 
@@ -132,10 +137,19 @@
   - dashboard / inbox / calendar は既存実装が同じ localStorage キーを共有
   - **TODO**: profile / reviews / billing への展開は次フェーズ
   - **TODO**: admin_users への運営追加方法（fffkbn84@gmail.com は登録済み・他スタッフ追加時は Supabase SQL Editor で INSERT）
-- [ ] **K-2** Supabase Realtime（カレンダー）：他デバイスでのスロット変更をリアルタイム反映
-- [ ] **K-3** カレンダー画面から booked スロットの予約者情報を表示
+- [x] **K-2** Supabase Realtime（カレンダー）：他デバイスでのスロット変更をリアルタイム反映（2026-05-21）
+  - コード側は元々実装済み（`futarive-counselor/app/(main)/calendar/page.tsx` line 165-175）
+  - 問題は DB 側 — `slots` テーブルが `supabase_realtime` publication に登録されていなかった
+  - migration `enable_realtime_for_slots` で `ALTER PUBLICATION supabase_realtime ADD TABLE public.slots` を適用
+  - iPad/iPhone 2台同時テストで実機確認済み
+- [x] **K-3** カレンダー画面から booked スロットの予約者情報を表示（既存対応済み）
 - [ ] **K-4** プロフィール写真トリミング（ブラウザ内クロップ UI）
-- [ ] **K-5** 通知機能：新規予約・新規口コミ着信時のブラウザ通知
+- [x] **K-5** 通知機能：新規予約・新規口コミ着信時のブラウザ通知（2026-05-21）
+  - DB: `enable_realtime_for_reservations_and_reviews` migration で publication 追加
+  - `futarive-counselor/lib/notifications.ts`: Web Notifications API ラッパー（permission/preference/show）
+  - `futarive-counselor/components/shell/NotificationListener.tsx`: 全ページ globalに動く Realtime listener
+  - `futarive-counselor/components/shared/NotificationSettingsCard.tsx`: ダッシュボード設置の ON/OFF UI
+  - 制約: iPhone Safari は PWA 化必要（plain Notification は表示されない）→ 当面 desktop / Android Chrome 想定
 
 ---
 
