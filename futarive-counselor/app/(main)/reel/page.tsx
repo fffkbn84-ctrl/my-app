@@ -8,6 +8,8 @@ import CatchphraseField from '@/components/reel/CatchphraseField'
 import ReelImageGrid from '@/components/reel/ReelImageGrid'
 import CaptionEditor from '@/components/reel/CaptionEditor'
 import PhonePreview from '@/components/reel/PhonePreview'
+import ScopeSwitcher from '@/components/shared/ScopeSwitcher'
+import { useAgencyScope } from '@/lib/hooks/useAgencyScope'
 
 interface Review {
   id: string; rating: number; body: string
@@ -35,23 +37,35 @@ export default function ReelPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 2800) }
 
+  const agencyScope = useAgencyScope()
+  const activeCounselor = agencyScope.activeCounselor
+
+  // 切替中の保存中タイマーを取り消す（dirty 状態の場合は即時 flush するのが理想だが MVP は破棄でOK）
+  const cancelPendingSaves = useCallback(() => {
+    if (cpTimerRef.current) { clearTimeout(cpTimerRef.current); cpTimerRef.current = null }
+    if (bioTimerRef.current) { clearTimeout(bioTimerRef.current); bioTimerRef.current = null }
+  }, [])
+
   useEffect(() => {
+    if (agencyScope.loading) return
+    if (!activeCounselor) { setLoading(false); return }
+
     const load = async () => {
+      cancelPendingSaves()
+      setLoading(true)
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data: c } = await supabase.from('counselors').select('*').eq('owner_user_id', user.id).maybeSingle()
-      if (!c) { setLoading(false); return }
-
-      setCounselor(c as Counselor)
+      const c = activeCounselor
+      setCounselor(c)
       setCatchphrase(c.catchphrase ?? '')
       setBio(c.bio ?? '')
       setReelEnabled(c.reel_enabled ?? false)
+      setSaveStatus('saved')
 
       if (c.agency_id) {
         const { data: ag } = await supabase.from('agencies').select('*').eq('id', c.agency_id).maybeSingle()
         setAgency(ag as Agency | null)
+      } else {
+        setAgency(null)
       }
 
       const { data: media } = await supabase
@@ -59,7 +73,8 @@ export default function ReelPage() {
         .eq('counselor_id', c.id).order('display_order')
       const list = (media as CounselorMedia[]) ?? []
       setMediaList(list)
-      if (list[0]) setSelectedId(list[0].id)
+      setSelectedId(list[0]?.id ?? null)
+      setPreviewIndex(0)
 
       const { data: rv } = await supabase
         .from('reviews')
@@ -71,7 +86,8 @@ export default function ReelPage() {
       setLoading(false)
     }
     load()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCounselor?.id, agencyScope.loading])
 
   const handleCatchphraseChange = useCallback((val: string) => {
     setCatchphrase(val)
@@ -250,11 +266,22 @@ export default function ReelPage() {
     <div style={{ padding: '24px 20px', paddingBottom: 140, maxWidth: 720, margin: '0 auto' }}>
       {/* ヒーロー */}
       <div className="reel-hero-eyebrow">REEL</div>
-      <h1 className="reel-hero-title">あなたのリール</h1>
+      <h1 className="reel-hero-title">{agencyScope.isOwner ? `${counselor?.name ?? '—'} のリール` : 'あなたのリール'}</h1>
       <p className="reel-hero-sub">
         Kinda talk のカウンセラー一覧で、利用者が最初に出会う「あなたの印象」です。<br/>
         3〜5枚で、普段の空気が伝わる順に並べるのがおすすめ。
       </p>
+
+      {/* オーナーモード時のみカウンセラー切替 */}
+      {agencyScope.isOwner && agencyScope.counselors.length > 1 && (
+        <div style={{ margin: '12px 0 24px', padding: '10px 14px', background: 'var(--card-warm)', borderRadius: 10, border: '1px solid var(--border)' }}>
+          <ScopeSwitcher
+            scope={agencyScope}
+            allowAll={false}
+            label="編集中のカウンセラー"
+          />
+        </div>
+      )}
 
       {/* キャッチコピー */}
       <CatchphraseField value={catchphrase} onChange={handleCatchphraseChange} />
