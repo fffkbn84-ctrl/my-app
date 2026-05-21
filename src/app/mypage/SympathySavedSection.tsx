@@ -71,7 +71,8 @@ export default function SympathySavedSection({ allColumns }: Props) {
       {savedStories.length > 0 && (
         <div style={{ marginBottom: 24 }}>
           <SectionHeader
-            label="エピソード"
+            eyebrow="KINDA STORY"
+            label="ふたりの物語"
             count={savedStories.length}
             href="/kinda-story"
             hrefLabel="さらに読む"
@@ -109,7 +110,8 @@ export default function SympathySavedSection({ allColumns }: Props) {
       {savedVoices.length > 0 && (
         <div style={{ marginBottom: 24 }}>
           <SectionHeader
-            label="コラム"
+            eyebrow="KINDA VOICES"
+            label="気持ちの整理コラム"
             count={savedVoices.length}
             href="/columns"
             hrefLabel="さらに読む"
@@ -148,11 +150,15 @@ export default function SympathySavedSection({ allColumns }: Props) {
 }
 
 function SectionHeader({
+  eyebrow,
   label,
   count,
   href,
   hrefLabel,
 }: {
+  /** Bパターン eyebrow（DM Sans uppercase）。例: "KINDA STORY" */
+  eyebrow: string;
+  /** 日本語の見出し（Shippori Mincho）。例: "ふたりの物語" */
   label: string;
   count: number;
   href: string;
@@ -163,30 +169,43 @@ function SectionHeader({
       style={{
         display: "flex",
         justifyContent: "space-between",
-        alignItems: "baseline",
+        alignItems: "flex-end",
         marginBottom: 10,
         padding: "0 4px",
       }}
     >
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-        <span
-          style={{
-            fontFamily: "var(--font-mincho)",
-            fontSize: 14,
-            color: "var(--ink)",
-          }}
-        >
-          {label}
-        </span>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <span
           style={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 12,
+            fontSize: 10,
+            letterSpacing: ".18em",
             color: "var(--accent)",
+            textTransform: "uppercase",
           }}
         >
-          {count}
+          {eyebrow}
         </span>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+          <span
+            style={{
+              fontFamily: "var(--font-mincho)",
+              fontSize: 14,
+              color: "var(--ink)",
+            }}
+          >
+            {label}
+          </span>
+          <span
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 12,
+              color: "var(--accent)",
+            }}
+          >
+            {count}
+          </span>
+        </div>
       </div>
       <Link
         href={href}
