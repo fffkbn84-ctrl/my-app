@@ -76,7 +76,11 @@
 
 ### J. 課金関連の発展
 
-- [ ] **J-1** 月次請求書 PDF 出力（agency 別）
+- [x] **J-1** 月次請求書 HTML 発行（2026-05-21）
+  - `/admin/billing` 相談所別集計に「🖨 発行」ボタン追加
+  - クリック → `assign_monthly_invoice` RPC で invoice_number 一括付与
+  - 別タブで `/admin/billing/invoice/[agencyId]/[ym]` を開く（印刷で PDF 保存）
+  - 振込先・住所のプレースホルダーは本番リリース時に書き換え必要
 - [x] **J-2** 異議申立てに対する自動通知（メール）（2026-05-21 完了）
   - Resend 連携 + Supabase Database Webhook → Vercel Route Handler → メール送信
   - メール内容に判定材料追加（予約日・異議申立日・利用者メッセージ・相談所メッセージ）
@@ -84,14 +88,23 @@
   - **TODO**: main ブランチに merge する際、Supabase Webhook の URL を branch alias から
     Production URL（`https://futarive-admin-fffkbn84-4095s-projects.vercel.app/...`）に戻す
   - **TODO**: プッシュ通知は未着手（次フェーズ）
-- [ ] **J-3** 支払いステータス（`paid_at` カラム）と請求 ID の紐付け
+- [x] **J-3** 支払いステータス（`paid_at` カラム）と請求 ID の紐付け（2026-05-21）
+  - billing_events に paid_at / invoice_number / payment_method / payment_note / marked_paid_by 追加
+  - RPC: mark_billing_paid / mark_invoice_paid / unmark_billing_paid（admin のみ）
+  - /admin/billing に「支払い確認」モーダル + フィルター + 集計列追加
+  - counselor /billing にも「支払い済み / お支払い待ち」バッジ表示
 - [ ] **J-4** 送客料 ¥5,000 への変更を反映済み（2026-05-21）
   - DB: `billing_events.amount_jpy` DEFAULT 5000
   - migration ファイル（admin / counselor 両方）のコメントと固定値も同期
 
 ### K. futarive-counselor の機能拡張
 
-- [ ] **K-1** 複数カウンセラー切替（オーナー向け）：ダッシュボード・リール・プロフィールを `currentCounselorId` に連動
+- [x] **K-1** 複数カウンセラー切替（オーナー向け）（2026-05-21）
+  - 共通 hook `lib/hooks/useAgencyScope.ts` + UI `components/shared/ScopeSwitcher.tsx`
+  - reel ページに統合（カウンセラー切替で画像・キャッチコピー・bio・公開設定が連動）
+  - dashboard / inbox / calendar は既存実装が同じ localStorage キーを共有
+  - **TODO**: profile / reviews / billing への展開は次フェーズ
+  - **TODO**: admin_users への運営追加方法（fffkbn84@gmail.com は登録済み・他スタッフ追加時は Supabase SQL Editor で INSERT）
 - [ ] **K-2** Supabase Realtime（カレンダー）：他デバイスでのスロット変更をリアルタイム反映
 - [ ] **K-3** カレンダー画面から booked スロットの予約者情報を表示
 - [ ] **K-4** プロフィール写真トリミング（ブラウザ内クロップ UI）
@@ -106,7 +119,11 @@
 - [x] **B-1** コラム → Kinda voices（admin 側のみ・2026-05-20）
 - [x] **B-2** 成婚エピソード → Kinda story（admin 側のみ・2026-05-20）
 - [x] **C-1** カウンセラー側 Kinda type 編集 UI（2026-05-20）
+- [x] **J-1** 月次請求書 HTML 発行ページ + invoice_number 一括付与 RPC（2026-05-21）
 - [x] **J-2** 課金異議申立て自動メール通知（Resend + Supabase Webhook + Vercel Route Handler）（2026-05-21）
+- [x] **J-3** 支払いステータス管理（paid_at + invoice_number + RPC + UI）（2026-05-21）
+- [x] **K-1** 複数カウンセラー切替（useAgencyScope hook + ScopeSwitcher UI + reel 統合）（2026-05-21）
+- [x] admin_users への fffkbn84@gmail.com 登録（運営権限付与）（2026-05-21）
 - [x] 送客料 ¥10,000 → ¥5,000 への統一（DB + migration ファイル + UI 全箇所）（2026-05-21）
 - [x] counselor `/billing` 表記改善（Kinda 請求履歴 + 説明セクション追加）（2026-05-21）
 - [x] 課金イベント基盤（billing_events + RPC + RLS + pg_cron） — counselor / admin 両側（2026-05-20）
