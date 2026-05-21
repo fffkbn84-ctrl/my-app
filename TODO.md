@@ -2,7 +2,7 @@
 
 ふたりへプロジェクトの未対応タスク一覧。完了したものは `[x]` でチェック、もしくは ~~取り消し線~~ で消し込み。
 
-最終更新: 2026-05-21（セッション③）
+最終更新: 2026-05-21（セッション③ 終了時点）
 
 ---
 
@@ -81,8 +81,16 @@
 ### F. データ統合（モック → Supabase）
 
 - [ ] **F-1** `src/lib/data.ts` AGENCIES / COUNSELORS を Supabase 化（CLAUDE.md 321）
-- [ ] **F-2** `src/lib/mock/places.ts` のお店データを Supabase 化（CLAUDE.md 539）
-- [ ] **F-3** `shops` テーブルに `thumb_variant`, `category_label`, `area_label`, `stage`, `location` カラム追加 → `getShops()` を Supabase に戻す（CLAUDE.md 1672）
+  - 部分対応：2026-05-21 セッション③ で実在名混入 + 名前不整合を解消（コミット `abf6bad` `6ed86b7` `c64b3d0`）
+  - mock COUNSELORS / AGENCIES の実在名は全て架空名化。本格 Supabase 移行は次フェーズ
+- [x] **F-2** `src/lib/mock/places.ts` のお店データを Supabase 化（2026-05-21 セッション③ / コミット `c64b3d0`）
+  - `/places/[id]` を `getShopById()` 経由に変更
+  - `buildPlaceFromShop()` で ShopDetail → Place 型互換に変換
+  - mock places.ts は型定義 fallback として残置するが、user-site の表示は Supabase 一本化
+- [x] **F-3** `shops` テーブルに `thumb_variant`, `category_label`, `area_label`, `location` カラム追加 + `getShops()` を Supabase に戻す（2026-05-21 セッション③ / コミット `705805e` `c64b3d0`）
+  - migration: `f3_shops_align_with_place_home_type` / `f3_shops_sample_curation_9_stores` / `f3_shops_rename_to_fictional` / `f3_rename_legacy_mock_agencies_and_counselors_to_sample`
+  - Kinda act / Kinda glow も Supabase 一本化（10 件問題 + リール→詳細別店舗問題を解消）
+  - Supabase shops 9 件構成（カフェ 2 / レストラン 2 / ラウンジ 1 / 美容室 1 / ネイル 1 / 眉毛 1 / エステ 1、フォトスタジオはタブのみ）
 
 ### G. 検索・フィルター
 
@@ -200,6 +208,17 @@
 - [x] **mock 整理 Phase 1** — カウンセラー 4 名 + 相談所 3 社に絞り込み + isDemo フラグ（2026-05-21 セッション③）
 - [x] **mock 整理 Phase 2** — 名前不整合解消（hardcoded counselors と src/lib/data.ts の人物統一）（2026-05-21 セッション③）
 - [x] /kinda-type/quiz / /kinda-note/quiz でフローティング戻るボタンを非表示（2026-05-21 セッション③ / コミット `7367f65`）
+- [x] **B-1 / B-2 フロント側リブランド残箇所**（2026-05-21 セッション③ / コミット `7495079`）
+  - /episodes/[id] → /kinda-story/[id] 308 リダイレクト
+  - SympathySavedSection マイページ「エピソード」「コラム」→ Bパターン（KINDA STORY/VOICES eyebrow + 日本語見出し）
+  - /note/weather CTA「コラムで深く読む」→「Kinda voices で深く読む」
+  - EpisodesSection.tsx 削除（完全 dead code）
+- [x] **F-3 完了** — shops Supabase 化 + Kinda act / Kinda glow / /places/[id] を Supabase 一本化（2026-05-21 セッション③ / コミット `705805e` `c64b3d0`）
+- [x] **F-2 部分完了** — /places/[id] を Supabase 経由に変更（2026-05-21 セッション③）
+- [x] **実在店舗・相談所名の全廃**（2026-05-21 セッション③ / コミット `c64b3d0`）
+  - Supabase shops 8 件 + mock placesHomeData / places.ts 20 件 + AGENCIES 3 件 + Supabase agencies/counselors 旧 mock 残骸 12 件 を架空名にリネーム
+- [x] **Kinda glow グリッドレイアウト修正**（未定義 `.kt-reel-grid` → `.kt-grid` に統一）（2026-05-21 セッション③）
+- [x] **FloatingBackButton を /kinda-type/quiz / /kinda-note/quiz で非表示**（2026-05-21 セッション③）
 
 ---
 
@@ -308,19 +327,27 @@ esac
 
 ### 残タスク（次セッション候補）
 
-セッション③（2026-05-21）で G-1 / H-1 / 名前不整合解消は完了済み。
+セッション③（2026-05-21）で G-1 / H-1 / 名前不整合解消 / F-2 / F-3 / B-1/B-2 フロント側 / 実在名全廃 / Kinda glow グリッド修正 は完了済み。
 
-| ID | 内容 | 規模 |
-|---|---|---|
-| **B-1 / B-2 フロント側** | コラム → Kinda voices / 成婚エピソード → Kinda story のフロント側リネーム実態確認（既対応の可能性高） | 小 |
-| **F-3** | shops テーブルにカラム追加 + `getShops()` を Supabase に戻す | 中 |
-| **iPhone PWA 化** | K-5 のブラウザ通知を iPhone Safari でも動かす | 中 |
-| **main マージ運用整備** | Production Branch を切替 or main へのマージフロー確立 | 中 |
-| **F-1** | AGENCIES / COUNSELORS の Supabase 化（mock 整理済みで着手しやすくなった） | 大 |
-| **F-2** | places.ts を Supabase 化 | 大 |
-| **I-1 / I-2** | GA4 連携（docs 準備済み） | 大 |
-| **K-1 続編（profile）** | profile ページもオーナー切替可能に | 中〜大（RLS 拡張要・本人が保留判断） |
-| **C-2** | `/kinda-type` ページ（カウンセラータイプ診断・仕様再確認から） | 中〜大 |
+#### 🔴 次セッション最優先：admin お店登録ページ実装
+
+| 項目 | 内容 | 規模 | 作業ブランチ |
+|---|---|---|---|
+| **L-1 admin お店登録ページ新設** | futarive-admin に `/admin/shops/new` + `/admin/shops/[id]/edit` ページ。F-3 で `shops` テーブルを Supabase 化済み（thumb_variant / category_label / area_label / location カラム追加済み）なので、UI を作れば即連動 | 中 | `claude/futarive-admin-dashboard-iKBfw` |
+| **L-2 SNS 予約導線フィールド追加** | `shops` テーブルに `booking_url` `instagram_url` `other_social_url` カラム追加 → user-site の /places/[id] サイドバー CTA で「お店のサイトを見る」「Instagram で予約」を出し分け。カフェなどは Instagram が主予約口のため | 中 | DB migration + futarive-admin 編集 UI + user-site 表示の 3 段階 |
+
+#### 🟡 次々セッション以降
+
+| ID | 内容 | 規模 | 作業ブランチ |
+|---|---|---|---|
+| **動作確認（セッション③成果物）** | 翌日デプロイ後に Kinda act 5 件 / Kinda glow 4 件 / リール→詳細整合 / グリッドサイズ / 架空名表示 を実機確認 | 小 | `claude/implement-kinda-talk-uDUoW`（user-site） |
+| **iPhone PWA 化** | K-5 のブラウザ通知を iPhone Safari でも動かす | 中 | `claude/fix-profile-creation-1clpG`（futarive-counselor） |
+| **main マージ運用整備** | Production Branch を切替 or main へのマージフロー確立 | 中 | インフラ系（3 ブランチ全体） |
+| **Supabase agencies/counselors 整理** | 旧 mock 残骸 12 件の DELETE / is_published=false 判断（運営判断） | 小〜中 | Supabase SQL Editor（運営本人） |
+| **F-1（残）** | mock の COUNSELORS / AGENCIES を完全 Supabase 化（mock 4 名分を Supabase に INSERT、mock 廃止） | 大 | `claude/implement-kinda-talk-uDUoW` |
+| **I-1 / I-2** | GA4 連携（docs 準備済み） | 大 | `claude/futarive-admin-dashboard-iKBfw` |
+| **K-1 続編（profile）** | profile ページもオーナー切替可能に | 中〜大（RLS 拡張要・本人が保留判断） | `claude/fix-profile-creation-1clpG` |
+| **C-2** | `/kinda-type` ページ（カウンセラータイプ診断・仕様再確認から） | 中〜大 | `claude/implement-kinda-talk-uDUoW` |
 
 ### 次セッションの開始時にやること
 
