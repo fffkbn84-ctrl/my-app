@@ -101,7 +101,7 @@ export default function Header() {
           aria-label="Kinda ふたりへ ホームへ"
         >
           <Image
-            src="/images/logoname _kinda_header.PNG"
+            src="/images/logoname _kinda_header.webp"
             alt="Kinda ふたりへ"
             width={400}
             height={56}

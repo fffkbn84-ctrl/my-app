@@ -134,7 +134,7 @@ export default async function ColumnDetailPage({ params }: Props) {
       url: SITE_URL,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_URL}/images/toppage_name.PNG`,
+        url: `${SITE_URL}/images/toppage_name.webp`,
       },
     },
     datePublished: column.publishedAt,
