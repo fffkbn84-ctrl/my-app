@@ -9,6 +9,7 @@ interface AgencyRow {
   description: string | null
   logo_url: string | null
   website_url: string | null
+  is_demo: boolean
   created_at: string
 }
 
@@ -16,6 +17,7 @@ interface EditForm {
   name: string
   description: string
   website_url: string
+  is_demo: boolean
 }
 
 function IconEdit() {
@@ -44,7 +46,18 @@ export default function AgenciesPage() {
 
   function openEdit(a: AgencyRow) {
     setEditTarget(a)
-    setEditForm({ name: a.name, description: a.description ?? '', website_url: a.website_url ?? '' })
+    setEditForm({
+      name: a.name,
+      description: a.description ?? '',
+      website_url: a.website_url ?? '',
+      is_demo: a.is_demo,
+    })
+  }
+
+  async function toggleDemo(id: string, current: boolean) {
+    const supabase = createClient()
+    await supabase.from('agencies').update({ is_demo: !current }).eq('id', id)
+    loadAgencies()
   }
 
   async function handleSave() {
@@ -55,6 +68,7 @@ export default function AgenciesPage() {
       name: editForm.name,
       description: editForm.description || null,
       website_url: editForm.website_url || null,
+      is_demo: editForm.is_demo,
     }).eq('id', editTarget.id)
     setSaving(false)
     setEditTarget(null)
@@ -84,13 +98,29 @@ export default function AgenciesPage() {
                   <th>説明</th>
                   <th>WebサイトURL</th>
                   <th>登録日</th>
+                  <th>サンプル</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {agencies.map(a => (
-                  <tr key={a.id}>
-                    <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>{a.name}</td>
+                  <tr key={a.id} style={a.is_demo ? { background: 'rgba(212,160,144,0.05)' } : undefined}>
+                    <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>
+                      {a.name}
+                      {a.is_demo && (
+                        <span style={{
+                          marginLeft: 6,
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                          background: 'rgba(212,160,144,0.18)',
+                          color: 'var(--accent-deep, #B8806E)',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          letterSpacing: '0.04em',
+                          verticalAlign: 'middle',
+                        }}>サンプル</span>
+                      )}
+                    </td>
                     <td style={{ fontSize: 12, color: 'var(--muted)', maxWidth: 240 }}>
                       <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {a.description ?? '—'}
@@ -105,6 +135,12 @@ export default function AgenciesPage() {
                     </td>
                     <td style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
                       {new Date(a.created_at).toLocaleDateString('ja-JP')}
+                    </td>
+                    <td>
+                      <label className="toggle">
+                        <input type="checkbox" checked={a.is_demo} onChange={() => toggleDemo(a.id, a.is_demo)} />
+                        <span className="toggle-slider" />
+                      </label>
                     </td>
                     <td>
                       <button onClick={() => openEdit(a)} className="btn btn-ghost btn-sm" style={{ gap: 4 }}>
@@ -136,6 +172,17 @@ export default function AgenciesPage() {
               <div>
                 <label className="form-label">WebサイトURL</label>
                 <input className="form-input" type="url" value={editForm.website_url} onChange={e => setEditForm(f => f ? { ...f, website_url: e.target.value } : f)} placeholder="https://" />
+              </div>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={editForm.is_demo}
+                    onChange={e => setEditForm(f => f ? { ...f, is_demo: e.target.checked } : f)}
+                    style={{ accentColor: 'var(--accent)', width: 16, height: 16 }}
+                  />
+                  <span style={{ fontSize: 13 }}>サンプル扱いにする（ユーザーサイトに「サンプル」バッジを表示）</span>
+                </label>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'flex-end' }}>

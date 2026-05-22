@@ -13,6 +13,7 @@ interface CounselorRow {
   years_of_experience: number | null
   review_count: number | null
   is_published: boolean
+  is_demo: boolean
   created_at: string
 }
 
@@ -25,6 +26,7 @@ interface EditForm {
   quote: string
   diagnosis_type: string
   is_published: boolean
+  is_demo: boolean
 }
 
 function IconEdit() {
@@ -63,6 +65,12 @@ export default function CounselorsPage() {
     loadCounselors()
   }
 
+  async function toggleDemo(id: string, current: boolean) {
+    const supabase = createClient()
+    await supabase.from('counselors').update({ is_demo: !current }).eq('id', id)
+    loadCounselors()
+  }
+
   function openEdit(c: CounselorWithAgency) {
     setEditTarget(c)
     setEditForm({
@@ -72,6 +80,7 @@ export default function CounselorsPage() {
       quote: c.quote ?? '',
       diagnosis_type: c.diagnosis_type ?? '',
       is_published: c.is_published,
+      is_demo: c.is_demo,
     })
   }
 
@@ -86,6 +95,7 @@ export default function CounselorsPage() {
       quote: editForm.quote || null,
       diagnosis_type: editForm.diagnosis_type || null,
       is_published: editForm.is_published,
+      is_demo: editForm.is_demo,
     }).eq('id', editTarget.id)
     setSaving(false)
     setEditTarget(null)
@@ -117,14 +127,30 @@ export default function CounselorsPage() {
                   <th>経験年数</th>
                   <th>口コミ数</th>
                   <th>診断タイプ</th>
+                  <th>サンプル</th>
                   <th>掲載状態</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
                 {counselors.map(c => (
-                  <tr key={c.id}>
-                    <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>{c.name}</td>
+                  <tr key={c.id} style={c.is_demo ? { background: 'rgba(212,160,144,0.05)' } : undefined}>
+                    <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>
+                      {c.name}
+                      {c.is_demo && (
+                        <span style={{
+                          marginLeft: 6,
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                          background: 'rgba(212,160,144,0.18)',
+                          color: 'var(--accent-deep, #B8806E)',
+                          fontSize: 10,
+                          fontWeight: 600,
+                          letterSpacing: '0.04em',
+                          verticalAlign: 'middle',
+                        }}>サンプル</span>
+                      )}
+                    </td>
                     <td style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{c.agency_name}</td>
                     <td style={{ fontSize: 12, whiteSpace: 'nowrap' }}>{c.area ?? '—'}</td>
                     <td style={{ fontSize: 12, textAlign: 'center' }}>{c.years_of_experience != null ? `${c.years_of_experience}年` : '—'}</td>
@@ -142,6 +168,12 @@ export default function CounselorsPage() {
                           fontWeight: 600,
                         }}>{c.diagnosis_type}</span>
                       ) : '—'}
+                    </td>
+                    <td>
+                      <label className="toggle">
+                        <input type="checkbox" checked={c.is_demo} onChange={() => toggleDemo(c.id, c.is_demo)} />
+                        <span className="toggle-slider" />
+                      </label>
                     </td>
                     <td>
                       <label className="toggle">
@@ -191,7 +223,7 @@ export default function CounselorsPage() {
                   {['A', 'B', 'C', 'D'].map(t => <option key={t} value={t}>タイプ {t}</option>)}
                 </select>
               </div>
-              <div>
+              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                   <input
                     type="checkbox"
@@ -200,6 +232,15 @@ export default function CounselorsPage() {
                     style={{ accentColor: 'var(--accent)', width: 16, height: 16 }}
                   />
                   <span style={{ fontSize: 13 }}>公開する</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={editForm.is_demo}
+                    onChange={e => setEditForm(f => f ? { ...f, is_demo: e.target.checked } : f)}
+                    style={{ accentColor: 'var(--accent)', width: 16, height: 16 }}
+                  />
+                  <span style={{ fontSize: 13 }}>サンプル扱いにする（ユーザーサイトに「サンプル」バッジを表示）</span>
                 </label>
               </div>
             </div>
