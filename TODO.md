@@ -15,12 +15,14 @@
 
 ### B. 機能リネーム
 
-- [x] **B-1** コラム → **Kinda voices**（futarive-admin 完了 2026-05-20）
-  - [ ] フロントサイト（`my-app/src/`）のリネームは別ブランチで対応必要
-  - [ ] futarive-counselor 側の言及あれば別ブランチで対応必要
-- [x] **B-2** 成婚エピソード → **Kinda story**（futarive-admin 完了 2026-05-20）
-  - [ ] フロントサイト側のリネームは別ブランチで対応必要
-  - [ ] futarive-counselor 側の言及あれば別ブランチで対応必要
+- [x] **B-1** コラム → **Kinda voices**（全領域完了）
+  - [x] futarive-admin（2026-05-20）
+  - [x] フロントサイト（`my-app/src/`）
+  - [x] futarive-counselor 側
+- [x] **B-2** 成婚エピソード → **Kinda story**（全領域完了）
+  - [x] futarive-admin（2026-05-20）
+  - [x] フロントサイト側
+  - [x] futarive-counselor 側
 
 ### C. Kinda type 関連の機能追加
 
