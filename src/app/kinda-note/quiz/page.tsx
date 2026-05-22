@@ -810,38 +810,8 @@ export default function KindaNoteQuizPage() {
           /* ─── ルート質問画面（pre / waiting / omiai） ─── */
           currentQ && (
             <>
-              {/* 質問エリア（装飾画像プレースホルダー付き） */}
+              {/* 質問エリア（装飾画像は一旦外し中・f37ec0c で配置していたが世界観調整の判断待ち） */}
               <div style={{ position: "relative", marginBottom: 24 }}>
-                {/* 右上装飾（画像がなくても崩れない） */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 16,
-                    right: -12,
-                    width: 80,
-                    height: 80,
-                    backgroundImage: "url('/images/kinda-note-deco-1.webp')",
-                    backgroundSize: "contain",
-                    backgroundRepeat: "no-repeat",
-                    opacity: 0.85,
-                    pointerEvents: "none",
-                  }}
-                />
-                {/* 左下装飾（画像がなくても崩れない） */}
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: 16,
-                    left: -12,
-                    width: 80,
-                    height: 80,
-                    backgroundImage: "url('/images/kinda-note-deco-2.webp')",
-                    backgroundSize: "contain",
-                    backgroundRepeat: "no-repeat",
-                    opacity: 0.85,
-                    pointerEvents: "none",
-                  }}
-                />
 
                 <span
                   style={{
