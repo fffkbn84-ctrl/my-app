@@ -22,6 +22,9 @@ export interface ShopFormData {
   access: string
   address: string
   photo_url: string
+  booking_url: string
+  instagram_url: string
+  other_social_url: string
   features: string[]
   scenes: string[]
   tags: string[]
@@ -56,6 +59,9 @@ export const EMPTY_FORM: ShopFormData = {
   access: '',
   address: '',
   photo_url: '',
+  booking_url: '',
+  instagram_url: '',
+  other_social_url: '',
   features: [],
   scenes: [],
   tags: [],
@@ -427,6 +433,9 @@ export default function ShopForm({ mode, shopId, initial }: ShopFormProps) {
       access: form.access || null,
       address: form.address || null,
       photo_url: form.photo_url || null,
+      booking_url: form.booking_url.trim() || null,
+      instagram_url: form.instagram_url.trim() || null,
+      other_social_url: form.other_social_url.trim() || null,
       features: form.features.length > 0 ? form.features : null,
       scenes: form.scenes.length > 0 ? form.scenes : null,
       tags: form.tags.length > 0 ? form.tags : null,
@@ -897,6 +906,55 @@ export default function ShopForm({ mode, shopId, initial }: ShopFormProps) {
             </div>
           </div>
         )}
+      </section>
+
+      <section className="card">
+        <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--ink)' }}>予約・SNS 導線</h2>
+        <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16 }}>
+          詳細ページのメイン CTA は <strong>予約サイト URL → Instagram → その他</strong> の優先順で出し分け、
+          設定されている他のリンクは小さなアイコンボタンとして並べて表示します。
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label className="form-label">予約サイト URL（booking_url）</label>
+            <input
+              className="form-input"
+              type="url"
+              value={form.booking_url}
+              onChange={e => patch('booking_url', e.target.value)}
+              placeholder="例: https://reserve.example.com/futarive-cafe"
+            />
+            <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+              一休 / OZmall / TableCheck / お店独自の予約フォームなど。最優先でメイン CTA に表示されます
+            </p>
+          </div>
+          <div>
+            <label className="form-label">Instagram URL（instagram_url）</label>
+            <input
+              className="form-input"
+              type="url"
+              value={form.instagram_url}
+              onChange={e => patch('instagram_url', e.target.value)}
+              placeholder="例: https://www.instagram.com/futarive_cafe/"
+            />
+            <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+              カフェ等で DM 予約が主の場合に。booking_url が未設定なら Instagram がメイン CTA になります
+            </p>
+          </div>
+          <div>
+            <label className="form-label">その他 SNS / 公式サイト URL（other_social_url）</label>
+            <input
+              className="form-input"
+              type="url"
+              value={form.other_social_url}
+              onChange={e => patch('other_social_url', e.target.value)}
+              placeholder="例: https://www.example.com/"
+            />
+            <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+              公式サイト / X / LINE 公式 など。両方未設定ならメイン CTA になります
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="card">
