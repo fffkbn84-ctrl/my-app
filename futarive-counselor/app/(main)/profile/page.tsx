@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
+import { daysSince, formatLastUpdated, FRESHNESS_AGING_DAYS } from '@/lib/freshness'
 import PhotoCropModal from '@/components/profile/PhotoCropModal'
 import type { Counselor, Agency } from '@/lib/types'
 
@@ -721,6 +722,12 @@ export default function ProfilePage() {
               </label>
             </div>
           </div>
+
+          {counselor?.updated_at && (daysSince(counselor.updated_at) ?? 999) < FRESHNESS_AGING_DAYS && (
+            <div style={{ fontSize: 10, color: 'var(--text-light)', textAlign: 'right', letterSpacing: '.02em' }}>
+              最終更新 {formatLastUpdated(counselor.updated_at)}
+            </div>
+          )}
         </div>
       )}
 

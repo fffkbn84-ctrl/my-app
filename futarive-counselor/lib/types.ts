@@ -60,6 +60,7 @@ export interface Agency {
   /** 相談所全体の注意事項（021 マイグレーション）— 複数行可 */
   general_notes: string | null
   created_at: string                       // Supabase 登録日（参考のみ）
+  updated_at: string                       // オーナー最終編集時刻（鮮度判定に使用）
 }
 
 export interface Counselor {
@@ -93,6 +94,7 @@ export interface Counselor {
   /** カウンセラー個別キャンペーンの期限（例：「〜2026-06-30」） */
   campaign_expiry: string | null
   created_at: string
+  updated_at: string                       // 本人最終編集時刻（鮮度判定に使用）
 }
 
 export interface CounselorMedia {

@@ -8,6 +8,7 @@ import AddCounselorModal from '@/components/dashboard/AddCounselorModal'
 import PendingCompletionsRows from '@/components/dashboard/PendingCompletionsSection'
 import UpcomingReservationsSection from '@/components/dashboard/UpcomingReservationsSection'
 import NotificationSettingsCard from '@/components/shared/NotificationSettingsCard'
+import { daysSince, FRESHNESS_AGING_DAYS, FRESHNESS_STALE_DAYS } from '@/lib/freshness'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -21,7 +22,7 @@ interface Stats {
   totalReviews: number
 }
 
-type TodoType = 'urgent' | 'reply' | 'booking' | 'rec'
+type TodoType = 'urgent' | 'reply' | 'booking' | 'rec' | 'profile-aging' | 'profile-stale'
 interface TodoItem {
   type: TodoType
   label: string
@@ -33,6 +34,29 @@ function getDayString() {
   const d = new Date()
   const days = ['日', '月', '火', '水', '木', '金', '土']
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${days[d.getDay()]}）`
+}
+
+function todoTag(type: TodoType): { label: string; className?: string; style?: React.CSSProperties } {
+  if (type === 'urgent' || type === 'reply') return { label: '返信', className: `todo-tag todo-tag-${type}` }
+  if (type === 'booking') return { label: '予約', className: 'todo-tag todo-tag-booking' }
+  if (type === 'rec') return { label: '推奨', className: 'todo-tag todo-tag-rec' }
+  if (type === 'profile-stale') {
+    return {
+      label: '要更新',
+      style: {
+        background: '#FEE2E2', color: '#B91C1C', fontSize: 10, fontWeight: 700,
+        padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
+      },
+    }
+  }
+  // profile-aging
+  return {
+    label: '点検',
+    style: {
+      background: '#FEF3C7', color: '#92400E', fontSize: 10, fontWeight: 700,
+      padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
+    },
+  }
 }
 
 const ALL_SENTINEL = 'ALL'
@@ -281,6 +305,38 @@ export default function DashboardPage() {
       })
     }
 
+    // ─── プロフィール鮮度（updated_at ベース） ───
+    // 30〜90日 → aging（点検）/ 90日以上 → stale（赤・要更新）
+    // 30日未満はプロフィール確認ページに控えめ表示するため、ここには出さない
+    let agingCount = 0
+    let staleCount = 0
+    filtered.forEach(c => {
+      const d = daysSince(c.updated_at)
+      if (d === null) return
+      if (d >= FRESHNESS_STALE_DAYS) staleCount++
+      else if (d >= FRESHNESS_AGING_DAYS) agingCount++
+    })
+    if (staleCount > 0) {
+      newTodos.push({
+        type: 'profile-stale',
+        label: staleCount > 1
+          ? `${staleCount}件のプロフィールが${FRESHNESS_STALE_DAYS}日以上更新されていません`
+          : `プロフィールが${FRESHNESS_STALE_DAYS}日以上更新されていません`,
+        action: 'プロフィールを更新 →',
+        href: '/profile',
+      })
+    }
+    if (agingCount > 0) {
+      newTodos.push({
+        type: 'profile-aging',
+        label: agingCount > 1
+          ? `${agingCount}件のプロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません`
+          : `プロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません`,
+        action: '内容を見直す →',
+        href: '/profile',
+      })
+    }
+
     setTodos(newTodos)
     setStats({
       reelPublished, reelTotal,
@@ -438,15 +494,30 @@ export default function DashboardPage() {
         />
 
         {/* 既存の todo */}
-        {todos.map((t, i) => (
-          <Link key={i} href={t.href} className="todo-row">
-            <span className={`todo-tag todo-tag-${t.type}`}>
-              {t.type === 'urgent' ? '返信' : t.type === 'reply' ? '返信' : t.type === 'booking' ? '予約' : '推奨'}
+        {todos.map((t, i) => {
+          const tag = todoTag(t.type)
+          return (
+          <Link
+            key={i}
+            href={t.href}
+            className={`todo-row ${t.type === 'profile-stale' ? 'todo-row-stale' : ''}`}
+            style={t.type === 'profile-stale' ? { border: '1px solid #DC2626' } : undefined}
+          >
+            <span
+              className={tag.className ?? `todo-tag todo-tag-${t.type}`}
+              style={tag.style}
+            >
+              {tag.label}
             </span>
-            <span className="todo-body">{t.label}</span>
+            <span
+              className="todo-body"
+              style={t.type === 'profile-stale' ? { color: '#B91C1C', fontWeight: 600 } : undefined}
+            >
+              {t.label}
+            </span>
             <span className="todo-action">{t.action}</span>
           </Link>
-        ))}
+        )})}
 
         {/* どちらも 0 件のときのヒント */}
         {todos.length === 0 && pendingCount === 0 && (
