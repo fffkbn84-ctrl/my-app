@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import KindaLoader from "@/components/ui/KindaLoader";
 import { getShops } from "@/lib/data";
 import KindaGlowClient from "./KindaGlowClient";
 
@@ -175,7 +176,7 @@ export default async function KindaGlowPage() {
 
         {/* ─── 一覧（クライアント。useSearchParams 利用のため Suspense 必須） ─── */}
         <div id="places" />
-        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+        <Suspense fallback={<KindaLoader variant="page" />}>
           <KindaGlowClient places={places} />
         </Suspense>
 

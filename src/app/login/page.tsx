@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Header from "@/components/layout/Header";
+import KindaLoader from "@/components/ui/KindaLoader";
 import LoginForm from "./LoginForm";
 
 export const metadata: Metadata = {
@@ -65,7 +66,7 @@ export default function LoginPage() {
             あなたのペースで使えます。
           </p>
 
-          <Suspense fallback={<div style={{ height: 360 }} />}>
+          <Suspense fallback={<KindaLoader variant="page" minHeight={360} />}>
             <LoginForm />
           </Suspense>
         </div>

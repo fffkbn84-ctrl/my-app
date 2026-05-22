@@ -210,6 +210,30 @@ a {
   from { width: 0; }
 }
 
+/* ─── KindaLoader (fountain pulse) ─── */
+@keyframes kinda-loader-droplet {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50%      { transform: translateY(-2px); opacity: 0.55; }
+}
+@keyframes kinda-loader-flow {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+.kinda-loader-droplet {
+  animation: kinda-loader-droplet 1.4s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.kinda-loader-flow {
+  animation: kinda-loader-flow 1.4s ease-in-out infinite;
+}
+.kinda-loader-flow-2 { animation-delay: -0.2s; }
+.kinda-loader-flow-3 { animation-delay: -0.4s; }
+@media (prefers-reduced-motion: reduce) {
+  .kinda-loader-droplet,
+  .kinda-loader-flow { animation: none; }
+}
+
 /* ═══════════════════════════════════════════════════
    HERO — futarive-v4.html に準拠
 ═══════════════════════════════════════════════════ */

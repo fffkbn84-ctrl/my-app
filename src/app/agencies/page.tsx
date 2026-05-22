@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import KindaLoader from "@/components/ui/KindaLoader";
 import AgenciesClient from "./AgenciesClient";
 
 const SITE_URL =
@@ -46,7 +47,7 @@ export default function AgenciesPage() {
           </p>
         </section>
 
-        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+        <Suspense fallback={<KindaLoader variant="page" />}>
           <AgenciesClient />
         </Suspense>
       </main>

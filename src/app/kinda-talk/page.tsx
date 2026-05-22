@@ -4,6 +4,7 @@ import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Footer from "@/components/layout/Footer";
+import KindaLoader from "@/components/ui/KindaLoader";
 import { getCounselors } from "@/lib/data";
 import FAQAccordion, { FAQItem } from "@/components/kinda-talk/FAQAccordion";
 import KindaTalkClient from "./KindaTalkClient";
@@ -133,7 +134,7 @@ export default async function KindaTalkPage() {
         </section>
 
         {/* ─── リール一覧（クライアント。useSearchParams 利用のため Suspense 必須） ─── */}
-        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+        <Suspense fallback={<KindaLoader variant="page" />}>
           <KindaTalkClient counselors={counselors} />
         </Suspense>
 
