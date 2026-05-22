@@ -192,11 +192,11 @@ src/components/ui/KindaLoader.tsx
 ### 6-1. グローバル 404 / エラーページ
 
 ```
-src/app/not-found.tsx       未作成 — 削除されたお店 / カウンセラーへのアクセスで素っ気ない画面
-src/app/error.tsx           未作成 — 予期せぬエラー時の画面
+src/app/not-found.tsx       ✅ 作成済み（w_morning_mist.webp を流用）
+src/app/error.tsx           未作成 — 予期せぬエラー時の画面（リリース後 OK）
 ```
 
-**必要画像：** Kinda 世界観のイラスト 1 枚（例：霧の中の小道・夜明け前など、「迷っている」を表す）。weather 系の既存 webp の流用も可。
+**画像：** 既存 `w_morning_mist.webp` を「霧の中で道を探している」イメージで流用。トーンは「焦らせない」を守り、CTA は「ホームに戻る」「カウンセラーを探す」の 2 つに留めた。
 
 ### 6-2. 空状態（empty state）
 

@@ -42,13 +42,8 @@
 
 `docs/image-audit.md` §7 より、未着手項目を転記：
 
-- [ ] **#4 `not-found.tsx` 新設 + イラスト 1 枚**（中、1h）
-  - 削除されたお店 / カウンセラーへのアクセスで素っ気ない画面を防ぐ
-  - 既存 weather 系 webp を流用しても可
-- [ ] **#5 `KindaLoader` コンポーネント新設**（中、1.5h）
-  - `Suspense fallback={<div style={{minHeight: 400}} />}` の 5 箇所を置換
-    （agencies / kinda-act / kinda-talk / kinda-glow / login）
-  - variant: `inline`（短い待ち）/ `page`（長い待ち、Suspense fallback 用）
+- [x] **#4 `not-found.tsx` 新設 + イラスト 1 枚**（2026-05-22、`w_morning_mist.webp` 流用）
+- [x] **#5 `KindaLoader` コンポーネント新設**（2026-05-22、Suspense fallback 5 箇所差替済 — agencies / kinda-act / kinda-talk / kinda-glow / login）
 
 ### 鮮度アラート（Resend 経由メール通知）— インフラ完了・有効化待ち
 
