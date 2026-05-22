@@ -205,6 +205,16 @@ body {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(168, 124, 42, .08);
 }
+.form-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 600px) {
+  .form-grid-2col {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* Modal */
 .modal-overlay {
