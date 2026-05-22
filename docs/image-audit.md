@@ -22,7 +22,7 @@
 | 天気アイコン（Kinda note 用） | 20 件 | 揃っている |
 | セクション画像（トップ・グリッド） | 6 件 | 揃っている |
 | ロゴ | 2 件（WebP のみ） | ✅ 全 webp 化完了（合計 -1.1MB） |
-| オーナメント / 装飾 | 4 件 | 2 件使用（starfish / deco-1）／ 1 件意図保全（deco-2）／ 1 件オーファン（heartwopal） |
+| オーナメント / 装飾 | 3 件 | 2 件使用（starfish / deco-1）／ 1 件意図保全（deco-2） |
 | ローディング画像 | 0 件 | **未整備（Suspense fallback 5 箇所が空 div）** |
 | **不足（参照あるが /public に無い）** | **0 件** | ✅ 解決済み（2026-05-22）|
 | **重複（同名 jpg + webp）** | **0 件** | ✅ 解決済み（2026-05-22、-383KB）|
@@ -131,14 +131,13 @@ src/components/ui/KindaLoader.tsx
 
 > ⚠️ 旧 rev は `Kinda-voices-nouse` / `Toontown-background` / `laughing-town-background` をオーファン扱いしていたが、これらは `globals.css` および columns 配下で現役。`src/` だけ grep していて CSS 経路を見落としていた。本 rev で訂正済み。
 
-**真のオーファン（コード・CSS とも 0 参照）：**
+✅ **2026-05-22 解消** — `ornamental-heartwopal.webp`（88K）/ `Kinda-belief-background.webp`（52K）を削除。同時に Next.js scaffolding の `public/{next,window,file,globe,vercel}.svg` 5 件も未参照のため削除（合計 -141KB）。
 
-| ファイル | サイズ | 備考 |
+| ファイル | サイズ | 処置 |
 |---|---|---|
-| `ornamental-heartwopal.webp` | 88K | 過去のデザイン残骸の可能性 |
-| `Kinda-belief-background.webp` | 52K | OUR BELIEF 旧背景の残骸の可能性 |
-
-**推奨：** 削除 or 別フォルダ `public/images/legacy/` に退避。
+| ~~`ornamental-heartwopal.webp`~~ | 88K | 削除済み |
+| ~~`Kinda-belief-background.webp`~~ | 52K | 削除済み |
+| ~~`next.svg` / `window.svg` / `file.svg` / `globe.svg` / `vercel.svg`~~ | 計 3.3K | Next.js デフォルト・未参照のため削除済み |
 
 ### 4-4. 意図的に保全しているアセット（オーファンと混同しないこと）
 
@@ -235,7 +234,7 @@ src/app/error.tsx           未作成 — 予期せぬエラー時の画面
 | 9 | 各ページに SectionDivider 挿入（about / counselors / agencies / columns 等） | 小 |
 | 10 | EmptyState コンポーネント化 + 既存 5 箇所差し替え | 中 |
 | 11 | `error.tsx` グローバルエラー画面 | 小 |
-| 12 | オーファン画像（ornamental-heartwopal / Kinda-belief-background）整理 | 極小 |
+| ~~12~~ | ~~オーファン画像（ornamental-heartwopal / Kinda-belief-background）整理~~ | ✅ 削除済み（2026-05-22）|
 
 ---
 
