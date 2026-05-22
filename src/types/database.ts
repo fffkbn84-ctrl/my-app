@@ -240,6 +240,10 @@ export interface Database {
           category_label: string | null;
           area_label: string | null;
           location: string | null;
+          /* L-2 (2026-05-22) で追加。予約・SNS 導線 */
+          booking_url: string | null;
+          instagram_url: string | null;
+          other_social_url: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -249,6 +253,22 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["shops"]["Insert"]>;
+      };
+      shop_media: {
+        Row: {
+          id: string;
+          shop_id: string;
+          media_url: string;
+          display_order: number;
+          caption: string | null;
+          alt_text: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["shop_media"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["shop_media"]["Insert"]>;
       };
       columns: {
         Row: {

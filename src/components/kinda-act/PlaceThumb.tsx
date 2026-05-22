@@ -68,7 +68,33 @@ const ICONS: Record<ThumbVariant, ReactNode> = {
   ),
 };
 
-export default function PlaceThumb({ variant }: { variant: ThumbVariant }) {
+export default function PlaceThumb({
+  variant,
+  photoUrl,
+  alt,
+}: {
+  variant: ThumbVariant;
+  photoUrl?: string;
+  alt?: string;
+}) {
+  if (photoUrl) {
+    return (
+      <div className={`ka-card-thumb ${GRADIENT_CLASS[variant]}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photoUrl}
+          alt={alt ?? ""}
+          loading="lazy"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
+          }}
+        />
+      </div>
+    );
+  }
   return (
     <div className={`ka-card-thumb ${GRADIENT_CLASS[variant]}`}>
       <div className="ka-card-thumb-overlay">{ICONS[variant]}</div>

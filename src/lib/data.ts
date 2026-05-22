@@ -934,6 +934,7 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
     categoryLabel: row.category_label ?? row.category ?? '',
     areaLabel: row.area_label ?? row.area ?? '',
     priceRange: row.price_range ?? undefined,
+    photoUrl: row.photo_url ?? undefined,
   }
 }
 
@@ -972,6 +973,13 @@ export async function getShops(): Promise<PlaceHome[]> {
    返却 shape は PlaceHome + 詳細表示用フィールド（hours/holiday/access/scenes）
    を含む拡張型。reviews は別途 getReviewsByShop() で取得する想定（未実装）。
 ──────────────────────────────────────────────────────────── */
+export type ShopGalleryItem = {
+  id: string
+  mediaUrl: string
+  caption: string | null
+  altText: string | null
+}
+
 export type ShopDetail = PlaceHome & {
   category: PlaceTabCategory
   hours: string | null
@@ -979,6 +987,12 @@ export type ShopDetail = PlaceHome & {
   access: string | null
   scenes: string[] | null
   address: string | null
+  /** L-2 (2026-05-22) で追加。予約・SNS 導線 */
+  bookingUrl: string | null
+  instagramUrl: string | null
+  otherSocialUrl: string | null
+  /** shop_media テーブルから取得した詳細ページ用ギャラリー（display_order 昇順） */
+  gallery: ShopGalleryItem[]
 }
 
 export async function getShopById(id: string): Promise<ShopDetail | null> {
@@ -991,6 +1005,26 @@ export async function getShopById(id: string): Promise<ShopDetail | null> {
   const row = res.data as ShopRow | null
   if (res.error || !row) return null
 
+  // ギャラリーは別クエリ（JOIN は型推論を壊すため）
+  const mediaRes = await supabase
+    .from('shop_media')
+    .select('id, media_url, caption, alt_text, display_order')
+    .eq('shop_id', row.id)
+    .order('display_order', { ascending: true })
+  type MediaRow = {
+    id: string
+    media_url: string
+    caption: string | null
+    alt_text: string | null
+    display_order: number
+  }
+  const gallery: ShopGalleryItem[] = ((mediaRes.data ?? []) as unknown as MediaRow[]).map((m) => ({
+    id: m.id,
+    mediaUrl: m.media_url,
+    caption: m.caption,
+    altText: m.alt_text,
+  }))
+
   const base = mapShopRowToPlaceHome(row)
   return {
     ...base,
@@ -999,6 +1033,10 @@ export async function getShopById(id: string): Promise<ShopDetail | null> {
     access: row.access,
     scenes: row.scenes,
     address: row.address,
+    bookingUrl: row.booking_url ?? null,
+    instagramUrl: row.instagram_url ?? null,
+    otherSocialUrl: row.other_social_url ?? null,
+    gallery,
   }
 }
 

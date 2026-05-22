@@ -14,7 +14,7 @@ import {
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
 ──────────────────────────────────────────────────────────── */
-function PlaceThumb({ variant }: { variant: ThumbVariant }) {
+function PlaceThumb({ variant, photoUrl, alt }: { variant: ThumbVariant; photoUrl?: string; alt?: string }) {
   const gradientClass: Record<ThumbVariant, string> = {
     cafe:           "pt-cafe",
     lounge:         "pt-rest",
@@ -94,6 +94,19 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
     ),
   };
 
+  if (photoUrl) {
+    return (
+      <div className={`place-thumb ${gradientClass[variant]}`} style={{ overflow: "hidden" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photoUrl}
+          alt={alt ?? ""}
+          loading="lazy"
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+      </div>
+    );
+  }
   return (
     <div className={`place-thumb ${gradientClass[variant]}`}>
       {icons[variant]}
@@ -223,7 +236,7 @@ export default function PlacesSection() {
                 router.push(`/places/${place.id}`);
               }}
             >
-              <PlaceThumb variant={place.thumbVariant} />
+              <PlaceThumb variant={place.thumbVariant} photoUrl={place.photoUrl} alt={place.name} />
               <div className="pt-body">
                 <div className="pt-stage">{place.stage}</div>
                 <div className="pt-name">{place.name}</div>

@@ -31,6 +31,12 @@ export interface PlaceHome {
   /** 検索ページのエリア選択用ラベル */
   areaLabel: string;
   priceRange?: string;
+  /**
+   * カードのサムネに使われるプロフィール写真 URL。
+   * 設定されている場合は SVG グラデーションの代わりにこの画像を表示する。
+   * L-1（2026-05-22）: 統括管理画面からアップロード可能に。
+   */
+  photoUrl?: string;
 }
 
 export const placesHomeData: PlaceHome[] = [

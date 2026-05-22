@@ -21,6 +21,7 @@ type Props = {
 
 export default function PlaceReelCard({ place, onOpen }: Props) {
   const bg = GRADIENT_BG[place.thumbVariant] ?? "linear-gradient(135deg,#FAEAE5,#F0D8D0)";
+  const hasPhoto = Boolean(place.photoUrl);
 
   return (
     <button
@@ -29,21 +30,34 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
       aria-label={`${place.name} のリールを開く`}
       onClick={() => onOpen(place)}
     >
-      <div className="kt-reel-card-bg" style={{ background: bg }} aria-hidden />
-      <div
-        className="ka-reel-icon"
-        aria-hidden
-        style={{
-          position: "absolute",
-          top: "32%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          opacity: 0.35,
-          zIndex: 1,
-        }}
-      >
-        {PLACE_CATEGORY_ICON[place.thumbVariant]}
-      </div>
+      {hasPhoto ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={place.photoUrl}
+          alt=""
+          loading="lazy"
+          className="kt-reel-card-bg"
+          style={{ objectFit: "cover", width: "100%", height: "100%" }}
+        />
+      ) : (
+        <>
+          <div className="kt-reel-card-bg" style={{ background: bg }} aria-hidden />
+          <div
+            className="ka-reel-icon"
+            aria-hidden
+            style={{
+              position: "absolute",
+              top: "32%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              opacity: 0.35,
+              zIndex: 1,
+            }}
+          >
+            {PLACE_CATEGORY_ICON[place.thumbVariant]}
+          </div>
+        </>
+      )}
       <div className="kt-reel-card-overlay" aria-hidden />
 
       <div className="kt-reel-card-top">

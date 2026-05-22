@@ -29,7 +29,7 @@ const AREAS      = ["すべて", "東京", "大阪", "名古屋"];
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
 ──────────────────────────────────────────────────────────── */
-function PlaceThumb({ variant }: { variant: ThumbVariant }) {
+function PlaceThumb({ variant, photoUrl, alt }: { variant: ThumbVariant; photoUrl?: string; alt?: string }) {
   const gradientClass: Record<ThumbVariant, string> = {
     cafe:           "pt-cafe",
     lounge:         "pt-rest",
@@ -109,6 +109,19 @@ function PlaceThumb({ variant }: { variant: ThumbVariant }) {
     ),
   };
 
+  if (photoUrl) {
+    return (
+      <div className={`place-thumb ${gradientClass[variant]}`} style={{ height: 200, overflow: "hidden" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photoUrl}
+          alt={alt ?? ""}
+          loading="lazy"
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+      </div>
+    );
+  }
   return (
     <div className={`place-thumb ${gradientClass[variant]}`} style={{ height: 200 }}>
       {icons[variant]}
@@ -149,7 +162,7 @@ function ShopCard({ place }: { place: PlaceHome }) {
     >
       {/* サムネイル */}
       <div style={{ position: "relative" }}>
-        <PlaceThumb variant={place.thumbVariant} />
+        <PlaceThumb variant={place.thumbVariant} photoUrl={place.photoUrl} alt={place.name} />
 
         {/* 左上: バッジ */}
         {place.badgeType !== "listed" && (

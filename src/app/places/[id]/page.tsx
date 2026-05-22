@@ -161,6 +161,70 @@ function CategoryIcon({
   }
 }
 
+/* ────────────────────────────────────────────────────────────
+   SNS 予約導線
+   booking_url > instagram_url > other_social_url の優先順で
+   メイン CTA を出し、残りはサブアイコンとして並べる。
+──────────────────────────────────────────────────────────── */
+type SnsLink = {
+  kind: "booking" | "instagram" | "other";
+  url: string;
+  primaryLabel: string;
+  iconAriaLabel: string;
+};
+
+function pickSnsLinks(shop: ShopDetail): { primary: SnsLink | null; subs: SnsLink[] } {
+  const list: SnsLink[] = [];
+  if (shop.bookingUrl)
+    list.push({
+      kind: "booking",
+      url: shop.bookingUrl,
+      primaryLabel: "予約サイトを見る",
+      iconAriaLabel: "予約サイト",
+    });
+  if (shop.instagramUrl)
+    list.push({
+      kind: "instagram",
+      url: shop.instagramUrl,
+      primaryLabel: "Instagram を見る",
+      iconAriaLabel: "Instagram",
+    });
+  if (shop.otherSocialUrl)
+    list.push({
+      kind: "other",
+      url: shop.otherSocialUrl,
+      primaryLabel: "公式サイトを見る",
+      iconAriaLabel: "公式サイト",
+    });
+  return { primary: list[0] ?? null, subs: list.slice(1) };
+}
+
+function SnsIcon({ kind }: { kind: SnsLink["kind"] }) {
+  if (kind === "instagram") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.6" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+      </svg>
+    );
+  }
+  if (kind === "booking") {
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M3 9h18M8 3v4M16 3v4M7 13h4M7 17h7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}
+
 function BadgePill({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
@@ -205,6 +269,21 @@ export default async function PlaceDetailPage({
     place.reviews.length > 0
       ? place.reviews.reduce((sum, r) => sum + r.rating, 0) / place.reviews.length
       : place.rating;
+
+  // L-2 (2026-05-22): 予約・SNS 導線
+  const { primary: primarySns, subs: subSns } = pickSnsLinks(shop);
+
+  // L-1 (2026-05-22): photo_url + gallery
+  const galleryImages: { url: string; alt: string; caption: string | null }[] = [
+    ...(shop.photoUrl
+      ? [{ url: shop.photoUrl, alt: shop.name, caption: null as string | null }]
+      : []),
+    ...shop.gallery.map((g, i) => ({
+      url: g.mediaUrl,
+      alt: g.altText ?? `${shop.name} の写真 ${i + 1}`,
+      caption: g.caption,
+    })),
+  ];
 
   return (
     <>
@@ -380,19 +459,65 @@ export default async function PlaceDetailPage({
                 </span>
               </div>
 
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="cta-book-main"
-                style={{ marginBottom: 10 }}
-              >
-                お店のサイトを見る
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
-                    stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
+              {primarySns ? (
+                <>
+                  <a
+                    href={primarySns.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cta-book-main"
+                    style={{ marginBottom: subSns.length > 0 ? 10 : 10 }}
+                  >
+                    {primarySns.primaryLabel}
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
+                        stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+                  {subSns.length > 0 && (
+                    <div style={{ display: "flex", gap: 8, marginBottom: 10, justifyContent: "center" }}>
+                      {subSns.map((s) => (
+                        <a
+                          key={s.kind}
+                          href={s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={s.iconAriaLabel}
+                          title={s.primaryLabel}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            border: "1px solid var(--light)",
+                            color: "var(--ink)",
+                            background: "transparent",
+                            transition: "all .2s",
+                          }}
+                        >
+                          <SnsIcon kind={s.kind} />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: "var(--muted)",
+                    textAlign: "center",
+                    padding: "12px 16px",
+                    background: "var(--pale)",
+                    borderRadius: 10,
+                    marginBottom: 10,
+                  }}
+                >
+                  予約導線は準備中です
+                </p>
+              )}
               <Link
                 href="/reviews/new"
                 className="block w-full text-center rounded-xl text-sm tracking-wide hover:opacity-80 transition-opacity"
@@ -427,6 +552,51 @@ export default async function PlaceDetailPage({
                     {place.description}
                   </div>
                 </div>
+
+                {/* ギャラリー（L-1: shops.photo_url + shop_media[]） */}
+                {galleryImages.length > 0 && (
+                  <div className="clay-card">
+                    <h2 className="clay-sec-h">ギャラリー</h2>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                        gap: 10,
+                      }}
+                    >
+                      {galleryImages.map((g, i) => (
+                        <figure key={i} style={{ margin: 0 }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={g.url}
+                            alt={g.alt}
+                            loading="lazy"
+                            style={{
+                              width: "100%",
+                              aspectRatio: "1 / 1",
+                              objectFit: "cover",
+                              borderRadius: 12,
+                              display: "block",
+                              background: "var(--pale)",
+                            }}
+                          />
+                          {g.caption && (
+                            <figcaption
+                              style={{
+                                fontSize: 11,
+                                color: "var(--muted)",
+                                marginTop: 6,
+                                textAlign: "center",
+                              }}
+                            >
+                              {g.caption}
+                            </figcaption>
+                          )}
+                        </figure>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* 基本情報 */}
                 <div className="clay-card">
@@ -573,18 +743,62 @@ export default async function PlaceDetailPage({
                     </p>
                   </div>
                   <div style={{ padding: "0 24px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
-                    <a
-                      href="#"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="cta-book-main"
-                    >
-                      お店のサイトを見る
-                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                        <path d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
-                          stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </a>
+                    {primarySns ? (
+                      <>
+                        <a
+                          href={primarySns.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="cta-book-main"
+                        >
+                          {primarySns.primaryLabel}
+                          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                            <path d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
+                              stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </a>
+                        {subSns.length > 0 && (
+                          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                            {subSns.map((s) => (
+                              <a
+                                key={s.kind}
+                                href={s.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={s.iconAriaLabel}
+                                title={s.primaryLabel}
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: 40,
+                                  height: 40,
+                                  borderRadius: "50%",
+                                  border: "1px solid var(--light)",
+                                  color: "var(--ink)",
+                                  background: "transparent",
+                                }}
+                              >
+                                <SnsIcon kind={s.kind} />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: "var(--muted)",
+                          textAlign: "center",
+                          padding: "12px 16px",
+                          background: "var(--pale)",
+                          borderRadius: 10,
+                        }}
+                      >
+                        予約導線は準備中です
+                      </p>
+                    )}
                     <Link
                       href="/reviews/new"
                       style={{
@@ -646,20 +860,22 @@ export default async function PlaceDetailPage({
       </main>
 
       {/* モバイル用固定CTA — 右端浮遊 pill ボタン */}
-      <div className="cta-mobile-bar">
-        <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="cta-mobile-btn"
-          aria-label="お店のサイトを見る"
-        >
-          <span>お店を見る</span>
-          <svg className="cta-mobile-btn-arrow" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-            <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </a>
-      </div>
+      {primarySns && (
+        <div className="cta-mobile-bar">
+          <a
+            href={primarySns.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cta-mobile-btn"
+            aria-label={primarySns.primaryLabel}
+          >
+            <span>{primarySns.kind === "instagram" ? "Instagram" : primarySns.kind === "booking" ? "予約する" : "サイトを見る"}</span>
+            <svg className="cta-mobile-btn-arrow" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </a>
+        </div>
+      )}
 
       <Footer />
     </>
