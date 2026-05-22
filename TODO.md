@@ -2,7 +2,7 @@
 
 ふたりへプロジェクトの未対応タスク一覧。完了したものは `[x]` でチェック、もしくは ~~取り消し線~~ で消し込み。
 
-最終更新: 2026-05-21（セッション③ 終了時点）
+最終更新: 2026-05-22（L-1 / L-2 完了時点）
 
 ---
 
@@ -219,6 +219,26 @@
   - Supabase shops 8 件 + mock placesHomeData / places.ts 20 件 + AGENCIES 3 件 + Supabase agencies/counselors 旧 mock 残骸 12 件 を架空名にリネーム
 - [x] **Kinda glow グリッドレイアウト修正**（未定義 `.kt-reel-grid` → `.kt-grid` に統一）（2026-05-21 セッション③）
 - [x] **FloatingBackButton を /kinda-type/quiz / /kinda-note/quiz で非表示**（2026-05-21 セッション③）
+- [x] **L-1 admin お店登録ページ新設**（2026-05-22 セッション④ / iKBfw コミット `398a1af` `0a395c9`）
+  - `/admin/shops/new` + `/admin/shops/[id]/edit` 別ページで全 20+ フィールド編集可能
+  - `components/admin/ShopForm.tsx` 共通フォーム（chip input / form-grid-2col モバイル対応）
+  - L-1 拡張: 写真 URL テキスト入力を廃止 → プロフィール画像 + ギャラリー（最大複数枚）の
+    ファイルアップロード方式に変更。クロップなし。新規 `shop_media` テーブル + `shop-media`
+    Storage バケット（migration 007）
+- [x] **L-2 SNS 予約導線フィールド追加**（2026-05-22 セッション④ / iKBfw `3277ee9` + uDUoW `c5c0916`）
+  - shops に `booking_url` / `instagram_url` / `other_social_url` 追加（migration 008）
+  - ShopForm に「予約・SNS 導線」セクション（用途説明 + 優先順位明示）
+  - user-site `/places/[id]` でプライマリ CTA（booking > instagram > other）+ サブアイコンの
+    出し分け。3 箇所（PC 右サイドバー / 左カラム下部 / モバイル sticky CTA）すべて対応
+- [x] **L-1 写真表示の user-site 反映 + 詳細ページ刷新**（2026-05-22 セッション④ / uDUoW `c5c0916` `3c0cf3d`）
+  - PlaceHome 型に `photoUrl` / `images[]` 追加
+  - 一覧カード（PlaceReelCard / ShopSearch / PlacesSection）で photoUrl 使用
+  - 複数画像があれば一覧カードで自動スライド（5 秒間隔・クロスフェード・進捗バー・
+    prefers-reduced-motion 尊重）
+  - リールモーダルで実画像スライドを表示（未登録なら gradient + SVG fallback）
+  - `/places/[id]` グラデヒーロー撤去 → コンパクト白ヘッダー（バッジ・店名・評価・タグ）
+  - ギャラリーをヘッダー直下に prominent 配置（横スクロール / scroll-snap / aspect 4:3）
+  - 未使用になった CategoryIcon を削除
 
 ---
 
@@ -329,14 +349,9 @@ esac
 
 セッション③（2026-05-21）で G-1 / H-1 / 名前不整合解消 / F-2 / F-3 / B-1/B-2 フロント側 / 実在名全廃 / Kinda glow グリッド修正 は完了済み。
 
-#### 🔴 次セッション最優先：admin お店登録ページ実装
+セッション④（2026-05-22）で L-1（写真アップロード含む拡張）/ L-2 / 一覧リール自動スライド / /places/[id] 詳細刷新（ヒーロー撤去 + コンパクトヘッダー + 横スクロールギャラリー）まで完了。
 
-| 項目 | 内容 | 規模 | 作業ブランチ |
-|---|---|---|---|
-| **L-1 admin お店登録ページ新設** | futarive-admin に `/admin/shops/new` + `/admin/shops/[id]/edit` ページ。F-3 で `shops` テーブルを Supabase 化済み（thumb_variant / category_label / area_label / location カラム追加済み）なので、UI を作れば即連動 | 中 | `claude/futarive-admin-dashboard-iKBfw` |
-| **L-2 SNS 予約導線フィールド追加** | `shops` テーブルに `booking_url` `instagram_url` `other_social_url` カラム追加 → user-site の /places/[id] サイドバー CTA で「お店のサイトを見る」「Instagram で予約」を出し分け。カフェなどは Instagram が主予約口のため | 中 | DB migration + futarive-admin 編集 UI + user-site 表示の 3 段階 |
-
-#### 🟡 次々セッション以降
+#### 🟡 次セッション候補
 
 | ID | 内容 | 規模 | 作業ブランチ |
 |---|---|---|---|
