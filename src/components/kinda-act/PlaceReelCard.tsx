@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import type { PlaceHome } from "@/lib/mock/places-home";
 import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
@@ -14,6 +15,8 @@ const GRADIENT_BG: Record<string, string> = {
   "photo-studio": "linear-gradient(135deg,#E0ECF8,#C4D8EC)",
 };
 
+const AUTO_SLIDE_INTERVAL_MS = 5000;
+
 type Props = {
   place: PlaceHome;
   onOpen: (place: PlaceHome) => void;
@@ -21,7 +24,26 @@ type Props = {
 
 export default function PlaceReelCard({ place, onOpen }: Props) {
   const bg = GRADIENT_BG[place.thumbVariant] ?? "linear-gradient(135deg,#FAEAE5,#F0D8D0)";
-  const hasPhoto = Boolean(place.photoUrl);
+  // images に統合済み（photo_url + shop_media）。後方互換で photoUrl 単発も拾う
+  const images = place.images && place.images.length > 0
+    ? place.images
+    : place.photoUrl
+      ? [place.photoUrl]
+      : [];
+  const hasPhoto = images.length > 0;
+
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (images.length < 2) return;
+    const reduced = typeof window !== "undefined"
+      && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    const timer = window.setInterval(() => {
+      setIdx((i) => (i + 1) % images.length);
+    }, AUTO_SLIDE_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [images.length]);
 
   return (
     <button
@@ -31,14 +53,26 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
       onClick={() => onOpen(place)}
     >
       {hasPhoto ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          src={place.photoUrl}
-          alt=""
-          loading="lazy"
-          className="kt-reel-card-bg"
-          style={{ objectFit: "cover", width: "100%", height: "100%" }}
-        />
+        // 全レイヤーを重ねて opacity でクロスフェード
+        images.map((url, i) => (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            key={`${url}-${i}`}
+            src={url}
+            alt=""
+            loading={i === 0 ? "eager" : "lazy"}
+            className="kt-reel-card-bg"
+            style={{
+              objectFit: "cover",
+              width: "100%",
+              height: "100%",
+              position: "absolute",
+              inset: 0,
+              opacity: i === idx ? 1 : 0,
+              transition: "opacity .8s ease",
+            }}
+          />
+        ))
       ) : (
         <>
           <div className="kt-reel-card-bg" style={{ background: bg }} aria-hidden />
@@ -59,6 +93,37 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
         </>
       )}
       <div className="kt-reel-card-overlay" aria-hidden />
+
+      {/* 複数枚あれば下部に小さな進捗ドット */}
+      {images.length > 1 && (
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: 8,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            gap: 4,
+            zIndex: 2,
+          }}
+        >
+          {images.map((_, i) => (
+            <span
+              key={i}
+              style={{
+                display: "block",
+                width: 16,
+                height: 2,
+                borderRadius: 1,
+                background: i === idx ? "rgba(255,255,255,.85)" : "rgba(255,255,255,.35)",
+                transition: "background .3s",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="kt-reel-card-top">
         <PlaceBadge type={place.badgeType} />

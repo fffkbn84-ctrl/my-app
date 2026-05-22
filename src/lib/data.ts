@@ -961,7 +961,31 @@ export async function getShops(): Promise<PlaceHome[]> {
     return placesHomeData
   }
 
-  return rows.map(mapShopRowToPlaceHome)
+  // shop_media を一括取得して shop ごとに集約
+  // 一覧カードの自動スライド / リールモーダル / 詳細ページギャラリーで共通利用
+  const shopIds = rows.map(r => r.id)
+  const mediaRes = await supabase
+    .from('shop_media')
+    .select('shop_id, media_url, display_order')
+    .in('shop_id', shopIds)
+    .order('display_order', { ascending: true })
+  type MediaLite = { shop_id: string; media_url: string; display_order: number }
+  const mediaByShop = new Map<string, string[]>()
+  for (const m of (mediaRes.data ?? []) as unknown as MediaLite[]) {
+    const list = mediaByShop.get(m.shop_id) ?? []
+    list.push(m.media_url)
+    mediaByShop.set(m.shop_id, list)
+  }
+
+  return rows.map(row => {
+    const base = mapShopRowToPlaceHome(row)
+    const gallery = mediaByShop.get(row.id) ?? []
+    const images = [
+      ...(base.photoUrl ? [base.photoUrl] : []),
+      ...gallery,
+    ]
+    return { ...base, images: images.length > 0 ? images : undefined }
+  })
 }
 
 /* ────────────────────────────────────────────────────────────

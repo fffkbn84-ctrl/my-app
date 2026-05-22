@@ -55,6 +55,21 @@ function getReelSlides(place: PlaceHome) {
   return grads.map((bg, i) => ({
     bg,
     caption: captions[i] ?? place.name,
+    imageUrl: undefined as string | undefined,
+  }));
+}
+
+/** L-1/L-2 (2026-05-22): photo_url + shop_media があれば実画像スライドを優先 */
+function getImageSlides(place: PlaceHome): { bg: string; caption: string; imageUrl?: string }[] | null {
+  const images = place.images && place.images.length > 0
+    ? place.images
+    : place.photoUrl ? [place.photoUrl] : [];
+  if (images.length === 0) return null;
+  const captions = [place.name, place.stage, place.features?.[0] ?? place.description.slice(0, 24)];
+  return images.map((url, i) => ({
+    bg: "",
+    caption: captions[i] ?? place.name,
+    imageUrl: url,
   }));
 }
 
@@ -97,7 +112,7 @@ export default function PlaceReelModal({ place, onClose }: Props) {
     };
   }, [place, onClose]);
 
-  const slides = place ? getReelSlides(place) : [];
+  const slides = place ? (getImageSlides(place) ?? getReelSlides(place)) : [];
 
   const handlePrev = useCallback(() => setImgIndex((i) => Math.max(0, i - 1)), []);
   const handleNext = useCallback(() => {
@@ -163,24 +178,36 @@ export default function PlaceReelModal({ place, onClose }: Props) {
               </button>
 
               <div className="kt-reel-modal-stage">
-                <div
-                  className="kt-reel-modal-image"
-                  style={{ background: currentSlide?.bg ?? "" }}
-                />
-                {/* カテゴリアイコンを薄くオーバーレイ */}
-                <div
-                  aria-hidden
-                  style={{
-                    position: "absolute",
-                    top: "32%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    opacity: 0.35,
-                    zIndex: 1,
-                  }}
-                >
-                  {PLACE_CATEGORY_ICON[place.thumbVariant]}
-                </div>
+                {currentSlide?.imageUrl ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={currentSlide.imageUrl}
+                    alt={currentSlide.caption ?? place.name}
+                    className="kt-reel-modal-image"
+                    style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                  />
+                ) : (
+                  <>
+                    <div
+                      className="kt-reel-modal-image"
+                      style={{ background: currentSlide?.bg ?? "" }}
+                    />
+                    {/* 画像未登録時のみカテゴリアイコンを薄くオーバーレイ */}
+                    <div
+                      aria-hidden
+                      style={{
+                        position: "absolute",
+                        top: "32%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        opacity: 0.35,
+                        zIndex: 1,
+                      }}
+                    >
+                      {PLACE_CATEGORY_ICON[place.thumbVariant]}
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="kt-reel-modal-tap-zone is-left" onClick={handlePrev} aria-hidden />

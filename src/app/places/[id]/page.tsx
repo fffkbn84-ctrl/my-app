@@ -89,78 +89,6 @@ function StarRatingLight({ rating, size = 14 }: { rating: number; size?: number 
   );
 }
 
-function CategoryIcon({
-  category,
-  svgColor,
-  size = 52,
-}: {
-  category: string;
-  svgColor: string;
-  size?: number;
-}) {
-  const p = { width: size, height: size, viewBox: "0 0 52 52", fill: "none" as const };
-
-  switch (category) {
-    case "カフェ":
-      return (
-        <svg {...p}>
-          <path d="M10 20h24l-2.5 18H12.5L10 20z" stroke={svgColor} strokeWidth="1.5"
-            fill="rgba(200,169,122,.15)" strokeLinejoin="round" />
-          <path d="M34 24h3a3.5 3.5 0 010 7h-3" stroke={svgColor} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M16 15c0-2.5 3-2.5 3-5M22 15c0-2.5 3-2.5 3-5" stroke={svgColor}
-            strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-        </svg>
-      );
-    case "美容室":
-      return (
-        <svg {...p}>
-          <circle cx="18" cy="18" r="7" stroke={svgColor} strokeWidth="1.5" fill="rgba(122,158,135,.15)" />
-          <circle cx="18" cy="34" r="7" stroke={svgColor} strokeWidth="1.5" fill="rgba(122,158,135,.15)" />
-          <path d="M23 21l14-8M23 31l14 8" stroke={svgColor} strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      );
-    case "ネイルサロン":
-      return (
-        <svg {...p}>
-          <rect x="18" y="24" width="14" height="20" rx="3" stroke={svgColor} strokeWidth="1.5"
-            fill="rgba(155,122,181,.15)" />
-          <path d="M21 24v-7a4 4 0 018 0v7" stroke={svgColor} strokeWidth="1.5" />
-          <path d="M21 32h8M21 37h8" stroke={svgColor} strokeWidth="1.2" strokeLinecap="round" opacity=".5" />
-        </svg>
-      );
-    case "眉毛サロン":
-      return (
-        <svg {...p}>
-          <circle cx="26" cy="26" r="14" stroke={svgColor} strokeWidth="1.5" fill="rgba(184,134,11,.1)" />
-          <path d="M17 22c2-3 6-3 8-1" stroke={svgColor} strokeWidth="2" strokeLinecap="round" />
-          <path d="M27 22c2-3 6-3 8-1" stroke={svgColor} strokeWidth="2" strokeLinecap="round" />
-          <circle cx="21" cy="29" r="2" fill={svgColor} opacity=".4" />
-          <circle cx="31" cy="29" r="2" fill={svgColor} opacity=".4" />
-          <path d="M21 35c2 2 9 2 10 0" stroke={svgColor} strokeWidth="1.5" strokeLinecap="round" opacity=".6" />
-        </svg>
-      );
-    case "フォトスタジオ":
-      return (
-        <svg {...p}>
-          <rect x="8" y="16" width="36" height="26" rx="3" stroke={svgColor} strokeWidth="1.5"
-            fill="rgba(107,143,191,.15)" />
-          <circle cx="26" cy="29" r="7" stroke={svgColor} strokeWidth="1.5" fill="none" />
-          <path d="M19 16l3-5h8l3 5" stroke={svgColor} strokeWidth="1.5" strokeLinejoin="round" />
-          <circle cx="38" cy="23" r="2" fill={svgColor} opacity=".5" />
-        </svg>
-      );
-    default: /* レストラン */
-      return (
-        <svg {...p}>
-          <path d="M14 10v32M22 10c0 8-4 10-4 16h8c0-6-4-8-4-16z" stroke={svgColor}
-            strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M32 10v10a4 4 0 008 0V10" stroke={svgColor} strokeWidth="1.5" strokeLinecap="round" />
-          <path d="M36 20v22" stroke={svgColor} strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      );
-  }
-}
-
 /* ────────────────────────────────────────────────────────────
    SNS 予約導線
    booking_url > instagram_url > other_social_url の優先順で
@@ -299,241 +227,190 @@ export default async function PlaceDetailPage({
           ]}
         />
         {/* ═══════════════════════════════════════════════════
-            ヒーローストリップ（お店グラデーション背景）
+            コンパクトヘッダー — グラデヒーロー廃止
+            ギャラリーに目が行くようテキストのみシンプルに
         ═══════════════════════════════════════════════════ */}
-        <div style={{ background: place.gradient, paddingTop: 48, paddingBottom: 0 }}>
-          <div className="detail-hero">
+        <div style={{ background: "var(--white)", paddingTop: 16, paddingBottom: 16 }}>
+          <div className="wrap" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {/* バッジ + ステージタグ */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+              <BadgePill badge={place.badge} />
+              <span
+                className="d-tag featured"
+                style={{
+                  background: "rgba(200,169,122,.12)",
+                  borderColor: "rgba(200,169,122,.35)",
+                  color: "var(--accent)",
+                  fontSize: 11,
+                }}
+              >
+                {place.stage}
+              </span>
+            </div>
 
-            {/* 左: パンくず・バッジ・アイコン・店名・タグ・統計 */}
-            <div>
-              {/* パンくず */}
-              <div className="d-breadcrumb" style={{ color: "rgba(0,0,0,.4)" }}>
-                <Link href="/" style={{ color: "rgba(0,0,0,.4)" }}>トップ</Link>
-                <span>/</span>
-                <Link href="/kinda-act" style={{ color: "rgba(0,0,0,.4)" }}>
-                  Kinda act<span style={{ marginLeft: 4, fontSize: "0.85em" }}>（実際に会う場所を選ぶ）</span>
-                </Link>
-                <span>/</span>
-                <span style={{ color: "rgba(0,0,0,.65)" }}>{place.name}</span>
-              </div>
+            {/* 店名 */}
+            <h1
+              style={{
+                fontFamily: "var(--font-mincho)",
+                fontSize: "clamp(22px, 4.5vw, 30px)",
+                fontWeight: 500,
+                color: "var(--ink)",
+                margin: 0,
+                lineHeight: 1.35,
+              }}
+            >
+              {place.name}
+            </h1>
 
-              {/* バッジ */}
-              <div style={{ marginBottom: 20 }}>
-                <BadgePill badge={place.badge} />
-              </div>
+            {/* カテゴリ・エリア */}
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--mid)",
+                margin: 0,
+              }}
+            >
+              {place.category} · {place.area}
+            </p>
 
-              {/* アイコン + 店名 */}
-              <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 16 }}>
-                {/* クレイ円形アイコン */}
-                <div
-                  style={{
-                    width: 84,
-                    height: 84,
-                    borderRadius: "50%",
-                    background: "rgba(255,255,255,.6)",
-                    backdropFilter: "blur(10px)",
-                    WebkitBackdropFilter: "blur(10px)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                    boxShadow:
-                      "inset 0 2px 0 rgba(255,255,255,.95), 0 6px 20px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.08)",
-                  }}
-                >
-                  <CategoryIcon category={place.category} svgColor={place.svgColor} size={44} />
-                </div>
-                <div>
-                  <div className="d-name" style={{ color: "var(--black)" }}>{place.name}</div>
-                  <div className="d-role" style={{ color: "rgba(0,0,0,.5)" }}>
-                    {place.category} · {place.area}
-                  </div>
-                </div>
-              </div>
-
-              {/* 評価行 */}
-              <div className="d-rating-row">
-                <div className="d-stars">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg key={star} width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 2.1.7-4L2.2 5.7l4-.6z"
-                        fill={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(0,0,0,.15)"}
-                        stroke={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(0,0,0,.15)"}
-                        strokeWidth=".5"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  ))}
-                </div>
-                <span className="d-rating-num" style={{ color: "var(--black)" }}>
+            {/* 評価 + 口コミリンク */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} width="14" height="14" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M8 1.5l1.8 3.6 4 .6-2.9 2.8.7 4L8 10.4l-3.6 2.1.7-4L2.2 5.7l4-.6z"
+                      fill={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(0,0,0,.12)"}
+                      stroke={star <= Math.round(avgRating) ? "var(--accent)" : "rgba(0,0,0,.12)"}
+                      strokeWidth=".5"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                ))}
+                <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, color: "var(--ink)", marginLeft: 6 }}>
                   {avgRating.toFixed(1)}
                 </span>
-                <span className="d-rating-sep" style={{ background: "rgba(0,0,0,.15)" }} />
-                <Link
-                  href="#reviews"
-                  className="d-review-badge"
-                  style={{
-                    background: "rgba(0,0,0,.06)",
-                    border: "1px solid rgba(0,0,0,.1)",
-                    color: "rgba(0,0,0,.5)",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    textDecoration: "none",
-                    cursor: "pointer",
-                  }}
-                  aria-label="口コミセクションへ移動"
-                >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  {place.reviews.length}件の口コミ
-                </Link>
               </div>
-
-              {/* シーンタグ — stage と重複する scene は除外 */}
-              <div className="d-tags">
-                <span
-                  className="d-tag featured"
-                  style={{
-                    background: "rgba(200,169,122,.15)",
-                    borderColor: "rgba(200,169,122,.4)",
-                    color: "var(--accent)",
-                  }}
+              <Link
+                href="#reviews"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: 12,
+                  color: "var(--mid)",
+                  textDecoration: "none",
+                  padding: "4px 10px",
+                  borderRadius: 14,
+                  background: "rgba(0,0,0,.04)",
+                  border: "1px solid rgba(0,0,0,.06)",
+                }}
+                aria-label="口コミセクションへ移動"
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
                 >
-                  {place.stage}
-                </span>
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                {place.reviewCount}件の口コミ
+              </Link>
+            </div>
+
+            {/* 他のシーンタグ（stage と重複しないもの） */}
+            {place.scenes.filter((s) => s !== place.stage).length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                 {place.scenes
                   .filter((scene) => scene !== place.stage)
                   .map((scene) => (
                     <span
                       key={scene}
-                      className="d-tag"
-                      style={{ borderColor: "rgba(0,0,0,.15)", color: "rgba(0,0,0,.5)" }}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        padding: "3px 10px",
+                        borderRadius: 14,
+                        border: "1px solid rgba(0,0,0,.1)",
+                        color: "var(--mid)",
+                        fontSize: 11,
+                      }}
                     >
                       {scene}
                     </span>
                   ))}
               </div>
-
-              {/* 統計 */}
-              <div className="d-stats" style={{ borderTopColor: "rgba(0,0,0,.1)" }}>
-                <div className="d-stat-item">
-                  <div className="d-stat-num" style={{ color: "var(--black)" }}>
-                    {place.reviewCount}
-                  </div>
-                  <div className="d-stat-label" style={{ color: "rgba(0,0,0,.4)" }}>口コミ件数</div>
-                </div>
-                <div className="d-stat-item">
-                  <div className="d-stat-num" style={{ color: "var(--black)" }}>
-                    {avgRating.toFixed(1)}
-                  </div>
-                  <div className="d-stat-label" style={{ color: "rgba(0,0,0,.4)" }}>平均評価</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 右: アクションカード（PCのみ） */}
-            <div className="d-book-card">
-              <div className="d-book-card-title">このお店について</div>
-              <div className="d-book-card-sub">{place.area} · {place.access}</div>
-
-              <div className="d-price-row">
-                <span className="d-price-label">価格帯</span>
-                <span
-                  className="d-price"
-                  style={{ fontFamily: "var(--font-serif)", fontSize: 20 }}
-                >
-                  {place.priceRange}
-                </span>
-              </div>
-
-              {primarySns ? (
-                <>
-                  <a
-                    href={primarySns.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="cta-book-main"
-                    style={{ marginBottom: subSns.length > 0 ? 10 : 10 }}
-                  >
-                    {primarySns.primaryLabel}
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M6 2H2v10h10V8M8 2h4v4M6 8l5-5"
-                        stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </a>
-                  {subSns.length > 0 && (
-                    <div style={{ display: "flex", gap: 8, marginBottom: 10, justifyContent: "center" }}>
-                      {subSns.map((s) => (
-                        <a
-                          key={s.kind}
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={s.iconAriaLabel}
-                          title={s.primaryLabel}
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: 40,
-                            height: 40,
-                            borderRadius: "50%",
-                            border: "1px solid var(--light)",
-                            color: "var(--ink)",
-                            background: "transparent",
-                            transition: "all .2s",
-                          }}
-                        >
-                          <SnsIcon kind={s.kind} />
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "var(--muted)",
-                    textAlign: "center",
-                    padding: "12px 16px",
-                    background: "var(--pale)",
-                    borderRadius: 10,
-                    marginBottom: 10,
-                  }}
-                >
-                  予約導線は準備中です
-                </p>
-              )}
-              <Link
-                href="/reviews/new"
-                className="block w-full text-center rounded-xl text-sm tracking-wide hover:opacity-80 transition-opacity"
-                style={{
-                  padding: "14px 20px",
-                  border: "1.5px solid var(--light)",
-                  color: "var(--ink)",
-                }}
-              >
-                口コミを書く
-              </Link>
-              <p className="d-book-note">お店を利用した方ならどなたでも口コミを投稿できます</p>
-            </div>
-
+            )}
           </div>
         </div>
+
+        {/* ═══════════════════════════════════════════════════
+            ギャラリー — ヘッダー直下に prominent 表示
+            横スクロール（多い時は自然にスワイプ可）
+        ═══════════════════════════════════════════════════ */}
+        {galleryImages.length > 0 && (
+          <section
+            aria-label={`${place.name} の写真`}
+            style={{ background: "var(--white)", paddingBottom: 16 }}
+          >
+            <div
+              className="places-gallery-scroll"
+              style={{
+                display: "flex",
+                gap: 10,
+                overflowX: "auto",
+                scrollSnapType: "x mandatory",
+                padding: "0 16px 8px",
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
+              {galleryImages.map((g, i) => (
+                <figure
+                  key={i}
+                  style={{
+                    margin: 0,
+                    flexShrink: 0,
+                    width: "min(78vw, 320px)",
+                    scrollSnapAlign: "start",
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={g.url}
+                    alt={g.alt}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    style={{
+                      width: "100%",
+                      aspectRatio: "4 / 3",
+                      objectFit: "cover",
+                      borderRadius: 14,
+                      display: "block",
+                      background: "var(--pale)",
+                    }}
+                  />
+                  {g.caption && (
+                    <figcaption
+                      style={{
+                        fontSize: 11,
+                        color: "var(--muted)",
+                        marginTop: 6,
+                        paddingLeft: 2,
+                      }}
+                    >
+                      {g.caption}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ═══════════════════════════════════════════════════
             コンテンツエリア — クレイ背景
@@ -552,51 +429,6 @@ export default async function PlaceDetailPage({
                     {place.description}
                   </div>
                 </div>
-
-                {/* ギャラリー（L-1: shops.photo_url + shop_media[]） */}
-                {galleryImages.length > 0 && (
-                  <div className="clay-card">
-                    <h2 className="clay-sec-h">ギャラリー</h2>
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-                        gap: 10,
-                      }}
-                    >
-                      {galleryImages.map((g, i) => (
-                        <figure key={i} style={{ margin: 0 }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={g.url}
-                            alt={g.alt}
-                            loading="lazy"
-                            style={{
-                              width: "100%",
-                              aspectRatio: "1 / 1",
-                              objectFit: "cover",
-                              borderRadius: 12,
-                              display: "block",
-                              background: "var(--pale)",
-                            }}
-                          />
-                          {g.caption && (
-                            <figcaption
-                              style={{
-                                fontSize: 11,
-                                color: "var(--muted)",
-                                marginTop: 6,
-                                textAlign: "center",
-                              }}
-                            >
-                              {g.caption}
-                            </figcaption>
-                          )}
-                        </figure>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* 基本情報 */}
                 <div className="clay-card">

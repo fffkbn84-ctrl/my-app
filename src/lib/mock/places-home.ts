@@ -37,6 +37,13 @@ export interface PlaceHome {
    * L-1（2026-05-22）: 統括管理画面からアップロード可能に。
    */
   photoUrl?: string;
+  /**
+   * カード・リールモーダル用の画像一覧（photoUrl + shop_media の URL を統合）。
+   * 1 枚目は photoUrl（あれば）、以降は shop_media を display_order 順に。
+   * 複数枚あれば一覧カードでも自動スライドする。
+   * L-1/L-2（2026-05-22）追加。
+   */
+  images?: string[];
 }
 
 export const placesHomeData: PlaceHome[] = [
