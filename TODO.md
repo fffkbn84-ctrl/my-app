@@ -50,6 +50,34 @@
     （agencies / kinda-act / kinda-talk / kinda-glow / login）
   - variant: `inline`（短い待ち）/ `page`（長い待ち、Suspense fallback 用）
 
+### 鮮度アラート（Resend 経由メール通知）— インフラ完了・有効化待ち
+
+`claude/claude-md-constitution-jPCIz` で `supabase/functions/notify-stale-profiles` を実装・deploy 済み。
+仕組みは持ったが、サイト稼働まで cron は意図的に未設定。**ローンチ準備の際にここをチェック。**
+
+- [x] **マイグレーション**：`counselors` / `agencies` に `last_freshness_alert_sent_at timestamptz` 追加（クールダウン基準）
+- [x] **Edge Function deploy**：`notify-stale-profiles`（90日未更新 → Resend で本人宛メール、30日クールダウン、DRY_RUN 対応）
+- [x] **CLAUDE.md §8**：連絡用メアドは「リマインダー届く前提」で `auth.users.email` 固定とする運用ルールを追記
+- [ ] **Resend 契約 + ドメイン検証**（リリース近くで実施。`Kinda <noreply@<検証済みドメイン>>` を確保）
+- [ ] **Supabase Function Secrets 投入**：`RESEND_API_KEY` / `STALE_NOTIFY_TOKEN`（`openssl rand -hex 32`）/ `RESEND_FROM` / `KINDA_COUNSELOR_URL`
+- [ ] **DRY_RUN=1 で動作確認**（送信せず対象件数だけ確認）→ 本送信 1 件テスト → 本番有効化
+- [ ] **pg_cron スケジュール登録**：READMEに置いた SQL を 1 回実行（既定：毎週月曜 09:00 JST）。サイト稼働後に有効化する判断
+- [ ] **契約フローへの反映**：カウンセラー／相談所オーナーに「ログイン用メアド = 運用リマインダーの宛先」を契約時に明示
+
+> 詳細手順は `supabase/functions/notify-stale-profiles/README.md`。
+> いつでも開始でき、開始した瞬間から自動で機能する状態。
+
+### サンプルデータの整理（admin / DB 連携の未完部分）
+
+`counselors` 側はサンプル名・isDemo フラグでほぼ揃っているが、`agencies` と admin UI に整理漏れあり：
+
+- [ ] **agencies の is_demo フラグ修正**：DB に `（サンプル）` 名が 6 件あるのに `is_demo=false` のまま。
+  単発 SQL で `UPDATE agencies SET is_demo = true WHERE name LIKE '%（サンプル）%'`
+- [ ] **agencies 重複登録の整理**：`Emma〜そろそろ結婚してみようかな〜` が 2 件（owner あり / owner なし）。owner なしの方を削除
+- [ ] **`counselors` 中の "山田孝之"（is_demo=false / owner なし）** の処遇判断（サンプル化 or 削除）
+- [ ] **admin に `is_demo` 列表示 + トグル**：`futarive-admin/app/admin/counselors/page.tsx` および `shops/page.tsx`（shops はそもそも is_demo 列が DB にない。badge_type で運用するなら admin/agencies/page.tsx 含めて方針統一）
+- [ ] **未使用 Next.js scaffolding SVG 削除**：`public/{next,window,file,globe,vercel}.svg`（参照 0 件・5 ファイル）
+
 ---
 
 ## ✅ 完了（今セッション、2026-05-22）
@@ -78,6 +106,24 @@
 1. ~~画像監査タスク（小）— docs/image-audit.md 作成。loading-state 候補 + 不足画像リスト + オーナメント候補~~ ✅
 2. **last_reviewed_at + 鮮度管理ダッシュボード（中）— Phase B の足回り** ← 次
 3. SNS 流入対策（小）— カウンセラー管理画面の SNS フィールド表示制限ロジックを futarive-counselor で実装。利用規約案文章は `/terms` を更新
+
+---
+
+## 🟢 サイト稼働後・初期営業（タイミングを見て着手）
+
+ローンチに前後して並走するタスク群。プロダクト本体ではなく営業・対外発信。
+
+- [ ] **結婚相談所への営業資料**：1 ページ概要 / 3〜5 ページの提案資料 / 料金表（送客料 ¥5,000・初期費用なし）
+  - Kinda の差別化（口コミ × カウンセラー単位の選び方 / ユーザーファースト / クレイ風ビジュアル）を 1 スライドで伝える
+  - 「掲載するだけ」「ご面談後の発生額のみ」のシンプルさを強調
+- [ ] **営業台本（電話 / メール / 訪問）**：
+  - 初回フック（30秒）／反論への返答（料金疑問・ステマ疑問・既存掲載先との違い）／クロージング
+  - 「中立」と言わない・「ユーザーファースト」で押す（CLAUDE.md §1 準拠）
+- [ ] **メーリングリスト構築**：
+  - 結婚相談所オーナー連絡先の収集元（IBJ / BIU 加盟リスト / 公式サイト掘り起こし）
+  - 送信ツールは Resend / SendGrid / Mailchimp のいずれか。鮮度アラートで Resend を使うなら統一が楽
+  - **特定電子メール法**：オプトイン取得 or 「事業者向けの取引提案」例外を満たす運用設計が必要（要法務確認）
+  - 配信スケジュール（初回提案 → 1 週間後フォロー → 2 週間後最終 の 3 タッチが定番）
 
 ---
 
