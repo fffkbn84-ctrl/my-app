@@ -1,6 +1,6 @@
 # 画像監査レポート（image-audit.md）
 
-最終更新: 2026-05-22（rev. 2 — kinda-note-deco 配置 / ロゴ webp 化を反映）
+最終更新: 2026-05-22（rev. 3 — ロゴ webp 切替完了 / 重複 jpg 削除を反映）
 
 ふたりへ（Kinda）user-site の画像アセットの棚卸し。本番リリース前に「不足を埋める」「重いものを最適化」「装飾の統一感を上げる」ためのチェックリスト。
 
@@ -21,10 +21,11 @@
 | ヒーロー画像（ページ最上部） | 6 件 | 揃っている |
 | 天気アイコン（Kinda note 用） | 20 件 | 揃っている |
 | セクション画像（トップ・グリッド） | 6 件 | 揃っている |
-| ロゴ | 2 件（PNG + WebP 各 2） | webp 化 ✅（main）／ uDUoW のコード参照は PNG のまま 🔴 |
+| ロゴ | 2 件（WebP のみ） | ✅ 全 webp 化完了（合計 -1.1MB） |
 | オーナメント / 装飾 | 4 件 | 2 件使用（starfish / deco-1）／ 1 件意図保全（deco-2）／ 1 件オーファン（heartwopal） |
 | ローディング画像 | 0 件 | **未整備（Suspense fallback 5 箇所が空 div）** |
 | **不足（参照あるが /public に無い）** | **0 件** | ✅ 解決済み（2026-05-22）|
+| **重複（同名 jpg + webp）** | **0 件** | ✅ 解決済み（2026-05-22、-383KB）|
 
 ---
 
@@ -99,29 +100,32 @@ src/components/ui/KindaLoader.tsx
 
 ## 4. 既存アセットの最適化（重い画像 / 重複ファイル）
 
-### 4-1. 巨大なロゴ画像（webp 化済み、コード差し替え未） 🟡
+### 4-1. ロゴ画像 ✅
 
 | ファイル | サイズ | 状態 |
 |---|---|---|
-| `logoname _kinda_header.PNG` | 836 KB | 旧版（main / uDUoW 両方に残置） |
-| `logoname _kinda_header.webp` | **67 KB**（92% 削減）| ✅ main にあり / uDUoW には未取り込み |
-| `toppage_name.PNG` | 381 KB | 旧版（main / uDUoW 両方に残置） |
-| `toppage_name.webp` | **39 KB**（90% 削減）| ✅ main にあり / uDUoW には未取り込み |
+| `logoname _kinda_header.webp` | **67 KB**（92% 削減）| ✅ 採用中（Header.tsx:104） |
+| `toppage_name.webp` | **39 KB**（90% 削減）| ✅ 採用中（columns/[slug]/page.tsx:137、OG image） |
 
-**残タスク（uDUoW 側）：**
-1. main からの merge / cherry-pick で `.webp` ファイルを uDUoW に取り込み
-2. uDUoW のコード参照を `.PNG` → `.webp` に差し替え：
-   - `src/components/layout/Header.tsx:104`（ヘッダーロゴ — 全ページ影響）
-   - `src/app/columns/[slug]/page.tsx:137`（OG image URL）
-3. 動作確認後、旧 `.PNG` 2 枚を削除（または `public/images/legacy/` 退避）
-4. ファイル名のスペース（`logoname _kinda_header`）も合わせて `logoname-kinda-header.webp` 等に rename すると URL エンコード問題が消える（任意）
+**実施履歴（`ba6cfe2`）：**
+- uDUoW のコード参照を `.PNG` → `.webp` に差し替え
+- 旧 `.PNG` 2 枚（836KB + 381KB = 1.17MB）を削除
+- ヘッダーは全ページ読み込みなので、初回 LCP / モバイル回線への効果が大きい
 
-### 4-2. 重複ファイル
+**任意の追加タスク（保留）：**
+- ファイル名のスペース（`logoname _kinda_header`）を `logoname-kinda-header` 等に rename
+  → URL エンコード回避になるが、動作上は問題なし。コミット履歴を汚すコスト > 利点なので保留
 
-| ペア | サイズ | 推奨 |
+### 4-2. 重複ファイル ✅
+
+`b2b34d4` で同名 `.jpg` を撤去済み。コード参照は webp のみだったため安全に削除。
+
+| 削除済みファイル | 元サイズ | 残った webp |
 |---|---|---|
-| `kinda-act-hero.jpg`（212K）+ `.webp`（53K） | jpg は約 4 倍重い | **jpg 削除**（コード参照は webp のみ） |
-| `section-beauty-n2.png.jpg`（171K）+ `.png.webp`（35K） | 同上 | **jpg 削除**。ファイル名 `.png.jpg` の二重拡張子も気持ち悪い → リネーム |
+| `kinda-act-hero.jpg` | 212K | `kinda-act-hero.webp`（53K） |
+| `section-beauty-n2.png.jpg` | 171K | `section-beauty-n2.png.webp`（35K） |
+
+合計 -383KB。`section-beauty-n2.png.webp` の二重拡張子（`.png.webp`）は気持ち悪いので、将来リネームの追加タスク化（§9 Step 3）。
 
 ### 4-3. オーファン（未参照アセット）
 
@@ -215,14 +219,13 @@ src/app/error.tsx           未作成 — 予期せぬエラー時の画面
 | # | タスク | 規模 | 工数 | 状態 |
 |---|---|---|---|---|
 | 1 | `kinda-note-deco-1.webp` / `-2.webp` 制作・配置 | 小 | — | ✅ 完了（`0e8eb4a` / `61f14a4`） |
-| 2 | `logoname _kinda_header.PNG` を webp 化 | 小 | — | 🟡 webp は main にあり。uDUoW のコード差替（Header.tsx:104）が残 |
-| 3 | `toppage_name.PNG` の webp 化 | 小 | — | 🟡 webp は main にあり。uDUoW のコード差替（columns/[slug]/page.tsx:137）が残 |
+| 2 | `logoname _kinda_header.PNG` を webp 化 | 小 | — | ✅ 完了（`ba6cfe2`、92% 削減） |
+| 3 | `toppage_name.PNG` の webp 化 | 小 | — | ✅ 完了（`ba6cfe2`、90% 削減） |
 | 4 | `not-found.tsx` 新設 + イラスト 1 枚 | 中 | 1h | 🔴 未着手 |
 | 5 | `KindaLoader` コンポーネント新設 + Suspense fallback 5 箇所差し替え | 中 | 1.5h | 🔴 未着手 |
-| 6 | 重複 .jpg ファイル削除（kinda-act-hero / section-beauty-n2） | 極小 | 0.1h | 🔴 未着手 |
-| 7 | ロゴ webp の uDUoW 取り込み + コード参照差替 + 旧 PNG 整理 | 小 | 0.3h | 🔴 未着手（#2/#3 に紐づく実コミット作業） |
+| 6 | 重複 .jpg ファイル削除（kinda-act-hero / section-beauty-n2） | 極小 | — | ✅ 完了（`b2b34d4`、-383KB） |
 
-残工数目安：2.9 時間
+残工数目安：2.5 時間
 
 ### 🟡 リリース後でも OK
 
@@ -253,12 +256,11 @@ src/app/error.tsx           未作成 — 予期せぬエラー時の画面
 
 ## 9. 制作の進め方（提案）
 
-### Step 1: 即対応（このセッション or 次セッション）
+### Step 1: 即対応 ✅ 完了
 
 - [x] `kinda-note-deco-1.webp` / `-2.webp` 生成・配置（intro hero へ採用）
-- [x] ロゴ 2 枚を webp 化（main 側で完了 — 92% / 90% 削減）
-- [ ] uDUoW にロゴ webp を merge / cherry-pick + コード参照を `.PNG` → `.webp` 差替
-- [ ] 重複 .jpg ファイル 2 件削除（`kinda-act-hero.jpg` / `section-beauty-n2.png.jpg`）
+- [x] ロゴ 2 枚を webp 化 + コード参照差替 + 旧 PNG 削除（`ba6cfe2`、-1.17MB）
+- [x] 重複 .jpg ファイル 2 件削除（`b2b34d4`、-383KB）
 
 ### Step 2: 段階的に
 

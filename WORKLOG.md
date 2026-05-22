@@ -2662,3 +2662,63 @@ git -C /home/user/my-app checkout claude/counselor-admin-dashboard-ZECfQ
 | 予約詳細確認 | カレンダー画面から `booked` スロットの予約者情報を表示 |
 | プロフィール写真トリミング | アップロード時にブラウザ内でクロップ UI |
 | 通知機能 | 新規予約・新規口コミ着信時のブラウザ通知 |
+
+---
+
+## 実装済み機能（2026-05-22 追記）
+
+ブランチ：`claude/implement-kinda-talk-uDUoW`
+
+### 1. Kinda note intro ページに clay 装飾画像を採用
+
+- `kinda-note/page.tsx` の hero エリアに `kinda-note-deco-1.webp`（1254×1254、クレイ風ノート＋ペン＋カップ＋花）を採用
+- 元のピンクグラデーション枠＋ハート SVG を撤去、画像 1 枚に置換
+- `priority` 付与で LCP 対策、`sizes` でレスポンシブ
+- CTA 直前にあった `kinda-note-deco-2.webp`（ハート手渡し）は、CTA を画面外に追いやる＆「1 分で終わる」の軽さを削ぐ理由で **配置せず保留**。アセット自体は `public/images/` に保全（`ab2040b` の方針踏襲）
+- 関連：`0e8eb4a`（採用）／ `61f14a4`（deco-2 撤去）
+
+### 2. ロゴ画像の webp 化と PNG 撤去（`ba6cfe2`）
+
+main で生成済みの webp を uDUoW に取り込み、コード参照差替＆旧 PNG 削除。
+
+| ファイル | 旧 | 新 | 削減 |
+|---|---|---|---|
+| ヘッダーロゴ | `logoname _kinda_header.PNG`（836KB） | `.webp`（67KB） | -92% |
+| OG image | `toppage_name.PNG`（381KB） | `.webp`（39KB） | -90% |
+
+合計 -1.17MB。ヘッダーは全ページで読み込まれるため、初回 LCP / モバイル回線への効果が大きい。コード差替箇所：
+
+- `src/components/layout/Header.tsx:104`
+- `src/app/columns/[slug]/page.tsx:137`
+
+ファイル名のスペース（`logoname _kinda_header`）は動作上問題ないため踏襲。
+
+### 3. 重複 .jpg 撤去（`b2b34d4`）
+
+コード参照は webp のみだったため、`.jpg` 版を削除。
+
+- `kinda-act-hero.jpg`（212K）→ 削除
+- `section-beauty-n2.png.jpg`（171K）→ 削除
+
+合計 -383KB。`section-beauty-n2.png.webp` の二重拡張子は将来リネーム候補。
+
+### 4. `docs/image-audit.md` rev. 2 / rev. 3
+
+- rev. 2：kinda-note-deco 配置 / ロゴ webp 化（main 側）/ オーファン誤検出修正（CSS 経路の grep 漏れ）/ 意図保全アセット節新設（`59af3e6`）
+- rev. 3：本日の実コミット完了を反映、§7 優先タスク中 6 件中 4 件が ✅
+
+旧 rev で `Kinda-voices-nouse` / `Toontown-background` / `laughing-town-background` をオーファン扱いしていたが、`globals.css` で参照されており現役だった。監査スクリプトを `src/` 全体（CSS 含む）に拡張。
+
+### ハマったこと
+
+- uDUoW の push が一度 403 で reject された（並行セッションが先に `f37ec0c` → `597fcda` → `ab2040b` を積んでいた）。`git pull --rebase` で取り込んで再 push、binary 衝突なし（同一 webp 追加だったため）
+- WORKLOG.md の最新セクションが futarive-counselor 系で止まっていて、user-site Phase A の日々の作業ログが分離していた。次の作業ログは引き続き user-site セクションとして書く
+
+### 次セッションの引き継ぎ
+
+`docs/image-audit.md` §7 リリース前 must の残：
+
+- [ ] #4 `not-found.tsx` 新設 + イラスト 1 枚（中、1h）
+- [ ] #5 `KindaLoader` 新設 + Suspense fallback 5 箇所差替（中、1.5h）
+
+優先タスクは **last_reviewed_at + 鮮度管理ダッシュボード（中）** に移行。詳細は `TODO.md` を参照。
