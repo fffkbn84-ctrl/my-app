@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -98,33 +99,22 @@ export default function KindaNotePage() {
         {/* ② ヒーローセクション */}
         <div style={{ padding: "32px 0 28px" }}>
 
-          {/* 装飾エリア（将来クレイ風イラスト差し替え予定） */}
-          <div
+          {/* 装飾エリア（クレイ風イラスト） */}
+          <Image
+            src="/images/kinda-note-deco-1.webp"
+            alt=""
+            width={1254}
+            height={1254}
+            priority
+            sizes="(max-width: 480px) 100vw, 432px"
             style={{
-              height: 180,
+              width: "100%",
+              height: "auto",
               borderRadius: 24,
-              background: "linear-gradient(135deg, #F0D8D0, #F5EEE6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               marginBottom: 28,
-              overflow: "hidden",
+              display: "block",
             }}
-          >
-            {/* ハートSVG（将来クレイ風ノートイラストに差し替え） */}
-            <svg
-              width="60"
-              height="60"
-              viewBox="0 0 60 60"
-              fill="none"
-              opacity="0.35"
-            >
-              <path
-                d="M30 50C30 50 6 35 6 20C6 13.4 11.4 8 18 8C22 8 25.6 10 28 13.2C30.4 10 34 8 38 8C44.6 8 50 13.4 50 20C50 35 30 50 30 50Z"
-                fill="#D4A090"
-              />
-            </svg>
-          </div>
+          />
 
           <h1
             style={{
@@ -284,30 +274,21 @@ export default function KindaNotePage() {
           </ol>
         </div>
 
-        {/* ⑤ 装飾スペース */}
-        <div
+        {/* ⑤ 装飾スペース（クレイ風イラスト） */}
+        <Image
+          src="/images/kinda-note-deco-2.webp"
+          alt=""
+          width={1254}
+          height={1254}
+          sizes="(max-width: 480px) 100vw, 432px"
           style={{
-            height: 120,
+            width: "100%",
+            height: "auto",
             borderRadius: 20,
-            background: "linear-gradient(135deg, #F5EEE6, #F0D8D0)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             marginBottom: 36,
+            display: "block",
           }}
-        >
-          {/* 装飾ハートSVG 3つ */}
-          <div style={{ display: "flex", gap: 12, opacity: 0.3 }}>
-            {[18, 24, 18].map((size, i) => (
-              <svg key={i} width={size} height={size} viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M12 21C12 21 2 14 2 8C2 5.2 4.2 3 7 3C9 3 10.8 4.2 12 6C13.2 4.2 15 3 17 3C19.8 3 22 5.2 22 8C22 14 12 21 12 21Z"
-                  fill="#D4A090"
-                />
-              </svg>
-            ))}
-          </div>
-        </div>
+        />
 
         {/* ⑥ CTAボタン */}
         <div style={{ marginBottom: 12 }}>
