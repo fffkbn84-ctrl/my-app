@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { daysSince, FRESHNESS_AGING_DAYS, FRESHNESS_STALE_DAYS } from '@/lib/freshness'
 import type { Counselor, Agency } from '@/lib/types'
 
 interface Stats {
@@ -15,7 +14,7 @@ interface Stats {
 }
 
 interface TodoItem {
-  type: 'urgent' | 'review' | 'booking' | 'profile-aging' | 'profile-stale'
+  type: 'urgent' | 'review' | 'booking'
   label: string
   sub: string
   href: string
@@ -125,44 +124,6 @@ export default function DashboardPage() {
     if (needReel.length > 0) {
       newTodos.push({ type: 'booking', label: 'リールを公開していないカウンセラーがいます', sub: 'リール画像を追加して集客しましょう', href: '/reel' })
     }
-
-    // プロフィール鮮度判定（updated_at ベース）
-    // カウンセラー本人 + （オーナー時は）相談所レコードも対象
-    const freshnessTargets: { kind: 'counselor' | 'agency'; updated_at: string; name: string }[] = []
-    scopedCounselors.forEach(c => {
-      if (c.updated_at) freshnessTargets.push({ kind: 'counselor', updated_at: c.updated_at, name: c.name })
-    })
-    // オーナー視点では自分の管理する agency 群の updated_at も含める
-    // （agencies は前段で fetch 済み。loadStats からは見えないので外側から渡される設計が必要）
-    let agingCount = 0
-    let staleCount = 0
-    freshnessTargets.forEach(t => {
-      const d = daysSince(t.updated_at)
-      if (d === null) return
-      if (d >= FRESHNESS_STALE_DAYS) staleCount++
-      else if (d >= FRESHNESS_AGING_DAYS) agingCount++
-    })
-    if (staleCount > 0) {
-      newTodos.push({
-        type: 'profile-stale',
-        label: staleCount > 1
-          ? `${staleCount}件のプロフィール情報が${FRESHNESS_STALE_DAYS}日以上更新されていません`
-          : `プロフィール情報が${FRESHNESS_STALE_DAYS}日以上更新されていません`,
-        sub: '掲載情報の信頼性のため、見直しをおすすめします',
-        href: '/profile',
-      })
-    }
-    if (agingCount > 0) {
-      newTodos.push({
-        type: 'profile-aging',
-        label: agingCount > 1
-          ? `${agingCount}件のプロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません`
-          : `プロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません`,
-        sub: '内容に変化があれば更新しましょう',
-        href: '/profile',
-      })
-    }
-
     setTodos(newTodos)
     setStats({ reelPublished, reelTotal, reservationsThisMonth: resCount ?? 0, unrepliedReviews: unreplied, avgRating })
   }
@@ -261,9 +222,7 @@ export default function DashboardPage() {
             </span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {todos.map((t, i) => {
-              const badgeMeta = todoBadge(t.type)
-              return (
+            {todos.map((t, i) => (
               <Link key={i} href={t.href} style={{ textDecoration: 'none' }}>
                 <div style={{
                   display: 'flex',
@@ -273,16 +232,10 @@ export default function DashboardPage() {
                   background: 'var(--bg-elev)',
                   borderRadius: 10,
                   transition: 'background .15s',
-                  border: t.type === 'profile-stale' ? '1px solid #DC2626' : 'none',
                 }}>
-                  <span
-                    className={badgeMeta.className ?? ''}
-                    style={badgeMeta.style}
-                  >
-                    {badgeMeta.label}
-                  </span>
+                  <span className={`kc-badge kc-badge-${t.type}`}>{t.type === 'urgent' ? '急ぎ' : t.type === 'review' ? 'レビュー' : '推奨'}</span>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 500, color: t.type === 'profile-stale' ? '#DC2626' : 'var(--text-deep)' }}>{t.label}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-deep)' }}>{t.label}</div>
                     <div style={{ fontSize: '11px', color: 'var(--text-mid)', marginTop: 2 }}>{t.sub}</div>
                   </div>
                   <svg style={{ marginLeft: 'auto', flexShrink: 0 }} width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -290,7 +243,7 @@ export default function DashboardPage() {
                   </svg>
                 </div>
               </Link>
-            )})}
+            ))}
           </div>
         </div>
       )}
@@ -307,29 +260,6 @@ export default function DashboardPage() {
       </div>
     </div>
   )
-}
-
-function todoBadge(type: TodoItem['type']): { label: string; className?: string; style?: React.CSSProperties } {
-  if (type === 'urgent') return { label: '急ぎ', className: 'kc-badge kc-badge-urgent' }
-  if (type === 'review') return { label: 'レビュー', className: 'kc-badge kc-badge-review' }
-  if (type === 'booking') return { label: '推奨', className: 'kc-badge kc-badge-booking' }
-  if (type === 'profile-stale') {
-    return {
-      label: '要更新',
-      style: {
-        background: '#FEE2E2', color: '#B91C1C', fontSize: 10, fontWeight: 600,
-        padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
-      },
-    }
-  }
-  // profile-aging
-  return {
-    label: '点検',
-    style: {
-      background: '#FEF3C7', color: '#92400E', fontSize: 10, fontWeight: 600,
-      padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
-    },
-  }
 }
 
 function StatCard({ value, label, icon, href, urgent }: { value: string; label: string; icon: React.ReactNode; href: string; urgent?: boolean }) {

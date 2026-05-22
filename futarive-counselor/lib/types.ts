@@ -5,7 +5,6 @@ export interface Agency {
   website_url: string | null
   owner_user_id: string | null
   created_at: string
-  updated_at: string
 }
 
 export interface Counselor {
@@ -32,7 +31,6 @@ export interface Counselor {
   owner_user_id: string | null
   diagnosis_type: string | null
   created_at: string
-  updated_at: string
 }
 
 export interface CounselorMedia {

@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { daysSince, formatLastUpdated, FRESHNESS_AGING_DAYS } from '@/lib/freshness'
 import type { Counselor, Agency } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
@@ -369,13 +368,6 @@ export default function ProfilePage() {
               </label>
             </div>
           </div>
-
-          {/* 最終更新（30日未満のみ控えめに表示） */}
-          {counselor?.updated_at && (daysSince(counselor.updated_at) ?? 999) < FRESHNESS_AGING_DAYS && (
-            <div style={{ fontSize: 10, color: 'var(--text-light)', textAlign: 'right', letterSpacing: '.02em' }}>
-              最終更新 {formatLastUpdated(counselor.updated_at)}
-            </div>
-          )}
         </div>
       )}
 
