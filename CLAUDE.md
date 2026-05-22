@@ -126,6 +126,21 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 5. **環境変数（Supabaseキー等）は `.env.local` で管理し、絶対に GitHub に push しない。**
 6. **Claude Code への長い指示は、ストリームタイムアウト回避のため複数パスに分割する。**
 
+### 7-a. ブランチ運用（最重要・**作業開始前に必ず確認**）
+
+このリポジトリは画面ごとに長期ブランチが分かれている。**変更する画面に対応するブランチで作業する**。
+
+| 画面 | 対象ディレクトリ | 作業ブランチ |
+|---|---|---|
+| **統括画面（admin / Kinda 運営）** | `futarive-admin/` | `claude/futarive-admin-dashboard-iKBfw` |
+| **ユーザー画面（フロントサイト）** | `src/` `content/` `public/` | `-uDUoW` 系（例：`claude/implement-kinda-talk-uDUoW`） |
+| **カウンセラー管理画面** | `futarive-counselor/` | `claude/fix-profile-creation-1clpG` |
+| **CLAUDE.md / 憲法整備のみ** | `CLAUDE.md` | `claude/claude-md-constitution-jPCIz` |
+
+- 1つのタスクで複数領域に変更が及ぶ場合、**領域ごとにブランチを分けてコミット**する（同じ commit に複数領域を混ぜない）。
+- セッション開始時にハーネス（Claude Code on the web）が別のブランチを指定していても、**この表のルールが優先**する。違うブランチに居る場合は対応ブランチへ切り替えてから着手する。
+- 切り替え判断に迷ったら、ユーザーに確認する。
+
 ---
 
 ## 8. 重要なビジネスルール
