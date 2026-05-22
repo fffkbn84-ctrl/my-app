@@ -8,33 +8,26 @@
 
 ---
 
-## 🔥 次セッションの優先タスク
+## ✅ Task 3: 鮮度管理 — 既存の組み合わせでカバー済み（2026-05-22 確認）
 
-### Task 3: `last_reviewed_at` + 鮮度管理ダッシュボード（中）
+**結論：** 専用 `last_reviewed_at` カラムやダッシュボード UI は新設せず、既にある仕組みで充足する判断。
 
-**目的：** 掲載中のカウンセラー／相談所／お店情報が「最後にいつ運営側で点検されたか」を可視化し、古い情報が放置されないようにする（Phase B「コンテンツ整備」の足回り）。
+**カバー手段：**
 
-**設計判断が必要な項目（着手前に確認）：**
+| 要件 | 既存の手段 |
+|---|---|
+| いつ最後に更新されたか | `counselors.updated_at` / `agencies.updated_at`（`trg_*_updated_at` BEFORE UPDATE トリガーで全 UPDATE 時に自動更新） |
+| 変更履歴 | `trg_audit_*`（INSERT / UPDATE / DELETE の監査ログ） |
+| 古いレコードの検知 | Edge Function `notify-stale-profiles`（90 日経過 → 本人にメール） |
+| 連続通知の抑止 | `last_freshness_alert_sent_at` + 30 日クールダウン |
+| 鮮度リセット | admin が編集保存 → `updated_at` 自動再付与 → 90 日クロックが再スタート |
 
-1. **対象テーブル：** どれに `last_reviewed_at` を持たせるか？
-   - 候補：`counselors` / `shops`（カフェ等）/ `agencies`（相談所）/ `columns`
-   - 全部やるか、まずは 1〜2 個に絞るか
-2. **更新トリガー：** 誰が・いつ更新するか？
-   - 案 A：admin が「点検した」ボタンを押した時
-   - 案 B：admin がレコードを編集して保存した時に自動更新
-   - 案 C：A + B のハイブリッド（手動「点検済」ボタン＋編集時の自動）
-3. **ダッシュボードの居場所：** futarive-admin のどこ？
-   - admin top に「鮮度警告」ウィジェット？
-   - 各管理画面（counselors 一覧等）にソート列追加？
-   - 専用 `/admin/freshness` ページ？
-4. **鮮度の閾値：** 何日経ったら「古い」と表示するか？
-   - 例：30 日（黄）/ 90 日（赤）
+**自己ループ：** admin 編集 → updated_at リセット → 90 日後にリマインダーメール → 本人が更新 / admin が編集 → リセット。
 
-**実装の流れ（仮）：**
-1. Supabase に `last_reviewed_at timestamptz` カラムを追加（マイグレーション）
-2. 既存レコードに `created_at` を初期値として埋める
-3. admin 側の編集フローで保存時に `now()` で更新（trigger or アプリ側）
-4. ダッシュボード UI 実装
+**意識的に作らなかったもの（後で必要になったら追加）：**
+- admin 一覧の「最終更新」列やソート（updated_at は DB にあるので追加コストは小）
+- admin top の「古いレコード N 件」ウィジェット
+- 「点検済み」専用ボタン（編集と区別する必要が出たら追加）
 
 ---
 
@@ -99,7 +92,7 @@
 
 次セッションの優先順（前セッションの計画）：
 1. ~~画像監査タスク（小）— docs/image-audit.md 作成。loading-state 候補 + 不足画像リスト + オーナメント候補~~ ✅
-2. **last_reviewed_at + 鮮度管理ダッシュボード（中）— Phase B の足回り** ← 次
+2. ~~last_reviewed_at + 鮮度管理ダッシュボード（中）~~ ✅ 既存 updated_at + Resend Edge Function でカバー済みと判定（2026-05-22）
 3. SNS 流入対策（小）— カウンセラー管理画面の SNS フィールド表示制限ロジックを futarive-counselor で実装。利用規約案文章は `/terms` を更新
 
 ---
