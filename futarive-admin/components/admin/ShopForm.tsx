@@ -440,6 +440,7 @@ export default function ShopForm({ mode, shopId, initial }: ShopFormProps) {
       scenes: form.scenes.length > 0 ? form.scenes : null,
       tags: form.tags.length > 0 ? form.tags : null,
       is_published: form.is_published,
+      last_reviewed_at: new Date().toISOString(),
     }
 
     if (mode === 'new') {

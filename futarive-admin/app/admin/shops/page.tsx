@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { formatLastReviewed, freshnessLevel, freshnessColor } from '@/lib/freshness'
 
 interface ShopRow {
   id: string
@@ -15,9 +16,11 @@ interface ShopRow {
   review_count: number | null
   is_published: boolean
   created_at: string
+  last_reviewed_at: string | null
 }
 
 type ShopWithAgency = ShopRow & { agency_name: string }
+type SortKey = 'created_at' | 'last_reviewed_at'
 
 const BADGE_LABELS: Record<string, string> = {
   certified: '取材済み',
@@ -44,16 +47,17 @@ function IconPlus() {
 export default function ShopsPage() {
   const [shops, setShops] = useState<ShopWithAgency[]>([])
   const [loading, setLoading] = useState(true)
+  const [sortKey, setSortKey] = useState<SortKey>('last_reviewed_at')
 
-  useEffect(() => { loadShops() }, [])
+  useEffect(() => { loadShops(sortKey) }, [sortKey])
 
-  async function loadShops() {
+  async function loadShops(key: SortKey) {
     setLoading(true)
     const supabase = createClient()
     const { data } = await supabase
       .from('shops')
       .select('*, agencies(name)')
-      .order('created_at', { ascending: false })
+      .order(key, { ascending: key === 'last_reviewed_at' })
     setShops(
       (data ?? []).map((s: Record<string, unknown>) => ({
         ...s,
@@ -63,13 +67,30 @@ export default function ShopsPage() {
     setLoading(false)
   }
 
+  async function markReviewed(id: string) {
+    await createClient().from('shops').update({ last_reviewed_at: new Date().toISOString() }).eq('id', id)
+    loadShops(sortKey)
+  }
+
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">お店管理</h1>
-        <Link href="/admin/shops/new" className="btn btn-primary" style={{ gap: 6 }}>
-          <IconPlus /> 新規追加
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 11, color: 'var(--muted)' }}>並び順</span>
+          <select
+            className="form-select"
+            value={sortKey}
+            onChange={e => setSortKey(e.target.value as SortKey)}
+            style={{ width: 'auto', fontSize: 12, padding: '4px 28px 4px 8px' }}
+          >
+            <option value="last_reviewed_at">最終点検（古い順）</option>
+            <option value="created_at">作成日（新しい順）</option>
+          </select>
+          <Link href="/admin/shops/new" className="btn btn-primary" style={{ gap: 6 }}>
+            <IconPlus /> 新規追加
+          </Link>
+        </div>
       </div>
 
       <div className="card">
@@ -94,11 +115,14 @@ export default function ShopsPage() {
                   <th>バッジ</th>
                   <th>口コミ数</th>
                   <th>公開</th>
+                  <th>最終点検</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
-                {shops.map(s => (
+                {shops.map(s => {
+                  const level = freshnessLevel(s.last_reviewed_at)
+                  return (
                   <tr key={s.id}>
                     <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>{s.name}</td>
                     <td style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>{s.category_label ?? '—'}</td>
@@ -117,17 +141,30 @@ export default function ShopsPage() {
                         <span style={{ color: 'var(--muted)' }}>○</span>
                       )}
                     </td>
+                    <td style={{ fontSize: 12, color: freshnessColor(level), whiteSpace: 'nowrap', fontWeight: level === 'fresh' ? 400 : 600 }}>
+                      {formatLastReviewed(s.last_reviewed_at)}
+                    </td>
                     <td>
-                      <Link
-                        href={`/admin/shops/${s.id}/edit`}
-                        className="btn btn-ghost btn-sm"
-                        style={{ gap: 4, textDecoration: 'none' }}
-                      >
-                        <IconEdit /> 編集
-                      </Link>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <Link
+                          href={`/admin/shops/${s.id}/edit`}
+                          className="btn btn-ghost btn-sm"
+                          style={{ gap: 4, textDecoration: 'none' }}
+                        >
+                          <IconEdit /> 編集
+                        </Link>
+                        <button
+                          onClick={() => markReviewed(s.id)}
+                          className="btn btn-ghost btn-sm"
+                          style={{ fontSize: 11, whiteSpace: 'nowrap' }}
+                          title="内容を確認した時刻を更新します"
+                        >
+                          点検OK
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>

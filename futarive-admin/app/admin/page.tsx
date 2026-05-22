@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { FRESHNESS_AGING_DAYS, FRESHNESS_STALE_DAYS } from '@/lib/freshness'
 
 interface ReviewRow {
   id: string
@@ -35,6 +36,13 @@ type ActionRequired = {
   pendingReviews: number
   disputedBilling: number
   urgent24h: number
+}
+
+type FreshnessCounts = {
+  shopsStale: number
+  shopsAging: number
+  columnsStale: number
+  columnsAging: number
 }
 
 type KpiStats = {
@@ -92,6 +100,7 @@ export default function DashboardPage() {
   })
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([])
   const [recentReservations, setRecentReservations] = useState<RecentReservation[]>([])
+  const [freshness, setFreshness] = useState<FreshnessCounts>({ shopsStale: 0, shopsAging: 0, columnsStale: 0, columnsAging: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -104,6 +113,8 @@ export default function DashboardPage() {
     const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
     const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString()
     const past24h = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+    const staleCutoff = new Date(now.getTime() - FRESHNESS_STALE_DAYS * 86400000).toISOString()
+    const agingCutoff = new Date(now.getTime() - FRESHNESS_AGING_DAYS * 86400000).toISOString()
 
     const [
       pendingReviewsCount,
@@ -118,6 +129,10 @@ export default function DashboardPage() {
       totalCounselorsCount,
       reviewsList,
       reservationsList,
+      shopsStaleCount,
+      shopsAgingCount,
+      columnsStaleCount,
+      columnsAgingCount,
     ] = await Promise.all([
       supabase.from('reviews').select('*', { count: 'exact', head: true })
         .eq('is_published', false).eq('source_type', 'face_to_face'),
@@ -146,6 +161,14 @@ export default function DashboardPage() {
         .order('created_at', { ascending: false }).limit(5),
       supabase.from('reservations').select('*, counselors(name), slots(start_at)')
         .order('created_at', { ascending: false }).limit(5),
+      supabase.from('shops').select('*', { count: 'exact', head: true })
+        .lt('last_reviewed_at', staleCutoff),
+      supabase.from('shops').select('*', { count: 'exact', head: true })
+        .lt('last_reviewed_at', agingCutoff).gte('last_reviewed_at', staleCutoff),
+      supabase.from('columns').select('*', { count: 'exact', head: true })
+        .lt('last_reviewed_at', staleCutoff),
+      supabase.from('columns').select('*', { count: 'exact', head: true })
+        .lt('last_reviewed_at', agingCutoff).gte('last_reviewed_at', staleCutoff),
     ])
 
     setAction({
@@ -181,6 +204,13 @@ export default function DashboardPage() {
         start_at: (r.slots as { start_at?: string } | null)?.start_at ?? null,
       })) as RecentReservation[]
     )
+
+    setFreshness({
+      shopsStale: shopsStaleCount.count ?? 0,
+      shopsAging: shopsAgingCount.count ?? 0,
+      columnsStale: columnsStaleCount.count ?? 0,
+      columnsAging: columnsAgingCount.count ?? 0,
+    })
 
     setLoading(false)
   }
@@ -266,6 +296,26 @@ export default function DashboardPage() {
           }
         />
       </div>
+
+      {/* ②-b 鮮度警告（要点検 or 緊急がある時のみ表示） */}
+      {(freshness.shopsStale + freshness.shopsAging + freshness.columnsStale + freshness.columnsAging) > 0 && (
+        <div className="card" style={{ marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <span style={{
+              display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+              background: (freshness.shopsStale + freshness.columnsStale) > 0 ? '#DC2626' : '#D97706',
+            }} />
+            <div style={{ fontSize: 13, fontWeight: 600 }}>鮮度警告</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+            <FreshnessRow label="お店" href="/admin/shops" stale={freshness.shopsStale} aging={freshness.shopsAging} />
+            <FreshnessRow label="Kinda voices" href="/admin/columns" stale={freshness.columnsStale} aging={freshness.columnsAging} />
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 10 }}>
+            {FRESHNESS_AGING_DAYS}日経過＝要点検 / {FRESHNESS_STALE_DAYS}日以上＝緊急点検
+          </div>
+        </div>
+      )}
 
       {/* ③ クイックアクション */}
       <div className="card" style={{ marginBottom: 24 }}>
@@ -374,6 +424,34 @@ export default function DashboardPage() {
         )}
       </div>
     </div>
+  )
+}
+
+function FreshnessRow({ label, href, stale, aging }: { label: string; href: string; stale: number; aging: number }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 14px',
+        background: 'var(--bg-elev, #FAF6F1)',
+        borderRadius: 10,
+        border: '1px solid var(--border, #E8E0D6)',
+        textDecoration: 'none',
+        color: 'inherit',
+        gap: 12,
+      }}
+    >
+      <div style={{ fontSize: 13, fontWeight: 600 }}>{label}</div>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 12 }}>
+        {stale > 0 && <span style={{ color: '#DC2626', fontWeight: 600 }}>緊急 {stale}件</span>}
+        {aging > 0 && <span style={{ color: '#D97706', fontWeight: 600 }}>要点検 {aging}件</span>}
+        {stale === 0 && aging === 0 && <span style={{ color: 'var(--muted)' }}>—</span>}
+        <span style={{ color: 'var(--muted)' }}>→</span>
+      </div>
+    </Link>
   )
 }
 
