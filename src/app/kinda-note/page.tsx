@@ -274,22 +274,6 @@ export default function KindaNotePage() {
           </ol>
         </div>
 
-        {/* ⑤ 装飾スペース（クレイ風イラスト） */}
-        <Image
-          src="/images/kinda-note-deco-2.webp"
-          alt=""
-          width={1254}
-          height={1254}
-          sizes="(max-width: 480px) 100vw, 432px"
-          style={{
-            width: "100%",
-            height: "auto",
-            borderRadius: 20,
-            marginBottom: 36,
-            display: "block",
-          }}
-        />
-
         {/* ⑥ CTAボタン */}
         <div style={{ marginBottom: 12 }}>
           <Link
