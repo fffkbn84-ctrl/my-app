@@ -1,10 +1,16 @@
 # 画像監査レポート（image-audit.md）
 
-最終更新: 2026-05-22
+最終更新: 2026-05-22（rev. 2 — kinda-note-deco 配置 / ロゴ webp 化を反映）
 
 ふたりへ（Kinda）user-site の画像アセットの棚卸し。本番リリース前に「不足を埋める」「重いものを最適化」「装飾の統一感を上げる」ためのチェックリスト。
 
 > 本ドキュメントは uDUoW ブランチで管理。実装着手時の手順書ではなく、必要な画像と作業を洗い出すためのもの。
+>
+> **rev. 2 の主な変更点：**
+> - §2 不足画像は ✅ 解決（kinda-note-deco-1/-2.webp 配置済み）
+> - §3-1 から `.spinner` 行を撤去（コードから既に消えていた）
+> - §4-1 ロゴ 2 枚は main で webp 化済み（92% / 90% 削減）。uDUoW のコード参照差し替えが残タスク
+> - §4-3 オーファン誤検出を修正（CSS 参照を見落としていた 3 件を訂正）。意図的保全アセットの節を追加
 
 ---
 
@@ -15,30 +21,36 @@
 | ヒーロー画像（ページ最上部） | 6 件 | 揃っている |
 | 天気アイコン（Kinda note 用） | 20 件 | 揃っている |
 | セクション画像（トップ・グリッド） | 6 件 | 揃っている |
-| ロゴ | 2 件 | **重い・最適化必須** |
-| オーナメント / 装飾 | 2 件 | 1 件未使用、追加が望ましい |
-| ローディング画像 | 0 件 | **未整備（spinner CSS のみ）** |
-| **不足（参照あるが /public に無い）** | **2 件** | 🚨 要対応 |
+| ロゴ | 2 件（PNG + WebP 各 2） | webp 化 ✅（main）／ uDUoW のコード参照は PNG のまま 🔴 |
+| オーナメント / 装飾 | 4 件 | 2 件使用（starfish / deco-1）／ 1 件意図保全（deco-2）／ 1 件オーファン（heartwopal） |
+| ローディング画像 | 0 件 | **未整備（Suspense fallback 5 箇所が空 div）** |
+| **不足（参照あるが /public に無い）** | **0 件** | ✅ 解決済み（2026-05-22）|
 
 ---
 
 ## 2. 不足している画像（参照されているが /public に無い）
 
-実装で `src=` 参照されているが `/public/images/` に存在しないファイル：
+✅ **2026-05-22 解決** — 5/22 時点で参照されていた kinda-note-deco-1/-2 は webp 化して `public/images/` に配置済み。現在「参照あるが実体なし」のアセットは **0 件**。
 
-| ファイル | 参照箇所 | 用途 | 状態 |
-|---|---|---|---|
-| `/images/kinda-note-deco-1.png` | `src/app/kinda-note/quiz/page.tsx:823` | Kinda note 質問カード右上の装飾（80×80px・opacity 0.85） | 🚨 **欠落** |
-| `/images/kinda-note-deco-2.png` | `src/app/kinda-note/quiz/page.tsx:838` | Kinda note 質問カード左下の装飾（80×80px・opacity 0.85） | 🚨 **欠落** |
+### 経緯（採用先・形式が変更された記録）
 
-**コードはレイアウト崩れを防ぐ作りになっているが、画像が表示されないことでユーザー体験は不完全。**
+旧計画と最終形が大きく違うので、要点を残しておく：
 
-### 必要な画像仕様
+| 項目 | 旧計画 | 最終形 |
+|---|---|---|
+| 形式 | `.png`（80×80px・線画・透過） | `.webp`（1254×1254・クレイ風） |
+| 採用先 | `quiz/page.tsx` の質問カード右上・左下に装飾 | `kinda-note/page.tsx`（intro）の hero エリアに 1 枚 |
+| モチーフ | 鳥・植物・羽など婚活感情のシルエット | deco-1=クレイのノート＋ペン＋カップ、deco-2=ハート手渡し |
 
-- サイズ: 80×80px（実寸）。表示は `background-size: contain` で柔軟
-- 形式: PNG（透過必須）
-- スタイル: Kinda の世界観 — 線画 / フラット / 淡い accent 色 `#C8A97A`
-- 候補モチーフ: 鳥・植物・羽・葉・雲・水滴のシルエット（婚活の心情を象徴）
+### 経緯コミット
+
+| commit | 内容 |
+|---|---|
+| `f37ec0c` | quiz/page.tsx に deco-1/-2 を配置 |
+| `597fcda` | quiz の配置を revert（世界観調整のため） |
+| `ab2040b` | webp はアセットとして保全（コード参照は外したまま） |
+| `0e8eb4a` | kinda-note/page.tsx（intro）の hero に deco-1 を採用 |
+| `61f14a4` | deco-2 は CTA 直前から外したが、`public/` には保全 |
 
 ---
 
@@ -48,12 +60,13 @@
 
 | 場所 | 実装 | 評価 |
 |---|---|---|
-| `.spinner`（globals.css） | 黒系のドーナツ回転 | プレーンすぎる・Kinda 世界観に合わない |
 | `/booking/[counselorId]/loading.tsx` | スケルトン pulse（バー型） | ◎ よくできている |
 | `/counselors/[id]/loading.tsx` | スケルトン pulse | ◎ よくできている |
-| `Suspense fallback` 5 箇所 | `<div style={{ minHeight: 400 }} />`（空白） | 🚨 **空っぽで体験が悪い** |
+| `Suspense fallback` 5 箇所 | `<div style={{ minHeight: 400 }} />`（空白） | 🚨 **空っぽで体験が悪い**（agencies / kinda-act / kinda-talk / kinda-glow / login の 5 箇所） |
 | `Step1Calendar`「空き状況を読み込み中…」 | プレーンテキスト | 装飾欲しい |
 | `Step2Slots`「読み込み中...」 | プレーンテキスト | 同上 |
+
+> 旧 rev で挙げていた `.spinner`（globals.css）は、現状コードに `className="spinner"` 参照が 0 件のため、既に撤去済みとして本表から除外。
 
 ### 3-2. 「考え中／ロード中」キャラ案
 
@@ -78,24 +91,30 @@ src/components/ui/KindaLoader.tsx
 ```
 
 差し替え対象（一括置換可能）:
-- `<div className="spinner" />` → `<KindaLoader variant="dot" />`
-- `<Suspense fallback={<div style={{minHeight: 400}} />}>` → `<Suspense fallback={<KindaLoader variant="page" />}>`
+- `<Suspense fallback={<div style={{minHeight: 400}} />}>` → `<Suspense fallback={<KindaLoader variant="page" />}>`（5 箇所）
+
+> `variant="dot"`（ミニ版）は現状 `.spinner` が撤去済みで差し替え先がないため、必要になった時に都度追加でよい。
 
 ---
 
 ## 4. 既存アセットの最適化（重い画像 / 重複ファイル）
 
-### 4-1. 巨大なロゴ画像 🚨
+### 4-1. 巨大なロゴ画像（webp 化済み、コード差し替え未） 🟡
 
-| ファイル | サイズ | 問題 |
+| ファイル | サイズ | 状態 |
 |---|---|---|
-| `logoname _kinda_header.PNG` | **836 KB** | ヘッダーで毎ページ読み込まれる。PNG 非圧縮 + ファイル名スペース |
-| `toppage_name.PNG` | **381 KB** | OG 画像で参照（columns/[slug] line 137） |
+| `logoname _kinda_header.PNG` | 836 KB | 旧版（main / uDUoW 両方に残置） |
+| `logoname _kinda_header.webp` | **67 KB**（92% 削減）| ✅ main にあり / uDUoW には未取り込み |
+| `toppage_name.PNG` | 381 KB | 旧版（main / uDUoW 両方に残置） |
+| `toppage_name.webp` | **39 KB**（90% 削減）| ✅ main にあり / uDUoW には未取り込み |
 
-**推奨：**
-1. WebP 化 + 圧縮で `<50KB` まで削減（10〜20 倍軽量化可能）
-2. ファイル名のスペースを `_` か `-` に置換（URL エンコード問題回避）
-3. SVG 化できればさらに軽い（テキストロゴなら可能）
+**残タスク（uDUoW 側）：**
+1. main からの merge / cherry-pick で `.webp` ファイルを uDUoW に取り込み
+2. uDUoW のコード参照を `.PNG` → `.webp` に差し替え：
+   - `src/components/layout/Header.tsx:104`（ヘッダーロゴ — 全ページ影響）
+   - `src/app/columns/[slug]/page.tsx:137`（OG image URL）
+3. 動作確認後、旧 `.PNG` 2 枚を削除（または `public/images/legacy/` 退避）
+4. ファイル名のスペース（`logoname _kinda_header`）も合わせて `logoname-kinda-header.webp` 等に rename すると URL エンコード問題が消える（任意）
 
 ### 4-2. 重複ファイル
 
@@ -106,12 +125,26 @@ src/components/ui/KindaLoader.tsx
 
 ### 4-3. オーファン（未参照アセット）
 
+> ⚠️ 旧 rev は `Kinda-voices-nouse` / `Toontown-background` / `laughing-town-background` をオーファン扱いしていたが、これらは `globals.css` および columns 配下で現役。`src/` だけ grep していて CSS 経路を見落としていた。本 rev で訂正済み。
+
+**真のオーファン（コード・CSS とも 0 参照）：**
+
 | ファイル | サイズ | 備考 |
 |---|---|---|
-| `ornamental-heartwopal.webp` | 85K | コード内で 0 件参照。過去のデザイン残骸の可能性 |
-| `Kinda-belief-background.webp` | 52K | コード内で 0 件参照。OUR BELIEF 旧背景の残骸の可能性 |
+| `ornamental-heartwopal.webp` | 88K | 過去のデザイン残骸の可能性 |
+| `Kinda-belief-background.webp` | 52K | OUR BELIEF 旧背景の残骸の可能性 |
 
 **推奨：** 削除 or 別フォルダ `public/images/legacy/` に退避。
+
+### 4-4. 意図的に保全しているアセット（オーファンと混同しないこと）
+
+コード参照は 0 だが、運用判断で `public/images/` に残しているアセット。将来の差し戻し時に同じファイル名で復活できるよう保持中。
+
+| ファイル | サイズ | 経緯 |
+|---|---|---|
+| `kinda-note-deco-2.webp` | 43K | `61f14a4` で kinda-note/page.tsx の CTA 直前から外したが、世界観調整時に同じ位置に戻せるよう保全（`ab2040b` の方針に揃える） |
+
+**ルール：** これらはオーファン掃除コマンドの対象から除外する。本表を更新して合意済みであることを示す。
 
 ---
 
@@ -179,26 +212,27 @@ src/app/error.tsx           未作成 — 予期せぬエラー時の画面
 
 ### 🔴 リリース前 must
 
-| # | タスク | 規模 | 工数 |
-|---|---|---|---|
-| 1 | `kinda-note-deco-1.png` / `-2.png` 制作・配置 | 小 | 0.5h（生成）+ 配置 |
-| 2 | `logoname _kinda_header.PNG` を webp 化 + ファイル名空白除去 | 小 | 0.5h |
-| 3 | `toppage_name.PNG` の webp 化 | 小 | 0.3h |
-| 4 | `not-found.tsx` 新設 + イラスト 1 枚 | 中 | 1h |
-| 5 | `KindaLoader` コンポーネント新設 + Suspense fallback 5 箇所差し替え | 中 | 1.5h |
-| 6 | 重複 .jpg ファイル削除（kinda-act-hero / section-beauty-n2） | 極小 | 0.1h |
+| # | タスク | 規模 | 工数 | 状態 |
+|---|---|---|---|---|
+| 1 | `kinda-note-deco-1.webp` / `-2.webp` 制作・配置 | 小 | — | ✅ 完了（`0e8eb4a` / `61f14a4`） |
+| 2 | `logoname _kinda_header.PNG` を webp 化 | 小 | — | 🟡 webp は main にあり。uDUoW のコード差替（Header.tsx:104）が残 |
+| 3 | `toppage_name.PNG` の webp 化 | 小 | — | 🟡 webp は main にあり。uDUoW のコード差替（columns/[slug]/page.tsx:137）が残 |
+| 4 | `not-found.tsx` 新設 + イラスト 1 枚 | 中 | 1h | 🔴 未着手 |
+| 5 | `KindaLoader` コンポーネント新設 + Suspense fallback 5 箇所差し替え | 中 | 1.5h | 🔴 未着手 |
+| 6 | 重複 .jpg ファイル削除（kinda-act-hero / section-beauty-n2） | 極小 | 0.1h | 🔴 未着手 |
+| 7 | ロゴ webp の uDUoW 取り込み + コード参照差替 + 旧 PNG 整理 | 小 | 0.3h | 🔴 未着手（#2/#3 に紐づく実コミット作業） |
 
-合計目安：3.9 時間
+残工数目安：2.9 時間
 
 ### 🟡 リリース後でも OK
 
 | # | タスク | 規模 |
 |---|---|---|
-| 7 | オーナメント追加（dewdrop / petal / crescent / bird の SVG） | 中 |
-| 8 | 各ページに SectionDivider 挿入（about / counselors / agencies / columns 等） | 小 |
-| 9 | EmptyState コンポーネント化 + 既存 5 箇所差し替え | 中 |
-| 10 | `error.tsx` グローバルエラー画面 | 小 |
-| 11 | オーファン画像（ornamental-heartwopal / Kinda-belief-background）整理 | 極小 |
+| 8 | オーナメント追加（dewdrop / petal / crescent / bird の SVG） | 中 |
+| 9 | 各ページに SectionDivider 挿入（about / counselors / agencies / columns 等） | 小 |
+| 10 | EmptyState コンポーネント化 + 既存 5 箇所差し替え | 中 |
+| 11 | `error.tsx` グローバルエラー画面 | 小 |
+| 12 | オーファン画像（ornamental-heartwopal / Kinda-belief-background）整理 | 極小 |
 
 ---
 
@@ -221,20 +255,23 @@ src/app/error.tsx           未作成 — 予期せぬエラー時の画面
 
 ### Step 1: 即対応（このセッション or 次セッション）
 
-- [ ] `kinda-note-deco-1.png` / `-2.png` を Claude.ai か手作業で生成 → 配置
-- [ ] 重複 .jpg ファイル 2 件削除
-- [ ] `logoname _kinda_header.PNG` の webp 化 + ファイル名修正
+- [x] `kinda-note-deco-1.webp` / `-2.webp` 生成・配置（intro hero へ採用）
+- [x] ロゴ 2 枚を webp 化（main 側で完了 — 92% / 90% 削減）
+- [ ] uDUoW にロゴ webp を merge / cherry-pick + コード参照を `.PNG` → `.webp` 差替
+- [ ] 重複 .jpg ファイル 2 件削除（`kinda-act-hero.jpg` / `section-beauty-n2.png.jpg`）
 
 ### Step 2: 段階的に
 
 - [ ] `KindaLoader` コンポーネント実装（既存 fountain SVG 流用）
 - [ ] `not-found.tsx` 作成
-- [ ] オーナメント挿入を約 7 ページに展開
+- [ ] オーナメント挿入を約 7 ページに展開（現状 SectionDivider はトップページのみ）
 
 ### Step 3: 余裕があれば
 
-- [ ] オーナメント SVG 4 種追加
+- [ ] オーナメント SVG 4 種追加（dewdrop / petal / crescent / bird）
 - [ ] EmptyState コンポーネント化
+- [ ] 旧 `.PNG` ロゴ 2 枚を `public/images/legacy/` 退避 or 削除
+- [ ] ファイル名スペース除去（`logoname _kinda_header.webp` → `logoname-kinda-header.webp`）
 
 ---
 
@@ -244,4 +281,17 @@ src/app/error.tsx           未作成 — 予期せぬエラー時の画面
 - 画像参照を削除した時はオーファンチェックを再実行
 - ファイル名規約に違反したコミットがあった場合は PR で指摘
 
-> 監査スクリプト案: `grep -rn "/images/" src/ | awk -F'"' '{print $2}' | sort -u` で参照ファイル一覧。これと `ls public/images/` の diff を取れば不足 / オーファンが即出る。
+> 監査スクリプト案（rev. 2 で修正）：
+>
+> ```sh
+> # 参照されているファイル一覧（src/ + CSS の両方を見る）
+> grep -rohE '/images/[^"'\'')]+' src/ | sort -u > /tmp/used.txt
+> # /public/images/ の実体一覧
+> (cd public/images && ls) | sed 's|^|/images/|' | sort -u > /tmp/have.txt
+> # 不足（参照あるが実体なし）
+> comm -23 /tmp/used.txt /tmp/have.txt
+> # オーファン候補（実体あるが src/ + CSS から参照なし）
+> comm -13 /tmp/used.txt /tmp/have.txt
+> ```
+>
+> ⚠️ 旧 rev は `src/*.tsx` だけ grep して `globals.css` 経由の参照（Toontown / laughing-town / Kinda-voices-nouse）を見落としていた。`grep -r src/` であれば `.css` も拾うので、上記でカバーされる。
