@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -27,6 +27,17 @@ export interface ShopFormData {
   tags: string[]
   is_published: boolean
 }
+
+interface ShopMediaRow {
+  id: string
+  shop_id: string
+  media_url: string
+  display_order: number
+  caption: string | null
+  alt_text: string | null
+}
+
+const SHOP_MEDIA_BUCKET = 'shop-media'
 
 export const EMPTY_FORM: ShopFormData = {
   name: '',
@@ -197,9 +208,22 @@ export default function ShopForm({ mode, shopId, initial }: ShopFormProps) {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
+  const [mediaList, setMediaList] = useState<ShopMediaRow[]>([])
+  const [profileUploading, setProfileUploading] = useState(false)
+  const [galleryUploading, setGalleryUploading] = useState(false)
+  const profileFileRef = useRef<HTMLInputElement>(null)
+  const galleryFileRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     loadAgencies()
   }, [])
+
+  useEffect(() => {
+    if (mode === 'edit' && shopId) {
+      loadGallery()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, shopId])
 
   async function loadAgencies() {
     const supabase = createClient()
@@ -208,6 +232,166 @@ export default function ShopForm({ mode, shopId, initial }: ShopFormProps) {
       .select('id, name')
       .order('name', { ascending: true })
     setAgencies(((data ?? []) as AgencyOption[]).map(a => ({ id: a.id, name: a.name })))
+  }
+
+  async function loadGallery() {
+    if (!shopId) return
+    const supabase = createClient()
+    const { data } = await supabase
+      .from('shop_media')
+      .select('*')
+      .eq('shop_id', shopId)
+      .order('display_order', { ascending: true })
+    setMediaList((data ?? []) as ShopMediaRow[])
+  }
+
+  function fileExtension(name: string): string {
+    const idx = name.lastIndexOf('.')
+    if (idx === -1 || idx === name.length - 1) return 'jpg'
+    return name.slice(idx + 1).toLowerCase()
+  }
+
+  async function handleProfileUpload(file: File) {
+    if (!shopId) return
+    setProfileUploading(true)
+    setErrorMsg(null)
+    const supabase = createClient()
+    const ext = fileExtension(file.name)
+    const path = `${shopId}/profile-${Date.now()}.${ext}`
+    const { error: upErr } = await supabase.storage
+      .from(SHOP_MEDIA_BUCKET)
+      .upload(path, file, { upsert: true, contentType: file.type || undefined })
+    if (upErr) {
+      setProfileUploading(false)
+      setErrorMsg(`プロフィール画像のアップロードに失敗しました: ${upErr.message}`)
+      return
+    }
+    const { data: { publicUrl } } = supabase.storage.from(SHOP_MEDIA_BUCKET).getPublicUrl(path)
+    const cacheBustedUrl = `${publicUrl}?t=${Date.now()}`
+    const { error: updErr } = await supabase
+      .from('shops')
+      .update({ photo_url: cacheBustedUrl })
+      .eq('id', shopId)
+    if (updErr) {
+      setProfileUploading(false)
+      setErrorMsg(`DB 更新に失敗しました: ${updErr.message}`)
+      return
+    }
+    patch('photo_url', cacheBustedUrl)
+    setProfileUploading(false)
+    setSuccessMsg('プロフィール画像を更新しました')
+    setTimeout(() => setSuccessMsg(null), 3000)
+  }
+
+  async function handleProfileRemove() {
+    if (!shopId) return
+    if (!form.photo_url) return
+    if (!confirm('プロフィール画像を削除しますか？')) return
+    setProfileUploading(true)
+    setErrorMsg(null)
+    const supabase = createClient()
+    // Storage 上のオブジェクト削除（URL から path を逆引き）
+    const marker = `/${SHOP_MEDIA_BUCKET}/`
+    const idx = form.photo_url.indexOf(marker)
+    if (idx !== -1) {
+      const tail = form.photo_url.slice(idx + marker.length).split('?')[0]
+      await supabase.storage.from(SHOP_MEDIA_BUCKET).remove([decodeURIComponent(tail)])
+    }
+    const { error: updErr } = await supabase
+      .from('shops')
+      .update({ photo_url: null })
+      .eq('id', shopId)
+    if (updErr) {
+      setProfileUploading(false)
+      setErrorMsg(`DB 更新に失敗しました: ${updErr.message}`)
+      return
+    }
+    patch('photo_url', '')
+    setProfileUploading(false)
+    setSuccessMsg('プロフィール画像を削除しました')
+    setTimeout(() => setSuccessMsg(null), 3000)
+  }
+
+  async function handleGalleryUpload(files: FileList) {
+    if (!shopId) return
+    if (files.length === 0) return
+    setGalleryUploading(true)
+    setErrorMsg(null)
+    const supabase = createClient()
+    let order = mediaList.length
+    const newItems: ShopMediaRow[] = []
+    for (const file of Array.from(files)) {
+      const ext = fileExtension(file.name)
+      const path = `${shopId}/gallery-${Date.now()}-${order}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from(SHOP_MEDIA_BUCKET)
+        .upload(path, file, { contentType: file.type || undefined })
+      if (upErr) {
+        setErrorMsg(`「${file.name}」のアップロードに失敗: ${upErr.message}`)
+        continue
+      }
+      const { data: { publicUrl } } = supabase.storage.from(SHOP_MEDIA_BUCKET).getPublicUrl(path)
+      const { data: inserted, error: insErr } = await supabase
+        .from('shop_media')
+        .insert({
+          shop_id: shopId,
+          media_url: publicUrl,
+          display_order: order,
+          caption: null,
+          alt_text: null,
+        })
+        .select()
+        .single()
+      if (insErr || !inserted) {
+        setErrorMsg(`DB 保存に失敗: ${insErr?.message ?? 'unknown'}`)
+        continue
+      }
+      newItems.push(inserted as ShopMediaRow)
+      order += 1
+    }
+    setMediaList(prev => [...prev, ...newItems])
+    setGalleryUploading(false)
+    if (newItems.length > 0) {
+      setSuccessMsg(`${newItems.length} 枚をアップロードしました`)
+      setTimeout(() => setSuccessMsg(null), 3000)
+    }
+  }
+
+  async function handleGalleryDelete(item: ShopMediaRow) {
+    if (!confirm('このギャラリー写真を削除しますか？')) return
+    const supabase = createClient()
+    const marker = `/${SHOP_MEDIA_BUCKET}/`
+    const idx = item.media_url.indexOf(marker)
+    if (idx !== -1) {
+      const tail = item.media_url.slice(idx + marker.length).split('?')[0]
+      await supabase.storage.from(SHOP_MEDIA_BUCKET).remove([decodeURIComponent(tail)])
+    }
+    await supabase.from('shop_media').delete().eq('id', item.id)
+    setMediaList(prev => prev.filter(m => m.id !== item.id))
+  }
+
+  async function handleGalleryMove(item: ShopMediaRow, direction: -1 | 1) {
+    const currentIdx = mediaList.findIndex(m => m.id === item.id)
+    const targetIdx = currentIdx + direction
+    if (targetIdx < 0 || targetIdx >= mediaList.length) return
+    const target = mediaList[targetIdx]
+    const supabase = createClient()
+    // 2行 UPDATE で display_order をスワップ
+    await supabase.from('shop_media').update({ display_order: target.display_order }).eq('id', item.id)
+    await supabase.from('shop_media').update({ display_order: item.display_order }).eq('id', target.id)
+    const next = [...mediaList]
+    next[currentIdx] = { ...item, display_order: target.display_order }
+    next[targetIdx] = { ...target, display_order: item.display_order }
+    next.sort((a, b) => a.display_order - b.display_order)
+    setMediaList(next)
+  }
+
+  async function handleGalleryCaptionBlur(item: ShopMediaRow, key: 'caption' | 'alt_text', value: string) {
+    const trimmed = value.trim()
+    if ((item[key] ?? '') === trimmed) return
+    const supabase = createClient()
+    await supabase.from('shop_media').update({ [key]: trimmed || null }).eq('id', item.id)
+    setMediaList(prev => prev.map(m => m.id === item.id ? { ...m, [key]: trimmed || null } : m))
   }
 
   function patch<K extends keyof ShopFormData>(key: K, value: ShopFormData[K]) {
@@ -517,18 +701,202 @@ export default function ShopForm({ mode, shopId, initial }: ShopFormProps) {
             />
           </div>
 
-          <div>
-            <label className="form-label">写真 URL</label>
-            <input
-              className="form-input"
-              type="url"
-              value={form.photo_url}
-              onChange={e => patch('photo_url', e.target.value)}
-              placeholder="https://..."
-            />
-            <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>未指定の場合はサムネバリアントのカテゴリアイコンで表示</p>
-          </div>
         </div>
+      </section>
+
+      <section className="card">
+        <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 16, color: 'var(--ink)' }}>写真</h2>
+        {mode === 'new' ? (
+          <p style={{ fontSize: 13, color: 'var(--muted)', padding: 16, background: 'var(--bg)', borderRadius: 8 }}>
+            保存後、続けて写真をアップロードできるようになります。
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            {/* プロフィール画像 */}
+            <div>
+              <label className="form-label">プロフィール画像（カードのサムネに使われます）</label>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+                <div
+                  style={{
+                    width: 160,
+                    height: 160,
+                    borderRadius: 12,
+                    overflow: 'hidden',
+                    background: 'var(--bg)',
+                    border: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  {form.photo_url ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={form.photo_url}
+                      alt="プロフィール画像プレビュー"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: 11, color: 'var(--muted)' }}>未設定</span>
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, minWidth: 200 }}>
+                  <input
+                    ref={profileFileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) handleProfileUpload(f)
+                      e.target.value = ''
+                    }}
+                    style={{ display: 'none' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => profileFileRef.current?.click()}
+                    disabled={profileUploading}
+                  >
+                    {profileUploading
+                      ? <span className="spinner" style={{ width: 16, height: 16 }} />
+                      : form.photo_url ? '画像を変更' : '画像をアップロード'}
+                  </button>
+                  {form.photo_url && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      onClick={handleProfileRemove}
+                      disabled={profileUploading}
+                    >
+                      画像を削除
+                    </button>
+                  )}
+                  <p style={{ fontSize: 11, color: 'var(--muted)', margin: 0 }}>
+                    JPEG / PNG / WebP、最大 5MB。未設定の場合はサムネバリアントのカテゴリアイコンで表示されます。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ギャラリー */}
+            <div>
+              <label className="form-label">
+                ギャラリー（詳細ページに並べる写真・{mediaList.length} 枚）
+              </label>
+              {mediaList.length === 0 && (
+                <p style={{ fontSize: 12, color: 'var(--muted)', padding: 12, background: 'var(--bg)', borderRadius: 8, marginBottom: 12 }}>
+                  ギャラリー写真はまだありません。下の「写真を追加」から複数枚アップロードできます。
+                </p>
+              )}
+              {mediaList.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {mediaList.map((item, i) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        display: 'flex',
+                        gap: 12,
+                        padding: 10,
+                        border: '1px solid var(--border)',
+                        borderRadius: 8,
+                        alignItems: 'flex-start',
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.media_url}
+                        alt={item.alt_text ?? `ギャラリー画像 ${i + 1}`}
+                        style={{
+                          width: 100,
+                          height: 100,
+                          objectFit: 'cover',
+                          borderRadius: 6,
+                          background: 'var(--bg)',
+                          flexShrink: 0,
+                        }}
+                      />
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+                        <input
+                          className="form-input"
+                          defaultValue={item.caption ?? ''}
+                          placeholder="キャプション（任意）"
+                          onBlur={e => handleGalleryCaptionBlur(item, 'caption', e.target.value)}
+                          style={{ fontSize: 12, padding: '6px 10px' }}
+                        />
+                        <input
+                          className="form-input"
+                          defaultValue={item.alt_text ?? ''}
+                          placeholder="alt テキスト（SEO 用・任意）"
+                          onBlur={e => handleGalleryCaptionBlur(item, 'alt_text', e.target.value)}
+                          style={{ fontSize: 12, padding: '6px 10px' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => handleGalleryMove(item, -1)}
+                          disabled={i === 0}
+                          aria-label="上に移動"
+                          style={{ padding: '4px 8px' }}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => handleGalleryMove(item, 1)}
+                          disabled={i === mediaList.length - 1}
+                          aria-label="下に移動"
+                          style={{ padding: '4px 8px' }}
+                        >
+                          ↓
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleGalleryDelete(item)}
+                          aria-label="削除"
+                          style={{ padding: '4px 8px', fontSize: 11 }}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={{ marginTop: 12 }}>
+                <input
+                  ref={galleryFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  onChange={e => {
+                    if (e.target.files) handleGalleryUpload(e.target.files)
+                    e.target.value = ''
+                  }}
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => galleryFileRef.current?.click()}
+                  disabled={galleryUploading}
+                >
+                  {galleryUploading
+                    ? <span className="spinner" style={{ width: 16, height: 16 }} />
+                    : '写真を追加（複数選択可）'}
+                </button>
+                <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6 }}>
+                  JPEG / PNG / WebP、各最大 5MB。並び順は ↑↓ ボタンで変更できます。
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="card">
