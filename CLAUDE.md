@@ -135,7 +135,7 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 | **統括画面（admin / Kinda 運営）** | `futarive-admin/` | `claude/futarive-admin-dashboard-iKBfw` |
 | **ユーザー画面（フロントサイト）** | `src/` `content/` `public/` | `-uDUoW` 系（例：`claude/implement-kinda-talk-uDUoW`） |
 | **カウンセラー管理画面** | `futarive-counselor/` | `claude/fix-profile-creation-1clpG` |
-| **CLAUDE.md / 憲法整備のみ** | `CLAUDE.md` | `claude/claude-md-constitution-jPCIz` |
+| **CLAUDE.md / 憲法整備＋インフラ** | `CLAUDE.md` `supabase/`（マイグレーション・Edge Function） | `claude/claude-md-constitution-jPCIz` |
 
 - 1つのタスクで複数領域に変更が及ぶ場合、**領域ごとにブランチを分けてコミット**する（同じ commit に複数領域を混ぜない）。
 - セッション開始時にハーネス（Claude Code on the web）が別のブランチを指定していても、**この表のルールが優先**する。違うブランチに居る場合は対応ブランチへ切り替えてから着手する。
@@ -158,6 +158,11 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 ### 設計上の原則
 - **ユーザーファーストが最優先**（収益最大化より上）。
 - Admin パネル（`futarive-admin`）はユーザー向けサイトから**完全分離**（データ露出リスクの排除＝意図的判断）。
+
+### 連絡用メールアドレス（カウンセラー／相談所オーナー）
+- 契約時に登録するメールアドレスは「**Kinda からの運用リマインダーが届く前提**」とする。本人が確実に開ける運用アドレスを必ず登録してもらう。
+- 鮮度アラート（90 日以上未更新時のメール通知 / `supabase/functions/notify-stale-profiles`）など、本人にしか届けようがない通知の宛先は `auth.users.email`（＝ログイン時のアドレス）固定。`agencies.email` は代表問い合わせ先として残し、アラート宛先には使わない。
+- 将来的に「リマインダー専用アドレス」を別フィールドで取りたくなったら、`counselors.notification_email` / `agencies.notification_email` を追加する余地を残す。
 
 ---
 
