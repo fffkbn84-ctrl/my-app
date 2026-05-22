@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { FRESHNESS_AGING_DAYS, FRESHNESS_STALE_DAYS } from '@/lib/freshness'
 interface ReviewRow {
   id: string
   counselor_id: string | null
@@ -53,10 +54,56 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
+function FreshnessRow({ label, href, stale, aging }: { label: string; href: string; stale: number; aging: number }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 14px',
+        background: 'var(--bg-elev, #FAF6F1)',
+        borderRadius: 10,
+        border: '1px solid var(--border, #E8E0D6)',
+        textDecoration: 'none',
+        color: 'inherit',
+        gap: 12,
+      }}
+    >
+      <div style={{ fontSize: 13, fontWeight: 600 }}>{label}</div>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 12 }}>
+        {stale > 0 && (
+          <span style={{ color: '#DC2626', fontWeight: 600 }}>
+            緊急 {stale}件
+          </span>
+        )}
+        {aging > 0 && (
+          <span style={{ color: '#D97706', fontWeight: 600 }}>
+            要点検 {aging}件
+          </span>
+        )}
+        {stale === 0 && aging === 0 && (
+          <span style={{ color: 'var(--muted)' }}>—</span>
+        )}
+        <span style={{ color: 'var(--muted)' }}>→</span>
+      </div>
+    </Link>
+  )
+}
+
+interface FreshnessCounts {
+  shopsStale: number
+  shopsAging: number
+  columnsStale: number
+  columnsAging: number
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState({ pending: 0, total: 0, published: 0, monthly: 0 })
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([])
   const [recentReservations, setRecentReservations] = useState<RecentReservation[]>([])
+  const [freshness, setFreshness] = useState<FreshnessCounts>({ shopsStale: 0, shopsAging: 0, columnsStale: 0, columnsAging: 0 })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,8 +114,10 @@ export default function DashboardPage() {
     const supabase = createClient()
     const now = new Date()
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+    const staleCutoff = new Date(now.getTime() - FRESHNESS_STALE_DAYS * 86400000).toISOString()
+    const agingCutoff = new Date(now.getTime() - FRESHNESS_AGING_DAYS * 86400000).toISOString()
 
-    const [pending, total, published, monthly, reviews, reservations] = await Promise.all([
+    const [pending, total, published, monthly, reviews, reservations, shopsStale, shopsAging, columnsStale, columnsAging] = await Promise.all([
       supabase.from('reviews').select('*', { count: 'exact', head: true })
         .eq('is_published', false).eq('source_type', 'face_to_face'),
       supabase.from('reviews').select('*', { count: 'exact', head: true }),
@@ -79,6 +128,12 @@ export default function DashboardPage() {
         .order('created_at', { ascending: false }).limit(5),
       supabase.from('reservations').select('*, counselors(name), slots(start_at)')
         .order('created_at', { ascending: false }).limit(5),
+      supabase.from('shops').select('*', { count: 'exact', head: true }).lt('last_reviewed_at', staleCutoff),
+      supabase.from('shops').select('*', { count: 'exact', head: true })
+        .lt('last_reviewed_at', agingCutoff).gte('last_reviewed_at', staleCutoff),
+      supabase.from('columns').select('*', { count: 'exact', head: true }).lt('last_reviewed_at', staleCutoff),
+      supabase.from('columns').select('*', { count: 'exact', head: true })
+        .lt('last_reviewed_at', agingCutoff).gte('last_reviewed_at', staleCutoff),
     ])
 
     setStats({
@@ -86,6 +141,13 @@ export default function DashboardPage() {
       total: total.count ?? 0,
       published: published.count ?? 0,
       monthly: monthly.count ?? 0,
+    })
+
+    setFreshness({
+      shopsStale: shopsStale.count ?? 0,
+      shopsAging: shopsAging.count ?? 0,
+      columnsStale: columnsStale.count ?? 0,
+      columnsAging: columnsAging.count ?? 0,
     })
 
     setPendingReviews(
@@ -155,6 +217,36 @@ export default function DashboardPage() {
           <div className="stat-value">{stats.monthly}</div>
         </div>
       </div>
+
+      {/* Freshness warning */}
+      {(freshness.shopsStale + freshness.shopsAging + freshness.columnsStale + freshness.columnsAging) > 0 && (
+        <div className="card" style={{ marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <span style={{
+              display: 'inline-block', width: 8, height: 8, borderRadius: '50%',
+              background: freshness.shopsStale + freshness.columnsStale > 0 ? '#DC2626' : '#D97706',
+            }} />
+            <div style={{ fontSize: 13, fontWeight: 600 }}>鮮度警告</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
+            <FreshnessRow
+              label="お店"
+              href="/admin/shops"
+              stale={freshness.shopsStale}
+              aging={freshness.shopsAging}
+            />
+            <FreshnessRow
+              label="コラム"
+              href="/admin/columns"
+              stale={freshness.columnsStale}
+              aging={freshness.columnsAging}
+            />
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 10 }}>
+            {FRESHNESS_AGING_DAYS}日経過＝要点検 / {FRESHNESS_STALE_DAYS}日以上＝緊急点検
+          </div>
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="card" style={{ marginBottom: 24 }}>

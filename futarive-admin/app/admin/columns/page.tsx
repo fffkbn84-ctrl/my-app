@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { formatLastReviewed, freshnessLevel, freshnessColor } from '@/lib/freshness'
+
 interface ColumnRow {
   id: string
   title: string
@@ -10,7 +12,10 @@ interface ColumnRow {
   thumbnail_url: string | null
   published_at: string | null
   created_at: string
+  last_reviewed_at: string | null
 }
+
+type SortKey = 'created_at' | 'last_reviewed_at'
 
 interface ColumnForm {
   title: string
@@ -55,14 +60,23 @@ export default function ColumnsPage() {
   const [editTarget, setEditTarget] = useState<ColumnRow | null>(null)
   const [form, setForm] = useState<ColumnForm>(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [sortKey, setSortKey] = useState<SortKey>('last_reviewed_at')
 
-  useEffect(() => { loadColumns() }, [])
+  useEffect(() => { loadColumns(sortKey) }, [sortKey])
 
-  async function loadColumns() {
+  async function loadColumns(key: SortKey) {
     setLoading(true)
-    const { data } = await createClient().from('columns').select('*').order('created_at', { ascending: false })
+    const { data } = await createClient()
+      .from('columns')
+      .select('*')
+      .order(key, { ascending: key === 'last_reviewed_at' })
     setColumns(data ?? [])
     setLoading(false)
+  }
+
+  async function markReviewed(id: string) {
+    await createClient().from('columns').update({ last_reviewed_at: new Date().toISOString() }).eq('id', id)
+    loadColumns(sortKey)
   }
 
   function openNew() {
@@ -88,6 +102,7 @@ export default function ColumnsPage() {
       body: form.body || null,
       thumbnail_url: form.thumbnail_url || null,
       published_at: form.published_at ? new Date(form.published_at).toISOString() : null,
+      last_reviewed_at: new Date().toISOString(),
     }
     let error
     if (editTarget) {
@@ -98,28 +113,43 @@ export default function ColumnsPage() {
     setSaving(false)
     if (error) { alert('エラー: ' + error.message); return }
     setShowModal(false)
-    loadColumns()
+    loadColumns(sortKey)
   }
 
   async function handleDelete(id: string) {
     if (!confirm('このコラムを削除しますか？この操作は元に戻せません。')) return
     await createClient().from('columns').delete().eq('id', id)
-    loadColumns()
+    loadColumns(sortKey)
   }
 
   async function togglePublish(c: ColumnRow) {
     const published_at = c.published_at ? null : new Date().toISOString()
-    await createClient().from('columns').update({ published_at }).eq('id', c.id)
-    loadColumns()
+    await createClient()
+      .from('columns')
+      .update({ published_at, last_reviewed_at: new Date().toISOString() })
+      .eq('id', c.id)
+    loadColumns(sortKey)
   }
 
   return (
     <div>
       <div className="page-header">
         <h1 className="page-title">コラム管理</h1>
-        <button onClick={openNew} className="btn btn-primary" style={{ gap: 6 }}>
-          <IconPlus /> 新規追加
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 11, color: 'var(--muted)' }}>並び順</span>
+          <select
+            className="form-select"
+            value={sortKey}
+            onChange={e => setSortKey(e.target.value as SortKey)}
+            style={{ width: 'auto', fontSize: 12, padding: '4px 28px 4px 8px' }}
+          >
+            <option value="last_reviewed_at">最終点検（古い順）</option>
+            <option value="created_at">作成日（新しい順）</option>
+          </select>
+          <button onClick={openNew} className="btn btn-primary" style={{ gap: 6 }}>
+            <IconPlus /> 新規追加
+          </button>
+        </div>
       </div>
 
       <div className="card">
@@ -138,11 +168,14 @@ export default function ColumnsPage() {
                   <th>slug</th>
                   <th>掲載状態</th>
                   <th>公開日</th>
+                  <th>最終点検</th>
                   <th>操作</th>
                 </tr>
               </thead>
               <tbody>
-                {columns.map(c => (
+                {columns.map(c => {
+                  const level = freshnessLevel(c.last_reviewed_at)
+                  return (
                   <tr key={c.id}>
                     <td style={{ fontWeight: 500, fontSize: 13, maxWidth: 280 }}>
                       <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</div>
@@ -156,10 +189,16 @@ export default function ColumnsPage() {
                     <td style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
                       {c.published_at ? new Date(c.published_at).toLocaleDateString('ja-JP') : '—'}
                     </td>
+                    <td style={{ fontSize: 12, color: freshnessColor(level), whiteSpace: 'nowrap', fontWeight: level === 'fresh' ? 400 : 600 }}>
+                      {formatLastReviewed(c.last_reviewed_at)}
+                    </td>
                     <td>
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button onClick={() => openEdit(c)} className="btn btn-ghost btn-sm" style={{ gap: 4 }}>
                           <IconEdit /> 編集
+                        </button>
+                        <button onClick={() => markReviewed(c.id)} className="btn btn-ghost btn-sm" style={{ fontSize: 11 }} title="内容を確認した時刻を更新します">
+                          点検OK
                         </button>
                         <button onClick={() => togglePublish(c)} className="btn btn-ghost btn-sm" style={{ fontSize: 11 }}>
                           {c.published_at ? '非公開' : '公開'}
@@ -170,7 +209,7 @@ export default function ColumnsPage() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>
