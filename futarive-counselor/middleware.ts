@@ -26,8 +26,9 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const pathname = request.nextUrl.pathname
 
-  // 認証不要の公開ページ
-  const PUBLIC_PATHS = ['/login', '/claim', '/signup']
+  // 認証不要の公開ページ（法務ページは未ログインの新規 claim ユーザーが
+  // 規約同意リンクから到達できる必要があるため公開）
+  const PUBLIC_PATHS = ['/login', '/claim', '/signup', '/terms', '/privacy']
   const isPublic = PUBLIC_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
 
   if (!user && !isPublic) {
