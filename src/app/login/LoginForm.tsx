@@ -30,6 +30,7 @@ export default function LoginForm() {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -71,6 +72,14 @@ export default function LoginForm() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              marketing_emails_opt_in: marketingOptIn,
+              marketing_emails_consented_at: marketingOptIn
+                ? new Date().toISOString()
+                : null,
+            },
+          },
         });
         if (error) {
           setError(translateAuthError(error.message));
@@ -195,6 +204,42 @@ export default function LoginForm() {
           </div>
         )}
 
+        {mode === "signup" && (
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 10,
+              padding: "10px 12px",
+              background: "white",
+              border: "1px solid var(--light)",
+              borderRadius: 10,
+              fontSize: 12,
+              color: "var(--ink)",
+              lineHeight: 1.6,
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={marketingOptIn}
+              onChange={(e) => setMarketingOptIn(e.target.checked)}
+              style={{
+                flexShrink: 0,
+                marginTop: 2,
+                accentColor: "var(--accent)",
+                cursor: "pointer",
+              }}
+            />
+            <span>
+              新機能のお知らせやコラム配信、キャンペーン情報をメールで受け取る
+              <span style={{ color: "var(--muted)", fontSize: 11, display: "block", marginTop: 2 }}>
+                予約完了通知や規約変更等の重要な連絡は、本設定にかかわらず登録メールに送信されます
+              </span>
+            </span>
+          </label>
+        )}
+
         {error && (
           <div
             style={{
@@ -288,7 +333,11 @@ export default function LoginForm() {
           lineHeight: 1.7,
         }}
       >
-        登録すると<Link href="/about" style={{ color: "var(--accent)", textDecoration: "underline" }}>利用規約・プライバシーポリシー</Link>に同意したものとみなされます。
+        登録すると
+        <Link href="/terms" style={{ color: "var(--accent)", textDecoration: "underline" }}>利用規約</Link>
+        および
+        <Link href="/privacy" style={{ color: "var(--accent)", textDecoration: "underline" }}>プライバシーポリシー</Link>
+        に同意したものとみなされます。
       </div>
     </div>
   );
