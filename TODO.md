@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-05-22
+最終更新: 2026-05-23
 
 ---
 
@@ -68,7 +68,20 @@
 
 ---
 
-## ✅ 完了（今セッション、2026-05-22）
+## ✅ 完了（2026-05-23 後半セッション）— サブアプリ運用方針整理
+
+- [x] **futarive-counselor を Production Branch 切替運用に変更**
+  - Production Branch: `main` → `claude/fix-profile-creation-1clpG`
+  - Deployment Protection (Vercel Authentication): Disabled
+  - 新 production URL: `https://futarive-counselor.vercel.app/`（外部カウンセラーに案内可能）
+  - iPhone Safari プライベートモードで未認証アクセス確認済（Supabase Auth ログインまで素直に到達）
+- [x] **futarive-admin は手付かず**（user 一人運用のため preview URL のままで実害なし。将来複数人運用になったら counselor と同じ手順を踏襲する想定）
+
+詳細は `WORKLOG.md` の「2026-05-23 続き（深夜セッション）」参照。
+
+---
+
+## ✅ 完了（2026-05-22 セッション）
 
 - [x] Kinda note intro hero に clay 装飾画像（`kinda-note-deco-1.webp`）を採用（`0e8eb4a`）
 - [x] CTA 直前の deco-2 は配置せず保留、アセットは保全（`61f14a4`）

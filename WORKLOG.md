@@ -2857,3 +2857,64 @@ futarive-admin
 - [x] `deriveSiteUrl` ヘルパー導入（SITE_URL ハードコード排除）
 - [x] uDUoW → main 統合（force-push）
 - [x] production deploy 確認（`https://my-app-rp9u.vercel.app`）
+
+---
+
+## 2026-05-23 続き（深夜セッション）
+
+ブランチ：`claude/monorepo-deployment-strategy-dzAgF`（main 同期済み）
+
+前セッション引き継ぎメモ #1（サブアプリ運用方針決定）に対応。三択 A/B/C の代わりに**第三の道**として「**feature branch を Production Branch に昇格**」する選択で counselor を運用変更。admin は手付かず（user 一人運用なので preview のままで実害なし）。
+
+### 1. 現状調査で判明したこと
+
+- 「production target build が ERROR」は壊れているのではなく、Ignored Build Step + `.vercelignore` の組み合わせで起きる**設計上の副作用**
+- futarive-counselor は Root Directory が `futarive-counselor` に設定済みだが、`.vercelignore` がそのディレクトリを削除するため main からの build は必ず ENOENT で死ぬ（build log で確定）
+- futarive-admin は Root Directory が未設定（`.` のまま推定）で、main からは my-app の build を走らせて Next.js 16 で落ちている
+- いずれも「壊れてる」のではなく「main は使わず feature branch の preview を実体 production として運用している」状態
+
+### 2. counselor の Production Branch 切替
+
+Vercel project `futarive-counselor` の設定変更（ダッシュボード経由、user 操作）：
+
+- **Production Branch**: `main` → `claude/fix-profile-creation-1clpG`
+- **Deployment Protection (Vercel Authentication / Require Log In)**: 有効 → **Disabled**
+- **Password Protection**: Disabled のまま（無変更）
+
+切替後、trigger 用空コミット `c629995` を `claude/fix-profile-creation-1clpG` に push → 約 52 秒で deploy 完了（`dpl_J3sujdo4oVZJRaBqoThYy6GpxUGe`、state=READY、target=production）。
+
+### 3. 確定した新 URL
+
+`futarive-counselor` プロジェクトの新しい production aliases：
+
+- `https://futarive-counselor.vercel.app/` ★ 外部案内用の正規 URL
+- `https://futarive-counselor-fffkbn84-4095s-projects.vercel.app/`
+- `https://futarive-counselor-git-claude-fi-fc6d5e-fffkbn84-4095s-projects.vercel.app/`（branch alias）
+
+iPhone Safari **プライベートモード**で未認証アクセス確認：Vercel SSO は出ず、アプリ独自の Supabase Auth ログイン画面（「Kinda・ふたりへ COUNSELOR ADMIN」）まで素直に到達する。**外部のカウンセラーに案内可能な状態**になった。
+
+### 4. なぜ "main 統合" を選ばなかったか
+
+引き継ぎメモでは A（現状維持）/ B（main 統合）/ C（repo 分離）の三択だったが、調査の結果：
+
+- B（main 統合）は `.vercelignore` を削除して tsconfig の exclude に置き換える設計変更を要する。my-app の build が壊れるリスクあり、検証コストも高い
+- 「Production Branch 切替」は Vercel ダッシュボードの 2 クリックで完結、コード変更ゼロ、ロールバックも 2 クリック
+- counselor チームが既に `claude/fix-profile-creation-1clpG` で長く運用してきた実績を尊重できる
+- 結果として A と B の中間にある第三の道。引き継ぎメモには無かった選択肢
+
+### 5. admin について（今回は手付かず）
+
+futarive-admin は **user 一人運用 + カスタムドメイン不要**のため、今回は変更なし。preview URL のままで実害なし。将来複数人で使うようになったタイミングで counselor と同じ手順（Production Branch 切替 + Deployment Protection Disabled）を実施する想定。
+
+### ハマったこと / 学び
+
+- 私の初動の誤読：ERROR を見て「壊れてる」と判定し、`.vercelignore` 全面リファクタを推した。user の指摘で「ERROR は設計通り、実体は feature branch 運用」と気づき方針転換
+- WebFetch が `*.vercel.app` の production URL に対して 403 を返した。Deployment Protection は無効だったので、Vercel CDN の bot 対策と判断。実機シークレットモードでの検証が確実
+- 三択（A/B/C）に縛られず「Vercel project ごとに Production Branch を独立に設定できる」という Vercel の仕様を活かす第三の道があった
+
+### 次セッションへの引き継ぎ
+
+- [ ] PR #4（uDUoW → main, base=head で diff ゼロ）の手動 close
+- [ ] PR #2（counselor 用、open）の merge 可否判断
+- [ ] `futarive.jp` ドメイン取得タイミング決定
+- [ ] futarive-admin も将来複数人運用になったら今回の手順を踏襲
