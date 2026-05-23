@@ -30,10 +30,14 @@ export default function LoginForm() {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+
+  // signup モードでのみ規約同意を必須化
+  const canSubmit = mode !== "signup" || termsAccepted;
 
   const switchMode = (next: Mode) => {
     setMode(next);
@@ -45,6 +49,10 @@ export default function LoginForm() {
     e.preventDefault();
     if (!supabase) {
       setError("認証サービスが利用できません。時間をおいて再度お試しください。");
+      return;
+    }
+    if (mode === "signup" && !termsAccepted) {
+      setError("利用規約とプライバシーポリシーに同意してください。");
       return;
     }
     setSubmitting(true);
@@ -69,15 +77,16 @@ export default function LoginForm() {
         router.push(redirect);
         router.refresh();
       } else if (mode === "signup") {
+        const nowIso = new Date().toISOString();
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
+              terms_accepted_at: nowIso,
+              privacy_accepted_at: nowIso,
               marketing_emails_opt_in: marketingOptIn,
-              marketing_emails_consented_at: marketingOptIn
-                ? new Date().toISOString()
-                : null,
+              marketing_emails_consented_at: marketingOptIn ? nowIso : null,
             },
           },
         });
@@ -205,39 +214,94 @@ export default function LoginForm() {
         )}
 
         {mode === "signup" && (
-          <label
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: 10,
-              padding: "10px 12px",
-              background: "white",
-              border: "1px solid var(--light)",
-              borderRadius: 10,
-              fontSize: 12,
-              color: "var(--ink)",
-              lineHeight: 1.6,
-              cursor: "pointer",
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={marketingOptIn}
-              onChange={(e) => setMarketingOptIn(e.target.checked)}
+          <>
+            <label
               style={{
-                flexShrink: 0,
-                marginTop: 2,
-                accentColor: "var(--accent)",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 10,
+                padding: "12px 14px",
+                background: "white",
+                border: termsAccepted ? "1.5px solid var(--accent)" : "1.5px solid var(--light)",
+                borderRadius: 10,
+                fontSize: 12,
+                color: "var(--ink)",
+                lineHeight: 1.6,
                 cursor: "pointer",
               }}
-            />
-            <span>
-              新機能のお知らせやコラム配信、キャンペーン情報をメールで受け取る
-              <span style={{ color: "var(--muted)", fontSize: 11, display: "block", marginTop: 2 }}>
-                予約完了通知や規約変更等の重要な連絡は、本設定にかかわらず登録メールに送信されます
+            >
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                required
+                aria-required="true"
+                style={{
+                  flexShrink: 0,
+                  marginTop: 2,
+                  accentColor: "var(--accent)",
+                  cursor: "pointer",
+                }}
+              />
+              <span>
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--accent)", textDecoration: "underline" }}
+                >
+                  利用規約
+                </Link>
+                および
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--accent)", textDecoration: "underline" }}
+                >
+                  プライバシーポリシー
+                </Link>
+                に同意します
+                <span style={{ color: "var(--rose)", marginLeft: 4 }} aria-hidden="true">
+                  必須
+                </span>
               </span>
-            </span>
-          </label>
+            </label>
+
+            <label
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: 10,
+                padding: "10px 12px",
+                background: "white",
+                border: "1px solid var(--light)",
+                borderRadius: 10,
+                fontSize: 12,
+                color: "var(--ink)",
+                lineHeight: 1.6,
+                cursor: "pointer",
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={marketingOptIn}
+                onChange={(e) => setMarketingOptIn(e.target.checked)}
+                style={{
+                  flexShrink: 0,
+                  marginTop: 2,
+                  accentColor: "var(--accent)",
+                  cursor: "pointer",
+                }}
+              />
+              <span>
+                新機能のお知らせやコラム配信、キャンペーン情報をメールで受け取る
+                <span style={{ color: "var(--muted)", fontSize: 11, display: "block", marginTop: 2 }}>
+                  予約完了通知や規約変更等の重要な連絡は、本設定にかかわらず登録メールに送信されます
+                </span>
+              </span>
+            </label>
+          </>
         )}
 
         {error && (
@@ -269,7 +333,12 @@ export default function LoginForm() {
           </div>
         )}
 
-        <button type="submit" disabled={submitting} style={primaryBtnStyle(submitting)}>
+        <button
+          type="submit"
+          disabled={submitting || !canSubmit}
+          aria-disabled={submitting || !canSubmit}
+          style={primaryBtnStyle(submitting || !canSubmit)}
+        >
           {submitting
             ? "送信中..."
             : mode === "signin"
@@ -322,23 +391,23 @@ export default function LoginForm() {
         </div>
       )}
 
-      <div
-        style={{
-          marginTop: 24,
-          paddingTop: 16,
-          borderTop: "1px solid var(--light)",
-          fontSize: 11,
-          color: "var(--muted)",
-          textAlign: "center",
-          lineHeight: 1.7,
-        }}
-      >
-        登録すると
-        <Link href="/terms" style={{ color: "var(--accent)", textDecoration: "underline" }}>利用規約</Link>
-        および
-        <Link href="/privacy" style={{ color: "var(--accent)", textDecoration: "underline" }}>プライバシーポリシー</Link>
-        に同意したものとみなされます。
-      </div>
+      {mode !== "signup" && (
+        <div
+          style={{
+            marginTop: 24,
+            paddingTop: 16,
+            borderTop: "1px solid var(--light)",
+            fontSize: 11,
+            color: "var(--muted)",
+            textAlign: "center",
+            lineHeight: 1.7,
+          }}
+        >
+          <Link href="/terms" style={{ color: "var(--muted)", textDecoration: "underline" }}>利用規約</Link>
+          {" / "}
+          <Link href="/privacy" style={{ color: "var(--muted)", textDecoration: "underline" }}>プライバシーポリシー</Link>
+        </div>
+      )}
     </div>
   );
 }
