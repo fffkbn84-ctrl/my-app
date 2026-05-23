@@ -156,3 +156,41 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 
 - 「今日やったこと」は **WORKLOG.md** に書く。このファイルには書かない。
 - このCLAUDE.md は**全ブランチで同一内容**を保つ（ブランチごとに中身が分岐しないようにする）。
+- **CLAUDE.md / TODO.md / WORKLOG.md の source of truth は `main` ブランチ。** 作業前に `git pull origin main` で最新を取る。
+
+---
+
+## 10. ブランチ運用（2026-05-23 更新）
+
+> **重要：CLAUDE.md / TODO.md / WORKLOG.md 内に登場する過去のブランチ名（uDUoW 等）は履歴情報であり、現在の作業ブランチ指定ではない。新規セッション開始時はこの §10 を信頼すること。**
+
+### 原則
+
+- **新規の機能追加・修正は `main` から派生した short-lived feature branch で行う → PR → main にマージ → ブランチ削除**
+- 過去の長期ブランチ（`claude/implement-kinda-talk-uDUoW` 等）は歴史的経緯のもので、**新規作業に使わない**
+- ドキュメント（CLAUDE.md / TODO.md / WORKLOG.md）の更新は main 直接 push 可。機能コード変更は PR 経由
+- 各 Vercel project は独立した Production Branch を持つ。下表の通り
+
+### 各 Vercel project の Production Branch（現行スナップショット）
+
+| Vercel project | Production Branch | 外部公開 URL |
+|---|---|---|
+| my-app-rp9u（ユーザーサイト）| `main` | https://my-app-rp9u.vercel.app |
+| futarive-counselor（カウンセラー管理画面）| `claude/fix-profile-creation-1clpG` | https://futarive-counselor.vercel.app |
+| futarive-admin（管理画面）| `main`（実体は preview 運用）| `claude/futarive-admin-dashboard-iKBfw` の最新 preview URL を Vercel ダッシュボードで都度確認 |
+
+admin は user 一人運用 + カスタムドメイン不要のため production target は使わず preview URL を実体運用。将来複数人運用になったら counselor と同じ手順（Production Branch 切替 + Deployment Protection Disabled）を実施する。
+
+### 作業対象ごとのブランチ選択
+
+| 修正対象 | 派生元 | 反映先 URL |
+|---|---|---|
+| ユーザーサイト（`src/`）| `main` → feature branch → PR → main | https://my-app-rp9u.vercel.app |
+| counselor 管理画面（`futarive-counselor/`）| `claude/fix-profile-creation-1clpG` に直接 push、または feature branch → PR | https://futarive-counselor.vercel.app |
+| admin 管理画面（`futarive-admin/`）| `claude/futarive-admin-dashboard-iKBfw` に直接 push | preview URL |
+| ドキュメント（CLAUDE.md / TODO.md / WORKLOG.md）| `main` に直接 push 可 | — |
+
+### 注意
+
+- Vercel の Ignored Build Step が古いブランチ名で固定されている可能性あり。新しいブランチ名で push しても build が走らないときは Vercel ダッシュボードで Ignored Build Step を確認・更新する
+- `.vercelignore` は repo root から全 Vercel project に適用される。`futarive-counselor/` `futarive-admin/` を ignore しているのは my-app build がサブアプリのファイルを拾わないため。サブアプリ project は Root Directory 設定 + 上記の Production Branch 設定で運用

@@ -109,8 +109,14 @@
    - 利用規約（`/terms`）の本番値差替・規約レビュー
    - 特定商取引法表記の整備
    - プライバシーポリシー（必要なら）
+   - **ブランチ運用：`main` から派生した short-lived feature branch で作業 → PR → main**（詳細は CLAUDE.md §10）
 2. Phase C 完了 → 営業準備（営業資料・台本・メーリングリスト）に着手
 3. Phase D の Resend 契約・ドメイン取得は C/営業準備と並走可能
+
+### ブランチ運用の参照先
+
+新規セッション開始時は **CLAUDE.md §10「ブランチ運用」を最初に確認**すること。
+過去の WORKLOG / TODO 内に登場する古いブランチ名（`claude/implement-kinda-talk-uDUoW` 等）は履歴情報で、現在の指定ではない。
 
 ---
 
