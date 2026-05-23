@@ -108,6 +108,8 @@ export default function AccountSettingsSection() {
           <EmailRow currentEmail={user.email ?? ""} />
           <Divider />
           <PasswordRow currentEmail={user.email ?? ""} />
+          <Divider />
+          <MarketingEmailsRow />
           <AccountDeleteSection />
         </div>
       )}
@@ -516,6 +518,98 @@ function PasswordRow({ currentEmail }: { currentEmail: string }) {
       )}
       {status === "saved" && <Hint kind="ok">パスワードを変更しました</Hint>}
       {status === "error" && errorMsg && <Hint kind="error">{errorMsg}</Hint>}
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────
+   メール配信設定（マーケティング通知のオプトイン）
+────────────────────────────────────────────── */
+function MarketingEmailsRow() {
+  const { user, supabase } = useAuth();
+  const [optIn, setOptIn] = useState<boolean>(() => {
+    const meta = user?.user_metadata as { marketing_emails_opt_in?: boolean } | undefined;
+    return meta?.marketing_emails_opt_in === true;
+  });
+  const [status, setStatus] = useState<SaveStatus>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleToggle = async (next: boolean) => {
+    if (!supabase || status === "saving") return;
+    const prev = optIn;
+    setOptIn(next);
+    setStatus("saving");
+    setErrorMsg("");
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        marketing_emails_opt_in: next,
+        marketing_emails_consented_at: next ? new Date().toISOString() : null,
+      },
+    });
+    if (error) {
+      setOptIn(prev);
+      setStatus("error");
+      setErrorMsg(error.message || "保存に失敗しました");
+      return;
+    }
+    setStatus("saved");
+    setTimeout(() => setStatus((s) => (s === "saved" ? "idle" : s)), 1500);
+  };
+
+  return (
+    <div style={rowStyle}>
+      <div style={rowLabelStyle}>
+        <span style={labelTextStyle}>メール配信</span>
+        <span style={labelHintStyle}>
+          新機能のお知らせ・コラム配信・キャンペーン情報の受け取り（予約完了等の重要な連絡は本設定にかかわらず送信されます）
+        </span>
+      </div>
+      <label style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+        <span style={{ fontSize: 13, color: "var(--ink)" }}>受け取る</span>
+        <span
+          style={{
+            position: "relative",
+            display: "inline-block",
+            width: 44,
+            height: 24,
+            flexShrink: 0,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={optIn}
+            onChange={(e) => handleToggle(e.target.checked)}
+            disabled={status === "saving"}
+            style={{ opacity: 0, width: 0, height: 0 }}
+          />
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: optIn ? "var(--accent)" : "var(--light)",
+              borderRadius: 50,
+              transition: "background .2s",
+            }}
+          />
+          <span
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              width: 18,
+              height: 18,
+              top: 3,
+              left: optIn ? 23 : 3,
+              background: "white",
+              borderRadius: "50%",
+              transition: "left .2s",
+              boxShadow: "0 1px 4px rgba(0,0,0,.2)",
+            }}
+          />
+        </span>
+      </label>
+      {status === "saved" && <Hint kind="ok">保存しました</Hint>}
+      {status === "error" && <Hint kind="error">{errorMsg}</Hint>}
     </div>
   );
 }
