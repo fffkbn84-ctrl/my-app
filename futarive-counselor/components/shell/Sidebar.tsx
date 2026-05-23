@@ -164,6 +164,10 @@ export default function Sidebar() {
           </svg>
           ログアウト
         </button>
+        <div style={{ padding: '8px 12px 0', fontSize: 10, color: 'var(--text-light)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>利用規約</Link>
+          <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>プライバシー</Link>
+        </div>
       </div>
     </aside>
   )

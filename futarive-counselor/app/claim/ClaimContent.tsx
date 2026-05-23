@@ -378,7 +378,16 @@ export default function ClaimContent() {
               </form>
 
               <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 16, lineHeight: 1.7, textAlign: 'center' }}>
-                登録すると、Kinda カウンセラー管理画面の利用規約に同意したものとみなされます。
+                登録すると、Kinda カウンセラー管理画面の
+                <Link href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-deep)', textDecoration: 'underline' }}>
+                  利用規約
+                </Link>
+                および
+                <Link href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-deep)', textDecoration: 'underline' }}>
+                  プライバシーポリシー
+                </Link>
+                に同意したものとみなされます。<br />
+                プロフィール情報の更新リマインダー等、本サービスの提供に必要な業務上の通知は、登録メールアドレス宛に送信されます（受領停止不可）。
               </p>
             </>
           )}
