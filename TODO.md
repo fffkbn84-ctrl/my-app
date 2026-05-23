@@ -55,16 +55,15 @@
 > 詳細手順は `supabase/functions/notify-stale-profiles/README.md`。
 > いつでも開始でき、開始した瞬間から自動で機能する状態。
 
-### サンプルデータの整理（admin / DB 連携の未完部分）
+### サンプルデータの整理（admin / DB 連携の未完部分）— 2026-05-23 確認、すべて完了済
 
-`counselors` 側はサンプル名・isDemo フラグでほぼ揃っているが、`agencies` と admin UI に整理漏れあり：
+`counselors` 側はサンプル名・isDemo フラグでほぼ揃っているが、`agencies` と admin UI に整理漏れあり、と前回までの認識だったが、2026-05-23 後半セッションで Supabase 実データを SELECT して確認した結果、**全て解消済み**だった：
 
-- [ ] **agencies の is_demo フラグ修正**：DB に `（サンプル）` 名が 6 件あるのに `is_demo=false` のまま。
-  単発 SQL で `UPDATE agencies SET is_demo = true WHERE name LIKE '%（サンプル）%'`
-- [ ] **agencies 重複登録の整理**：`Emma〜そろそろ結婚してみようかな〜` が 2 件（owner あり / owner なし）。owner なしの方を削除
-- [ ] **`counselors` 中の "山田孝之"（is_demo=false / owner なし）** の処遇判断（サンプル化 or 削除）
-- [ ] **admin に `is_demo` 列表示 + トグル**：`futarive-admin/app/admin/counselors/page.tsx` および `shops/page.tsx`（shops はそもそも is_demo 列が DB にない。badge_type で運用するなら admin/agencies/page.tsx 含めて方針統一）
-- [ ] **未使用 Next.js scaffolding SVG 削除**：`public/{next,window,file,globe,vercel}.svg`（参照 0 件・5 ファイル）
+- [x] **agencies の is_demo フラグ修正**：`（サンプル）` 名 8 件すべて is_demo=true（前回懸念の 6 件 → 8 件に増えて全て true）
+- [x] **agencies 重複登録の整理**：重複ゼロ（Emma〜系も解消済み）
+- [x] **`counselors` 中の "山田孝之"** ：DB から既に消えている（削除 or 改名済み）
+- [x] **admin に `is_demo` 列表示 + トグル**：`claude/futarive-admin-dashboard-iKBfw` の `6adae8dd` で counselors / agencies に実装済（shops は DB に is_demo 列がないため badge_type 運用継続で対象外）
+- [x] **未使用 Next.js scaffolding SVG 削除**：`d27cd1f` で削除済
 
 ---
 
@@ -91,26 +90,34 @@
 
 ---
 
-## 📌 ロードマップ（参考）
+## 📌 ロードマップ（2026-05-23 後半セッション時点）
 
-前セッションで決めた本番リリースまでの大枠：
+本番リリースまでの大枠と現状：
 
-| Phase | 期間目安 | 内容 |
-|---|---|---|
-| A：機能拡充 | ほぼ完了 | admin / counselor / user-site の主要機能 |
-| B：コンテンツ整備 | 1〜2 週 | 画像監査・実カウンセラー投入・**鮮度管理**（← 次） |
-| C：法務・契約 | 1 週 | 利用規約・特商法表記の本番値差替・規約レビュー |
-| D：リリース前準備 | 数日 | SMTP / Auth Confirm ON / 本番ドメイン / Vercel Production Branch=main |
-| E：リリース直後 | 継続 | GA4・PWA・ユーザー導線分析 |
+| Phase | 期間目安 | 内容 | 現状 |
+|---|---|---|---|
+| A：機能拡充 | — | admin / counselor / user-site の主要機能 | ✅ 完了 |
+| B：コンテンツ整備 | 1〜2 週 | 画像監査・実カウンセラー投入・鮮度管理 | 🟢 大半完了（画像監査 ✅ / 鮮度管理は既存で充足判定 ✅ / 残：実カウンセラー投入のみ） |
+| **C：法務・契約** | **1 週** | **利用規約・特商法表記の本番値差替・規約レビュー** | **🟡 次の本命（次セッション着手）** |
+| D：リリース前準備 | 数日 | Resend 契約・Auth Confirm ON・本番ドメイン取得・Vercel 本番設定 | ⬜ 鮮度アラート Edge Function は実装済、Resend 契約待ち |
+| C 完了後並走：営業準備 | 数日〜 | 結婚相談所への営業資料・台本・メーリングリスト構築 | ⬜ Phase C 完了後に着手（user 指示・2026-05-23） |
+| E：リリース直後 | 継続 | GA4・PWA・ユーザー導線分析 | ⬜ 未着手 |
 
-次セッションの優先順（前セッションの計画）：
-1. ~~画像監査タスク（小）— docs/image-audit.md 作成。loading-state 候補 + 不足画像リスト + オーナメント候補~~ ✅
-2. ~~last_reviewed_at + 鮮度管理ダッシュボード（中）~~ ✅ 既存 updated_at + Resend Edge Function でカバー済みと判定（2026-05-22）
-3. SNS 流入対策（小）— カウンセラー管理画面の SNS フィールド表示制限ロジックを futarive-counselor で実装。利用規約案文章は `/terms` を更新
+### 次セッションの優先順
+
+1. **Phase C：法務・契約**（次セッションのメイン）
+   - 利用規約（`/terms`）の本番値差替・規約レビュー
+   - 特定商取引法表記の整備
+   - プライバシーポリシー（必要なら）
+2. Phase C 完了 → 営業準備（営業資料・台本・メーリングリスト）に着手
+3. Phase D の Resend 契約・ドメイン取得は C/営業準備と並走可能
 
 ---
 
-## 🟢 サイト稼働後・初期営業（タイミングを見て着手）
+## 🟢 Phase C 完了後・初期営業（順番厳守・2026-05-23 user 指示）
+
+> **着手タイミング：Phase C（法務・契約）が完了してから。**
+> 規約・特商法・特定電子メール法対応が整わないと営業活動自体が法的リスクになるため、順番を逆にしない。
 
 ローンチに前後して並走するタスク群。プロダクト本体ではなく営業・対外発信。
 
@@ -123,7 +130,7 @@
 - [ ] **メーリングリスト構築**：
   - 結婚相談所オーナー連絡先の収集元（IBJ / BIU 加盟リスト / 公式サイト掘り起こし）
   - 送信ツールは Resend / SendGrid / Mailchimp のいずれか。鮮度アラートで Resend を使うなら統一が楽
-  - **特定電子メール法**：オプトイン取得 or 「事業者向けの取引提案」例外を満たす運用設計が必要（要法務確認）
+  - **特定電子メール法**：オプトイン取得 or 「事業者向けの取引提案」例外を満たす運用設計が必要（要法務確認 → Phase C で整理）
   - 配信スケジュール（初回提案 → 1 週間後フォロー → 2 週間後最終 の 3 タッチが定番）
 
 ---
