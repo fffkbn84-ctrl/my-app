@@ -31,12 +31,16 @@ export default function ClaimContent() {
   const [mode, setMode] = useState<Mode>('signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [claimingNow, setClaimingNow] = useState(false)
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [inApp, setInApp] = useState<InAppBrowser>(null)
   const [urlCopied, setUrlCopied] = useState(false)
+
+  // signup モードでのみ規約同意を必須化
+  const canSubmit = mode !== 'signup' || termsAccepted
 
   useEffect(() => {
     setInApp(detectInAppBrowser())
@@ -92,14 +96,25 @@ export default function ClaimContent() {
     setInfo('')
     if (!email || !password) { setError('メールアドレスとパスワードを入力してください'); return }
     if (password.length < 8) { setError('パスワードは8文字以上にしてください'); return }
+    if (mode === 'signup' && !termsAccepted) {
+      setError('利用規約とプライバシーポリシーに同意してください')
+      return
+    }
     setSubmitting(true)
     const supabase = createClient()
 
     if (mode === 'signup') {
+      const nowIso = new Date().toISOString()
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/claim?token=${token}` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/claim?token=${token}`,
+          data: {
+            terms_accepted_at: nowIso,
+            privacy_accepted_at: nowIso,
+          },
+        },
       })
       if (error) { setError(describeError(error)); setSubmitting(false); return }
       if (!data.session) {
@@ -360,6 +375,67 @@ export default function ClaimContent() {
                   />
                 </div>
 
+                {mode === 'signup' && (
+                  <label
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 10,
+                      padding: '12px 14px',
+                      marginBottom: 14,
+                      background: 'var(--card)',
+                      border: termsAccepted ? '1.5px solid var(--accent)' : '1.5px solid var(--border)',
+                      borderRadius: 10,
+                      fontSize: 12,
+                      color: 'var(--text)',
+                      lineHeight: 1.6,
+                      cursor: 'pointer',
+                      transition: 'border-color .15s',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={termsAccepted}
+                      onChange={(e) => setTermsAccepted(e.target.checked)}
+                      required
+                      aria-required="true"
+                      style={{
+                        flexShrink: 0,
+                        marginTop: 2,
+                        accentColor: 'var(--accent)',
+                        cursor: 'pointer',
+                      }}
+                    />
+                    <span>
+                      Kinda カウンセラー管理画面の
+                      <Link
+                        href="/terms"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--accent-deep)', textDecoration: 'underline' }}
+                      >
+                        利用規約
+                      </Link>
+                      および
+                      <Link
+                        href="/privacy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--accent-deep)', textDecoration: 'underline' }}
+                      >
+                        プライバシーポリシー
+                      </Link>
+                      に同意します
+                      <span style={{ color: 'var(--danger)', marginLeft: 4 }} aria-hidden="true">
+                        必須
+                      </span>
+                      <span style={{ display: 'block', marginTop: 4, fontSize: 10, color: 'var(--text-light)' }}>
+                        プロフィール情報の更新リマインダー等、本サービスの提供に必要な業務上の通知が登録メール宛に送信されます（受領停止不可）。
+                      </span>
+                    </span>
+                  </label>
+                )}
+
                 {error && (
                   <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 12 }}>{error}</p>
                 )}
@@ -370,25 +446,25 @@ export default function ClaimContent() {
                 <button
                   type="submit"
                   className="kc-btn kc-btn-primary"
-                  disabled={submitting}
+                  disabled={submitting || !canSubmit}
+                  aria-disabled={submitting || !canSubmit}
                   style={{ width: '100%', justifyContent: 'center' }}
                 >
                   {submitting ? '処理中…' : mode === 'signup' ? '新規登録する' : 'ログインする'}
                 </button>
               </form>
 
-              <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 16, lineHeight: 1.7, textAlign: 'center' }}>
-                登録すると、Kinda カウンセラー管理画面の
-                <Link href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-deep)', textDecoration: 'underline' }}>
-                  利用規約
-                </Link>
-                および
-                <Link href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-deep)', textDecoration: 'underline' }}>
-                  プライバシーポリシー
-                </Link>
-                に同意したものとみなされます。<br />
-                プロフィール情報の更新リマインダー等、本サービスの提供に必要な業務上の通知は、登録メールアドレス宛に送信されます（受領停止不可）。
-              </p>
+              {mode === 'login' && (
+                <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 16, lineHeight: 1.7, textAlign: 'center' }}>
+                  <Link href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-light)', textDecoration: 'underline' }}>
+                    利用規約
+                  </Link>
+                  {' / '}
+                  <Link href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-light)', textDecoration: 'underline' }}>
+                    プライバシーポリシー
+                  </Link>
+                </p>
+              )}
             </>
           )}
         </div>
