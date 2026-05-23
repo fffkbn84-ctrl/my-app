@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -27,6 +28,7 @@ export async function generateMetadata({
   const title = `${dt.name}｜Kinda type 相性チェック結果`;
   const description = `${dt.label}。${dt.description.join(" / ")}。あなたに合うカウンセラーを Kinda ふたりへで見つけよう。`;
   const url = `${SITE_URL}/kinda-type/result?type=${typeId}`;
+  const imageUrl = `${SITE_URL}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
 
   return {
     title,
@@ -38,11 +40,20 @@ export async function generateMetadata({
       url,
       siteName: "Kinda ふたりへ",
       type: "article",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `Kinda type ${dt.name}を表すミニチュアシーン`,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [imageUrl],
     },
   };
 }
@@ -133,10 +144,13 @@ export default async function DiagnosisResultPage({
 
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);
 
+  const pageUrl = `${SITE_URL}/kinda-type/result?type=${typeId}`;
+  const imageUrl = `${SITE_URL}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
+
   const shareText = encodeURIComponent(
     `私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`
   );
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}`;
+  const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(pageUrl)}`;
 
   // JSON-LD 構造化データ（Article + FAQPage schema）
   const jsonLd = [
@@ -145,6 +159,7 @@ export default async function DiagnosisResultPage({
       "@type": "Article",
       headline: `${diagType.name}｜Kinda type 相性チェック結果`,
       description: diagType.label,
+      image: imageUrl,
       keywords: ["Kinda type", "相性チェック", "カウンセラー", "結婚相談所", ...diagType.tags],
       inLanguage: "ja-JP",
       isPartOf: {
@@ -154,7 +169,7 @@ export default async function DiagnosisResultPage({
       },
       mainEntityOfPage: {
         "@type": "WebPage",
-        "@id": `${SITE_URL}/kinda-type/result?type=${typeId}`,
+        "@id": pageUrl,
       },
     },
     {
@@ -195,6 +210,16 @@ export default async function DiagnosisResultPage({
               ① ヒーロー
           ══════════════════════════════════ */}
           <div className="ktr-hero" style={{ background: diagType.gradient }}>
+            <div className="ktr-hero-image">
+              <Image
+                src={`/images/kinda-type/type-${typeId.toLowerCase()}.webp`}
+                alt={`${diagType.name}を表すミニチュアシーン`}
+                fill
+                priority
+                sizes="(max-width: 480px) 100vw, 480px"
+                style={{ objectFit: "cover" }}
+              />
+            </div>
             <h1 className="ktr-hero-title">{diagType.name}</h1>
             <p className="ktr-hero-label">{diagType.label}</p>
 

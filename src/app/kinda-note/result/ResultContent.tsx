@@ -166,6 +166,16 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
     });
   }, [hydrated, stored, typeContent, weather, route, supabase, user, isReplay]);
 
+  // SNS シェア時の og:image を weather 別に出すため、URL に weather パラメータを反映
+  useEffect(() => {
+    if (!hydrated || !weather) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("weather") === weather) return;
+    params.set("weather", weather);
+    if (route) params.set("route", route);
+    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+  }, [hydrated, weather, route]);
+
   // typeContent が見つからないことは原則ないが、安全弁として
   if (!typeContent) {
     return (

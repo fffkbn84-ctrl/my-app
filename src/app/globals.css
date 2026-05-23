@@ -4753,6 +4753,13 @@ body:has(.cta-mobile-bar) .floating-back {
 
 /* ① ヒーロー */
 .ktr-hero { padding: 40px 28px 56px; }
+.ktr-hero-image {
+  position: relative;
+  width: calc(100% + 56px);
+  margin: -40px -28px 28px;
+  aspect-ratio: 1200 / 630;
+  overflow: hidden;
+}
 .ktr-hero-title {
   font-family: 'Shippori Mincho', serif;
   font-size: clamp(26px, 5vw, 42px);
