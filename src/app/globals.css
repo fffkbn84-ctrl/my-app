@@ -7102,6 +7102,16 @@ body:has(.cta-mobile-bar) .floating-back {
 .legal-ol { list-style: decimal outside; }
 .legal-ul { list-style: disc outside; }
 
+.legal-ol-sub {
+  list-style: lower-roman outside;
+  font-size: 14px;
+  line-height: 2;
+  color: var(--ink);
+  padding-left: 24px;
+  margin: 4px 0 4px;
+}
+.legal-ol-sub li { margin-bottom: 2px; }
+
 .legal-link {
   color: var(--accent);
   text-decoration: underline;

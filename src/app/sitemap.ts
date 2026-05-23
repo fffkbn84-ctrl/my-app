@@ -34,6 +34,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : 0.7,
   }));
 
+  const legalEntries: MetadataRoute.Sitemap = [
+    "/terms",
+    "/privacy",
+    "/tokushou",
+  ].map((path) => ({
+    url: `${SITE_URL}${path}`,
+    lastModified: now,
+    changeFrequency: "yearly" as const,
+    priority: 0.3,
+  }));
+
   const counselorEntries: MetadataRoute.Sitemap = COUNSELORS
     .filter((c) => !c.isDemo)
     .map((c) => ({
@@ -91,6 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticEntries,
+    ...legalEntries,
     ...counselorEntries,
     ...areaEntries,
     ...typeEntries,
