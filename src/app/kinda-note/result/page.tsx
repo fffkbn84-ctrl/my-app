@@ -1,12 +1,21 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import ResultContent from "./ResultContent";
 import {
   getWeatherDescription,
   type WeatherKey,
 } from "../data/weatherDescriptions";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+// preview / production / カスタムドメインに自動追従するため request header から導出。
+async function deriveSiteUrl(): Promise<string> {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  if (host && !host.includes("localhost")) {
+    const protocol = h.get("x-forwarded-proto") ?? "https";
+    return `${protocol}://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+}
 
 const WEATHER_KEYS: WeatherKey[] = [
   "morning_mist", "pre_dawn", "flower_overcast", "light_rain_start",
@@ -40,10 +49,11 @@ export async function generateMetadata({
   }
 
   const w = getWeatherDescription(key);
+  const siteUrl = await deriveSiteUrl();
   const title = `${w.name_ja}｜Kinda note 結果`;
   const description = w.meta_description || w.description;
-  const imageUrl = `${SITE_URL}/images/${imageFileFor(key)}.webp`;
-  const pageUrl = `${SITE_URL}/kinda-note/result?weather=${key}`;
+  const imageUrl = `${siteUrl}/images/${imageFileFor(key)}.webp`;
+  const pageUrl = `${siteUrl}/kinda-note/result?weather=${key}`;
 
   return {
     title,

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { headers } from "next/headers";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -10,8 +11,18 @@ import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { COUNSELORS } from "@/lib/data";
 import ShareRetryActions from "./ShareRetryActions";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+// preview / production / カスタムドメインに自動追従するため request header から導出。
+// env var ハードコードだと preview から共有した URL が production を指してしまい
+// og:image が production の古いビルドから返らない事故が起きる。
+async function deriveSiteUrl(): Promise<string> {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  if (host && !host.includes("localhost")) {
+    const protocol = h.get("x-forwarded-proto") ?? "https";
+    return `${protocol}://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+}
 
 /* ────────────────────────────────────────────────────────────
    メタデータ生成（タイプ別に title / description / OGP / canonical）
@@ -24,11 +35,12 @@ export async function generateMetadata({
   const { type } = await searchParams;
   const typeId = (type as DiagnosisTypeId) || "C";
   const dt = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
+  const siteUrl = await deriveSiteUrl();
 
   const title = `${dt.name}｜Kinda type 相性チェック結果`;
   const description = `${dt.label}。${dt.description.join(" / ")}。あなたに合うカウンセラーを Kinda ふたりへで見つけよう。`;
-  const url = `${SITE_URL}/kinda-type/result?type=${typeId}`;
-  const imageUrl = `${SITE_URL}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
+  const url = `${siteUrl}/kinda-type/result?type=${typeId}`;
+  const imageUrl = `${siteUrl}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
 
   return {
     title,
@@ -136,6 +148,7 @@ export default async function DiagnosisResultPage({
   const { type } = await searchParams;
   const typeId = (type as DiagnosisTypeId) || "C";
   const diagType = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
+  const siteUrl = await deriveSiteUrl();
 
   // typeに合うカウンセラーを最大2件取得
   const matchedCounselors = COUNSELORS.filter(
@@ -144,8 +157,8 @@ export default async function DiagnosisResultPage({
 
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);
 
-  const pageUrl = `${SITE_URL}/kinda-type/result?type=${typeId}`;
-  const imageUrl = `${SITE_URL}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
+  const pageUrl = `${siteUrl}/kinda-type/result?type=${typeId}`;
+  const imageUrl = `${siteUrl}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
 
   const shareText = encodeURIComponent(
     `私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`
@@ -165,7 +178,7 @@ export default async function DiagnosisResultPage({
       isPartOf: {
         "@type": "WebSite",
         name: "Kinda ふたりへ",
-        url: SITE_URL,
+        url: siteUrl,
       },
       mainEntityOfPage: {
         "@type": "WebPage",

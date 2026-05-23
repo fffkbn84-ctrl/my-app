@@ -254,6 +254,31 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
     }
   }
 
+  // ─── SNS シェア（Web Share API → X intent フォールバック）─────
+  async function handleShare() {
+    const shareUrl = window.location.href; // weather パラメータが replaceState で付与済み
+    const shareText = `今日の私は「${weatherDesc.name_ja}」でした。 #Kindaふたりへ`;
+    const navWithShare = navigator as Navigator & {
+      share?: (data: { title: string; text: string; url: string }) => Promise<void>;
+    };
+    if (navWithShare.share) {
+      try {
+        await navWithShare.share({
+          title: "Kinda note",
+          text: shareText,
+          url: shareUrl,
+        });
+        trackEvent("kinda_note_share", { method: "native_share", weather_type: weather });
+      } catch {
+        // ユーザーがキャンセルした場合は無視
+      }
+      return;
+    }
+    const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    window.open(intentUrl, "_blank", "noopener,noreferrer");
+    trackEvent("kinda_note_share", { method: "twitter", weather_type: weather });
+  }
+
   // ─── ShareCard に渡す選択ラベル一覧 ─────────────
   const selectedLabels = useMemo(() => {
     const out: string[] = [];
@@ -389,11 +414,12 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
         {/* メイン CTA */}
         <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
           {isPre ? (
-            <PreButtons isLoggedIn={!!user} />
+            <PreButtons isLoggedIn={!!user} onShare={handleShare} />
           ) : (
             <ActiveButtons
               onCopy={handleCopy}
               onSaveImage={handleSaveImage}
+              onShare={handleShare}
               saving={saving}
               isLoggedIn={!!user}
             />
@@ -941,7 +967,7 @@ const storyBtnStyle: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
-function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
+function PreButtons({ isLoggedIn, onShare }: { isLoggedIn: boolean; onShare: () => void }) {
   // ログイン状態に関わらず Kinda talk へ。結果は localStorage に永続化済み。
   // 予約フローで初めてログインが必要になる（その時に localStorage の結果が DB に同期される）。
   const talkHref = "/kinda-talk?from=note";
@@ -972,9 +998,9 @@ function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
         </svg>
       </Link>
 
-      {/* 2. Kinda type（副CTA・相性チェック） */}
+      {/* 2. Kinda type（副CTA・カウンセラー相性診断） */}
       <Link href="/kinda-type" style={secondaryStyle}>
-        相性チェックも試してみる
+        60秒でぴったりのカウンセラーが見つかる
       </Link>
 
       {/* 3. Kinda glow（secondary） */}
@@ -986,6 +1012,14 @@ function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
       <Link href="/kinda-story" style={tertiaryStyle}>
         Kinda story を見てみる
       </Link>
+
+      {/* 5. SNS シェア（tertiary、最も控えめに） */}
+      <button onClick={onShare} type="button" style={{ ...tertiaryStyle, cursor: "pointer", gap: 6 }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+        結果を SNS でシェア
+      </button>
 
       {!isLoggedIn && (
         <p
@@ -1037,11 +1071,13 @@ const tertiaryStyle: React.CSSProperties = {
 function ActiveButtons({
   onCopy,
   onSaveImage,
+  onShare,
   saving,
   isLoggedIn,
 }: {
   onCopy: () => void;
   onSaveImage: () => void;
+  onShare: () => void;
   saving: boolean;
   isLoggedIn: boolean;
 }) {
@@ -1140,6 +1176,14 @@ function ActiveButtons({
           <circle cx="11.5" cy="5.5" r="0.6" fill="currentColor" />
         </svg>
         {saving ? "画像を生成中..." : "画像にして持っておく"}
+      </button>
+
+      {/* SNS シェア（tertiary） */}
+      <button onClick={onShare} type="button" style={{ ...tertiaryStyle, cursor: "pointer", gap: 6, marginTop: 4 }}>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+        結果を SNS でシェア
       </button>
     </>
   );
