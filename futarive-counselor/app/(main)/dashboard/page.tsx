@@ -362,7 +362,6 @@ export default function DashboardPage() {
 
   return (
     <div style={{ padding: '24px 20px', paddingBottom: 100, maxWidth: 960 }}>
-      <div className="dash-eyebrow">DASHBOARD</div>
       <h1 className="dash-hero">
         おかえりなさい、{displayName || 'あなた'} さん
       </h1>

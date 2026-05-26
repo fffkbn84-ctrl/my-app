@@ -265,8 +265,7 @@ export default function ReelPage() {
   return (
     <div style={{ padding: '24px 20px', paddingBottom: 140, maxWidth: 720, margin: '0 auto' }}>
       {/* ヒーロー */}
-      <div className="reel-hero-eyebrow">REEL</div>
-      <h1 className="reel-hero-title">{agencyScope.isOwner ? `${counselor?.name ?? '—'} のリール` : 'あなたのリール'}</h1>
+      <h1 className="reel-hero-title">{agencyScope.isOwner ? `${counselor?.name ?? '—'} の動画・写真` : 'あなたの動画・写真'}</h1>
       <p className="reel-hero-sub">
         Kinda talk のカウンセラー一覧で、利用者が最初に出会う「あなたの印象」です。<br/>
         3〜5枚で、普段の空気が伝わる順に並べるのがおすすめ。

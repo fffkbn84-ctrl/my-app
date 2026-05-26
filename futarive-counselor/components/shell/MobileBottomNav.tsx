@@ -6,7 +6,7 @@ import Link from 'next/link'
 const NAV_ITEMS = [
   {
     href: '/dashboard',
-    label: 'ホーム',
+    label: '最初に見る',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M2 8L10 2l8 6v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8Z" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/inbox',
-    label: '受信トレイ',
+    label: 'やるべきこと',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M3 11V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill={active ? 'var(--accent-pale)' : 'none'}/>
@@ -36,7 +36,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/reel',
-    label: 'リール',
+    label: '動画・写真',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <rect x="2" y="2" width="16" height="16" rx="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
@@ -47,7 +47,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/reviews',
-    label: 'レビュー',
+    label: '口コミ返信',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M3 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H7l-3.5 2.5V14H4a1 1 0 0 1-1-1V4Z" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>

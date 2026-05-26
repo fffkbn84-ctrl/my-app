@@ -20,19 +20,17 @@ const AGENCY_ITEM = {
 const NAV_ITEMS = [
   {
     href: '/dashboard',
-    label: 'ダッシュボード',
+    label: '最初に見る',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
-        <rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
-        <rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
-        <rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M2 7L8 2l6 5v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M6 14v-5h4v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
   {
     href: '/inbox',
-    label: '受信トレイ',
+    label: 'やるべきこと',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M2 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
@@ -52,7 +50,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/reel',
-    label: 'リール',
+    label: '動画・写真',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/>
@@ -63,7 +61,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/calendar',
-    label: '予約枠管理',
+    label: 'カレンダー',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
@@ -73,7 +71,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/reviews',
-    label: 'レビュー返信',
+    label: '口コミへの返信',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H6l-3 2v-2H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.4"/>
@@ -128,18 +126,12 @@ export default function Sidebar() {
               letterSpacing: '.06em',
             }}>futarive</span>
           </div>
-          <div className="eyebrow" style={{ fontSize: '9px', letterSpacing: '.16em' }}>
-            COUNSELOR ADMIN
-          </div>
         </Link>
       </div>
 
       {/* ナビゲーション */}
       <nav className="kc-sidebar-nav">
         <div style={{ marginBottom: 4 }}>
-          <div className="eyebrow" style={{ fontSize: '9px', padding: '0 12px', marginBottom: 8 }}>
-            MENU
-          </div>
           {[...NAV_ITEMS, AGENCY_ITEM].map(item => (
             <Link
               key={item.href}

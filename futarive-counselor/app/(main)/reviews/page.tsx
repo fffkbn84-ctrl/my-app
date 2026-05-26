@@ -116,9 +116,8 @@ export default function ReviewsPage() {
 
   return (
     <div style={{ padding: '28px 24px', maxWidth: 720, paddingBottom: 80 }}>
-      <div className="eyebrow" style={{ marginBottom: 8 }}>REVIEWS</div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <h1 className="page-title">レビュー返信</h1>
+        <h1 className="page-title">口コミへの返信</h1>
         <span style={{
           fontFamily: 'DM Sans, sans-serif',
           fontSize: 13,

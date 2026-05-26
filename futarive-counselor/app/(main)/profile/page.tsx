@@ -362,7 +362,6 @@ export default function ProfilePage() {
 
   return (
     <div style={{ padding: '28px 24px', maxWidth: 680, paddingBottom: 80 }}>
-      <div className="eyebrow" style={{ marginBottom: 8 }}>PROFILE</div>
       <h1 className="page-title" style={{ marginBottom: 24 }}>プロフィール編集</h1>
 
       <div className="step-bar" style={{ marginBottom: 32 }}>

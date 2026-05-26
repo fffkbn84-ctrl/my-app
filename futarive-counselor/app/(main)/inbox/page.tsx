@@ -160,8 +160,7 @@ export default function InboxPage() {
 
   return (
     <div style={{ padding: '28px 24px', maxWidth: 1280, paddingBottom: 80 }}>
-      <div className="eyebrow" style={{ marginBottom: 8 }}>INBOX</div>
-      <h1 className="page-title" style={{ marginBottom: 8 }}>受信トレイ</h1>
+      <h1 className="page-title" style={{ marginBottom: 8 }}>やるべきこと</h1>
       <p style={{
         fontSize: 13,
         color: 'var(--text-mid)',
@@ -191,8 +190,8 @@ export default function InboxPage() {
             alignItems: 'center',
             gap: 8,
           }}>
-            <span style={{ fontSize: 10, color: 'var(--text-light)', letterSpacing: '.05em' }}>
-              SCOPE
+            <span style={{ fontSize: 11, color: 'var(--text-light)' }}>
+              表示範囲
             </span>
             <select
               className="kc-select"
