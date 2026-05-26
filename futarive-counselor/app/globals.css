@@ -1182,8 +1182,62 @@ main {
 .todo-tag-rec     { background: rgba(168,136,88,.12); color: #B89868; }
 .todo-tag-complete { background: rgba(168,124,42,.22); color: var(--accent); }
 /* 面談完了待ち行：ボタンが入るので cursor は default に */
-.pending-row { cursor: default; }
-.pending-row:hover { background: transparent; }
+.pending-row {
+  cursor: default;
+  border-left-color: var(--accent);
+  background: rgba(168,124,42,.06);
+}
+.pending-row:hover { background: rgba(168,124,42,.08); }
+
+/* ─── 「完了をマーク」ボタン：Apple 風の押せ感を強める ─── */
+.pending-row .pending-action {
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.18) inset,
+    0 2px 6px rgba(168,124,42,.35),
+    0 0 0 0 rgba(168,124,42,.4);
+  animation: pendingPulse 2.6s ease-in-out infinite;
+  transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+}
+.pending-row .pending-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.22) inset,
+    0 4px 12px rgba(168,124,42,.5);
+  animation: none;
+}
+.pending-row .pending-action:active:not(:disabled) {
+  transform: translateY(0) scale(.97);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.22) inset,
+    0 1px 3px rgba(168,124,42,.3);
+}
+.pending-row .pending-action:disabled {
+  animation: none;
+}
+
+/* 約2.6秒の呼吸：影が広がって戻る・控えめだが視線を引き寄せる */
+@keyframes pendingPulse {
+  0%, 100% {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.18) inset,
+      0 2px 6px rgba(168,124,42,.35),
+      0 0 0 0 rgba(168,124,42,.4);
+  }
+  50% {
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.18) inset,
+      0 2px 10px rgba(168,124,42,.5),
+      0 0 0 6px rgba(168,124,42,.0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pending-row .pending-action { animation: none; }
+}
 .todo-body {
   flex: 1;
   font-family: 'Noto Sans JP', sans-serif;

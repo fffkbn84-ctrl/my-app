@@ -136,12 +136,12 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
         const completing = completingId === r.id
         return (
           <div key={r.id} className="todo-row pending-row">
-            <span className="todo-tag todo-tag-complete">完了</span>
-            <div className="todo-body" style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-deep)' }}>
+            <span className="todo-tag todo-tag-complete">要・完了</span>
+            <div className="todo-body" style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+              <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-deep)' }}>
                 {r.user_name} さん
               </span>
-              <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>
+              <span style={{ fontSize: 12, color: 'var(--text-mid)' }}>
                 {formatJa(r.start_at)}
                 {r.meeting_type ? ` ・${r.meeting_type}` : ''}
                 {r.counselor_name ? ` ・担当: ${r.counselor_name}` : ''}
@@ -149,7 +149,7 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
             </div>
             <button
               type="button"
-              className="kc-btn kc-btn-primary kc-btn-sm"
+              className="kc-btn kc-btn-primary pending-action"
               onClick={(e) => {
                 e.stopPropagation()
                 handleComplete(r)
@@ -158,19 +158,22 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
               style={{ flexShrink: 0 }}
             >
               {completing ? (
-                '...'
+                '処理中…'
               ) : (
                 <>
-                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                     <path
                       d="M2 7.5L6 11l6-8"
                       stroke="currentColor"
-                      strokeWidth="1.6"
+                      strokeWidth="1.8"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
                   </svg>
-                  面談完了
+                  完了をマーク
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style={{ marginLeft: 2, opacity: .8 }}>
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 </>
               )}
             </button>
