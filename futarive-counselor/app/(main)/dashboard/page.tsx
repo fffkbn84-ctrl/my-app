@@ -37,24 +37,25 @@ function getDayString() {
 }
 
 function todoTag(type: TodoType): { label: string; className?: string; style?: React.CSSProperties } {
-  if (type === 'urgent' || type === 'reply') return { label: '返信', className: `todo-tag todo-tag-${type}` }
-  if (type === 'booking') return { label: '予約', className: 'todo-tag todo-tag-booking' }
-  if (type === 'rec') return { label: '推奨', className: 'todo-tag todo-tag-rec' }
+  if (type === 'urgent') return { label: '要・返信', className: 'todo-tag todo-tag-urgent' }
+  if (type === 'reply') return { label: 'お礼', className: 'todo-tag todo-tag-reply' }
+  if (type === 'booking') return { label: '要・準備', className: 'todo-tag todo-tag-booking' }
+  if (type === 'rec') return { label: 'おすすめ', className: 'todo-tag todo-tag-rec' }
   if (type === 'profile-stale') {
     return {
-      label: '要更新',
+      label: '要・更新',
       style: {
-        background: '#FEE2E2', color: '#B91C1C', fontSize: 10, fontWeight: 700,
-        padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
+        background: '#FEE2E2', color: '#B91C1C', fontSize: 11, fontWeight: 700,
+        padding: '5px 11px', borderRadius: 999, whiteSpace: 'nowrap', letterSpacing: '.04em',
       },
     }
   }
   // profile-aging
   return {
-    label: '点検',
+    label: '要・点検',
     style: {
-      background: '#FEF3C7', color: '#92400E', fontSize: 10, fontWeight: 700,
-      padding: '2px 8px', borderRadius: 4, whiteSpace: 'nowrap',
+      background: '#FEF3C7', color: '#92400E', fontSize: 11, fontWeight: 700,
+      padding: '5px 11px', borderRadius: 999, whiteSpace: 'nowrap', letterSpacing: '.04em',
     },
   }
 }
@@ -246,17 +247,17 @@ export default function DashboardPage() {
     if (needsReplyCount > 0) {
       newTodos.push({
         type: 'urgent',
-        label: `予約者からの質問が${needsReplyCount}件未返信です — 24時間以内のご対応を`,
-        action: '予約を見る →',
-        href: '/calendar',
+        label: `予約者からの質問が${needsReplyCount}件届いています。24時間以内に返信しましょう`,
+        action: 'すぐに返信する',
+        href: '/inbox',
       })
     }
     // 2) 今日の面談リマインダー
     if (todayCount > 0) {
       newTodos.push({
         type: 'booking',
-        label: `今日の面談が${todayCount}件あります — 開始前に共有された Kinda 結果に目を通してください`,
-        action: 'カレンダーで確認 →',
+        label: `今日の面談が${todayCount}件あります。事前に共有された Kinda 結果を確認しましょう`,
+        action: '予約を開く',
         href: '/calendar',
       })
     }
@@ -264,8 +265,8 @@ export default function DashboardPage() {
     if (tomorrowCount > 0) {
       newTodos.push({
         type: 'booking',
-        label: `明日の面談が${tomorrowCount}件あります — 事前に Kinda note / type を確認しておきましょう`,
-        action: 'カレンダーで確認 →',
+        label: `明日の面談が${tomorrowCount}件あります。Kinda note / type に目を通しておきましょう`,
+        action: '予約を開く',
         href: '/calendar',
       })
     }
@@ -273,8 +274,8 @@ export default function DashboardPage() {
     if (todayCount === 0 && tomorrowCount === 0 && upcomingTotalCount > 0) {
       newTodos.push({
         type: 'rec',
-        label: `今後7日以内に${upcomingTotalCount}件の面談予定があります`,
-        action: 'カレンダーを開く →',
+        label: `今後7日以内に${upcomingTotalCount}件の面談予定があります。早めに準備しておきましょう`,
+        action: 'カレンダーを開く',
         href: '/calendar',
       })
     }
@@ -282,8 +283,8 @@ export default function DashboardPage() {
     unrepliedLow.slice(0, 1).forEach(r => {
       newTodos.push({
         type: 'urgent',
-        label: `★${r.rating}のレビュー — 誠実な返信を書きましょう`,
-        action: '返信する →',
+        label: `★${r.rating}の口コミが届いています。誠実な返信を書きましょう`,
+        action: 'すぐに返信する',
         href: '/reviews',
       })
     })
@@ -291,16 +292,16 @@ export default function DashboardPage() {
     unrepliedHigh.forEach(r => {
       newTodos.push({
         type: 'reply',
-        label: `★${r.rating}のレビュー — 感謝を伝えるチャンス`,
-        action: '返信する →',
+        label: `★${r.rating}の口コミが届いています。感謝を伝えるチャンスです`,
+        action: 'お礼を書く',
         href: '/reviews',
       })
     })
     if (reelTotal > 0 && reelPublished < reelTotal) {
       newTodos.push({
         type: 'rec',
-        label: `リール未公開のカウンセラーが${reelTotal - reelPublished}名います`,
-        action: 'リールを編集 →',
+        label: `写真未公開のカウンセラーが${reelTotal - reelPublished}名います。3〜5枚を追加しましょう`,
+        action: '写真を追加する',
         href: '/reel',
       })
     }
@@ -320,9 +321,9 @@ export default function DashboardPage() {
       newTodos.push({
         type: 'profile-stale',
         label: staleCount > 1
-          ? `${staleCount}件のプロフィールが${FRESHNESS_STALE_DAYS}日以上更新されていません`
-          : `プロフィールが${FRESHNESS_STALE_DAYS}日以上更新されていません`,
-        action: 'プロフィールを更新 →',
+          ? `${staleCount}件のプロフィールが${FRESHNESS_STALE_DAYS}日以上更新されていません。今すぐ更新しましょう`
+          : `プロフィールが${FRESHNESS_STALE_DAYS}日以上更新されていません。今すぐ更新しましょう`,
+        action: '今すぐ更新する',
         href: '/profile',
       })
     }
@@ -330,9 +331,9 @@ export default function DashboardPage() {
       newTodos.push({
         type: 'profile-aging',
         label: agingCount > 1
-          ? `${agingCount}件のプロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません`
-          : `プロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません`,
-        action: '内容を見直す →',
+          ? `${agingCount}件のプロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません。内容を見直しましょう`
+          : `プロフィールが${FRESHNESS_AGING_DAYS}日以上更新されていません。内容を見直しましょう`,
+        action: '内容を見直す',
         href: '/profile',
       })
     }
@@ -493,7 +494,12 @@ export default function DashboardPage() {
             >
               {t.label}
             </span>
-            <span className="todo-action">{t.action}</span>
+            <span className="todo-action">
+              {t.action}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" style={{ flexShrink: 0 }}>
+                <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </Link>
         )})}
 

@@ -1251,6 +1251,47 @@ main {
   font-size: 13px;
   color: var(--accent);
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 「要・」系の行：アクションをピル型ボタンに昇格して押せ感を強める */
+.todo-row-urgent .todo-action,
+.todo-row-profile-stale .todo-action,
+.todo-row-profile-aging .todo-action,
+.todo-row-booking .todo-action {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 13px;
+  background: var(--accent);
+  color: var(--text-deep);
+  box-shadow: 0 1px 0 rgba(255,255,255,.15) inset, 0 2px 5px rgba(168,124,42,.28);
+  transition: transform .12s ease, box-shadow .2s ease;
+}
+.todo-row-urgent .todo-action {
+  background: #D85F50;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 2px 5px rgba(216,95,80,.35);
+}
+.todo-row-profile-stale .todo-action {
+  background: #DC2626;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 2px 5px rgba(220,38,38,.35);
+}
+.todo-row-profile-aging .todo-action {
+  background: #92400E;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 2px 5px rgba(146,64,14,.32);
+}
+.todo-row-booking .todo-action {
+  background: #7A9E87;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255,255,255,.18) inset, 0 2px 5px rgba(122,158,135,.35);
+}
+.todo-row:hover .todo-action {
+  transform: translateY(-1px);
 }
 
 /* ─── DASHBOARD: ヒーロー見出し ─── */
