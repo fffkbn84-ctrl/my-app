@@ -420,7 +420,7 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* 統計カード（2列） */}
+      {/* 統計カード（2列） — 60代向けにシンプル化：今月の予約 + 未返信の口コミ のみ */}
       {stats && (
         <div style={{
           display: 'grid',
@@ -428,19 +428,6 @@ export default function DashboardPage() {
           gap: 12,
           marginBottom: 8,
         }}>
-          <Link href="/reel" className="stat-big" style={{ textDecoration: 'none' }}>
-            <div className="stat-big-label">リール公開状況</div>
-            <div className="stat-big-value">
-              {stats.reelPublished}
-              <span className="unit">/ {stats.reelTotal}名</span>
-            </div>
-            <div className="stat-big-sub">
-              {stats.reelTotal > 0 && stats.reelPublished === stats.reelTotal
-                ? 'すべて公開中'
-                : `${stats.reelTotal - stats.reelPublished}名が未公開`}
-            </div>
-          </Link>
-
           <Link href="/calendar" className="stat-big" style={{ textDecoration: 'none' }}>
             <div className="stat-big-label">今月の予約</div>
             <div className="stat-big-value">{stats.reservationsThisMonth}</div>
@@ -450,20 +437,12 @@ export default function DashboardPage() {
           </Link>
 
           <Link href="/reviews" className={`stat-big${stats.unrepliedReviews > 0 ? ' urgent' : ''}`} style={{ textDecoration: 'none' }}>
-            <div className="stat-big-label">未返信レビュー</div>
+            <div className="stat-big-label">未返信の口コミ</div>
             <div className="stat-big-value">{stats.unrepliedReviews}</div>
             <div className="stat-big-sub">
               {stats.unrepliedLowRating > 0
                 ? `うち${stats.unrepliedLowRating}件は低評価`
                 : stats.unrepliedReviews === 0 ? 'すべて返信済み' : '返信をお願いします'}
-            </div>
-          </Link>
-
-          <Link href="/reviews" className="stat-big" style={{ textDecoration: 'none' }}>
-            <div className="stat-big-label">平均評価</div>
-            <div className="stat-big-value">{stats.avgRating !== null ? stats.avgRating : '—'}</div>
-            <div className="stat-big-sub">
-              {stats.totalReviews > 0 ? `口コミ ${stats.totalReviews}件から` : 'まだ口コミがありません'}
             </div>
           </Link>
         </div>
@@ -478,10 +457,10 @@ export default function DashboardPage() {
         }
       />
 
-      {/* ちいさな「しなきゃ」 — 面談完了待ち + 通常の todo を同一カードに集約 */}
+      {/* 気になること — 面談完了待ち + 通常の todo を同一カードに集約 */}
       <div className="todo-card">
         <div className="todo-head">
-          <span className="todo-head-title">ちいさな「しなきゃ」</span>
+          <span className="todo-head-title">気になること</span>
           <span className="todo-head-count">{todos.length + pendingCount}件</span>
         </div>
 
@@ -499,7 +478,7 @@ export default function DashboardPage() {
           <Link
             key={i}
             href={t.href}
-            className={`todo-row ${t.type === 'profile-stale' ? 'todo-row-stale' : ''}`}
+            className={`todo-row todo-row-${t.type}`}
             style={t.type === 'profile-stale' ? { border: '1px solid #DC2626' } : undefined}
           >
             <span
@@ -520,10 +499,10 @@ export default function DashboardPage() {
 
         {/* どちらも 0 件のときのヒント */}
         {todos.length === 0 && pendingCount === 0 && (
-          <div style={{ padding: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
-              今日の「しなきゃ」はありません。<br/>
-              プロフィールやリールを整えてみませんか？
+          <div style={{ padding: 24, textAlign: 'center' }}>
+            <div style={{ fontSize: 14, color: 'var(--text-mid)', lineHeight: 1.8 }}>
+              今のところ気になることはありません。<br/>
+              プロフィールや写真を整えてみませんか？
             </div>
           </div>
         )}

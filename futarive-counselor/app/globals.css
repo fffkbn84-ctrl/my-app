@@ -1088,7 +1088,7 @@ main {
 .stat-big.urgent { border-color: rgba(192,122,110,.4); }
 .stat-big-label {
   font-family: 'Noto Sans JP', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-mid);
   margin-bottom: 10px;
 }
@@ -1111,7 +1111,7 @@ main {
 .stat-big.urgent .stat-big-value { color: var(--danger); }
 .stat-big-sub {
   margin-top: 10px;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--accent);
   opacity: .85;
   font-family: 'Noto Sans JP', sans-serif;
@@ -1135,20 +1135,21 @@ main {
 .todo-head-title {
   font-family: 'Shippori Mincho', serif;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 18px;
   color: var(--text-deep);
 }
 .todo-head-count {
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-mid);
 }
 .todo-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
+  gap: 14px;
+  padding: 18px 20px;
   border-top: 1px solid var(--border);
+  border-left: 3px solid transparent;
   transition: background .15s;
   cursor: pointer;
   text-decoration: none;
@@ -1156,34 +1157,44 @@ main {
 }
 .todo-row:first-of-type { border-top: none; }
 .todo-row:hover { background: var(--bg-elev); }
+
+/* 60代向け：種類ごとに左ボーダーで色分け（緊急は背景にも軽くティント） */
+.todo-row-urgent        { border-left-color: #D85F50; background: rgba(216,95,80,.05); }
+.todo-row-urgent:hover  { background: rgba(216,95,80,.09); }
+.todo-row-booking       { border-left-color: #7A9E87; }
+.todo-row-reply         { border-left-color: #A88858; }
+.todo-row-rec           { border-left-color: rgba(168,136,88,.5); }
+.todo-row-profile-aging { border-left-color: #92400E; background: rgba(146,64,14,.04); }
+.todo-row-profile-stale { border-left-color: #DC2626; background: rgba(220,38,38,.05); }
+
 .todo-tag {
   flex-shrink: 0;
-  padding: 4px 10px;
+  padding: 5px 11px;
   border-radius: 999px;
   font-family: 'Noto Sans JP', sans-serif;
-  font-size: 10px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: .04em;
 }
-.todo-tag-urgent  { background: rgba(192,122,110,.18); color: #D68E82; }
-.todo-tag-reply   { background: rgba(168,136,88,.15); color: #C8A97A; }
-.todo-tag-booking { background: rgba(122,158,135,.15); color: #9FC1AD; }
-.todo-tag-rec     { background: rgba(168,136,88,.1); color: #A08868; }
-.todo-tag-complete { background: rgba(168,124,42,.18); color: var(--accent); }
+.todo-tag-urgent  { background: rgba(216,95,80,.22); color: #E27C6C; }
+.todo-tag-reply   { background: rgba(168,136,88,.2); color: #D6B98A; }
+.todo-tag-booking { background: rgba(122,158,135,.22); color: #B0CCBA; }
+.todo-tag-rec     { background: rgba(168,136,88,.12); color: #B89868; }
+.todo-tag-complete { background: rgba(168,124,42,.22); color: var(--accent); }
 /* 面談完了待ち行：ボタンが入るので cursor は default に */
 .pending-row { cursor: default; }
 .pending-row:hover { background: transparent; }
 .todo-body {
   flex: 1;
   font-family: 'Noto Sans JP', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text);
   line-height: 1.6;
 }
 .todo-action {
   flex-shrink: 0;
   font-family: 'Noto Sans JP', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--accent);
   white-space: nowrap;
 }
@@ -1207,10 +1218,10 @@ main {
 }
 .dash-sub {
   font-family: 'Noto Sans JP', sans-serif;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-mid);
-  line-height: 1.8;
-  margin-bottom: 26px;
+  line-height: 1.85;
+  margin-bottom: 28px;
 }
 
 /* ─── MOBILE BOTTOM NAV ─── */
