@@ -4750,6 +4750,7 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 .ktr-subheader-wrap { background: var(--pale); }
 .ktr-content { max-width: 480px; margin: 0 auto; }
+@media (min-width: 1024px) { .ktr-content { max-width: 720px; } }
 
 /* ① ヒーロー */
 .ktr-hero { padding: 40px 28px 56px; }
@@ -5205,6 +5206,9 @@ body:has(.cta-mobile-bar) .floating-back {
   max-width: 480px;
   margin: 0 auto;
   padding: 0 24px 80px;
+}
+@media (min-width: 1024px) {
+  .ktl-content { max-width: 720px; }
 }
 
 /* ヒーロー */

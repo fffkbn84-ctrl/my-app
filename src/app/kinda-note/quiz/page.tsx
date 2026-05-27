@@ -587,7 +587,7 @@ export default function KindaNoteQuizPage() {
 
       {/* プログレスバー（ルート質問画面のみ） */}
       {!isSelectionScreen && (
-        <div style={{ maxWidth: 480, margin: "0 auto", padding: "14px 24px 0" }}>
+        <div className="pc-readable" style={{ padding: "14px 24px 0" }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontSize: 11, color: "#B0A090", fontFamily: "'DM Sans', sans-serif" }}>
               {current} / {total}
@@ -612,7 +612,7 @@ export default function KindaNoteQuizPage() {
       )}
 
       {/* コンテンツ */}
-      <div style={{ maxWidth: 480, margin: "0 auto", padding: "28px 24px 80px" }}>
+      <div className="pc-readable" style={{ padding: "28px 24px 80px" }}>
 
         {isQ0 ? (
           /* ─── Q0 画面（既存の実装をそのまま維持） ─── */
