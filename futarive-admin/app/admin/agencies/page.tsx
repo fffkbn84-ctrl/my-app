@@ -9,6 +9,7 @@ interface AgencyRow {
   description: string | null
   logo_url: string | null
   website_url: string | null
+  owner_user_id: string | null
   created_at: string
 }
 
@@ -38,6 +39,16 @@ function IconPlus() {
     </svg>
   )
 }
+function IconKey() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <circle cx="6" cy="10" r="3" stroke="currentColor" strokeWidth="1.3"/>
+      <path d="M8 8l6-6M11 5l2 2M9 3l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export default function AgenciesPage() {
   const [agencies, setAgencies] = useState<AgencyRow[]>([])
@@ -48,6 +59,11 @@ export default function AgenciesPage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [addForm, setAddForm] = useState<AddForm>({ name: '', description: '', website_url: '' })
   const [adding, setAdding] = useState(false)
+  // オーナーセット用 modal
+  const [ownerTarget, setOwnerTarget] = useState<AgencyRow | null>(null)
+  const [ownerInput, setOwnerInput] = useState('')
+  const [ownerSaving, setOwnerSaving] = useState(false)
+  const [ownerError, setOwnerError] = useState('')
 
   useEffect(() => { loadAgencies() }, [])
 
@@ -96,6 +112,57 @@ export default function AgenciesPage() {
     loadAgencies()
   }
 
+  function openOwnerModal(a: AgencyRow) {
+    setOwnerTarget(a)
+    setOwnerInput(a.owner_user_id ?? '')
+    setOwnerError('')
+  }
+
+  async function handleSetOwner() {
+    if (!ownerTarget) return
+    const value = ownerInput.trim()
+    if (value && !UUID_REGEX.test(value)) {
+      setOwnerError('UUID の形式が正しくありません（例: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx）')
+      return
+    }
+    setOwnerSaving(true)
+    setOwnerError('')
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('agencies')
+      .update({ owner_user_id: value || null })
+      .eq('id', ownerTarget.id)
+    setOwnerSaving(false)
+    if (error) {
+      setOwnerError('更新に失敗しました：' + error.message)
+      return
+    }
+    setOwnerTarget(null)
+    setOwnerInput('')
+    loadAgencies()
+  }
+
+  async function handleClearOwner() {
+    if (!ownerTarget) return
+    const ok = window.confirm(`${ownerTarget.name} のオーナー設定を解除しますか？\n\n解除すると、現在のオーナーは管理画面でこの相談所を扱えなくなります。`)
+    if (!ok) return
+    setOwnerSaving(true)
+    setOwnerError('')
+    const supabase = createClient()
+    const { error } = await supabase
+      .from('agencies')
+      .update({ owner_user_id: null })
+      .eq('id', ownerTarget.id)
+    setOwnerSaving(false)
+    if (error) {
+      setOwnerError('解除に失敗しました：' + error.message)
+      return
+    }
+    setOwnerTarget(null)
+    setOwnerInput('')
+    loadAgencies()
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -120,6 +187,7 @@ export default function AgenciesPage() {
                   <th>名前</th>
                   <th>説明</th>
                   <th>WebサイトURL</th>
+                  <th>オーナー</th>
                   <th>登録日</th>
                   <th>操作</th>
                 </tr>
@@ -140,13 +208,53 @@ export default function AgenciesPage() {
                         </a>
                       ) : '—'}
                     </td>
+                    <td style={{ fontSize: 12, whiteSpace: 'nowrap' }}>
+                      {a.owner_user_id ? (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          padding: '2px 9px',
+                          borderRadius: 999,
+                          background: 'rgba(122,158,135,.18)',
+                          color: '#5C8170',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          fontFamily: 'DM Sans, sans-serif',
+                        }}
+                        title={a.owner_user_id}
+                        >
+                          設定済
+                        </span>
+                      ) : (
+                        <span style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 5,
+                          padding: '2px 9px',
+                          borderRadius: 999,
+                          background: 'rgba(220,38,38,.12)',
+                          color: '#B91C1C',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          fontFamily: 'DM Sans, sans-serif',
+                        }}>
+                          未設定
+                        </span>
+                      )}
+                    </td>
                     <td style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
                       {new Date(a.created_at).toLocaleDateString('ja-JP')}
                     </td>
                     <td>
-                      <button onClick={() => openEdit(a)} className="btn btn-ghost btn-sm" style={{ gap: 4 }}>
-                        <IconEdit /> 編集
-                      </button>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button onClick={() => openEdit(a)} className="btn btn-ghost btn-sm" style={{ gap: 4 }}>
+                          <IconEdit /> 編集
+                        </button>
+                        <button onClick={() => openOwnerModal(a)} className="btn btn-ghost btn-sm" style={{ gap: 4 }}>
+                          <IconKey /> オーナー
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -226,6 +334,85 @@ export default function AgenciesPage() {
               <button onClick={handleSave} className="btn btn-primary" disabled={saving}>
                 {saving ? <span className="spinner" style={{ width: 16, height: 16 }} /> : '保存'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Owner modal */}
+      {ownerTarget && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="modal-title">オーナー設定 — {ownerTarget.name}</div>
+
+            <div style={{
+              padding: '11px 14px',
+              background: 'var(--bg)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              fontSize: 12,
+              color: 'var(--muted)',
+              lineHeight: 1.7,
+              marginBottom: 16,
+            }}>
+              <p style={{ marginBottom: 8 }}>
+                <strong style={{ color: 'var(--text)' }}>使い方</strong>
+              </p>
+              <ol style={{ paddingLeft: 18, margin: 0 }}>
+                <li>Supabase ダッシュボード &gt; Authentication &gt; Users で対象ユーザーを開く</li>
+                <li>そのユーザーの <code>UID</code> をコピー</li>
+                <li>下の欄に貼り付けて「設定」を押す</li>
+              </ol>
+              <p style={{ marginTop: 8 }}>
+                設定後、そのユーザーが counselor 管理画面にログインすると、この相談所のオーナーとして
+                カウンセラー招待・予約管理ができるようになります。
+              </p>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label className="form-label">
+                オーナーのユーザー UUID
+                {ownerTarget.owner_user_id && (
+                  <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--muted)' }}>
+                    （現在の値が入っています）
+                  </span>
+                )}
+              </label>
+              <input
+                className="form-input"
+                value={ownerInput}
+                onChange={e => { setOwnerInput(e.target.value); setOwnerError('') }}
+                placeholder="例：a1b2c3d4-e5f6-7890-abcd-1234567890ab"
+                style={{ fontFamily: 'DM Sans, monospace', fontSize: 12 }}
+                spellCheck={false}
+                autoCapitalize="off"
+                autoCorrect="off"
+              />
+            </div>
+
+            {ownerError && (
+              <p style={{ fontSize: 12, color: '#B91C1C', marginBottom: 12, lineHeight: 1.7 }}>{ownerError}</p>
+            )}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 24, justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div>
+                {ownerTarget.owner_user_id && (
+                  <button
+                    onClick={handleClearOwner}
+                    disabled={ownerSaving}
+                    className="btn btn-ghost"
+                    style={{ color: '#B91C1C' }}
+                  >
+                    オーナーを解除
+                  </button>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => { setOwnerTarget(null); setOwnerInput(''); setOwnerError('') }} className="btn btn-ghost">キャンセル</button>
+                <button onClick={handleSetOwner} className="btn btn-primary" disabled={ownerSaving}>
+                  {ownerSaving ? <span className="spinner" style={{ width: 16, height: 16 }} /> : '設定'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
