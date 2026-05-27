@@ -43,6 +43,8 @@ interface SlotFormProps {
   consultationStart?: string | null  // "HH:mm[:ss]"
   consultationEnd?: string | null
   slotMinutes?: number               // デフォルト所要時間（分）
+  /** 週/日ビューで空き時間をタップしたときの初期開始時刻（"HH:mm"） */
+  initialStartTime?: string | null
 }
 
 function addMinutesHHMM(time: string, deltaMin: number): string {
@@ -53,14 +55,17 @@ function addMinutesHHMM(time: string, deltaMin: number): string {
   return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
 }
 
-export default function SlotForm({ date, onAdd, onClose, loading, consultationStart, consultationEnd, slotMinutes = 60 }: SlotFormProps) {
+export default function SlotForm({ date, onAdd, onClose, loading, consultationStart, consultationEnd, slotMinutes = 60, initialStartTime }: SlotFormProps) {
   // 面談可能時間が無ければ 09:00-20:00 をデフォルトに
   const startMin = toMinutes(consultationStart, 9 * 60)
   const endMin = toMinutes(consultationEnd, 20 * 60)
   const startTimes = buildTimes(startMin, Math.max(startMin, endMin - 30))
   const endTimes = buildTimes(startMin + 30, endMin)
 
-  const initialStart = startTimes[0] ?? '10:00'
+  // 週/日ビューからタップで初期時刻が渡された場合は最優先で採用
+  const initialStart = (initialStartTime && startTimes.includes(initialStartTime))
+    ? initialStartTime
+    : (startTimes[0] ?? '10:00')
   const suggestedEnd = addMinutesHHMM(initialStart, slotMinutes)
   const [startTime, setStartTime] = useState(initialStart)
   const [endTime, setEndTime] = useState(
