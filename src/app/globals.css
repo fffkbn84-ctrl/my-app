@@ -7450,3 +7450,15 @@ body:has(.cta-mobile-bar) .floating-back {
     gap: 16px;
   }
 }
+
+/* ランディング系単一カラムの「読みやすい幅」
+   モバイル 480 ／ PC 720（テキスト中心ページ向け） */
+.pc-readable {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .pc-readable { max-width: 720px; }
+}

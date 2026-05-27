@@ -88,9 +88,8 @@ export default function KindaNotePage() {
 
       {/* コンテンツ */}
       <div
+        className="pc-readable"
         style={{
-          maxWidth: 480,
-          margin: "0 auto",
           padding: "0 24px",
           paddingBottom: 80,
         }}
