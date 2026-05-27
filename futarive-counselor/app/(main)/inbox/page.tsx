@@ -31,6 +31,9 @@ export default function InboxPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [viewingSlotId, setViewingSlotId] = useState<string | null>(null)
+  // クローズ列の表示件数（最初は 20、ボタンで +20 ずつ増やす）
+  const CLOSED_PAGE_SIZE = 20
+  const [closedVisibleCount, setClosedVisibleCount] = useState(CLOSED_PAGE_SIZE)
 
   // 初期化：スコープ取得 + localStorage 復元
   useEffect(() => {
@@ -137,9 +140,15 @@ export default function InboxPage() {
     buckets.pending.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) // 古い順 = 経過長い順 = 優先
     buckets.contacted.sort((a, b) => (new Date(a.start_at ?? 0).getTime()) - (new Date(b.start_at ?? 0).getTime())) // 直近の面談から
     buckets.needs_report.sort((a, b) => (new Date(b.start_at ?? 0).getTime()) - (new Date(a.start_at ?? 0).getTime())) // 直近の完了未報告から
-    buckets.closed.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).splice(20) // 最新20件で打ち切り
+    // クローズは古い分まで保持（表示は closedVisibleCount で制御）
+    buckets.closed.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     return buckets
   }, [reservations])
+
+  // スコープ切替で closed の表示件数をリセット
+  useEffect(() => {
+    setClosedVisibleCount(CLOSED_PAGE_SIZE)
+  }, [selectedScope])
 
   const handleOpenReservation = (r: Reservation) => {
     if (!r.slot_id) {
@@ -288,8 +297,11 @@ export default function InboxPage() {
           <KanbanColumn
             column="closed"
             title="クローズ"
-            subtitle="完了・キャンセル済み(最新20件)"
-            items={grouped.closed}
+            subtitle="完了・キャンセル済み"
+            items={grouped.closed.slice(0, closedVisibleCount)}
+            totalCount={grouped.closed.length}
+            hasMore={grouped.closed.length > closedVisibleCount}
+            onShowMore={() => setClosedVisibleCount(c => c + CLOSED_PAGE_SIZE)}
             onOpenReservation={handleOpenReservation}
             accentColor="#7A9E87"
             emptyText="クローズ済みはまだありません"

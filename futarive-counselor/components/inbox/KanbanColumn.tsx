@@ -13,6 +13,12 @@ interface Props {
   accentColor?: string
   /** 空のときに出すメッセージ */
   emptyText?: string
+  /** ヘッダーの件数バッジに出す合計件数（指定がなければ items.length） */
+  totalCount?: number
+  /** さらに件数が残っているとき true（「もっと見る」ボタンを表示） */
+  hasMore?: boolean
+  /** 「もっと見る」ボタン押下時のハンドラ */
+  onShowMore?: () => void
 }
 
 export default function KanbanColumn({
@@ -23,6 +29,9 @@ export default function KanbanColumn({
   onOpenReservation,
   accentColor,
   emptyText = 'いまはありません',
+  totalCount,
+  hasMore,
+  onShowMore,
 }: Props) {
   return (
     <div style={{
@@ -71,7 +80,7 @@ export default function KanbanColumn({
             borderRadius: 20,
             border: '1px solid var(--border)',
           }}>
-            {items.length}
+            {totalCount ?? items.length}
           </span>
         </div>
         {subtitle && (
@@ -113,6 +122,23 @@ export default function KanbanColumn({
               onOpen={() => onOpenReservation(r)}
             />
           ))}
+          {hasMore && onShowMore && (
+            <button
+              type="button"
+              onClick={onShowMore}
+              className="kc-btn kc-btn-ghost kc-btn-sm"
+              style={{
+                marginTop: 4,
+                width: '100%',
+                justifyContent: 'center',
+              }}
+            >
+              もっと見る
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M3 4l3 4 3-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
         </div>
       )}
     </div>
