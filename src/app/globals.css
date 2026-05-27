@@ -7319,3 +7319,82 @@ body:has(.cta-mobile-bar) .floating-back {
   color: var(--ink);
 }
 .legal-info-box p { margin: 0; }
+
+/* ─── PC レスポンシブ用ユーティリティ ───────────────────────────
+   モバイル中心で組まれているレイアウトに PC 用の余裕を追加するための
+   max-width ヘルパー。基本は 560px のまま、PC では広がる。
+─────────────────────────────────────────────────────────── */
+
+/* セクション全体の幅（写真や icon 行など、横を活かしたいブロック向け） */
+.pc-section-wide {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .pc-section-wide { max-width: 760px; }
+}
+@media (min-width: 1024px) {
+  .pc-section-wide { max-width: 920px; }
+}
+
+/* 読みやすさ優先のテキスト幅（タイトル・リード文・段落） */
+.pc-text-narrow {
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+/* 2x2 → 4 列に展開するグリッド（やりたいことカード等） */
+.pc-grid-2to4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 768px) {
+  .pc-grid-2to4 {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 960px;
+    gap: 16px;
+  }
+}
+
+/* 横スクロール → PC でグリッド化（天気アイコン等） */
+.pc-flexrow-to-grid {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 768px) {
+  .pc-flexrow-to-grid {
+    overflow-x: visible;
+    justify-content: center;
+    flex-wrap: wrap;
+    scroll-snap-type: none;
+  }
+}
+
+/* 縦スタック → PC で 3 列グリッド（ストーリーカード等） */
+.pc-stack-to-grid3 {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+@media (min-width: 768px) {
+  .pc-stack-to-grid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 960px;
+    gap: 16px;
+  }
+}

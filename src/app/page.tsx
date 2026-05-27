@@ -304,7 +304,7 @@ export default async function HomePage() {
             borderBottom: "1px solid rgba(0,0,0,.04)",
           }}
         >
-          <div style={{ maxWidth: 560, margin: "0 auto" }}>
+          <div className="pc-section-wide">
             {/* セクションラベル（Bパターン：Kinda 主役・Mincho + DM Serif italic accent） */}
             <p
               style={{
@@ -348,13 +348,14 @@ export default async function HomePage() {
 
             {/* リード文 */}
             <p
+              className="pc-text-narrow"
               style={{
                 fontFamily: "var(--font-sans)",
                 fontSize: 14,
                 color: "var(--mid)",
                 lineHeight: 1.95,
                 textAlign: "center",
-                margin: "0 0 32px",
+                margin: "0 auto 32px",
                 letterSpacing: ".02em",
               }}
             >
@@ -367,20 +368,15 @@ export default async function HomePage() {
               自分の気持ちが見えてきます。
             </p>
 
-            {/* 天気アイコン 5 種（横スクロール） */}
+            {/* 天気アイコン 5 種（モバイル横スクロール / PC は中央寄せで並ぶ） */}
             <div
+              className="pc-flexrow-to-grid hide-scrollbar"
               style={{
-                display: "flex",
-                gap: 16,
-                overflowX: "auto",
                 padding: "4px 4px 18px",
                 margin: "0 -24px 28px",
                 paddingLeft: 24,
                 paddingRight: 24,
-                scrollSnapType: "x mandatory",
-                WebkitOverflowScrolling: "touch",
               }}
-              className="hide-scrollbar"
             >
               {NOTE_WEATHERS.map((w, i) => (
                 <div
@@ -431,6 +427,7 @@ export default async function HomePage() {
 
             {/* 全20種であることをそっと伝える（"これだけ?" を防ぐ・詩的な余韻） */}
             <p
+              className="pc-text-narrow"
               style={{
                 fontFamily: "Georgia, serif",
                 fontSize: 14,
@@ -438,7 +435,7 @@ export default async function HomePage() {
                 textAlign: "center",
                 lineHeight: 1.9,
                 letterSpacing: "0.02em",
-                margin: "24px 0 32px",
+                margin: "24px auto 32px",
               }}
             >
               並んでいるのは、ほんの一部。
@@ -448,10 +445,11 @@ export default async function HomePage() {
 
             {/* 機能の特徴 3 つ（チェックリスト） */}
             <ul
+              className="pc-text-narrow"
               style={{
                 listStyle: "none",
                 padding: 0,
-                margin: "0 0 28px",
+                margin: "0 auto 28px",
                 display: "flex",
                 flexDirection: "column",
                 gap: 10,
@@ -549,16 +547,8 @@ export default async function HomePage() {
             やりたいことが決まっている方へ
           </p>
 
-          {/* 2×2 グリッド */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 12,
-              maxWidth: 560,
-              margin: "0 auto",
-            }}
-          >
+          {/* 2×2 グリッド（モバイル）→ 1×4（PC） */}
+          <div className="pc-grid-2to4">
             {DECIDED_CARDS.map((card) => (
               <Link
                 key={card.key}
@@ -750,15 +740,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 14,
-              maxWidth: 560,
-              margin: "0 auto 28px",
-            }}
-          >
+          <div className="pc-stack-to-grid3" style={{ marginBottom: 28 }}>
             {STORIES.slice(0, 3).map((story) => (
               <Link
                 key={story.id}
@@ -915,15 +897,7 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 14,
-              maxWidth: 560,
-              margin: "0 auto 28px",
-            }}
-          >
+          <div className="pc-stack-to-grid3" style={{ marginBottom: 28 }}>
             {homeColumns.map((article) => (
               <Link
                 key={article.slug}
