@@ -5525,10 +5525,24 @@ body:has(.cta-mobile-bar) .floating-back {
   width: 100%;
   background: #F5EEE6;
 }
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .ktp-hero {
     max-width: 480px;
     margin: 0 auto;
+  }
+}
+/* PC：2 カラムレイアウト（コピー | 画像）+ 副CTA帯は下に全幅 */
+@media (min-width: 1024px) {
+  .ktp-hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "copy visual"
+      "cta  visual"
+      "sub  sub";
+    column-gap: 0;
   }
 }
 
@@ -5545,7 +5559,7 @@ body:has(.cta-mobile-bar) .floating-back {
   object-fit: cover;
   object-position: center 25%;
 }
-/* 画像下端からBlock 2 へのつなぎ — 極薄フェード */
+/* 画像下端からBlock 2 へのつなぎ — 極薄フェード（モバイル/タブレット用） */
 .ktp-hero-visual::after {
   content: "";
   position: absolute;
@@ -5556,6 +5570,17 @@ body:has(.cta-mobile-bar) .floating-back {
   background: linear-gradient(to bottom, rgba(245,238,230,0), #F5EEE6);
   pointer-events: none;
 }
+/* PC：画像は右カラムを縦いっぱい埋める。下端フェードは非表示（横並びなので不要） */
+@media (min-width: 1024px) {
+  .ktp-hero-visual {
+    grid-area: visual;
+    aspect-ratio: auto;
+    max-height: none;
+    height: 100%;
+    min-height: 560px;
+  }
+  .ktp-hero-visual::after { display: none; }
+}
 
 /* Block 2 — メインコピー
    H2 自体の bottom margin を 0 にして、ここの padding-bottom で
@@ -5563,6 +5588,13 @@ body:has(.cta-mobile-bar) .floating-back {
 .ktp-hero-copy {
   background: #F5EEE6;
   padding: 36px 24px 28px;
+}
+@media (min-width: 1024px) {
+  .ktp-hero-copy {
+    grid-area: copy;
+    padding: 88px 56px 12px;
+    align-self: end;
+  }
 }
 .ktp-hero-h1 {
   font-family: var(--font-mincho);
@@ -5582,12 +5614,29 @@ body:has(.cta-mobile-bar) .floating-back {
   letter-spacing: .02em;
   margin: 0;
 }
+/* PC：列幅に合わせてフォント拡大 */
+@media (min-width: 1024px) {
+  .ktp-hero-h1 { font-size: clamp(30px, 2.6vw, 38px); margin-bottom: 18px; }
+  .ktp-hero-h2 { font-size: 15px; line-height: 1.85; }
+}
 
 /* Block 3 — 主CTA */
 .ktp-hero-cta-block {
   background: #F5EEE6;
   padding: 8px 24px 36px;
   text-align: center;
+}
+@media (min-width: 1024px) {
+  .ktp-hero-cta-block {
+    grid-area: cta;
+    padding: 12px 56px 88px;
+    text-align: left;
+    align-self: start;
+  }
+  /* PC は左寄せレイアウトなので CTA も左寄せに */
+  .ktp-hero-cta-block .ktp-hero-cta { width: auto; padding: 0 32px; }
+  .ktp-hero-cta-block .ktp-hero-cta-tagline,
+  .ktp-hero-cta-block .ktp-hero-micro { text-align: left; }
 }
 .ktp-hero-cta-tagline {
   font-family: var(--font-mincho);
@@ -5657,6 +5706,9 @@ body:has(.cta-mobile-bar) .floating-back {
   text-align: center;
   /* padding は <a> 側で持たせて全面クリック領域にする */
   padding: 0;
+}
+@media (min-width: 1024px) {
+  .ktp-hero-sub-block { grid-area: sub; }
 }
 .ktp-hero-sub-link {
   display: flex;

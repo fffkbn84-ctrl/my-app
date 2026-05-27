@@ -230,7 +230,9 @@ export default async function HomePage() {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSONLD) }}
           />
 
-          {/* Block 1 — ビジュアル（画像のみ・文字一切なし） */}
+          {/* Block 1 — ビジュアル（画像のみ・文字一切なし）
+              モバイル/タブレット：縦長 4:5 で上部に配置
+              PC（≥1024px）：右カラムを縦いっぱい埋める形に CSS で切替 */}
           <div className="ktp-hero-visual">
             <Image
               src={HERO_IMAGE_SRC}
@@ -238,7 +240,7 @@ export default async function HomePage() {
               fill
               priority
               fetchPriority="high"
-              sizes="(min-width: 768px) 480px, 100vw"
+              sizes="(min-width: 1024px) 600px, (min-width: 768px) 480px, 100vw"
               className="ktp-hero-visual-img"
             />
           </div>
