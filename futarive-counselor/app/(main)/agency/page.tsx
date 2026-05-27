@@ -274,7 +274,7 @@ export default function AgencyPage() {
   const handleMediaUpload = async (file: File) => {
     if (!selectedId) return
     if (media.length >= 6) {
-      showToast('リール画像は最大6枚までです')
+      showToast('写真は最大6枚までです')
       return
     }
     setUploadingMedia(true)
@@ -308,7 +308,7 @@ export default function AgencyPage() {
         return
       }
       setMedia(prev => [...prev, data as AgencyMedia])
-      showToast('リール画像を追加しました')
+      showToast('写真を追加しました')
     } finally {
       setUploadingMedia(false)
     }
@@ -338,7 +338,7 @@ export default function AgencyPage() {
     ))
   }
   const handleMediaDelete = async (id: string) => {
-    if (!window.confirm('このリール画像を削除しますか？')) return
+    if (!window.confirm('この写真を削除しますか？')) return
     const supabase = createClient()
     const target = media.find(m => m.id === id)
     if (!target) return
@@ -549,7 +549,6 @@ export default function AgencyPage() {
   if (agencies.length === 0) {
     return (
       <div style={{ padding: '28px 24px', maxWidth: 680 }}>
-        <div className="eyebrow" style={{ marginBottom: 8 }}>AGENCY</div>
         <h1 className="page-title" style={{ marginBottom: 24 }}>相談所プロフィール</h1>
         <div className="kc-card" style={{ padding: 24, textAlign: 'center' }}>
           <p style={{ fontSize: 13, color: 'var(--text-mid)', marginBottom: 16, lineHeight: 1.7 }}>
@@ -565,7 +564,6 @@ export default function AgencyPage() {
 
   return (
     <div style={{ padding: '28px 24px', maxWidth: 680, paddingBottom: 80 }}>
-      <div className="eyebrow" style={{ marginBottom: 8 }}>AGENCY</div>
       <h1 className="page-title" style={{ marginBottom: 24 }}>相談所プロフィール</h1>
 
       {/* 保存完了後の次ステップ案内
@@ -606,7 +604,7 @@ export default function AgencyPage() {
                   </svg>
                 </Link>
                 <Link href="/dashboard" className="kc-btn kc-btn-ghost kc-btn-sm" style={{ textDecoration: 'none' }}>
-                  ダッシュボードへ
+                  最初の画面へ
                 </Link>
               </div>
             </div>
@@ -840,32 +838,33 @@ export default function AgencyPage() {
         </div>
 
         {/* ─── 相談所写真セクション（015 マイグレーション） ────────────
-            ロゴ（プロフィール画像）+ リール画像（最大6枚）
-            お客様画面では agency 詳細ヒーロー直下にリール式で表示される。
+            ロゴ（プロフィール画像）+ 写真（最大6枚）
+            お客様画面では agency 詳細ヒーロー直下にスワイプ式で表示される。
         ─────────────────────────────────────── */}
-        <div
-          style={{
-            padding: '14px 16px',
-            background: 'var(--bg-elev)',
-            border: '1px solid var(--border)',
-            borderRadius: 10,
-            marginTop: 4,
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-mincho, "Shippori Mincho", serif)',
-              fontSize: 13,
-              fontWeight: 500,
-              color: 'var(--text)',
-              marginBottom: 4,
-            }}
-          >
-            相談所写真
-          </p>
-          <p style={{ fontSize: 11, color: 'var(--text-mid)', lineHeight: 1.7 }}>
-            ロゴ（プロフィール画像）と、店内・スタッフ等のリール画像（最大6枚）を登録できます。
-            <br/>お客様画面の詳細ページに表示されます。
+        <div style={{
+          marginTop: 16,
+          paddingTop: 22,
+          borderTop: '2px solid #D4A23D',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: '50%',
+              background: '#D4A23D', flexShrink: 0,
+              boxShadow: '0 0 0 3px rgba(212,162,61,.18)',
+            }} aria-hidden="true" />
+            <h2 style={{
+              fontFamily: 'Shippori Mincho, serif',
+              fontSize: 19,
+              fontWeight: 600,
+              color: 'var(--text-deep)',
+              margin: 0,
+            }}>
+              相談所の写真
+            </h2>
+          </div>
+          <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
+            ロゴ（プロフィール画像）と、店内・スタッフ等の写真（最大6枚）を登録できます。<br/>
+            お客様の相談所詳細ページに表示されます。
           </p>
         </div>
 
@@ -948,9 +947,9 @@ export default function AgencyPage() {
           </p>
         </div>
 
-        {/* リール画像（agency_media） */}
+        {/* 写真（agency_media） */}
         <div>
-          <label className="kc-label">リール画像（最大6枚）</label>
+          <label className="kc-label">写真（最大6枚）</label>
           {media.length === 0 ? (
             <div
               style={{
@@ -962,7 +961,7 @@ export default function AgencyPage() {
               }}
             >
               <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 10 }}>
-                まだリール画像が登録されていません。
+                まだ写真が登録されていません。
               </p>
               <label
                 className="kc-btn kc-btn-ghost kc-btn-sm"
@@ -1003,7 +1002,7 @@ export default function AgencyPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={m.media_url}
-                    alt={m.caption ?? `リール ${idx + 1}`}
+                    alt={m.caption ?? `写真 ${idx + 1}`}
                     style={{
                       width: 72,
                       height: 128,
@@ -1106,7 +1105,7 @@ export default function AgencyPage() {
             </div>
           )}
           <p style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
-            縦長の画像（9:16）が綺麗に表示されます。お客様画面の詳細ページに「1枚ずつスワイプ」のリール式で並びます。
+            縦長の画像（9:16）が綺麗に表示されます。お客様の詳細ページに「1枚ずつスワイプ」して見られるように並びます。
           </p>
         </div>
 
@@ -1341,20 +1340,26 @@ export default function AgencyPage() {
 
         {/* 料金プランセクション区切り */}
         <div style={{
-          marginTop: 8,
-          paddingTop: 24,
-          borderTop: '1px solid var(--border)',
+          marginTop: 16,
+          paddingTop: 22,
+          borderTop: '2px solid #7A9E87',
         }}>
-          <div className="eyebrow" style={{ marginBottom: 6 }}>FEES</div>
-          <h2 style={{
-            fontFamily: 'Shippori Mincho, serif',
-            fontSize: 16,
-            fontWeight: 500,
-            color: 'var(--text-deep)',
-            marginBottom: 10,
-          }}>
-            料金プラン
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: '50%',
+              background: '#7A9E87', flexShrink: 0,
+              boxShadow: '0 0 0 3px rgba(122,158,135,.18)',
+            }} aria-hidden="true" />
+            <h2 style={{
+              fontFamily: 'Shippori Mincho, serif',
+              fontSize: 19,
+              fontWeight: 600,
+              color: 'var(--text-deep)',
+              margin: 0,
+            }}>
+              料金プラン
+            </h2>
+          </div>
           <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
             お客様の相談所詳細ページに表示される料金一覧です。<br/>
             入会金・月会費・成婚料の標準プランに加え、独自の料金（例：デート同行サポート）も自由に追加できます。
@@ -1925,20 +1930,26 @@ export default function AgencyPage() {
             料金プラン直下に小さく一覧表示される予定。
         ─────────────────────────────────────────── */}
         <div style={{
-          marginTop: 8,
-          paddingTop: 24,
-          borderTop: '1px solid var(--border)',
+          marginTop: 16,
+          paddingTop: 22,
+          borderTop: '2px solid #5C7CB8',
         }}>
-          <div className="eyebrow" style={{ marginBottom: 6 }}>DISCOUNTS</div>
-          <h2 style={{
-            fontFamily: 'Shippori Mincho, serif',
-            fontSize: 18,
-            fontWeight: 500,
-            color: 'var(--text-deep)',
-            marginBottom: 6,
-          }}>
-            各種割引・お得情報
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: '50%',
+              background: '#5C7CB8', flexShrink: 0,
+              boxShadow: '0 0 0 3px rgba(92,124,184,.18)',
+            }} aria-hidden="true" />
+            <h2 style={{
+              fontFamily: 'Shippori Mincho, serif',
+              fontSize: 19,
+              fontWeight: 600,
+              color: 'var(--text-deep)',
+              margin: 0,
+            }}>
+              各種割引・お得情報
+            </h2>
+          </div>
           <p style={{ fontSize: 11, color: 'var(--text-mid)', marginBottom: 14, lineHeight: 1.7 }}>
             U30割引・乗り換え割引・学割など、プラン横断で適用される割引を登録します。
             <br/>料金プラン本体（上記）とは別枠で表示されます。
@@ -2126,20 +2137,26 @@ export default function AgencyPage() {
 
         {/* キャンペーンセクション区切り */}
         <div style={{
-          marginTop: 8,
-          paddingTop: 24,
-          borderTop: '1px solid var(--border)',
+          marginTop: 16,
+          paddingTop: 22,
+          borderTop: '2px solid #D08FA0',
         }}>
-          <div className="eyebrow" style={{ marginBottom: 6 }}>CAMPAIGN</div>
-          <h2 style={{
-            fontFamily: 'Shippori Mincho, serif',
-            fontSize: 16,
-            fontWeight: 500,
-            color: 'var(--text-deep)',
-            marginBottom: 10,
-          }}>
-            キャンペーン
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: '50%',
+              background: '#D08FA0', flexShrink: 0,
+              boxShadow: '0 0 0 3px rgba(208,143,160,.18)',
+            }} aria-hidden="true" />
+            <h2 style={{
+              fontFamily: 'Shippori Mincho, serif',
+              fontSize: 19,
+              fontWeight: 600,
+              color: 'var(--text-deep)',
+              margin: 0,
+            }}>
+              キャンペーン
+            </h2>
+          </div>
           <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
             お客様の相談所詳細ページの目立つ位置に1件だけ表示されます。<br/>
             有効期限を過ぎたキャンペーンは自動的に非表示になります。
@@ -2201,20 +2218,26 @@ export default function AgencyPage() {
 
         {/* キャンセル・連絡先セクション区切り */}
         <div style={{
-          marginTop: 8,
-          paddingTop: 24,
-          borderTop: '1px solid var(--border)',
+          marginTop: 16,
+          paddingTop: 22,
+          borderTop: '2px solid #A88858',
         }}>
-          <div className="eyebrow" style={{ marginBottom: 6 }}>CANCELLATION &amp; CONTACT</div>
-          <h2 style={{
-            fontFamily: 'Shippori Mincho, serif',
-            fontSize: 16,
-            fontWeight: 500,
-            color: 'var(--text-deep)',
-            marginBottom: 10,
-          }}>
-            キャンセル・連絡先設定
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+            <span style={{
+              width: 10, height: 10, borderRadius: '50%',
+              background: '#A88858', flexShrink: 0,
+              boxShadow: '0 0 0 3px rgba(168,136,88,.18)',
+            }} aria-hidden="true" />
+            <h2 style={{
+              fontFamily: 'Shippori Mincho, serif',
+              fontSize: 19,
+              fontWeight: 600,
+              color: 'var(--text-deep)',
+              margin: 0,
+            }}>
+              キャンセル・連絡先設定
+            </h2>
+          </div>
           <p style={{ fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.8 }}>
             キャンセル期限を過ぎた予約のキャンセル依頼が来た場合、お客様の予約履歴ページに
             ここで設定した連絡先（電話・メール）が表示されます。
