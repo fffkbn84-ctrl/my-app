@@ -65,24 +65,24 @@ export default function AboutPage() {
 
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ① ヒーロー
+          ① ヒーロー（Apple 風：ウォームベージュ背景・濃文字・余裕のある余白）
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "#231A12",
-          padding: "80px 32px",
+          background: "#FBF7F1",
+          padding: "clamp(80px, 14vw, 160px) 32px clamp(80px, 12vw, 140px)",
         }}
       >
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
-              marginBottom: 24,
+              marginBottom: 28,
             }}
           >
             ABOUT US
@@ -91,30 +91,33 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(28px, 4vw, 48px)",
-              color: "white",
-              letterSpacing: ".06em",
-              lineHeight: 1.5,
+              fontSize: "clamp(32px, 5.4vw, 56px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.45,
               margin: 0,
             }}
           >
-            ふたりになるまでの、全部をここで。
+            ふたりになるまでの、
+            <br />
+            全部をここで。
           </h1>
 
           <div
             style={{
-              borderBottom: "1px solid rgba(255,255,255,.1)",
-              margin: "40px 0",
+              height: 1,
+              background: "rgba(26,19,14,.08)",
+              margin: "56px 0",
             }}
           />
 
           <div
             style={{
               fontFamily: "'Shippori Mincho', serif",
-              fontSize: "clamp(16px, 2.5vw, 22px)",
-              color: "white",
-              lineHeight: 2.4,
-              letterSpacing: ".06em",
+              fontSize: "clamp(17px, 2.4vw, 22px)",
+              color: "#2E2620",
+              lineHeight: 2.3,
+              letterSpacing: ".04em",
             }}
           >
             <p style={{ margin: 0 }}>あなたとあの人が出会うこと</p>
@@ -129,9 +132,10 @@ export default function AboutPage() {
             <p
               style={{
                 margin: 0,
-                marginTop: "1.8em",
-                fontSize: "clamp(18px, 3vw, 28px)",
-                color: "var(--accent)",
+                marginTop: "2em",
+                fontSize: "clamp(20px, 3.2vw, 30px)",
+                color: "#D4A090",
+                fontWeight: 500,
               }}
             >
               その瞬間のために、<span className="brand-name">Kinda ふたりへ</span>
@@ -140,11 +144,11 @@ export default function AboutPage() {
             {/* Kinda の語源を一行で（ブランド名の腑落ち）*/}
             <p
               style={{
-                margin: "2.4em 0 0",
+                margin: "3em 0 0",
                 fontFamily: "'Shippori Mincho', serif",
                 fontStyle: "italic",
                 fontSize: "clamp(13px, 1.6vw, 15px)",
-                color: "rgba(255,255,255,.55)",
+                color: "#6B5D52",
                 letterSpacing: ".06em",
                 lineHeight: 2,
               }}
@@ -162,39 +166,24 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ② メインコピー（背景を温かい amber トーンで強調 / 上下 accent gradient line）
+          ② メインコピー（Apple 風：純白背景・大きな見出し・余白）
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "linear-gradient(180deg, #F4E8D2 0%, #E8D6B0 100%)",
-          padding: "88px 32px",
+          background: "#FFFFFF",
+          padding: "clamp(96px, 14vw, 160px) 32px",
           textAlign: "center",
-          position: "relative",
-          borderTop: "1px solid rgba(200,169,122,.35)",
-          borderBottom: "1px solid rgba(200,169,122,.35)",
         }}
       >
-        {/* 装飾：上端 accent gradient line */}
-        <div
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "min(120px, 30%)",
-            height: 2,
-            background: "linear-gradient(90deg, transparent, #C8A97A, transparent)",
-          }}
-        />
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <h2
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(24px, 4vw, 44px)",
-              color: "#3A2A14",
-              letterSpacing: ".08em",
+              fontSize: "clamp(28px, 5vw, 52px)",
+              color: "#1A130E",
+              letterSpacing: ".06em",
+              lineHeight: 1.5,
               margin: 0,
             }}
           >
@@ -202,11 +191,12 @@ export default function AboutPage() {
           </h2>
           <p
             style={{
-              marginTop: 20,
-              fontSize: 15,
-              color: "#6B5538",
+              marginTop: 32,
+              fontSize: "clamp(15px, 1.9vw, 18px)",
+              color: "#6B5D52",
               lineHeight: 2.2,
               fontFamily: "'Noto Sans JP', sans-serif",
+              letterSpacing: ".04em",
             }}
           >
             担当者を自分の目で選んで、
@@ -287,20 +277,20 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "#231A12",
-          padding: "80px 32px",
+          background: "#FBF7F1",
+          padding: "clamp(96px, 14vw, 160px) 32px",
         }}
       >
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
             OUR BELIEF
@@ -309,9 +299,10 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3vw, 36px)",
-              color: "white",
-              letterSpacing: ".06em",
+              fontSize: "clamp(26px, 4.2vw, 42px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.5,
               marginBottom: 0,
             }}
           >
@@ -322,8 +313,8 @@ export default function AboutPage() {
             style={{
               display: "grid",
               gridTemplateColumns: "1fr",
-              gap: 24,
-              marginTop: 48,
+              gap: 32,
+              marginTop: 56,
             }}
           >
             {[
@@ -351,17 +342,16 @@ export default function AboutPage() {
               <div
                 key={belief.num}
                 style={{
-                  background: "rgba(255,255,255,.04)",
-                  border: "1px solid rgba(255,255,255,.1)",
-                  borderRadius: 16,
-                  padding: 32,
+                  background: "transparent",
+                  borderTop: "1px solid rgba(26,19,14,.08)",
+                  padding: "32px 0 0",
                 }}
               >
                 <div
                   style={{
                     fontFamily: "'DM Serif Display', serif",
-                    fontSize: 48,
-                    color: "rgba(200,169,122,.2)",
+                    fontSize: 44,
+                    color: "rgba(212,160,144,.55)",
                     lineHeight: 1,
                     marginBottom: 16,
                   }}
@@ -372,10 +362,10 @@ export default function AboutPage() {
                   style={{
                     fontFamily: "'Shippori Mincho', serif",
                     fontWeight: 500,
-                    fontSize: 20,
-                    color: "white",
+                    fontSize: 22,
+                    color: "#1A130E",
                     letterSpacing: ".04em",
-                    marginBottom: 12,
+                    marginBottom: 14,
                   }}
                 >
                   {belief.title}
@@ -383,9 +373,9 @@ export default function AboutPage() {
                 <p
                   style={{
                     fontFamily: "'Noto Sans JP', sans-serif",
-                    fontSize: 13,
-                    color: "rgba(255,255,255,.6)",
-                    lineHeight: 2,
+                    fontSize: 15,
+                    color: "#6B5D52",
+                    lineHeight: 2.05,
                     margin: 0,
                     whiteSpace: "pre-line",
                   }}
@@ -1069,23 +1059,24 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑧ 締め
+          ⑧ 締め（Apple 風：ライト背景・大きな見出し・余白）
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "#231A12",
-          padding: "80px 32px",
+          background: "#FBF7F1",
+          padding: "clamp(96px, 14vw, 160px) 32px",
           textAlign: "center",
         }}
       >
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <h2
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3.5vw, 38px)",
-              color: "white",
-              letterSpacing: ".08em",
+              fontSize: "clamp(28px, 5vw, 46px)",
+              color: "#1A130E",
+              letterSpacing: ".06em",
+              lineHeight: 1.5,
               margin: 0,
             }}
           >
@@ -1093,11 +1084,11 @@ export default function AboutPage() {
           </h2>
           <div
             style={{
-              marginTop: 40,
+              marginTop: 56,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 14,
+              gap: 18,
             }}
           >
             {/* 主CTA — Kinda note（ヒーローと同じローズゴールド主CTA） */}
@@ -1108,18 +1099,18 @@ export default function AboutPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 10,
-                minWidth: 260,
-                padding: "16px 32px",
+                minWidth: 280,
+                padding: "18px 36px",
                 background: "#D4A090",
                 color: "white",
                 borderRadius: 999,
                 fontFamily: "var(--font-sans)",
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: 500,
                 letterSpacing: ".04em",
                 textDecoration: "none",
                 boxShadow:
-                  "0 0 24px rgba(212,160,144,.45), 0 6px 18px rgba(212,160,144,.35)",
+                  "0 0 28px rgba(212,160,144,.35), 0 8px 22px rgba(212,160,144,.28)",
                 transition: "transform .2s, box-shadow .2s",
               }}
             >
@@ -1136,9 +1127,9 @@ export default function AboutPage() {
                 alignItems: "center",
                 gap: 6,
                 padding: "10px 20px",
-                color: "rgba(255,255,255,.78)",
+                color: "#6B5D52",
                 fontFamily: "var(--font-sans)",
-                fontSize: 13,
+                fontSize: 14,
                 letterSpacing: ".04em",
                 textDecoration: "none",
                 transition: "color .2s",
