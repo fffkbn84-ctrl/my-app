@@ -535,19 +535,21 @@ export default async function HomePage() {
         >
           <SectionDivider />
 
-          {/* ラベル（中央テキストのみ・線は SectionDivider に一本化） */}
-          <p
+          {/* ラベル（中央テキストのみ・線は SectionDivider に一本化）
+              60代視認性向上：薄いグレーから、Shippori Mincho + 濃色 + フォント拡大 */}
+          <h2
             style={{
-              fontSize: 12,
-              color: "var(--muted)",
-              letterSpacing: ".16em",
-              fontFamily: "var(--font-sans)",
+              fontFamily: "var(--font-mincho)",
+              fontSize: "clamp(18px, 4.4vw, 22px)",
+              fontWeight: 500,
+              color: "var(--ink)",
+              letterSpacing: ".06em",
               textAlign: "center",
-              marginBottom: 28,
+              margin: "0 0 28px",
             }}
           >
             やりたいことが決まっている方へ
-          </p>
+          </h2>
 
           {/* 2×2 グリッド（モバイル）→ 1×4（PC） */}
           <div className="pc-grid-2to4">

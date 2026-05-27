@@ -7466,3 +7466,36 @@ body:has(.cta-mobile-bar) .floating-back {
 @media (min-width: 1024px) {
   .pc-readable { max-width: 720px; }
 }
+
+/* ─── SearchModal（虫眼鏡）：PC で全幅にならないよう中央寄せ ─── */
+.search-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.search-modal-content {
+  background: #FEFCFA;
+  border-radius: 24px 24px 0 0;
+  padding: 24px 24px calc(48px + env(safe-area-inset-bottom));
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .search-modal-overlay {
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+  }
+  .search-modal-content {
+    max-width: 720px;
+    width: 100%;
+    border-radius: 24px;
+    padding: 36px 36px 40px;
+    max-height: 84vh;
+  }
+}

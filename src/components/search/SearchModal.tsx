@@ -155,26 +155,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
   return (
     <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 200,
-        background: "rgba(0,0,0,.4)",
-        backdropFilter: "blur(4px)",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "flex-end",
-      }}
+      className="search-modal-overlay"
       onClick={onClose}
     >
       <div
-        style={{
-          background: "#FEFCFA",
-          borderRadius: "24px 24px 0 0",
-          padding: "24px 24px calc(48px + env(safe-area-inset-bottom))",
-          maxHeight: "90vh",
-          overflowY: "auto",
-        }}
+        className="search-modal-content"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
