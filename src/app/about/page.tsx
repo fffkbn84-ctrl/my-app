@@ -207,19 +207,19 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ③ なぜ作ったか
+          ③ なぜ作ったか（Apple 風：白背景・大きな見出し）
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.5)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ padding: "clamp(96px, 14vw, 160px) 32px", background: "#FFFFFF" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
             WHY WE BUILT THIS
@@ -228,10 +228,11 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3vw, 36px)",
-              color: "var(--black)",
-              letterSpacing: ".06em",
-              marginBottom: 40,
+              fontSize: "clamp(26px, 4.2vw, 42px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.5,
+              marginBottom: 48,
             }}
           >
             なぜ、作ったのか
@@ -239,8 +240,8 @@ export default function AboutPage() {
           <div
             style={{
               fontFamily: "'Noto Sans JP', sans-serif",
-              fontSize: 15,
-              color: "var(--ink)",
+              fontSize: "clamp(15px, 1.7vw, 17px)",
+              color: "#2E2620",
               lineHeight: 2.2,
             }}
           >
@@ -375,19 +376,19 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑤ Kinda ふたりへでできること
+          ⑤ Kinda ふたりへでできること（Apple 風：ベージュ背景）
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.5)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ padding: "clamp(96px, 14vw, 160px) 32px", background: "#FBF7F1" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
             WHAT YOU CAN DO
@@ -396,10 +397,11 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3vw, 36px)",
-              color: "var(--black)",
-              letterSpacing: ".06em",
-              marginBottom: 48,
+              fontSize: "clamp(26px, 4.2vw, 42px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.5,
+              marginBottom: 56,
             }}
           >
             <span className="brand-name">Kinda ふたりへ</span>でできること
@@ -582,19 +584,17 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑤' Kinda のしくみ（5つの Kinda 一覧）
-          ホームの B カードと同じ書体ルールとカラーパレットを使い、
-          サイト全体での Kinda シリーズの認知を補強する。
+          ⑤' Kinda のしくみ（5つの Kinda 一覧・Apple 風：白背景）
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,255,255,.55)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ padding: "clamp(96px, 14vw, 160px) 32px", background: "#FFFFFF" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
               marginBottom: 16,
             }}
@@ -605,10 +605,11 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3vw, 36px)",
-              color: "var(--black)",
-              letterSpacing: ".06em",
-              marginBottom: 16,
+              fontSize: "clamp(26px, 4.2vw, 42px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.5,
+              marginBottom: 20,
             }}
           >
             5つの<span className="brand-name"> Kinda</span>、ひとつの場所で。
@@ -616,10 +617,10 @@ export default function AboutPage() {
           <p
             style={{
               fontFamily: "'Noto Sans JP', sans-serif",
-              fontSize: 14,
-              color: "var(--mid)",
-              lineHeight: 2,
-              marginBottom: 40,
+              fontSize: "clamp(15px, 1.7vw, 17px)",
+              color: "#6B5D52",
+              lineHeight: 2.1,
+              marginBottom: 48,
             }}
           >
             気持ちの整理から、ふたりが過ごす日々まで。
@@ -758,21 +759,21 @@ export default function AboutPage() {
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "rgba(240,238,235,.55)",
-          padding: "80px 32px",
+          background: "#FBF7F1",
+          padding: "clamp(96px, 14vw, 160px) 32px",
           textAlign: "center",
         }}
       >
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
             BY THE NUMBERS
@@ -781,9 +782,10 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3vw, 36px)",
-              color: "var(--black)",
-              letterSpacing: ".06em",
+              fontSize: "clamp(26px, 4.2vw, 42px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.5,
               marginBottom: 48,
             }}
           >
@@ -833,19 +835,19 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑦ 運営チームより
+          ⑦ 運営チームより（Apple 風：白背景・大きな見出し）
       ━━━━━━━━━━━━━━━━━━━━ */}
-      <section style={{ padding: "80px 32px", background: "rgba(255,253,247,.5)" }}>
-        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+      <section style={{ padding: "clamp(96px, 14vw, 160px) 32px", background: "#FFFFFF" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
           <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 400,
-              fontSize: 11,
-              letterSpacing: ".18em",
-              color: "var(--accent)",
+              fontWeight: 500,
+              fontSize: 12,
+              letterSpacing: ".2em",
+              color: "#D4A090",
               textTransform: "uppercase",
-              marginBottom: 16,
+              marginBottom: 20,
             }}
           >
             OUR TEAM
@@ -854,10 +856,11 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(22px, 3vw, 36px)",
-              color: "var(--black)",
-              letterSpacing: ".06em",
-              marginBottom: 48,
+              fontSize: "clamp(26px, 4.2vw, 42px)",
+              color: "#1A130E",
+              letterSpacing: ".04em",
+              lineHeight: 1.5,
+              marginBottom: 56,
             }}
           >
             運営チームより
