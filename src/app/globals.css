@@ -5620,8 +5620,8 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 /* PC：列幅に合わせてフォント拡大 */
 @media (min-width: 1024px) {
-  .ktp-hero-h1 { font-size: clamp(30px, 2.6vw, 38px); margin-bottom: 18px; }
-  .ktp-hero-h2 { font-size: 15px; line-height: 1.85; }
+  .ktp-hero-h1 { font-size: clamp(34px, 3vw, 46px); margin-bottom: 20px; }
+  .ktp-hero-h2 { font-size: 17px; line-height: 1.85; }
 }
 
 /* Block 3 — 主CTA */

@@ -309,14 +309,7 @@ export default function AboutPage() {
             <span className="brand-name">Kinda ふたりへ</span>が信じること
           </h2>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr",
-              gap: 32,
-              marginTop: 56,
-            }}
-          >
+          <div className="about-belief-grid">
             {[
               {
                 num: "01",
@@ -339,21 +332,14 @@ export default function AboutPage() {
                 body: "出会いのカフェから、婚活準備の美容室、成婚後の記念日まで。\n\nはじめてでも、もう一度でも。婚活中だけじゃなく、ふたりになったあとも\nずっと使えるサービスでありたい。",
               },
             ].map((belief) => (
-              <div
-                key={belief.num}
-                style={{
-                  background: "transparent",
-                  borderTop: "1px solid rgba(26,19,14,.08)",
-                  padding: "32px 0 0",
-                }}
-              >
+              <div key={belief.num} className="about-belief-card">
                 <div
                   style={{
                     fontFamily: "'DM Serif Display', serif",
-                    fontSize: 44,
-                    color: "rgba(212,160,144,.55)",
+                    fontSize: 48,
+                    color: "rgba(212,160,144,.7)",
                     lineHeight: 1,
-                    marginBottom: 16,
+                    marginBottom: 18,
                   }}
                 >
                   {belief.num}
@@ -362,10 +348,10 @@ export default function AboutPage() {
                   style={{
                     fontFamily: "'Shippori Mincho', serif",
                     fontWeight: 500,
-                    fontSize: 22,
+                    fontSize: "clamp(20px, 2.4vw, 24px)",
                     color: "#1A130E",
                     letterSpacing: ".04em",
-                    marginBottom: 14,
+                    marginBottom: 16,
                   }}
                 >
                   {belief.title}
@@ -373,8 +359,8 @@ export default function AboutPage() {
                 <p
                   style={{
                     fontFamily: "'Noto Sans JP', sans-serif",
-                    fontSize: 15,
-                    color: "#6B5D52",
+                    fontSize: "clamp(15px, 1.6vw, 17px)",
+                    color: "#4A4038",
                     lineHeight: 2.05,
                     margin: 0,
                     whiteSpace: "pre-line",
@@ -1154,6 +1140,38 @@ export default function AboutPage() {
           .about-team-grid {
             grid-template-columns: repeat(2, 1fr) !important;
           }
+        }
+
+        /* ④信じること：Apple 風の柔らかい白カード（モバイル 1 列 / PC 2 列） */
+        .about-belief-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 18px;
+          margin-top: 56px;
+        }
+        .about-belief-card {
+          background: #FFFFFF;
+          border-radius: 22px;
+          padding: 36px 32px 34px;
+          box-shadow:
+            0 1px 2px rgba(26,19,14,.04),
+            0 8px 28px rgba(26,19,14,.06);
+          transition: transform .2s ease, box-shadow .2s ease;
+        }
+        @media (hover: hover) and (pointer: fine) {
+          .about-belief-card:hover {
+            transform: translateY(-2px);
+            box-shadow:
+              0 1px 2px rgba(26,19,14,.04),
+              0 14px 36px rgba(26,19,14,.08);
+          }
+        }
+        @media (min-width: 768px) {
+          .about-belief-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+          }
+          .about-belief-card { padding: 40px 36px; }
         }
       `}</style>
       </main>

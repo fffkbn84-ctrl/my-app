@@ -334,7 +334,7 @@ export default async function HomePage() {
             <h2
               style={{
                 fontFamily: "Georgia, 'DM Serif Display', serif",
-                fontSize: "clamp(22px, 5.8vw, 30px)",
+                fontSize: "clamp(22px, 5.8vw, 36px)",
                 color: "var(--ink)",
                 fontWeight: 400,
                 lineHeight: 1.5,
@@ -353,7 +353,7 @@ export default async function HomePage() {
               className="pc-text-narrow"
               style={{
                 fontFamily: "var(--font-sans)",
-                fontSize: 14,
+                fontSize: "clamp(14px, 1.6vw, 16px)",
                 color: "var(--mid)",
                 lineHeight: 1.95,
                 textAlign: "center",
@@ -540,7 +540,7 @@ export default async function HomePage() {
           <h2
             style={{
               fontFamily: "var(--font-mincho)",
-              fontSize: "clamp(18px, 4.4vw, 22px)",
+              fontSize: "clamp(20px, 3.4vw, 30px)",
               fontWeight: 500,
               color: "var(--ink)",
               letterSpacing: ".06em",
@@ -659,7 +659,7 @@ export default async function HomePage() {
             <h2
               style={{
                 fontFamily: "var(--font-mincho)",
-                fontSize: 22,
+                fontSize: "clamp(22px, 3vw, 32px)",
                 color: "var(--ink)",
                 fontWeight: 500,
                 margin: "4px 0",
@@ -721,7 +721,7 @@ export default async function HomePage() {
             <h2
               style={{
                 fontFamily: "var(--font-mincho)",
-                fontSize: 22,
+                fontSize: "clamp(22px, 3vw, 32px)",
                 color: "var(--ink)",
                 fontWeight: 500,
                 margin: "4px 0",
@@ -878,7 +878,7 @@ export default async function HomePage() {
             <h2
               style={{
                 fontFamily: "var(--font-mincho)",
-                fontSize: 22,
+                fontSize: "clamp(22px, 3vw, 32px)",
                 color: "var(--ink)",
                 fontWeight: 500,
                 margin: "4px 0",
