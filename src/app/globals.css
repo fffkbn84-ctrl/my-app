@@ -5554,14 +5554,14 @@ body:has(.cta-mobile-bar) .floating-back {
 .ktp-hero-visual {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 5;
-  max-height: 60svh;
+  aspect-ratio: 1024 / 1536;
+  max-height: 64svh;
   overflow: hidden;
   background: #F5EEE6;
 }
 .ktp-hero-visual-img {
   object-fit: cover;
-  object-position: center 25%;
+  object-position: center 30%;
 }
 /* 画像下端からBlock 2 へのつなぎ — 極薄フェード（モバイル/タブレット用） */
 .ktp-hero-visual::after {

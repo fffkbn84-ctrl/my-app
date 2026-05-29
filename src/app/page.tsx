@@ -16,7 +16,7 @@ const HERO_H1_LINE1 = "好きな人を見つけて、";
 const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
 const HERO_H2 =
   "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
-const HERO_IMAGE_SRC = "/images/hero-couple-new.webp";
+const HERO_IMAGE_SRC = "/images/hero-couple-2026ss.webp";
 
 /* SEO 用の構造化データ（JSON-LD）。婚活キーワード対策の中核。 */
 const SITE_JSONLD = {
