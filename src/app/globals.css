@@ -5584,7 +5584,9 @@ body:has(.cta-mobile-bar) .floating-back {
   pointer-events: none;
   z-index: 1;
 }
-/* PC：画像は右カラム横長 16:9。下端フェードは非表示（横並びなので不要） */
+/* PC：モバイル縦長画像をそのまま右カラムに配置。
+   下端フェードは非表示（横並びなので不要）。
+   object-position はやや左寄り＝シール（左側）が必ず見える位置に */
 @media (min-width: 1024px) {
   .ktp-hero-visual {
     grid-area: visual;
@@ -5593,7 +5595,7 @@ body:has(.cta-mobile-bar) .floating-back {
     height: 100%;
     min-height: 560px;
   }
-  .ktp-hero-visual-img { object-position: center center; }
+  .ktp-hero-visual-img { object-position: 35% center; }
   .ktp-hero-visual::after { display: none; }
 }
 
