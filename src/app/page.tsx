@@ -17,6 +17,7 @@ const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
 const HERO_H2 =
   "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
 const HERO_IMAGE_SRC = "/images/hero-couple-2026ss.webp";
+const HERO_IMAGE_PC_SRC = "/images/hero-couple-2026ss-pc.webp";
 
 /* SEO 用の構造化データ（JSON-LD）。婚活キーワード対策の中核。 */
 const SITE_JSONLD = {
@@ -231,18 +232,24 @@ export default async function HomePage() {
           />
 
           {/* Block 1 — ビジュアル（画像のみ・文字一切なし）
-              モバイル/タブレット：縦長 4:5 で上部に配置
-              PC（≥1024px）：右カラムを縦いっぱい埋める形に CSS で切替 */}
+              モバイル/タブレット：縦長 2:3
+              PC（≥1024px）：右カラム横長 16:9
+              picture 要素で実画像を切替（不要なファイルはダウンロードしない） */}
           <div className="ktp-hero-visual">
-            <Image
-              src={HERO_IMAGE_SRC}
-              alt="Kindaの世界観：ミニチュアクレイで作られた、ふたりが歩く村"
-              fill
-              priority
-              fetchPriority="high"
-              sizes="(min-width: 1024px) 600px, (min-width: 768px) 480px, 100vw"
-              className="ktp-hero-visual-img"
-            />
+            <picture>
+              <source
+                media="(min-width: 1024px)"
+                srcSet={HERO_IMAGE_PC_SRC}
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={HERO_IMAGE_SRC}
+                alt="Kindaの世界観：ミニチュアクレイで作られた、ふたりが歩く村"
+                className="ktp-hero-visual-img"
+                fetchPriority="high"
+                decoding="async"
+              />
+            </picture>
           </div>
 
           {/* Block 2 — メインコピー（ベージュ単色背景・濃ブラウン文字）
