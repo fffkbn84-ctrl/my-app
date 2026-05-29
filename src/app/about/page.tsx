@@ -166,16 +166,28 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ② メインコピー（Apple 風：純白背景・大きな見出し・余白）
+          ② メインコピー（Apple 風：村の上に浮かぶ大きな丸角カード）
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section
         style={{
-          background: "#FFFFFF",
-          padding: "clamp(96px, 14vw, 160px) 32px",
-          textAlign: "center",
+          background: "transparent",
+          padding: "clamp(80px, 12vw, 140px) 24px",
+          position: "relative",
         }}
       >
-        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <div
+          className="about-feature-card"
+          style={{
+            maxWidth: 760,
+            margin: "0 auto",
+            background: "#FFFFFF",
+            borderRadius: "clamp(28px, 4vw, 44px)",
+            padding: "clamp(56px, 9vw, 96px) clamp(28px, 5vw, 56px)",
+            textAlign: "center",
+            boxShadow:
+              "0 1px 2px rgba(26,19,14,.04), 0 18px 56px rgba(26,19,14,.10), 0 60px 120px rgba(26,19,14,.06)",
+          }}
+        >
           <h2
             style={{
               fontFamily: "'Shippori Mincho', serif",
