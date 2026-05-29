@@ -5551,6 +5551,7 @@ body:has(.cta-mobile-bar) .floating-back {
   position: relative;
   width: 100%;
   aspect-ratio: 1024 / 1536;
+  max-height: 64svh;
   overflow: hidden;
   background: #F5EEE6;
 }
@@ -5586,23 +5587,26 @@ body:has(.cta-mobile-bar) .floating-back {
     position: absolute;
     inset: 0;
     aspect-ratio: auto;
+    max-height: none;
     height: 100%;
     z-index: 0;
   }
   .ktp-hero-visual-img { object-position: center center; }
   .ktp-hero-visual::after {
-    /* 下端フェード → 右側オーバーレイに変更 */
+    /* 下端フェード → 右側オーバーレイ。透過率を強めにして
+       背景の魚など細かいモチーフが文字に被って読みづらくならないように */
     top: 0;
     bottom: 0;
     left: auto;
     right: 0;
     height: 100%;
-    width: 58%;
+    width: 62%;
     background: linear-gradient(
       to left,
-      rgba(245,238,230,.88) 0%,
-      rgba(245,238,230,.72) 30%,
-      rgba(245,238,230,.30) 70%,
+      rgba(245,238,230,.96) 0%,
+      rgba(245,238,230,.93) 25%,
+      rgba(245,238,230,.82) 55%,
+      rgba(245,238,230,.32) 85%,
       rgba(245,238,230,0) 100%
     );
   }
@@ -5620,10 +5624,11 @@ body:has(.cta-mobile-bar) .floating-back {
     position: relative;
     z-index: 2;
     background: transparent;
-    padding: clamp(80px, 9vw, 130px) clamp(40px, 6vw, 88px) 16px;
+    /* 上に約1行分の余白追加。右端からも少し離す（テキストは左寄せ） */
+    padding: clamp(120px, 13vw, 180px) clamp(72px, 9vw, 130px) 16px clamp(56px, 7vw, 96px);
     margin-left: auto;
-    max-width: clamp(440px, 46vw, 600px);
-    text-align: right;
+    max-width: clamp(460px, 48vw, 640px);
+    text-align: left;
   }
 }
 .ktp-hero-h1 {
@@ -5661,19 +5666,32 @@ body:has(.cta-mobile-bar) .floating-back {
     position: relative;
     z-index: 2;
     background: transparent;
-    padding: 16px clamp(40px, 6vw, 88px) clamp(72px, 9vw, 120px);
+    padding: 16px clamp(72px, 9vw, 130px) clamp(96px, 11vw, 160px) clamp(56px, 7vw, 96px);
     margin-left: auto;
-    max-width: clamp(440px, 46vw, 600px);
-    text-align: right;
+    max-width: clamp(460px, 48vw, 640px);
+    text-align: left;
   }
-  /* PC 右寄せレイアウト：CTA も右寄せ */
+  /* PC：右側エリアの中で左揃え（ボタンは右に伸びすぎないよう自動幅） */
   .ktp-hero-cta-block .ktp-hero-cta {
     width: auto;
     padding: 0 32px;
-    margin-left: auto;
+    margin-left: 0;
   }
   .ktp-hero-cta-block .ktp-hero-cta-tagline,
-  .ktp-hero-cta-block .ktp-hero-micro { text-align: right; }
+  .ktp-hero-cta-block .ktp-hero-micro { text-align: left; }
+  /* タグライン「言葉にならないモヤモヤを、60秒で。」の可読性アップ：
+     accent (#C8A97A) + opacity .82 だと背景の魚と被って読みづらい。
+     accent-deep + 不透明にして濃さを出す */
+  .ktp-hero-cta-block .ktp-hero-cta-tagline {
+    color: var(--accent-deep, #A88858);
+    opacity: 1;
+    font-weight: 500;
+  }
+  /* micro（チェックマーク3つ）も同じ理由で濃く */
+  .ktp-hero-cta-block .ktp-hero-micro {
+    color: var(--ink);
+    opacity: .82;
+  }
 }
 .ktp-hero-cta-tagline {
   font-family: var(--font-mincho);
