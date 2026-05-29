@@ -5535,18 +5535,14 @@ body:has(.cta-mobile-bar) .floating-back {
     margin: 0 auto;
   }
 }
-/* PC：2 カラムレイアウト（コピー | 画像）+ 副CTA帯は下に全幅 */
+/* PC：全幅シネマティック型（画像が画面いっぱいの背景、テキストは右側にオーバーレイ） */
 @media (min-width: 1024px) {
   .ktp-hero {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "copy visual"
-      "cta  visual"
-      "sub  sub";
-    column-gap: 0;
+    max-width: none;
+    margin: 0;
+    position: relative;
+    min-height: 86vh;
+    overflow: hidden;
   }
 }
 
@@ -5555,7 +5551,6 @@ body:has(.cta-mobile-bar) .floating-back {
   position: relative;
   width: 100%;
   aspect-ratio: 1024 / 1536;
-  max-height: 64svh;
   overflow: hidden;
   background: #F5EEE6;
 }
@@ -5584,19 +5579,33 @@ body:has(.cta-mobile-bar) .floating-back {
   pointer-events: none;
   z-index: 1;
 }
-/* PC：モバイル縦長画像をそのまま右カラムに配置。
-   下端フェードは非表示（横並びなので不要）。
-   object-position はやや左寄り＝シール（左側）が必ず見える位置に */
+/* PC：画像を画面いっぱいの背景としてフル表示。
+   右側にベージュのグラデーションオーバーレイを敷いてテキスト可読性確保 */
 @media (min-width: 1024px) {
   .ktp-hero-visual {
-    grid-area: visual;
+    position: absolute;
+    inset: 0;
     aspect-ratio: auto;
-    max-height: none;
     height: 100%;
-    min-height: 560px;
+    z-index: 0;
   }
-  .ktp-hero-visual-img { object-position: 35% center; }
-  .ktp-hero-visual::after { display: none; }
+  .ktp-hero-visual-img { object-position: center center; }
+  .ktp-hero-visual::after {
+    /* 下端フェード → 右側オーバーレイに変更 */
+    top: 0;
+    bottom: 0;
+    left: auto;
+    right: 0;
+    height: 100%;
+    width: 58%;
+    background: linear-gradient(
+      to left,
+      rgba(245,238,230,.88) 0%,
+      rgba(245,238,230,.72) 30%,
+      rgba(245,238,230,.30) 70%,
+      rgba(245,238,230,0) 100%
+    );
+  }
 }
 
 /* Block 2 — メインコピー
@@ -5608,9 +5617,13 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 @media (min-width: 1024px) {
   .ktp-hero-copy {
-    grid-area: copy;
-    padding: 88px 56px 12px;
-    align-self: end;
+    position: relative;
+    z-index: 2;
+    background: transparent;
+    padding: clamp(80px, 9vw, 130px) clamp(40px, 6vw, 88px) 16px;
+    margin-left: auto;
+    max-width: clamp(440px, 46vw, 600px);
+    text-align: right;
   }
 }
 .ktp-hero-h1 {
@@ -5645,15 +5658,22 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 @media (min-width: 1024px) {
   .ktp-hero-cta-block {
-    grid-area: cta;
-    padding: 12px 56px 88px;
-    text-align: left;
-    align-self: start;
+    position: relative;
+    z-index: 2;
+    background: transparent;
+    padding: 16px clamp(40px, 6vw, 88px) clamp(72px, 9vw, 120px);
+    margin-left: auto;
+    max-width: clamp(440px, 46vw, 600px);
+    text-align: right;
   }
-  /* PC は左寄せレイアウトなので CTA も左寄せに */
-  .ktp-hero-cta-block .ktp-hero-cta { width: auto; padding: 0 32px; }
+  /* PC 右寄せレイアウト：CTA も右寄せ */
+  .ktp-hero-cta-block .ktp-hero-cta {
+    width: auto;
+    padding: 0 32px;
+    margin-left: auto;
+  }
   .ktp-hero-cta-block .ktp-hero-cta-tagline,
-  .ktp-hero-cta-block .ktp-hero-micro { text-align: left; }
+  .ktp-hero-cta-block .ktp-hero-micro { text-align: right; }
 }
 .ktp-hero-cta-tagline {
   font-family: var(--font-mincho);
@@ -5725,7 +5745,16 @@ body:has(.cta-mobile-bar) .floating-back {
   padding: 0;
 }
 @media (min-width: 1024px) {
-  .ktp-hero-sub-block { grid-area: sub; }
+  /* 副CTA帯：絶対配置でヒーロー底辺に貼り付け、画像の上に重ねる */
+  .ktp-hero-sub-block {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    background: rgba(239,231,220,.92);
+    backdrop-filter: blur(8px);
+  }
 }
 .ktp-hero-sub-link {
   display: flex;
