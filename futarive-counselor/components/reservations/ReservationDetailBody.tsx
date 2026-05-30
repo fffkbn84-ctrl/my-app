@@ -570,6 +570,10 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
             <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.8, marginBottom: 14, padding: '10px 12px', background: 'rgba(192,122,110,.06)', border: '1px solid rgba(192,122,110,.35)', borderRadius: 8 }}>
               <b>本当に必要ですか？</b> ユーザーは元の日時に予定を空けて待っています。
               新しい候補を選び、変更をお願いする理由とお詫びを必ず添えてください。ユーザーの了承後に確定します。
+              <br/>
+              <span style={{ color: 'var(--text-mid)' }}>
+                候補は1つだけ提示できます。この日時が合わない場合に備え、メッセージに「ご都合が合わなければ、カレンダーから別日をご相談ください」と添えると親切です。
+              </span>
             </div>
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {slots.length === 0 ? (
