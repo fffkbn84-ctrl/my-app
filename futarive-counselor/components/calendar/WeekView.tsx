@@ -21,6 +21,10 @@ interface WeekViewProps {
   onSlotClick: (slot: Slot) => void
   /** 空き時間タップで枠追加（dateStr=YYYY-MM-DD, timeStr=HH:mm） */
   onAddSlot: (dateStr: string, timeStr: string) => void
+  /** 選択中の日（YYYY-MM-DD）。ヘッダーで強調表示する */
+  selectedDate?: string | null
+  /** 日ヘッダーのタップで日を選択（枠追加・一括生成の対象日） */
+  onSelectDate?: (dateStr: string) => void
 }
 
 const DOW = ['日', '月', '火', '水', '木', '金', '土']
@@ -47,6 +51,8 @@ export default function WeekView({
   daysCount = 7,
   onSlotClick,
   onAddSlot,
+  selectedDate,
+  onSelectDate,
 }: WeekViewProps) {
   const isDayMode = daysCount === 1
   const closedSet = useMemo(() => new Set(closedWeekdays ?? []), [closedWeekdays])
@@ -135,15 +141,24 @@ export default function WeekView({
         {days.map((d) => {
           const dateStr = ymd(d)
           const isToday = ymd(new Date()) === dateStr
+          const isSelected = selectedDate === dateStr
           const dow = d.getDay()
           const hasUnread = needsReplyDates?.has(dateStr) ?? false
           return (
-            <div key={dateStr} className={`wv-day-header${isToday ? ' is-today' : ''}`}>
+            <div
+              key={dateStr}
+              role="button"
+              tabIndex={0}
+              className={`wv-day-header${isToday ? ' is-today' : ''}${isSelected ? ' is-selected' : ''}`}
+              onClick={() => onSelectDate?.(dateStr)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectDate?.(dateStr) } }}
+              aria-pressed={isSelected}
+            >
               <span className="wv-day-name" style={{
-                color: dow === 0 ? 'var(--danger)' : dow === 6 ? 'var(--accent)' : 'var(--text-mid)',
+                color: isSelected ? '#fff' : dow === 0 ? 'var(--danger)' : dow === 6 ? 'var(--accent)' : 'var(--text-mid)',
               }}>{DOW[dow]}</span>
               <span className="wv-day-num" style={{
-                color: isToday ? 'var(--accent)' : dow === 0 ? 'var(--danger)' : undefined,
+                color: isSelected ? '#fff' : isToday ? 'var(--accent)' : dow === 0 ? 'var(--danger)' : undefined,
               }}>
                 {isDayMode ? `${d.getMonth() + 1}/${d.getDate()}` : d.getDate()}
               </span>

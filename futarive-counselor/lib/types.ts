@@ -163,6 +163,8 @@ export interface Reservation {
   original_reservation_id: string | null
   reschedule_proposed_start: string | null
   reschedule_proposed_end: string | null
+  // Migration 032：カウンセラー発の「第3候補まで」提示用（先頭候補は proposed_* にミラー）
+  reschedule_candidates: { start: string; end: string }[] | null
   created_at: string
 }
 

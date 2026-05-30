@@ -594,7 +594,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
               新しい候補を選び、変更をお願いする理由とお詫びを必ず添えてください。ユーザーの了承後に確定します。
               <br/>
               <span style={{ color: 'var(--text-mid)' }}>
-                候補は1つだけ提示できます。この日時が合わない場合に備え、メッセージに「ご都合が合わなければ、カレンダーから別日をご相談ください」と添えると親切です。
+                候補は最大3つまで選べます（タップで第1〜第3候補に追加／再タップで解除）。いずれも合わない場合に備え、メッセージに「ご都合が合わなければ、カレンダーから別日をご相談ください」と添えると親切です。
               </span>
             </div>
             <div style={{ overflowY: 'auto', flex: 1 }}>
@@ -649,8 +649,8 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
                 />
                 <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
                   <button onClick={() => setShowRescheduleModal(false)} className="kc-btn kc-btn-ghost" style={{ flex: 1 }}>やめる</button>
-                  <button onClick={handleRequestReschedule} disabled={!selectedSlot || rescheduleMessage.trim().length === 0 || submittingReschedule} className="kc-btn kc-btn-primary" style={{ flex: 1 }}>
-                    {submittingReschedule ? '送信中...' : '変更をお願いする'}
+                  <button onClick={handleRequestReschedule} disabled={selectedSlotIds.length === 0 || rescheduleMessage.trim().length === 0 || submittingReschedule} className="kc-btn kc-btn-primary" style={{ flex: 1 }}>
+                    {submittingReschedule ? '送信中...' : `変更をお願いする${selectedSlotIds.length > 0 ? `（${selectedSlotIds.length}候補）` : ''}`}
                   </button>
                 </div>
               </div>
