@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinda ふたりへ — リスト戦略</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --beige: #F5EEE6;
+    --rose: #D4A090;
+    --rose-dark: #B8796A;
+    --rose-light: #F0DDD7;
+    --rose-bg: #fdf9f7;
+    --text: #3A2E2A;
+    --text-mid: #7A6560;
+    --text-light: #B0968E;
+    --border: #E8D8D0;
+  }
+
+  body {
+    background: #EDE6DC;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .doc {
+    width: 680px;
+    background: var(--beige);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(58,46,42,0.14);
+  }
+
+  .header {
+    background: var(--text);
+    padding: 36px 52px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(212,160,144,0.10);
+  }
+  .header-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+
+  .body { padding: 44px 52px 52px; }
+
+  /* セクション */
+  .section { margin-bottom: 40px; }
+  .section:last-child { margin-bottom: 0; }
+
+  .section-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5px;
+    letter-spacing: 0.38em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: 16px;
+    color: var(--text);
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .section-body {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 2.1;
+    font-weight: 300;
+    margin-bottom: 18px;
+  }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--border);
+    margin: 0 0 40px;
+  }
+
+  /* テーブル */
+  .table-wrap {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead tr {
+    background: var(--text);
+  }
+  thead th {
+    padding: 11px 16px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-align: left;
+    font-family: 'Noto Serif JP', serif;
+  }
+  tbody tr {
+    border-top: 1px solid var(--border);
+    background: #fff;
+  }
+  tbody tr:nth-child(even) { background: var(--rose-bg); }
+  tbody td {
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    font-weight: 300;
+    vertical-align: top;
+  }
+  tbody td:first-child {
+    color: var(--text);
+    font-weight: 400;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 9.5px;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin-left: 6px;
+    font-weight: 300;
+    vertical-align: middle;
+  }
+  .tag-main { background: var(--rose-light); color: var(--rose-dark); }
+  .tag-sub { background: #f0f0ec; color: var(--text-light); }
+
+  /* 送信計画ボックス */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .plan-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  .plan-card-wave {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--rose);
+    margin-bottom: 6px;
+  }
+  .plan-card-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .plan-card-label {
+    font-size: 10px;
+    color: var(--text-light);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+  .plan-card.total {
+    background: var(--text);
+    border-color: var(--text);
+  }
+  .plan-card.total .plan-card-wave { color: var(--rose); }
+  .plan-card.total .plan-card-num { color: #fff; }
+  .plan-card.total .plan-card-label { color: rgba(255,255,255,0.5); }
+
+  .note-box {
+    background: var(--rose-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--rose);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+    margin-bottom: 18px;
+  }
+  .note-box strong { color: var(--text); font-weight: 400; }
+
+  /* 手順ステップ */
+  .steps { margin-bottom: 18px; }
+  .step {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--rose-light);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+    margin-top: 1px;
+  }
+  .step-body {}
+  .step-title {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 400;
+    margin-bottom: 3px;
+  }
+  .step-desc {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+  .step-desc a {
+    color: var(--rose-dark);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+  }
+
+  /* エリア優先順 */
+  .area-list {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .area-chip {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--text-mid);
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .area-chip-rank {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    color: var(--rose);
+    line-height: 1;
+  }
+
+  /* スプレッドシート列見本 */
+  .sheet-preview {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .sheet-head {
+    background: var(--rose-bg);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--rose);
+    font-family: 'Cormorant Garamond', serif;
+    text-transform: uppercase;
+  }
+  .sheet-cols {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .sheet-col {
+    padding: 10px 10px;
+    font-size: 10.5px;
+    color: var(--text-mid);
+    font-weight: 300;
+    border-right: 1px solid var(--border);
+    text-align: center;
+    line-height: 1.5;
+  }
+  .sheet-col:last-child { border-right: none; }
+  .sheet-col.header-col {
+    background: var(--text);
+    color: rgba(255,255,255,0.6);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  /* フッター */
+  .footer {
+    background: var(--rose-light);
+    padding: 22px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  .footer-left {
+    font-size: 11px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  .footer-note {
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 300;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="header">
+    <div class="header-eyebrow">Kinda ふたりへ</div>
+    <div class="header-title">リスト戦略</div>
+    <div class="header-sub">シード営業 250社への送信計画</div>
+  </div>
+
+  <div class="body">
+
+    <!-- ソース -->
+    <div class="section">
+      <div class="section-label">List Sources</div>
+      <div class="section-title">3つのリストソースと優先順位</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ソース</th>
+              <th>特徴</th>
+              <th>収集方法</th>
+              <th>想定件数</th>
+              <th>優先度</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>BELMA<span class="tag tag-main">主力</span></td>
+              <td>全国・エリア別。相談所の連絡先・URLが整理済み</td>
+              <td>都道府県ページを手動巡回</td>
+              <td>数百〜1,000件規模</td>
+              <td>最優先</td>
+            </tr>
+            <tr>
+              <td>IBJ加盟店<span class="tag tag-sub">補助</span></td>
+              <td>IBJ公式サイトに加盟相談所一覧あり。約3,200社</td>
+              <td>手動巡回・公式サイトから</td>
+              <td>約3,200社</td>
+              <td>第2波以降</td>
+            </tr>
+            <tr>
+              <td>BIU加盟店<span class="tag tag-sub">補助</span></td>
+              <td>BIU公式サイトに加盟相談所一覧あり。約1,500社</td>
+              <td>手動巡回・公式サイトから</td>
+              <td>約1,500社</td>
+              <td>第2波以降</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note-box">
+        <strong>BELMAと競合リスクについて：</strong>BELMAは「相談所を探すユーザー向け比較サイト」で、Kindaと同じ立ち位置に見える。ただし、Kindaには予約機能・口コミ認証・カウンセラー個人単位の選択という差別化があり、BELMAに掲載されている相談所への営業は問題なし。業界が4,000〜5,000社規模である以上、どのリストを使っても被りは避けられないため、気にせず進める。
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 送信計画 -->
+    <div class="section">
+      <div class="section-label">Send Plan</div>
+      <div class="section-title">250社への段階送信計画</div>
+
+      <div class="plan-grid">
+        <div class="plan-card">
+          <div class="plan-card-wave">第1波</div>
+          <div class="plan-card-num">50</div>
+          <div class="plan-card-label">社<br>反応を見る</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-card-wave">第2波</div>
+          <div class="plan-card-num">100</div>
+          <div class="plan-card-label">社<br>件名・本文を調整</div>
+        </div>
+        <div class="plan-card">
+          <div class="plan-card-wave">第3波</div>
+          <div class="plan-card-num">100</div>
+          <div class="plan-card-label">社<br>最適化版で送信</div>
+        </div>
+        <div class="plan-card total">
+          <div class="plan-card-wave">合計</div>
+          <div class="plan-card-num">250</div>
+          <div class="plan-card-label">社<br>返信数で判断</div>
+        </div>
+      </div>
+
+      <div class="note-box">
+        <strong>返信率の現実的な想定：</strong>コールドメールの業界相場は1〜3%。250社送信で約3〜8件の返信、そのうち面談に至るのは半数程度（約2〜4件）が最悪ケース。ただし「初期費用ゼロ・成果報酬のみ」という条件と、Emma運営者という信頼性は業界的に刺さりやすく、上振れの可能性あり。<br><br>
+        <strong>第1波の目的は「契約獲得」ではなく「チグハグの発見」。</strong>返信内容・反論のパターンを観察し、コールドメール・FAQ・台本を改善してから第2波を送る。
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>波</th>
+              <th>送信数</th>
+              <th>想定返信（2%）</th>
+              <th>想定面談（返信の50%）</th>
+              <th>アクション</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>第1波</td>
+              <td>50社</td>
+              <td>約1件</td>
+              <td>0〜1件</td>
+              <td>反応観察・資料改善</td>
+            </tr>
+            <tr>
+              <td>第2波</td>
+              <td>100社</td>
+              <td>約2件</td>
+              <td>1件</td>
+              <td>改善版で送信</td>
+            </tr>
+            <tr>
+              <td>第3波</td>
+              <td>100社</td>
+              <td>約2件</td>
+              <td>1件</td>
+              <td>最適化版で送信</td>
+            </tr>
+            <tr>
+              <td><strong>合計</strong></td>
+              <td><strong>250社</strong></td>
+              <td><strong>約5件</strong></td>
+              <td><strong>約2〜3件</strong></td>
+              <td>250社の反応で次フェーズ判断</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 収集手順 -->
+    <div class="section">
+      <div class="section-label">How To Collect</div>
+      <div class="section-title">BELMAからの収集手順（ふうかさん作業）</div>
+
+      <div class="note-box" style="margin-bottom:20px;">
+        1社あたり約2〜3分。50社で約2時間の作業量。首都圏から始めると密度が高く効率的。
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">BELMAの都道府県ページを開く</div>
+            <div class="step-desc">
+              <a href="https://www.bel-ma.com/prefecture/13">https://www.bel-ma.com/prefecture/13</a>（東京）のように都道府県コードで一覧が開く。東京=13、大阪=27、神奈川=14、愛知=23、埼玉=11、千葉=12。
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">各相談所の公式サイトURLを取得</div>
+            <div class="step-desc">BELMAの一覧から相談所名をクリック → 詳細ページに公式サイトリンクがある場合は記録。ない場合は相談所名でGoogle検索して公式サイトを特定。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">連絡先メールを取得</div>
+            <div class="step-desc">公式サイトの「お問い合わせ」「会社概要」ページからメールアドレスを取得。メールアドレスが非公開の場合は問い合わせフォームのURLを記録（フォーム送信で代替）。</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">スプレッドシートに記録</div>
+            <div class="step-desc">下記の列構成で記録。送信管理・返信管理を同じシートで行う。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- エリア優先順 -->
+    <div class="section">
+      <div class="section-label">Priority Areas</div>
+      <div class="section-title">収集エリアの優先順位</div>
+      <div class="area-list">
+        <div class="area-chip"><span class="area-chip-rank">1</span>東京</div>
+        <div class="area-chip"><span class="area-chip-rank">2</span>大阪</div>
+        <div class="area-chip"><span class="area-chip-rank">3</span>神奈川</div>
+        <div class="area-chip"><span class="area-chip-rank">4</span>愛知</div>
+        <div class="area-chip"><span class="area-chip-rank">5</span>埼玉</div>
+        <div class="area-chip"><span class="area-chip-rank">6</span>千葉</div>
+        <div class="area-chip"><span class="area-chip-rank">7〜</span>その他全国</div>
+      </div>
+      <div class="note-box">
+        相談所の密度が高いエリアから順に収集することで、250社を最短で集められる。地方は第2波以降で対象にする。
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- スプレッドシート列構成 -->
+    <div class="section">
+      <div class="section-label">Spreadsheet</div>
+      <div class="section-title">リスト管理シートの列構成（推奨）</div>
+      <div class="sheet-preview">
+        <div class="sheet-head">Column Structure</div>
+        <div class="sheet-cols">
+          <div class="sheet-col header-col">相談所名</div>
+          <div class="sheet-col header-col">都道府県</div>
+          <div class="sheet-col header-col">メール / フォームURL</div>
+          <div class="sheet-col header-col">送信日</div>
+          <div class="sheet-col header-col">返信</div>
+          <div class="sheet-col header-col">面談日</div>
+          <div class="sheet-col header-col">ステータス</div>
+        </div>
+        <div class="sheet-cols">
+          <div class="sheet-col">○○結婚相談所</div>
+          <div class="sheet-col">東京</div>
+          <div class="sheet-col">info@xxx.com</div>
+          <div class="sheet-col">2026/06/01</div>
+          <div class="sheet-col">あり</div>
+          <div class="sheet-col">2026/06/10</div>
+          <div class="sheet-col">面談済</div>
+        </div>
+      </div>
+      <div class="note-box" style="margin-top:14px;">
+        <strong>ステータスの値：</strong>未送信 / 送信済 / 返信あり / 面談設定済 / 面談済 / 契約済 / 見送り の7段階で管理。返信なしは1週間後に1回だけフォローメールを送る。
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- フォローメール方針 -->
+    <div class="section">
+      <div class="section-label">Follow-up</div>
+      <div class="section-title">返信なしへのフォロー方針</div>
+      <div class="section-body">
+        1回だけ、送信から1週間後にフォローメールを送る。2回目以降は送らない。しつこいアプローチは業界の評判に響くため。
+      </div>
+      <div class="note-box">
+        <strong>フォローメール文例：</strong><br>
+        先日、Kinda ふたりへの掲載についてご案内メールをお送りしました。もしご不明点がございましたら、いつでもご返信ください。ご多忙の中失礼いたしました。<br><br>
+        ※ 3行以内に収める。長いと逆効果。
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      Kinda ふたりへ　—　シード営業 リスト戦略 v1<br>
+      2026-05-30 作成
+    </div>
+    <div class="footer-note">ドメイン取得後にURL・メアドを実値置換</div>
+  </div>
+
+</div>
+</body>
+</html>
