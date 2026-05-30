@@ -1,14 +1,16 @@
 'use client'
 
-import Link from 'next/link'
 import type { Slot } from '@/lib/types'
 
 interface SlotDetailPanelProps {
   date: string
   slots: Slot[]
   onStatusChange: (slotId: string, status: Slot['status']) => void
+  /** 022_slots_meeting_type — 面談形式の事前指定変更 */
+  onMeetingTypeChange: (slotId: string, meetingType: '対面' | 'オンライン' | null) => void
   onDelete: (slotId: string) => void
   onAddNew: () => void
+  onViewReservation: (slotId: string) => void
 }
 
 const STATUS_LABELS: Record<Slot['status'], string> = {
@@ -17,7 +19,14 @@ const STATUS_LABELS: Record<Slot['status'], string> = {
   booked: '予約済み',
 }
 
-export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete, onAddNew }: SlotDetailPanelProps) {
+/** 面談形式の表示ラベル + 色 */
+const MEETING_TYPE_LABEL = (mt: Slot['meeting_type']): { label: string; color: string; bg: string } => {
+  if (mt === '対面') return { label: '対面', color: '#A88858', bg: 'rgba(168,136,88,.12)' }
+  if (mt === 'オンライン') return { label: 'オンライン', color: '#5A7FAF', bg: 'rgba(90,127,175,.12)' }
+  return { label: '両方', color: 'var(--text-mid)', bg: 'var(--bg-elev)' }
+}
+
+export default function SlotDetailPanel({ date, slots, onStatusChange, onMeetingTypeChange, onDelete, onAddNew, onViewReservation }: SlotDetailPanelProps) {
   const dateLabel = new Date(date + 'T00:00:00').toLocaleDateString('ja-JP', {
     month: 'long', day: 'numeric', weekday: 'short',
   })
@@ -41,90 +50,147 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {slots.map(slot => {
-            const start = new Date(slot.start_time)
-            const end = new Date(slot.end_time)
+            const start = new Date(slot.start_at)
+            const end = new Date(slot.end_at)
             const timeStr = `${start.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })} – ${end.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`
 
             return (
               <div key={slot.id} style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 12,
+                flexWrap: 'wrap',
+                gap: 8,
+                rowGap: 8,
                 padding: '10px 12px',
                 background: 'var(--bg-elev)',
                 borderRadius: 10,
+                overflow: 'hidden',          // 万一の数 px 漏れも吸収
               }}>
                 <span style={{
                   fontFamily: 'DM Sans, sans-serif',
                   fontSize: 13,
                   fontWeight: 500,
                   color: 'var(--text-deep)',
-                  minWidth: 110,
+                  flexShrink: 0,
+                  whiteSpace: 'nowrap',
                 }}>
                   {timeStr}
                 </span>
 
-                <span className={`kc-badge kc-badge-${slot.status}`}>
+                <span className={`kc-badge kc-badge-${slot.status}`} style={{ flexShrink: 0 }}>
                   {STATUS_LABELS[slot.status]}
                 </span>
 
-                {slot.status !== 'booked' && (
-                  <select
-                    value={slot.status}
-                    onChange={e => onStatusChange(slot.id, e.target.value as Slot['status'])}
-                    style={{
-                      marginLeft: 'auto',
-                      fontSize: 12,
-                      padding: '4px 8px',
-                      borderRadius: 8,
-                      border: '1px solid var(--border)',
-                      background: 'var(--card)',
-                      color: 'var(--text)',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <option value="open">空きに変更</option>
-                    <option value="locked">ロックに変更</option>
-                  </select>
-                )}
+                {/* 面談形式バッジ（022_slots_meeting_type） */}
+                {(() => {
+                  const m = MEETING_TYPE_LABEL(slot.meeting_type)
+                  return (
+                    <span
+                      style={{
+                        flexShrink: 0,
+                        fontSize: 10,
+                        padding: '2px 7px',
+                        borderRadius: 20,
+                        background: m.bg,
+                        color: m.color,
+                        fontFamily: 'var(--font-sans)',
+                        letterSpacing: '.04em',
+                      }}
+                      aria-label={`面談形式 ${m.label}`}
+                    >
+                      {m.label}
+                    </span>
+                  )
+                })()}
 
-                {slot.status === 'booked' && (
-                  <Link
-                    href="/reservations"
-                    style={{
-                      marginLeft: 'auto',
-                      fontSize: 12,
-                      color: 'var(--accent)',
-                      textDecoration: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                    }}
-                  >
-                    予約を確認
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </Link>
-                )}
+                {/* 右側コントロール群：1つの flex グループにまとめて、
+                    必要なら一括で次の行に折り返す（iPhone 16 などの幅で
+                    ゴミ箱がはみ出るバグ対策） */}
+                <div style={{
+                  marginLeft: 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  flexShrink: 0,
+                  minWidth: 0,
+                }}>
+                  {slot.status === 'booked' ? (
+                    <button
+                      onClick={() => onViewReservation(slot.id)}
+                      className="kc-btn kc-btn-ghost kc-btn-sm"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                        <circle cx="6" cy="4" r="2" stroke="currentColor" strokeWidth="1.3"/>
+                        <path d="M2 11c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                      </svg>
+                      予約者を見る
+                    </button>
+                  ) : (
+                    <>
+                      <select
+                        value={slot.status}
+                        onChange={e => onStatusChange(slot.id, e.target.value as Slot['status'])}
+                        style={{
+                          fontSize: 12,
+                          padding: '4px 8px',
+                          borderRadius: 8,
+                          border: '1px solid var(--border)',
+                          background: 'var(--card)',
+                          color: 'var(--text)',
+                          cursor: 'pointer',
+                          maxWidth: 130,
+                        }}
+                      >
+                        <option value="open">空きに変更</option>
+                        <option value="locked">ロックに変更</option>
+                      </select>
 
-                {slot.status === 'open' && (
-                  <button
-                    onClick={() => onDelete(slot.id)}
-                    style={{
-                      marginLeft: 4,
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'var(--text-light)',
-                      padding: 4,
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-                    </svg>
-                  </button>
-                )}
+                      {/* 面談形式の変更（022_slots_meeting_type） */}
+                      <select
+                        value={slot.meeting_type ?? 'both'}
+                        onChange={e => {
+                          const v = e.target.value
+                          const next = v === '対面' || v === 'オンライン' ? v : null
+                          onMeetingTypeChange(slot.id, next)
+                        }}
+                        aria-label="面談形式を変更"
+                        style={{
+                          fontSize: 12,
+                          padding: '4px 8px',
+                          borderRadius: 8,
+                          border: '1px solid var(--border)',
+                          background: 'var(--card)',
+                          color: 'var(--text)',
+                          cursor: 'pointer',
+                          maxWidth: 120,
+                        }}
+                      >
+                        <option value="both">両方OK</option>
+                        <option value="対面">対面のみ</option>
+                        <option value="オンライン">オンラインのみ</option>
+                      </select>
+
+                      {slot.status === 'open' && (
+                        <button
+                          onClick={() => onDelete(slot.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: 'var(--text-light)',
+                            padding: 4,
+                            flexShrink: 0,
+                          }}
+                          aria-label="削除"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <path d="M2 3h10M5 3V2h4v1M4 3v8a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1V3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                          </svg>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}
