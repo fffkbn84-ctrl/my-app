@@ -5,8 +5,8 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
 import type { Counselor, Reservation } from '@/lib/types'
+import { useRouter } from 'next/navigation'
 import KanbanColumn from '@/components/inbox/KanbanColumn'
-import ReservationDetailModal from '@/components/calendar/ReservationDetailModal'
 import type { ColumnKey } from '@/components/inbox/LeadCard'
 
 // dashboard / calendar と共有する context localStorage キー
@@ -30,7 +30,7 @@ export default function InboxPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
-  const [viewingSlotId, setViewingSlotId] = useState<string | null>(null)
+  const router = useRouter()
   // クローズ列の表示件数（最初は 20、ボタンで +20 ずつ増やす）
   const CLOSED_PAGE_SIZE = 20
   const [closedVisibleCount, setClosedVisibleCount] = useState(CLOSED_PAGE_SIZE)
@@ -151,12 +151,8 @@ export default function InboxPage() {
   }, [selectedScope])
 
   const handleOpenReservation = (r: Reservation) => {
-    if (!r.slot_id) {
-      // slot_id がない予約は ReservationDetailModal が表示できないので暫定で何もしない
-      // （ふたりへの予約は必ず slot 経由なので通常ありえない）
-      return
-    }
-    setViewingSlotId(r.slot_id)
+    // 全部入りの予約詳細ページへ（日程調整・メッセージ・完了処理もここで）
+    router.push(`/reservations/${r.id}`)
   }
 
   if (loading && reservations.length === 0) {
@@ -309,12 +305,6 @@ export default function InboxPage() {
         </div>
       )}
 
-      {viewingSlotId && (
-        <ReservationDetailModal
-          slotId={viewingSlotId}
-          onClose={() => setViewingSlotId(null)}
-        />
-      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
 import type { Counselor, Slot, Agency } from '@/lib/types'
@@ -8,7 +9,6 @@ import MonthGrid from '@/components/calendar/MonthGrid'
 import WeekView from '@/components/calendar/WeekView'
 import SlotDetailPanel from '@/components/calendar/SlotDetailPanel'
 import SlotForm from '@/components/calendar/SlotForm'
-import ReservationDetailModal from '@/components/calendar/ReservationDetailModal'
 
 // dashboard と共有する context localStorage キー
 const SCOPE_STORAGE_KEY = 'kinda-dashboard-context'
@@ -80,7 +80,7 @@ export default function CalendarPage() {
   const [addingSlot, setAddingSlot] = useState(false)
   const [bulkGenerating, setBulkGenerating] = useState(false)
   const [toast, setToast] = useState('')
-  const [viewingReservationSlotId, setViewingReservationSlotId] = useState<string | null>(null)
+  const router = useRouter()
 
   // viewMode の永続化
   useEffect(() => {
@@ -596,14 +596,7 @@ export default function CalendarPage() {
           onMeetingTypeChange={handleMeetingTypeChange}
           onDelete={handleDelete}
           onAddNew={() => { setFormInitialTime(null); setShowForm(true) }}
-          onViewReservation={setViewingReservationSlotId}
-        />
-      )}
-
-      {viewingReservationSlotId && (
-        <ReservationDetailModal
-          slotId={viewingReservationSlotId}
-          onClose={() => setViewingReservationSlotId(null)}
+          onViewReservation={(slotId) => router.push(`/reservations/by-slot/${slotId}`)}
         />
       )}
 
