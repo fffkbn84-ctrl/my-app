@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logPersonalDataAccess } from '@/lib/supabase/audit'
@@ -51,6 +51,11 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const [cancelling, setCancelling] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [cancelReasonDraft, setCancelReasonDraft] = useState('')
+  // 取り消し猶予（Undo）：確定前の保留状態を保持
+  const [pendingCancel, setPendingCancel] = useState<{ snapshot: Reservation; message: string } | null>(null)
+  const cancelTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pendingCancelRef = useRef<{ snapshot: Reservation; message: string } | null>(null)
+  const CANCEL_GRACE_MS = 8000
 
   // 日程変更
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
@@ -119,19 +124,12 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
     }
   }
 
-  async function handleCancel() {
-    if (!reservation) return
-    const message = cancelReasonDraft.trim()
-    if (message.length === 0) {
-      setError('キャンセルの際は、予約者へのメッセージ（お詫びと理由）が必須です')
-      return
-    }
-    setCancelling(true)
-    setError('')
+  // 実際に DB へキャンセルを反映する（猶予満了 or 画面離脱時に呼ばれる）
+  const commitCancel = async (pending: { snapshot: Reservation; message: string }) => {
+    const supabase = createClient()
+    const nowIso = new Date().toISOString()
+    const message = pending.message
     try {
-      const supabase = createClient()
-      const nowIso = new Date().toISOString()
-      // メッセージはユーザーに見える agency_message に保存。cancel_reason には内部記録として残す
       const { error: upErr } = await supabase
         .from('reservations')
         .update({
@@ -142,20 +140,68 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
           agency_message: message,
           agency_message_at: nowIso,
         })
-        .eq('id', reservation.id)
+        .eq('id', pending.snapshot.id)
       if (upErr) throw upErr
-      if (reservation.slot_id) {
-        await supabase.from('slots').update({ status: 'open' }).eq('id', reservation.slot_id)
+      // 枠はこのタイミングで初めて open に戻す（猶予中に他者が取れないようにする）
+      if (pending.snapshot.slot_id) {
+        await supabase.from('slots').update({ status: 'open' }).eq('id', pending.snapshot.slot_id)
       }
-      setReservation({ ...reservation, status: 'canceled', canceled_at: nowIso, cancel_reason: message, agency_message: message, agency_message_at: nowIso })
-      setShowCancelConfirm(false)
-      setCancelReasonDraft('')
     } catch (e) {
+      // 失敗時は元に戻して通知
+      setReservation(pending.snapshot)
       setError('キャンセル処理に失敗しました: ' + describeError(e))
-    } finally {
-      setCancelling(false)
     }
   }
+
+  // 「キャンセルする」押下：まだ DB には書かず、猶予付きで保留（楽観的に画面はキャンセル表示）
+  function handleCancel() {
+    if (!reservation) return
+    const message = cancelReasonDraft.trim()
+    if (message.length === 0) {
+      setError('キャンセルの際は、予約者へのメッセージ（お詫びと理由）が必須です')
+      return
+    }
+    const snapshot = reservation
+    const nowIso = new Date().toISOString()
+    const pending = { snapshot, message }
+    setPendingCancel(pending)
+    pendingCancelRef.current = pending
+    // 楽観的に画面を更新（DB はまだ）
+    setReservation({ ...snapshot, status: 'canceled', canceled_at: nowIso, cancel_reason: message, agency_message: message, agency_message_at: nowIso })
+    setShowCancelConfirm(false)
+    setCancelReasonDraft('')
+    setError('')
+    // 猶予満了で確定
+    cancelTimerRef.current = setTimeout(() => {
+      const p = pendingCancelRef.current
+      if (!p) return
+      pendingCancelRef.current = null
+      setPendingCancel(null)
+      void commitCancel(p)
+    }, CANCEL_GRACE_MS)
+  }
+
+  // Undo：保留を破棄して元の予約状態に戻す
+  const undoCancel = () => {
+    if (cancelTimerRef.current) { clearTimeout(cancelTimerRef.current); cancelTimerRef.current = null }
+    const p = pendingCancelRef.current
+    pendingCancelRef.current = null
+    setPendingCancel(null)
+    if (p) {
+      setReservation(p.snapshot)
+      showToast('キャンセルを取り消しました')
+    }
+  }
+
+  // 画面離脱・アンマウント時に保留中のキャンセルを確定（取りこぼし防止）
+  useEffect(() => {
+    return () => {
+      if (cancelTimerRef.current) clearTimeout(cancelTimerRef.current)
+      const p = pendingCancelRef.current
+      if (p) { pendingCancelRef.current = null; void commitCancel(p) }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSaveMessage = async () => {
     if (!reservation) return
@@ -304,6 +350,22 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         <p style={{ fontSize: 13, color: 'var(--danger)', padding: '10px 14px', background: 'var(--bg-elev)', borderRadius: 10, margin: 0 }}>
           {error}
         </p>
+      )}
+
+      {/* 取り消し猶予（Undo）バナー — 誤キャンセル対策。猶予中は枠も保持される */}
+      {pendingCancel && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', padding: '12px 16px', background: 'var(--text-deep)', color: 'var(--card)', borderRadius: 12 }}>
+          <span style={{ fontSize: 13, lineHeight: 1.6 }}>
+            この予約をキャンセルしました。間違いなら数秒以内に取り消せます。
+          </span>
+          <button
+            onClick={undoCancel}
+            className="kc-btn"
+            style={{ background: 'var(--accent)', color: '#fff', flexShrink: 0, fontWeight: 700 }}
+          >
+            取り消す（元に戻す）
+          </button>
+        </div>
       )}
 
       {/* ユーザーから日程変更申請バナー（最優先で目立たせる） */}
