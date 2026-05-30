@@ -4,37 +4,17 @@ import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { logAuthEvent } from '@/lib/supabase/audit'
-import ThemeToggle from './ThemeToggle'
-
-const AGENCY_ITEM = {
-  href: '/agency',
-  label: '相談所プロフィール',
-  icon: (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M2 14V6l6-4 6 4v8" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
-      <path d="M6 14v-4h4v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-    </svg>
-  ),
-}
 
 const NAV_ITEMS = [
   {
     href: '/dashboard',
-    label: '最初に見る',
+    label: 'ダッシュボード',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 7L8 2l6 5v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7Z" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M6 14v-5h4v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/inbox',
-    label: 'やるべきこと',
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-        <path d="M2 9h3l1 2h4l1-2h3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+        <rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
       </svg>
     ),
   },
@@ -50,7 +30,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/reel',
-    label: '写真',
+    label: 'リール',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/>
@@ -61,7 +41,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/calendar',
-    label: 'カレンダー',
+    label: '予約枠管理',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
@@ -70,23 +50,22 @@ const NAV_ITEMS = [
     ),
   },
   {
-    href: '/reviews',
-    label: '口コミへの返信',
+    href: '/reservations',
+    label: '予約管理',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H6l-3 2v-2H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M5 6h6M5 9h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 2v4M11 2v4M2 9h12M5.5 12h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
   {
-    href: '/billing',
-    label: 'Kinda 請求履歴',
+    href: '/reviews',
+    label: 'レビュー返信',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M1.5 6.5h13" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M4 10h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <path d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H6l-3 2v-2H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 6h6M5 9h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
@@ -126,13 +105,19 @@ export default function Sidebar() {
               letterSpacing: '.06em',
             }}>futarive</span>
           </div>
+          <div className="eyebrow" style={{ fontSize: '9px', letterSpacing: '.16em' }}>
+            COUNSELOR ADMIN
+          </div>
         </Link>
       </div>
 
       {/* ナビゲーション */}
       <nav className="kc-sidebar-nav">
         <div style={{ marginBottom: 4 }}>
-          {[...NAV_ITEMS, AGENCY_ITEM].map(item => (
+          <div className="eyebrow" style={{ fontSize: '9px', padding: '0 12px', marginBottom: 8 }}>
+            MENU
+          </div>
+          {NAV_ITEMS.map(item => (
             <Link
               key={item.href}
               href={item.href}
@@ -147,19 +132,12 @@ export default function Sidebar() {
 
       {/* フッター */}
       <div className="kc-sidebar-footer">
-        <div style={{ padding: '0 12px 8px' }}>
-          <ThemeToggle />
-        </div>
         <button onClick={handleLogout} className="kc-nav-item" style={{ width: '100%' }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 3H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 5l3 3-3 3M13 8H6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           ログアウト
         </button>
-        <div style={{ padding: '8px 12px 0', fontSize: 10, color: 'var(--text-light)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>利用規約</Link>
-          <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>プライバシー</Link>
-        </div>
       </div>
     </aside>
   )
