@@ -580,8 +580,9 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
       {/* 日程変更モーダル（空き枠ピッカー） */}
       {showRescheduleModal && (
         <div className="kc-overlay">
-          <div className="kc-modal" style={{ maxWidth: 400, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+          <div className="kc-modal" style={{ maxWidth: 400, maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}>
+            {/* ヘッダー（固定） */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexShrink: 0 }}>
               <h2 className="kc-modal-title" style={{ margin: 0 }}>日程変更を提案</h2>
               <button onClick={() => setShowRescheduleModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-mid)' }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -589,78 +590,83 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
                 </svg>
               </button>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.8, marginBottom: 14, padding: '10px 12px', background: 'rgba(192,122,110,.06)', border: '1px solid rgba(192,122,110,.35)', borderRadius: 8 }}>
-              <b>本当に必要ですか？</b> ユーザーは元の日時に予定を空けて待っています。
-              新しい候補を選び、変更をお願いする理由とお詫びを必ず添えてください。ユーザーの了承後に確定します。
-              <br/>
-              <span style={{ color: 'var(--text-mid)' }}>
-                候補は最大3つまで選べます（タップで第1〜第3候補に追加／再タップで解除）。いずれも合わない場合に備え、メッセージに「ご都合が合わなければ、カレンダーから別日をご相談ください」と添えると親切です。
-              </span>
-            </div>
-            <div style={{ overflowY: 'auto', flex: 1 }}>
+
+            {/* 中央：注意書き＋日程リスト＋メッセージを一つのスクロール領域に */}
+            <div style={{ overflowY: 'auto', flex: 1, minHeight: 0 }}>
+              {/* 注意書き（コンパクト化） */}
+              <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.7, marginBottom: 14, padding: '10px 12px', background: 'rgba(192,122,110,.06)', border: '1px solid rgba(192,122,110,.35)', borderRadius: 8 }}>
+                <b>本当に必要ですか？</b> ユーザーは元の日時に予定を空けて待っています。候補は<b>最大3つ</b>まで選べます（タップで追加／再タップで解除）。下のメッセージ欄に理由とお詫びを必ず添えてください（ユーザーの了承後に確定）。
+              </div>
+
               {slots.length === 0 ? (
                 <p style={{ fontSize: 13, color: 'var(--text-mid)', textAlign: 'center', padding: '24px 0' }}>現在、空き枠がありません</p>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {Object.entries(slotsByDate).map(([dateKey, daySlots]) => {
-                    const dateLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })
-                    return (
-                      <div key={dateKey}>
-                        <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-mid)', marginBottom: 6, letterSpacing: '.04em' }}>{dateLabel}</p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                          {daySlots.map(slot => {
-                            const startTime = new Date(slot.start_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-                            const endTime = new Date(slot.end_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-                            const order = selectedSlotIds.indexOf(slot.id)
-                            const isSelected = order >= 0
-                            const atLimit = selectedSlotIds.length >= 3 && !isSelected
-                            return (
-                              <button
-                                key={slot.id}
-                                onClick={() => toggleSlot(slot.id)}
-                                disabled={atLimit}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, background: isSelected ? '#FFF8F0' : 'var(--card)', cursor: atLimit ? 'not-allowed' : 'pointer', opacity: atLimit ? 0.5 : 1, transition: 'all .15s', width: '100%', textAlign: 'left' }}
-                              >
-                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                                  {isSelected && (
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: 'var(--accent)', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>第{order + 1}候補</span>
-                                  )}
-                                  <span style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--accent)' : 'var(--text)' }}>
-                                    {startTime} – {endTime}
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    {Object.entries(slotsByDate).map(([dateKey, daySlots]) => {
+                      const dateLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })
+                      return (
+                        <div key={dateKey}>
+                          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-mid)', marginBottom: 6, letterSpacing: '.04em' }}>{dateLabel}</p>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {daySlots.map(slot => {
+                              const startTime = new Date(slot.start_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+                              const endTime = new Date(slot.end_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+                              const order = selectedSlotIds.indexOf(slot.id)
+                              const isSelected = order >= 0
+                              const atLimit = selectedSlotIds.length >= 3 && !isSelected
+                              return (
+                                <button
+                                  key={slot.id}
+                                  onClick={() => toggleSlot(slot.id)}
+                                  disabled={atLimit}
+                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, background: isSelected ? '#FFF8F0' : 'var(--card)', cursor: atLimit ? 'not-allowed' : 'pointer', opacity: atLimit ? 0.5 : 1, transition: 'all .15s', width: '100%', textAlign: 'left' }}
+                                >
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                                    {isSelected && (
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: 'var(--accent)', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>第{order + 1}候補</span>
+                                    )}
+                                    <span style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--accent)' : 'var(--text)' }}>
+                                      {startTime} – {endTime}
+                                    </span>
                                   </span>
-                                </span>
-                                {slot.meeting_type && (
-                                  <span style={{ fontSize: 11, color: 'var(--text-mid)', background: 'var(--bg-elev)', borderRadius: 6, padding: '2px 8px' }}>{slot.meeting_type}</span>
-                                )}
-                              </button>
-                            )
-                          })}
+                                  {slot.meeting_type && (
+                                    <span style={{ fontSize: 11, color: 'var(--text-mid)', background: 'var(--bg-elev)', borderRadius: 6, padding: '2px 8px' }}>{slot.meeting_type}</span>
+                                  )}
+                                </button>
+                              )
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* メッセージ欄（スクロール領域内） */}
+                  <div style={{ marginTop: 16 }}>
+                    <label style={{ display: 'block', fontSize: 11, color: 'var(--text-mid)', marginBottom: 6 }}>
+                      変更をお願いする理由・お詫びのメッセージ（必須・ユーザーに送信されます）
+                    </label>
+                    <textarea
+                      value={rescheduleMessage}
+                      onChange={e => setRescheduleMessage(e.target.value)}
+                      placeholder="例：大変申し訳ありません。やむを得ない事情でこの日時の対応が難しくなりました。お手数ですが、ご都合のよい候補をお選びいただけますと幸いです。"
+                      rows={3}
+                      maxLength={500}
+                      style={{ width: '100%', fontSize: 13, lineHeight: 1.7, padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--card)', color: 'var(--text-deep)', resize: 'vertical', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                </>
               )}
             </div>
+
+            {/* フッター：ボタン（固定） */}
             {slots.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <label style={{ display: 'block', fontSize: 11, color: 'var(--text-mid)', marginBottom: 6 }}>
-                  変更をお願いする理由・お詫びのメッセージ（必須・ユーザーに送信されます）
-                </label>
-                <textarea
-                  value={rescheduleMessage}
-                  onChange={e => setRescheduleMessage(e.target.value)}
-                  placeholder="例：大変申し訳ありません。やむを得ない事情でこの日時の対応が難しくなりました。お手数ですが、ご都合のよい候補をお選びいただけますと幸いです。"
-                  rows={3}
-                  maxLength={500}
-                  style={{ width: '100%', fontSize: 13, lineHeight: 1.7, padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--card)', color: 'var(--text-deep)', resize: 'vertical', fontFamily: 'inherit' }}
-                />
-                <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
-                  <button onClick={() => setShowRescheduleModal(false)} className="kc-btn kc-btn-ghost" style={{ flex: 1 }}>やめる</button>
-                  <button onClick={handleRequestReschedule} disabled={selectedSlotIds.length === 0 || rescheduleMessage.trim().length === 0 || submittingReschedule} className="kc-btn kc-btn-primary" style={{ flex: 1 }}>
-                    {submittingReschedule ? '送信中...' : `変更をお願いする${selectedSlotIds.length > 0 ? `（${selectedSlotIds.length}候補）` : ''}`}
-                  </button>
-                </div>
+              <div style={{ marginTop: 14, display: 'flex', gap: 10, flexShrink: 0 }}>
+                <button onClick={() => setShowRescheduleModal(false)} className="kc-btn kc-btn-ghost" style={{ flex: 1 }}>やめる</button>
+                <button onClick={handleRequestReschedule} disabled={selectedSlotIds.length === 0 || rescheduleMessage.trim().length === 0 || submittingReschedule} className="kc-btn kc-btn-primary" style={{ flex: 1 }}>
+                  {submittingReschedule ? '送信中...' : `変更をお願いする${selectedSlotIds.length > 0 ? `（${selectedSlotIds.length}候補）` : ''}`}
+                </button>
               </div>
             )}
           </div>
