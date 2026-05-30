@@ -2300,3 +2300,11 @@ main {
   font-family: 'DM Sans', sans-serif;
   letter-spacing: .12em;
 }
+
+/* 週/日ビューの日ヘッダーを選択可能に（枠追加・一括生成の対象日をはっきり表示） */
+.wv-day-header { cursor: pointer; transition: transform .08s ease, background .12s ease; }
+.wv-day-header:hover { background: var(--bg-elev); }
+.wv-day-header:active { transform: scale(.96); }
+.wv-day-header.is-selected { background: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.wv-day-header.is-selected .wv-day-name,
+.wv-day-header.is-selected .wv-day-num { color: #fff !important; }
