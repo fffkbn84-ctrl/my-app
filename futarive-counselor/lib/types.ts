@@ -54,15 +54,32 @@ export interface Slot {
 
 export interface Reservation {
   id: string
-  slot_id: string
-  counselor_id: string
+  slot_id: string | null
+  counselor_id: string | null
   user_name: string
   user_email: string
   user_phone: string | null
-  memo: string | null
+  notes: string | null
   review_token: string | null
   review_code: string | null
   created_at: string
+  // Pass 1 で追加したフィールド
+  status: 'active' | 'canceled' | 'completed'
+  start_at: string | null
+  end_at: string | null
+  meeting_type: '対面' | 'オンライン' | null
+  agency_id: string | null
+  counselor_name: string | null
+  agency_name: string | null
+  cancelled_by: 'user' | 'counselor' | 'system' | null
+  reschedule_status: 'requested' | 'approved' | 'expired' | null
+  reschedule_requested_by: 'user' | 'counselor' | null
+  reschedule_requested_at: string | null
+  reschedule_approved_at: string | null
+  reschedule_expires_at: string | null
+  original_reservation_id: string | null
+  reschedule_proposed_start: string | null
+  reschedule_proposed_end: string | null
 }
 
 export interface Review {
