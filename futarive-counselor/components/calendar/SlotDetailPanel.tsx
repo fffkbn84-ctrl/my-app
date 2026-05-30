@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { Slot } from '@/lib/types'
 
 interface SlotDetailPanelProps {
@@ -29,7 +30,7 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
-          枠を追加
+          枠を���加
         </button>
       </div>
 
@@ -85,6 +86,26 @@ export default function SlotDetailPanel({ date, slots, onStatusChange, onDelete,
                     <option value="open">空きに変更</option>
                     <option value="locked">ロックに変更</option>
                   </select>
+                )}
+
+                {slot.status === 'booked' && (
+                  <Link
+                    href="/reservations"
+                    style={{
+                      marginLeft: 'auto',
+                      fontSize: 12,
+                      color: 'var(--accent)',
+                      textDecoration: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    予約を確認
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M4 2l4 4-4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </Link>
                 )}
 
                 {slot.status === 'open' && (
