@@ -15,27 +15,6 @@ const NAV_ITEMS = [
     ),
   },
   {
-    href: '/profile',
-    label: 'プロフィール',
-    icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
-        <path d="M3 17c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/reel',
-    label: 'リール',
-    icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <rect x="2" y="2" width="16" height="16" rx="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
-        <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.4"/>
-        <circle cx="10" cy="10" r="1" fill="currentColor"/>
-      </svg>
-    ),
-  },
-  {
     href: '/calendar',
     label: '予約枠',
     icon: (active: boolean) => (
@@ -46,11 +25,31 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: '/reservations',
+    label: '予約',
+    icon: (active: boolean) => (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M3 6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6Z" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
+        <path d="M7 2v5M13 2v5M3 11h14M7 15h6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
     href: '/reviews',
     label: 'レビュー',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M3 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H7l-3.5 2.5V14H4a1 1 0 0 1-1-1V4Z" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
+      </svg>
+    ),
+  },
+  {
+    href: '/profile',
+    label: 'プロフィール',
+    icon: (active: boolean) => (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
+        <path d="M3 17c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
