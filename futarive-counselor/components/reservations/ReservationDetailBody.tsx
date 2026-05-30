@@ -611,15 +611,23 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
                           {daySlots.map(slot => {
                             const startTime = new Date(slot.start_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
                             const endTime = new Date(slot.end_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-                            const isSelected = selectedSlot === slot.id
+                            const order = selectedSlotIds.indexOf(slot.id)
+                            const isSelected = order >= 0
+                            const atLimit = selectedSlotIds.length >= 3 && !isSelected
                             return (
                               <button
                                 key={slot.id}
-                                onClick={() => setSelectedSlot(slot.id)}
-                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, background: isSelected ? '#FFF8F0' : 'var(--card)', cursor: 'pointer', transition: 'all .15s', width: '100%', textAlign: 'left' }}
+                                onClick={() => toggleSlot(slot.id)}
+                                disabled={atLimit}
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, background: isSelected ? '#FFF8F0' : 'var(--card)', cursor: atLimit ? 'not-allowed' : 'pointer', opacity: atLimit ? 0.5 : 1, transition: 'all .15s', width: '100%', textAlign: 'left' }}
                               >
-                                <span style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--accent)' : 'var(--text)' }}>
-                                  {startTime} – {endTime}
+                                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                                  {isSelected && (
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: 'var(--accent)', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>第{order + 1}候補</span>
+                                  )}
+                                  <span style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--accent)' : 'var(--text)' }}>
+                                    {startTime} – {endTime}
+                                  </span>
                                 </span>
                                 {slot.meeting_type && (
                                   <span style={{ fontSize: 11, color: 'var(--text-mid)', background: 'var(--bg-elev)', borderRadius: 6, padding: '2px 8px' }}>{slot.meeting_type}</span>
