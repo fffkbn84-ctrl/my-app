@@ -265,6 +265,8 @@ function ReservationLine({
   const dt = reservation.start_at ? new Date(reservation.start_at) : null
   const counselor = scopedCounselors.find((c) => c.id === reservation.counselor_id)
   const bookingAge = formatTimeSinceBooking(reservation.created_at ?? null)
+  const reschedUserRequested = reservation.reschedule_status === 'requested' && reservation.reschedule_requested_by === 'user'
+  const reschedCounselorPending = reservation.reschedule_status === 'requested' && reservation.reschedule_requested_by === 'counselor'
   // 24時間以上経過 & 質問あり & 未返信 → 赤枠で警告
   const isOverdue = hasQuestion && !hasMessage && bookingAge !== null && bookingAge.hoursElapsed >= 24
 
@@ -329,6 +331,38 @@ function ReservationLine({
           }}
         >
           {reservation.meeting_type}
+        </span>
+      )}
+      {reschedUserRequested && (
+        <span
+          style={{
+            fontSize: 10,
+            color: '#fff',
+            background: 'var(--accent)',
+            padding: '2px 8px',
+            borderRadius: 10,
+            flexShrink: 0,
+            fontWeight: 700,
+          }}
+          title="ユーザーから日程変更の申請が届いています"
+        >
+          日程変更の申請あり
+        </span>
+      )}
+      {reschedCounselorPending && (
+        <span
+          style={{
+            fontSize: 10,
+            color: 'var(--text-mid)',
+            background: 'var(--card)',
+            padding: '2px 8px',
+            borderRadius: 10,
+            border: '1px solid var(--border)',
+            flexShrink: 0,
+          }}
+          title="日程変更を提案中・ユーザーの了承待ち"
+        >
+          日程調整中
         </span>
       )}
       {hasQuestion && !hasMessage && (

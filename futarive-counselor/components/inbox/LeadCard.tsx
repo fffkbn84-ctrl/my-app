@@ -42,6 +42,10 @@ function hoursUntilStart(iso: string | null): number | null {
 export default function LeadCard({ reservation, column, onOpen }: Props) {
   const r = reservation
 
+  // 日程変更まわり（詳細を開く前に分かるように・要対応の最上位）
+  const reschedUserRequested = r.reschedule_status === 'requested' && r.reschedule_requested_by === 'user'
+  const reschedCounselorPending = r.reschedule_status === 'requested' && r.reschedule_requested_by === 'counselor'
+
   // 経過時間バッジ：列によって表示を切り替える
   let badge: React.ReactNode
   if (column === 'pending') {
@@ -107,9 +111,13 @@ export default function LeadCard({ reservation, column, onOpen }: Props) {
       style={{
         textAlign: 'left',
         width: '100%',
-        background: 'var(--card)',
-        border: `1px solid ${isCritical ? 'rgba(192,122,110,.5)' : 'var(--border)'}`,
-        borderLeft: isCritical ? '3px solid #C07A6E' : `1px solid ${'var(--border)'}`,
+        background: reschedUserRequested ? '#FFF8F0' : 'var(--card)',
+        border: reschedUserRequested
+          ? '1.5px solid var(--accent)'
+          : `1px solid ${isCritical ? 'rgba(192,122,110,.5)' : 'var(--border)'}`,
+        borderLeft: reschedUserRequested
+          ? '3px solid var(--accent)'
+          : isCritical ? '3px solid #C07A6E' : `1px solid ${'var(--border)'}`,
         borderRadius: 12,
         padding: '12px 14px',
         cursor: 'pointer',
@@ -120,12 +128,32 @@ export default function LeadCard({ reservation, column, onOpen }: Props) {
         transition: 'transform .15s, box-shadow .15s, background .15s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'var(--card-warm)'
+        e.currentTarget.style.background = reschedUserRequested ? '#FFF1E0' : 'var(--card-warm)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'var(--card)'
+        e.currentTarget.style.background = reschedUserRequested ? '#FFF8F0' : 'var(--card)'
       }}
     >
+      {/* 日程変更の申請バナー（最優先で目立たせる） */}
+      {reschedUserRequested && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--accent)', letterSpacing: '.02em' }}>
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.3"/>
+            <path d="M7 4v3.3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            <circle cx="7" cy="10" r=".6" fill="currentColor"/>
+          </svg>
+          日程変更の申請あり・要・確認
+        </div>
+      )}
+      {reschedCounselorPending && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: 'var(--text-mid)' }}>
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.3"/>
+            <path d="M7 4v3l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+          </svg>
+          日程変更を提案中・ユーザーの了承待ち
+        </div>
+      )}
       {/* ヘッダー行：経過バッジ + 面談形式 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
         {badge}

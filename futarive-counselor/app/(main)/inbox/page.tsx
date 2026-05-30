@@ -143,6 +143,15 @@ export default function InboxPage() {
     buckets.needs_report.sort((a, b) => (new Date(b.start_at ?? 0).getTime()) - (new Date(a.start_at ?? 0).getTime())) // 直近の完了未報告から
     // クローズは古い分まで保持（表示は closedVisibleCount で制御）
     buckets.closed.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    // ユーザーからの日程変更申請は最優先：各対応列の先頭へ（安定ソートなので既存順は保持）
+    const floatReschedule = (arr: Reservation[]) => arr.sort((a, b) => {
+      const ap = a.reschedule_status === 'requested' && a.reschedule_requested_by === 'user' ? 0 : 1
+      const bp = b.reschedule_status === 'requested' && b.reschedule_requested_by === 'user' ? 0 : 1
+      return ap - bp
+    })
+    floatReschedule(buckets.pending)
+    floatReschedule(buckets.contacted)
+    floatReschedule(buckets.needs_report)
     return buckets
   }, [reservations])
 
@@ -174,9 +183,15 @@ export default function InboxPage() {
         lineHeight: 1.7,
         maxWidth: 720,
       }}>
-        {tab === 'work'
-          ? 'ふたりへから届いた予約を、対応状況ごとに整理して表示します。左の列ほど早めの対応が必要です。'
-          : '予定・過去のすべての予約を一覧で確認できます。カードを選ぶと日程調整・メッセージ・完了処理ができます。'}
+        {tab === 'work' ? (
+          <>
+            Kinda ふたりへから届いた予約を、対応状況ごとに整理して表示します。
+            <span className="kanban-hint-desktop">左の列ほど早めの対応が必要です。</span>
+            <span className="kanban-hint-mobile">上のものほど早めの対応が必要です。</span>
+          </>
+        ) : (
+          '予定・過去のすべての予約を一覧で確認できます。カードを選ぶと日程調整・メッセージ・完了処理ができます。'
+        )}
       </p>
 
       {/* タブ切替：やること（カンバン）/ すべての予約（一覧） */}

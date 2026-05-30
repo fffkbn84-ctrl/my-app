@@ -56,6 +56,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
   const [slots, setSlots] = useState<SlotOption[]>([])
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
+  const [rescheduleMessage, setRescheduleMessage] = useState('')
   const [submittingReschedule, setSubmittingReschedule] = useState(false)
   const [approving, setApproving] = useState(false)
 
@@ -120,20 +121,33 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
 
   async function handleCancel() {
     if (!reservation) return
+    const message = cancelReasonDraft.trim()
+    if (message.length === 0) {
+      setError('キャンセルの際は、予約者へのメッセージ（お詫びと理由）が必須です')
+      return
+    }
     setCancelling(true)
     setError('')
     try {
       const supabase = createClient()
-      const reason = cancelReasonDraft.trim()
+      const nowIso = new Date().toISOString()
+      // メッセージはユーザーに見える agency_message に保存。cancel_reason には内部記録として残す
       const { error: upErr } = await supabase
         .from('reservations')
-        .update({ status: 'canceled', canceled_at: new Date().toISOString(), cancel_reason: reason.length > 0 ? reason : null })
+        .update({
+          status: 'canceled',
+          canceled_at: nowIso,
+          cancelled_by: 'counselor',
+          cancel_reason: message,
+          agency_message: message,
+          agency_message_at: nowIso,
+        })
         .eq('id', reservation.id)
       if (upErr) throw upErr
       if (reservation.slot_id) {
         await supabase.from('slots').update({ status: 'open' }).eq('id', reservation.slot_id)
       }
-      setReservation({ ...reservation, status: 'canceled', canceled_at: new Date().toISOString(), cancel_reason: reason.length > 0 ? reason : null })
+      setReservation({ ...reservation, status: 'canceled', canceled_at: nowIso, cancel_reason: message, agency_message: message, agency_message_at: nowIso })
       setShowCancelConfirm(false)
       setCancelReasonDraft('')
     } catch (e) {
@@ -177,18 +191,27 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const handleOpenReschedule = async () => {
     await loadSlots()
     setSelectedSlot(null)
+    setRescheduleMessage('')
     setShowRescheduleModal(true)
   }
 
   const handleRequestReschedule = async () => {
     if (!selectedSlot || !reservation) return
+    const message = rescheduleMessage.trim()
+    if (message.length === 0) {
+      showToast('変更をお願いする理由・お詫びのメッセージを入力してください')
+      return
+    }
     const slot = slots.find(s => s.id === selectedSlot)
     if (!slot) return
     setSubmittingReschedule(true)
     const supabase = createClient()
     const result = await requestRescheduleAsCounselor(supabase, reservation.id, slot.start_at, slot.end_at)
-    setSubmittingReschedule(false)
     if (result.ok) {
+      // 添えるメッセージはユーザーに見える agency_message として保存
+      const nowIso = new Date().toISOString()
+      await supabase.from('reservations').update({ agency_message: message, agency_message_at: nowIso }).eq('id', reservation.id)
+      setSubmittingReschedule(false)
       showToast('日程変更を提案しました。ユーザーの了承をお待ちください。')
       setShowRescheduleModal(false)
       setReservation(prev => prev ? {
@@ -197,8 +220,11 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         reschedule_requested_by: 'counselor',
         reschedule_proposed_start: slot.start_at,
         reschedule_proposed_end: slot.end_at,
+        agency_message: message,
+        agency_message_at: nowIso,
       } : prev)
     } else {
+      setSubmittingReschedule(false)
       showToast(result.message)
     }
   }
@@ -442,14 +468,26 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
       {/* 日程変更を提案 */}
       {canProposeReschedule && (
         <div className="kc-card" style={{ padding: '20px 22px' }}>
-          <p className="eyebrow" style={{ marginBottom: 8 }}>日程変更</p>
-          <p style={{ fontSize: 13, color: 'var(--text-mid)', marginBottom: 14 }}>空き枠を選んでユーザーに日程変更を提案できます。</p>
+          <p className="eyebrow" style={{ marginBottom: 8 }}>日程変更（カウンセラー都合）</p>
+          <div style={{ display: 'flex', gap: 10, padding: '12px 14px', background: 'rgba(192,122,110,.06)', border: '1px solid rgba(192,122,110,.35)', borderRadius: 10, marginBottom: 14 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+              <path d="M8 1.5L15 14H1L8 1.5Z" stroke="#C07A6E" strokeWidth="1.3" strokeLinejoin="round"/>
+              <path d="M8 6v3.4" stroke="#C07A6E" strokeWidth="1.4" strokeLinecap="round"/>
+              <circle cx="8" cy="11.4" r=".7" fill="#C07A6E"/>
+            </svg>
+            <p style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.8, margin: 0 }}>
+              日程変更は原則、<b>ユーザーからの申請にお応えする</b>運用です。
+              ユーザーはこの日時に予定を空けて待っています。
+              カウンセラー都合での変更は、<b>どうしても必要な場合のみ</b>行ってください。
+              お願いする際は、必ず理由とお詫びのひとことを添えます。
+            </p>
+          </div>
           <button onClick={handleOpenReschedule} className="kc-btn kc-btn-ghost">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.3"/>
               <path d="M7 4v3l2 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
             </svg>
-            日程変更を提案する
+            どうしても必要な場合：日程変更をお願いする
           </button>
         </div>
       )}
@@ -473,21 +511,21 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         <div style={{ padding: '14px 16px', background: 'rgba(192,122,110,.06)', border: '1px solid rgba(192,122,110,.4)', borderRadius: 12 }}>
           <p style={{ fontSize: 13, color: 'var(--text-deep)', margin: '0 0 10px', lineHeight: 1.7 }}>
             この予約をキャンセルしますか？<br/>
-            <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>キャンセル後は予約枠が再度ご利用可能になります。お客様への連絡は別途お願いします。</span>
+            <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>キャンセル後は予約枠が再度ご利用可能になります。ユーザーは予定を空けて待っているため、お詫びと理由を必ずお伝えください。</span>
           </p>
-          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>キャンセル理由（任意・内部メモ）</div>
+          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>予約者へのメッセージ（必須・お詫びと理由。ユーザーに送信されます）</div>
           <textarea
             value={cancelReasonDraft}
             onChange={(e) => setCancelReasonDraft(e.target.value)}
-            placeholder="例: お客様のご都合により / カウンセラー側都合"
-            rows={2}
-            maxLength={200}
+            placeholder="例: 大変申し訳ありません。やむを得ない事情によりお約束した面談を実施できなくなりました。ご迷惑をおかけし誠に申し訳ございません。"
+            rows={3}
+            maxLength={500}
             style={{ width: '100%', fontSize: 12, padding: '8px 10px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, resize: 'vertical', fontFamily: 'inherit', marginBottom: 10, color: 'var(--text-deep)' }}
             disabled={cancelling}
           />
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <button className="kc-btn kc-btn-ghost kc-btn-sm" onClick={() => { setShowCancelConfirm(false); setCancelReasonDraft('') }} disabled={cancelling}>やめる</button>
-            <button className="kc-btn kc-btn-danger kc-btn-sm" onClick={handleCancel} disabled={cancelling}>{cancelling ? '処理中…' : 'キャンセルする'}</button>
+            <button className="kc-btn kc-btn-danger kc-btn-sm" onClick={handleCancel} disabled={cancelling || cancelReasonDraft.trim().length === 0}>{cancelling ? '処理中…' : 'キャンセルする'}</button>
           </div>
         </div>
       )}
@@ -529,9 +567,10 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
                 </svg>
               </button>
             </div>
-            <p style={{ fontSize: 12, color: 'var(--text-mid)', marginBottom: 14 }}>
-              新しい面談日時を選んでください。ユーザーに通知され、了承を待ちます。
-            </p>
+            <div style={{ fontSize: 12, color: 'var(--text)', lineHeight: 1.8, marginBottom: 14, padding: '10px 12px', background: 'rgba(192,122,110,.06)', border: '1px solid rgba(192,122,110,.35)', borderRadius: 8 }}>
+              <b>本当に必要ですか？</b> ユーザーは元の日時に予定を空けて待っています。
+              新しい候補を選び、変更をお願いする理由とお詫びを必ず添えてください。ユーザーの了承後に確定します。
+            </div>
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {slots.length === 0 ? (
                 <p style={{ fontSize: 13, color: 'var(--text-mid)', textAlign: 'center', padding: '24px 0' }}>現在、空き枠がありません</p>
@@ -570,11 +609,24 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
               )}
             </div>
             {slots.length > 0 && (
-              <div style={{ marginTop: 18, display: 'flex', gap: 10 }}>
-                <button onClick={() => setShowRescheduleModal(false)} className="kc-btn kc-btn-ghost" style={{ flex: 1 }}>キャンセル</button>
-                <button onClick={handleRequestReschedule} disabled={!selectedSlot || submittingReschedule} className="kc-btn kc-btn-primary" style={{ flex: 1 }}>
-                  {submittingReschedule ? '送信中...' : '提案する'}
-                </button>
+              <div style={{ marginTop: 16 }}>
+                <label style={{ display: 'block', fontSize: 11, color: 'var(--text-mid)', marginBottom: 6 }}>
+                  変更をお願いする理由・お詫びのメッセージ（必須・ユーザーに送信されます）
+                </label>
+                <textarea
+                  value={rescheduleMessage}
+                  onChange={e => setRescheduleMessage(e.target.value)}
+                  placeholder="例：大変申し訳ありません。やむを得ない事情でこの日時の対応が難しくなりました。お手数ですが、ご都合のよい候補をお選びいただけますと幸いです。"
+                  rows={3}
+                  maxLength={500}
+                  style={{ width: '100%', fontSize: 13, lineHeight: 1.7, padding: '8px 10px', border: '1px solid var(--border)', borderRadius: 8, background: 'var(--card)', color: 'var(--text-deep)', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+                <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
+                  <button onClick={() => setShowRescheduleModal(false)} className="kc-btn kc-btn-ghost" style={{ flex: 1 }}>やめる</button>
+                  <button onClick={handleRequestReschedule} disabled={!selectedSlot || rescheduleMessage.trim().length === 0 || submittingReschedule} className="kc-btn kc-btn-primary" style={{ flex: 1 }}>
+                    {submittingReschedule ? '送信中...' : '変更をお願いする'}
+                  </button>
+                </div>
               </div>
             )}
           </div>
