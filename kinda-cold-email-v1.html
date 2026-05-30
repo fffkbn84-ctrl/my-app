@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinda ふたりへ — コールドメール</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --beige: #F5EEE6;
+    --rose: #D4A090;
+    --rose-dark: #B8796A;
+    --rose-light: #F0DDD7;
+    --text: #3A2E2A;
+    --text-mid: #7A6560;
+    --text-light: #B0968E;
+    --border: #E8D8D0;
+  }
+
+  body {
+    background: #EDE6DC;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .doc {
+    width: 680px;
+  }
+
+  /* ── メタ情報（件名候補） ── */
+  .meta {
+    background: var(--text);
+    border-radius: 4px 4px 0 0;
+    padding: 28px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .meta::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(212,160,144,0.10);
+  }
+  .meta-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .meta-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.1em;
+    font-weight: 300;
+    margin-bottom: 6px;
+  }
+  .subject-main {
+    font-size: 15px;
+    color: #fff;
+    font-weight: 400;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .subject-alts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .subject-alt {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 300;
+    line-height: 1.6;
+    padding-left: 12px;
+    border-left: 1px solid rgba(212,160,144,0.4);
+  }
+  .subject-alt-note {
+    font-size: 10px;
+    color: rgba(212,160,144,0.7);
+    margin-left: 8px;
+  }
+
+  /* ── メール本文 ── */
+  .email {
+    background: var(--beige);
+    padding: 44px 48px 48px;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 8px 48px rgba(58,46,42,0.14);
+  }
+
+  .email-to {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 300;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .email-body {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 2.2;
+    font-weight: 300;
+  }
+  .email-body p {
+    margin-bottom: 20px;
+  }
+  .email-body p:last-of-type {
+    margin-bottom: 0;
+  }
+  .email-body strong {
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  /* CTAブロック */
+  .email-cta {
+    margin: 28px 0;
+    padding: 22px 24px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--rose);
+    border-radius: 4px;
+  }
+  .email-cta-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--rose);
+    margin-bottom: 8px;
+  }
+  .email-cta-text {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  .email-cta-url {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--rose-dark);
+    font-weight: 300;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    word-break: break-all;
+  }
+
+  /* 署名 */
+  .email-sig {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 2;
+    font-weight: 300;
+  }
+  .email-sig-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .email-sig-brand em {
+    color: var(--rose);
+    font-style: italic;
+  }
+
+  /* 注釈 */
+  .annotation {
+    margin-top: 32px;
+    padding: 20px 24px;
+    background: rgba(212,160,144,0.08);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .annotation-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .annotation-item {
+    font-size: 11.5px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 6px;
+  }
+  .annotation-item::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--rose);
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- 件名候補 -->
+  <div class="meta">
+    <div class="meta-eyebrow">Cold Email — Subject Line</div>
+    <div class="meta-label">推奨件名</div>
+    <div class="subject-main">【初期費用無料】カウンセラー個人への口コミで選ばれる、新しい集客チャネルのご案内</div>
+    <div class="meta-label" style="margin-top:0;">代替案</div>
+    <div class="subject-alts">
+      <div class="subject-alt">結婚相談所の集客を、口コミで。掲載無料・成果報酬のみのプラットフォームをご案内します<span class="subject-alt-note">— シンプル訴求型</span></div>
+      <div class="subject-alt">「どのカウンセラーに相談すればいいか」——その悩みに答えるサービスを始めました<span class="subject-alt-note">— ユーザー目線型</span></div>
+    </div>
+  </div>
+
+  <!-- メール本文 -->
+  <div class="email">
+    <div class="email-to">To：○○ご担当者様</div>
+
+    <div class="email-body">
+      <p>突然のご連絡、失礼いたします。<br>
+      口コミ・レビュー型の結婚相談所掲載プラットフォーム「Kinda ふたりへ」運営事務局と申します。</p>
+
+      <p>「どの相談所にすればいいかわからない」という層が、カウンセラー個人への口コミを見て予約できるサービスです。@cosme や食べログの結婚相談所版とお考えいただくと、イメージが近いかと思います。</p>
+
+      <p><strong>掲載費・初期費用は無料。面談予約が成立したときのみ、送客料 ¥5,000 が発生するシンプルな料金体系</strong>です。予約が来なければ費用はかかりません。</p>
+
+      <p>現在、初期掲載いただける相談所を募集しております。早くご参加いただいた相談所ほど、口コミの蓄積が先行するメリットがあります。</p>
+    </div>
+
+    <div class="email-cta">
+      <div class="email-cta-label">詳細・掲載のご相談</div>
+      <div class="email-cta-text">サービスの詳細・ご不明点は、下記よりお気軽にお問い合わせください。資料（PDF）も添付しております。</div>
+      <a class="email-cta-url" href="https://my-app-rp9u.vercel.app/partners">https://my-app-rp9u.vercel.app/partners</a>
+    </div>
+
+    <div class="email-body">
+      <p>ご多忙のところ恐れ入りますが、ご関心をお持ちいただけましたら、このメールへの返信または上記よりご連絡いただけますと幸いです。</p>
+    </div>
+
+    <div class="email-sig">
+      <div class="email-sig-brand">Kinda <em>ふたりへ</em></div>
+      Kinda 運営事務局<br>
+      ［メールアドレス・ドメイン取得後に確定］<br>
+      https://my-app-rp9u.vercel.app　※ドメイン取得後に置換
+    </div>
+  </div>
+
+  <!-- 制作注釈 -->
+  <div class="annotation">
+    <div class="annotation-title">制作メモ（送信時は削除）</div>
+    <div class="annotation-item">件名は「【初期費用無料】」の角括弧が開封率を上げる。ただし迷惑メールフィルタにかかるリスクもあるため、送信ツールでテストを推奨。</div>
+    <div class="annotation-item">「@cosme・食べログの結婚相談所版」の比喩は、初見のオーナーが最も素早くサービスを理解できる表現として採用。</div>
+    <div class="annotation-item">本文字数：約250字。これ以上長くすると読まれない可能性が高まるため、詳細はリーフレット・FAQに委ねる設計。</div>
+    <div class="annotation-item">「突然のご連絡」は特定電子メール法上、送信者情報・配信停止手段の明示が必要。Resend等の配信ツールを使う場合、フッターに自動付与される設定を確認すること。</div>
+    <div class="annotation-item">URL・氏名・メールアドレスはドメイン取得後・法人設立後に実値へ置換。</div>
+  </div>
+
+</div>
+</body>
+</html>
