@@ -204,3 +204,138 @@ export function isCancellable(
   const deadline = cancelDeadlineHours ?? 24;
   return hoursUntilStart > deadline;
 }
+
+/* ────────────────────────────────────────────────────────────
+   isWithinBillingGrace
+   - 予約成立から 24h 以内かどうか（相談所への送客料返金基準）
+   - created_at ベースで計算（billing_events.grace_until の簡易代替）
+──────────────────────────────────────────────────────────── */
+export function isWithinBillingGrace(
+  createdAt: string,
+  now: Date = new Date(),
+): boolean {
+  const graceUntil = new Date(createdAt);
+  graceUntil.setHours(graceUntil.getHours() + 24);
+  return now < graceUntil;
+}
+
+/* ────────────────────────────────────────────────────────────
+   cancelReservationViaRpc
+   - cancel_reservation_rpc を呼ぶ（billing_events も一括更新）
+   - Stripe モック：DB 更新のみ、外部 API 呼び出しなし
+──────────────────────────────────────────────────────────── */
+export type CancelViaRpcResult =
+  | { ok: true; withinGrace: boolean }
+  | { ok: false; error: string; message: string };
+
+export async function cancelReservationViaRpc(
+  supabase: SupabaseClient | null,
+  reservationId: string,
+): Promise<CancelViaRpcResult> {
+  if (!supabase) {
+    return { ok: false, error: "supabase_unavailable", message: "予約システムに接続できません。" };
+  }
+  const { data, error } = await supabase.rpc("cancel_reservation_rpc", {
+    p_reservation_id: reservationId,
+    p_cancelled_by: "user",
+  });
+  if (error) {
+    return { ok: false, error: "unknown", message: error.message };
+  }
+  const result = data as { ok: boolean; within_grace?: boolean; error?: string };
+  if (!result.ok) {
+    const msgs: Record<string, string> = {
+      not_found: "予約が見つかりません。",
+      not_active: "この予約はすでにキャンセル済みか完了しています。",
+      unauthorized: "この予約をキャンセルする権限がありません。",
+    };
+    return {
+      ok: false,
+      error: result.error ?? "unknown",
+      message: msgs[result.error ?? ""] ?? "キャンセルに失敗しました。",
+    };
+  }
+  return { ok: true, withinGrace: result.within_grace ?? false };
+}
+
+/* ────────────────────────────────────────────────────────────
+   requestRescheduleViaRpc
+   - request_reschedule_rpc を呼ぶ
+   - 申請時に billing_events を voided に（即時返金設計）
+──────────────────────────────────────────────────────────── */
+export type RescheduleRequestResult =
+  | { ok: true; expiresAt: string }
+  | { ok: false; error: string; message: string };
+
+export async function requestRescheduleViaRpc(
+  supabase: SupabaseClient | null,
+  reservationId: string,
+  proposedStart: string,
+  proposedEnd: string,
+): Promise<RescheduleRequestResult> {
+  if (!supabase) {
+    return { ok: false, error: "supabase_unavailable", message: "予約システムに接続できません。" };
+  }
+  const { data, error } = await supabase.rpc("request_reschedule_rpc", {
+    p_reservation_id: reservationId,
+    p_requested_by: "user",
+    p_proposed_start: proposedStart,
+    p_proposed_end: proposedEnd,
+  });
+  if (error) {
+    return { ok: false, error: "unknown", message: error.message };
+  }
+  const result = data as { ok: boolean; expires_at?: string; error?: string };
+  if (!result.ok) {
+    const msgs: Record<string, string> = {
+      not_found: "予約が見つかりません。",
+      not_active: "この予約はすでにキャンセル済みか完了しています。",
+      reschedule_already_pending: "すでに日程変更の申請中です。",
+      unauthorized: "この予約の日程変更を申請する権限がありません。",
+    };
+    return {
+      ok: false,
+      error: result.error ?? "unknown",
+      message: msgs[result.error ?? ""] ?? "日程変更の申請に失敗しました。",
+    };
+  }
+  return { ok: true, expiresAt: result.expires_at ?? "" };
+}
+
+/* ────────────────────────────────────────────────────────────
+   approveRescheduleViaRpc
+   - approve_reschedule_rpc を呼ぶ（カウンセラーが申請した日程変更をユーザーが承認）
+──────────────────────────────────────────────────────────── */
+export type RescheduleApproveResult =
+  | { ok: true; newReservationId: string }
+  | { ok: false; error: string; message: string };
+
+export async function approveRescheduleViaRpc(
+  supabase: SupabaseClient | null,
+  reservationId: string,
+): Promise<RescheduleApproveResult> {
+  if (!supabase) {
+    return { ok: false, error: "supabase_unavailable", message: "予約システムに接続できません。" };
+  }
+  const { data, error } = await supabase.rpc("approve_reschedule_rpc", {
+    p_reservation_id: reservationId,
+  });
+  if (error) {
+    return { ok: false, error: "unknown", message: error.message };
+  }
+  const result = data as { ok: boolean; new_reservation_id?: string; error?: string };
+  if (!result.ok) {
+    const msgs: Record<string, string> = {
+      not_found: "予約が見つかりません。",
+      not_in_requested_state: "日程変更の申請が見つかりません。",
+      expired: "日程変更の申請期限が切れています。",
+      unauthorized: "承認する権限がありません。",
+    };
+    return {
+      ok: false,
+      error: result.error ?? "unknown",
+      message: msgs[result.error ?? ""] ?? "日程変更の承認に失敗しました。",
+    };
+  }
+  return { ok: true, newReservationId: result.new_reservation_id ?? "" };
+}
