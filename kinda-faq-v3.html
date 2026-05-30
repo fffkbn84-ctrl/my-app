@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinda ふたりへ — よくあるご質問</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --beige: #F5EEE6;
+    --rose: #D4A090;
+    --rose-dark: #B8796A;
+    --rose-light: #F0DDD7;
+    --rose-bg: #fdf9f7;
+    --text: #3A2E2A;
+    --text-mid: #7A6560;
+    --text-light: #B0968E;
+    --border: #E8D8D0;
+  }
+
+  body {
+    background: #EDE6DC;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .doc {
+    width: 680px;
+    background: var(--beige);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(58,46,42,0.14);
+  }
+
+  /* ── ヘッダー ── */
+  .header {
+    background: var(--text);
+    padding: 36px 52px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(212,160,144,0.10);
+  }
+  .header-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── 本体 ── */
+  .body {
+    padding: 44px 52px 52px;
+  }
+
+  /* カテゴリラベル */
+  .category {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    margin-top: 40px;
+  }
+  .category:first-child { margin-top: 0; }
+  .category-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .category-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5px;
+    letter-spacing: 0.38em;
+    color: var(--rose);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Q&A */
+  .qa {
+    margin-bottom: 24px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .qa:last-child { margin-bottom: 0; }
+
+  .qa-q {
+    background: #fff;
+    padding: 18px 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .qa-q-badge {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--rose);
+    line-height: 1.2;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .qa-q-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .qa-a {
+    background: var(--rose-bg);
+    padding: 18px 22px 18px 58px;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .qa-a::before {
+    content: 'A';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--text-light);
+    position: absolute;
+    left: 22px;
+    top: 18px;
+    line-height: 1.2;
+  }
+  .qa-a-text {
+    font-size: 12.5px;
+    color: var(--text-mid);
+    line-height: 2;
+    font-weight: 300;
+  }
+  .qa-a-text strong {
+    color: var(--text);
+    font-weight: 400;
+  }
+  .qa-a-note {
+    font-size: 11px;
+    color: var(--text-light);
+    line-height: 1.8;
+    font-weight: 300;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* フッター */
+  .footer {
+    background: var(--rose-light);
+    padding: 22px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  .footer-left {
+    font-size: 11px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  .footer-cta {
+    background: var(--rose);
+    color: #fff;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 10px 22px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="header">
+    <div class="header-eyebrow">Kinda ふたりへ</div>
+    <div class="header-title">よくあるご質問</div>
+    <div class="header-sub">掲載をご検討の結婚相談所さまへ</div>
+  </div>
+
+  <div class="body">
+
+    <!-- カテゴリ1 -->
+    <div class="category">
+      <div class="category-label">料金・契約</div>
+      <div class="category-line"></div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">予約が入ったのに、面談がキャンセルになった場合、料金は発生しますか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          予約成立後<strong>24時間以内のキャンセルは返金</strong>します。24時間を過ぎた後のキャンセルは、原則として送客料が発生します。Kinda は集客・送客の義務をその時点で果たしているためです。<br><br>
+          ただし以下のケースは<strong>返金対応</strong>します。
+        </div>
+        <ul style="margin: 10px 0 0 0; padding-left: 0; list-style: none;">
+          <li style="font-size:12px; color:#7A6560; line-height:2; font-weight:300; padding-left:14px; position:relative;">
+            <span style="position:absolute;left:0;color:#D4A090;">·</span>
+            相談所側の都合でキャンセルとなり、別の日程で面談をすることが了承された場合
+          </li>
+          <li style="font-size:12px; color:#7A6560; line-height:2; font-weight:300; padding-left:14px; position:relative;">
+            <span style="position:absolute;left:0;color:#D4A090;">·</span>
+            ユーザーが日程変更を希望し、別の日程で面談をすることが了承された場合
+          </li>
+        </ul>
+
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">「予約成立」はいつの時点ですか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          ユーザーが予約を確定し、<strong>24時間のキャンセル猶予を過ぎた時点</strong>を予約成立とします。その後、Kinda からご請求し、入金確認をもってユーザーの詳細情報（本名・連絡先）をお手元に開示します。入金前に個人情報が届くことはありません。
+        </div>
+        <div class="qa-a-note">※ 詳細な情報開示の内容・タイミングについては、契約時にご説明します。</div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">契約期間の縛りはありますか？途中で辞められますか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          <strong>縛りはありません。</strong>掲載の停止はいつでも可能です。月額固定費もないため、「しばらく新規面談を止めたい」という場合も、違約金などは発生しません。再掲載も随時受け付けています。
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">将来、料金体系が変わることはありますか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          現在の<strong>送客料 ¥5,000 / 件（成果報酬のみ）</strong>は継続します。将来的には、送客実績が一定数を超えた相談所に向けて、<strong>送客料なしの定額掲載プランを選択肢としてご案内する予定</strong>です。切り替えは強制ではなく、相談所ごとに有利な方をお選びいただけます。早期にご参加いただいた相談所には優遇措置を設ける予定です。
+        </div>
+        <div class="qa-a-note">※ 定額プランの詳細・切替条件は、運用状況をふまえて別途ご案内します。</div>
+      </div>
+    </div>
+
+    <!-- カテゴリ2 -->
+    <div class="category">
+      <div class="category-label">口コミ・信頼性</div>
+      <div class="category-line"></div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">悪い口コミを書かれたら、削除できますか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          運営側での削除はお受けできません。ただし、<strong>虚偽・誹謗中傷・個人情報の記載など、ガイドライン違反の口コミは審査のうえ削除します。</strong>「評価が低い」という理由だけでの削除には応じられませんが、相談所側からの返信機能（公開コメント）を用意しており、誤解への説明や対応の姿勢を示すことができます。
+        </div>
+        <div class="qa-a-note">※ 口コミの健全性を保つことが、プラットフォーム全体の信頼につながるという考え方のもと、運用しています。</div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">競合相談所から嫌がらせの口コミを書かれるリスクはありませんか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          <strong>構造上、不可能です。</strong>口コミは、Kinda 経由で実際に面談を完了したユーザーにのみ発行される認証コードを使って初めて投稿できます。第三者が成りすまして書くことはできません。面談の実績に紐づいた口コミのみが掲載される仕組みです。
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">口コミがゼロの状態では、ユーザーに選ばれないのではないですか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          Kinda には<strong>「代理掲載」</strong>という仕組みがあります。Kinda 登録前にすでにお持ちの実績（自社サイトの体験談・お客様からいただいた感想文など）を、テキストでお送りいただければ、<strong>Kinda 運営が代わりに入力して掲載します。</strong>代理掲載には専用のバッジを表示し、透明性を担保しています。口コミがゼロの状態でも、これまでの実績を資産として活かすことができます。
+        </div>
+        <div class="qa-a-note">※ 代理掲載の手続きはすべて Kinda 運営が行います。掲載内容は事前にご確認いただけます。また、口コミは面談のたびに積み上がる資産でもあります。早期に参加した相談所ほど、プラットフォームの成長とともに実績が先行して蓄積されます。</div>
+      </div>
+    </div>
+
+    <!-- カテゴリ3 -->
+    <div class="category">
+      <div class="category-label">既存サービスとの比較</div>
+      <div class="category-line"></div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">ゼクシィ縁結びエージェント等に既に掲載しています。重複して掲載して問題ありませんか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          <strong>問題ありません。</strong>既存の掲載先とは集客チャネルが異なります。Kinda はカウンセラー個人への口コミと相性診断を軸にしており、「どの相談所にするか迷っている層」が中心です。既存サービスの代替ではなく、<strong>これまでリーチできていなかった層への追加チャネル</strong>としてご活用いただけます。
+        </div>
+      </div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">自社サイトやSNSで集客できているので、必要性を感じません。</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          それは素晴らしいことです。Kinda はその集客を置き換えるものではなく、<strong>「口コミで比較検討したい」という層への入口を増やすもの</strong>です。初期費用ゼロ・成果報酬のみのため、予約が来なければ費用はかかりません。リスクなしで試せるチャネルとして並走させていただくことをご提案しています。
+        </div>
+      </div>
+    </div>
+
+    <!-- カテゴリ4 -->
+    <div class="category">
+      <div class="category-label">運用・実務</div>
+      <div class="category-line"></div>
+    </div>
+
+    <div class="qa">
+      <div class="qa-q">
+        <div class="qa-q-badge">Q</div>
+        <div class="qa-q-text">掲載後、こちら側は何をすればいいですか？手間はかかりますか？</div>
+      </div>
+      <div class="qa-a">
+        <div class="qa-a-text">
+          基本的には<strong>予約通知を受け取り、面談をしていただくだけ</strong>です。プロフィール・空き枠の管理はカウンセラー専用の管理画面から行います。口コミへの返信は任意です。初期設定は Kinda がサポートしますので、ITに不慣れな方でも問題ありません。
+        </div>
+        <div class="qa-a-note">※ 初期設定・プロフィール登録は、ご契約後に Kinda 担当者が個別にご案内します。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      Kinda ふたりへ　—　掲載・導入のご相談<br>
+      kinda.futarive.jp
+    </div>
+    <div class="footer-cta">掲載のご相談はこちら</div>
+  </div>
+
+</div>
+</body>
+</html>
