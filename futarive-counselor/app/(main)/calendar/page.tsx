@@ -583,6 +583,8 @@ export default function CalendarPage() {
             daysCount={viewMode === 'day' ? 1 : 7}
             onSlotClick={handleSlotClick}
             onAddSlot={handleAddSlotFromGrid}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
           />
         )}
       </div>
