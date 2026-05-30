@@ -31,6 +31,7 @@ export default function InboxPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const router = useRouter()
+  const [tab, setTab] = useState<'work' | 'all'>('work')
   // クローズ列の表示件数（最初は 20、ボタンで +20 ずつ増やす）
   const CLOSED_PAGE_SIZE = 20
   const [closedVisibleCount, setClosedVisibleCount] = useState(CLOSED_PAGE_SIZE)
@@ -165,17 +166,31 @@ export default function InboxPage() {
 
   return (
     <div style={{ padding: '28px 24px', maxWidth: 1280, paddingBottom: 80 }}>
-      <h1 className="page-title" style={{ marginBottom: 8 }}>やるべきこと</h1>
+      <h1 className="page-title" style={{ marginBottom: 8 }}>予約</h1>
       <p style={{
         fontSize: 13,
         color: 'var(--text-mid)',
-        margin: '0 0 18px',
+        margin: '0 0 16px',
         lineHeight: 1.7,
         maxWidth: 720,
       }}>
-        ふたりへから届いた予約を、対応状況ごとに整理して表示します。
-        左の列ほど早めの対応が必要です。
+        {tab === 'work'
+          ? 'ふたりへから届いた予約を、対応状況ごとに整理して表示します。左の列ほど早めの対応が必要です。'
+          : '予定・過去のすべての予約を一覧で確認できます。カードを選ぶと日程調整・メッセージ・完了処理ができます。'}
       </p>
+
+      {/* タブ切替：やること（カンバン）/ すべての予約（一覧） */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 18 }}>
+        {([['work', 'やること'], ['all', 'すべての予約']] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`kc-btn kc-btn-sm ${tab === key ? 'kc-btn-primary' : 'kc-btn-ghost'}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       {/* スコープ切替 + カレンダーへのリンク */}
       <div style={{
@@ -261,7 +276,7 @@ export default function InboxPage() {
             </span>
           </p>
         </div>
-      ) : (
+      ) : tab === 'work' ? (
         <div className="inbox-kanban">
           <KanbanColumn
             column="pending"
@@ -303,8 +318,83 @@ export default function InboxPage() {
             emptyText="クローズ済みはまだありません"
           />
         </div>
+      ) : (
+        <AllReservationsList reservations={reservations} onOpen={handleOpenReservation} />
       )}
 
     </div>
+  )
+}
+
+/** 「すべての予約」タブ：予定 / 過去 の一覧（旧・予約管理ページの内容を統合） */
+function AllReservationsList({ reservations, onOpen }: { reservations: Reservation[]; onOpen: (r: Reservation) => void }) {
+  const upcoming = reservations
+    .filter(r => r.status === 'active')
+    .sort((a, b) => new Date(a.start_at ?? 0).getTime() - new Date(b.start_at ?? 0).getTime())
+  const past = reservations
+    .filter(r => r.status !== 'active')
+    .sort((a, b) => new Date(b.start_at ?? b.created_at).getTime() - new Date(a.start_at ?? a.created_at).getTime())
+
+  return (
+    <div style={{ maxWidth: 700 }}>
+      {upcoming.length > 0 && (
+        <section style={{ marginBottom: 32 }}>
+          <p className="eyebrow" style={{ marginBottom: 12 }}>予定</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {upcoming.map(r => <ReservationCard key={r.id} r={r} onClick={() => onOpen(r)} />)}
+          </div>
+        </section>
+      )}
+      {past.length > 0 && (
+        <section>
+          <p className="eyebrow" style={{ marginBottom: 12 }}>過去の予約</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {past.map(r => <ReservationCard key={r.id} r={r} onClick={() => onOpen(r)} />)}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function ReservationCard({ r, onClick }: { r: Reservation; onClick: () => void }) {
+  const isPendingUserRequest = r.reschedule_status === 'requested' && r.reschedule_requested_by === 'user'
+  const isPendingCounselorRequest = r.reschedule_status === 'requested' && r.reschedule_requested_by === 'counselor'
+
+  const dateStr = r.start_at
+    ? new Date(r.start_at).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })
+    : '日時未定'
+  const timeStr = r.start_at && r.end_at
+    ? `${new Date(r.start_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })} – ${new Date(r.end_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`
+    : ''
+
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
+        background: 'var(--card)',
+        border: `1px solid ${isPendingUserRequest ? 'var(--accent)' : 'var(--border)'}`,
+        borderRadius: 14, cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'background .15s',
+      }}
+    >
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-deep)' }}>{r.user_name}</span>
+          {isPendingUserRequest && <span className="kc-badge kc-badge-urgent" style={{ fontSize: 10 }}>日程変更申請あり</span>}
+          {isPendingCounselorRequest && <span className="kc-badge kc-badge-booking" style={{ fontSize: 10 }}>了承待ち</span>}
+          {r.status === 'canceled' && (
+            <span style={{ fontSize: 10, background: 'var(--bg-elev)', color: 'var(--text-mid)', borderRadius: 6, padding: '2px 8px' }}>キャンセル済み</span>
+          )}
+          {r.status === 'completed' && <span className="kc-badge kc-badge-booking" style={{ fontSize: 10 }}>完了</span>}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-mid)' }}>
+          {dateStr}{timeStr ? `　${timeStr}` : ''}{r.meeting_type ? `　${r.meeting_type}` : ''}
+        </div>
+      </div>
+      <svg style={{ flexShrink: 0 }} width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M5 3l4 4-4 4" stroke="var(--text-light)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    </button>
   )
 }

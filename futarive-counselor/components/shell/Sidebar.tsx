@@ -30,7 +30,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/inbox',
-    label: 'やるべきこと',
+    label: '予約',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path d="M2 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
@@ -66,16 +66,6 @@ const NAV_ITEMS = [
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
         <path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-      </svg>
-    ),
-  },
-  {
-    href: '/reservations',
-    label: '予約管理',
-    icon: (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5Z" stroke="currentColor" strokeWidth="1.4"/>
-        <path d="M5 2v4M11 2v4M2 9h12M5.5 12h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
