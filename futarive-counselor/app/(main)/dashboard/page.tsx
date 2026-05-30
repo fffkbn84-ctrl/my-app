@@ -22,7 +22,7 @@ interface Stats {
   totalReviews: number
 }
 
-type TodoType = 'urgent' | 'reply' | 'booking' | 'rec' | 'profile-aging' | 'profile-stale'
+type TodoType = 'reschedule' | 'urgent' | 'reply' | 'booking' | 'rec' | 'profile-aging' | 'profile-stale'
 interface TodoItem {
   type: TodoType
   label: string
@@ -37,6 +37,15 @@ function getDayString() {
 }
 
 function todoTag(type: TodoType): { label: string; className?: string; style?: React.CSSProperties } {
+  if (type === 'reschedule') {
+    return {
+      label: '要・確認',
+      style: {
+        background: '#FFF1E6', color: '#B45309', fontSize: 11, fontWeight: 700,
+        padding: '5px 11px', borderRadius: 999, whiteSpace: 'nowrap', letterSpacing: '.04em',
+      },
+    }
+  }
   if (type === 'urgent') return { label: '要・返信', className: 'todo-tag todo-tag-urgent' }
   if (type === 'reply') return { label: 'お礼', className: 'todo-tag todo-tag-reply' }
   if (type === 'booking') return { label: '要・準備', className: 'todo-tag todo-tag-booking' }
@@ -206,6 +215,16 @@ export default function DashboardPage() {
     type UR = { id: string; start_at: string | null; notes: string | null; agency_message: string | null; shared_kinda_type_key: string | null; shared_kinda_note_key: string | null }
     const upcoming = (upcomingRows as UR[] | null) ?? []
 
+    // ユーザーからの日程変更申請（カウンセラーの了承待ち）— 期間問わず active 全件
+    const { data: reschedRows } = await supabase
+      .from('reservations')
+      .select('id')
+      .in('counselor_id', ids)
+      .eq('status', 'active')
+      .eq('reschedule_status', 'requested')
+      .eq('reschedule_requested_by', 'user')
+    const reschedPending = (reschedRows as { id: string }[] | null) ?? []
+
     // 今日・明日・直近の予約 をカウント。
     // 「ちいさなしなきゃ」は『今日と明日の予定』『未返信質問』『近日の事前共有あり』を全部見えるように。
     const now2 = new Date()
@@ -225,9 +244,10 @@ export default function DashboardPage() {
       const t = new Date(r.start_at).getTime()
       return t >= tomorrow.getTime() && t < dayAfter.getTime()
     }).length
-    const needsReplyCount = upcoming.filter(
+    const needsReplyList = upcoming.filter(
       (r) => r.notes && r.notes.trim().length > 0 && !r.agency_message,
-    ).length
+    )
+    const needsReplyCount = needsReplyList.length
     // 今日も明日もない場合でも「直近 N 件の予約」表示は出す
     const upcomingTotalCount = upcoming.length
 
@@ -243,13 +263,22 @@ export default function DashboardPage() {
     const newTodos: TodoItem[] = []
 
     // ─── 予約系（最優先）— ユーザー満足度に直結するため上位に積む ───
+    // 0) ユーザーからの日程変更申請（最優先・了承待ち）。1件ならその予約へ直行
+    if (reschedPending.length > 0) {
+      newTodos.push({
+        type: 'reschedule',
+        label: `ユーザーから日程変更の申請が${reschedPending.length}件あります。内容を確認して了承しましょう`,
+        action: reschedPending.length === 1 ? '日程を確認する' : '予約を開く',
+        href: reschedPending.length === 1 ? `/reservations/${reschedPending[0].id}` : '/inbox',
+      })
+    }
     // 1) 質問付き未返信予約（最重要・要返信）— 事前に伝えたいことに記述あり & 未返信
     if (needsReplyCount > 0) {
       newTodos.push({
         type: 'urgent',
         label: `予約者からの質問が${needsReplyCount}件届いています。24時間以内に返信しましょう`,
         action: 'すぐに返信する',
-        href: '/inbox',
+        href: needsReplyCount === 1 ? `/reservations/${needsReplyList[0].id}` : '/inbox',
       })
     }
     // 2) 今日の面談リマインダー
