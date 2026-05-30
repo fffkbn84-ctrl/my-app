@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
   cancelReservationViaRpc,
   requestRescheduleViaRpc,
   approveRescheduleViaRpc,
   isCancellable,
-  isWithinBillingGrace,
 } from "@/lib/reservations";
 import { AGENCIES, type Agency } from "@/lib/data";
 import InfoTooltip from "@/components/ui/InfoTooltip";
@@ -31,7 +31,6 @@ type ReservationRow = {
   created_at: string;
   agency_message: string | null;
   agency_message_at: string | null;
-  // 026 reschedule fields
   cancelled_by: "user" | "counselor" | "system" | null;
   reschedule_status: "requested" | "approved" | "expired" | null;
   reschedule_requested_by: "user" | "counselor" | null;
@@ -70,6 +69,14 @@ type CounselorInfo = {
   message?: string | null;
   ratingAvg?: number | null;
   reviewCount?: number | null;
+  fee?: string | null;
+};
+
+type SlotRow = {
+  id: string;
+  start_at: string;
+  end_at: string;
+  meeting_type: "対面" | "オンライン" | null;
 };
 
 const DEFAULT_INFO: AgencyInfo = {
@@ -94,21 +101,39 @@ function formatDateTimeShort(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+function formatDateLabel(iso: string): string {
+  const d = new Date(iso);
+  const w = ["日", "月", "火", "水", "木", "金", "土"];
+  return `${d.getMonth() + 1}月${d.getDate()}日（${w[d.getDay()]}）`;
+}
+
+function formatTimeRange(startIso: string, endIso: string): string {
+  const s = new Date(startIso);
+  const e = new Date(endIso);
+  return `${String(s.getHours()).padStart(2, "0")}:${String(s.getMinutes()).padStart(2, "0")} 〜 ${String(e.getHours()).padStart(2, "0")}:${String(e.getMinutes()).padStart(2, "0")}`;
+}
+
 // ── キャンセル確認モーダル ────────────────────────────────────
+// 表示するのは「相談所のキャンセルポリシー」のみ。
+// Kinda の課金・返金ルールはユーザーには見せない。
 function CancelModal({
   row,
+  agencyInfo,
+  counselorFee,
   onConfirm,
   onClose,
   loading,
 }: {
   row: ReservationRow;
+  agencyInfo: AgencyInfo;
+  counselorFee?: string | null;
   onConfirm: () => void;
   onClose: () => void;
   loading: boolean;
 }) {
-  const withinGrace = isWithinBillingGrace(row.created_at);
-  const graceUntil = new Date(row.created_at);
-  graceUntil.setHours(graceUntil.getHours() + 24);
+  // 有料面談かどうか（counselors.fee が '無料' / null / undefined 以外）
+  const isPaidSession =
+    counselorFee != null && counselorFee !== "" && counselorFee !== "無料";
 
   return (
     <div
@@ -145,12 +170,14 @@ function CancelModal({
         >
           この予約をキャンセルしますか？
         </p>
+
+        {/* 予約サマリ */}
         <div
           style={{
             background: "var(--pale)",
             borderRadius: 12,
             padding: "14px 16px",
-            marginBottom: 20,
+            marginBottom: 16,
             fontSize: 12,
             color: "var(--mid)",
             lineHeight: 1.9,
@@ -163,36 +190,29 @@ function CancelModal({
           <p>{formatDateTimeJa(row.start_at)}</p>
         </div>
 
-        <div
-          style={{
-            border: `1px solid ${withinGrace ? "rgba(122,158,135,.3)" : "rgba(212,168,90,.3)"}`,
-            background: withinGrace ? "rgba(122,158,135,.06)" : "rgba(212,168,90,.06)",
-            borderRadius: 10,
-            padding: "12px 14px",
-            marginBottom: 20,
-            fontSize: 12,
-            color: "var(--mid)",
-            lineHeight: 1.8,
-          }}
-        >
-          {withinGrace ? (
-            <p>
-              予約成立から24時間以内のため、<strong style={{ color: "var(--ink)" }}>返金対応</strong>します。
-              <br />
-              <span style={{ fontSize: 11, color: "var(--muted)" }}>
-                返金期限：{formatDateTimeShort(graceUntil.toISOString())}まで
-              </span>
-            </p>
-          ) : (
-            <p>
-              予約成立から24時間を過ぎているため、<strong style={{ color: "#B45309" }}>送客料が発生</strong>します。
-              <br />
-              <span style={{ fontSize: 11, color: "var(--muted)" }}>
-                ※ ユーザーへの費用請求はありません
-              </span>
-            </p>
-          )}
-        </div>
+        {/* キャンセルポリシー（相談所のポリシー or 有料面談時の注意） */}
+        {(agencyInfo.cancelPolicy || isPaidSession) && (
+          <div
+            style={{
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+              padding: "12px 14px",
+              marginBottom: 20,
+              fontSize: 12,
+              color: "var(--mid)",
+              lineHeight: 1.8,
+            }}
+          >
+            {isPaidSession && (
+              <p style={{ marginBottom: agencyInfo.cancelPolicy ? 8 : 0, color: "var(--ink)" }}>
+                ※ この面談には料金が発生します（{counselorFee}）。
+              </p>
+            )}
+            {agencyInfo.cancelPolicy && (
+              <p>{agencyInfo.cancelPolicy}</p>
+            )}
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: 10 }}>
           <button
@@ -236,37 +256,56 @@ function CancelModal({
   );
 }
 
-// ── 日程変更申請モーダル ─────────────────────────────────────
+// ── 日程変更申請モーダル（カレンダー式） ───────────────────────
+// カウンセラーの空き枠（slots）を取得して表示する。
+// 空き枠がない場合はメッセージを表示して直接連絡を促す。
 function RescheduleModal({
+  counselorId,
+  supabase,
   onConfirm,
   onClose,
   loading,
 }: {
+  counselorId: string | null;
+  supabase: SupabaseClient | null;
   onConfirm: (start: string, end: string) => void;
   onClose: () => void;
   loading: boolean;
 }) {
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [err, setErr] = useState("");
+  const [slots, setSlots] = useState<SlotRow[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(true);
+  const [selected, setSelected] = useState<SlotRow | null>(null);
+
+  useEffect(() => {
+    if (!supabase || !counselorId) {
+      setSlotsLoading(false);
+      return;
+    }
+    (async () => {
+      const { data } = await supabase
+        .from("slots")
+        .select("id, start_at, end_at, meeting_type")
+        .eq("counselor_id", counselorId)
+        .eq("status", "open")
+        .gte("start_at", new Date().toISOString())
+        .order("start_at")
+        .limit(30);
+      setSlots((data as SlotRow[]) ?? []);
+      setSlotsLoading(false);
+    })();
+  }, [supabase, counselorId]);
+
+  // 日付ごとにグループ化
+  const grouped = slots.reduce<Record<string, SlotRow[]>>((acc, slot) => {
+    const label = formatDateLabel(slot.start_at);
+    if (!acc[label]) acc[label] = [];
+    acc[label].push(slot);
+    return acc;
+  }, {});
 
   const handleSubmit = () => {
-    if (!date || !startTime || !endTime) {
-      setErr("日付・開始時刻・終了時刻をすべて入力してください。");
-      return;
-    }
-    const start = new Date(`${date}T${startTime}:00`);
-    const end = new Date(`${date}T${endTime}:00`);
-    if (end <= start) {
-      setErr("終了時刻は開始時刻より後にしてください。");
-      return;
-    }
-    if (start < new Date()) {
-      setErr("過去の日時は指定できません。");
-      return;
-    }
-    onConfirm(start.toISOString(), end.toISOString());
+    if (!selected) return;
+    onConfirm(selected.start_at, selected.end_at);
   };
 
   return (
@@ -288,9 +327,12 @@ function RescheduleModal({
           background: "#fff",
           borderRadius: 20,
           padding: "28px 24px",
-          maxWidth: 400,
+          maxWidth: 420,
           width: "100%",
           boxShadow: "0 16px 48px rgba(0,0,0,0.16)",
+          maxHeight: "80vh",
+          display: "flex",
+          flexDirection: "column",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -300,80 +342,97 @@ function RescheduleModal({
             fontSize: 17,
             color: "var(--ink)",
             marginBottom: 6,
+            flexShrink: 0,
           }}
         >
           日程変更を申請する
         </p>
-        <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 20, lineHeight: 1.7 }}>
-          希望日時をカウンセラーに伝えます。了承されると新しい予約が作成されます。
-          申請後、現在の予約への送客料は一旦返金されます。
+        <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 16, lineHeight: 1.7, flexShrink: 0 }}>
+          希望する日時を選んでください。カウンセラーが確認後、改めてご連絡します。
         </p>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
-          <label style={{ fontSize: 11, color: "var(--muted)" }}>
-            希望日
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              min={new Date().toISOString().split("T")[0]}
-              style={{
-                display: "block",
-                width: "100%",
-                marginTop: 4,
-                padding: "10px 12px",
-                border: "1px solid var(--border)",
-                borderRadius: 10,
-                fontSize: 14,
-                color: "var(--ink)",
-              }}
-            />
-          </label>
-          <div style={{ display: "flex", gap: 10 }}>
-            <label style={{ flex: 1, fontSize: 11, color: "var(--muted)" }}>
-              開始時刻
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  marginTop: 4,
-                  padding: "10px 12px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 10,
-                  fontSize: 14,
-                  color: "var(--ink)",
-                }}
-              />
-            </label>
-            <label style={{ flex: 1, fontSize: 11, color: "var(--muted)" }}>
-              終了時刻
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                style={{
-                  display: "block",
-                  width: "100%",
-                  marginTop: 4,
-                  padding: "10px 12px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 10,
-                  fontSize: 14,
-                  color: "var(--ink)",
-                }}
-              />
-            </label>
-          </div>
+        {/* 空き枠リスト */}
+        <div style={{ overflowY: "auto", flex: 1, marginBottom: 16 }}>
+          {slotsLoading ? (
+            <p style={{ fontSize: 13, color: "var(--muted)", textAlign: "center", padding: "20px 0" }}>
+              空き枠を確認中…
+            </p>
+          ) : Object.keys(grouped).length === 0 ? (
+            <div style={{ textAlign: "center", padding: "20px 0" }}>
+              <p style={{ fontSize: 13, color: "var(--mid)", marginBottom: 8 }}>
+                現在、空き枠がありません。
+              </p>
+              <p style={{ fontSize: 12, color: "var(--muted)", lineHeight: 1.7 }}>
+                カウンセラーに直接ご連絡いただくか、
+                <br />しばらくしてからもう一度お試しください。
+              </p>
+            </div>
+          ) : (
+            Object.entries(grouped).map(([dateLabel, daySlots]) => (
+              <div key={dateLabel} style={{ marginBottom: 16 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    color: "var(--muted)",
+                    letterSpacing: ".06em",
+                    marginBottom: 8,
+                    paddingBottom: 4,
+                    borderBottom: "1px solid var(--pale)",
+                  }}
+                >
+                  {dateLabel}
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {daySlots.map((slot) => {
+                    const isSelected = selected?.id === slot.id;
+                    return (
+                      <button
+                        key={slot.id}
+                        type="button"
+                        onClick={() => setSelected(slot)}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "10px 14px",
+                          borderRadius: 10,
+                          border: isSelected
+                            ? "1.5px solid var(--accent)"
+                            : "1px solid var(--border)",
+                          background: isSelected ? "rgba(212,168,90,.07)" : "white",
+                          cursor: "pointer",
+                          textAlign: "left",
+                          transition: "border-color .15s, background .15s",
+                        }}
+                      >
+                        <span style={{ fontSize: 13, color: "var(--ink)" }}>
+                          {formatTimeRange(slot.start_at, slot.end_at)}
+                        </span>
+                        {slot.meeting_type && (
+                          <span
+                            style={{
+                              fontSize: 10,
+                              color: "var(--muted)",
+                              background: "var(--pale)",
+                              padding: "2px 8px",
+                              borderRadius: 20,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {slot.meeting_type}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
-        {err && (
-          <p style={{ fontSize: 12, color: "var(--rose)", marginBottom: 12 }}>{err}</p>
-        )}
-
-        <div style={{ display: "flex", gap: 10 }}>
+        {/* ボタン */}
+        <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
           <button
             type="button"
             onClick={onClose}
@@ -394,17 +453,18 @@ function RescheduleModal({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || !selected || Object.keys(grouped).length === 0}
             style={{
               flex: 1,
               padding: "12px",
               borderRadius: 50,
               border: "none",
-              background: "var(--accent)",
+              background: selected ? "var(--accent)" : "var(--border)",
               fontSize: 13,
-              color: "white",
-              cursor: loading ? "not-allowed" : "pointer",
+              color: selected ? "white" : "var(--muted)",
+              cursor: loading || !selected ? "not-allowed" : "pointer",
               opacity: loading ? 0.6 : 1,
+              transition: "background .15s",
             }}
           >
             {loading ? "送信中…" : "申請する"}
@@ -460,6 +520,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       setRow(r);
       setCounselorId(r.counselor_id);
 
+      // 相談所情報
       let info: AgencyInfo = { ...DEFAULT_INFO };
       const AGENCY_COLUMNS =
         "id, name, area, address, access, business_hours_text, closed_weekdays, directions, phone, email, cancel_deadline_hours, cancel_policy";
@@ -540,8 +601,9 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       }
       setAgencyInfo(info);
 
+      // カウンセラー情報（fee を含む）
       const COUNSELOR_COLUMNS =
-        "id, name, area, photo_url, specialties, years_of_experience, experience_label, catchphrase, message, rating_avg, review_count";
+        "id, name, area, photo_url, specialties, years_of_experience, experience_label, catchphrase, message, rating_avg, review_count, fee";
       let counselorQuery = null;
       if (r.counselor_id && /^[0-9a-f-]{36}$/i.test(r.counselor_id)) {
         counselorQuery = await supabase
@@ -569,6 +631,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           message: string | null;
           rating_avg: number | null;
           review_count: number | null;
+          fee: string | null;
         };
         setCounselorInfo({
           id: c.id,
@@ -582,14 +645,13 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           message: c.message,
           ratingAvg: c.rating_avg,
           reviewCount: c.review_count,
+          fee: c.fee,
         });
       }
 
       setLoading(false);
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [authLoading, user, supabase, reservationId]);
 
   const handleCancelConfirm = async () => {
@@ -689,6 +751,8 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       {showCancelModal && row && (
         <CancelModal
           row={row}
+          agencyInfo={agencyInfo}
+          counselorFee={counselorInfo?.fee}
           onConfirm={handleCancelConfirm}
           onClose={() => setShowCancelModal(false)}
           loading={actionLoading}
@@ -696,6 +760,8 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       )}
       {showRescheduleModal && (
         <RescheduleModal
+          counselorId={counselorId}
+          supabase={supabase}
           onConfirm={handleRescheduleConfirm}
           onClose={() => setShowRescheduleModal(false)}
           loading={actionLoading}
@@ -1069,14 +1135,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {counselorInfo.specialties && counselorInfo.specialties.length > 0 && (
                 <div>
-                  <p
-                    style={{
-                      fontSize: 10,
-                      color: "var(--muted)",
-                      letterSpacing: ".06em",
-                      marginBottom: 4,
-                    }}
-                  >
+                  <p style={{ fontSize: 10, color: "var(--muted)", letterSpacing: ".06em", marginBottom: 4 }}>
                     専門分野
                   </p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
@@ -1098,13 +1157,10 @@ export default function ReservationDetailClient({ reservationId }: { reservation
                 </div>
               )}
               {(counselorInfo.experienceLabel ||
-                (counselorInfo.yearsOfExperience != null &&
-                  counselorInfo.yearsOfExperience > 0)) && (
+                (counselorInfo.yearsOfExperience != null && counselorInfo.yearsOfExperience > 0)) && (
                 <Row
                   label="経歴・実績"
-                  value={
-                    counselorInfo.experienceLabel ?? `${counselorInfo.yearsOfExperience}年`
-                  }
+                  value={counselorInfo.experienceLabel ?? `${counselorInfo.yearsOfExperience}年`}
                 />
               )}
               {counselorInfo.catchphrase && (
@@ -1148,14 +1204,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
               transition: "transform .2s, box-shadow .2s",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 12,
-              }}
-            >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p
                   style={{
@@ -1169,45 +1218,20 @@ export default function ReservationDetailClient({ reservationId }: { reservation
                 >
                   所属相談所
                 </p>
-                <p
-                  style={{
-                    fontFamily: "var(--font-mincho)",
-                    fontSize: 15,
-                    color: "var(--ink)",
-                    marginBottom: 4,
-                  }}
-                >
+                <p style={{ fontFamily: "var(--font-mincho)", fontSize: 15, color: "var(--ink)", marginBottom: 4 }}>
                   {agencyInfo.name}
                 </p>
-                {agencyInfo.area && (
-                  <p style={{ fontSize: 11, color: "var(--muted)" }}>{agencyInfo.area}</p>
-                )}
+                {agencyInfo.area && <p style={{ fontSize: 11, color: "var(--muted)" }}>{agencyInfo.area}</p>}
               </div>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                aria-hidden="true"
-                style={{ color: "var(--accent)", flexShrink: 0 }}
-              >
-                <path
-                  d="M5 2l5 5-5 5"
-                  stroke="currentColor"
-                  strokeWidth="1.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true" style={{ color: "var(--accent)", flexShrink: 0 }}>
+                <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
           </Link>
         )}
 
         {/* 相談所情報 */}
-        {(agencyInfo.address ||
-          agencyInfo.access ||
-          agencyInfo.hours ||
-          agencyInfo.directions) && (
+        {(agencyInfo.address || agencyInfo.access || agencyInfo.hours || agencyInfo.directions) && (
           <section
             style={{
               background: "white",
@@ -1239,14 +1263,7 @@ export default function ReservationDetailClient({ reservationId }: { reservation
               )}
             </div>
             {mapsQuery && (
-              <div
-                style={{
-                  marginTop: 16,
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  border: "1px solid var(--pale)",
-                }}
-              >
+              <div style={{ marginTop: 16, borderRadius: 12, overflow: "hidden", border: "1px solid var(--pale)" }}>
                 <iframe
                   title="Google マップ"
                   src={`https://www.google.com/maps?q=${encodeURIComponent(mapsQuery)}&output=embed`}
@@ -1285,14 +1302,9 @@ export default function ReservationDetailClient({ reservationId }: { reservation
                   }}
                 >
                   <span>
-                    {agencyInfo.cancelPolicy ??
-                      "面談前であればマイページからキャンセルできます。"}
+                    {agencyInfo.cancelPolicy ?? "面談前であればマイページからキャンセルできます。"}
                   </span>
-                  <InfoTooltip
-                    ariaLabel="キャンセル規定の詳細を見る"
-                    variant="muted"
-                    align="left-anchor"
-                  >
+                  <InfoTooltip ariaLabel="キャンセル規定の詳細を見る" variant="muted" align="left-anchor">
                     <CancelPolicyTooltipContent
                       policy={agencyInfo.cancelPolicy}
                       phone={agencyInfo.phone}
@@ -1339,43 +1351,17 @@ export default function ReservationDetailClient({ reservationId }: { reservation
               </>
             ) : (
               <>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "var(--mid)",
-                    lineHeight: 1.8,
-                    marginBottom: 10,
-                  }}
-                >
+                <p style={{ fontSize: 12, color: "var(--mid)", lineHeight: 1.8, marginBottom: 10 }}>
                   マイページからのキャンセル期限を過ぎました。お手数ですが相談所へ直接ご連絡ください。
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: 13 }}>
                   {agencyInfo.phone && (
                     <a
                       href={`tel:${agencyInfo.phone}`}
-                      style={{
-                        color: "var(--accent)",
-                        textDecoration: "none",
-                        borderBottom: "1px solid var(--accent)",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
+                      style={{ color: "var(--accent)", textDecoration: "none", borderBottom: "1px solid var(--accent)", display: "inline-flex", alignItems: "center", gap: 6 }}
                     >
-                      <svg
-                        width="13"
-                        height="13"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M3 2l2 1-1 2c1 2 3 4 5 5l2-1 1 2-2 2c-4 0-9-5-9-9l2-2z"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                          strokeLinejoin="round"
-                          fill="none"
-                        />
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M3 2l2 1-1 2c1 2 3 4 5 5l2-1 1 2-2 2c-4 0-9-5-9-9l2-2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="none" />
                       </svg>
                       {agencyInfo.phone}
                     </a>
@@ -1383,38 +1369,11 @@ export default function ReservationDetailClient({ reservationId }: { reservation
                   {agencyInfo.email && (
                     <a
                       href={`mailto:${agencyInfo.email}`}
-                      style={{
-                        color: "var(--accent)",
-                        textDecoration: "none",
-                        borderBottom: "1px solid var(--accent)",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                      }}
+                      style={{ color: "var(--accent)", textDecoration: "none", borderBottom: "1px solid var(--accent)", display: "inline-flex", alignItems: "center", gap: 6 }}
                     >
-                      <svg
-                        width="13"
-                        height="13"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <rect
-                          x="1.5"
-                          y="3"
-                          width="11"
-                          height="8"
-                          rx="1"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                          fill="none"
-                        />
-                        <path
-                          d="M2 4l5 4 5-4"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                          fill="none"
-                        />
+                      <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <rect x="1.5" y="3" width="11" height="8" rx="1" stroke="currentColor" strokeWidth="1.2" fill="none" />
+                        <path d="M2 4l5 4 5-4" stroke="currentColor" strokeWidth="1.2" fill="none" />
                       </svg>
                       {agencyInfo.email}
                     </a>
@@ -1443,26 +1402,11 @@ export default function ReservationDetailClient({ reservationId }: { reservation
   );
 }
 
-function Row({
-  label,
-  value,
-  multiline,
-}: {
-  label: string;
-  value: string;
-  multiline?: boolean;
-}) {
+function Row({ label, value, multiline }: { label: string; value: string; multiline?: boolean }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <span style={{ fontSize: 10, color: "var(--muted)", letterSpacing: ".06em" }}>{label}</span>
-      <span
-        style={{
-          fontSize: 13,
-          color: "var(--ink)",
-          lineHeight: 1.7,
-          whiteSpace: multiline ? "pre-line" : "normal",
-        }}
-      >
+      <span style={{ fontSize: 13, color: "var(--ink)", lineHeight: 1.7, whiteSpace: multiline ? "pre-line" : "normal" }}>
         {value}
       </span>
     </div>
