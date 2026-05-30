@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinda ふたりへ — 営業台本</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --beige: #F5EEE6;
+    --rose: #D4A090;
+    --rose-dark: #B8796A;
+    --rose-light: #F0DDD7;
+    --rose-bg: #fdf9f7;
+    --text: #3A2E2A;
+    --text-mid: #7A6560;
+    --text-light: #B0968E;
+    --border: #E8D8D0;
+  }
+
+  body {
+    background: #EDE6DC;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+    font-family: 'Noto Serif JP', serif;
+  }
+
+  .doc {
+    width: 680px;
+    background: var(--beige);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(58,46,42,0.14);
+  }
+
+  /* ── ヘッダー ── */
+  .header {
+    background: var(--text);
+    padding: 36px 52px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(212,160,144,0.10);
+  }
+  .header-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .header-sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── 本体 ── */
+  .body { padding: 44px 52px 52px; }
+
+  /* パートヘッダー */
+  .part {
+    margin-bottom: 40px;
+  }
+  .part:last-child { margin-bottom: 0; }
+
+  .part-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .part-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--rose-light);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .part-title-wrap {}
+  .part-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5px;
+    letter-spacing: 0.38em;
+    color: var(--rose);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .part-title {
+    font-size: 16px;
+    color: var(--text);
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  /* メールブロック */
+  .email-block {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .email-block:last-child { margin-bottom: 0; }
+  .email-block-head {
+    background: var(--rose-bg);
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .email-block-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+  .email-block-desc {
+    font-size: 11px;
+    color: var(--text-light);
+    font-weight: 300;
+  }
+  .email-block-body {
+    padding: 20px 24px;
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 2.1;
+    font-weight: 300;
+  }
+  .email-block-body p { margin-bottom: 14px; }
+  .email-block-body p:last-child { margin-bottom: 0; }
+  .email-block-body strong { color: var(--text); font-weight: 400; }
+
+  /* 台本ブロック */
+  .script-block {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .script-block:last-child { margin-bottom: 0; }
+  .script-head {
+    background: var(--rose-bg);
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .script-head-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5px;
+    letter-spacing: 0.28em;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+  .script-head-time {
+    font-size: 10px;
+    color: var(--text-light);
+    font-weight: 300;
+  }
+  .script-body {
+    padding: 20px 24px;
+  }
+  .script-line {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+  }
+  .script-line:last-child { margin-bottom: 0; }
+  .script-speaker {
+    font-size: 10px;
+    color: var(--rose);
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    width: 28px;
+    padding-top: 2px;
+  }
+  .script-text {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+    flex: 1;
+  }
+  .script-text strong { color: var(--text); font-weight: 400; }
+  .script-note {
+    font-size: 11px;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.7;
+  }
+
+  /* 反論カード */
+  .objection {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .objection:last-child { margin-bottom: 0; }
+  .objection-q {
+    padding: 14px 20px;
+    background: var(--rose-bg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .objection-q-badge {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    color: var(--rose);
+    flex-shrink: 0;
+    line-height: 1.3;
+  }
+  .objection-q-text {
+    font-size: 12.5px;
+    color: var(--text);
+    line-height: 1.7;
+    font-weight: 400;
+  }
+  .objection-a {
+    padding: 14px 20px 14px 44px;
+    position: relative;
+  }
+  .objection-a::before {
+    content: 'A';
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    color: var(--text-light);
+    position: absolute;
+    left: 20px;
+    top: 14px;
+  }
+  .objection-a-text {
+    font-size: 12.5px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  .objection-a-text strong { color: var(--text); font-weight: 400; }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--border);
+    margin: 32px 0;
+  }
+
+  /* フッター */
+  .footer {
+    background: var(--rose-light);
+    padding: 22px 52px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border);
+  }
+  .footer-left {
+    font-size: 11px;
+    color: var(--text-mid);
+    line-height: 1.9;
+    font-weight: 300;
+  }
+  .footer-cta {
+    background: var(--rose);
+    color: #fff;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    padding: 10px 22px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="header">
+    <div class="header-eyebrow">Kinda ふたりへ</div>
+    <div class="header-title">営業台本</div>
+    <div class="header-sub">コールドメール返信後 → 面談 → 日程確定まで</div>
+  </div>
+
+  <div class="body">
+
+    <!-- Part 1 -->
+    <div class="part">
+      <div class="part-header">
+        <div class="part-num">01</div>
+        <div class="part-title-wrap">
+          <div class="part-label">First Reply</div>
+          <div class="part-title">返信への初回メール（日程調整）</div>
+        </div>
+      </div>
+
+      <div class="email-block">
+        <div class="email-block-head">
+          <div class="email-block-tag">パターン A</div>
+          <div class="email-block-desc">— 興味あり・前向きな返信が来た場合</div>
+        </div>
+        <div class="email-block-body">
+          <p>○○様<br>
+          ご返信いただきありがとうございます。ご関心をお持ちいただけて、大変うれしく思います。</p>
+          <p>ぜひ一度、詳しいご説明の機会をいただけますと幸いです。<strong>オンライン（Zoom）にて30分ほどお時間をいただけますか。</strong>ご都合のよい日時を2〜3候補いただけますと、すぐに調整いたします。</p>
+          <p>対面でのご説明も可能です。ご希望がございましたらお知らせください。<br>
+          どうぞよろしくお願いいたします。</p>
+          <p>Kinda 運営事務局</p>
+        </div>
+      </div>
+
+      <div class="email-block">
+        <div class="email-block-head">
+          <div class="email-block-tag">パターン B</div>
+          <div class="email-block-desc">— 「もう少し詳しく教えてほしい」という返信が来た場合</div>
+        </div>
+        <div class="email-block-body">
+          <p>○○様<br>
+          ご返信いただきありがとうございます。</p>
+          <p>簡単にご説明しますと、Kinda は<strong>カウンセラー個人への口コミ</strong>をもとにユーザーが相談所を選んで予約できるプラットフォームです。掲載費・初期費用は無料で、面談予約が成立した際のみ送客料 ¥5,000 が発生するシンプルな仕組みです。</p>
+          <p>詳細は添付の資料をご覧いただくとわかりやすいかと思います。ご不明点は<strong>オンラインにて直接ご説明</strong>できればと思いますが、いかがでしょうか。ご都合のよい日時を2〜3候補いただけますと幸いです。</p>
+          <p>Kinda 運営事務局</p>
+        </div>
+      </div>
+
+      <div class="email-block">
+        <div class="email-block-head">
+          <div class="email-block-tag">パターン C</div>
+          <div class="email-block-desc">— 「今は検討していない」「タイミングが合わない」という返信が来た場合</div>
+        </div>
+        <div class="email-block-body">
+          <p>○○様<br>
+          ご丁寧にご返信いただきありがとうございます。</p>
+          <p>承知いたしました。もしタイミングが合いましたら、いつでもご連絡ください。<strong>掲載費・初期費用は無料のため、興味が出たタイミングでお気軽にどうぞ。</strong></p>
+          <p>引き続きどうぞよろしくお願いいたします。<br>
+          Kinda 運営事務局</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Part 2 -->
+    <div class="part">
+      <div class="part-header">
+        <div class="part-num">02</div>
+        <div class="part-title-wrap">
+          <div class="part-label">Meeting Script</div>
+          <div class="part-title">面談本編の台本</div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-head">
+          <div class="script-head-label">Opening — 冒頭の掴み</div>
+          <div class="script-head-time">0〜2分</div>
+        </div>
+        <div class="script-body">
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              本日はお時間をいただきありがとうございます。Kinda 運営事務局の［氏名］です。<br>
+              まず30分ほどお時間をいただいて、サービスのご説明と、ご不明点へのお答えができればと思います。
+              <div class="script-note">※ 最初に「30分」と時間を明示する。相手の安心感につながる。</div>
+            </div>
+          </div>
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              早速ですが、○○様の相談所では、現在どのような方法で新規のお客様にお会いになっていますか？
+              <div class="script-note">※ 先に相手の現状を聞く。説明より先に「聞く」ことで、その後の説明を相手の文脈に合わせられる。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-head">
+          <div class="script-head-label">Explanation — サービス説明</div>
+          <div class="script-head-time">2〜15分</div>
+        </div>
+        <div class="script-body">
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              Kinda は一言で言うと、<strong>「@cosme や食べログの、結婚相談所版」</strong>です。ユーザーが、カウンセラー個人への口コミを見て、自分に合いそうな方を選んで予約できる仕組みになっています。
+            </div>
+          </div>
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              これまでの集客サービスと一番違うのは、<strong>「相談所単位」ではなく「カウンセラー個人単位」で選ばれる</strong>という点です。ユーザーにとっては、どの人に相談するかが一番大事なので、そこに口コミをつけました。
+            </div>
+          </div>
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              料金は、掲載費・初期費用は無料です。面談予約が成立したときのみ、送客料として ¥5,000 をいただく成果報酬型です。予約が来なければ費用はかかりません。
+              <div class="script-note">※ 料金の説明は短く。「無料・成果報酬・¥5,000」の3点だけ言えば十分。</div>
+            </div>
+          </div>
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              ここまでで、何かご質問はありますか？
+              <div class="script-note">※ 一方的に話しすぎない。必ずここで一度止めて相手に返す。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="script-block">
+        <div class="script-head">
+          <div class="script-head-label">Closing — クロージング・日程確定</div>
+          <div class="script-head-time">25〜30分</div>
+        </div>
+        <div class="script-body">
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              もし掲載をご検討いただけるようでしたら、次のステップとして<strong>契約書をお送りします。内容をご確認いただき、問題なければ署名いただく流れ</strong>になります。
+            </div>
+          </div>
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              今日すぐにご判断いただかなくて構いません。一度持ち帰って、ご検討いただいてからでも大丈夫です。<strong>ご検討後に、いつ頃ご連絡いただけそうですか？</strong>
+              <div class="script-note">※「持ち帰っていい」と言った上で「いつ返事をもらえるか」を必ず聞く。これがないと宙ぶらりんになる。</div>
+            </div>
+          </div>
+          <div class="script-line">
+            <div class="script-speaker">自</div>
+            <div class="script-text">
+              本日はお時間をいただきありがとうございました。ご不明点は随時メールでもお答えしますので、お気軽にご連絡ください。
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Part 3 -->
+    <div class="part">
+      <div class="part-header">
+        <div class="part-num">03</div>
+        <div class="part-title-wrap">
+          <div class="part-label">Objection Handling</div>
+          <div class="part-title">反論別・切り返し集</div>
+        </div>
+      </div>
+
+      <div class="objection">
+        <div class="objection-q">
+          <div class="objection-q-badge">Q</div>
+          <div class="objection-q-text">既存のサービス（ゼクシィ等）で集客できているので、今は必要ないです。</div>
+        </div>
+        <div class="objection-a">
+          <div class="objection-a-text">
+            それは素晴らしいですね。Kinda は既存の集客を置き換えるものではなく、<strong>「口コミで比較したい」層への別チャネル</strong>です。初期費用ゼロなので、試してみて予約が来なければ費用はかかりません。並走させていただく形でご検討いただけませんか。
+          </div>
+        </div>
+      </div>
+
+      <div class="objection">
+        <div class="objection-q">
+          <div class="objection-q-badge">Q</div>
+          <div class="objection-q-text">うちは小さい相談所なので、口コミがありません。選ばれないのでは？</div>
+        </div>
+        <div class="objection-a">
+          <div class="objection-a-text">
+            Kinda には<strong>代理掲載という仕組み</strong>があります。これまでの実績（自社サイトの体験談・お客様からいただいた感想など）をテキストでお送りいただければ、Kinda 運営が代わりに入力して掲載します。口コミゼロでも、すぐに実績を見せられる状態でスタートできます。
+          </div>
+        </div>
+      </div>
+
+      <div class="objection">
+        <div class="objection-q">
+          <div class="objection-q-badge">Q</div>
+          <div class="objection-q-text">悪い口コミを書かれたら困ります。</div>
+        </div>
+        <div class="objection-a">
+          <div class="objection-a-text">
+            口コミは、<strong>Kinda 経由で実際に面談を完了したユーザーにのみ発行される認証コードを使って初めて投稿できます。</strong>第三者の成りすましは構造上不可能です。また、誹謗中傷・虚偽はガイドライン違反として審査・削除します。相談所側から返信（公開コメント）を付けることもできます。
+          </div>
+        </div>
+      </div>
+
+      <div class="objection">
+        <div class="objection-q">
+          <div class="objection-q-badge">Q</div>
+          <div class="objection-q-text">¥5,000 という金額の根拠は何ですか？</div>
+        </div>
+        <div class="objection-a">
+          <div class="objection-a-text">
+            結婚相談所の初回面談から入会に至る確率と、入会後の収益を考えると、<strong>面談1件あたり ¥5,000 は既存の広告費用と比べてもリスクの低い水準</strong>です。予約が来なければゼロ円、来たら ¥5,000 という成果報酬なので、費用対効果は自然と担保されます。
+          </div>
+        </div>
+      </div>
+
+      <div class="objection">
+        <div class="objection-q">
+          <div class="objection-q-badge">Q</div>
+          <div class="objection-q-text">キャンセルになっても料金が発生するのはおかしくないですか？</div>
+        </div>
+        <div class="objection-a">
+          <div class="objection-a-text">
+            予約成立から<strong>24時間以内のキャンセルは全額返金</strong>します。24時間を過ぎた場合は、Kinda として集客・送客の役務を果たしている点から、原則として送客料が発生します。ただし、相談所都合またはユーザーの日程変更で別日の面談が了承された場合は返金対応します。
+          </div>
+        </div>
+      </div>
+
+      <div class="objection">
+        <div class="objection-q">
+          <div class="objection-q-badge">Q</div>
+          <div class="objection-q-text">まだ始まったばかりのサービスで、ユーザーがいるんですか？</div>
+        </div>
+        <div class="objection-a">
+          <div class="objection-a-text">
+            現在はSEOを軸にユーザー集客を進めています。正直に申し上げると、<strong>今はシード段階で、掲載相談所・ユーザー数ともにこれから増やしていくフェーズ</strong>です。だからこそ今が早期参加のタイミングで、口コミが積み上がるほど先行優位になります。初期費用ゼロなので、リスクを抑えて参加いただけます。
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-left">
+      Kinda ふたりへ　—　掲載・導入のご相談<br>
+      kinda.futarive.jp
+    </div>
+    <div class="footer-cta">掲載のご相談はこちら</div>
+  </div>
+
+</div>
+</body>
+</html>
