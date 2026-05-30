@@ -8,7 +8,7 @@ import { describeError } from '@/lib/errors'
 import type { Reservation } from '@/lib/types'
 import { KINDA_TYPE_LABEL, KINDA_NOTE_WEATHER, type KindaTypeKey } from '@/lib/diagnosisLabels'
 import { FRONTSITE_URL } from '@/lib/config'
-import { requestRescheduleAsCounselor, approveRescheduleAsCounselor } from '@/lib/reservations'
+import { requestRescheduleMultiAsCounselor, approveRescheduleAsCounselor } from '@/lib/reservations'
 
 interface SlotOption {
   id: string
@@ -55,7 +55,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   // 日程変更
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
   const [slots, setSlots] = useState<SlotOption[]>([])
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null)
+  const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([])
   const [rescheduleMessage, setRescheduleMessage] = useState('')
   const [submittingReschedule, setSubmittingReschedule] = useState(false)
   const [approving, setApproving] = useState(false)
@@ -190,36 +190,49 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
 
   const handleOpenReschedule = async () => {
     await loadSlots()
-    setSelectedSlot(null)
+    setSelectedSlotIds([])
     setRescheduleMessage('')
     setShowRescheduleModal(true)
   }
 
+  // 候補スロットのトグル（選んだ順を保持・最大3件）
+  const toggleSlot = (slotId: string) => {
+    setSelectedSlotIds(prev => {
+      if (prev.includes(slotId)) return prev.filter(id => id !== slotId)
+      if (prev.length >= 3) return prev
+      return [...prev, slotId]
+    })
+  }
+
   const handleRequestReschedule = async () => {
-    if (!selectedSlot || !reservation) return
+    if (!reservation || selectedSlotIds.length === 0) return
     const message = rescheduleMessage.trim()
     if (message.length === 0) {
       showToast('変更をお願いする理由・お詫びのメッセージを入力してください')
       return
     }
-    const slot = slots.find(s => s.id === selectedSlot)
-    if (!slot) return
+    const candidates = selectedSlotIds
+      .map(id => slots.find(s => s.id === id))
+      .filter((s): s is SlotOption => !!s)
+      .map(s => ({ start: s.start_at, end: s.end_at }))
+    if (candidates.length === 0) return
     setSubmittingReschedule(true)
     const supabase = createClient()
-    const result = await requestRescheduleAsCounselor(supabase, reservation.id, slot.start_at, slot.end_at)
+    const result = await requestRescheduleMultiAsCounselor(supabase, reservation.id, candidates)
     if (result.ok) {
       // 添えるメッセージはユーザーに見える agency_message として保存
       const nowIso = new Date().toISOString()
       await supabase.from('reservations').update({ agency_message: message, agency_message_at: nowIso }).eq('id', reservation.id)
       setSubmittingReschedule(false)
-      showToast('日程変更を提案しました。ユーザーの了承をお待ちください。')
+      showToast(`${candidates.length}件の候補で日程変更を提案しました。ユーザーの了承をお待ちください。`)
       setShowRescheduleModal(false)
       setReservation(prev => prev ? {
         ...prev,
         reschedule_status: 'requested',
         reschedule_requested_by: 'counselor',
-        reschedule_proposed_start: slot.start_at,
-        reschedule_proposed_end: slot.end_at,
+        reschedule_proposed_start: candidates[0].start,
+        reschedule_proposed_end: candidates[0].end,
+        reschedule_candidates: candidates,
         agency_message: message,
         agency_message_at: nowIso,
       } : prev)
@@ -332,11 +345,20 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
           </svg>
           <div>
             <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)', marginBottom: 4 }}>日程変更をユーザーに提案中</p>
-            {reservation.reschedule_proposed_start && (
-              <p style={{ fontSize: 12, color: 'var(--text-mid)' }}>
-                提案日時：{new Date(reservation.reschedule_proposed_start).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })}
-                {' '}{new Date(reservation.reschedule_proposed_start).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
-                {reservation.reschedule_expires_at && `（了承期限：${new Date(reservation.reschedule_expires_at).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}）`}
+            {(reservation.reschedule_candidates && reservation.reschedule_candidates.length > 0
+              ? reservation.reschedule_candidates
+              : reservation.reschedule_proposed_start
+                ? [{ start: reservation.reschedule_proposed_start, end: reservation.reschedule_proposed_end ?? reservation.reschedule_proposed_start }]
+                : []
+            ).map((c, i) => (
+              <p key={i} style={{ fontSize: 12, color: 'var(--text-mid)' }}>
+                第{i + 1}候補：{new Date(c.start).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })}
+                {' '}{new Date(c.start).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            ))}
+            {reservation.reschedule_expires_at && (
+              <p style={{ fontSize: 11, color: 'var(--text-light)', marginTop: 4 }}>
+                了承期限：{new Date(reservation.reschedule_expires_at).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' })}
               </p>
             )}
           </div>
