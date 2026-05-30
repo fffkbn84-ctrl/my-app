@@ -50,6 +50,16 @@ const NAV_ITEMS = [
     ),
   },
   {
+    href: '/reservations',
+    label: '予約管理',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 2v4M11 2v4M2 9h12M5.5 12h5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
     href: '/reviews',
     label: 'レビュー返信',
     icon: (
