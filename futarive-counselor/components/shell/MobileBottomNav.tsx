@@ -6,7 +6,7 @@ import Link from 'next/link'
 const NAV_ITEMS = [
   {
     href: '/dashboard',
-    label: 'ホーム',
+    label: '最初に\n見る',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M2 8L10 2l8 6v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8Z" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
@@ -15,12 +15,22 @@ const NAV_ITEMS = [
     ),
   },
   {
-    href: '/calendar',
-    label: '予約枠',
+    href: '/inbox',
+    label: 'やるべき\nこと',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <rect x="2" y="4" width="16" height="14" rx="2.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
-        <path d="M6 2v4M14 2v4M2 9h16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <path d="M3 11V5a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" fill={active ? 'var(--accent-pale)' : 'none'}/>
+        <path d="M3 11h4l1.2 2.4h3.6L13 11h4v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-4Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/profile',
+    label: 'プロフ',
+    icon: (active: boolean) => (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
+        <path d="M3 17c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
@@ -36,20 +46,10 @@ const NAV_ITEMS = [
   },
   {
     href: '/reviews',
-    label: 'レビュー',
+    label: '口コミ\n返信',
     icon: (active: boolean) => (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M3 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H7l-3.5 2.5V14H4a1 1 0 0 1-1-1V4Z" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
-      </svg>
-    ),
-  },
-  {
-    href: '/profile',
-    label: 'プロフィール',
-    icon: (active: boolean) => (
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.4" fill={active ? 'var(--accent-pale)' : 'none'}/>
-        <path d="M3 17c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
       </svg>
     ),
   },
@@ -69,7 +69,7 @@ export default function MobileBottomNav() {
             className={`kc-bottom-nav-item${active ? ' active' : ''}`}
           >
             {item.icon(active)}
-            <span>{item.label}</span>
+            <span style={{ whiteSpace: 'pre-line', textAlign: 'center', lineHeight: 1.15 }}>{item.label}</span>
           </Link>
         )
       })}
