@@ -61,6 +61,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const [showRescheduleModal, setShowRescheduleModal] = useState(false)
   const [slots, setSlots] = useState<SlotOption[]>([])
   const [selectedSlotIds, setSelectedSlotIds] = useState<string[]>([])
+  const [rescheduleDay, setRescheduleDay] = useState<string | null>(null)
   const [rescheduleMessage, setRescheduleMessage] = useState('')
   const [submittingReschedule, setSubmittingReschedule] = useState(false)
   const [approving, setApproving] = useState(false)
@@ -237,6 +238,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const handleOpenReschedule = async () => {
     await loadSlots()
     setSelectedSlotIds([])
+    setRescheduleDay(null)
     setRescheduleMessage('')
     setShowRescheduleModal(true)
   }
@@ -340,6 +342,13 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
     acc[dateKey].push(slot)
     return acc
   }, {})
+  // 空き枠のある日付（昇順）。日付チップ用
+  const rescheduleDates = Object.keys(slotsByDate).sort()
+  // 現在表示する日（未選択なら最初の空き日）
+  const activeRescheduleDay = rescheduleDay ?? rescheduleDates[0] ?? null
+  const selectedSlotObjs = selectedSlotIds
+    .map(id => slots.find(s => s.id === id))
+    .filter((s): s is SlotOption => !!s)
 
   const displayToken = completedTokenInfo?.token ?? reservation.review_token ?? null
   const displayCode = completedTokenInfo?.code ?? reservation.review_code ?? null
@@ -664,42 +673,91 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
                 <p style={{ fontSize: 13, color: 'var(--text-mid)', textAlign: 'center', padding: '24px 0' }}>現在、空き枠がありません</p>
               ) : (
                 <>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    {Object.entries(slotsByDate).map(([dateKey, daySlots]) => {
-                      const dateLabel = new Date(dateKey + 'T00:00:00').toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' })
+                  {/* 選択済み候補のサマリ（どの日のどこを選んだか一目で） */}
+                  {selectedSlotObjs.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                      {selectedSlotObjs.map((slot, i) => {
+                        const dt = new Date(slot.start_at)
+                        const label = `${dt.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', weekday: 'short' })} ${dt.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`
+                        return (
+                          <button
+                            key={slot.id}
+                            onClick={() => toggleSlot(slot.id)}
+                            title="タップで解除"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: '#fff', background: 'var(--accent)', borderRadius: 999, padding: '4px 10px', cursor: 'pointer' }}
+                          >
+                            <span style={{ fontSize: 10, fontWeight: 700 }}>第{i + 1}候補</span>
+                            {label}
+                            <span aria-hidden style={{ fontSize: 13, lineHeight: 1 }}>×</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* 日付チップ（空き枠のある日のみ・横スクロール） */}
+                  <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 6, marginBottom: 12 }}>
+                    {rescheduleDates.map(dateKey => {
+                      const dt = new Date(dateKey + 'T00:00:00')
+                      const isActive = dateKey === activeRescheduleDay
+                      const dow = dt.getDay()
+                      const hasSelected = selectedSlotObjs.some(s => s.start_at.slice(0, 10) === dateKey)
                       return (
-                        <div key={dateKey}>
-                          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-mid)', marginBottom: 6, letterSpacing: '.04em' }}>{dateLabel}</p>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            {daySlots.map(slot => {
-                              const startTime = new Date(slot.start_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-                              const endTime = new Date(slot.end_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-                              const order = selectedSlotIds.indexOf(slot.id)
-                              const isSelected = order >= 0
-                              const atLimit = selectedSlotIds.length >= 3 && !isSelected
-                              return (
-                                <button
-                                  key={slot.id}
-                                  onClick={() => toggleSlot(slot.id)}
-                                  disabled={atLimit}
-                                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, background: isSelected ? '#FFF8F0' : 'var(--card)', cursor: atLimit ? 'not-allowed' : 'pointer', opacity: atLimit ? 0.5 : 1, transition: 'all .15s', width: '100%', textAlign: 'left' }}
-                                >
-                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                                    {isSelected && (
-                                      <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: 'var(--accent)', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>第{order + 1}候補</span>
-                                    )}
-                                    <span style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--accent)' : 'var(--text)' }}>
-                                      {startTime} – {endTime}
-                                    </span>
-                                  </span>
-                                  {slot.meeting_type && (
-                                    <span style={{ fontSize: 11, color: 'var(--text-mid)', background: 'var(--bg-elev)', borderRadius: 6, padding: '2px 8px' }}>{slot.meeting_type}</span>
-                                  )}
-                                </button>
-                              )
-                            })}
-                          </div>
-                        </div>
+                        <button
+                          key={dateKey}
+                          onClick={() => setRescheduleDay(dateKey)}
+                          style={{
+                            flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                            minWidth: 52, padding: '6px 8px', borderRadius: 10,
+                            border: `1.5px solid ${isActive ? 'var(--accent)' : 'var(--border)'}`,
+                            background: isActive ? 'var(--accent)' : 'var(--card)',
+                            cursor: 'pointer', position: 'relative',
+                          }}
+                        >
+                          <span style={{ fontSize: 10, color: isActive ? '#fff' : dow === 0 ? 'var(--danger)' : dow === 6 ? 'var(--accent)' : 'var(--text-mid)' }}>
+                            {dt.toLocaleDateString('ja-JP', { weekday: 'short' })}
+                          </span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: isActive ? '#fff' : 'var(--text-deep)' }}>
+                            {dt.getDate()}
+                          </span>
+                          <span style={{ fontSize: 9, color: isActive ? 'rgba(255,255,255,.8)' : 'var(--text-light)' }}>
+                            {dt.getMonth() + 1}月
+                          </span>
+                          {hasSelected && (
+                            <span style={{ position: 'absolute', top: 4, right: 4, width: 6, height: 6, borderRadius: 999, background: isActive ? '#fff' : 'var(--accent)' }} />
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  {/* 選んだ日の時間だけ表示 */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {(activeRescheduleDay ? slotsByDate[activeRescheduleDay] ?? [] : []).map(slot => {
+                      const startTime = new Date(slot.start_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+                      const endTime = new Date(slot.end_at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+                      const order = selectedSlotIds.indexOf(slot.id)
+                      const isSelected = order >= 0
+                      const atLimit = selectedSlotIds.length >= 3 && !isSelected
+                      return (
+                        <button
+                          key={slot.id}
+                          onClick={() => toggleSlot(slot.id)}
+                          disabled={atLimit}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '10px 14px', borderRadius: 10, border: `1.5px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`, background: isSelected ? '#FFF8F0' : 'var(--card)', cursor: atLimit ? 'not-allowed' : 'pointer', opacity: atLimit ? 0.5 : 1, transition: 'all .15s', width: '100%', textAlign: 'left' }}
+                        >
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                            {isSelected && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', background: 'var(--accent)', borderRadius: 999, padding: '2px 8px', whiteSpace: 'nowrap' }}>第{order + 1}候補</span>
+                            )}
+                            <span style={{ fontSize: 13, fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--accent)' : 'var(--text)' }}>
+                              {startTime} – {endTime}
+                            </span>
+                          </span>
+                          {slot.meeting_type && (
+                            <span style={{ fontSize: 11, color: 'var(--text-mid)', background: 'var(--bg-elev)', borderRadius: 6, padding: '2px 8px' }}>{slot.meeting_type}</span>
+                          )}
+                        </button>
                       )
                     })}
                   </div>
