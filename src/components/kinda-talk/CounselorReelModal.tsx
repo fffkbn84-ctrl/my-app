@@ -10,6 +10,7 @@ import { KindaTypeKey } from "@/lib/kinda-types";
 import { useFavorites } from "@/hooks/useFavorites";
 import KindaTypeBadge from "./KindaTypeBadge";
 import ShareSheet from "./ShareSheet";
+import ModalErrorBoundary from "@/components/ui/ModalErrorBoundary";
 
 type Props = {
   counselor: Counselor | null;
@@ -109,6 +110,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
     : "";
 
   return createPortal(
+    <ModalErrorBoundary onClose={onClose}>
     <MotionConfig reducedMotion="user">
       <AnimatePresence>
         {counselor && (
@@ -321,7 +323,8 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
-    </MotionConfig>,
+    </MotionConfig>
+    </ModalErrorBoundary>,
     document.body,
   );
 }
