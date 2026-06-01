@@ -10,7 +10,7 @@ import ReviewHistorySection from "./ReviewHistorySection";
 import NoteHistorySection from "./NoteHistorySection";
 import DiagnosisTypeHistorySection from "./DiagnosisTypeHistorySection";
 import ReservationsSection from "./ReservationsSection";
-import NotificationsSeen from "./NotificationsSeen";
+import NotificationsSection from "./NotificationsSection";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
@@ -40,7 +40,6 @@ export default async function MyPage() {
         paddingBottom: "calc(60px + env(safe-area-inset-bottom))",
       }}
     >
-      <NotificationsSeen />
       <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "マイページ" }]} />
       <div
         style={{
@@ -77,6 +76,9 @@ export default async function MyPage() {
 
         {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
         <AuthCard />
+
+        {/* 相談所からのお知らせ（メッセージ / 日程変更提案 / 口コミ返信）。開くと既読化 */}
+        <NotificationsSection />
 
         {/* Kinda note 履歴（天気予報風 横スクロール） */}
         <NoteHistorySection />
