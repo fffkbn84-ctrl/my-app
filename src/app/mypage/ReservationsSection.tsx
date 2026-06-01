@@ -9,8 +9,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { cancelReservation, isCancellable } from "@/lib/reservations";
+import {
+  cancelReservationViaRpc,
+  undoCancelReservationViaRpc,
+  isCancellable,
+} from "@/lib/reservations";
 import { AGENCIES, type Agency } from "@/lib/data";
+import UndoToast from "@/components/ui/UndoToast";
 
 type ReservationRow = {
   id: string;
@@ -28,6 +33,9 @@ type ReservationRow = {
   created_at: string;
   /** 023_reservations_agency_message — リスト表示の「メッセージあり」バッジ判定用 */
   agency_message: string | null;
+  /** カウンセラーからの日程変更提案バッジ判定用 */
+  reschedule_status: "requested" | "approved" | "expired" | null;
+  reschedule_requested_by: "user" | "counselor" | null;
 };
 
 type AgencyContact = {
@@ -72,6 +80,9 @@ export default function ReservationsSection() {
   const [agencyContacts, setAgencyContacts] = useState<
     Record<string, AgencyContact>
   >({});
+  // 直前にキャンセルした予約（UNDO トースト表示用）
+  const [undoRow, setUndoRow] = useState<ReservationRow | null>(null);
+  const [undoBusy, setUndoBusy] = useState(false);
 
   // 予約一覧の取得
   useEffect(() => {
@@ -87,7 +98,7 @@ export default function ReservationsSection() {
       const { data, error } = await supabase
         .from("reservations")
         .select(
-          "id, slot_id, counselor_id, counselor_name, agency_id, agency_name, start_at, end_at, meeting_type, notes, status, canceled_at, created_at, agency_message",
+          "id, slot_id, counselor_id, counselor_name, agency_id, agency_name, start_at, end_at, meeting_type, notes, status, canceled_at, created_at, agency_message, reschedule_status, reschedule_requested_by",
         )
         .order("start_at", { ascending: false, nullsFirst: false });
       if (cancelled) return;
@@ -168,7 +179,7 @@ export default function ReservationsSection() {
       `この予約をキャンセルしますか？\n\n${r.start_at ? formatDateJa(r.start_at) + " " + formatTimeJa(r.start_at) : ""}\n${r.counselor_name ?? ""}（${r.agency_name ?? ""}）`,
     );
     if (!ok) return;
-    const result = await cancelReservation(supabase, r.id, r.slot_id);
+    const result = await cancelReservationViaRpc(supabase, r.id);
     if (!result.ok) {
       window.alert(`キャンセルに失敗しました：${result.message}`);
       return;
@@ -181,6 +192,28 @@ export default function ReservationsSection() {
               status: "canceled",
               canceled_at: new Date().toISOString(),
             }
+          : row,
+      ),
+    );
+    setUndoRow(r);
+  };
+
+  const handleUndoCancel = async () => {
+    if (!supabase || !undoRow) return;
+    setUndoBusy(true);
+    const result = await undoCancelReservationViaRpc(supabase, undoRow.id);
+    setUndoBusy(false);
+    if (!result.ok) {
+      setUndoRow(null);
+      window.alert(result.message);
+      return;
+    }
+    const restoredId = undoRow.id;
+    setUndoRow(null);
+    setRows((prev) =>
+      (prev ?? []).map((row) =>
+        row.id === restoredId
+          ? { ...row, status: "active", canceled_at: null }
           : row,
       ),
     );
@@ -261,6 +294,15 @@ export default function ReservationsSection() {
             />
           ))}
         </>
+      )}
+
+      {undoRow && (
+        <UndoToast
+          message="予約をキャンセルしました"
+          onAction={handleUndoCancel}
+          onClose={() => setUndoRow(null)}
+          busy={undoBusy}
+        />
       )}
     </section>
   );
@@ -443,6 +485,28 @@ function ReservationCard({
                 相談所からメッセージあり
               </div>
             )}
+            {/* カウンセラーから日程変更の提案が届いている（要対応） */}
+            {row.reschedule_status === "requested" &&
+              row.reschedule_requested_by === "counselor" && (
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    marginTop: 8,
+                    fontSize: 11,
+                    color: "var(--rose)",
+                    fontFamily: "var(--font-mincho)",
+                  }}
+                  aria-label="カウンセラーから日程変更の提案があります"
+                >
+                  <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                    <rect x="2" y="3" width="10" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+                    <path d="M2 5.5h10M5 2v2M9 2v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                  </svg>
+                  日程変更の提案あり
+                </div>
+              )}
           </div>
           <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
             {canceled ? (

@@ -7,12 +7,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import {
   cancelReservationViaRpc,
+  undoCancelReservationViaRpc,
   requestRescheduleViaRpc,
   approveRescheduleViaRpc,
   isCancellable,
 } from "@/lib/reservations";
 import { AGENCIES, type Agency } from "@/lib/data";
 import InfoTooltip from "@/components/ui/InfoTooltip";
+import UndoToast from "@/components/ui/UndoToast";
 import { CancelPolicyTooltipContent } from "@/lib/policyMessages";
 
 type ReservationRow = {
@@ -490,6 +492,8 @@ export default function ReservationDetailClient({ reservationId }: { reservation
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const [undoBusy, setUndoBusy] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -666,7 +670,22 @@ export default function ReservationDetailClient({ reservationId }: { reservation
       return;
     }
     setShowCancelModal(false);
-    setRow({ ...row, status: "canceled", canceled_at: new Date().toISOString() });
+    setRow({ ...row, status: "canceled", canceled_at: new Date().toISOString(), cancelled_by: "user" });
+    setShowUndo(true);
+  };
+
+  const handleUndoCancel = async () => {
+    if (!supabase || !row) return;
+    setUndoBusy(true);
+    setActionError(null);
+    const result = await undoCancelReservationViaRpc(supabase, row.id);
+    setUndoBusy(false);
+    setShowUndo(false);
+    if (!result.ok) {
+      setActionError(result.message);
+      return;
+    }
+    setRow({ ...row, status: "active", canceled_at: null, cancelled_by: null });
   };
 
   const handleRescheduleConfirm = async (start: string, end: string) => {
@@ -765,6 +784,14 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           onConfirm={handleRescheduleConfirm}
           onClose={() => setShowRescheduleModal(false)}
           loading={actionLoading}
+        />
+      )}
+      {showUndo && (
+        <UndoToast
+          message="予約をキャンセルしました"
+          onAction={handleUndoCancel}
+          onClose={() => setShowUndo(false)}
+          busy={undoBusy}
         />
       )}
 

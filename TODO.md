@@ -4,7 +4,23 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-05-27
+最終更新: 2026-06-01
+
+---
+
+### 🆕 2026-06-01 ユーザーサイト通知 / キャンセルUNDO（ブランチ claude/user-reservations-notify）
+
+#### 完了（要・実機確認）
+- [x] 相談所からのお知らせ通知マーク：BottomNav マイページアイコンに未読ドット（`useUserNotifications` + `NotificationsSeen` でマイページ閲覧時に既読化）。元データ = `agency_message` / カウンセラー発の `reschedule_status='requested'` / `reviews.agency_reply`。
+- [x] 予約一覧カードに「日程変更の提案あり」バッジ追加。
+- [x] キャンセルUNDO：新RPC `undo_cancel_reservation_rpc`（5分以内・本人・slot空きのみ）＋共通 `UndoToast`。予約詳細・予約一覧の両方に実装。一覧キャンセルを RPC 方式へ統一。
+
+#### 次にやること（このブランチの続き）
+- [ ] **実機確認（Vercel プレビュー）**：(1) 相談所メッセージ/日程変更提案/口コミ返信でドットが出るか、(2) マイページを開くとドットが消えるか、(3) キャンセル直後のUNDOトーストで予約が active に復元し枠が戻るか、(4) 5分超 / 枠が他人に取られた場合のエラー文言。
+- [ ] PR 作成 → main へマージ（ユーザー承認後）。
+- [ ] `undo_cancel_reservation_rpc` を `supabase/migrations/` にもファイルとして追記（現状は DB 適用のみ。リポジトリのマイグレーション履歴が歯抜けなので整合は要検討）。
+- [ ] 通知の「既読」を localStorage ではなく DB 化するか検討（複数端末で既読同期したい場合）。今は端末ローカル。
+- [ ] カウンセラー側（別ブランチ `claude/fix-profile-creation-1clpG`）の日程変更ピッカー2段化・キャンセルUNDO の main への取り込み（系統が別なので別途整理が必要）。
 
 ---
 

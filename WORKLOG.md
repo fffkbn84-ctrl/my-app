@@ -3398,3 +3398,32 @@ UI挙動：予約が入ると管理画面に「予約者を見る」バーがロ
 - 詩的・ブティック感は hero / about / コピー側で十分表現できている
 - 中央配置の判断材料：ブランド認知が育ったら A/B テストで再検討（指名検索が増えた段階）
 
+
+---
+
+### 2026-06-01 ユーザーサイト：相談所からの通知マーク + キャンセルUNDO
+
+ブランチ `claude/user-reservations-notify`（main 88a313f から派生）。ユーザー（お客様）サイトの修正。
+
+#### 背景・前提確認でハマったこと
+- 当初 `claude/fix-profile-creation-1clpG`（カウンセラー側作業ブランチ）で作業していたが、これは **main より306コミット遅れ**ており、main にあるユーザーサイトのログイン・予約一覧（`src/app/login`, `src/app/mypage/ReservationsSection.tsx`, `src/app/mypage/reservations/[id]`, `src/lib/reservations.ts`）が入っていなかった。
+- 探索を `src/` 配下のみに絞ったため一度「予約一覧が無い」と誤認。実際は main に実装済み。**ユーザーサイトの作業は必ず最新 main から派生する**こと（カウンセラー作業ブランチとは系統が別）。
+
+#### 機能1：相談所からの通知マーク（サイト内）
+通知の元データ（すべて相談所/カウンセラー → ユーザー方向）:
+1. `reservations.agency_message`（相談所メッセージ）
+2. `reservations.reschedule_status='requested'` かつ `reschedule_requested_by='counselor'`（カウンセラー発の日程変更提案＝要対応）
+3. `reviews.agency_reply`（口コミへの相談所返信）
+
+- 新規 `src/lib/useUserNotifications.ts`：上記の最新時刻と localStorage `kinda-notif-seen-at:<uid>` を比較し未読判定。`markSeen()` で既読化し `kinda-notif-changed` イベントで他インスタンスへ伝播。
+- `BottomNav` の「マイページ」アイコンに未読ドット（rose）を表示。
+- `src/app/mypage/NotificationsSeen.tsx`（裏方）をマイページに配置 → 開くと既読化しドットが消える。
+- 予約一覧カードに「日程変更の提案あり」バッジを追加（「相談所からメッセージあり」は既存）。
+
+#### 機能2：キャンセルUNDO（ユーザーサイト）
+- 新RPC `undo_cancel_reservation_rpc(p_reservation_id)`（Supを apply_migration で適用）。`cancel_reservation_rpc` の反転：本人・`cancelled_by='user'`・キャンセルから5分以内・slot が open の時のみ、status=active 復元 / slot=booked 再確保 / billing(`cancelled_within_grace` で voided）を pending 復元。slot が取られていたら `slot_taken`。
+- `src/lib/reservations.ts` に `undoCancelReservationViaRpc` 追加。
+- 共通 `src/components/ui/UndoToast.tsx`（下部トースト・残り時間バー・8秒で自動消滅）。
+- 予約詳細（`ReservationDetailClient`）と予約一覧（`ReservationsSection`）の両方でキャンセル直後にUNDOトースト表示。一覧のキャンセルを旧 `cancelReservation`（直接UPDATE・billing非対応）から `cancelReservationViaRpc` に統一（UNDO/billing整合のため）。
+
+ビルド green（サンドボックスは Supabase 非到達のため SSG 時 mock フォールバックのみ・エラーではない）。実機（Vercel プレビュー）で要確認。

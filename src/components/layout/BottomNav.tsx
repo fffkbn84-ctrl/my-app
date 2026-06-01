@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUserNotifications } from "@/lib/useUserNotifications";
 
 const navItems = [
   {
@@ -92,6 +93,7 @@ const navItems = [
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { hasUnseen } = useUserNotifications();
 
   return (
     <nav
@@ -137,7 +139,24 @@ export default function BottomNav() {
               color: isActive ? "var(--accent)" : "var(--muted)",
             }}
           >
-            {item.icon}
+            <span style={{ position: "relative", display: "inline-flex" }}>
+              {item.icon}
+              {item.href === "/mypage" && hasUnseen && (
+                <span
+                  aria-label="新しいお知らせがあります"
+                  style={{
+                    position: "absolute",
+                    top: -1,
+                    right: -2,
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: "var(--rose)",
+                    border: "1.5px solid var(--white)",
+                  }}
+                />
+              )}
+            </span>
             <span
               style={{
                 fontFamily: "'DM Sans', sans-serif",

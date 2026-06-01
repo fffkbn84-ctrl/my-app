@@ -259,6 +259,47 @@ export async function cancelReservationViaRpc(
 }
 
 /* ────────────────────────────────────────────────────────────
+   undoCancelReservationViaRpc
+   - undo_cancel_reservation_rpc を呼ぶ（直前のキャンセルを取り消す）
+   - 本人・5分以内・slot が空いている時のみ成功
+──────────────────────────────────────────────────────────── */
+export type UndoCancelResult =
+  | { ok: true }
+  | { ok: false; error: string; message: string };
+
+export async function undoCancelReservationViaRpc(
+  supabase: SupabaseClient | null,
+  reservationId: string,
+): Promise<UndoCancelResult> {
+  if (!supabase) {
+    return { ok: false, error: "supabase_unavailable", message: "予約システムに接続できません。" };
+  }
+  const { data, error } = await supabase.rpc("undo_cancel_reservation_rpc", {
+    p_reservation_id: reservationId,
+  });
+  if (error) {
+    return { ok: false, error: "unknown", message: error.message };
+  }
+  const result = data as { ok: boolean; error?: string };
+  if (!result.ok) {
+    const msgs: Record<string, string> = {
+      not_found: "予約が見つかりません。",
+      not_canceled: "この予約はキャンセルされていません。",
+      not_user_cancelled: "この予約は取り消せません。",
+      unauthorized: "この予約を取り消す権限がありません。",
+      undo_window_expired: "取り消し可能な時間を過ぎました。お手数ですが再度ご予約ください。",
+      slot_taken: "この枠は別の方が予約したため、取り消せませんでした。別の日時でご予約ください。",
+    };
+    return {
+      ok: false,
+      error: result.error ?? "unknown",
+      message: msgs[result.error ?? ""] ?? "キャンセルの取り消しに失敗しました。",
+    };
+  }
+  return { ok: true };
+}
+
+/* ────────────────────────────────────────────────────────────
    requestRescheduleViaRpc
    - request_reschedule_rpc を呼ぶ
    - 申請時に billing_events を voided に（即時返金設計）

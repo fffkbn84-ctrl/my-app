@@ -10,6 +10,7 @@ import ReviewHistorySection from "./ReviewHistorySection";
 import NoteHistorySection from "./NoteHistorySection";
 import DiagnosisTypeHistorySection from "./DiagnosisTypeHistorySection";
 import ReservationsSection from "./ReservationsSection";
+import NotificationsSeen from "./NotificationsSeen";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default async function MyPage() {
         paddingBottom: "calc(60px + env(safe-area-inset-bottom))",
       }}
     >
+      <NotificationsSeen />
       <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "マイページ" }]} />
       <div
         style={{
