@@ -194,3 +194,11 @@ admin は user 一人運用 + カスタムドメイン不要のため production
 
 - Vercel の Ignored Build Step が古いブランチ名で固定されている可能性あり。新しいブランチ名で push しても build が走らないときは Vercel ダッシュボードで Ignored Build Step を確認・更新する
 - `.vercelignore` は repo root から全 Vercel project に適用される。`futarive-counselor/` `futarive-admin/` を ignore しているのは my-app build がサブアプリのファイルを拾わないため。サブアプリ project は Root Directory 設定 + 上記の Production Branch 設定で運用
+
+### デプロイ前の必須チェック（2026-06-01 追加・厳守）
+
+> 過去にユーザーサイト作業を誤ったブランチ起点で始める / ローカル `main` を信用する事故あり。再発防止。
+
+- **ローカル `main` は信用しない。常に `origin/main` を真とする**（ローカル main が unrelated history の古い commit を指すことがある）。作業前に `git fetch origin main` → `git checkout -B <feature> origin/main` で **origin/main 起点**にする。
+- ユーザーサイト(`src/`)系統と counselor(`futarive-counselor/`)系統は**履歴が分岐している**。対象に応じて正しい系統を起点にし、取り違えない。
+- **新しいセッションでユーザーからデプロイを依頼されたら、Claude は実装に着手する前に「前回使ったブランチ名と最新コミット（`origin/main` の HEAD 等）」をユーザーに伝え、起点ブランチの確認を取ること。** 確認なしに作業を始めない。

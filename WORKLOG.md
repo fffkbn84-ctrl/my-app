@@ -3427,3 +3427,22 @@ UI挙動：予約が入ると管理画面に「予約者を見る」バーがロ
 - 予約詳細（`ReservationDetailClient`）と予約一覧（`ReservationsSection`）の両方でキャンセル直後にUNDOトースト表示。一覧のキャンセルを旧 `cancelReservation`（直接UPDATE・billing非対応）から `cancelReservationViaRpc` に統一（UNDO/billing整合のため）。
 
 ビルド green（サンドボックスは Supabase 非到達のため SSG 時 mock フォールバックのみ・エラーではない）。実機（Vercel プレビュー）で要確認。
+
+---
+
+### 2026-06-01 追記：通知一覧の可視化 / リール真っ黒の真因 / デプロイ運用の反省
+
+#### 機能改善（main 反映済み）
+- **通知内容の可視化**：通知ドットを押しても何の通知か分からない問題に対処。マイページに `NotificationsSection`（相談所メッセージ / カウンセラー発の日程変更提案 / 口コミ返信を一覧表示・新着バッジ付き）を追加。開くと既読化するが一覧は残る。旧 `NotificationsSeen` は統合・削除。
+- **リール真っ黒の真因と修正**：症状は「暗幕は出るがモーダル本体が見えない・エラー表記も無し」。クラッシュではなく **CSS レイアウト崩れ**だった。リールモーダルの中身は全て `position:absolute` でモーダル自身に高さが無く、モバイルは `height:100vh` で成立するが **PC幅(`min-width:768px`)は `height:auto`+`aspect-ratio:9/16` のみ**で高さ基準が無く 0×0 に潰れて不可視に。**iPad Pro 横向き等 768px 以上が該当**（＝ふうかさんの主環境で再現）。PC幅に `height: min(900px, calc(100vh-40px))` を明示して解消。
+- **安全網**：`ModalErrorBoundary` を追加し CounselorReelModal を保護（万一の描画クラッシュでアプリ全体が真っ黒になるのを防ぐ・console にエラー出力）。今回の原因はCSSだったが安全網として残置。
+
+#### デプロイ運用の重大な反省（同じミスを繰り返さない）
+- **今回のミス**：ユーザーサイトの作業を、カウンセラー作業ブランチ `claude/fix-profile-creation-1clpG`（main より **306コミット遅れ**・別系統）の上で始めてしまい、main にあるログイン/予約一覧が無い状態で「未実装」と誤認した。
+- **もう一つの落とし穴**：ローカルの `main` ブランチが `origin/main` とは **unrelated history の古いコミット(d29661c)** を指していた（`git checkout main` で placeholder 版に戻って見える）。**ローカル main は信用しない。常に `origin/main` を真とする。**
+- **正しい手順（ユーザーサイト = my-app-rp9u / Production Branch = `main`）**：
+  1. `git fetch origin main`
+  2. `git checkout -B <feature> origin/main`（必ず origin/main 起点。ローカル main 起点にしない）
+  3. 実装 → build green 確認
+  4. デプロイ反映は `git push origin <feature>:main`（fast-forward 可能なことを `git rev-list --count claude/...` で確認してから）
+- **ブランチ系統が2つある点に注意**：ユーザーサイト(`src/`)は `main` 系統、カウンセラー(`futarive-counselor/`)は `claude/fix-profile-creation-1clpG` 系統で **履歴が分岐している**。両者を取り違えない。

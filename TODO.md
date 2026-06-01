@@ -8,19 +8,39 @@
 
 ---
 
-### 🆕 2026-06-01 ユーザーサイト通知 / キャンセルUNDO（ブランチ claude/user-reservations-notify）
+### 🆕 2026-06-01 ユーザーサイト通知 / キャンセルUNDO / リール修正（main 反映済み・実機OK）
 
-#### 完了（要・実機確認）
-- [x] 相談所からのお知らせ通知マーク：BottomNav マイページアイコンに未読ドット（`useUserNotifications` + `NotificationsSeen` でマイページ閲覧時に既読化）。元データ = `agency_message` / カウンセラー発の `reschedule_status='requested'` / `reviews.agency_reply`。
+#### 完了（実機確認OK）
+- [x] 相談所からの通知マーク：BottomNav マイページアイコンに未読ドット（`useUserNotifications`）。元データ = `agency_message` / カウンセラー発の `reschedule_status='requested'` / `reviews.agency_reply`。
+- [x] 通知内容の可視化：マイページに `NotificationsSection`（メッセージ/日程変更提案/口コミ返信を一覧・新着バッジ）。開くと既読化するが一覧は残る。
 - [x] 予約一覧カードに「日程変更の提案あり」バッジ追加。
-- [x] キャンセルUNDO：新RPC `undo_cancel_reservation_rpc`（5分以内・本人・slot空きのみ）＋共通 `UndoToast`。予約詳細・予約一覧の両方に実装。一覧キャンセルを RPC 方式へ統一。
+- [x] キャンセルUNDO：新RPC `undo_cancel_reservation_rpc`（5分以内・本人・slot空きのみ）＋共通 `UndoToast`。予約詳細・予約一覧の両方。一覧キャンセルを RPC 方式へ統一。
+- [x] リール真っ黒の修正：PC幅(≥768px・iPad横向き含む)でモーダルが0pxに潰れて不可視→ `height` 明示で解消。`ModalErrorBoundary` 安全網も追加。
 
-#### 次にやること（このブランチの続き）
-- [ ] **実機確認（Vercel プレビュー）**：(1) 相談所メッセージ/日程変更提案/口コミ返信でドットが出るか、(2) マイページを開くとドットが消えるか、(3) キャンセル直後のUNDOトーストで予約が active に復元し枠が戻るか、(4) 5分超 / 枠が他人に取られた場合のエラー文言。
-- [ ] PR 作成 → main へマージ（ユーザー承認後）。
-- [ ] `undo_cancel_reservation_rpc` を `supabase/migrations/` にもファイルとして追記（現状は DB 適用のみ。リポジトリのマイグレーション履歴が歯抜けなので整合は要検討）。
-- [ ] 通知の「既読」を localStorage ではなく DB 化するか検討（複数端末で既読同期したい場合）。今は端末ローカル。
-- [ ] カウンセラー側（別ブランチ `claude/fix-profile-creation-1clpG`）の日程変更ピッカー2段化・キャンセルUNDO の main への取り込み（系統が別なので別途整理が必要）。
+#### 次にやること（残課題）
+- [ ] `undo_cancel_reservation_rpc` を `supabase/migrations/` にファイル追記（現状 DB 適用のみ。migration 履歴が歯抜けなので整合は要検討）。
+- [ ] 通知の「既読」を localStorage → DB 化するか検討（複数端末で既読同期したい場合）。今は端末ローカル。
+- [ ] カウンセラー側（別系統ブランチ `claude/fix-profile-creation-1clpG`）の日程変更ピッカー2段化・キャンセルUNDO を main へ取り込み・整理（履歴が分岐しているため別途）。
+- [ ] リールが PC幅以外（モバイル縦/iPad縦）でも問題ないか継続確認。
+
+---
+
+### ⚠️ デプロイ運用ルール（2026-06-01 確定・厳守）
+
+> 今回ユーザーサイトの作業を誤ったブランチ起点で始める / ローカル main を信用するミスをした。再発防止のため必ず以下に従う。
+
+- **ローカル `main` は信用しない。常に `origin/main` を真とする。**（ローカル main が unrelated history の古い commit を指していることがある）
+- **ブランチ系統は2つに分岐している**：
+  - ユーザーサイト(`src/`) … Vercel `my-app-rp9u` / Production Branch = **`main`**
+  - カウンセラー(`futarive-counselor/`) … `claude/fix-profile-creation-1clpG` 系統
+  - → 作業対象に応じて正しい系統を起点にする。取り違えない。
+- **ユーザーサイトの正しい手順**：
+  1. `git fetch origin main`
+  2. `git checkout -B <feature> origin/main`（必ず origin/main 起点）
+  3. 実装 → `npm run build` で green 確認
+  4. `git rev-list --count <feature>..origin/main` が 0（ff可能）を確認
+  5. `git push origin <feature>:main` で反映
+- **新セッションでデプロイを依頼されたら、Claude は着手前にふうかさんへ「前回使ったブランチ名と最新コミット（origin/main の HEAD 等）」を伝え、起点ブランチの確認を取ること。** いきなり実装を始めない。
 
 ---
 
