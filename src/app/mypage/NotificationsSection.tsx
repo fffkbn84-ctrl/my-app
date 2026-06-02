@@ -27,18 +27,6 @@ type NotiItem = {
   href: string;
 };
 
-const SEEN_KEY_PREFIX = "kinda-notif-seen-at:";
-
-function readSeenAtMs(uid: string): number {
-  if (typeof window === "undefined") return 0;
-  try {
-    const v = localStorage.getItem(`${SEEN_KEY_PREFIX}${uid}`);
-    return v ? new Date(v).getTime() : 0;
-  } catch {
-    return 0;
-  }
-}
-
 function fmtDateTime(iso: string): string {
   const d = new Date(iso);
   const w = ["日", "月", "火", "水", "木", "金", "土"];
@@ -58,7 +46,7 @@ const KIND_LABEL: Record<NotiKind, string> = {
 
 export default function NotificationsSection() {
   const { user, loading: authLoading, supabase } = useAuth();
-  const { markSeen } = useUserNotifications();
+  const { markSeen, fetchSeenAt } = useUserNotifications();
   const [items, setItems] = useState<NotiItem[] | null>(null);
   // 「新着」判定用に、マウント時点の既読時刻を固定でキャプチャ（markSeen 前）
   const priorSeenRef = useRef<number>(0);
@@ -69,9 +57,11 @@ export default function NotificationsSection() {
       setItems([]);
       return;
     }
-    priorSeenRef.current = readSeenAtMs(user.id);
     let cancelled = false;
     (async () => {
+      // markSeen で更新する前の既読時刻（DB）を新着判定の基準にする
+      priorSeenRef.current = await fetchSeenAt();
+      if (cancelled) return;
       const list: NotiItem[] = [];
 
       const { data: resv } = await supabase
@@ -153,7 +143,7 @@ export default function NotificationsSection() {
     return () => {
       cancelled = true;
     };
-  }, [authLoading, user, supabase, markSeen]);
+  }, [authLoading, user, supabase, markSeen, fetchSeenAt]);
 
   const priorSeen = priorSeenRef.current;
   const hasItems = (items?.length ?? 0) > 0;
