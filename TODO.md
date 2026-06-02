@@ -20,7 +20,7 @@
 #### 次にやること（残課題）
 - [ ] `undo_cancel_reservation_rpc` を `supabase/migrations/` にファイル追記（現状 DB 適用のみ。migration 履歴が歯抜けなので整合は要検討）。
 - [ ] 通知の「既読」を localStorage → DB 化するか検討（複数端末で既読同期したい場合）。今は端末ローカル。
-- [ ] カウンセラー側（別系統ブランチ `claude/fix-profile-creation-1clpG`）の日程変更ピッカー2段化・キャンセルUNDO を main へ取り込み・整理（履歴が分岐しているため別途）。
+- [x] カウンセラー側の日程変更ピッカー2段化（`dab1f92`）・キャンセルUNDO（`37c4903`）は、**カウンセラー本番ブランチ `claude/fix-profile-creation-1clpG` に既に反映済み**（main ではない）。取り込み作業は不要だった。※当初「main 系へ取り込み」と書いたのは誤り。counselor 本番は CLAUDE.md §10 の通り `claude/fix-profile-creation-1clpG`。
 - [ ] リールが PC幅以外（モバイル縦/iPad縦）でも問題ないか継続確認。
 
 ---
