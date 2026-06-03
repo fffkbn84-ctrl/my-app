@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kinda ご提案 — 結婚相談所さま向け</title>
+<style>
+  /* ============================================================
+     Kinda 営業デッキ — 自己完結 HTML
+     クレイ風ベージュ / 16:9 / キーボード・タップ送り / 印刷=PDF
+     抜粋版： URL に ?excerpt=1 を付けると ★スライド(1,3,5,6,10)のみ
+     ============================================================ */
+
+  :root{
+    --bg:#F5EEE6;          /* ウォームベージュ */
+    --accent:#D4A090;      /* ダスティローズ／テラコッタ */
+    --accent-deep:#B97F6E;
+    --ink:#4A413B;         /* 文字（やわらかい焦茶）*/
+    --ink-soft:#7C7068;
+    --card:#FBF7F1;
+    --line:#E6DACE;
+    --shadow: 18px 18px 40px rgba(150,120,100,.18), -10px -10px 28px rgba(255,255,255,.6);
+    --shadow-sm: 8px 8px 18px rgba(150,120,100,.16), -6px -6px 14px rgba(255,255,255,.55);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic",YuGothic,
+                "Noto Sans JP",-apple-system,BlinkMacSystemFont,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+    line-height:1.8;
+  }
+
+  /* ---- ステージ：16:9 を画面に収める ---- */
+  #stage{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .deck{
+    position:relative;
+    width:min(100vw, calc(100vh * 16 / 9));
+    height:min(100vh, calc(100vw * 9 / 16));
+    aspect-ratio:16/9;
+  }
+
+  .slide{
+    position:absolute; inset:0;
+    display:none;
+    flex-direction:column;
+    justify-content:center;
+    padding: 7% 9%;
+    opacity:0;
+    transition:opacity .45s ease;
+  }
+  .slide.active{ display:flex; opacity:1; }
+
+  /* やわらかい上からの光 */
+  .deck::before{
+    content:""; position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:radial-gradient(120% 80% at 50% -20%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%);
+  }
+
+  /* ---- タイポグラフィ ---- */
+  .eyebrow{
+    font-size:1.05vw; letter-spacing:.22em; color:var(--accent-deep);
+    font-weight:600; margin-bottom:1.4em;
+  }
+  h1{ font-size:4.6vw; font-weight:800; line-height:1.3; letter-spacing:.01em; }
+  h2{ font-size:3.1vw; font-weight:800; line-height:1.4; letter-spacing:.01em; }
+  .lead{ font-size:1.55vw; color:var(--ink-soft); margin-top:1.2em; max-width:64ch; }
+  .sub{ font-size:1.25vw; color:var(--ink-soft); }
+  p{ font-size:1.45vw; }
+
+  .accent{ color:var(--accent-deep); }
+
+  /* ---- クレイ・カード／チップ ---- */
+  .cards{ display:flex; gap:2.2vw; margin-top:3vw; }
+  .card{
+    flex:1; background:var(--card); border-radius:2vw;
+    padding:2.2vw 2vw; box-shadow:var(--shadow-sm);
+  }
+  .card .num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:2.6vw; height:2.6vw; border-radius:50%;
+    background:var(--accent); color:#fff; font-weight:800; font-size:1.25vw;
+    margin-bottom:1vw; box-shadow:var(--shadow-sm);
+  }
+  .card h3{ font-size:1.5vw; margin-bottom:.5em; }
+  .card p{ font-size:1.12vw; color:var(--ink-soft); }
+
+  ul.clean{ list-style:none; margin-top:2vw; display:flex; flex-direction:column; gap:1.1vw; }
+  ul.clean li{ font-size:1.5vw; padding-left:1.8vw; position:relative; max-width:60ch; }
+  ul.clean li::before{
+    content:""; position:absolute; left:0; top:.72em;
+    width:.7vw; height:.7vw; border-radius:50%; background:var(--accent);
+  }
+
+  /* 料金の大きな数字 */
+  .price{
+    display:flex; align-items:baseline; gap:.4vw; margin:2vw 0 .4vw;
+  }
+  .price .yen{ font-size:3vw; font-weight:800; color:var(--accent-deep); }
+  .price .big{ font-size:8.5vw; font-weight:800; color:var(--accent-deep); line-height:1; }
+  .price .unit{ font-size:1.8vw; color:var(--ink-soft); font-weight:600; }
+  .zero-row{ display:flex; gap:2.5vw; margin-top:2.4vw; }
+  .zero-row .z{ font-size:1.35vw; }
+  .zero-row .z b{ color:var(--accent-deep); font-size:1.6vw; }
+
+  /* フロー（課金設計） */
+  .flow{ display:flex; align-items:stretch; gap:1vw; margin-top:2.4vw; }
+  .flow .step{
+    flex:1; background:var(--card); border-radius:1.4vw; padding:1.5vw 1.3vw;
+    box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:.5vw;
+  }
+  .flow .step .t{ font-size:1.18vw; font-weight:700; }
+  .flow .step .d{ font-size:.98vw; color:var(--ink-soft); }
+  .flow .arrow{ align-self:center; color:var(--accent); font-size:2vw; }
+  .twolayer{ display:flex; gap:2vw; margin-top:2.2vw; }
+  .twolayer .lay{ flex:1; background:var(--card); border-radius:1.4vw; padding:1.6vw; box-shadow:var(--shadow-sm); }
+  .twolayer .lay .tag{ font-size:.95vw; letter-spacing:.12em; color:var(--accent-deep); font-weight:700; }
+  .twolayer .lay .body{ font-size:1.15vw; color:var(--ink-soft); margin-top:.5em; }
+
+  /* 表紙 */
+  .cover{ align-items:center; justify-content:center; text-align:center; }
+  .wordmark{
+    font-size:9vw; font-weight:800; letter-spacing:.02em; color:var(--ink);
+    text-shadow:6px 6px 14px rgba(150,120,100,.18), -4px -4px 10px rgba(255,255,255,.6);
+  }
+  .wordmark .dot{ color:var(--accent); }
+  .cover .tagline{ font-size:1.7vw; color:var(--ink-soft); margin-top:.6em; }
+  .cover .for{ margin-top:3vw; font-size:1.25vw; color:var(--accent-deep); letter-spacing:.16em; font-weight:600; }
+  .blob{
+    position:absolute; border-radius:50%; filter:blur(2px);
+    background:radial-gradient(circle at 35% 30%, #fff, var(--accent));
+    opacity:.5; box-shadow:var(--shadow);
+  }
+
+  /* CTA */
+  .cta-box{
+    margin-top:2.4vw; background:var(--accent); color:#fff;
+    border-radius:1.6vw; padding:1.8vw 2.4vw; box-shadow:var(--shadow);
+    display:inline-block; font-size:1.7vw; font-weight:700;
+  }
+  .cta-url{ margin-top:1.6vw; font-size:1.3vw; color:var(--ink-soft); }
+  .cta-url code{
+    background:var(--card); padding:.25em .7em; border-radius:.5em;
+    color:var(--accent-deep); font-size:.95em; box-shadow:var(--shadow-sm);
+  }
+
+  .ph{ color:var(--accent-deep); font-weight:600; }  /* プレースホルダ強調 */
+  .note{ font-size:1vw; color:var(--ink-soft); margin-top:1.6vw; }
+
+  /* ---- UI: ページ番号・進捗・操作ヒント ---- */
+  #ui{ position:fixed; z-index:50; }
+  .pageno{
+    position:fixed; right:2.4vw; bottom:2vw; z-index:50;
+    font-size:1vw; color:var(--ink-soft); letter-spacing:.1em;
+  }
+  .dots{
+    position:fixed; left:50%; transform:translateX(-50%); bottom:2vw; z-index:50;
+    display:flex; gap:.7vw;
+  }
+  .dots button{
+    width:.85vw; height:.85vw; border-radius:50%; border:none; cursor:pointer;
+    background:var(--line); padding:0; transition:all .25s;
+  }
+  .dots button.on{ background:var(--accent); transform:scale(1.25); }
+  .hint{
+    position:fixed; left:2.4vw; bottom:2vw; z-index:50;
+    font-size:.9vw; color:var(--ink-soft); opacity:.7;
+  }
+  .badge-excerpt{
+    position:fixed; left:2.4vw; top:2vw; z-index:50;
+    background:var(--accent); color:#fff; font-size:.9vw; font-weight:700;
+    padding:.4em 1em; border-radius:1em; box-shadow:var(--shadow-sm);
+    letter-spacing:.08em; display:none;
+  }
+  body.excerpt .badge-excerpt{ display:inline-block; }
+
+  /* クリック領域（左右送り） */
+  .nav-zone{ position:fixed; top:0; bottom:0; width:18%; z-index:40; cursor:pointer; }
+  .nav-zone.left{ left:0; } .nav-zone.right{ right:0; }
+
+  /* ---- 印刷（PDF 書き出し）：全スライドを縦に並べ 16:9 で1枚ずつ ---- */
+  @media print{
+    @page{ size:1280px 720px; margin:0; }
+    body{ overflow:visible; }
+    #stage{ position:static; }
+    .deck{ width:1280px; height:auto; }
+    .slide{
+      position:relative; display:flex !important; opacity:1 !important;
+      width:1280px; height:720px; page-break-after:always; break-after:page;
+      inset:auto;
+    }
+    .deck::before{ display:none; }
+    .pageno,.dots,.hint,.nav-zone,.badge-excerpt{ display:none !important; }
+    /* 印刷時は vw が効かないため px ベースに切替（1280幅基準）*/
+    .eyebrow{font-size:13px} h1{font-size:59px} h2{font-size:40px}
+    .lead{font-size:20px} .sub{font-size:16px} p{font-size:19px}
+    .card h3{font-size:19px} .card p{font-size:14px} .card .num{width:33px;height:33px;font-size:16px}
+    ul.clean li{font-size:19px} .price .big{font-size:109px} .price .yen{font-size:38px} .price .unit{font-size:23px}
+    .wordmark{font-size:115px} .cover .tagline{font-size:22px} .cover .for{font-size:16px}
+    .flow .step .t{font-size:15px} .flow .step .d{font-size:13px}
+    .twolayer .lay .body{font-size:15px} .cta-box{font-size:22px} .cta-url{font-size:17px}
+    body.excerpt .slide:not([data-star]){ display:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="badge-excerpt">メール添付用 抜粋版</div>
+
+<div id="stage">
+  <div class="deck" id="deck">
+
+    <!-- 1. 表紙 ★ -->
+    <section class="slide cover" data-star>
+      <div class="blob" style="width:22vw;height:22vw;top:-6vw;left:-4vw;"></div>
+      <div class="blob" style="width:14vw;height:14vw;bottom:-3vw;right:2vw;opacity:.35;"></div>
+      <div class="wordmark">Kinda<span class="dot">.</span></div>
+      <div class="tagline">@cosme・食べログの、結婚相談所版</div>
+      <div class="for">結婚相談所さま向け ご提案</div>
+    </section>
+
+    <!-- 2. 課題提起 -->
+    <section class="slide">
+      <div class="eyebrow">いま起きていること</div>
+      <h2>未入会の方が迷っているのは<br>「どの相談所か」より<span class="accent">「信頼できる人に出会えるか」</span>。</h2>
+      <p class="lead">
+        既存の比較サイトの多くは、相談所という“箱”の単位で並び、掲載順は広告の力に左右されます。
+        その構造では、どれだけ良いカウンセラーがいても、検討している人の目に届かないまま埋もれてしまいます。
+      </p>
+    </section>
+
+    <!-- 3. Kinda の答え ★ -->
+    <section class="slide" data-star>
+      <div class="eyebrow">Kinda の答え</div>
+      <h2>選ばれるのは、相談所ではなく<span class="accent">カウンセラー個人の口コミ</span>。</h2>
+      <div class="cards">
+        <div class="card"><div class="num">1</div><h3>カウンセラー単位で選べる</h3>
+          <p>箱ではなく「この人に会いたい」で選ばれる。良い担当者が、ちゃんと見つかる。</p></div>
+        <div class="card"><div class="num">2</div><h3>面談を終えた人だけの認証口コミ</h3>
+          <p>専用URLと認証コードで、面談を完了した人だけが投稿。成りすましは構造的に起きない。</p></div>
+        <div class="card"><div class="num">3</div><h3>出会いから予約まで一気通貫</h3>
+          <p>診断で知り、口コミで確かめ、その場で予約。検討から行動までが途切れない。</p></div>
+      </div>
+    </section>
+
+    <!-- 4. 届く未入会者の質 -->
+    <section class="slide">
+      <div class="eyebrow">届く方の“質”</div>
+      <h2>御社に届くのは、<span class="accent">検討を終えた、温度の高い方</span>。</h2>
+      <div class="flow">
+        <div class="step"><div class="t">診断（Kinda type）</div><div class="d">自分に合うカウンセラーの傾向を知る</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">口コミで確認</div><div class="d">面談を終えた人の実体験で見極める</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">その場で予約</div><div class="d">納得したうえで、行動に移る</div></div>
+      </div>
+      <p class="lead">数ではなく質を届けます。Kinda は、あらゆる「ふたり」を前提とした設計です。</p>
+    </section>
+
+    <!-- 5. 料金 ★ -->
+    <section class="slide" data-star>
+      <div class="eyebrow">料金</div>
+      <h2>掲載費・初期費用は<span class="accent">ゼロ</span>。<br>いただくのは成果報酬だけ。</h2>
+      <div class="price">
+        <span class="yen">¥</span><span class="big">5,000</span><span class="unit">／ 送客1件（成果報酬）</span>
+      </div>
+      <div class="zero-row">
+        <div class="z"><b>予約が来なければ、費用はゼロ。</b></div>
+        <div class="z">契約の縛り・違約金<b>なし</b>。掲載の停止・再開はいつでも。</div>
+      </div>
+    </section>
+
+    <!-- 6. 課金設計＝前払い＋情報ロック ★ -->
+    <section class="slide" data-star>
+      <div class="eyebrow">課金のしくみ</div>
+      <h2>“¥5,000 払って空振り”が、<span class="accent">構造的に起きない</span>設計。</h2>
+      <div class="flow">
+        <div class="step"><div class="t">予約確定</div><div class="d">未入会の方が日時を予約</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">24時間の猶予</div><div class="d">この間のキャンセルは費用なし</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">猶予経過で初めて請求</div><div class="d">＝ここが「予約成立」</div></div>
+        <div class="arrow">→</div>
+        <div class="step"><div class="t">入金確認 → 連絡先を開示</div><div class="d">本名・連絡先はこの後に</div></div>
+      </div>
+      <div class="twolayer">
+        <div class="lay"><div class="tag">入金前にお渡しする情報</div>
+          <div class="body">メッセージ・希望日時・ニックネーム・相談テーマ。準備に十分な分だけ。</div></div>
+        <div class="lay"><div class="tag">入金後にお渡しする情報</div>
+          <div class="body">本名・連絡先・詳細。お支払いが済んでから開示します。</div></div>
+      </div>
+      <p class="note">返金：24時間以内のキャンセル／相談所さま都合／日程変更の合意は、いずれも返金します。</p>
+    </section>
+
+    <!-- 7. 信頼性とコンプライアンス -->
+    <section class="slide">
+      <div class="eyebrow">信頼性とコンプライアンス</div>
+      <h2>口コミは<span class="accent">面談を終えた人だけ</span>。<br>透明性は、仕組みで担保します。</h2>
+      <ul class="clean">
+        <li>投稿できるのは、専用URLと認証コードを受け取った面談完了者のみ。成りすましは起きません。</li>
+        <li>口コミがまだ無くても大丈夫。既存の体験談は運営が代理で入力できます。</li>
+        <li>代理掲載には必ず「代理掲載」バッジを表示。景品表示法・ステマ規制に対応した透明な運用です。</li>
+      </ul>
+    </section>
+
+    <!-- 8. 導入はかんたん＋早期参加 -->
+    <section class="slide">
+      <div class="eyebrow">導入と、これから</div>
+      <h2>やることは、<span class="accent">掲載するだけ</span>。</h2>
+      <ul class="clean">
+        <li>運用は管理画面で、予約・口コミ・通知を確認するだけ。手間をかけません。</li>
+        <li>先行して掲載いただく相談所さまには、優遇措置をご用意しています。</li>
+        <li>将来は、送客実績に応じた定額掲載プランも選べるようにしていきます。</li>
+        <li>婚活準備からお見合い、デート、その先まで広がるプラットフォーム。早く入るほど、有利です。</li>
+      </ul>
+    </section>
+
+    <!-- 9. よくあるご懸念 -->
+    <section class="slide">
+      <div class="eyebrow">よくあるご懸念</div>
+      <h2>気になる点に、先回りで。</h2>
+      <div class="cards">
+        <div class="card"><h3>ステマでは？</h3>
+          <p>面談認証があるため、投稿できるのは実際に会った人だけ。構造的に不可能です。</p></div>
+        <div class="card"><h3>今の掲載先と何が違う？</h3>
+          <p>広告順位ではなく、カウンセラー個人の実体験と予約導線。今の掲載先はそのまま、併用できます。</p></div>
+        <div class="card"><h3>予約が来なかったら？</h3>
+          <p>費用はゼロ。成果が出たときだけ、お支払いいただきます。</p></div>
+      </div>
+    </section>
+
+    <!-- 10. 次の一歩 ★ -->
+    <section class="slide cover" data-star>
+      <div class="blob" style="width:18vw;height:18vw;bottom:-4vw;left:-2vw;opacity:.35;"></div>
+      <div class="eyebrow">次の一歩</div>
+      <h1>まずは、掲載（無料）から。</h1>
+      <div class="cta-box">お手続きは最短<span class="ph">[◯分]</span>。リスクなく、はじめられます。</div>
+      <div class="cta-url">
+        お申し込み： <code>https://my-app-rp9u.vercel.app/partners</code><br>
+        または面談で、詳しくご説明します。
+      </div>
+      <p class="note">会社名・特定商取引法に基づく表記・送信元は <span class="ph">[準備中]</span>（正式版で差し替え）。</p>
+    </section>
+
+  </div>
+</div>
+
+<div class="nav-zone left"  onclick="go(-1)"></div>
+<div class="nav-zone right" onclick="go(1)"></div>
+
+<div class="dots" id="dots"></div>
+<div class="pageno" id="pageno"></div>
+<div class="hint">← → / Space で送り　・　印刷で PDF 書き出し</div>
+
+<script>
+  // 抜粋モード判定（?excerpt=1 で ★スライドのみ）
+  var excerpt = new URLSearchParams(location.search).get('excerpt') === '1';
+  if(excerpt) document.body.classList.add('excerpt');
+
+  var all = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var slides = excerpt ? all.filter(function(s){ return s.hasAttribute('data-star'); }) : all;
+  var i = 0;
+
+  // dots 構築
+  var dots = document.getElementById('dots');
+  slides.forEach(function(_, idx){
+    var b = document.createElement('button');
+    b.addEventListener('click', function(){ i = idx; render(); });
+    dots.appendChild(b);
+  });
+
+  function render(){
+    all.forEach(function(s){ s.classList.remove('active'); });
+    slides[i].classList.add('active');
+    Array.prototype.forEach.call(dots.children, function(b, idx){
+      b.classList.toggle('on', idx === i);
+    });
+    document.getElementById('pageno').textContent =
+      (i+1) + ' / ' + slides.length + (excerpt ? '　（抜粋）' : '');
+  }
+  function go(d){ i = Math.min(slides.length-1, Math.max(0, i+d)); render(); }
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown'){ e.preventDefault(); go(1); }
+    if(e.key === 'ArrowLeft'  || e.key === 'ArrowUp'){ e.preventDefault(); go(-1); }
+    if(e.key === 'Home'){ i=0; render(); }
+    if(e.key === 'End'){ i=slides.length-1; render(); }
+  });
+
+  render();
+</script>
+</body>
+</html>
