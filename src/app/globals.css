@@ -6160,6 +6160,69 @@ body:has(.cta-mobile-bar) .floating-back {
   text-shadow: 0 2px 12px rgba(0,0,0,.35);
 }
 
+/* PC 版ヒーロー：全面画像のクローズアップが間延びするのを抑える。
+   高さを抑えて縦中央寄せ＋オーバーレイを均一に強め、ムード背景として成立させる。 */
+@media (min-width: 768px) {
+  .ks-hero {
+    min-height: 380px;
+    max-height: 460px;
+    align-items: center;
+    padding-top: calc(var(--header-height) + 56px);
+    padding-bottom: 56px;
+  }
+  .ks-hero-bg-image img {
+    object-position: center 45%;
+  }
+  .ks-hero-overlay {
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(15,30,15,.12) 0%, rgba(15,30,15,.40) 100%),
+      linear-gradient(180deg, rgba(15,30,15,.30) 0%, rgba(15,30,15,.20) 45%, rgba(15,30,15,.55) 100%);
+  }
+}
+
+/* ─── Kinda story 記事内シェアバー ─── */
+.story-share {
+  margin: 22px auto 0;
+  text-align: center;
+}
+.story-share-label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.story-share-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.story-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #DDEAD4;
+  background: var(--white);
+  color: #5A8050;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s, transform .2s, box-shadow .2s;
+}
+.story-share-btn:hover {
+  background: #F2F8EE;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(90,128,80,.14);
+}
+.story-share-btn:focus-visible {
+  outline: 2px solid #9FC08F;
+  outline-offset: 2px;
+}
+
 /* ─── イントロ ─── */
 .ks-intro {
   background: #FBFCF8;
