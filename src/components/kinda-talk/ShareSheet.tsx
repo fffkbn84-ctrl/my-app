@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   url: string;
@@ -10,6 +10,11 @@ type Props = {
 
 export default function ShareSheet({ url, title, onClose }: Props) {
   const [copied, setCopied] = useState(false);
+  const [canNativeShare, setCanNativeShare] = useState(false);
+
+  useEffect(() => {
+    setCanNativeShare(typeof navigator !== "undefined" && !!navigator.share);
+  }, []);
 
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
   const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
@@ -21,6 +26,14 @@ export default function ShareSheet({ url, title, onClose }: Props) {
       setTimeout(() => setCopied(false), 1600);
     } catch {
       /* ignore */
+    }
+  };
+
+  const nativeShare = async () => {
+    try {
+      await navigator.share({ title, url });
+    } catch {
+      /* キャンセル時は無視 */
     }
   };
 
@@ -54,6 +67,17 @@ export default function ShareSheet({ url, title, onClose }: Props) {
             </svg>
             {copied ? "コピーしました" : "リンクをコピー"}
           </button>
+          {canNativeShare && (
+            <button type="button" className="kt-share-sheet-btn" onClick={nativeShare}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3" />
+                <circle cx="6" cy="12" r="3" />
+                <circle cx="18" cy="19" r="3" />
+                <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" />
+              </svg>
+              その他で共有
+            </button>
+          )}
         </div>
         <button type="button" className="kt-share-sheet-cancel" onClick={onClose}>
           閉じる

@@ -15,11 +15,14 @@ export default function ShareBar({
   title,
   label = "この記事をシェアする",
   url,
+  shareText: shareTextProp,
   onShare,
 }: {
   title: string;
   label?: string;
   url?: string;
+  /** SNS 投稿テキストを上書き（省略時は「{title} | Kinda」）。ハッシュタグ等に使う。 */
+  shareText?: string;
   onShare?: (method: ShareMethod) => void;
 }) {
   const [resolvedUrl, setResolvedUrl] = useState(url ?? "");
@@ -31,7 +34,7 @@ export default function ShareBar({
     setCanNativeShare(typeof navigator !== "undefined" && !!navigator.share);
   }, [url]);
 
-  const shareText = `${title} | Kinda`;
+  const shareText = shareTextProp ?? `${title} | Kinda`;
   const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(resolvedUrl)}`;
   const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(resolvedUrl)}&text=${encodeURIComponent(shareText)}`;
 
