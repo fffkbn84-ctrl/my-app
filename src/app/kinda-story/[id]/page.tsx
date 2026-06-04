@@ -7,7 +7,7 @@ import Footer from "@/components/layout/Footer";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
 import InlineBridgeCta from "@/components/reading/InlineBridgeCta";
-import { STORIES, getStoryById } from "@/lib/mock/stories";
+import { STORIES, getStoryById, getStoryThumbnail } from "@/lib/mock/stories";
 import { COUNSELORS, AGENCIES } from "@/lib/data";
 
 export function generateStaticParams() {
@@ -22,9 +22,27 @@ export async function generateMetadata({
   const { id } = await params;
   const story = getStoryById(id);
   if (!story) return { title: "Kinda story | ふたりへ" };
+  const title = `${story.title} | Kinda story | ふたりへ`;
+  const description = story.quote.slice(0, 100);
+  // 記事ごとのサムネ（個別 thumbnail > stage プール）を og:image に流用。
+  // SNS シェア時のカード画像を記事固有にして拡散・流入を強める。
+  const image = getStoryThumbnail(story);
   return {
-    title: `${story.title} | Kinda story | ふたりへ`,
-    description: story.quote.slice(0, 100),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      images: [{ url: image, width: 1672, height: 941, alt: story.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    alternates: { canonical: `/kinda-story/${id}` },
   };
 }
 
