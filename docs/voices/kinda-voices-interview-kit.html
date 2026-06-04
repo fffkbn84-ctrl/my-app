@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kinda voices 取材キット — カウンセラー取材用</title>
+<style>
+  /* ============================================================
+     Kinda voices 取材キット（自己完結 / 取材当日に持参・印刷=A4）
+     CLAUDE.md §11 準拠：8セクション構成・Kindaトーン・Whisper運用
+     ============================================================ */
+  :root{
+    --bg:#F5EEE6; --accent:#D4A090; --accent-deep:#B8796A;
+    --ink:#3A2E2A; --ink-soft:#7A6560; --ink-faint:#B0968E;
+    --card:#FBF7F1; --line:#E8D8D0; --quote:#EFE2DB;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:#EDE6DC; color:var(--ink);
+    font-family:'Noto Serif JP',"Hiragino Mincho ProN",serif;
+    line-height:1.9; padding:32px 16px;
+    -webkit-font-smoothing:antialiased;
+    display:flex; justify-content:center;
+  }
+  .doc{ width:760px; max-width:100%; }
+
+  /* ヘッダー */
+  .head{
+    background:var(--ink); color:#fff; border-radius:10px;
+    padding:34px 40px; position:relative; overflow:hidden; margin-bottom:26px;
+  }
+  .head::before{content:'';position:absolute;top:-60px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(212,160,144,.12);}
+  .head .ey{font-size:11px;letter-spacing:.34em;color:var(--accent);margin-bottom:10px;}
+  .head h1{font-size:26px;font-weight:500;letter-spacing:.04em;}
+  .head .sub{font-size:12.5px;color:rgba(255,255,255,.5);margin-top:8px;}
+
+  /* セクション枠 */
+  .sec{ background:var(--card); border:1px solid var(--line); border-radius:10px;
+        padding:24px 28px; margin-bottom:18px; }
+  .sec-h{ display:flex; align-items:baseline; gap:12px; margin-bottom:14px; }
+  .sec-n{ font-size:24px; color:var(--accent); font-weight:600; line-height:1; flex-shrink:0; }
+  .sec-t{ font-size:16px; font-weight:600; }
+  .sec-role{ font-size:11.5px; color:var(--ink-faint); margin-left:auto; text-align:right; max-width:46%; }
+
+  .q{ font-size:14px; color:var(--ink); padding:8px 0 8px 20px; position:relative; }
+  .q::before{ content:''; position:absolute; left:0; top:17px; width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .q + .q{ border-top:1px dashed var(--line); }
+  .q .tip{ display:block; font-size:11.5px; color:var(--ink-soft); margin-top:3px; }
+
+  /* 注意ボックス */
+  .note{ background:var(--quote); border-left:4px solid var(--accent); border-radius:6px;
+         padding:16px 20px; margin-bottom:18px; }
+  .note h3{ font-size:13px; color:var(--accent-deep); letter-spacing:.06em; margin-bottom:8px; }
+  .note ul{ list-style:none; }
+  .note li{ font-size:12.5px; color:var(--ink-soft); padding:3px 0 3px 16px; position:relative; }
+  .note li::before{ content:'—'; position:absolute; left:0; color:var(--accent); }
+
+  /* 引用ブロックの見本 */
+  .quote-demo{ background:#fff; border:1px dashed var(--accent); border-radius:8px;
+               padding:14px 18px; font-size:13px; color:var(--ink-soft); font-style:italic; }
+
+  /* 撮影カットリスト */
+  .shots{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .shot{ background:#fff; border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-size:12.5px; }
+  .shot b{ color:var(--accent-deep); display:block; font-size:12px; margin-bottom:2px; }
+
+  /* ワークフロー */
+  .flow{ display:flex; flex-direction:column; gap:6px; }
+  .flow .step{ font-size:12.5px; color:var(--ink-soft); padding-left:22px; position:relative; }
+  .flow .step b{ color:var(--ink); }
+  .flow .step::before{ counter-increment:s; content:counter(s); position:absolute; left:0; top:1px;
+    width:16px; height:16px; border-radius:50%; background:var(--accent); color:#fff;
+    font-size:10px; display:flex; align-items:center; justify-content:center; }
+  .flow{ counter-reset:s; }
+
+  .lead-sec h2{ font-size:14px; color:var(--accent-deep); margin:26px 0 12px; letter-spacing:.06em; }
+
+  code{ background:#fff; border:1px solid var(--line); border-radius:4px; padding:1px 6px; font-size:12px; color:var(--accent-deep); }
+
+  .foot{ font-size:11px; color:var(--ink-faint); text-align:center; margin-top:24px; }
+
+  @media print{
+    @page{ size:A4; margin:14mm; }
+    body{ background:#fff; padding:0; }
+    .sec,.note,.head{ break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <div class="head">
+    <div class="ey">KINDA VOICES — INTERVIEW KIT</div>
+    <h1>取材キット（カウンセラー取材用）</h1>
+    <div class="sub">録音前提・所要60分目安　/　記事は8セクション固定・3,000〜4,500字　/　撮影5〜8枚</div>
+  </div>
+
+  <!-- トーン注意：最初に読む -->
+  <div class="note">
+    <h3>取材前に読む — Kindaトーン（記事も会話も同じ）</h3>
+    <ul>
+      <li>励まさない・断言しない。「現象を描写する」にとどめる（Kinda note と同じ原則）</li>
+      <li>「婚活しなくちゃ」ではなく「誰かと過ごしたい」に寄り添う視点で聞く</li>
+      <li>「異性／男女」を前提にしない。「相手」「ふたり」で話す（LGBTQ+ 包摂）</li>
+      <li>「結婚」「成婚」をゴールとして煽らない。SEO上 本文で語は使ってよいが主役にしない</li>
+      <li>相手を下に見る表現・空虚な共感（「すごい」「わかる」）を使わない</li>
+    </ul>
+  </div>
+
+  <!-- 当日の流れ -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">▸</div><div class="sec-t">当日の進め方</div></div>
+    <div class="flow">
+      <div class="step"><b>冒頭（〜5分）</b>：録音の同意を取る。「うまく話そうとしなくて大丈夫、思い出しながらで」と伝えて緊張をほどく。</div>
+      <div class="step"><b>本編（〜45分）</b>：下のセクション4→5→6→7の順で。原体験から始めると言葉がほぐれる。</div>
+      <div class="step"><b>締め（〜10分）</b>：セクション8。最後に「記事を読む“まだ会ったことのない人”へ一言」を必ずもらう。</div>
+      <div class="step"><b>撮影</b>：会話の合間に自然光で。構えさせない。最後にまとめ撮りより、話している最中の表情が良い。</div>
+    </div>
+  </div>
+
+  <div class="lead-sec"><h2>質問リスト — 記事の8セクションに対応</h2></div>
+
+  <!-- 3 プロフィール -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">3</div><div class="sec-t">プロフィールサマリー</div>
+      <div class="sec-role">記事：箱組み。地域名はSEOキーワード</div></div>
+    <div class="q">お名前・相談所名・主に活動されている地域を教えてください。<span class="tip">title に「相談所名＋お名前＋地域名」を入れるため正確に。</span></div>
+    <div class="q">この仕事に携わって何年になりますか。前職や、これまでのご経歴は。</div>
+    <div class="q">どんなご相談が得意ですか。ご自身の強みを一言でいうと。</div>
+  </div>
+
+  <!-- 4 原体験 -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">4</div><div class="sec-t">この仕事を選んだ理由（原体験）</div>
+      <div class="sec-role">記事の核。具体的な一場面を引き出す</div></div>
+    <div class="q">そもそも、なぜこの仕事をしようと思ったのですか。</div>
+    <div class="q">きっかけになった出来事や、忘れられない場面はありますか。<span class="tip">抽象論で止まったら「それはいつ頃の、どんな場面でしたか」と一段具体に降ろす。</span></div>
+    <div class="q">その時、ご自身は何を感じていましたか。</div>
+  </div>
+
+  <!-- 5 担当してきた人 -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">5</div><div class="sec-t">どんな人を担当してきたか</div>
+      <div class="sec-role">ロングテールSEO。読者の自己投影点</div></div>
+    <div class="q">これまで、どんな方の相談に乗ってこられましたか。<span class="tip">年代・状況・きっかけなど。「相手」「ふたり」で。異性愛を前提にしない。</span></div>
+    <div class="q">印象に残っている相談者の方は。差し支えない範囲で、その方の様子を教えてください。</div>
+    <div class="q">最初に来られた時と、進んでいく中で、その人はどう変わっていきましたか。<span class="tip">「成婚した」より「表情・言葉がどう変わったか」の現象描写を引き出す。</span></div>
+  </div>
+
+  <!-- 6 空気感 -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">6</div><div class="sec-t">相談所の空気感・働き方</div>
+      <div class="sec-role">読者の心理的ハードルを下げる</div></div>
+    <div class="q">面談は、どんな雰囲気・どんな場所で行われますか。</div>
+    <div class="q">相談者と接するとき、ご自身が大事にしていることは。</div>
+    <div class="q">逆に、「これはしない」と決めていることはありますか。<span class="tip">焦らせない・比較しない、というKindaの価値観と重なる答えが出やすい。</span></div>
+  </div>
+
+  <!-- 7 ひとこと（引用） -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">7</div><div class="sec-t">印象に残っているひとこと</div>
+      <div class="sec-role">引用ブロック＝SNS拡散設計の核</div></div>
+    <div class="q">相談者から言われて、心に残っている言葉はありますか。</div>
+    <div class="q">逆に、あなたが相談者によく伝える言葉、口ぐせのように言うことは。</div>
+    <div class="q">「婚活ってこういうものだ」という世間の思い込みに、違和感を覚えることはありますか。<span class="tip">ここで出た一言を引用ブロックに使う。「業界の常識をそっと外す言葉」を狙う。</span></div>
+    <div style="margin-top:12px" class="quote-demo">引用ブロックの狙い（例の温度感）：「“早く決めなきゃ”と思った時ほど、一回立ち止まってもらうんです。」のような、煽らず・常識を外す一言。</div>
+  </div>
+
+  <!-- 8 クロージング -->
+  <div class="sec">
+    <div class="sec-h"><div class="sec-n">8</div><div class="sec-t">クロージング＋CTA</div>
+      <div class="sec-role">記事末尾 → カウンセラー詳細ページへ内部リンク</div></div>
+    <div class="q">これからあなたに出会うかもしれない人へ、伝えたいことはありますか。<span class="tip">CTA文言「○○さんの話を、直接聞いてみる。」に自然につながる答えを最後にもらう。</span></div>
+    <div class="q">最後に、言い足りなかったこと・付け加えたいことがあれば。</div>
+  </div>
+
+  <!-- 撮影カットリスト -->
+  <div class="lead-sec"><h2>撮影カットリスト（5〜8枚・自然光で）</h2></div>
+  <div class="sec">
+    <div class="shots">
+      <div class="shot"><b>① ヘッダー用・正面〜やや斜め</b>話している最中の自然な表情。記事トップに使う。</div>
+      <div class="shot"><b>② 横顔・語っている瞬間</b>視線を外した思考中のカット。リード横に効く。</div>
+      <div class="shot"><b>③ 手元・資料やノート</b>人柄が出る。本文の区切りに。</div>
+      <div class="shot"><b>④ 面談スペース全体</b>空気感が伝わる引きの画。セクション6用。</div>
+      <div class="shot"><b>⑤ 相談所の入口・看板・外観</b>地域・実在感の担保。</div>
+      <div class="shot"><b>⑥ 小物（本・手紙・小さな飾り）</b>その人らしさの寄り。</div>
+      <div class="shot"><b>⑦ ふたりがけの席・窓辺の光</b>クレイ風の世界観に寄せた情景。</div>
+      <div class="shot"><b>⑧ 予備・笑顔のカット</b>クロージング近くに。煽らない範囲で。</div>
+    </div>
+  </div>
+
+  <!-- 取材後ワークフロー -->
+  <div class="lead-sec"><h2>取材後の流れ（Whisper・MacBook Neo）</h2></div>
+  <div class="sec">
+    <div class="flow">
+      <div class="step">iPhone のボイスメモで録音 → <b>AirDrop で Mac のデスクトップへ</b>転送。</div>
+      <div class="step">ターミナルで <code>whisper ~/Desktop/ファイル名.m4a --language ja --model medium</code>（初回のみモデルDL・約5分）。</div>
+      <div class="step">デスクトップに <b>.txt が自動生成</b>される。</div>
+      <div class="step">Claude.ai に貼り付けて<b>「Kinda voices の構成で記事にして」</b>と指示。</div>
+      <div class="step">完成原稿を <b>MDX ファイル</b>として Kinda voices に追加。撮影写真は WebP 変換して配置。</div>
+    </div>
+  </div>
+
+  <div class="foot">Kinda voices — 取材キット v1　/　構成・トーンの正は CLAUDE.md §11</div>
+
+</div>
+</body>
+</html>

@@ -12,8 +12,12 @@
 
 #### 完了（このセッション）
 - [x] `files.zip`（引き継ぎ資料）を取り込み、CLAUDE.md §11(Kinda voices運用)・§12(Stripe/Resend)へ反映。
-- [x] リポジトリ整理：散在資料をコーナー別に集約（`docs/sales` `docs/specs` `docs/implementation` `docs/guides` `docs/handoff`）。`files.zip` は展開後削除。
+- [x] リポジトリ整理：散在資料をコーナー別に集約（`docs/sales` `docs/specs` `docs/implementation` `docs/guides` `docs/handoff` `docs/voices`）。`files.zip` は展開後削除。
 - [x] Stripe/Resend 実装指示書を `docs/implementation/claude-code-stripe-resend-implementation.md` として配置（実装はこれを正とする）。
+- [x] 営業台本の強化（Kinda voices切り札・反論2枚追加・¥5,000桁対比・クロージング2分岐・パターンC再接触）。
+- [x] 掲載運用の訂正：入力は**専用アカウントで自分で・編集可**、運営代行は**初期口コミのみ**。台本の事実誤りを修正。
+- [x] 営業資料のURL統一（`my-app-rp9u.vercel.app`）。
+- [x] **Kinda voices 取材キット**作成（`docs/voices/kinda-voices-interview-kit.html`・§11準拠の現場用ツール）。
 
 #### 最優先（Stripe実装のブロッカー・順に着手）
 - [ ] **特商法表記ページ作成**（Stripe審査の必須条件）。販売業者名・責任者・所在地・電話・メール・サービス内容・料金・支払方法・提供時期・返金ポリシーを記載。
