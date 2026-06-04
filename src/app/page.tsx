@@ -6,7 +6,7 @@ import RevealObserver from "@/components/ui/RevealObserver";
 import SectionDivider from "@/components/ui/SectionDivider";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
 import { getCounselors } from "@/lib/data";
-import { STORIES } from "@/lib/mock/stories";
+import { STORIES, getStoryThumbnail } from "@/lib/mock/stories";
 import type { StoryStage } from "@/lib/mock/stories";
 import { getAllColumns } from "@/lib/columns";
 import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
@@ -784,7 +784,7 @@ export default async function HomePage() {
                     height: 132,
                     borderRadius: 14,
                     marginBottom: 16,
-                    background: `url('${story.thumbnail ?? `/images/story-${STAGE_VISUAL[story.stage].key}.webp`}') center/cover no-repeat, ${STAGE_VISUAL[story.stage].gradient}`,
+                    background: `url('${getStoryThumbnail(story)}') center/cover no-repeat, ${STAGE_VISUAL[story.stage].gradient}`,
                     position: "relative",
                     overflow: "hidden",
                   }}

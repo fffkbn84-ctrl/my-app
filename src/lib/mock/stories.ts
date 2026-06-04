@@ -169,3 +169,30 @@ export const STORIES: Story[] = [
 export function getStoryById(id: string): Story | undefined {
   return STORIES.find((s) => s.id === id);
 }
+
+/* ────────────────────────────────────────────────────────────
+   Kinda story サムネの解決ロジック
+   - stage ごとに「プール（複数枚）」を持ち、id ハッシュで自動分散する。
+     → 同 stage の記事が増えても絵が重複せず、飽きを回避できる。
+   - 画像を増やしたい時：該当 stage の配列にファイルを足すだけ。
+   - 「この記事はこの画像」と固定したい時：Story.thumbnail を指定（プールより優先）。
+   - 色味・時間帯を stage ごとに変えておくと、バッジに加えて絵でも段階が伝わる。
+──────────────────────────────────────────────────────────── */
+export const STORY_THUMBNAIL_POOL: Record<StoryStage, string[]> = {
+  成婚: ["/images/story-seikon.webp"],
+  交際中: ["/images/story-kosai.webp"],
+  活動中: ["/images/story-katsudo.webp"],
+};
+
+function hashStoryId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/** 物語のサムネ画像 URL。優先順：個別指定 thumbnail > stage プール(id 分散)。 */
+export function getStoryThumbnail(story: Story): string {
+  if (story.thumbnail) return story.thumbnail;
+  const pool = STORY_THUMBNAIL_POOL[story.stage];
+  return pool[hashStoryId(story.id) % pool.length];
+}
