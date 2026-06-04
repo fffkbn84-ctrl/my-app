@@ -784,7 +784,7 @@ export default async function HomePage() {
                     height: 132,
                     borderRadius: 14,
                     marginBottom: 16,
-                    background: `url('/images/story-${STAGE_VISUAL[story.stage].key}.webp') center/cover no-repeat, ${STAGE_VISUAL[story.stage].gradient}`,
+                    background: `url('${story.thumbnail ?? `/images/story-${STAGE_VISUAL[story.stage].key}.webp`}') center/cover no-repeat, ${STAGE_VISUAL[story.stage].gradient}`,
                     position: "relative",
                     overflow: "hidden",
                   }}
