@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = "2026年5月23日";
+const LAST_UPDATED = "2026年6月4日";
 
 export default function TokushouPage() {
   return (
@@ -103,6 +103,9 @@ export default function TokushouPage() {
                     <span className="legal-note-inline">
                       結婚相談所での面談料・入会金・月会費・お見合い料・成婚料等は、各相談所が定めるものであり、
                       当社が請求するものではありません。
+                      <br />
+                      ※当社が結婚相談所さまから受け取る送客手数料（成果報酬）は、相談所さまとの事業者間契約に基づくものであり、
+                      ユーザーのみなさまにご負担いただくものではありません。
                     </span>
                   </td>
                 </tr>
