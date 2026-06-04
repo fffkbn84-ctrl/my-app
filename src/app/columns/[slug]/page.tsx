@@ -7,7 +7,7 @@ import {
   WEATHER_DESCRIPTIONS,
   type WeatherKey,
 } from "@/app/kinda-note/data/weatherDescriptions";
-import ShareButtons from "./ShareButtons";
+import ShareBar from "@/components/share/ShareBar";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
 import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
@@ -514,8 +514,8 @@ export default async function ColumnDetailPage({ params }: Props) {
             targetId={column.slug}
           />
 
-          {/* SNSシェアボタン */}
-          <ShareButtons title={column.title} slug={column.slug} />
+          {/* SNSシェアボタン（Kinda 共通 ShareBar） */}
+          <ShareBar title={column.title} label="この記事をシェアする" />
 
           {/* 区切り線 */}
           <div style={{ borderBottom: "1px solid var(--pale)", margin: "40px 0 32px" }} />

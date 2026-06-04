@@ -50,7 +50,7 @@ export default function KindaStoryPage() {
         <section className="ks-hero">
           <div className="ks-hero-bg-image" aria-hidden>
             <Image
-              src="/images/section-story-new.webp"
+              src="/images/story-hero.webp"
               alt=""
               fill
               priority

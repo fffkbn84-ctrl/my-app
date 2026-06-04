@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SympathyButton from "@/components/episodes/SympathyButton";
-import StoryShareBar from "@/components/episodes/StoryShareBar";
+import ShareBar from "@/components/share/ShareBar";
 import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
 import InlineBridgeCta from "@/components/reading/InlineBridgeCta";
 import { STORIES, getStoryById, getStoryThumbnail } from "@/lib/mock/stories";
@@ -144,7 +144,7 @@ export default async function KindaStoryDetailPage({
             />
 
             {/* シェア */}
-            <StoryShareBar title={story.title} />
+            <ShareBar title={story.title} label="この物語をシェアする" />
 
             {/* 担当 */}
             <div className="ks-article-divider" />

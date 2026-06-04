@@ -6089,20 +6089,16 @@ body:has(.cta-mobile-bar) .floating-back {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(232,244,228,.5) 0%, rgba(200,224,192,.18) 55%, rgba(232,244,228,0) 90%),
-    linear-gradient(180deg, rgba(232,244,228,.28) 0%, rgba(232,244,228,.1) 55%, rgba(232,244,228,0) 100%);
-  mix-blend-mode: soft-light;
+  background: transparent;
 }
+/* 明るいクレイ画像向け：濃い文字を読ませる淡いクリームのスクリム（中央を少し持ち上げる）。 */
 .ks-hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(180deg,
-    rgba(20,40,20,0) 0%,
-    rgba(20,40,20,0) 35%,
-    rgba(20,40,20,.22) 70%,
-    rgba(15,30,15,.66) 100%);
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(245,238,230,.55) 0%, rgba(245,238,230,.2) 45%, rgba(245,238,230,0) 80%),
+    linear-gradient(180deg, rgba(245,238,230,.25) 0%, rgba(245,238,230,.1) 50%, rgba(245,238,230,.3) 100%);
 }
 .ks-hero-inner {
   position: relative;
@@ -6116,37 +6112,36 @@ body:has(.cta-mobile-bar) .floating-back {
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   letter-spacing: .18em;
-  color: rgba(255,255,255,.92);
+  color: #8B7355;
   text-transform: uppercase;
   margin-bottom: 8px;
-  text-shadow: 0 2px 8px rgba(0,0,0,.3);
 }
 .ks-hero-title {
   font-family: 'Shippori Mincho', serif;
   font-size: clamp(28px, 6vw, 42px);
-  color: white;
+  color: var(--ink);
   font-weight: 500;
   line-height: 1.3;
   margin-bottom: 4px;
-  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+  text-shadow: 0 1px 3px rgba(255,255,255,.6);
 }
 .ks-hero-title em {
   font-family: 'DM Serif Display', serif;
   font-style: italic;
-  color: #DDEAD4;
+  color: #B07C5B;
   font-weight: 400;
   margin: 0 4px;
 }
 .ks-hero-sub {
   font-size: 13px;
-  color: rgba(255,255,255,.85);
+  color: var(--mid);
   margin-bottom: 18px;
-  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+  text-shadow: 0 1px 2px rgba(255,255,255,.5);
 }
 .ks-hero-divider {
   width: 40px;
   height: 1px;
-  background: rgba(255,255,255,.35);
+  background: rgba(120,90,60,.3);
   margin: 18px auto;
 }
 .ks-hero-copy {
@@ -6154,51 +6149,46 @@ body:has(.cta-mobile-bar) .floating-back {
   font-style: italic;
   font-size: clamp(15px, 3.4vw, 19px);
   line-height: 1.95;
-  color: white;
+  color: var(--ink);
   max-width: 480px;
   margin: 0 auto;
-  text-shadow: 0 2px 12px rgba(0,0,0,.35);
+  text-shadow: 0 1px 3px rgba(255,255,255,.55);
 }
 
 /* PC 版ヒーロー：全面画像のクローズアップが間延びするのを抑える。
    高さを抑えて縦中央寄せ＋オーバーレイを均一に強め、ムード背景として成立させる。 */
 @media (min-width: 768px) {
   .ks-hero {
-    min-height: 280px;
-    max-height: 340px;
+    min-height: 340px;
+    max-height: 440px;
     align-items: center;
     padding-top: calc(var(--header-height) + 40px);
     padding-bottom: 40px;
   }
   .ks-hero-bg-image img {
-    object-position: center 38%;
-  }
-  .ks-hero-overlay {
-    background:
-      radial-gradient(ellipse at 50% 50%, rgba(15,30,15,.12) 0%, rgba(15,30,15,.40) 100%),
-      linear-gradient(180deg, rgba(15,30,15,.30) 0%, rgba(15,30,15,.20) 45%, rgba(15,30,15,.55) 100%);
+    object-position: center 60%;
   }
 }
 
-/* ─── Kinda story 記事内シェアバー ─── */
-.story-share {
+/* ─── 共通シェアバー（Kinda story 仕様） ─── */
+.share-bar {
   margin: 22px auto 0;
   text-align: center;
 }
-.story-share-label {
+.share-bar-label {
   display: block;
   font-size: 11px;
   letter-spacing: .12em;
   color: var(--muted);
   margin-bottom: 10px;
 }
-.story-share-row {
+.share-bar-row {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 10px;
 }
-.story-share-btn {
+.share-bar-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -6213,12 +6203,12 @@ body:has(.cta-mobile-bar) .floating-back {
   cursor: pointer;
   transition: background .2s, transform .2s, box-shadow .2s;
 }
-.story-share-btn:hover {
+.share-bar-btn:hover {
   background: #F2F8EE;
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(90,128,80,.14);
 }
-.story-share-btn:focus-visible {
+.share-bar-btn:focus-visible {
   outline: 2px solid #9FC08F;
   outline-offset: 2px;
 }
