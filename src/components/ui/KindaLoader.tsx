@@ -1,11 +1,12 @@
 /**
- * Kinda 全体共通のローダー。SectionDivider と同じ噴水シンボルを脈動させる。
+ * Kinda 全体共通のローダー。SectionDivider と同じ「日の出」シンボルを脈動させる。
+ * 太陽がやわらかく昇り、光線が呼吸する（天気メタファー＝上から差し込む光）。
  *
  * variant:
  *   - "page"   : Suspense fallback 用。大きめ + 文言付き + minHeight 確保
  *   - "inline" : 短い待ち向け。小さめ・文言なし
  *
- * @keyframes は globals.css に集約（kinda-loader-droplet / kinda-loader-flow）。
+ * @keyframes は globals.css に集約（kinda-loader-sun / kinda-loader-ray）。
  */
 
 type Variant = "inline" | "page";
@@ -39,7 +40,7 @@ export default function KindaLoader({
         color: "var(--accent)",
       }}
     >
-      <FountainPulse size={iconSize} />
+      <SunrisePulse size={iconSize} />
       {isPage && (
         <span
           style={{
@@ -55,7 +56,7 @@ export default function KindaLoader({
   );
 }
 
-function FountainPulse({ size }: { size: number }) {
+function SunrisePulse({ size }: { size: number }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -69,20 +70,21 @@ function FountainPulse({ size }: { size: number }) {
       aria-hidden="true"
       style={{ display: "block", color: "var(--accent)" }}
     >
-      <ellipse
-        cx="12"
-        cy="4"
-        rx="1.2"
-        ry="1.6"
-        fill="currentColor"
-        stroke="none"
-        className="kinda-loader-droplet"
-      />
-      <path d="M 12 6.4 L 12 12.2" className="kinda-loader-flow" />
-      <path d="M 12 7 Q 7 11, 5.5 16" className="kinda-loader-flow kinda-loader-flow-2" />
-      <path d="M 12 7 Q 17 11, 18.5 16" className="kinda-loader-flow kinda-loader-flow-3" />
-      <path d="M 4 16.4 Q 12 19.6, 20 16.4" />
-      <path d="M 6.4 17.6 Q 12 19.4, 17.6 17.6" opacity="0.45" />
+      {/* 光線（呼吸する・staggered） */}
+      <g className="kinda-loader-ray">
+        <path d="M 12 9.6 L 12 6" />
+      </g>
+      <path d="M 8.9 10.3 L 7.2 7.6" className="kinda-loader-ray kinda-loader-ray-2" />
+      <path d="M 15.1 10.3 L 16.8 7.6" className="kinda-loader-ray kinda-loader-ray-3" />
+      <path d="M 6.5 12 L 4.2 10.2" className="kinda-loader-ray kinda-loader-ray-4" />
+      <path d="M 17.5 12 L 19.8 10.2" className="kinda-loader-ray kinda-loader-ray-5" />
+      {/* 太陽（半円・やわらかく昇る） */}
+      <g className="kinda-loader-sun">
+        <path d="M 7.2 17 A 4.8 4.8 0 0 1 16.8 17" fill="currentColor" stroke="none" opacity="0.14" />
+        <path d="M 7.2 17 A 4.8 4.8 0 0 1 16.8 17" />
+      </g>
+      {/* 水平線 */}
+      <path d="M 3.6 17 L 20.4 17" />
     </svg>
   );
 }
