@@ -211,6 +211,7 @@ a {
 }
 
 /* ─── KindaLoader (sunrise) ─── */
+/* 旧 fountain アニメ(droplet/flow)からの置換。SectionDivider と共通シンボル。 */
 @keyframes kinda-loader-sun {
   0%, 100% { transform: translateY(0.7px); opacity: 0.82; }
   50%      { transform: translateY(-0.5px); opacity: 1; }
