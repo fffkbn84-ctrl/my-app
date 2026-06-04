@@ -6164,14 +6164,14 @@ body:has(.cta-mobile-bar) .floating-back {
    高さを抑えて縦中央寄せ＋オーバーレイを均一に強め、ムード背景として成立させる。 */
 @media (min-width: 768px) {
   .ks-hero {
-    min-height: 380px;
-    max-height: 460px;
+    min-height: 280px;
+    max-height: 340px;
     align-items: center;
-    padding-top: calc(var(--header-height) + 56px);
-    padding-bottom: 56px;
+    padding-top: calc(var(--header-height) + 40px);
+    padding-bottom: 40px;
   }
   .ks-hero-bg-image img {
-    object-position: center 45%;
+    object-position: center 38%;
   }
   .ks-hero-overlay {
     background:
@@ -6448,53 +6448,11 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 
 /* ─── 詳細ヒーロー ─── */
-.ks-detail-hero {
-  position: relative;
-  background: #E8F4E4;
-  padding: calc(var(--header-height) + 36px) 20px 44px;
-  overflow: hidden;
-  /* hero 高さを少し上げてヒーロー画像を主役化（旧 50vh） */
-  min-height: 56vh;
-  display: flex;
-  align-items: flex-end;
-}
-.ks-detail-hero-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  /* transform / transformOrigin は page.tsx の inline style で適用。
-     bfcache・next/image との干渉を避けるため CSS の cascade ではなく
-     インラインで確実に当てる。 */
-}
-/* object-fit / object-position は <Image style={...}> でインラインに付与済み。
-   ここでは CSS フォールバックを残しておく。 */
-.ks-detail-hero-bg img {
-  object-fit: cover;
-  object-position: center 55%;
-}
-.ks-detail-hero-tint {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(180deg, rgba(232,244,228,.2) 0%, rgba(232,244,228,0) 60%);
-}
-.ks-detail-hero-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(180deg,
-    rgba(15,30,15,.15) 0%,
-    rgba(15,30,15,.4) 55%,
-    rgba(15,30,15,.78) 100%);
-}
-.ks-detail-hero-inner {
-  position: relative;
-  z-index: 2;
+/* 詳細ヘッダー（Kinda voices 仕様：角丸サムネ + 下にタイトル・明るい背景） */
+.ks-detail-head {
   max-width: 720px;
   margin: 0 auto;
-  width: 100%;
+  padding: calc(var(--header-height) + 28px) 24px 0;
 }
 .ks-breadcrumb {
   display: flex;
@@ -6503,58 +6461,63 @@ body:has(.cta-mobile-bar) .floating-back {
   font-size: 11px;
   font-family: 'DM Sans', sans-serif;
   letter-spacing: .08em;
-  color: rgba(255,255,255,.78);
-  margin-bottom: 16px;
-  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+  color: var(--muted);
+  margin-bottom: 18px;
 }
 .ks-breadcrumb a {
-  color: rgba(255,255,255,.78);
+  color: var(--muted);
   text-decoration: none;
 }
 .ks-breadcrumb a:hover {
-  color: white;
+  color: #5A8050;
 }
-.ks-detail-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
+.ks-detail-thumb {
+  position: relative;
+  height: clamp(200px, 38vw, 320px);
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 28px rgba(120,110,90,.12);
 }
-.ks-detail-stage {
+.ks-detail-thumb-stage {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
   font-size: 10px;
   font-family: 'DM Sans', sans-serif;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: white;
+  letter-spacing: .12em;
+  color: #fff;
   background: rgba(90,128,80,.85);
-  padding: 4px 12px;
+  padding: 5px 13px;
   border-radius: 999px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
 }
-.ks-detail-period {
-  font-size: 12px;
-  color: rgba(255,255,255,.85);
-  text-shadow: 0 2px 8px rgba(0,0,0,.35);
+.ks-detail-thumb-period {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  font-size: 11px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  text-shadow: 0 1px 6px rgba(0,0,0,.4);
 }
 .ks-detail-title {
   font-family: 'Shippori Mincho', serif;
   font-size: clamp(22px, 5vw, 32px);
-  color: white;
+  color: var(--ink);
   font-weight: 500;
   line-height: 1.6;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   letter-spacing: .02em;
-  text-shadow: 0 2px 14px rgba(0,0,0,.4);
 }
 .ks-detail-byline {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 12px;
-  color: rgba(255,255,255,.85);
+  color: var(--mid);
   font-family: 'DM Sans', sans-serif;
-  text-shadow: 0 2px 8px rgba(0,0,0,.35);
 }
 .ks-detail-byline-sep {
   opacity: .5;

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
@@ -9,7 +8,15 @@ import StoryShareBar from "@/components/episodes/StoryShareBar";
 import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
 import InlineBridgeCta from "@/components/reading/InlineBridgeCta";
 import { STORIES, getStoryById, getStoryThumbnail } from "@/lib/mock/stories";
+import type { StoryStage } from "@/lib/mock/stories";
 import { COUNSELORS, AGENCIES } from "@/lib/data";
+
+/** サムネ未読込・欠損時のフォールバック（home の STAGE_VISUAL と同色） */
+const STAGE_GRADIENT: Record<StoryStage, string> = {
+  成婚: "linear-gradient(135deg,#E9D9C4,#F3E6D2)",
+  交際中: "linear-gradient(135deg,#DDE5D2,#EEF2E4)",
+  活動中: "linear-gradient(135deg,#DCE2EE,#ECEFF7)",
+};
 
 export function generateStaticParams() {
   return STORIES.map((s) => ({ id: s.id }));
@@ -67,51 +74,34 @@ export default async function KindaStoryDetailPage({
       <Header />
 
       <main style={{ background: "#FBFCF8" }}>
-        {/* ─── ヒーロー ─── */}
-        <section className="ks-detail-hero">
+        {/* ─── 記事ヘッダー（Kinda voices 仕様：角丸サムネ + 下にタイトル） ─── */}
+        <header className="ks-detail-head">
+          <nav className="ks-breadcrumb" aria-label="パンくず">
+            <Link href="/">ふたりへ</Link>
+            <span>/</span>
+            <Link href="/kinda-story">Kinda story</Link>
+          </nav>
+
           <div
-            className="ks-detail-hero-bg"
-            aria-hidden
+            className="ks-detail-thumb"
             style={{
-              transform: "scale(1.12)",
-              transformOrigin: "center 30%",
-              willChange: "transform",
+              background: `url('${getStoryThumbnail(story)}') center/cover no-repeat, ${STAGE_GRADIENT[story.stage]}`,
             }}
           >
-            <Image
-              src="/images/section-story-new.webp"
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              style={{ objectFit: "cover", objectPosition: "center 55%" }}
-            />
+            <span className="ks-detail-thumb-stage">{story.stage}</span>
+            <span className="ks-detail-thumb-period">{story.periodLabel}</span>
           </div>
-          <div className="ks-detail-hero-tint" aria-hidden />
-          <div className="ks-detail-hero-overlay" aria-hidden />
 
-          <div className="ks-detail-hero-inner">
-            {/* パンくず */}
-            <nav className="ks-breadcrumb" aria-label="パンくず">
-              <Link href="/">ふたりへ</Link>
-              <span>/</span>
-              <Link href="/kinda-story">Kinda story</Link>
-            </nav>
+          <h1 className="ks-detail-title">{story.title}</h1>
 
-            <div className="ks-detail-meta">
-              <span className="ks-detail-stage">{story.stage}</span>
-              <span className="ks-detail-period">{story.periodLabel}</span>
-            </div>
-
-            <h1 className="ks-detail-title">{story.title}</h1>
-
-            <div className="ks-detail-byline">
-              <span>{story.author}（{story.age}）</span>
-              <span className="ks-detail-byline-sep">·</span>
-              <span>{story.date}</span>
-            </div>
+          <div className="ks-detail-byline">
+            <span>
+              {story.author}（{story.age}）
+            </span>
+            <span className="ks-detail-byline-sep">·</span>
+            <span>{story.date}</span>
           </div>
-        </section>
+        </header>
 
         {/* ─── 本文 ─── */}
         <article className="ks-article">
