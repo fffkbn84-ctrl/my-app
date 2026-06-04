@@ -19,7 +19,7 @@
 - [x] 営業資料のURL統一（`my-app-rp9u.vercel.app`）。
 - [x] **Kinda voices 取材キット**作成（`docs/voices/kinda-voices-interview-kit.html`・§11準拠の現場用ツール）。
 - [x] 営業台本を提案デッキのスライド順に全面整合（#4質/#6課金を本編に追加・ステマ反論カード追加・デッキ#n対応明記）。
-- [ ] **要確認**：手元の `kinda-deck-2.html` がリポジトリ版 `docs/sales/kinda-deck.html` と同一か。別構成なら台本との対応#nを再調整。
+- [x] 確認済み：手元の `kinda-deck-2.html` は同じファイルを再DLして OS が `-2` を付けただけ。リポジトリ版 `docs/sales/kinda-deck.html` と同一内容。台本との#n対応はこのままで確定。
 
 #### 最優先（Stripe実装のブロッカー・順に着手）
 - [ ] **特商法表記ページ作成**（Stripe審査の必須条件）。販売業者名・責任者・所在地・電話・メール・サービス内容・料金・支払方法・提供時期・返金ポリシーを記載。
