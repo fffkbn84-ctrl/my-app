@@ -3446,3 +3446,34 @@ UI挙動：予約が入ると管理画面に「予約者を見る」バーがロ
   3. 実装 → build green 確認
   4. デプロイ反映は `git push origin <feature>:main`（fast-forward 可能なことを `git rev-list --count claude/...` で確認してから）
 - **ブランチ系統が2つある点に注意**：ユーザーサイト(`src/`)は `main` 系統、カウンセラー(`futarive-counselor/`)は `claude/fix-profile-creation-1clpG` 系統で **履歴が分岐している**。両者を取り違えない。
+
+---
+
+### 2026-06-04 追記：営業デッキ作成 / 返金方針確定 / リポジトリ整理 / 決済・Voices設計の取り込み
+
+#### 1. 営業デッキ（`docs/sales/kinda-deck.html`・main 反映済み）
+- 結婚相談所向け提案デッキを**自己完結 HTML**で新規作成（外部画像非依存＝メール添付・PDF化で崩れない）。
+- クレイ風ベージュ / 16:9 / キーボード・タップ送り / 進捗ドット / 印刷=PDF書き出し（vw→px 切替）。
+- `?excerpt=1` で**★スライド(1,3,5,6,10)のみの抜粋版**に切替（1ソース2書き出し）。絵文字なし・「中立」不使用・競合の名指し批判なし。
+- 会社名 / 特商法 / ドメイン / 所要時間はプレースホルダのまま（実値は法人設立・ドメイン取得後）。
+
+#### 2. 返金方針の確定（スライド6に反映）
+- **相談所さま都合のキャンセルは課金確定（返金対象外）** を確定。会員に当日キャンセルのペナルティがある業態なので相談所側にも規律を求める方針。
+- デッキ脚注は「返金：24時間以内のキャンセル／日程変更の合意は返金します。」の2条件のみに修正。
+- ※決済設計の完全版返金テーブル（§12・下記 zip 由来）とは粒度が異なる：相談所都合でも「別日了承」なら返金→再課金、純キャンセル（面談不成立）は課金確定。デッキは未入会者向けに簡略表記。
+
+#### 3. 「優遇措置」は意図的に曖昧のまま（スライド8）
+- 中身は未確定。内々の仕様として後日決める（TODO に残置）。候補：送客料割引／露出優遇／一定期間の送客料ゼロ／定額プランのロック価格。
+
+#### 4. リポジトリ整理（コーナー別フォルダ化）
+- ルート直下に散在していた資料をコーナー別に集約。コード参照ゼロを確認してから `git mv`。
+  - `docs/sales/` … 営業用資料（deck / deck-brief / cold-email / faq / list-strategy / sales-script）
+  - `docs/specs/` … cancel-reschedule-spec-v1.md
+  - `docs/implementation/` … phase系・top-page-nav・weather-pages 実装指示書 ＋ Stripe/Resend実装指示書
+  - `docs/guides/` … image-audit / weather-columns-writing-guide
+  - `docs/handoff/` … handoff-summary-2026-06-04.md
+- `files.zip`（main に置かれていた引き継ぎ資料一式）を展開・取り込み後に削除。中の転記用一時ファイル2本は `docs/archive/` へ退避。
+
+#### 5. zip 由来の確定事項を CLAUDE.md に反映
+- §11「Kinda voices 運用フロー（取材→記事化）」追記：カウンセラー個人単位・8セクション固定・3,000〜4,500字・SEO（相談所名＋カウンセラー名＋地域名）・Whisper取材ワークフロー。
+- §12「決済・メール基盤（Stripe / Resend）」追記：カード登録制のみ・予約成立時即時前払い¥5,000・返金ルール完全版・Resend Free開始。実装指示書は `docs/implementation/claude-code-stripe-resend-implementation.md` を正とする。

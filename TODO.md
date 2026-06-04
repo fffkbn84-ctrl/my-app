@@ -4,7 +4,30 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-03
+最終更新: 2026-06-04
+
+---
+
+### 🆕 2026-06-04 決済(Stripe)・メール(Resend)・Kinda voices・リポジトリ整理
+
+#### 完了（このセッション）
+- [x] `files.zip`（引き継ぎ資料）を取り込み、CLAUDE.md §11(Kinda voices運用)・§12(Stripe/Resend)へ反映。
+- [x] リポジトリ整理：散在資料をコーナー別に集約（`docs/sales` `docs/specs` `docs/implementation` `docs/guides` `docs/handoff`）。`files.zip` は展開後削除。
+- [x] Stripe/Resend 実装指示書を `docs/implementation/claude-code-stripe-resend-implementation.md` として配置（実装はこれを正とする）。
+
+#### 最優先（Stripe実装のブロッカー・順に着手）
+- [ ] **特商法表記ページ作成**（Stripe審査の必須条件）。販売業者名・責任者・所在地・電話・メール・サービス内容・料金・支払方法・提供時期・返金ポリシーを記載。
+- [ ] **Stripeアカウント開設**（身分証・銀行口座・特商法URL／ビジネス説明：成果報酬型 ¥5,000/件の送客プラットフォーム）。
+- [ ] **Resendアカウント開設**（ドメインDNS認証・APIキー発行）。
+
+#### Stripe実装（アカウント開設後・Claude Codeへ渡す）
+- [ ] スキーマ追加（TASK7：`agencies.stripe_customer_id`、`reservations` 決済カラム群）。**適用前に `list_tables` 必須**。
+- [ ] カード登録フロー（Customers/SetupIntent）→ 予約成立時即時課金（Payment Intents `off_session`）→ Webhook(`payment_intent.succeeded`)でユーザー情報自動開示 → Refund API。
+- [ ] Vercel に Webhook URL 登録（`/api/stripe/webhook`）。返金→再課金（日程変更）フローも実装。
+
+#### Kinda voices
+- [ ] **Emma取材の実施（voices 1本目）**。質問リスト20問は前チャット（handoff参照）。録音→Whisper→Claude記事化。
+- [ ] Kinda voices 記事一覧UIの実装設計（カード型一覧＋カウンセラー詳細ページへの内部リンク双方向）。
 
 ---
 
