@@ -3576,3 +3576,11 @@ UI挙動：予約が入ると管理画面に「予約者を見る」バーがロ
 
 #### 注意（要対応・TODO 化）
 - コードの `metadataBase`（`src/app/layout.tsx`）が旧 `https://www.kinda-futari.app` のまま。OGP(og:image)・canonical が誤ドメインを指すため、`kinda.jp` へ修正（または `NEXT_PUBLIC_SITE_URL` 設定）が必要。
+
+### 2026-06-05（Resend 現状整理・記録）
+
+Resend の実装状況を調査して整理（コードはまだ書かず、状況の記録のみ）。
+- **admin のみ実装済み**：`futarive-admin/lib/email.ts`（送信ラッパー）＋ `/api/webhooks/billing-disputed`（相談所の課金異議 → 運営宛通知）。admin の Vercel に `RESEND_API_KEY` 設定済み。テストは `onboarding@resend.dev`（所有者宛のみ）で確認済み。
+- **user-site / counselor は未実装**：両プロジェクトに `RESEND_API_KEY` 追加＋`lib/email.ts` 展開が必要。
+- **送信ドメイン認証は `kinda.jp` DNS 反映後**（推奨サブドメイン `send.kinda.jp`・SPF/DKIM/DMARC）。認証前は実送信不可（自分宛テストのみ）。
+- **メール本体（決済完了/予約確定/連絡先開示/日程変更/返金）は Stripe 実装にセット**で作る方針（全て Stripe Webhook 起点のため・Stripe-first）。詳細は TODO 参照。

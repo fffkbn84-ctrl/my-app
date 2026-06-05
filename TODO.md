@@ -25,6 +25,24 @@
 
 ---
 
+### 🆕 2026-06-05 Resend（メール送信）の現状と残タスク
+
+> 調査結果：**Resend は admin だけ実装済み**。user-site / counselor は未実装。送信ドメイン認証は `kinda.jp` の DNS 反映後。
+
+#### 現状（実装済み・admin のみ）
+- [x] `futarive-admin/lib/email.ts`：Resend 送信ラッパー（`RESEND_API_KEY` 未設定なら送らず警告＝事故防止）。
+- [x] `futarive-admin/app/api/webhooks/billing-disputed/route.ts`：相談所が課金に異議申立て → 運営宛（`ADMIN_NOTIFY_EMAIL`）に「[ふたりへ] 課金異議申立て：相談所名」を送信。Supabase の `billing_events` UPDATE Webhook 起点。
+- [x] admin の Vercel に `RESEND_API_KEY` 設定済み。テスト送信は `onboarding@resend.dev` から（＝アカウント所有者宛のみ可）で確認済み。
+
+#### 残タスク
+- [ ] **送信ドメイン認証**（`kinda.jp` DNS 反映後）。Resend Domains で `kinda.jp`（推奨：サブドメイン `send.kinda.jp`）を SPF/DKIM/DMARC 認証 → 各 `lib/email.ts` の送信元を `onboarding@resend.dev` → `noreply@kinda.jp` 等へ差し替え。**認証前は相談所・ユーザーに実送信できない**（自分宛テストのみ）。
+- [ ] **`RESEND_API_KEY` を user-site（my-app-rp9u）と counselor（futarive-counselor）の Vercel にも追加**（プロジェクトごとに必要）。
+- [ ] **`lib/email.ts` ラッパーを my-app と futarive-counselor へ展開**（admin のものを流用）。
+- [ ] **メール本体は Stripe 実装にセットで作る**（Stripe-first）。決済完了 / 予約確定 / 連絡先開示 / 日程変更 / 返金 は全て Stripe `payment_intent.succeeded` Webhook 起点のため。文面ドラフトは Stripe 着手時にこちらで用意。
+  - 役割：user-site→ユーザー宛（確定/決済/日程変更/返金）、counselor→相談所宛（新規予約/決済成立で連絡先開示/日程変更）、admin→運営宛（異議申立て・既存）。
+
+---
+
 ### 🆕 2026-06-05 ユーザーサイト UI（日の出 / Kinda story 刷新 / シェア統一 / デプロイ運用）
 
 #### 完了（このセッション・main 反映済み）
