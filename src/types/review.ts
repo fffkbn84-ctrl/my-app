@@ -1,5 +1,17 @@
 /* 口コミ投稿フローの型定義 */
 
+/**
+ * 予約起点の口コミ投稿コンテキスト。
+ * ログイン本人の completed 予約に紐づく（認証コード制は廃止）。
+ */
+export interface ReviewReservationContext {
+  reservationId: string;
+  counselorId: string;
+  counselorName: string;
+  agencyName: string;
+  meetingDate: string; // ISO 8601 もしくは "YYYY-MM-DD"
+}
+
 export interface ReviewToken {
   token: string;
   counselorId: string;

@@ -1,5 +1,5 @@
 import Header from "@/components/layout/Header";
-import ReviewGate from "@/components/reviews/ReviewGate";
+import ReviewReservationGate from "@/components/reviews/ReviewReservationGate";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
@@ -11,9 +11,9 @@ export const metadata = {
 export default async function ReviewNewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ reservation?: string }>;
 }) {
-  const { token } = await searchParams;
+  const { reservation } = await searchParams;
 
   return (
     <>
@@ -26,8 +26,15 @@ export default async function ReviewNewPage({
         <SectionSubHeader sectionName="ホーム" sectionRoot="/" />
         <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "口コミ投稿" }]} />
         {/* ページヘッダー */}
-        <div style={{ padding: "60px 0 40px" }}>
-          <div className="max-w-[640px] mx-auto px-6 text-center">
+        <div style={{ padding: "56px 0 36px" }}>
+          <div
+            style={{
+              maxWidth: 680,
+              margin: "0 auto",
+              padding: "0 24px",
+              textAlign: "center",
+            }}
+          >
             <p
               className="text-xs tracking-[0.2em] uppercase mb-3"
               style={{ color: "var(--accent)", fontFamily: "'DM Sans', sans-serif" }}
@@ -53,9 +60,16 @@ export default async function ReviewNewPage({
           </div>
         </div>
 
-        {/* コンテンツ */}
-        <div className="max-w-[640px] mx-auto px-6 pb-20">
-          <ReviewGate urlToken={token} />
+        {/* コンテンツ（中央寄せ＋左右余白＋下ナビ分のクリアランス） */}
+        <div
+          style={{
+            maxWidth: 680,
+            margin: "0 auto",
+            padding: "0 24px",
+            paddingBottom: "calc(96px + env(safe-area-inset-bottom))",
+          }}
+        >
+          <ReviewReservationGate reservationId={reservation} />
         </div>
       </main>
     </>
