@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import type { ReviewToken, ReviewCategoryRatings } from "@/types/review";
+import type { ReviewReservationContext, ReviewCategoryRatings } from "@/types/review";
 import { useAuth } from "@/lib/auth/AuthProvider";
-import { isUuid } from "@/lib/reservations";
 
 /* ────────────────────────────────────────────────────────────
    定数
@@ -37,11 +36,24 @@ const AGE_OPTIONS = ["非公開", "20代", "30代", "40代", "50代以上"];
 
 const MIN_BODY = 50;
 
+/** submit_review RPC が投げる例外文言をユーザー向け日本語に変換 */
+function translateSubmitError(msg: string): string {
+  if (msg.includes("already_reviewed")) return "この面談の口コミはすでに投稿済みです（1面談につき1回）。";
+  if (msg.includes("not_completed")) return "この面談はまだ完了していないため投稿できません。";
+  if (msg.includes("review_window_closed")) return "口コミの投稿期間（面談完了から30日）を過ぎています。";
+  if (msg.includes("not_owner")) return "この予約はあなたのものではないため投稿できません。";
+  if (msg.includes("not_authenticated")) return "ログインが必要です。再度ログインしてください。";
+  if (msg.includes("reservation_not_found")) return "対象の予約が見つかりませんでした。";
+  return "投稿に失敗しました。もう一度お試しください。";
+}
+
 /* ────────────────────────────────────────────────────────────
    ヘルパー
 ──────────────────────────────────────────────────────────── */
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr + "T00:00:00");
+  // "YYYY-MM-DD"（日付のみ）と ISO 日時（start_at）の両方に対応
+  const d = new Date(/T/.test(dateStr) ? dateStr : dateStr + "T00:00:00");
+  if (Number.isNaN(d.getTime())) return dateStr;
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
@@ -114,10 +126,10 @@ function SectionTitle({
    ReviewForm
 ──────────────────────────────────────────────────────────── */
 export default function ReviewForm({
-  tokenData,
+  context,
   onSubmitted,
 }: {
-  tokenData: ReviewToken;
+  context: ReviewReservationContext;
   onSubmitted: () => void;
 }) {
   const [overallRating, setOverallRating] = useState(0);
@@ -156,44 +168,39 @@ export default function ReviewForm({
     setSubmitting(true);
     setSubmitError("");
 
-    // 本物の Supabase counselor (UUID) の場合のみ INSERT。
-    // モック counselor（数値 ID）の場合はデモフローのまま完了画面へ。
-    const counselorIdIsUuid = isUuid(tokenData.counselorId);
+    if (!supabase || !user) {
+      setSubmitting(false);
+      setSubmitError("ログインが必要です。お手数ですが再度ログインしてください。");
+      return;
+    }
 
-    if (counselorIdIsUuid && supabase) {
-      try {
-        const ageMap: Record<string, string> = {
-          "非公開": "non_disclosed",
-          "20代": "20s",
-          "30代": "30s",
-          "40代": "40s",
-          "50代以上": "50s_plus",
-        };
-        const { error } = await supabase.from("reviews").insert({
-          counselor_id: tokenData.counselorId,
-          rating: overallRating,
-          body: body.trim(),
-          source_type: "face_to_face",
-          is_published: false, // 運営承認後に公開
-          reviewer_age_range: ageGroup ? ageMap[ageGroup] ?? ageGroup : null,
-          // user_id は authenticated 時のみ埋める。未ログイン投稿は NULL のまま。
-          user_id: user?.id ?? null,
-        });
-        if (error) {
-          setSubmitting(false);
-          setSubmitError(error.message || "投稿に失敗しました。もう一度お試しください。");
-          return;
-        }
-      } catch (err) {
+    // 投稿は submit_review RPC 経由（SECURITY DEFINER）。
+    // サーバ側で「本人の completed 予約・30日以内・二重投稿不可」を検証して挿入する。
+    const ageMap: Record<string, string> = {
+      "非公開": "non_disclosed",
+      "20代": "20s",
+      "30代": "30s",
+      "40代": "40s",
+      "50代以上": "50s_plus",
+    };
+    try {
+      const { error } = await supabase.rpc("submit_review", {
+        p_reservation_id: context.reservationId,
+        p_rating: overallRating,
+        p_body: body.trim(),
+        p_reviewer_age_range: ageGroup ? ageMap[ageGroup] ?? ageGroup : null,
+      });
+      if (error) {
         setSubmitting(false);
-        setSubmitError(
-          err instanceof Error ? err.message : "投稿に失敗しました。もう一度お試しください。",
-        );
+        setSubmitError(translateSubmitError(error.message));
         return;
       }
-    } else {
-      // モックフロー：軽い遅延だけ入れて完了画面へ
-      await new Promise((r) => setTimeout(r, 800));
+    } catch (err) {
+      setSubmitting(false);
+      setSubmitError(
+        err instanceof Error ? err.message : "投稿に失敗しました。もう一度お試しください。",
+      );
+      return;
     }
 
     onSubmitted();
@@ -251,10 +258,10 @@ export default function ReviewForm({
               fontFamily: "var(--font-mincho)",
             }}
           >
-            {tokenData.counselorName} カウンセラー
+            {context.counselorName} カウンセラー
           </p>
           <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 3 }}>
-            {tokenData.agencyName}
+            {context.agencyName}
           </p>
           <span
             style={{
@@ -267,7 +274,7 @@ export default function ReviewForm({
               display: "inline-block",
             }}
           >
-            面談日：{formatDate(tokenData.meetingDate)}
+            面談日：{formatDate(context.meetingDate)}
           </span>
         </div>
       </div>

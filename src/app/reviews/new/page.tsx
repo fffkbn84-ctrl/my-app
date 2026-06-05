@@ -1,5 +1,5 @@
 import Header from "@/components/layout/Header";
-import ReviewGate from "@/components/reviews/ReviewGate";
+import ReviewReservationGate from "@/components/reviews/ReviewReservationGate";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 
@@ -11,9 +11,9 @@ export const metadata = {
 export default async function ReviewNewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string }>;
+  searchParams: Promise<{ reservation?: string }>;
 }) {
-  const { token } = await searchParams;
+  const { reservation } = await searchParams;
 
   return (
     <>
@@ -55,7 +55,7 @@ export default async function ReviewNewPage({
 
         {/* コンテンツ */}
         <div className="max-w-[640px] mx-auto px-6 pb-20">
-          <ReviewGate urlToken={token} />
+          <ReviewReservationGate reservationId={reservation} />
         </div>
       </main>
     </>
