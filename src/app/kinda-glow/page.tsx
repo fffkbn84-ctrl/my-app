@@ -10,7 +10,7 @@ import { getShops } from "@/lib/data";
 import KindaGlowClient from "./KindaGlowClient";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 
 const TITLE = "Kinda glow｜好きな人に会う前に、自分を整える";
 const DESCRIPTION =

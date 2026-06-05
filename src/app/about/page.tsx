@@ -38,7 +38,7 @@ export default function AboutPage() {
     "@type": "Organization",
     name: "Kinda ふたりへ",
     alternateName: ["Kinda", "カインダ ふたりへ"],
-    url: "https://www.kinda-futari.app",
+    url: "https://kinda.jp",
     description:
       "担当者を自分の目で選んで納得してから始められる婚活サービス。面談した人だけが書ける口コミと、カウンセラーへの直接予約を提供しています。",
     founder: {

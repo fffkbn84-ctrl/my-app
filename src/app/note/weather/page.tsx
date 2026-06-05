@@ -13,7 +13,7 @@ import { WEATHER_IMAGE } from "./_components/weatherImages";
 import { W, MAX_W } from "./_components/styles";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 
 const ROUTE_ORDER: RouteKey[] = ["pre", "waiting", "omiai", "date1", "multiple", "kousai"];
 

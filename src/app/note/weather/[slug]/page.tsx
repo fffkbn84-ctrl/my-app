@@ -16,7 +16,7 @@ import WeatherCTA from "../_components/WeatherCTA";
 import { W, MAX_W } from "../_components/styles";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 
 type Props = {
   params: Promise<{ slug: string }>;

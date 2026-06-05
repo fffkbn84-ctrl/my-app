@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Kinda ふたりへ のサービスに関するご質問・ご要望はこちらから。メール または LINE 公式アカウントでお受けしています。",
 };
 
-const SUPPORT_EMAIL = "hello@kinda-futari.app"; // TODO: 本番運用開始時に正式アドレスに差し替え
+const SUPPORT_EMAIL = "hello@kinda.jp"; // TODO: 本番運用開始時に正式アドレスに差し替え
 
 export default function ContactPage() {
   return (

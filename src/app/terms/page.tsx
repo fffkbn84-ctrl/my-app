@@ -46,7 +46,7 @@ export default function TermsPage() {
             <h2 className="legal-h2">第2条（定義）</h2>
             <p className="legal-text">本規約において使用する用語の定義は、以下のとおりとします。</p>
             <ul className="legal-ul">
-              <li>「本サービス」：当社が運営する Kinda ふたりへ（kinda-futari.app）および関連する Web サービスの総称</li>
+              <li>「本サービス」：当社が運営する Kinda ふたりへ（kinda.jp）および関連する Web サービスの総称</li>
               <li>「ユーザー」：本規約に同意の上、本サービスを利用する個人</li>
               <li>「カウンセラー」：本サービスに登録された結婚相談所の婚活カウンセラー</li>
               <li>「相談所」：カウンセラーが所属する結婚相談所</li>

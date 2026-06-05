@@ -172,7 +172,7 @@ const ShareCard = forwardRef<HTMLDivElement, Props>(function ShareCard(
       {/* フッター */}
       <div style={{ marginTop: "auto", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div style={{ fontSize: 12, color: "#A0A0A0", fontFamily: "'DM Sans', sans-serif", letterSpacing: "0.08em" }}>
-          {dateStr} · kinda.futarive.jp
+          {dateStr} · kinda.jp
         </div>
         <div
           style={{

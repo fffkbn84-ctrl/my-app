@@ -6,7 +6,7 @@ import { getAllColumns } from "@/lib/columns";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 
 const AREA_SLUGS = ["tokyo", "osaka", "nagoya", "fukuoka", "online"];
 

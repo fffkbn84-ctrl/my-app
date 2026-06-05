@@ -6,7 +6,7 @@ export type BreadcrumbItem = {
   href?: string;
 };
 
-const SITE_ORIGIN = "https://www.kinda-futari.app";
+const SITE_ORIGIN = "https://kinda.jp";
 
 function BreadcrumbStructuredData({ items }: { items: BreadcrumbItem[] }) {
   const data = {

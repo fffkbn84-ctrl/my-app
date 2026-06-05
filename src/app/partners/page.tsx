@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "結婚相談所・カフェ・サロンなど、Kinda ふたりへ への掲載をお考えの事業者様へ。掲載プラン・料金・お申し込み方法のご案内。",
 };
 
-const SUPPORT_EMAIL = "hello@kinda-futari.app"; // TODO: 本番運用開始時に正式アドレスに差し替え
+const SUPPORT_EMAIL = "hello@kinda.jp"; // TODO: 本番運用開始時に正式アドレスに差し替え
 
 export default function PartnersPage() {
   return (

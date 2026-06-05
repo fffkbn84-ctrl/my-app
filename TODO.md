@@ -22,6 +22,8 @@
 - [ ] **GA4 のプロパティ URL を `kinda.jp` に更新**（Vercel Analytics は自動反映で対応不要）。
 - [ ] **Stripe 審査用 URL は `kinda.jp` で申請**（アカウント開設時に使用）。
 - [ ] 特商法表記ページが本番ドメインで正しく表示されるか確認（実体は `src/app/tokushou/`）。
+- [x] サイト内の旧ドメイン（`www.kinda-futari.app` / `kinda.futarive.jp` / メール `hello@kinda-futari.app`）を全て `kinda.jp` / `hello@kinda.jp` に統一（src 20ファイル・metadataBase/JSON-LD/sitemap/robots 含む）。
+- [ ] **サポート受信 `hello@kinda.jp` の受信設定**（表示だけ変えた状態。今は受信できない）。無料案：ImprovMX / ForwardEmail 等＋Vercel DNS に MX レコード追加で Gmail へ転送。有料案：Google Workspace（約¥800/月）で本格メールボックス。Resend（送信）とは別レイヤー。
 
 ---
 

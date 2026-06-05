@@ -8,7 +8,7 @@ import KindaLoader from "@/components/ui/KindaLoader";
 import AgenciesClient from "./AgenciesClient";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 
 const TITLE = "相談所を探す｜Kinda ふたりへ";
 const DESCRIPTION =

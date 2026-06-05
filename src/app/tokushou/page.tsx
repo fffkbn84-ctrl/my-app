@@ -6,7 +6,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 export const metadata: Metadata = {
   title: "特定商取引法に基づく表記 | Kinda ふたりへ",
   description:
-    "Kinda ふたりへ（kinda-futari.app）の特定商取引法に基づく表記。販売事業者、所在地、料金、返品・キャンセル等の情報。",
+    "Kinda ふたりへ（kinda.jp）の特定商取引法に基づく表記。販売事業者、所在地、料金、返品・キャンセル等の情報。",
   robots: { index: true, follow: true },
 };
 
@@ -76,8 +76,8 @@ export default function TokushouPage() {
                 <tr>
                   <th>メールアドレス</th>
                   <td>
-                    <a href="mailto:hello@kinda-futari.app" className="legal-link">
-                      hello@kinda-futari.app
+                    <a href="mailto:hello@kinda.jp" className="legal-link">
+                      hello@kinda.jp
                     </a>
                   </td>
                 </tr>
@@ -92,7 +92,7 @@ export default function TokushouPage() {
                 </tr>
                 <tr>
                   <th>サービス名</th>
-                  <td>Kinda ふたりへ（kinda-futari.app）</td>
+                  <td>Kinda ふたりへ（kinda.jp）</td>
                 </tr>
                 <tr>
                   <th>販売価格</th>

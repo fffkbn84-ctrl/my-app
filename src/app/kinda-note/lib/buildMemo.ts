@@ -21,7 +21,7 @@ import { ROUTE_LABEL, getQuestionsForRoute } from "../data/questions";
  *
  *   ━━━━━━━━━━━━━
  *   生成日時：YYYY/MM/DD HH:mm
- *   kinda.futarive.jp
+ *   kinda.jp
  */
 
 const SEP = "━━━━━━━━━━━━━";
@@ -97,7 +97,7 @@ export function buildMemoText(input: MemoInput): string {
 
   lines.push(SEP);
   lines.push(`生成日時：${formatDate(new Date())}`);
-  lines.push("kinda.futarive.jp");
+  lines.push("kinda.jp");
 
   return lines.join("\n");
 }

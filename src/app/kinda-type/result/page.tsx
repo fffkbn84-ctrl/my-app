@@ -21,7 +21,7 @@ async function deriveSiteUrl(): Promise<string> {
     const protocol = h.get("x-forwarded-proto") ?? "https";
     return `${protocol}://${host}`;
   }
-  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.futarive.jp";
+  return process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 }
 
 /* ────────────────────────────────────────────────────────────

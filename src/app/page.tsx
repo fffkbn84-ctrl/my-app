@@ -38,7 +38,7 @@ const SITE_JSONLD = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "Kinda ふたりへ",
-  url: "https://www.kinda-futari.app",
+  url: "https://kinda.jp",
   description:
     "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと本音の口コミで選ぶ結婚相談所サービス。",
   keywords:
@@ -46,7 +46,7 @@ const SITE_JSONLD = {
   inLanguage: "ja-JP",
   potentialAction: {
     "@type": "SearchAction",
-    target: "https://www.kinda-futari.app/kinda-talk?keyword={search_term_string}",
+    target: "https://kinda.jp/kinda-talk?keyword={search_term_string}",
     "query-input": "required name=search_term_string",
   },
 } as const;
@@ -58,7 +58,7 @@ const ORG_JSONLD = {
   alternateName: ["Kinda", "カインダ", "カインダふたりへ"],
   description:
     "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーが伴走する、本音の口コミで選ぶ結婚相談所サービス。",
-  url: "https://www.kinda-futari.app",
+  url: "https://kinda.jp",
 } as const;
 
 /* ────────────────────────────────────────────────────────────

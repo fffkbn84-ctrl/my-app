@@ -10,7 +10,7 @@ import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.kinda-futari.app"
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://kinda.jp"
   ),
   title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
   description:
