@@ -160,11 +160,6 @@ export default async function DiagnosisResultPage({
   const pageUrl = `${siteUrl}/kinda-type/result?type=${typeId}`;
   const imageUrl = `${siteUrl}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
 
-  const shareText = encodeURIComponent(
-    `私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`
-  );
-  const twitterUrl = `https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(pageUrl)}`;
-
   // JSON-LD 構造化データ（Article + FAQPage schema）
   const jsonLd = [
     {
@@ -483,7 +478,12 @@ export default async function DiagnosisResultPage({
           {/* ══════════════════════════════════
               ⑥ SNSシェア + もう一度試す（trackEvent付き Client Component）
           ══════════════════════════════════ */}
-          <ShareRetryActions twitterUrl={twitterUrl} resultType={typeId} />
+          <ShareRetryActions
+            pageUrl={pageUrl}
+            shareText={`私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`}
+            shareTitle={`私は${diagType.name}でした`}
+            resultType={typeId}
+          />
 
           {/* ══════════════════════════════════
               ⑧ FAQ（最下部・SEO ロングテール対策）

@@ -6,8 +6,22 @@ import RevealObserver from "@/components/ui/RevealObserver";
 import SectionDivider from "@/components/ui/SectionDivider";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
 import { getCounselors } from "@/lib/data";
-import { STORIES } from "@/lib/mock/stories";
+import { STORIES, getStoryThumbnail } from "@/lib/mock/stories";
+import type { StoryStage } from "@/lib/mock/stories";
 import { getAllColumns } from "@/lib/columns";
+import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
+import type { WeatherKey } from "@/app/kinda-note/data/weatherDescriptions";
+
+/* ────────────────────────────────────────────────────────────
+   Kinda story カードの装飾バンド（stage 別）
+   画像があれば表示、無ければクレイ風グラデにフォールバック。
+   画像差し込み手順は WORKLOG 参照（/images/story-<key>.webp）。
+──────────────────────────────────────────────────────────── */
+const STAGE_VISUAL: Record<StoryStage, { key: string; gradient: string; en: string }> = {
+  成婚: { key: "seikon", gradient: "linear-gradient(135deg,#E9D9C4,#F3E6D2)", en: "TOGETHER" },
+  交際中: { key: "kosai", gradient: "linear-gradient(135deg,#DDE5D2,#EEF2E4)", en: "GROWING" },
+  活動中: { key: "katsudo", gradient: "linear-gradient(135deg,#DCE2EE,#ECEFF7)", en: "BEGINNING" },
+};
 
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
@@ -763,6 +777,34 @@ export default async function HomePage() {
                   transition: "transform .25s, box-shadow .25s",
                 }}
               >
+                {/* 装飾バンド（stage 別・画像 > グラデのフォールバック） */}
+                <div
+                  aria-hidden
+                  style={{
+                    height: 132,
+                    borderRadius: 14,
+                    marginBottom: 16,
+                    background: `url('${getStoryThumbnail(story)}') center/cover no-repeat, ${STAGE_VISUAL[story.stage].gradient}`,
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: 10,
+                      right: 12,
+                      fontFamily: "'DM Sans', sans-serif",
+                      fontSize: 9,
+                      letterSpacing: ".22em",
+                      color: "rgba(255,255,255,.92)",
+                      textShadow: "0 1px 4px rgba(120,90,60,.35)",
+                    }}
+                  >
+                    {STAGE_VISUAL[story.stage].en}
+                  </span>
+                </div>
+
                 {/* ステージ + 期間 */}
                 <div
                   style={{
@@ -800,6 +842,10 @@ export default async function HomePage() {
                     lineHeight: 1.95,
                     marginBottom: 14,
                     letterSpacing: ".02em",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
                   }}
                 >
                   「{story.quote}」
@@ -920,6 +966,30 @@ export default async function HomePage() {
                   transition: "transform .25s, box-shadow .25s",
                 }}
               >
+                {/* サムネ（/columns と同じ出し分け：weatherKey > thumbnail > 画像） */}
+                <div
+                  style={{
+                    height: 132,
+                    borderRadius: 14,
+                    marginBottom: 16,
+                    overflow: "hidden",
+                    position: "relative",
+                    background: article.weatherKey
+                      ? undefined
+                      : article.thumbnail
+                        ? article.thumbnail
+                        : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
+                  }}
+                >
+                  {article.weatherKey && (
+                    <WeatherColumnThumb
+                      weatherKey={article.weatherKey as WeatherKey}
+                      slug={article.slug}
+                      height={132}
+                    />
+                  )}
+                </div>
+
                 {/* カテゴリ + 読了時間 */}
                 <div
                   style={{
@@ -959,6 +1029,10 @@ export default async function HomePage() {
                     lineHeight: 1.95,
                     marginBottom: 14,
                     letterSpacing: ".02em",
+                    display: "-webkit-box",
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
                   }}
                 >
                   {article.title}

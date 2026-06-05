@@ -2,32 +2,35 @@
 
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import ShareBar from "@/components/share/ShareBar";
 
 interface Props {
-  twitterUrl: string;
+  /** 共有する本番 URL（preview から共有しても production を指すよう固定） */
+  pageUrl: string;
+  /** SNS 投稿テキスト（ハッシュタグ込み） */
+  shareText: string;
+  /** native 共有のタイトル */
+  shareTitle: string;
   resultType: string;
 }
 
-export default function ShareRetryActions({ twitterUrl, resultType }: Props) {
+export default function ShareRetryActions({
+  pageUrl,
+  shareText,
+  shareTitle,
+  resultType,
+}: Props) {
   return (
     <div className="ktr-share-wrap">
-      <a
-        href={twitterUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="ktr-share-btn"
-        onClick={() =>
-          trackEvent("kinda_type_share", {
-            method: "twitter",
-            result_type: resultType,
-          })
+      <ShareBar
+        title={shareTitle}
+        label="結果をシェアする"
+        url={pageUrl}
+        shareText={shareText}
+        onShare={(method) =>
+          trackEvent("kinda_type_share", { method, result_type: resultType })
         }
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="white" aria-hidden="true">
-          <path d="M12.6 1h2.4L9.6 6.9 16 15h-4.8l-3.6-4.7L3.2 15H.8l5.8-6.6L0 1h4.9l3.3 4.3L12.6 1zM11.8 13.5h1.3L4.3 2.4H2.9l8.9 11.1z" />
-        </svg>
-        Xでシェアする
-      </a>
+      />
 
       <div>
         <Link

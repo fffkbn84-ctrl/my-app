@@ -3,6 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { Story, StoryStage, StoryAgeBand } from "@/lib/mock/stories";
+import { getStoryThumbnail } from "@/lib/mock/stories";
+
+/** stage 別グラデ（画像未読込・欠損時のフォールバック。home の STAGE_VISUAL と同色） */
+const STAGE_GRADIENT: Record<StoryStage, string> = {
+  成婚: "linear-gradient(135deg,#E9D9C4,#F3E6D2)",
+  交際中: "linear-gradient(135deg,#DDE5D2,#EEF2E4)",
+  活動中: "linear-gradient(135deg,#DCE2EE,#ECEFF7)",
+};
 
 type StageFilter = "すべて" | StoryStage;
 type AgeFilter = "すべて" | StoryAgeBand;
@@ -115,6 +123,15 @@ export default function KindaStoryClient({ stories }: Props) {
           <div className="ks-grid">
             {filtered.map((s) => (
               <Link key={s.id} href={`/kinda-story/${s.id}`} className="ks-card">
+                <div
+                  aria-hidden
+                  style={{
+                    height: 132,
+                    borderRadius: 12,
+                    marginBottom: 14,
+                    background: `url('${getStoryThumbnail(s)}') center/cover no-repeat, ${STAGE_GRADIENT[s.stage]}`,
+                  }}
+                />
                 <div className="ks-card-meta">
                   <span className="ks-card-stage">{s.stage}</span>
                   <span className="ks-card-period">{s.periodLabel}</span>
