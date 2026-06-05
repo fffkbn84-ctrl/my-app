@@ -7,7 +7,6 @@ import { logPersonalDataAccess } from '@/lib/supabase/audit'
 import { describeError } from '@/lib/errors'
 import type { Reservation } from '@/lib/types'
 import { KINDA_TYPE_LABEL, KINDA_NOTE_WEATHER, type KindaTypeKey } from '@/lib/diagnosisLabels'
-import { FRONTSITE_URL } from '@/lib/config'
 import { requestRescheduleMultiAsCounselor, approveRescheduleAsCounselor } from '@/lib/reservations'
 
 interface SlotOption {
@@ -42,10 +41,10 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const [sendingMessage, setSendingMessage] = useState(false)
   const [messageSavedFlash, setMessageSavedFlash] = useState(false)
 
-  // 面談完了 + 口コミトークン
+  // 面談完了（口コミはお客様のマイページから投稿される運用）
   const [completing, setCompleting] = useState(false)
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false)
-  const [completedTokenInfo, setCompletedTokenInfo] = useState<{ token: string; code: string } | null>(null)
+  const [justCompleted, setJustCompleted] = useState(false)
 
   // キャンセル
   const [cancelling, setCancelling] = useState(false)
@@ -95,28 +94,20 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
     load()
   }, [reservationId, slotId])
 
-  function generateReviewCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-    let s = ''
-    for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)]
-    return `TKN-${s}`
-  }
-
   async function handleComplete() {
     if (!reservation) return
     setCompleting(true)
     setError('')
     try {
       const supabase = createClient()
-      const token = reservation.review_token ?? crypto.randomUUID()
-      const code = reservation.review_code ?? generateReviewCode()
+      // 口コミはお客様がご自身のマイページから投稿する運用（認証コードの発行・送付は不要）。
       const { error } = await supabase
         .from('reservations')
-        .update({ status: 'completed', completed_at: new Date().toISOString(), review_token: token, review_code: code })
+        .update({ status: 'completed', completed_at: new Date().toISOString() })
         .eq('id', reservation.id)
       if (error) throw error
-      setReservation({ ...reservation, status: 'completed', review_token: token, review_code: code })
-      setCompletedTokenInfo({ token, code })
+      setReservation({ ...reservation, status: 'completed' })
+      setJustCompleted(true)
       setShowCompleteConfirm(false)
     } catch (e) {
       setError('面談完了の処理に失敗しました: ' + describeError(e))
@@ -350,8 +341,8 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
     .map(id => slots.find(s => s.id === id))
     .filter((s): s is SlotOption => !!s)
 
-  const displayToken = completedTokenInfo?.token ?? reservation.review_token ?? null
-  const displayCode = completedTokenInfo?.code ?? reservation.review_code ?? null
+  // 完了直後の案内を出すか（口コミ発行UIは廃止。お客様はマイページから投稿）
+  const showCompletedNotice = justCompleted || reservation.status === 'completed'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -538,23 +529,16 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         </div>
       )}
 
-      {/* 口コミトークン */}
-      {displayToken && displayCode && (
+      {/* 面談完了の案内（口コミはお客様のマイページから投稿される） */}
+      {showCompletedNotice && (
         <div style={{ padding: '14px 16px', background: 'rgba(122,158,135,.1)', border: '1px solid rgba(122,158,135,.4)', borderRadius: 12 }}>
           <div style={{ fontSize: 11, color: 'var(--success)', fontFamily: 'DM Sans, sans-serif', letterSpacing: '.16em', marginBottom: 8, fontWeight: 600 }}>
-            ✓ {completedTokenInfo ? '面談完了 · 口コミトークンを発行しました' : '口コミ受付 URL（発行済み）'}
+            ✓ 面談完了
           </div>
-          <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: '0 0 10px' }}>
-            下記のリンクまたは認証コードを <b>{reservation.user_name}</b> 様にお送りください。これがあれば「面談済み口コミ」として投稿できます。
+          <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: 0 }}>
+            <b>{reservation.user_name}</b> 様は、ご自身のマイページから口コミを投稿できるようになりました。
+            こちらでの操作や、URL・コードのお渡しは不要です。
           </p>
-          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>口コミ受付 URL</div>
-          <div style={{ fontFamily: 'monospace', fontSize: 11, padding: '6px 10px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, marginBottom: 8, wordBreak: 'break-all', userSelect: 'all' }}>
-            {`${FRONTSITE_URL}/reviews/new?token=${displayToken}`}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4 }}>認証コード（手動入力用）</div>
-          <div style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 600, padding: '6px 10px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, letterSpacing: '.1em', userSelect: 'all' }}>
-            {displayCode}
-          </div>
         </div>
       )}
 
@@ -590,7 +574,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         <div style={{ padding: '14px 16px', background: 'var(--bg-elev)', border: '1px solid var(--accent-dim)', borderRadius: 12 }}>
           <p style={{ fontSize: 13, color: 'var(--text-deep)', margin: '0 0 12px', lineHeight: 1.7 }}>
             この面談を完了とマークしますか？<br/>
-            <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>完了すると自動で口コミ用 URL が発行され、ご本人にお送りいただけます。</span>
+            <span style={{ fontSize: 11, color: 'var(--text-mid)' }}>完了すると、お客様がご自身のマイページから口コミを投稿できるようになります。</span>
           </p>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <button className="kc-btn kc-btn-ghost kc-btn-sm" onClick={() => setShowCompleteConfirm(false)} disabled={completing}>やめる</button>
@@ -624,7 +608,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
       )}
 
       {/* アクション */}
-      {reservation.status === 'active' && !completedTokenInfo && (
+      {reservation.status === 'active' && !justCompleted && (
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button
             className="kc-btn kc-btn-primary"

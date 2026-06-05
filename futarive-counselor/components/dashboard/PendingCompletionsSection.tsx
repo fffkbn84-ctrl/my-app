@@ -13,7 +13,6 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Reservation } from '@/lib/types'
-import { FRONTSITE_URL } from '@/lib/config'
 
 interface Props {
   scopedCounselors: Counselor[]
@@ -28,29 +27,11 @@ function formatJa(iso: string | null): string {
   return `${d.getMonth() + 1}/${d.getDate()}（${w[d.getDay()]}）${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-/** ランダムな 6 桁英数（紛らわしい O / 0 / I / 1 は除外） */
-function generateReviewCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let s = ''
-  for (let i = 0; i < 6; i++) {
-    s += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return `TKN-${s}`
-}
-
 export default function PendingCompletionsRows({ scopedCounselors, onCountChange }: Props) {
   const [rows, setRows] = useState<Reservation[]>([])
   const [completingId, setCompletingId] = useState<string | null>(null)
-  // 完了直後に発行された口コミ受付情報。閉じるまで永続表示する。
-  // ふうかさん要望：トースト一瞬で消えるとトークンを控え忘れるため、
-  // 明示的に「閉じる」を押すまで URL とコードを画面に残す。
-  const [completedInfo, setCompletedInfo] = useState<{
-    reservationId: string
-    userName: string
-    token: string
-    code: string
-  } | null>(null)
-  const [copyFlash, setCopyFlash] = useState<'url' | 'code' | null>(null)
+  // 完了直後の案内（閉じるまで表示）。口コミはお客様がマイページから投稿する運用。
+  const [completedInfo, setCompletedInfo] = useState<{ userName: string } | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -86,16 +67,12 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
     if (!ok) return
     setCompletingId(reservation.id)
     const supabase = createClient()
-    // 既に発行済みなら使い回す（再発行で混乱を生まない）
-    const token = reservation.review_token ?? crypto.randomUUID()
-    const code = reservation.review_code ?? generateReviewCode()
+    // 口コミはお客様がマイページから投稿する運用（認証コード発行・送付は不要）。
     const { error } = await supabase
       .from('reservations')
       .update({
         status: 'completed',
         completed_at: new Date().toISOString(),
-        review_token: token,
-        review_code: code,
       })
       .eq('id', reservation.id)
     setCompletingId(null)
@@ -108,24 +85,7 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
       onCountChange?.(next.length)
       return next
     })
-    setCompletedInfo({
-      reservationId: reservation.id,
-      userName: reservation.user_name ?? '',
-      token,
-      code,
-    })
-  }
-
-  const reviewUrl = (token: string): string => `${FRONTSITE_URL}/reviews/new?token=${token}`
-
-  const handleCopy = async (kind: 'url' | 'code', text: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopyFlash(kind)
-      setTimeout(() => setCopyFlash(null), 1800)
-    } catch {
-      /* clipboard 拒否は無視（クリック&選択で代替可能） */
-    }
+    setCompletedInfo({ userName: reservation.user_name ?? '' })
   }
 
   if (rows.length === 0 && !completedInfo) return null
@@ -222,80 +182,11 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
               fontWeight: 600,
             }}
           >
-            ✓ 面談完了 · 口コミ受付 URL を発行しました
+            ✓ 面談完了
           </div>
-          <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: '0 0 10px' }}>
-            下記のリンクまたは認証コードを <b>{completedInfo.userName}</b> 様にお送りください。
-            これがあれば「面談済み口コミ」として投稿いただけます。
-          </p>
-          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>口コミ受付 URL</span>
-            <button
-              type="button"
-              onClick={() => handleCopy('url', reviewUrl(completedInfo.token))}
-              style={{
-                fontSize: 10,
-                background: 'transparent',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                padding: '2px 8px',
-                cursor: 'pointer',
-                color: copyFlash === 'url' ? 'var(--success, #7A9E87)' : 'var(--text-mid)',
-              }}
-            >
-              {copyFlash === 'url' ? '✓ コピーしました' : 'コピー'}
-            </button>
-          </div>
-          <div
-            style={{
-              fontFamily: 'monospace',
-              fontSize: 11,
-              padding: '6px 10px',
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              marginBottom: 8,
-              wordBreak: 'break-all',
-              userSelect: 'all',
-            }}
-          >
-            {reviewUrl(completedInfo.token)}
-          </div>
-          <div style={{ fontSize: 10, color: 'var(--text-mid)', marginBottom: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>認証コード（手動入力用）</span>
-            <button
-              type="button"
-              onClick={() => handleCopy('code', completedInfo.code)}
-              style={{
-                fontSize: 10,
-                background: 'transparent',
-                border: '1px solid var(--border)',
-                borderRadius: 6,
-                padding: '2px 8px',
-                cursor: 'pointer',
-                color: copyFlash === 'code' ? 'var(--success, #7A9E87)' : 'var(--text-mid)',
-              }}
-            >
-              {copyFlash === 'code' ? '✓ コピーしました' : 'コピー'}
-            </button>
-          </div>
-          <div
-            style={{
-              fontFamily: 'monospace',
-              fontSize: 14,
-              fontWeight: 600,
-              padding: '6px 10px',
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-              letterSpacing: '.1em',
-              userSelect: 'all',
-            }}
-          >
-            {completedInfo.code}
-          </div>
-          <p style={{ fontSize: 10, color: 'var(--text-mid)', margin: '10px 0 0', lineHeight: 1.6 }}>
-            後からカレンダーの該当予約を開いても同じ情報を確認できます。
+          <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: 0 }}>
+            <b>{completedInfo.userName}</b> 様は、ご自身のマイページから口コミを投稿できるようになりました。
+            こちらでの操作や、URL・コードのお渡しは不要です。
           </p>
         </div>
       )}
