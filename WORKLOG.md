@@ -3540,3 +3540,22 @@ UI挙動：予約が入ると管理画面に「予約者を見る」バーがロ
 - 相談所からの日程変更は原則行わない旨を条文・表記に明記。
 - 法的観点：B2B契約のため消費者契約法の適用なし＝契約自由が広く効き、相談所キャンセル＝課金確定は違約金的扱いとして有効。明らかな問題なしと判断（最終は顧問弁護士レビュー）。
 - 事業者向け特商法は counselor 管理画面の「利用規約」と並べて掲載する方針を明記（TODO残課題化）。
+
+### 2026-06-05 ユーザーサイト UI：日の出シンボル / Kinda story 視覚刷新 / シェア統一 / デプロイ運用整備
+
+ブランチ `claude/nice-ptolemy-XtRgE` → main マージ済み（本番反映）。離脱防止・資産化・拡散の観点で Kinda story 周りを中心に整備。
+
+- **日の出シンボル**：意味が読み取りづらかった「噴水」SVG を「日の出（水平線＋半円の太陽＋やわらかい光線）」へ差し替え。`KindaLoader`（光が呼吸／太陽がやわらかく昇る・`prefers-reduced-motion` 対応）と `SectionDivider`（静的・`ornament` キーを fountain→sunrise）で共通。天気メタファー＆「上から差し込む光」のブランド定義と一致。
+- **トップの story/voices カードに視覚バンド**（文字だけ2セクションのスキャン素通り＝離脱を抑制）。voices は `/columns` と同じカテゴリ対応サムネ出し分け（weatherKey>thumbnail>画像）をトップに移植（将来の取材/カフェ/SEO記事は各自の thumbnail で自動反映）。
+- **story サムネ＝stage プール＋id 分散方式**（`getStoryThumbnail`）。`STORY_THUMBNAIL_POOL` に複数枚を持てる土台。優先順は「個別 `Story.thumbnail` > stage プール(id ハッシュ分散)」で、1記事1画像にも移行可能。意味（段階）はバッジが担保し、画像は弁別性に振る方針。
+- **クレイ画像**：成婚＝黄金の夕景に寄り添う2カップ、活動中＝青い夜明けにぽつんと芽、交際中＝顔つきの芽（据え置き）。色味・時間帯・構図を振り、一覧でも段階が一目で分かるよう差別化。ファイル名は小文字統一（Linux/Vercel の case-sensitive 対策）。
+- **詳細ページを Kinda voices 仕様へ刷新**：全面クローズアップのヒーローを廃止し、記事サムネを角丸カード（左下=段階・右下=期間）→ 下にタイトル/著者、の columns 詳細レイアウトに統一。明るい背景で可読性向上。
+- **一覧ヒーロー差し替え**：マクロ接写 `section-story-new.webp` → 横長クレイ情景 `story-hero.webp`（中央に余白）。明るい画像に合わせ文字を濃色＋淡いクリームスクリムへ。PC で高さ抑制・縦中央寄せ。
+- **共通シェアバー `ShareBar`（Story 仕様）**：X / LINE / コピー / native 共有のインライン部品。`StoryShareBar` と `columns/ShareButtons` を統合・削除し、Kinda story 詳細・Kinda voices(columns) 記事を統一。`Kinda type` 結果も ShareBar へ（計測 `kinda_type_share` を onShare で全方式に拡張・「もう一度試す」・本番URL固定・ハッシュタグ文面 `shareText` は維持）。リール共有（counselor/place の `ShareSheet`）はモーダル形式を維持しつつ native 共有を追加。**Kinda note は特別仕様（html2canvas 画像保存／自由記述プライバシートグル＝予約フロー連動／天気別 og:image）維持のため変更なし**。
+- **og:image の資産化**：Kinda story 詳細に `getStoryThumbnail` を og:image / twitter(summary_large_image) として付与（記事ごとに固有のシェアカード画像）＋ canonical。一覧カードにもサムネ帯を追加（CTR）。
+- **デプロイ運用（重要・恒久化）**：Vercel の Ignored Build Step を「main のみビルド（＝feature branch の preview が全 CANCELED）」から **パス指定方式**へ変更。
+  - my-app-rp9u：`git diff --quiet HEAD^ HEAD -- src public content package.json next.config.ts tsconfig.json`
+  - futarive-counselor：`git diff --quiet HEAD^ HEAD -- ':(top)futarive-counselor'`
+  - futarive-admin：`git diff --quiet HEAD^ HEAD -- ':(top)futarive-admin'`
+  - 効果：counselor/admin だけの push で user-site がビルドされる無駄打ち（過去の日次上限到達の原因）を解消し、**user-site 変更のある feature branch では preview が出る**ように。これで「本番に出して様子見」をやめ、preview 確認 → main の運用に。
+

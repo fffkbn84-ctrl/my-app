@@ -4,7 +4,26 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-04
+最終更新: 2026-06-05
+
+---
+
+### 🆕 2026-06-05 ユーザーサイト UI（日の出 / Kinda story 刷新 / シェア統一 / デプロイ運用）
+
+#### 完了（このセッション・main 反映済み）
+- [x] 噴水SVG → 「日の出」シンボルへ（`KindaLoader` / `SectionDivider` 共通）。
+- [x] トップ story/voices カードに視覚バンド。voices は `/columns` のサムネ出し分けを移植。
+- [x] story サムネを stage プール＋id 分散（`getStoryThumbnail`）。個別 `Story.thumbnail` / og:image 対応。
+- [x] クレイ画像を差別化（成婚=夕景2カップ / 活動中=夜明けの芽 / 交際中=顔つきの芽）。一覧カードにもサムネ帯。
+- [x] story 詳細ページを Kinda voices 仕様（角丸サムネ＋下にタイトル）へ刷新。
+- [x] 一覧ヒーローを横長クレイ情景（`story-hero.webp`）へ差し替え＋濃色文字化。
+- [x] 共通 `ShareBar`（X/LINE/コピー/共有）で story / voices / type を統一。リールに native 共有追加。**note は特別仕様維持**。
+- [x] Vercel Ignored Build Step をパス指定方式へ（3プロジェクト個別）。feature branch の preview が出るように・無駄ビルド解消。
+
+#### 残課題（ドメイン取得後にまとめて）
+- [ ] **OGP（og:image）の実機検証**。`metadataBase` が `https://www.kinda-futari.app` のため、SNS シェアのカード画像はこのドメインが本番稼働・画像配信できて初めて表示される。**カスタムドメイン接続後に X/LINE/opengraph.xyz で実プレビュー確認**（story / columns / type）。必要なら `metadataBase` を実 URL に合わせて調整。
+- [ ] （任意）診断結果の「保存できる画像」を Kinda type にも追加するか検討（現状 Note のみ html2canvas でDL可。Type は og:image=リンクプレビューのみ）。Instagram ストーリー等への投稿導線を強めたい場合の打ち手。
+- [ ] （任意）OGP 専用 1200×630 画像の用意可否（現状は story サムネ 1672×941 を流用＝16:9 でほぼ問題なし。最適化したい場合のみ）。
 
 ---
 
