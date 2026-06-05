@@ -175,9 +175,11 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 
 | Vercel project | Production Branch | 外部公開 URL |
 |---|---|---|
-| my-app-rp9u（ユーザーサイト）| `main` | https://my-app-rp9u.vercel.app |
+| my-app-rp9u（ユーザーサイト）| `main` | https://kinda.jp （旧：https://my-app-rp9u.vercel.app）|
 | futarive-counselor（カウンセラー管理画面）| `claude/fix-profile-creation-1clpG` | https://futarive-counselor.vercel.app |
 | futarive-admin（管理画面）| `main`（実体は preview 運用）| `claude/futarive-admin-dashboard-iKBfw` の最新 preview URL を Vercel ダッシュボードで都度確認 |
+
+> ドメイン：2026-06-05 に **`kinda.jp`** を取得（お名前.com・法人名義 AGOGLIFE Inc.・初年度0円・NS は `ns1/ns2.vercel-dns.com`）。`my-app-rp9u` に `kinda.jp` / `www.kinda.jp` を登録。本番 URL は **`kinda.jp` に統一**（`my-app-rp9u.vercel.app` も引き続き有効）。⚠️ コードの `metadataBase` は旧 `www.kinda-futari.app` のままなので要修正（OGP/canonical 用・TODO 参照）。
 
 admin は user 一人運用 + カスタムドメイン不要のため production target は使わず preview URL を実体運用。将来複数人運用になったら counselor と同じ手順（Production Branch 切替 + Deployment Protection Disabled）を実施する。
 
@@ -185,7 +187,7 @@ admin は user 一人運用 + カスタムドメイン不要のため production
 
 | 修正対象 | 派生元 | 反映先 URL |
 |---|---|---|
-| ユーザーサイト（`src/`）| `main` → feature branch → PR → main | https://my-app-rp9u.vercel.app |
+| ユーザーサイト（`src/`）| `main` → feature branch → PR → main | https://kinda.jp |
 | counselor 管理画面（`futarive-counselor/`）| `claude/fix-profile-creation-1clpG` に直接 push、または feature branch → PR | https://futarive-counselor.vercel.app |
 | admin 管理画面（`futarive-admin/`）| `claude/futarive-admin-dashboard-iKBfw` に直接 push | preview URL |
 | ドキュメント（CLAUDE.md / TODO.md / WORKLOG.md）| `main` に直接 push 可 | — |

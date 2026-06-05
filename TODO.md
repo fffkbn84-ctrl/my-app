@@ -8,6 +8,23 @@
 
 ---
 
+### 🆕 2026-06-05 ドメイン取得（kinda.jp）・Vercel 接続
+
+#### 完了
+- [x] `kinda.jp` ドメイン取得（お名前.com・法人名義 AGOGLIFE Inc.・初年度0円・更新期限 2027/06/30）。
+- [x] お名前.com ネームサーバー → Vercel 向け（`ns1/ns2.vercel-dns.com`）へ変更。
+- [x] Vercel `my-app-rp9u` に `kinda.jp` / `www.kinda.jp` を登録（Production）。
+
+#### 最優先（反映確認・ドメイン切替の後始末）
+- [ ] **ドメイン反映確認**：Vercel Domains で `kinda.jp` が Valid Configuration（緑チェック）か。反映後 `https://kinda.jp` でサイト表示を確認（数時間〜最大48h）。
+- [ ] **`metadataBase` を `kinda.jp` に修正**（`src/app/layout.tsx`：旧 `https://www.kinda-futari.app`）。OGP(og:image)・canonical・JSON-LD の URL が誤ドメインのままなので要修正。`NEXT_PUBLIC_SITE_URL=https://kinda.jp` を Vercel に設定 or フォールバック値を変更。→ 修正後に OGP 実機検証（X/LINE/opengraph.xyz）。
+- [ ] **サイト内のハードコード URL 棚卸し**：`my-app-rp9u.vercel.app` / `kinda-futari.app` が残っていないか（JSON-LD・営業資料・sitemap 等）→ `kinda.jp` に統一。
+- [ ] **GA4 のプロパティ URL を `kinda.jp` に更新**（Vercel Analytics は自動反映で対応不要）。
+- [ ] **Stripe 審査用 URL は `kinda.jp` で申請**（アカウント開設時に使用）。
+- [ ] 特商法表記ページが本番ドメインで正しく表示されるか確認（実体は `src/app/tokushou/`）。
+
+---
+
 ### 🆕 2026-06-05 ユーザーサイト UI（日の出 / Kinda story 刷新 / シェア統一 / デプロイ運用）
 
 #### 完了（このセッション・main 反映済み）

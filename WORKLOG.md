@@ -3559,3 +3559,20 @@ UI挙動：予約が入ると管理画面に「予約者を見る」バーがロ
   - futarive-admin：`git diff --quiet HEAD^ HEAD -- ':(top)futarive-admin'`
   - 効果：counselor/admin だけの push で user-site がビルドされる無駄打ち（過去の日次上限到達の原因）を解消し、**user-site 変更のある feature branch では preview が出る**ように。これで「本番に出して様子見」をやめ、preview 確認 → main の運用に。
 
+
+### 2026-06-05（kinda.jp ドメイン取得・Vercel 接続完了）
+
+#### 1. `kinda.jp` ドメイン取得（完了）
+- 取得先：お名前.com（GMO）。料金 0円/年（初年度）・自動更新設定済み。更新期限 2027/06/30。
+- 登録名義：法人（AGOGLIFE Inc.）・担当者ふうかさん個人。Whois 代行：なし（法人住所のため不要と判断）。
+
+#### 2. お名前.com ネームサーバー設定（完了）
+- Vercel ネームサーバーに変更済み：`ns1.vercel-dns.com` / `ns2.vercel-dns.com`。
+
+#### 3. Vercel ドメイン登録（完了）
+- 対象プロジェクト：`my-app-rp9u`（ユーザーサイト）。
+- 登録済み：`kinda.jp` → Production、`www.kinda.jp` → Production。
+- 現ステータス：`Invalid Configuration`（ネームサーバー反映待ち・最大48時間）。反映後 Valid Configuration に自動更新。
+
+#### 注意（要対応・TODO 化）
+- コードの `metadataBase`（`src/app/layout.tsx`）が旧 `https://www.kinda-futari.app` のまま。OGP(og:image)・canonical が誤ドメインを指すため、`kinda.jp` へ修正（または `NEXT_PUBLIC_SITE_URL` 設定）が必要。
