@@ -16,10 +16,12 @@
 - [ ] **代表の創業エピソード**（なぜ立ち上げた／何がしたい）を**面談終盤に話す**用に台本へブロック追加。**実際のストーリーをふうかさんから受け取って文章化**する。あわせて **Kinda voices に創業ストーリー記事**として載せる案（SEO・信頼担保）。
 
 #### 口コミの信頼性（自動発行で「良い口コミだけ集まる」懸念を断つ）
-- [ ] **口コミ発行を相談所の裁量から外す設計に**（詳細は WORKLOG の調査メモ参照）。現状：相談所が「面談完了」を押す→`status=completed`→MyPage に口コミ導線が出る、までUIはある。ただし `/reviews/new` は `?token=`（モック）しか解さず、MyPage が渡す `?reservation=ID` は未配線＝**実保存まで未完成**。
-  - [ ] `/reviews/new?reservation=ID` を実装：ログインユーザーが自分の `completed` 予約に対して投稿→Supabase 保存（RLS/RPC）。モックのトークン経路を置換 or 統合。
-  - [ ] **面談完了の自動化フォールバック**：面談予定時刻からN時間/日後に未操作なら system が `completed` に自動遷移（no-show/異議は除外）。相談所が「押さないことで口コミを封じる」を不可能にする。
-  - [ ] **口コミ促進メール（Resend・Kinda運営名義）**：completed 契機で「面談お疲れさまでした、口コミを」をユーザーへ。MyPage の自動表示と二段で促進。※Resend ドメイン認証後。
+> 方針確定（2026-06-05）：①認証コード制は**廃止**（予約がログイン必須なので冗長）②自動完了の**no-showガードあり**③投稿期限**30日**。HPBも「来店翌日に自動解禁＋促進メッセージ・サロン承認不要」で同型。
+- [ ] **B. reservation 起点の口コミ投稿を実装**：ログインユーザーが自分の `completed` 予約に対して投稿 → `reviews` に insert（`reservation_id`/`user_id=auth.uid()`/`is_published=false`＝審査前）。検証は RPC（SECURITY DEFINER）で「本人所有 × completed × 未投稿 × 解禁30日以内」。RLS整備。`/reviews/new?reservation=ID` を配線。
+- [ ] **認証コード制の廃止（洗い出し→撤去）**：`src/components/reviews/ReviewGate.tsx`（AuthGate/MOCK_TOKENS）・`src/app/reviews/new/page.tsx`（`?token=`）・`src/types/review.ts`（ReviewToken）。`reservations.review_token/review_code/review_token_used` は当面温存（後で drop 可）。**営業資料の「専用URLと認証コード」表現も「ログイン＋面談完了で認証」へ要修正**（deck slide「面談を終えた人だけの認証口コミ」）。
+- [ ] **【高優先】カウンセラー管理画面の改修**（`futarive-counselor`）：面談完了フローに **no-show（未実施）マーク** を追加（自動完了の除外条件）。認証コード送付UIがあれば撤去。
+- [ ] **A. 自動完了フォールバック**：`end_at + 12時間` を過ぎた `active` 予約を system が `completed` 化（`canceled`/`no_show` は除外）。`no_show boolean`（+時刻/操作者）列を `reservations` に追加。実行は pg_cron もしくは Vercel Cron→API。
+- [ ] **C. 口コミ促進メール（Resend・運営名義）**：completed 契機で「面談お疲れさまでした、口コミを」。※Resend ドメイン認証後。A/B/カウンセラー改修は先行可能。
 
 ---
 
