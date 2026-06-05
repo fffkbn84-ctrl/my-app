@@ -29,11 +29,12 @@
 #### 口コミの信頼性（自動発行で「良い口コミだけ集まる」懸念を断つ）
 > 方針確定（2026-06-05）：①認証コード制は**廃止**（予約がログイン必須なので冗長）②自動完了は**純粋な時間ベース**（`canceled`のみ除外）。**no-showのセルフ申告ボタンは作らない**（相談所を信用して自己除外させない）。未実施は**相談所→運営へメール連絡→運営が手動で除外/返金**する例外運用に一本化。安全弁は `reviews.is_published=false`（運営審査で公開判断）＋課金は予約成立時で完了マークと無関係。③投稿期限**30日**。HPBも「来店翌日に自動解禁＋促進・サロン承認不要」で同型。
 > 注意（現状の穴）：今は ReviewForm がクライアントから直接 `reviews` に insert し、サーバ側で「本人の completed 予約か」を検証していない。RPC 化で塞ぐ。
-- [~] **B. reservation 起点の口コミ投稿を実装**：DB側RPC `submit_review`（本人×completed×未投稿×30日以内×counselorあり→`is_published=false`でinsert）**適用済み**。残：ユーザーサイトの `/reviews/new?reservation=ID` 配線＋`ReviewForm` を RPC 呼び出しに変更（Phase 2・feature branch）。
-- [ ] **【M2・要慎重】`reviews` の RLS 厳格化**：過剰権限 `auth_all_reviews`（authenticated=ALL/true）を最小権限に置換。**admin はanon/authenticatedキー運用**のため、置換ポリシーは ①user: published or 自分のreviewをSELECT／直接INSERT不可(RPC経由)／UPDATE・DELETE不可 ②counselor(owner): 自分のcounselorのreviewをSELECT＋UPDATE(agency_reply) ③admin(admin_users.role='admin'): SELECT/INSERT(proxy)/UPDATE(公開)/DELETE を網羅。剥がす前に admin公開・カウンセラー返信が動くことを確認。
+- [x] **B. reservation 起点の口コミ投稿を実装**：RPC `submit_review` ＋ ユーザーサイト `/reviews/new?reservation=ID` 配線・`ReviewForm` を RPC 化・投稿ページのPC/モバイル レイアウト修正。**main 反映済み**。
+- [x] **【M2】`reviews` の RLS 厳格化（適用済み）**：過剰権限 `auth_all_reviews` と公開漏れ `public read reviews` を撤去し、user/counselor/agency-owner/admin を網羅した最小権限ポリシーへ置換。
 - [x] **A. 自動完了フォールバック**：`auto_complete_reservations()` ＋ pg_cron（毎時0分・`end_at+12h`・canceled/reschedule=requested除外）**適用済み**。
-- [ ] **認証コード制の廃止（洗い出し→撤去）**：`src/components/reviews/ReviewGate.tsx`（AuthGate/MOCK_TOKENS）・`src/app/reviews/new/page.tsx`（`?token=`）・`src/types/review.ts`。`reservations.review_token/review_code/review_token_used` は当面温存。**営業資料の「専用URLと認証コード」表現も「ログイン＋面談完了で認証」へ要修正**。
-- [ ] **【高優先】カウンセラー管理画面の改修**（`futarive-counselor`）：面談完了時に `review_token/review_code` を書く処理（`ReservationDetailBody.tsx`）を撤去。no-showセルフ申告は作らない（運営手動運用）。
+- [x] **認証コード制の廃止（ユーザーサイト）**：`ReviewGate`(MOCK_TOKENS)削除・`?token=`廃止。`reservations.review_token/review_code/review_token_used` は当面温存。
+- [ ] **営業資料の「専用URLと認証コード」表現の修正**（deck slide「面談を終えた人だけの認証口コミ」→「ログイン＋面談完了の予約に紐づくため成りすまし不可」へ）。
+- [x] **カウンセラー管理画面の改修（適用済み）**：面談完了時の認証コード発行（`ReservationDetailBody.tsx`/`PendingCompletionsSection.tsx`）を撤去し『お客様はマイページから投稿』案内に置換。`claude/fix-profile-creation-1clpG` に push 済み。
 - [ ] **C. 口コミ促進メール（Resend・運営名義）**：completed 契機で「面談お疲れさまでした、口コミを」。※Resend ドメイン認証後。A/B/カウンセラー改修は先行可能。
 
 ---
