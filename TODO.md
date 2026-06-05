@@ -8,6 +8,21 @@
 
 ---
 
+### 🆕 2026-06-05 相談メモ（営業資料フィードバック＋口コミ仕組みの信頼性）
+
+#### 営業資料（`docs/sales/`）の修正候補
+- [ ] **「@cosme・食べログ」の比喩を見直し**：@cosme は男性・年配オーナーに伝わりにくいとの指摘。`食べログ` は維持し、もう一例は `価格.com`（比較・口コミで選ぶ／年齢性別に中立）等に置換 or 削除を検討。対象：`kinda-deck.html`・`kinda-sales-script-v1.html`・`kinda-cold-email-v1.html`・`kinda-deck-brief.md`。
+- [ ] **「一気通貫」を非・麻雀用語の表現へ**：`kinda-deck.html` の「出会いから予約まで一気通貫」を「ひと続きで」/「ワンストップ」/「ひとつの導線でつながっている」等に。
+- [ ] **代表の創業エピソード**（なぜ立ち上げた／何がしたい）を**面談終盤に話す**用に台本へブロック追加。**実際のストーリーをふうかさんから受け取って文章化**する。あわせて **Kinda voices に創業ストーリー記事**として載せる案（SEO・信頼担保）。
+
+#### 口コミの信頼性（自動発行で「良い口コミだけ集まる」懸念を断つ）
+- [ ] **口コミ発行を相談所の裁量から外す設計に**（詳細は WORKLOG の調査メモ参照）。現状：相談所が「面談完了」を押す→`status=completed`→MyPage に口コミ導線が出る、までUIはある。ただし `/reviews/new` は `?token=`（モック）しか解さず、MyPage が渡す `?reservation=ID` は未配線＝**実保存まで未完成**。
+  - [ ] `/reviews/new?reservation=ID` を実装：ログインユーザーが自分の `completed` 予約に対して投稿→Supabase 保存（RLS/RPC）。モックのトークン経路を置換 or 統合。
+  - [ ] **面談完了の自動化フォールバック**：面談予定時刻からN時間/日後に未操作なら system が `completed` に自動遷移（no-show/異議は除外）。相談所が「押さないことで口コミを封じる」を不可能にする。
+  - [ ] **口コミ促進メール（Resend・Kinda運営名義）**：completed 契機で「面談お疲れさまでした、口コミを」をユーザーへ。MyPage の自動表示と二段で促進。※Resend ドメイン認証後。
+
+---
+
 ### 🆕 2026-06-05 ドメイン取得（kinda.jp）・Vercel 接続
 
 #### 完了
@@ -24,6 +39,7 @@
 - [ ] 特商法表記ページが本番ドメインで正しく表示されるか確認（実体は `src/app/tokushou/`）。
 - [x] サイト内の旧ドメイン（`www.kinda-futari.app` / `kinda.futarive.jp` / メール `hello@kinda-futari.app`）を全て `kinda.jp` / `hello@kinda.jp` に統一（src 20ファイル・metadataBase/JSON-LD/sitemap/robots 含む）。
 - [ ] **サポート受信 `hello@kinda.jp` の受信設定**（表示だけ変えた状態。今は受信できない）。無料案：ImprovMX / ForwardEmail 等＋Vercel DNS に MX レコード追加で Gmail へ転送。有料案：Google Workspace（約¥800/月）で本格メールボックス。Resend（送信）とは別レイヤー。
+  - 進め方：**DNS（kinda.jp）反映後**に着手。ImprovMX か ForwardEmail のどちらが良いか等は **Claude に相談しながら一緒に設定**していく方針。
 
 ---
 
