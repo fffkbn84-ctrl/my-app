@@ -186,7 +186,7 @@ export default function PendingCompletionsRows({ scopedCounselors, onCountChange
           </div>
           <p style={{ fontSize: 12, color: 'var(--text-deep)', lineHeight: 1.7, margin: 0 }}>
             <b>{completedInfo.userName}</b> 様は、ご自身のマイページから口コミを投稿できるようになりました。
-            こちらでの操作や、URL・コードのお渡しは不要です。
+            こちらでの操作は不要です。
           </p>
         </div>
       )}
