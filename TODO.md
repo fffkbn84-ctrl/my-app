@@ -10,6 +10,15 @@
 
 ### 🆕 2026-06-05 相談メモ（営業資料フィードバック＋口コミ仕組みの信頼性）
 
+#### 【最優先・セキュリティ】RLS 過剰権限の是正（auth_all_* を全廃）
+> 2026-06-05 点検で発覚。reviews は対処済み(M2)。残り7テーブルに同じ `auth_all_*`(ALL/true) が残存＝ログインユーザーなら誰でも編集/削除可。
+- [ ] **`agencies / counselors / shops / slots / columns / episodes / shop_media` の RLS 最小権限化**。各テーブルの正当な書き手を maPPING（counselor=自分の counselor/agency/slot/shop/media、admin=columns/episodes/shops 等）→ owner/admin スコープのポリシーへ置換。剥がす前に counselor/admin の各操作が動くことを確認（両アプリは anon/authenticated キー運用）。
+- [ ] ERROR: Security Definer View ×3（audit_*）の閲覧権限を admin/service_role に制限。
+- [ ] SECURITY DEFINER 関数群を anon から revoke（authenticated のみに）。
+- [ ] Auth の Leaked Password Protection を有効化（ダッシュボード）。
+- [ ] Storage バケット（*-media）の listing 可否を確認・必要なら制限。
+- [ ] 既存関数6つに `set search_path=public` を付与。
+
 #### 別タスク：法務系・ユーザーサイト情報ページの更新（要対応）
 - [ ] **【最優先】返金モデル改定の全文書同期**（2026-06-05 確定：予約確定で即時課金・原則返金なし・やむを得ない場合のみ運営相談で個別返金）。請求履歴UI・CLAUDE.md §12 は反映済み。残：`agency-agreement.md`／`tokushoho-agency-b2b.md`／営業デッキ slide6 返金脚注／Stripe実装指示書（24h返金ロジック撤廃→即時課金＋例外返金）を統一。顧問弁護士レビュー前提。
 - [ ] **法務系の更新**：利用規約 `src/app/terms/`・プライバシーポリシー `src/app/privacy/`・特商法 `src/app/tokushou/`・契約書類 `docs/contracts/`。kinda.jp ドメイン確定／課金方式（カード前払い・24h返金）／口コミ仕様変更（認証コード廃止→ログイン＋面談完了）に合わせて棚卸し。顧問弁護士レビュー前提。
