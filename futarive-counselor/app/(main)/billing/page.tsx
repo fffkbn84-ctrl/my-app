@@ -133,13 +133,13 @@ export default function BillingPage() {
         borderRadius: 10,
       }}>
         <div style={{ fontSize: 13, color: 'var(--text-deep)', lineHeight: 1.7 }}>
-          Kinda は予約成立ごとに <strong>¥5,000 の集客代行費（送客料）</strong>をいただいています。
+          Kinda は予約が確定するごとに <strong>¥5,000 の集客代行費（送客料）</strong>をいただいています。
           このページでは過去の請求履歴と保留中の見込み額を確認できます。
         </div>
         <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
-          ※ 予約成立から24時間以内のユーザー取消は <strong>無料</strong>です。それ以降の取消・当日キャンセルは確定（請求対象）となります。初期費用・月額費用は不要で、成果報酬のみ。
+          ※ ご予約が確定した時点で送客料が発生します。以後のキャンセル・当日キャンセル・ユーザーの不参加（ドタキャン）について、<strong>原則として返金はいたしません</strong>。初期費用・月額費用は不要で、成果報酬のみ。
           <br />
-          ※ ユーザーが来られないなど、当日に面談を実施できなかった場合は、確認のうえ<strong>請求いたしません</strong>。お手数ですが{' '}
+          ※ やむを得ない事情がある場合は、運営事務局にて個別にご相談を承ります。お手数ですが{' '}
           <a href="mailto:hello@kinda.jp" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>お問い合わせ</a>
           {' '}よりご連絡ください。
         </div>
