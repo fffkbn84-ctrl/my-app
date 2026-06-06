@@ -18,6 +18,9 @@
   - お問い合わせ `src/app/contact/`（`hello@kinda.jp` 受信設定とセットで）
   - 掲載のご相談 `src/app/partners/`（送客料¥5,000・無料掲載・kinda.jp）
 
+#### 運営マニュアル（私用の手引き・最後でOK）
+- [ ] **運営オペレーション手引き**を作成（`docs/guides/` 想定）。最低限：①自動完了の仕組み（面談終了+12hで `active`→`completed`・毎時cron。低頻度だが未実施でも自動完了し得る）と **手動で戻す方法**（admin もしくは SQL で `status='active'`・`completed_at=null` に戻す手順）。②no-show 連絡を受けた時の処理（該当 `billing_events` を void／必要なら口コミを `is_published=false` のまま非公開維持・削除）。③口コミ審査（公開/却下）の運用。
+
 #### MyPage（マイページ）PC 表示の改修（別タスク）
 - [ ] MyPage 系の **PC レイアウト**をまとめて整える（モバイル前提の作りで PC が左寄り/余白過多になりがち）。レビュー投稿ページ等の個別対応とは分け、MyPage 系を 1 パスで対応する方針。優先度・着手時期は別途相談。
 
