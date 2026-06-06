@@ -12,7 +12,8 @@
 
 #### 【最優先・セキュリティ】RLS 過剰権限の是正（auth_all_* を全廃）
 > 2026-06-05 点検で発覚。reviews は対処済み(M2)。残り7テーブルに同じ `auth_all_*`(ALL/true) が残存＝ログインユーザーなら誰でも編集/削除可。
-- [ ] **`agencies / counselors / shops / slots / columns / episodes / shop_media` の RLS 最小権限化**。各テーブルの正当な書き手を maPPING（counselor=自分の counselor/agency/slot/shop/media、admin=columns/episodes/shops 等）→ owner/admin スコープのポリシーへ置換。剥がす前に counselor/admin の各操作が動くことを確認（両アプリは anon/authenticated キー運用）。
+- [x] **RLS 最小権限化（適用済み）**：7テーブルの auth_all_* を全廃→ owner/admin スコープへ（migration harden_core_tables_rls・`is_admin()` 関数導入）。**要：counselor/admin/ユーザー予約の実機検証**。
+- [ ] **slots UPDATE を RPC 化**：現在は予約フロー依存で UPDATE=authenticated のまま。枠ロックを SECURITY DEFINER RPC 化し UPDATE も owner/admin に絞る。
 - [ ] ERROR: Security Definer View ×3（audit_*）の閲覧権限を admin/service_role に制限。
 - [ ] SECURITY DEFINER 関数群を anon から revoke（authenticated のみに）。
 - [ ] Auth の Leaked Password Protection を有効化（ダッシュボード）。
