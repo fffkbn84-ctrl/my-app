@@ -137,8 +137,11 @@ export default function BillingPage() {
           このページでは過去の請求履歴と保留中の見込み額を確認できます。
         </div>
         <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
-          ※ 予約成立から24時間以内のユーザー取消は <strong>無料</strong>です。それ以降の取消・当日キャンセル・no-show は確定（請求対象）となります。
-          初期費用・月額費用は不要で、成果報酬のみ。
+          ※ 予約成立から24時間以内のユーザー取消は <strong>無料</strong>です。それ以降の取消・当日キャンセルは確定（請求対象）となります。初期費用・月額費用は不要で、成果報酬のみ。
+          <br />
+          ※ ユーザーが来られないなど、当日に面談を実施できなかった場合は、確認のうえ<strong>請求いたしません</strong>。お手数ですが{' '}
+          <a href="mailto:hello@kinda.jp" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>お問い合わせ</a>
+          {' '}よりご連絡ください。
         </div>
       </div>
 
