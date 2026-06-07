@@ -15,6 +15,7 @@ import {
 } from "@/lib/policyMessages";
 import CounselorDetailViewTracker from "@/components/counselors/CounselorDetailViewTracker";
 import CounselorReelMini from "@/components/counselors/CounselorReelMini";
+import ReviewReply from "@/components/counselors/ReviewReply";
 import {
   AGENCIES,
   COUNSELORS,
@@ -1415,10 +1416,36 @@ export default async function CounselorDetailPage({
                         {/* 本文 */}
                         <p className="rv-text">{review.text}</p>
 
+                        {/* よかった点タグ（投稿者が選択したもの） */}
+                        {Array.isArray(review.goodTags) && review.goodTags.length > 0 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+                            {review.goodTags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                style={{
+                                  padding: "4px 10px",
+                                  borderRadius: 16,
+                                  fontSize: 11,
+                                  color: "var(--accent)",
+                                  background: "var(--adim, rgba(200,169,122,.12))",
+                                  border: "1px solid var(--light)",
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
                         {/* フッター: 投稿者 */}
                         <div className="rv-footer">
                           <span className="rv-author">{review.author}</span>
                         </div>
+
+                        {/* 相談所（カウンセラー）からの返信：マーク → タップで展開 */}
+                        {review.reply && (
+                          <ReviewReply counselorName={counselor.name} reply={review.reply} />
+                        )}
 
                       </div>
                     ))}

@@ -1090,7 +1090,7 @@ export async function getShopById(id: string): Promise<ShopDetail | null> {
 export async function getReviewsByCounselor(counselorId: string) {
   const { data, error } = await supabase
     .from('reviews')
-    .select('id, rating, body, source_type, created_at, reviewer_age_range, user_id, counselor_id')
+    .select('id, rating, body, source_type, created_at, reviewer_age_range, user_id, counselor_id, good_tags, agency_reply')
     .eq('counselor_id', counselorId)
     .eq('is_published', true)
     .order('created_at', { ascending: false })
@@ -1105,6 +1105,8 @@ export async function getReviewsByCounselor(counselorId: string) {
     reviewer_age_range: string | null
     user_id: string | null
     counselor_id: string
+    good_tags: string[] | null
+    agency_reply: string | null
   }
   const rows = data as unknown as ReviewRow[]
 
@@ -1149,6 +1151,8 @@ export async function getReviewsByCounselor(counselorId: string) {
       author: author || 'ゲスト',
       date: isNaN(d.getTime()) ? '' : `${d.getFullYear()}年${d.getMonth() + 1}月`,
       verified: r.source_type === 'face_to_face',
+      goodTags: Array.isArray(r.good_tags) ? r.good_tags : [],
+      reply: r.agency_reply ?? null,
     }
   })
 }

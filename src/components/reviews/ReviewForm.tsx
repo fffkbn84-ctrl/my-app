@@ -189,6 +189,7 @@ export default function ReviewForm({
         p_rating: overallRating,
         p_body: body.trim(),
         p_reviewer_age_range: ageGroup ? ageMap[ageGroup] ?? ageGroup : null,
+        p_good_tags: selectedTags,
       });
       if (error) {
         setSubmitting(false);
