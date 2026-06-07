@@ -18,13 +18,14 @@
 ### いま未マージ / 進行中
 - **`claude/review-reservation-flow`** … （済）main マージ済み。
 - **`claude/pc-booking-mypage`** … （済）main マージ済み（e6c269a）。
-- **`claude/review-reply-display`** … 口コミへの**カウンセラー返信表示**。プレビュー確認OK・**main 未マージ**。次回まず `git merge` するだけ。
+- ~~**`claude/review-reply-display`**~~ … 口コミへのカウンセラー返信表示。**置き換え済み**：常時インライン表示だったが、要望（返信マーク→タップで展開）に合わせ `claude/review-display-tags-reply` で作り直し main 反映済み（2026-06-07）。当該ブランチは破棄可。
 - **DNS**：`kinda.jp` は NS 伝播途中（日本未反映）。当面 `my-app-rp9u.vercel.app`。数時間〜48hで Valid 化。
 - **Supabase 本番に適用済み（コードと対）**：`submit_review` RPC／自動完了 cron／reviews＋7テーブルの RLS 最小権限化／`is_admin()`。実機（counselor/admin/予約）動作は確認済み。
 
 ### 次の最優先候補
-- [ ] `claude/review-reply-display` を main マージ。
-- [ ] **口コミの選択タグ保存・表示**（「アドバイスが具体的」等）：現在フォームUIのみでDB未保存。要 `reviews.good_tags text[]` 追加＋`submit_review` 改修＋フォーム＋表示。
+- [x] ~~`claude/review-reply-display` を main マージ~~ → 返信マーク→タップ展開UXで作り直し main 反映済み（`claude/review-display-tags-reply`・2026-06-07）。
+- [x] **口コミの選択タグ保存・表示**（「アドバイスが具体的」等）：`reviews.good_tags text[]` 追加＋`submit_review` に `p_good_tags` 追加（DB適用済・migration 034）＋`ReviewForm` 送信＋カウンセラー詳細でピル表示。main 反映済み（2026-06-07）。
+- [x] **カウンセラー口コミ返信の不具合修正**（2026-06-07・`claude/fix-profile-creation-1clpG`）：`reviews.agency_replied_at` カラム未存在で返信 UPDATE が常に失敗し未返信のまま何度でも返信できていた → カラム追加（migration 0033）で解消。返信タブに投稿者ニックネーム（profiles.nickname）と相談日時（reservations.start_at）を表示（本名取り違え防止）。
 - [ ] 返金モデル改定の法務同期（下記）／整合性の横断監査（下記）／残セキュリティ小項目。
 
 ---
