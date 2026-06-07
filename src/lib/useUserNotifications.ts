@@ -7,7 +7,10 @@
  *   1. reservations.agency_message      … 相談所からのメッセージ
  *   2. reservations.reschedule_status='requested' かつ requested_by='counselor'
  *                                        … カウンセラーからの日程変更提案（要対応）
- *   3. reviews.agency_reply             … 投稿した口コミへの相談所返信
+ *
+ * 注：口コミへの相談所返信（reviews.agency_reply）は意図的に通知対象から外している。
+ * 正直な低評価への返信が必ずしも納得のいくものとは限らず、ユーザーに能動的に
+ * 見せる必要性が低いため。返信自体はカウンセラー詳細ページで確認できる。
  *
  * 「最後に確認した時刻」は profiles.notifications_seen_at に保存する（全端末同期）。
  * 最新通知がそれより新しければ未読(hasUnseen)。markSeen() で既読化し、
@@ -66,21 +69,6 @@ export function useUserNotifications() {
         r.reschedule_requested_at
       ) {
         max = Math.max(max, new Date(r.reschedule_requested_at).getTime());
-      }
-    }
-
-    // 口コミへの相談所返信
-    const { data: revs } = await supabase
-      .from("reviews")
-      .select("agency_reply, updated_at")
-      .eq("user_id", user.id)
-      .not("agency_reply", "is", null);
-    for (const r of (revs ?? []) as Array<{
-      agency_reply: string | null;
-      updated_at: string | null;
-    }>) {
-      if (r.agency_reply && r.updated_at) {
-        max = Math.max(max, new Date(r.updated_at).getTime());
       }
     }
 

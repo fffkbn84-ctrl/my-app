@@ -5,7 +5,8 @@
  * - 相談所/カウンセラー → ユーザー方向の通知を一覧表示する
  *   1. reservations.agency_message            … 相談所からのメッセージ
  *   2. reschedule_status='requested' & by='counselor' … カウンセラー発の日程変更提案
- *   3. reviews.agency_reply                   … 口コミへの相談所返信
+ *   （口コミへの相談所返信 reviews.agency_reply は意図的に通知対象外。
+ *     返信はカウンセラー詳細ページで確認できる。理由は useUserNotifications 参照）
  * - 「前回確認した時刻」より新しいものには「新着」バッジを付ける
  * - 表示後に既読化（markSeen）してボトムナビのドットを消す。
  *   ただし一覧自体は残るので「何の通知だったか」が分かる。
@@ -15,7 +16,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { useUserNotifications } from "@/lib/useUserNotifications";
 
-type NotiKind = "message" | "reschedule" | "reply";
+type NotiKind = "message" | "reschedule";
 
 type NotiItem = {
   id: string;
@@ -41,7 +42,6 @@ function snippet(text: string, max = 60): string {
 const KIND_LABEL: Record<NotiKind, string> = {
   message: "相談所からのメッセージ",
   reschedule: "日程変更の提案",
-  reply: "口コミへの返信",
 };
 
 export default function NotificationsSection() {
@@ -106,30 +106,6 @@ export default function NotificationsSection() {
               ? `希望日時：${fmtDateTime(r.reschedule_proposed_start)}`
               : "予約詳細から内容をご確認ください",
             href: `/mypage/reservations/${r.id}`,
-          });
-        }
-      }
-
-      const { data: revs } = await supabase
-        .from("reviews")
-        .select("id, counselor_id, agency_reply, updated_at")
-        .eq("user_id", user.id)
-        .not("agency_reply", "is", null);
-      for (const r of (revs ?? []) as Array<{
-        id: string;
-        counselor_id: string | null;
-        agency_reply: string | null;
-        updated_at: string | null;
-      }>) {
-        if (r.agency_reply && r.updated_at) {
-          list.push({
-            id: `reply-${r.id}`,
-            kind: "reply",
-            at: new Date(r.updated_at).getTime(),
-            atIso: r.updated_at,
-            title: "あなたの口コミに返信が届きました",
-            body: snippet(r.agency_reply),
-            href: r.counselor_id ? `/counselors/${r.counselor_id}#reviews` : "/mypage",
           });
         }
       }
