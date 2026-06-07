@@ -1624,8 +1624,8 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
 /* ═══════════════════════════════════════════════════════════
    予約フロー（booking flow）
 ═══════════════════════════════════════════════════════════ */
-.booking-wrap { max-width: 720px; margin: 0 auto; padding: 0 32px; }
-@media (max-width: 600px) { .booking-wrap { padding: 0 20px; } }
+.booking-wrap { max-width: 720px; margin: 0 auto; padding: 0 32px calc(96px + env(safe-area-inset-bottom)); }
+@media (max-width: 600px) { .booking-wrap { padding: 0 20px calc(96px + env(safe-area-inset-bottom)); } }
 
 /* Step indicator */
 .step-indicator { display: flex; align-items: flex-start; justify-content: center; padding: 40px 0 48px; position: relative; }

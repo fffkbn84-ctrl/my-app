@@ -71,7 +71,7 @@ export default async function BookingPage({
           ]}
         />
         {/* ページヘッダー */}
-        <div className="max-w-3xl mx-auto px-5 sm:px-8" style={{ padding: "60px 0 40px" }}>
+        <div className="max-w-3xl mx-auto px-5 sm:px-8" style={{ paddingTop: 56, paddingBottom: 36 }}>
           <div
             className="flex items-center gap-3 mb-3"
             style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "10px", letterSpacing: ".28em", textTransform: "uppercase", color: "var(--accent)" }}
