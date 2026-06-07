@@ -182,6 +182,18 @@ export interface Review {
   author_gender: string | null
   author_area: string | null
   created_at: string
+  /** 紐づく予約 ID（相談日時の参照に使用） */
+  reservation_id: string | null
+  /** 投稿者の user ID（profiles.nickname の参照に使用） */
+  user_id: string | null
+  /**
+   * 投稿者のニックネーム（profiles.nickname を別取得して付与）。
+   * 本名(reservations.user_name)ではなくニックネームを返信タブに出すことで、
+   * カウンセラーが誤って本名で返信するのを防ぐ。
+   */
+  reviewer_nickname?: string | null
+  /** 紐づく予約の相談日時（reservations.start_at を別取得して付与） */
+  meeting_at?: string | null
 }
 
 export interface AgencyContext {

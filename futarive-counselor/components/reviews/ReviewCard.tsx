@@ -57,9 +57,24 @@ export default function ReviewCard({ review, onReply, onExpand, expanded }: Revi
           </div>
           <div>
             <Stars rating={review.rating} />
-            <div className="rv-meta" style={{ marginTop: 3 }}>
+            {/* 投稿者ニックネーム（本名ではない・返信時の取り違え防止） */}
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginTop: 3 }}>
+              {review.reviewer_nickname || '匿名ユーザー'}
+              <span style={{ fontSize: 10, fontWeight: 400, color: 'var(--text-faint)', marginLeft: 6 }}>
+                ニックネーム
+              </span>
+            </div>
+            <div className="rv-meta" style={{ marginTop: 2 }}>
               {[review.author_age_range, review.author_gender, review.author_area]
                 .filter(Boolean).join(' · ')}
+              {review.meeting_at && (
+                <span>
+                  相談日時：{new Date(review.meeting_at).toLocaleString('ja-JP', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit',
+                  })}
+                </span>
+              )}
               {review.source_type === 'proxy' && (
                 <span style={{ marginLeft: 6, color: 'var(--text-faint)', fontSize: 10 }}>（代理掲載）</span>
               )}

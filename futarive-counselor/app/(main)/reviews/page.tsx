@@ -47,7 +47,37 @@ export default function ReviewsPage() {
         .eq('is_published', true)
         .order('created_at', { ascending: false })
 
-      setReviews((rv as Review[]) ?? [])
+      const reviewRows = (rv as Review[]) ?? []
+
+      // 投稿者のニックネーム（profiles.nickname）と相談日時（reservations.start_at）を
+      // 別クエリで取得して付与する。返信タブで本名ではなくニックネームを見せ、
+      // 相談日時で「いつの面談の人か」を分かるようにするため。
+      const userIds = Array.from(new Set(reviewRows.map(r => r.user_id).filter((x): x is string => !!x)))
+      const reservationIds = Array.from(new Set(reviewRows.map(r => r.reservation_id).filter((x): x is string => !!x)))
+
+      const nicknameById: Record<string, string> = {}
+      if (userIds.length > 0) {
+        const { data: profs } = await supabase.from('profiles').select('id, nickname').in('id', userIds)
+        for (const p of (profs as { id: string; nickname: string | null }[]) ?? []) {
+          if (p.nickname && p.nickname.trim()) nicknameById[p.id] = p.nickname.trim()
+        }
+      }
+
+      const startAtById: Record<string, string> = {}
+      if (reservationIds.length > 0) {
+        const { data: resv } = await supabase.from('reservations').select('id, start_at').in('id', reservationIds)
+        for (const r of (resv as { id: string; start_at: string | null }[]) ?? []) {
+          if (r.start_at) startAtById[r.id] = r.start_at
+        }
+      }
+
+      const enriched = reviewRows.map(r => ({
+        ...r,
+        reviewer_nickname: r.user_id ? nicknameById[r.user_id] ?? null : null,
+        meeting_at: r.reservation_id ? startAtById[r.reservation_id] ?? null : null,
+      }))
+
+      setReviews(enriched)
       setLoading(false)
     }
     load()
