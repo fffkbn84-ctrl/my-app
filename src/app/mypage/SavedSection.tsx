@@ -9,6 +9,33 @@ import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
 import { useState } from "react";
 
+/** 各コーナーの初期表示件数（超過分は「もっと見る」で展開） */
+const INITIAL_SHOWN = 6;
+
+/** 「もっと見る（残り N 件）」トグル */
+function MoreButton({ remaining, onClick }: { remaining: number; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        display: "block",
+        width: "100%",
+        marginTop: 12,
+        padding: "10px 16px",
+        borderRadius: 999,
+        border: "1px solid var(--light)",
+        background: "var(--white)",
+        color: "var(--mid)",
+        fontSize: 13,
+        cursor: "pointer",
+      }}
+    >
+      もっと見る（残り{remaining}件）
+    </button>
+  );
+}
+
 type Props = {
   allCounselors: Counselor[];
   allAgencies: Agency[];
@@ -24,6 +51,9 @@ type Props = {
 export default function SavedSection({ allCounselors, allAgencies, allPlaces }: Props) {
   const { favorites, loading } = useFavoritesList();
   const [openCounselor, setOpenCounselor] = useState<Counselor | null>(null);
+  const [showAllCounselors, setShowAllCounselors] = useState(false);
+  const [showAllAgencies, setShowAllAgencies] = useState(false);
+  const [showAllPlaces, setShowAllPlaces] = useState(false);
 
   if (loading) return null;
 
@@ -99,14 +129,20 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-              gap: 8,
+              gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+              gap: 10,
             }}
           >
-            {savedCounselors.map((c) => (
+            {(showAllCounselors ? savedCounselors : savedCounselors.slice(0, INITIAL_SHOWN)).map((c) => (
               <CounselorReelCard key={c.id} counselor={c} onOpen={setOpenCounselor} />
             ))}
           </div>
+          {!showAllCounselors && savedCounselors.length > INITIAL_SHOWN && (
+            <MoreButton
+              remaining={savedCounselors.length - INITIAL_SHOWN}
+              onClick={() => setShowAllCounselors(true)}
+            />
+          )}
         </div>
       )}
 
@@ -119,7 +155,7 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
             hrefLabel="さらに探す"
           />
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {savedAgencies.map((a) => (
+            {(showAllAgencies ? savedAgencies : savedAgencies.slice(0, INITIAL_SHOWN)).map((a) => (
               <Link
                 key={a.id}
                 href={`/agencies/${a.id}`}
@@ -180,6 +216,12 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
               </Link>
             ))}
           </div>
+          {!showAllAgencies && savedAgencies.length > INITIAL_SHOWN && (
+            <MoreButton
+              remaining={savedAgencies.length - INITIAL_SHOWN}
+              onClick={() => setShowAllAgencies(true)}
+            />
+          )}
         </div>
       )}
 
@@ -192,7 +234,7 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
             hrefLabel="さらに探す"
           />
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {savedPlaces.map((p) => (
+            {(showAllPlaces ? savedPlaces : savedPlaces.slice(0, INITIAL_SHOWN)).map((p) => (
               <Link
                 key={p.id}
                 href={`/places/${p.id}`}
@@ -253,6 +295,12 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
               </Link>
             ))}
           </div>
+          {!showAllPlaces && savedPlaces.length > INITIAL_SHOWN && (
+            <MoreButton
+              remaining={savedPlaces.length - INITIAL_SHOWN}
+              onClick={() => setShowAllPlaces(true)}
+            />
+          )}
         </div>
       )}
 

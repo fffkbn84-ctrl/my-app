@@ -83,6 +83,8 @@ export default function ReservationsSection() {
   // 直前にキャンセルした予約（UNDO トースト表示用）
   const [undoRow, setUndoRow] = useState<ReservationRow | null>(null);
   const [undoBusy, setUndoBusy] = useState(false);
+  // 過去・キャンセル済みは初期1件のみ表示（「もっと見る」で全件）。これからは全件表示。
+  const [showAllPast, setShowAllPast] = useState(false);
 
   // 予約一覧の取得
   useEffect(() => {
@@ -284,7 +286,7 @@ export default function ReservationsSection() {
       {!loading && past.length > 0 && (
         <>
           <SubHeader label="過去・キャンセル済み" />
-          {past.map((r) => (
+          {(showAllPast ? past : past.slice(0, 1)).map((r) => (
             <ReservationCard
               key={r.id}
               row={r}
@@ -293,6 +295,26 @@ export default function ReservationsSection() {
               readOnly
             />
           ))}
+          {!showAllPast && past.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setShowAllPast(true)}
+              style={{
+                display: "block",
+                width: "100%",
+                marginTop: 12,
+                padding: "10px 16px",
+                borderRadius: 999,
+                border: "1px solid var(--light)",
+                background: "var(--white)",
+                color: "var(--mid)",
+                fontSize: 13,
+                cursor: "pointer",
+              }}
+            >
+              もっと見る（残り{past.length - 1}件）
+            </button>
+          )}
         </>
       )}
 

@@ -24,6 +24,7 @@ import {
   getNextSlotByCounselor,
   getAgencyById,
   formatFeeItem,
+  isCounselorCampaignActive,
   type FeePlan,
 } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
@@ -501,9 +502,9 @@ export default async function CounselorDetailPage({
       qualifications: sc.qualifications ?? [],
       photoUrl: sc.photoUrl ?? undefined,
       monthlyFee: "",
-      campaign: sc.campaignLabel
+      campaign: isCounselorCampaignActive(sc.campaignLabel, sc.campaignExpiry)
         ? {
-            label: sc.campaignLabel,
+            label: sc.campaignLabel as string,
             detail: sc.campaignDetail ?? "",
             expiry: sc.campaignExpiry ?? "",
           }
@@ -522,11 +523,14 @@ export default async function CounselorDetailPage({
         name: supabaseCounselor?.name ?? mockCounselor.name,
         photoUrl: supabaseCounselor?.photoUrl ?? mockCounselor.photoUrl,
         // Supabase 由来のカウンセラー個別キャンペーンを優先（mock より新しい設定）
-        campaign: supabaseCounselor?.campaignLabel
+        campaign: isCounselorCampaignActive(
+          supabaseCounselor?.campaignLabel,
+          supabaseCounselor?.campaignExpiry,
+        )
           ? {
-              label: supabaseCounselor.campaignLabel,
-              detail: supabaseCounselor.campaignDetail ?? "",
-              expiry: supabaseCounselor.campaignExpiry ?? "",
+              label: supabaseCounselor!.campaignLabel as string,
+              detail: supabaseCounselor!.campaignDetail ?? "",
+              expiry: supabaseCounselor!.campaignExpiry ?? "",
             }
           : mockCounselor.campaign,
       } as CounselorShape)

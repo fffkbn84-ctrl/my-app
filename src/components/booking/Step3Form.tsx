@@ -279,7 +279,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
               <path d="M4.5 8.2l2.4 2.4 5-5" stroke="var(--accent)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             {lockedMeetingFormat === "対面"
-              ? "対面（カウンセラーオフィス）"
+              ? "対面"
               : "オンライン（Zoom）"}
             <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: "auto" }}>
               この枠は{lockedMeetingFormat}専用です
@@ -303,7 +303,7 @@ export default function Step3Form({ userInfo, onChange, onNext, onBack, lockedMe
                     onChange={() => update("meetingFormat", fmt)}
                   />
                   <span className="bk-form-radio-label">
-                    {fmt === "対面" ? "対面（カウンセラーオフィス）" : "オンライン（Zoom）"}
+                    {fmt === "対面" ? "対面" : "オンライン（Zoom）"}
                   </span>
                 </div>
               );

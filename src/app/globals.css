@@ -1624,8 +1624,8 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
 /* ═══════════════════════════════════════════════════════════
    予約フロー（booking flow）
 ═══════════════════════════════════════════════════════════ */
-.booking-wrap { max-width: 720px; margin: 0 auto; padding: 0 32px; }
-@media (max-width: 600px) { .booking-wrap { padding: 0 20px; } }
+.booking-wrap { max-width: 720px; margin: 0 auto; padding: 0 32px calc(96px + env(safe-area-inset-bottom)); }
+@media (max-width: 600px) { .booking-wrap { padding: 0 20px calc(96px + env(safe-area-inset-bottom)); } }
 
 /* Step indicator */
 .step-indicator { display: flex; align-items: flex-start; justify-content: center; padding: 40px 0 48px; position: relative; }
@@ -7580,3 +7580,35 @@ body:has(.cta-mobile-bar) .floating-back {
     max-height: 84vh;
   }
 }
+
+/* ─── MyPage PC レイアウト（モバイルは単一カラム維持・PCは左サイドバー＋メイン）─── */
+.mypage-container { max-width: 480px; margin: 0 auto; padding: 0 20px 40px; }
+.mypage-section { scroll-margin-top: 80px; }
+/* サマリーカード（クイックリンク） */
+.mypage-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.mypage-summary a {
+  display: flex; flex-direction: column; gap: 4px; padding: 16px 16px;
+  border: 1px solid var(--light, #E7DED3); border-radius: 14px; text-decoration: none;
+  background: var(--white); transition: box-shadow .2s, transform .2s;
+}
+.mypage-summary a:hover { box-shadow: 0 4px 14px rgba(120,90,60,.1); transform: translateY(-1px); }
+.mypage-summary-title { font-size: 14px; color: var(--ink); font-weight: 500; }
+.mypage-summary-sub { font-size: 11px; color: var(--muted); line-height: 1.5; }
+/* サイドバーはモバイルでは隠す（＝従来の単一カラム体験を維持） */
+.mypage-side { display: none; }
+
+@media (min-width: 900px) {
+  .mypage-container { max-width: 1040px; padding: 0 32px 64px; }
+  .mypage-layout { display: grid; grid-template-columns: 200px 1fr; gap: 40px; align-items: start; }
+  .mypage-side { display: block; position: sticky; top: 80px; }
+  .mypage-main { min-width: 0; }
+  .mypage-nav { display: flex; flex-direction: column; gap: 2px; }
+  .mypage-nav a {
+    padding: 9px 12px; border-radius: 9px; color: var(--mid); text-decoration: none;
+    font-size: 13px; transition: background .15s, color .15s;
+  }
+  .mypage-nav a:hover { background: #F5EEE6; color: var(--ink); }
+  .mypage-section { margin-bottom: 28px; }
+}
+/* モバイルではサマリーカードは出さない（従来体験を維持） */
+@media (max-width: 899px) { .mypage-summary { display: none; } }
