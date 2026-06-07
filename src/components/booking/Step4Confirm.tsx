@@ -112,7 +112,7 @@ export default function Step4Confirm({
 
   const meetingLabel =
     userInfo.meetingFormat === "対面"
-      ? "対面（カウンセラーオフィス）"
+      ? "対面"
       : userInfo.meetingFormat === "オンライン"
       ? "オンライン（Zoom）"
       : slot.meetingType ?? "対面";

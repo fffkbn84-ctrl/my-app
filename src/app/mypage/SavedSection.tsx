@@ -99,8 +99,8 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-              gap: 8,
+              gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+              gap: 10,
             }}
           >
             {savedCounselors.map((c) => (
