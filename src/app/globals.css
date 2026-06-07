@@ -7580,3 +7580,12 @@ body:has(.cta-mobile-bar) .floating-back {
     max-height: 84vh;
   }
 }
+
+/* ─── MyPage PC レイアウト（モバイルは単一カラム維持・PCは2カラム masonry）─── */
+.mypage-container { max-width: 480px; margin: 0 auto; padding: 0 20px 40px; }
+@media (min-width: 900px) {
+  .mypage-container { max-width: 980px; padding: 0 32px 64px; }
+  /* ヘッダー/ログインカード/お知らせは全幅、その下を2カラムに流し込む */
+  .mypage-cols { column-count: 2; column-gap: 28px; }
+  .mypage-cols > * { break-inside: avoid; margin: 0 0 24px; display: block; }
+}

@@ -41,13 +41,7 @@ export default async function MyPage() {
       }}
     >
       <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "マイページ" }]} />
-      <div
-        style={{
-          maxWidth: "480px",
-          margin: "0 auto",
-          padding: "0 20px 40px",
-        }}
-      >
+      <div className="mypage-container">
         {/* ヘッダー */}
         <header style={{ paddingTop: "32px", marginBottom: "28px" }}>
           <p
@@ -77,35 +71,36 @@ export default async function MyPage() {
         {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
         <AuthCard />
 
-        {/* 相談所からのお知らせ（メッセージ / 日程変更提案 / 口コミ返信）。開くと既読化 */}
+        {/* 相談所からのお知らせ（メッセージ / 日程変更提案 / 口コミ返信）。開くと既読化。全幅 */}
         <NotificationsSection />
 
-        {/* Kinda note 履歴（天気予報風 横スクロール） */}
-        <NoteHistorySection />
+        {/* 以下のコーナーは PC で2カラム（masonry）に流し込む。モバイルは単一カラム */}
+        <div className="mypage-cols">
+          {/* Kinda note 履歴（天気予報風 横スクロール） */}
+          <NoteHistorySection />
 
-        {/* Kinda type 履歴（最新1件ヒーロー表示） */}
-        <DiagnosisTypeHistorySection />
+          {/* Kinda type 履歴（最新1件ヒーロー表示） */}
+          <DiagnosisTypeHistorySection />
 
-        {/* 予約履歴（ログイン時のみ表示） */}
-        <ReservationsSection />
+          {/* 予約履歴（ログイン時のみ表示） */}
+          <ReservationsSection />
 
-        {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
-        <div style={{ marginTop: 32 }}>
+          {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
           <SavedSection
             allCounselors={allCounselors}
             allAgencies={AGENCIES}
             allPlaces={placesHomeData}
           />
+
+          {/* 共感した（Kinda story / Kinda voices） */}
+          <SympathySavedSection allColumns={allColumns} />
+
+          {/* 投稿した口コミ（ログイン時かつ投稿がある時のみ） */}
+          <ReviewHistorySection />
+
+          {/* アカウント設定（ニックネーム / メール / パスワード）— 最下部 collapse */}
+          <AccountSettingsSection />
         </div>
-
-        {/* 共感した（Kinda story / Kinda voices） */}
-        <SympathySavedSection allColumns={allColumns} />
-
-        {/* 投稿した口コミ（ログイン時かつ投稿がある時のみ） */}
-        <ReviewHistorySection />
-
-        {/* アカウント設定（ニックネーム / メール / パスワード）— 最下部 collapse */}
-        <AccountSettingsSection />
       </div>
     </main>
   );
