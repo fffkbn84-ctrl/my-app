@@ -4,7 +4,28 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-05
+最終更新: 2026-06-07
+
+---
+
+## 📌 次セッション引き継ぎ（最初に読む）
+
+### 開始手順（ユーザーサイト作業の場合）
+1. `git fetch origin` → **`git checkout -B <feature> origin/main`**（ローカル main は信用しない＝CLAUDE.md §10 デプロイ前チェック）。
+2. 作業 → push → プレビュー確認 → main マージ。
+3. ⚠️ **counselor/admin は別系統**：`futarive-counselor/` は `claude/fix-profile-creation-1clpG`、`futarive-admin/` は `claude/futarive-admin-dashboard-iKBfw`。これらのブランチは **src/ が古い別履歴**なので、編集は各サブディレクトリ配下だけに限定し、作業後 main に戻すこと。
+
+### いま未マージ / 進行中
+- **`claude/review-reservation-flow`** … （済）main マージ済み。
+- **`claude/pc-booking-mypage`** … （済）main マージ済み（e6c269a）。
+- **`claude/review-reply-display`** … 口コミへの**カウンセラー返信表示**。プレビュー確認OK・**main 未マージ**。次回まず `git merge` するだけ。
+- **DNS**：`kinda.jp` は NS 伝播途中（日本未反映）。当面 `my-app-rp9u.vercel.app`。数時間〜48hで Valid 化。
+- **Supabase 本番に適用済み（コードと対）**：`submit_review` RPC／自動完了 cron／reviews＋7テーブルの RLS 最小権限化／`is_admin()`。実機（counselor/admin/予約）動作は確認済み。
+
+### 次の最優先候補
+- [ ] `claude/review-reply-display` を main マージ。
+- [ ] **口コミの選択タグ保存・表示**（「アドバイスが具体的」等）：現在フォームUIのみでDB未保存。要 `reviews.good_tags text[]` 追加＋`submit_review` 改修＋フォーム＋表示。
+- [ ] 返金モデル改定の法務同期（下記）／整合性の横断監査（下記）／残セキュリティ小項目。
 
 ---
 
