@@ -1420,6 +1420,33 @@ export default async function CounselorDetailPage({
                           <span className="rv-author">{review.author}</span>
                         </div>
 
+                        {/* 相談所（カウンセラー）からの返信 */}
+                        {review.reply && (
+                          <div
+                            style={{
+                              marginTop: 12,
+                              padding: "12px 14px",
+                              background: "var(--pale, #F7F1E8)",
+                              borderRadius: 12,
+                              borderLeft: "3px solid var(--accent)",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: 11,
+                                fontWeight: 600,
+                                color: "var(--accent)",
+                                marginBottom: 4,
+                              }}
+                            >
+                              {counselor.name}カウンセラーからの返信
+                            </div>
+                            <p style={{ fontSize: 13, lineHeight: 1.8, color: "var(--ink)", margin: 0 }}>
+                              {review.reply}
+                            </p>
+                          </div>
+                        )}
+
                       </div>
                     ))}
                   </div>
