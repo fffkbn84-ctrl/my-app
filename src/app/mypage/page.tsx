@@ -68,38 +68,80 @@ export default async function MyPage() {
           </h1>
         </header>
 
-        {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
-        <AuthCard />
+        {/* PC: 左サイドバー（ナビ）＋ 右メイン。モバイル: サイドバー非表示で単一カラム */}
+        <div className="mypage-layout">
+          <aside className="mypage-side">
+            <nav className="mypage-nav" aria-label="マイページ内ナビ">
+              <a href="#notifications">お知らせ</a>
+              <a href="#reservations">予約履歴</a>
+              <a href="#saved">気になる</a>
+              <a href="#sympathy">共感した</a>
+              <a href="#reviews">投稿した口コミ</a>
+              <a href="#diagnoses">診断の履歴</a>
+              <a href="#account">アカウント設定</a>
+            </nav>
+          </aside>
 
-        {/* 相談所からのお知らせ（メッセージ / 日程変更提案 / 口コミ返信）。開くと既読化。全幅 */}
-        <NotificationsSection />
+          <div className="mypage-main">
+            {/* ログイン状態カード（未ログイン: 促進 / ログイン済: メール+気になる件数） */}
+            <AuthCard />
 
-        {/* 以下のコーナーは PC で2カラム（masonry）に流し込む。モバイルは単一カラム */}
-        <div className="mypage-cols">
-          {/* Kinda note 履歴（天気予報風 横スクロール） */}
-          <NoteHistorySection />
+            {/* クイックリンク（サマリーカード） */}
+            <div className="mypage-summary">
+              <a href="/kinda-type">
+                <span className="mypage-summary-title">診断する</span>
+                <span className="mypage-summary-sub">合うカウンセラーを見つける</span>
+              </a>
+              <a href="#reservations">
+                <span className="mypage-summary-title">予約履歴</span>
+                <span className="mypage-summary-sub">面談の予定・履歴</span>
+              </a>
+              <a href="#saved">
+                <span className="mypage-summary-title">気になる</span>
+                <span className="mypage-summary-sub">保存した相談所・お店</span>
+              </a>
+            </div>
 
-          {/* Kinda type 履歴（最新1件ヒーロー表示） */}
-          <DiagnosisTypeHistorySection />
+            {/* 相談所からのお知らせ */}
+            <div id="notifications" className="mypage-section">
+              <NotificationsSection />
+            </div>
 
-          {/* 予約履歴（ログイン時のみ表示） */}
-          <ReservationsSection />
+            {/* 診断の履歴（Kinda note 横スクロール ＋ Kinda type 最新） */}
+            <div id="diagnoses" className="mypage-section">
+              <NoteHistorySection />
+              <DiagnosisTypeHistorySection />
+            </div>
 
-          {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
-          <SavedSection
-            allCounselors={allCounselors}
-            allAgencies={AGENCIES}
-            allPlaces={placesHomeData}
-          />
+            {/* 予約履歴（ログイン時のみ表示） */}
+            <div id="reservations" className="mypage-section">
+              <ReservationsSection />
+            </div>
 
-          {/* 共感した（Kinda story / Kinda voices） */}
-          <SympathySavedSection allColumns={allColumns} />
+            {/* 気になる一覧（保存があれば表示、なければ自動的に hidden） */}
+            <div id="saved" className="mypage-section">
+              <SavedSection
+                allCounselors={allCounselors}
+                allAgencies={AGENCIES}
+                allPlaces={placesHomeData}
+              />
+            </div>
 
-          {/* 投稿した口コミ（ログイン時かつ投稿がある時のみ） */}
-          <ReviewHistorySection />
+            {/* 共感した（Kinda story / Kinda voices） */}
+            <div id="sympathy" className="mypage-section">
+              <SympathySavedSection allColumns={allColumns} />
+            </div>
 
-          {/* アカウント設定（ニックネーム / メール / パスワード）— 最下部 collapse */}
-          <AccountSettingsSection />
+            {/* 投稿した口コミ（ログイン時かつ投稿がある時のみ） */}
+            <div id="reviews" className="mypage-section">
+              <ReviewHistorySection />
+            </div>
+
+            {/* アカウント設定（ニックネーム / メール / パスワード）— 最下部 collapse */}
+            <div id="account" className="mypage-section">
+              <AccountSettingsSection />
+            </div>
+          </div>
         </div>
       </div>
     </main>
