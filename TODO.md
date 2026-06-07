@@ -10,6 +10,9 @@
 
 ### 🆕 2026-06-05 相談メモ（営業資料フィードバック＋口コミ仕組みの信頼性）
 
+#### 【要対応】整合性の横断監査（同じルールが場所により食い違う問題）
+- [ ] **「同一ルールの実装ズレ」を洗い出して統一**。例：カウンセラーのキャンペーンが一覧では期限非表示・別の場所では期限切れでも表示、のように同じ概念が箇所ごとに別実装になっている所がないか横断確認。観点例：①キャンペーン/バッジの有効期限（相談所/カウンセラー/お店/カード/詳細/検索結果で同じ判定か）②is_published の尊重（全リスト/詳細/OGで未公開を漏らさないか）③料金・無料表記のフォーマット④日付/時刻の表示形式⑤デモ（is_demo）の出し分け⑥キャンセル/返金文言の表記ゆれ。ズレを見つけたら共通ヘルパー化して統一。
+
 #### 【最優先・セキュリティ】RLS 過剰権限の是正（auth_all_* を全廃）
 > 2026-06-05 点検で発覚。reviews は対処済み(M2)。残り7テーブルに同じ `auth_all_*`(ALL/true) が残存＝ログインユーザーなら誰でも編集/削除可。
 - [x] **RLS 最小権限化（適用済み）**：7テーブルの auth_all_* を全廃→ owner/admin スコープへ（migration harden_core_tables_rls・`is_admin()` 関数導入）。**要：counselor/admin/ユーザー予約の実機検証**。
@@ -61,7 +64,7 @@
 - [x] Vercel `my-app-rp9u` に `kinda.jp` / `www.kinda.jp` を登録（Production）。
 
 #### 最優先（反映確認・ドメイン切替の後始末）
-- [ ] **ドメイン反映確認**：Vercel Domains で `kinda.jp` が Valid Configuration（緑チェック）か。反映後 `https://kinda.jp` でサイト表示を確認（数時間〜最大48h）。
+- [ ] **ドメイン反映確認（伝播途中）**：whatsmydns で NS が一部ノードのみ `vercel-dns`（日本未反映・2026-06-07時点）。Vercel 上は Invalid Configuration のままで `https://kinda.jp` はまだ開けない（当面 `my-app-rp9u.vercel.app` を使用）。数時間〜48hで再確認。48h超で日本が反映しない場合はお名前.comのNS設定を再点検。
 - [ ] **`metadataBase` を `kinda.jp` に修正**（`src/app/layout.tsx`：旧 `https://www.kinda-futari.app`）。OGP(og:image)・canonical・JSON-LD の URL が誤ドメインのままなので要修正。`NEXT_PUBLIC_SITE_URL=https://kinda.jp` を Vercel に設定 or フォールバック値を変更。→ 修正後に OGP 実機検証（X/LINE/opengraph.xyz）。
 - [ ] **サイト内のハードコード URL 棚卸し**：`my-app-rp9u.vercel.app` / `kinda-futari.app` が残っていないか（JSON-LD・営業資料・sitemap 等）→ `kinda.jp` に統一。
 - [ ] **GA4 のプロパティ URL を `kinda.jp` に更新**（Vercel Analytics は自動反映で対応不要）。
