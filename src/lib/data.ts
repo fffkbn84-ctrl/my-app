@@ -715,6 +715,26 @@ export function isCampaignActive(
   return expiry > new Date();
 }
 
+/**
+ * カウンセラー個別キャンペーンの有効判定。
+ * campaignExpiry はフリーテキスト（例：「〜2026-06-30」「2026年6月30日まで」）のため、
+ * 文字列から YYYY / M / D を抽出し、期限日の終わり（23:59:59）までを有効とする。
+ * - ラベル空 → 非表示(false)
+ * - 期限テキストなし or 日付抽出不可 → 表示(true)（誤って隠さない安全側）
+ */
+export function isCounselorCampaignActive(
+  label?: string | null,
+  expiry?: string | null,
+): boolean {
+  if (!label || !label.trim()) return false;
+  if (!expiry || !expiry.trim()) return true;
+  const m = expiry.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  if (!m) return true;
+  const end = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 23, 59, 59);
+  if (isNaN(end.getTime())) return true;
+  return new Date() <= end;
+}
+
 /** 新店舗バッジを表示すべきか（創業から NEW_SHOP_DAYS 以内かつ未来でない） */
 export function isNewShop(foundedAt?: string | null): boolean {
   if (!foundedAt) return false;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Counselor, isNewShop } from "@/lib/data";
+import { Counselor, isNewShop, isCounselorCampaignActive } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
 import { trackEvent } from "@/lib/analytics";
 import KindaTypeBadge from "./KindaTypeBadge";
@@ -73,8 +73,11 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
       </div>
 
       <div className="kt-reel-card-bottom">
-        {/* カウンセラー個別キャンペーンバッジ（任意） — campaignLabel 優先、なければ旧 campaign 文字列 */}
-        {(counselor.campaignLabel || counselor.campaign) && (
+        {/* カウンセラー個別キャンペーンバッジ（任意） — campaignLabel は有効期限切れなら非表示。
+            旧 campaign 文字列（モック・期限なし）はそのまま表示 */}
+        {(counselor.campaignLabel
+          ? isCounselorCampaignActive(counselor.campaignLabel, counselor.campaignExpiry)
+          : !!counselor.campaign) && (
           <div
             style={{
               display: "inline-flex",
