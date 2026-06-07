@@ -11,6 +11,17 @@ import type { Counselor, Agency } from '@/lib/types'
 
 type Step = 1 | 2 | 3 | 4
 
+/** 既存のキャンペーン期限テキスト（例「〜2026-06-30」「2026年6月30日」）を
+ *  <input type="date"> 用の "YYYY-MM-DD" に正規化。抽出できなければ空文字。 */
+function toDateInputValue(raw: string | null | undefined): string {
+  if (!raw) return ''
+  const m = raw.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/)
+  if (!m) return ''
+  const mm = m[2].padStart(2, '0')
+  const dd = m[3].padStart(2, '0')
+  return `${m[1]}-${mm}-${dd}`
+}
+
 // 活動エリアの選択肢（広域 / エリアまとめ / 都道府県 の3層構造）
 const AREA_GROUPS: { label: string; items: string[] }[] = [
   { label: '広域・オンライン', items: ['全国', 'オンライン'] },
@@ -142,7 +153,7 @@ export default function ProfilePage() {
           experience_label: c.experience_label ?? '',
           campaign_label: c.campaign_label ?? '',
           campaign_detail: c.campaign_detail ?? '',
-          campaign_expiry: c.campaign_expiry ?? '',
+          campaign_expiry: toDateInputValue(c.campaign_expiry),
           is_published: c.is_published ?? false,
         })
       } else if (owns && agRows?.[0]?.id) {
@@ -652,17 +663,28 @@ export default function ProfilePage() {
               </div>
               <div>
                 <label className="kc-label" style={{ fontSize: 11, color: 'var(--text-mid)' }}>
-                  期限表記（任意）
+                  有効期限（任意）
                 </label>
-                <input
-                  className="kc-input"
-                  value={form.campaign_expiry}
-                  onChange={e => updateForm('campaign_expiry', e.target.value)}
-                  placeholder="例：〜2026-06-30"
-                  maxLength={40}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <input
+                    className="kc-input"
+                    type="date"
+                    value={form.campaign_expiry}
+                    onChange={e => updateForm('campaign_expiry', e.target.value)}
+                    style={{ maxWidth: 200 }}
+                  />
+                  {form.campaign_expiry && (
+                    <button
+                      type="button"
+                      className="kc-btn kc-btn-ghost kc-btn-sm"
+                      onClick={() => updateForm('campaign_expiry', '')}
+                    >
+                      期限を解除
+                    </button>
+                  )}
+                </div>
                 <p style={{ fontSize: 10, color: 'var(--text-light)', marginTop: 4 }}>
-                  カードのバッジに小さく表示されます。「〜2026-06-30」のように自由に書けます。
+                  期限を過ぎたキャンペーンは、お客様の画面で自動的に非表示になります。空欄なら無期限で表示されます。
                 </p>
               </div>
             </div>
