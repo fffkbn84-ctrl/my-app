@@ -19,7 +19,7 @@
 - **`claude/review-reservation-flow`** … （済）main マージ済み。
 - **`claude/pc-booking-mypage`** … （済）main マージ済み（e6c269a）。
 - ~~**`claude/review-reply-display`**~~ … 口コミへのカウンセラー返信表示。**置き換え済み**：常時インライン表示だったが、要望（返信マーク→タップで展開）に合わせ `claude/review-display-tags-reply` で作り直し main 反映済み（2026-06-07）。当該ブランチは破棄可。
-- **DNS**：`kinda.jp` は NS 伝播途中（日本未反映）。当面 `my-app-rp9u.vercel.app`。数時間〜48hで Valid 化。
+- **DNS**：✅ `kinda.jp` / `www.kinda.jp` ともに Vercel で **Valid Configuration**（2026-06-08・SSL証明書発行済）。`https://kinda.jp` 本番稼働。
 - **Supabase 本番に適用済み（コードと対）**：`submit_review` RPC／自動完了 cron／reviews＋7テーブルの RLS 最小権限化／`is_admin()`。実機（counselor/admin/予約）動作は確認済み。
 
 ### 次の最優先候補
@@ -131,14 +131,15 @@
 - [x] Vercel `my-app-rp9u` に `kinda.jp` / `www.kinda.jp` を登録（Production）。
 
 #### 最優先（反映確認・ドメイン切替の後始末）
-- [ ] **ドメイン反映確認（伝播途中）**：whatsmydns で NS が一部ノードのみ `vercel-dns`（日本未反映・2026-06-07時点）。Vercel 上は Invalid Configuration のままで `https://kinda.jp` はまだ開けない（当面 `my-app-rp9u.vercel.app` を使用）。数時間〜48hで再確認。48h超で日本が反映しない場合はお名前.comのNS設定を再点検。
-- [ ] **`metadataBase` を `kinda.jp` に修正**（`src/app/layout.tsx`：旧 `https://www.kinda-futari.app`）。OGP(og:image)・canonical・JSON-LD の URL が誤ドメインのままなので要修正。`NEXT_PUBLIC_SITE_URL=https://kinda.jp` を Vercel に設定 or フォールバック値を変更。→ 修正後に OGP 実機検証（X/LINE/opengraph.xyz）。
-- [ ] **サイト内のハードコード URL 棚卸し**：`my-app-rp9u.vercel.app` / `kinda-futari.app` が残っていないか（JSON-LD・営業資料・sitemap 等）→ `kinda.jp` に統一。
+- [x] **ドメイン反映確認**：✅ 2026-06-08 に `kinda.jp` / `www.kinda.jp` ともに Vercel で Valid Configuration＋証明書発行完了（NS委任の伝播完了後、放置で自動解決）。
+- [x] **`metadataBase` を `kinda.jp` に修正**：確認済み。`src/app/layout.tsx` は `process.env.NEXT_PUBLIC_SITE_URL ?? "https://kinda.jp"` で既に kinda.jp（前セッションで対応済）。※Vercel に `NEXT_PUBLIC_SITE_URL` を設定している場合は値が `https://kinda.jp` か（古い値が残っていないか）だけ要確認。未設定ならフォールバックで kinda.jp。
+- [x] **サイト内のハードコード URL 棚卸し**：✅ `kinda-futari` / `kinda.futarive.jp` / `my-app-rp9u.vercel.app` は **src 内 0 件**（2026-06-08 確認）。
+- [ ] **OGP の実機検証（ドメイン稼働後＝今やれる）**：`https://kinda.jp` の各ページ（story / columns / type）を X / LINE / opengraph.xyz でカード画像プレビュー確認。
 - [ ] **GA4 のプロパティ URL を `kinda.jp` に更新**（Vercel Analytics は自動反映で対応不要）。
 - [ ] **Stripe 審査用 URL は `kinda.jp` で申請**（アカウント開設時に使用）。
 - [ ] 特商法表記ページが本番ドメインで正しく表示されるか確認（実体は `src/app/tokushou/`）。
 - [x] サイト内の旧ドメイン（`www.kinda-futari.app` / `kinda.futarive.jp` / メール `hello@kinda-futari.app`）を全て `kinda.jp` / `hello@kinda.jp` に統一（src 20ファイル・metadataBase/JSON-LD/sitemap/robots 含む）。
-- [ ] **サポート受信 `hello@kinda.jp` の受信設定**（表示だけ変えた状態。今は受信できない）。無料案：ImprovMX / ForwardEmail 等＋Vercel DNS に MX レコード追加で Gmail へ転送。有料案：Google Workspace（約¥800/月）で本格メールボックス。Resend（送信）とは別レイヤー。
+- [ ] **サポート受信 `hello@kinda.jp` の受信設定（DNS稼働で着手可能に）**（表示だけ変えた状態。今は受信できない）。無料案：ImprovMX / ForwardEmail 等＋**Vercel DNS（kinda.jp ゾーン）に MX レコード追加**で Gmail へ転送。有料案：Google Workspace（約¥800/月）で本格メールボックス。Resend（送信）とは別レイヤー。※NS は Vercel 委任なので、MX は Vercel の DNS 画面で追加する。
   - 進め方：**DNS（kinda.jp）反映後**に着手。ImprovMX か ForwardEmail のどちらが良いか等は **Claude に相談しながら一緒に設定**していく方針。
 
 ---
