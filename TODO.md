@@ -33,6 +33,48 @@
 
 ---
 
+### 🆕 2026-06-08 追加（SNS／コンテンツ・フォーマット起点）
+
+> Claude.ai セッション（Voices/Story 執筆フォーマット＋SNS立ち上げ設計）からの引き継ぎ。
+> 詳細サマリーは `docs/handoff/handoff-summary-2026-06-08.md`。
+
+#### ドキュメント整備
+- [ ] 3キットHTMLを repo に保存（**HTML本体は未受領＝別途アップ待ち**）
+      - docs/voices/kinda-voices-writing-format.html
+      - docs/voices/kinda-story-writing-format.html
+      - docs/sns/kinda-sns-launch-kit.html
+
+#### Voices／Story 記事インフラ（実装）
+- [ ] voices の MDX frontmatter スキーマを確定（title/description/slug/counselorSlug/area/heroImage/heroAlt/ogImage/author/publishedAt/updatedAt/pullQuote）
+- [ ] story の MDX frontmatter スキーマを確定（上記＋ category/stage/pseudonym ＋ 同意記録：consentWeb/consentSNS/consentAgency/consentDate）
+- [ ] story の stage → クレイ画像マッピング（marriage=夕景／active=夜明けの芽／dating=顔つきの芽）
+- [ ] story の category routing（marriage / dating / struggle → /story/category/[category]）
+- [ ] LeadAnswer / PullQuote の MDX コンポーネント（両フォーマット共通）
+
+#### 構造化データ・OGP（SEO診断★★と連動）
+- [ ] Article ＋ Person（著者=ふうか, url=/about/founder）JSON-LD コンポーネント
+- [ ] FAQPage JSON-LD（記事内の質問形見出しから2〜4問を生成）
+- [ ] 動的OGP（opengraph-image.tsx）：クレイ背景＋タイトル合成、1200×630、WebP配信
+
+#### 内部リンク・E-E-A-T
+- [ ] voices／story 記事テンプレに内部リンク枠（天気2／コラム1〜2／詳細 or 関連Story／診断入口）。アンカーは具体語
+- [ ] /about/founder（ふうかプロフィール）への著者リンクを各記事末尾に固定
+
+#### SNS（※コードではなく運用・ふうか手動）
+- [ ] note / Instagram / X アカウント確保（bio・アイコンは SNSキット参照）
+- [ ] クレイふうか像の生成・3媒体共通アイコン化
+- [ ] 創業ストーリー note 1本目（録音→Whisper→記事化）
+
+#### 将来構想：belonging（「ひとりじゃない」場所）— Phase 3（PMF後・ユーザー数が育ってから）
+> 結論：Story を公開投稿型にはしない。belonging は Kinda Note 側で、低リスクに実現する。
+- [ ] 【今・前倒しOK／低コスト】Kinda Note のデータモデルを「任意・匿名で共有できる」前提で設計しておく（weatherKey と日付だけ持つ shared フラグ等。投稿本文や個人特定情報は持たせない方向で検討）
+- [ ] 【Phase 3・本命】Note の「今日の天気」を任意・匿名で共有 → 「同じ天気の人が◯人」表示（他人の物語ではなく"自分の感情の抽象"なのでモデレーション負荷がほぼゼロ）
+- [ ] 【Phase 3】編集Story への「反応」機能（救われた／自分もここにいる）。投稿ではなく応答で belonging
+- [ ] 【さらに先・要体制】招待制の編集UGC（特定ユーザーに声かけ→項目別同意→編集レビュー→公開）。公開投稿箱ではなく"編集Storyパイプラインのスケール"として扱う
+- [ ] 【Phase 3 着手時の前提】通報導線・クライシス相談リソースへの導線・初期はDM不可、等の安全設計
+
+---
+
 ### 🆕 2026-06-05 相談メモ（営業資料フィードバック＋口コミ仕組みの信頼性）
 
 #### 【要対応】整合性の横断監査（同じルールが場所により食い違う問題）
