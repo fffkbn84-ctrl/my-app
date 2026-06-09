@@ -175,7 +175,7 @@
 - [x] Vercel Ignored Build Step をパス指定方式へ（3プロジェクト個別）。feature branch の preview が出るように・無駄ビルド解消。
 
 #### 残課題（ドメイン取得後にまとめて）
-- [ ] **OGP（og:image）の実機検証**。`metadataBase` が `https://www.kinda-futari.app` のため、SNS シェアのカード画像はこのドメインが本番稼働・画像配信できて初めて表示される。**カスタムドメイン接続後に X/LINE/opengraph.xyz で実プレビュー確認**（story / columns / type）。必要なら `metadataBase` を実 URL に合わせて調整。
+- [ ] **OGP（og:image）の実機検証（ドメイン稼働後＝今やれる）**。`metadataBase` は `https://kinda.jp`（フォールバック）で確定済み。`kinda.jp` 本番稼働＆証明書発行済みなので、**X / LINE / opengraph.xyz で実プレビュー確認**（story / columns / type）。カード画像が出るか・タイトル/説明が正しいかを見る。
 - [ ] （任意）診断結果の「保存できる画像」を Kinda type にも追加するか検討（現状 Note のみ html2canvas でDL可。Type は og:image=リンクプレビューのみ）。Instagram ストーリー等への投稿導線を強めたい場合の打ち手。
 - [ ] （任意）OGP 専用 1200×630 画像の用意可否（現状は story サムネ 1672×941 を流用＝16:9 でほぼ問題なし。最適化したい場合のみ）。
 
@@ -413,7 +413,7 @@
      - my-app：terms / privacy / tokushou の `[会社名]` `[所在地]` `[代表者氏名]` `[電話番号]` `[氏名]`
      - counselor：terms / privacy の `[会社名]` `[所在地]` `[氏名]`
      - 送客契約書テンプレ `docs/contracts/agency-agreement.md` の「甲」欄
-     - サポートメール `hello@kinda-futari.app` の確定（Phase D ドメイン取得と連動）
+     - サポートメール：✅ 表記は `hello@kinda.jp` に統一済み（残：受信設定＝MX。§2026-06-05 ドメイン取得タスク参照）
    - 顧問弁護士レビュー（任意・営業前リスク低減のため推奨）
    - ✅ 2026-05-23 完了：PR #6 〜 PR #17（規約整備・明示同意・モバイル UI・契約書テンプレ・admin オーナー一括作成 UI）
 
