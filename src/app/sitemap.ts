@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/about/editorial-policy",
     "/about/transparency",
     "/columns",
-    "/mypage",
+    // /mypage は robots.txt で Disallow しているため sitemap からも除外（GSC 警告整合）
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
     lastModified: now,
