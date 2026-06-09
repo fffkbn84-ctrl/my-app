@@ -33,6 +33,31 @@
 
 ---
 
+### 🆕 2026-06-09 メール基盤の配線（DNS完了 → コード反映）
+
+> Resend `send.kinda.jp` 認証完了・受信 hello@kinda.jp 構築済み。
+> 指示書：`docs/implementation/claude-code-email-wiring-2026-06-09.md`／引き継ぎ：`docs/handoff/handoff-summary-2026-06-09.md`。
+> 送信元統一：From=`Kinda ふたりへ <noreply@send.kinda.jp>` / Reply-To=`hello@kinda.jp`。
+
+- [x] **(Claude Code) admin 送信元差し替え**：`futarive-admin/lib/email.ts` を `onboarding@resend.dev` → `noreply@send.kinda.jp`＋Reply-To。`claude/futarive-admin-dashboard-iKBfw` に反映済。
+- [x] **(Claude Code) lib/email.ts を user-site / counselor へ展開**：両プロジェクトに送信ラッパー追加・`resend` 依存追加・キー未設定ガード維持・build green。user-site=main / counselor=`claude/fix-profile-creation-1clpG` に反映済。
+- [x] **(Claude Code) sitemap から `/mypage` 除外**：`src/app/sitemap.ts` 対応・main 反映済（robots と整合）。
+- [ ] **(ふうかさん) `RESEND_API_KEY` を user-site(my-app-rp9u) / counselor の Vercel env(Production) に追加 → 再デプロイ**。これで両プロジェクトの実送信が開通する（admin は設定済）。
+- [ ] **(Claude Code) 口コミ促進メール（運営名義）**：completed 契機。上の RESEND_API_KEY 投入後に実装。文面ドラフトは着手時に用意。
+- [ ] **取引メール本文（決済/予約確定/連絡先開示/日程変更/返金）は Stripe 実装とセット**（Stripe-first・今はやらない）。
+
+#### DNS後始末の残り（2026-06-09）
+- [ ] **OGP実機検証**（X / LINE / opengraph.xyz）。metadataBase は正しいと確認済み、実機表示チェックのみ。
+- [ ] **GA4 プロパティURLを kinda.jp に更新**（ふうかさん手動）。
+
+#### ✅ 2026-06-09 完了（ふうかさん）
+- [x] GSC ドメインプロパティ登録（DNS TXT・Vercel側）・sitemap 送信成功・主要URLインデックスリクエスト。
+- [x] 受信 `hello@kinda.jp`（ImprovMX・Gmail転送）構築・テストOK。
+- [x] 送信ドメイン認証 `send.kinda.jp`（Resend・DKIM/SPF/MX/DMARC 緑・東京リージョン）。
+- [x] metadataBase が kinda.jp で正しいことを sitemap 実体で確認。
+
+---
+
 ### 🆕 2026-06-08 追加（SNS／コンテンツ・フォーマット起点）
 
 > Claude.ai セッション（Voices/Story 執筆フォーマット＋SNS立ち上げ設計）からの引き継ぎ。
