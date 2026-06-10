@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
   title: "お問い合わせ | Kinda ふたりへ",
   description:
     "Kinda ふたりへ のサービスに関するご質問・ご要望はこちらから。メール または LINE 公式アカウントでお受けしています。",
 };
-
-const SUPPORT_EMAIL = "hello@kinda.jp"; // TODO: 本番運用開始時に正式アドレスに差し替え
 
 export default function ContactPage() {
   return (
@@ -36,12 +35,7 @@ export default function ContactPage() {
               いただいた内容にあわせて、担当から直接ご返信します。
               通常 2〜3 営業日以内にお返事しています。
             </p>
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="legal-cta-primary">
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M2 3h10v8H2zM2 3l5 4 5-4" />
-              </svg>
-              {SUPPORT_EMAIL}
-            </a>
+            <ContactForm />
           </section>
 
           <section className="legal-section">
