@@ -44,8 +44,13 @@
 - [x] **(Claude Code) sitemap から `/mypage` 除外**：`src/app/sitemap.ts` 対応・main 反映済（robots と整合）。
 - [x] **(ふうかさん) `RESEND_API_KEY` を user-site(my-app-rp9u) / counselor の Vercel env に追加 → 再デプロイ**（2026-06-09 完了）。
 - [x] **(Claude Code) お問い合わせフォーム＝送信者識別（①B）**：`/contact` をアプリ内フォーム化＋`/api/contact`（Resend送信・サーバ側で会員/カウンセラー/相談所オーナーを判定し問い合わせメールに付与・Reply-To=送信者）。main 反映済（2026-06-09）。※本番 /contact 送信＝Resend送信テストを兼ねる。
-- [ ] **(Claude Code) 口コミ促進メール（運営名義）**：completed 契機。文面ドラフトは着手時に用意。RESEND_API_KEY 投入済みなので実装可。
+- [x] **(Claude Code) 口コミ促進メール（運営名義・タスクE）**：completed 予約に「面談おつかれさまでした、口コミを」を1回送信。`/api/cron/send-review-requests`（service role・直近14日・未送信・投稿済み除外・`reservations.review_request_sent_at` で冪等／migration 036）＋ `vercel.json` 日次 cron（01:00 UTC=10:00 JST）。From=noreply@send.kinda.jp / Reply-To=hello@kinda.jp。main 反映済（2026-06-09）。
+  - [ ] **(ふうかさん・必須) my-app-rp9u の Vercel env に 2つ追加 → 再デプロイ**：`SUPABASE_SERVICE_ROLE_KEY`（Supabase の Project Settings → API → service_role）と `CRON_SECRET`（任意のランダム文字列）。これが無いと cron は 401 で動かない（送信されない）。Vercel Hobby の cron は日次のみ。
+  - [ ] 動作確認：env投入後、cron 実行（または `curl -H "Authorization: Bearer <CRON_SECRET>" https://kinda.jp/api/cron/send-review-requests`）で completed 予約に促進メールが届くか。
 - [ ] **取引メール本文（決済/予約確定/連絡先開示/日程変更/返金）は Stripe 実装とセット**（Stripe-first・今はやらない）。
+
+#### メール運用の改善（2026-06-09 追加）
+- [ ] **問い合わせ返信を `hello@kinda.jp` 名義で出せるようにする**（現在は Gmail から返信すると差出人が個人 gmail になる）。Gmail「他のアドレスから送信（Send mail as）」に hello@kinda.jp を追加するには送信SMTPが必要。**おすすめ＝Google Workspace（約¥800/月）で hello@kinda.jp を本物のメールボックス化**（送受信とも自然）。代替＝ImprovMX 有料（SMTP付き）。**まず Google Workspace でいくか検討するところから**（ふうかさん希望）。受信転送（ImprovMX）自体は現状維持で可。
 
 #### DNS後始末の残り（2026-06-09）
 - [ ] **OGP実機検証**（X / LINE / opengraph.xyz）。metadataBase は正しいと確認済み、実機表示チェックのみ。
