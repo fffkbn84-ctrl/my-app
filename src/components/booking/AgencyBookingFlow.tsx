@@ -442,7 +442,7 @@ function AgencyCompletionScreen({
 
       <h2 className="bk-done-title">予約が完了しました</h2>
       <p className="bk-done-sub">
-        確認メールをお送りしました。
+        この画面が表示された時点で、ご予約は成立しています。
         <br />
         マイページから日時の確認・キャンセル
         <InfoTooltip

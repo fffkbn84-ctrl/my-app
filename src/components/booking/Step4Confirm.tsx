@@ -258,7 +258,7 @@ export default function Step4Confirm({
           />
         </svg>
         <div>
-          予約完了後、確認メールをお送りします。マイページから日時の確認・キャンセル
+          予約後はマイページから日時の確認・キャンセル
           <InfoTooltip
             ariaLabel="キャンセル規定の詳細を見る"
             variant="muted"
