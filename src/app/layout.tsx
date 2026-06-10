@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://kinda.jp"
   ),
+  // ファビコン／ホーム画面アイコン：クレイ「Kinda」ロゴ（SNS アイコンと統一）
+  icons: {
+    icon: "/images/kinda-icon.png",
+    shortcut: "/images/kinda-icon.png",
+    apple: "/images/kinda-icon.png",
+  },
   title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
   description:
     "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと探す、本音の口コミで選ぶ結婚相談所。婚活カウンセラーの相性診断は60秒・無料・登録不要。お見合いのカフェ、デートの場所、ふたりに必要な美容まで、ふたりに寄り添うすべてが Kinda に。",
