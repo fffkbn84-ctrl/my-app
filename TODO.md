@@ -52,6 +52,10 @@
 #### メール運用の改善（2026-06-09 追加）
 - [ ] **問い合わせ返信を `hello@kinda.jp` 名義で出せるようにする**（現在は Gmail から返信すると差出人が個人 gmail になる）。Gmail「他のアドレスから送信（Send mail as）」に hello@kinda.jp を追加するには送信SMTPが必要。**おすすめ＝Google Workspace（約¥800/月）で hello@kinda.jp を本物のメールボックス化**（送受信とも自然）。代替＝ImprovMX 有料（SMTP付き）。**まず Google Workspace でいくか検討するところから**（ふうかさん希望）。受信転送（ImprovMX）自体は現状維持で可。
 
+#### 🆕 2026-06-09 Kinda note シェアの UI 統一 & 共有深度の検討
+- [x] **Kinda note の結果シェアを共通 ShareBar に統一**（main 反映 3e6b227）。旧：単一ボタンが Web Share API を直接開き X アイコンなのに OS 共有シートが出て分かりにくかった → Kinda type/story と同じ X/LINE/リンク/共有 の明示ボタンに。
+- [ ] **共有の「深さ」を決める（要・ふうか判断）**：調査結論＝感情/診断系の成功例（Co-Star/Finch/Daylio）は **生データではなく"抽象"を共有**＋**プライバシーは既定オフ**が定石。Kinda note の SNS シェアは既に「天気名＋1行」の抽象レベルで適正。検討ポイントは(1)`includeFreeText`（YOUR WORDS を画像/保存に含める）が現在**既定ON**→**既定OFF（任意で含める）に倒すか**、(2)シェア文面を今の「今日の私は〇〇でした」のままにするか・もう少し詩的にするか。belonging Phase3 の「天気の匿名共有」と同じ"抽象で共有"の思想で一貫。
+
 #### DNS後始末の残り（2026-06-09）
 - [ ] **OGP実機検証**（X / LINE / opengraph.xyz）。metadataBase は正しいと確認済み、実機表示チェックのみ。
 - [ ] **GA4 プロパティURLを kinda.jp に更新**（ふうかさん手動）。
