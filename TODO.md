@@ -42,8 +42,9 @@
 - [x] **(Claude Code) admin 送信元差し替え**：`futarive-admin/lib/email.ts` を `onboarding@resend.dev` → `noreply@send.kinda.jp`＋Reply-To。`claude/futarive-admin-dashboard-iKBfw` に反映済。
 - [x] **(Claude Code) lib/email.ts を user-site / counselor へ展開**：両プロジェクトに送信ラッパー追加・`resend` 依存追加・キー未設定ガード維持・build green。user-site=main / counselor=`claude/fix-profile-creation-1clpG` に反映済。
 - [x] **(Claude Code) sitemap から `/mypage` 除外**：`src/app/sitemap.ts` 対応・main 反映済（robots と整合）。
-- [ ] **(ふうかさん) `RESEND_API_KEY` を user-site(my-app-rp9u) / counselor の Vercel env(Production) に追加 → 再デプロイ**。これで両プロジェクトの実送信が開通する（admin は設定済）。
-- [ ] **(Claude Code) 口コミ促進メール（運営名義）**：completed 契機。上の RESEND_API_KEY 投入後に実装。文面ドラフトは着手時に用意。
+- [x] **(ふうかさん) `RESEND_API_KEY` を user-site(my-app-rp9u) / counselor の Vercel env に追加 → 再デプロイ**（2026-06-09 完了）。
+- [x] **(Claude Code) お問い合わせフォーム＝送信者識別（①B）**：`/contact` をアプリ内フォーム化＋`/api/contact`（Resend送信・サーバ側で会員/カウンセラー/相談所オーナーを判定し問い合わせメールに付与・Reply-To=送信者）。main 反映済（2026-06-09）。※本番 /contact 送信＝Resend送信テストを兼ねる。
+- [ ] **(Claude Code) 口コミ促進メール（運営名義）**：completed 契機。文面ドラフトは着手時に用意。RESEND_API_KEY 投入済みなので実装可。
 - [ ] **取引メール本文（決済/予約確定/連絡先開示/日程変更/返金）は Stripe 実装とセット**（Stripe-first・今はやらない）。
 
 #### DNS後始末の残り（2026-06-09）
