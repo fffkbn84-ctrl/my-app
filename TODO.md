@@ -54,7 +54,7 @@
 
 #### 🆕 2026-06-09 Kinda note シェアの UI 統一 & 共有深度の検討
 - [x] **Kinda note の結果シェアを共通 ShareBar に統一**（main 反映 3e6b227）。旧：単一ボタンが Web Share API を直接開き X アイコンなのに OS 共有シートが出て分かりにくかった → Kinda type/story と同じ X/LINE/リンク/共有 の明示ボタンに。
-- [ ] **共有の「深さ」を決める（要・ふうか判断）**：調査結論＝感情/診断系の成功例（Co-Star/Finch/Daylio）は **生データではなく"抽象"を共有**＋**プライバシーは既定オフ**が定石。Kinda note の SNS シェアは既に「天気名＋1行」の抽象レベルで適正。検討ポイントは(1)`includeFreeText`（YOUR WORDS を画像/保存に含める）が現在**既定ON**→**既定OFF（任意で含める）に倒すか**、(2)シェア文面を今の「今日の私は〇〇でした」のままにするか・もう少し詩的にするか。belonging Phase3 の「天気の匿名共有」と同じ"抽象で共有"の思想で一貫。
+- [x] **共有の「深さ」を決定（B採用・2026-06-09）**：`includeFreeText`（自分の言葉を共有/保存物に含める）を**既定OFF（オプトイン）**に変更（main 9044002）。SNSシェア文面は抽象（天気＋1行）のまま維持。調査＝Co-Star/Finch/Daylio いずれも「生データでなく抽象を共有・プライバシー既定オフ」が定石。
 
 #### DNS後始末の残り（2026-06-09）
 - [ ] **OGP実機検証**（X / LINE / opengraph.xyz）。metadataBase は正しいと確認済み、実機表示チェックのみ。
@@ -65,6 +65,23 @@
 - [x] 受信 `hello@kinda.jp`（ImprovMX・Gmail転送）構築・テストOK。
 - [x] 送信ドメイン認証 `send.kinda.jp`（Resend・DKIM/SPF/MX/DMARC 緑・東京リージョン）。
 - [x] metadataBase が kinda.jp で正しいことを sitemap 実体で確認。
+
+---
+
+### 🆕 2026-06-09 追補2（UI微修正完了＋ロードマップ確認）
+
+#### 完了（main 反映）
+- [x] Kinda note の自由記述を既定OFF（オプトイン）に（9044002）。
+- [x] 予約完了/確認の文言を実態に整合：未実装の「確認メールをお送りしました」を撤回→「この画面の表示をもって予約成立」に（メール文言はタスクF実装時に再追加）。
+- [x] favicon を Next/Vercel デフォルト → ブランドの日の出 `icon.svg` に差し替え（Google等の丸窓。再クロールで反映は数日〜）。最終クレイアイコン確定後に差し替え可。
+- [x] SNS発信 引き継ぎファイル作成：`docs/sns/sns-handoff-for-claude-ai.md`（Claude.ai に渡す用）。
+
+#### ロードマップ確認（2026-06-09 時点の現在地）
+前進の2大トラックは **(1) Stripe（申請→実装）** と **(2) SNS発信（Claude.aiと）** で合っている。ただし**課金・B2B営業の前にやっておきたい背景タスク**が残る：
+- **法務同期**（返金モデル全文書同期・利用規約/特商法/契約書 棚卸し・顧問弁護士レビュー）← 課金/営業の前提。
+- **セキュリティ残**（slots UPDATE の RPC 化・Security Definer View 権限・anon revoke・Leaked Password Protection・Storage listing・search_path）← ローンチ前に潰したい。
+- 小粒：OGP実機検証 / GA4 URL更新 / Google Workspace（hello@名義返信）検討 / 整合性の横断監査 / 運営オペ手引き / MyPage PCレイアウト / SEO記事インフラ（voices·story の MDX·JSON-LD·動的OGP）。
+- → まとめ：**「Stripe」「SNS」を主軸に進めつつ、課金開始前に「法務同期」と「セキュリティ残」を並走**。それ以外はローンチ前後の磨き込み。
 
 ---
 
@@ -154,7 +171,7 @@
 - [x] **認証コード制の廃止（ユーザーサイト）**：`ReviewGate`(MOCK_TOKENS)削除・`?token=`廃止。`reservations.review_token/review_code/review_token_used` は当面温存。
 - [ ] **営業資料の「専用URLと認証コード」表現の修正**（deck slide「面談を終えた人だけの認証口コミ」→「ログイン＋面談完了の予約に紐づくため成りすまし不可」へ）。
 - [x] **カウンセラー管理画面の改修（適用済み）**：面談完了時の認証コード発行（`ReservationDetailBody.tsx`/`PendingCompletionsSection.tsx`）を撤去し『お客様はマイページから投稿』案内に置換。`claude/fix-profile-creation-1clpG` に push 済み。
-- [ ] **C. 口コミ促進メール（Resend・運営名義）**：completed 契機で「面談お疲れさまでした、口コミを」。※Resend ドメイン認証後。A/B/カウンセラー改修は先行可能。
+- [x] **C. 口コミ促進メール（Resend・運営名義）**：completed 契機。**実装済み（タスクE・2026-06-09）**＝`/api/cron/send-review-requests`＋日次cron。要 Vercel env（SUPABASE_SERVICE_ROLE_KEY/CRON_SECRET）。
 
 ---
 
@@ -189,9 +206,9 @@
 - [x] admin の Vercel に `RESEND_API_KEY` 設定済み。テスト送信は `onboarding@resend.dev` から（＝アカウント所有者宛のみ可）で確認済み。
 
 #### 残タスク
-- [ ] **送信ドメイン認証**（`kinda.jp` DNS 反映後）。Resend Domains で `kinda.jp`（推奨：サブドメイン `send.kinda.jp`）を SPF/DKIM/DMARC 認証 → 各 `lib/email.ts` の送信元を `onboarding@resend.dev` → `noreply@kinda.jp` 等へ差し替え。**認証前は相談所・ユーザーに実送信できない**（自分宛テストのみ）。
-- [ ] **`RESEND_API_KEY` を user-site（my-app-rp9u）と counselor（futarive-counselor）の Vercel にも追加**（プロジェクトごとに必要）。
-- [ ] **`lib/email.ts` ラッパーを my-app と futarive-counselor へ展開**（admin のものを流用）。
+- [x] **送信ドメイン認証 `send.kinda.jp`**（2026-06-09 完了・DKIM/SPF/MX/DMARC 緑）。送信元は `noreply@send.kinda.jp` / Reply-To `hello@kinda.jp` に統一済み。
+- [x] **`RESEND_API_KEY` を user-site / counselor の Vercel に追加**（2026-06-09 完了。user-siteは追加でSUPABASE_SERVICE_ROLE_KEY/CRON_SECRETも要）。
+- [x] **`lib/email.ts` ラッパーを my-app と futarive-counselor へ展開**（2026-06-09 完了）。
 - [ ] **メール本体は Stripe 実装にセットで作る**（Stripe-first）。決済完了 / 予約確定 / 連絡先開示 / 日程変更 / 返金 は全て Stripe `payment_intent.succeeded` Webhook 起点のため。文面ドラフトは Stripe 着手時にこちらで用意。
   - 役割：user-site→ユーザー宛（確定/決済/日程変更/返金）、counselor→相談所宛（新規予約/決済成立で連絡先開示/日程変更）、admin→運営宛（異議申立て・既存）。
 
