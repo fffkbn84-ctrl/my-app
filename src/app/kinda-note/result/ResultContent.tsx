@@ -68,15 +68,14 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
   // コピー・画像にも含まれなくなる。
   // 予約フローでも「カウンセラーに自由記述を共有するか」の判断に使われる。
   // localStorage に永続化（kinda_note_share_freetext）して Step3Form が読む。
-  // プライバシー既定オフ：自分の言葉（自由記述）は既定では共有/保存物に含めない（オプトイン）。
-  const [includeFreeText, setIncludeFreeText] = useState(false);
+  const [includeFreeText, setIncludeFreeText] = useState(true);
 
-  // mount 時に localStorage から復元（過去に自分でトグル ON にしていた判断を尊重）
+  // mount 時に localStorage から復元（過去にトグル OFF にしていたユーザーの判断を尊重）
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
       const stored = localStorage.getItem("kinda_note_share_freetext");
-      if (stored === "true") setIncludeFreeText(true);
+      if (stored === "false") setIncludeFreeText(false);
     } catch {
       /* private mode 等は無視 */
     }
