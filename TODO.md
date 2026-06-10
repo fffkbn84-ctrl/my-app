@@ -73,7 +73,7 @@
 #### 完了（main 反映）
 - [x] ~~Kinda note の自由記述を既定OFF~~ → 指示は **B＝現状維持（既定ON）** だったため**差し戻し済み**（bb19b5e）。既定ON のまま。
 - [x] 予約完了/確認の文言を実態に整合：未実装の「確認メールをお送りしました」を撤回→「この画面の表示をもって予約成立」に（メール文言はタスクF実装時に再追加）。
-- [~] favicon：Next/Vercel デフォルトは撤去し**暫定で日の出 `icon.svg`**。**最終はクレイ『Kinda』ロゴ画像にする予定**（SNSアイコンと統一）。要：ロゴPNGをファイルでアップロード → `src/app/icon.png`/`apple-icon.png` に差し替え。Google丸窓は再クロールで数日〜。
+- [x] favicon：クレイ『Kinda』ロゴを採用（`public/images/kinda-icon.png`・`layout.tsx` の metadata.icons で icon/shortcut/apple 設定・暫定 icon.svg 撤去）。main 反映 9a7897c。Google検索の丸窓は再クロールで数日〜数週間で反映。※1.1MB と大きめなので、将来 256/512px へ縮小最適化すると軽い（任意）。
 - [x] SNS発信 引き継ぎファイル作成：`docs/sns/sns-handoff-for-claude-ai.md`（Claude.ai に渡す用）。
 
 #### ロードマップ確認（2026-06-09 時点の現在地）
