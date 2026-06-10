@@ -22,6 +22,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { getQuestionsForRoute } from "../data/questions";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
+import ShareBar from "@/components/share/ShareBar";
 
 const VALID_ROUTES: RouteKey[] = [
   "pre",
@@ -58,6 +59,8 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
   const [hydrated, setHydrated] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  // SNS シェア用の確定 URL（weather パラメータ反映後の window.location.href）
+  const [shareUrl, setShareUrl] = useState("");
   const [saving, setSaving] = useState(false);
   // 自由記述（最後の質問で入力した言葉）の表示・シェア含有フラグ。
   // デフォルト ON：ユーザーが自分で書いた言葉なので、結果画面で見返せて、
@@ -170,10 +173,12 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
   useEffect(() => {
     if (!hydrated || !weather) return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("weather") === weather) return;
-    params.set("weather", weather);
-    if (route) params.set("route", route);
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    if (params.get("weather") !== weather) {
+      params.set("weather", weather);
+      if (route) params.set("route", route);
+      window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    }
+    setShareUrl(window.location.href);
   }, [hydrated, weather, route]);
 
   // typeContent が見つからないことは原則ないが、安全弁として
@@ -254,30 +259,22 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
     }
   }
 
-  // ─── SNS シェア（Web Share API → X intent フォールバック）─────
-  async function handleShare() {
-    const shareUrl = window.location.href; // weather パラメータが replaceState で付与済み
-    const shareText = `今日の私は「${weatherDesc.name_ja}」でした。 #Kindaふたりへ`;
-    const navWithShare = navigator as Navigator & {
-      share?: (data: { title: string; text: string; url: string }) => Promise<void>;
-    };
-    if (navWithShare.share) {
-      try {
-        await navWithShare.share({
-          title: "Kinda note",
-          text: shareText,
-          url: shareUrl,
-        });
-        trackEvent("kinda_note_share", { method: "native_share", weather_type: weather });
-      } catch {
-        // ユーザーがキャンセルした場合は無視
+  // ─── SNS シェア用 ShareBar（Kinda type / story と共通仕様）─────
+  // X / LINE / リンクコピー / （対応端末のみ）共有 を明示ボタンで出す。
+  // 旧実装は単一ボタンが Web Share API を直接開き、X アイコンなのに OS の共有
+  // シートが出て分かりにくかったため、サイト共通の ShareBar に統一する。
+  const noteShareText = `今日の私は「${weatherDesc.name_ja}」でした。 #Kindaふたりへ`;
+  const shareBar = (
+    <ShareBar
+      title="Kinda note"
+      label="結果をシェアする"
+      url={shareUrl || undefined}
+      shareText={noteShareText}
+      onShare={(method) =>
+        trackEvent("kinda_note_share", { method, weather_type: weather })
       }
-      return;
-    }
-    const intentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
-    window.open(intentUrl, "_blank", "noopener,noreferrer");
-    trackEvent("kinda_note_share", { method: "twitter", weather_type: weather });
-  }
+    />
+  );
 
   // ─── ShareCard に渡す選択ラベル一覧 ─────────────
   const selectedLabels = useMemo(() => {
@@ -414,12 +411,12 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
         {/* メイン CTA */}
         <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
           {isPre ? (
-            <PreButtons isLoggedIn={!!user} onShare={handleShare} />
+            <PreButtons isLoggedIn={!!user} shareBar={shareBar} />
           ) : (
             <ActiveButtons
               onCopy={handleCopy}
               onSaveImage={handleSaveImage}
-              onShare={handleShare}
+              shareBar={shareBar}
               saving={saving}
               isLoggedIn={!!user}
             />
@@ -967,7 +964,7 @@ const storyBtnStyle: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
-function PreButtons({ isLoggedIn, onShare }: { isLoggedIn: boolean; onShare: () => void }) {
+function PreButtons({ isLoggedIn, shareBar }: { isLoggedIn: boolean; shareBar: React.ReactNode }) {
   // ログイン状態に関わらず Kinda talk へ。結果は localStorage に永続化済み。
   // 予約フローで初めてログインが必要になる（その時に localStorage の結果が DB に同期される）。
   const talkHref = "/kinda-talk?from=note";
@@ -1013,13 +1010,8 @@ function PreButtons({ isLoggedIn, onShare }: { isLoggedIn: boolean; onShare: () 
         Kinda story を見てみる
       </Link>
 
-      {/* 5. SNS シェア（tertiary、最も控えめに） */}
-      <button onClick={onShare} type="button" style={{ ...tertiaryStyle, cursor: "pointer", gap: 6 }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-        結果を SNS でシェア
-      </button>
+      {/* 5. SNS シェア（共通 ShareBar・最も控えめに） */}
+      <div style={{ marginTop: 4 }}>{shareBar}</div>
 
       {!isLoggedIn && (
         <p
@@ -1071,13 +1063,13 @@ const tertiaryStyle: React.CSSProperties = {
 function ActiveButtons({
   onCopy,
   onSaveImage,
-  onShare,
+  shareBar,
   saving,
   isLoggedIn,
 }: {
   onCopy: () => void;
   onSaveImage: () => void;
-  onShare: () => void;
+  shareBar: React.ReactNode;
   saving: boolean;
   isLoggedIn: boolean;
 }) {
@@ -1178,13 +1170,8 @@ function ActiveButtons({
         {saving ? "画像を生成中..." : "画像にして持っておく"}
       </button>
 
-      {/* SNS シェア（tertiary） */}
-      <button onClick={onShare} type="button" style={{ ...tertiaryStyle, cursor: "pointer", gap: 6, marginTop: 4 }}>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-        </svg>
-        結果を SNS でシェア
-      </button>
+      {/* SNS シェア（共通 ShareBar） */}
+      <div style={{ marginTop: 4 }}>{shareBar}</div>
     </>
   );
 }
