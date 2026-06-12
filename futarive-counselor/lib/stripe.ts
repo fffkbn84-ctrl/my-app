@@ -8,3 +8,5 @@ const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
 export const stripe: Stripe | null = STRIPE_SECRET_KEY
   ? new Stripe(STRIPE_SECRET_KEY)
   : null
+
+// redeploy: Stripe env(test keys) 反映 2026-06-09
