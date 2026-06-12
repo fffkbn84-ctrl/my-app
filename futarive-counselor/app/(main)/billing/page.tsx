@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { BillingEvent, BillingStatus } from '@/lib/types-billing'
+import CardRegistration from '@/components/billing/CardRegistration'
 
 type Row = BillingEvent & {
   user_name: string | null
@@ -144,6 +145,9 @@ export default function BillingPage() {
           {' '}よりご連絡ください。
         </div>
       </div>
+
+      {/* お支払い方法（クレジットカード登録） */}
+      <CardRegistration />
 
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
