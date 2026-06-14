@@ -47,12 +47,24 @@ export async function POST(req: Request) {
             user_info_visible: true,
           } as never)
           .eq("id", reservationId);
+        // 請求台帳(billing_events)も「確定＋支払い済み」に同期（既に無効化された行は除く）
+        await admin
+          .from("billing_events")
+          .update({ status: "confirmed", paid_at: new Date().toISOString() } as never)
+          .eq("reservation_id", reservationId)
+          .neq("status", "voided");
       }
     } else if (event.type === "charge.refunded") {
       const charge = event.data.object as Stripe.Charge;
       const piId = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
       const refundId = charge.refunds?.data?.[0]?.id ?? null;
       if (piId) {
+        const { data: resvRow } = await admin
+          .from("reservations")
+          .select("id")
+          .eq("stripe_payment_intent_id", piId)
+          .maybeSingle();
+        const refundedReservationId = (resvRow as { id: string } | null)?.id ?? null;
         await admin
           .from("reservations")
           .update({
@@ -60,6 +72,13 @@ export async function POST(req: Request) {
             stripe_refund_id: refundId,
           } as never)
           .eq("stripe_payment_intent_id", piId);
+        // 返金 → 請求台帳を無効化（請求対象から外す）
+        if (refundedReservationId) {
+          await admin
+            .from("billing_events")
+            .update({ status: "voided", paid_at: null } as never)
+            .eq("reservation_id", refundedReservationId);
+        }
       }
     }
   } catch (err) {
