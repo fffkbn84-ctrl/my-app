@@ -1,6 +1,7 @@
 'use client'
 
 import type { Reservation } from '@/lib/types'
+import { isContactDisclosed } from '@/lib/disclosure'
 import { KINDA_TYPE_LABEL, KINDA_NOTE_WEATHER, type KindaTypeKey } from '@/lib/diagnosisLabels'
 import ElapsedBadge, { computeEscalation } from './ElapsedBadge'
 
@@ -190,7 +191,7 @@ export default function LeadCard({ reservation, column, onOpen }: Props) {
           fontWeight: 500,
           marginBottom: 2,
         }}>
-          {r.user_name || '（氏名未登録）'}
+          {isContactDisclosed(r) ? (r.user_name || '（氏名未登録）') : 'お客様（決済前）'}
           {r.status === 'completed' && (
             <span style={{ marginLeft: 6, fontSize: 10, color: 'var(--text-light)' }}>様</span>
           )}

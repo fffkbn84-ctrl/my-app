@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
 import type { Counselor, Reservation } from '@/lib/types'
+import { isContactDisclosed } from '@/lib/disclosure'
 import { useRouter } from 'next/navigation'
 import KanbanColumn from '@/components/inbox/KanbanColumn'
 import type { ColumnKey } from '@/components/inbox/LeadCard'
@@ -395,7 +396,7 @@ function ReservationCard({ r, onClick }: { r: Reservation; onClick: () => void }
     >
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-deep)' }}>{r.user_name}</span>
+          <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-deep)' }}>{isContactDisclosed(r) ? r.user_name : 'お客様（決済前）'}</span>
           {isPendingUserRequest && <span className="kc-badge kc-badge-urgent" style={{ fontSize: 10 }}>日程変更申請あり</span>}
           {isPendingCounselorRequest && <span className="kc-badge kc-badge-booking" style={{ fontSize: 10 }}>了承待ち</span>}
           {r.status === 'canceled' && (

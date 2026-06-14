@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Counselor, Reservation } from '@/lib/types'
+import { isContactDisclosed } from '@/lib/disclosure'
 
 /**
  * 「これからの面談」セクション — dashboard のトップに表示する前日リマインダー兼予約確認。
@@ -312,7 +313,7 @@ function ReservationLine({
           whiteSpace: 'nowrap',
         }}
       >
-        {reservation.user_name || '（名前未入力）'}
+        {isContactDisclosed(reservation) ? (reservation.user_name || '（名前未入力）') : 'お客様（決済前）'}
         {counselor && scopedCounselors.length > 1 && (
           <span style={{ fontSize: 10, color: 'var(--text-light)', marginLeft: 6 }}>
             · {counselor.name}
