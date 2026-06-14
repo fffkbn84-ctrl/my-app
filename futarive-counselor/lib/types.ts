@@ -166,6 +166,10 @@ export interface Reservation {
   // Migration 032：カウンセラー発の「第3候補まで」提示用（先頭候補は proposed_* にミラー）
   reschedule_candidates: { start: string; end: string }[] | null
   created_at: string
+  // Stripe 決済（Migration 037）：送客料の決済状態。連絡先開示の判定に使う。
+  user_info_visible?: boolean | null
+  paid_at?: string | null
+  stripe_payment_intent_id?: string | null
 }
 
 export interface Review {

@@ -32,6 +32,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [reservation, setReservation] = useState<Reservation | null>(null)
+  const [reviewerNickname, setReviewerNickname] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [toast, setToast] = useState('')
 
@@ -88,6 +89,14 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         data = d as Reservation | null
       }
       setReservation(data)
+      // 連絡先未開示（未決済）時に本名の代わりに表示するニックネームを取得
+      if (data?.user_id) {
+        const { data: prof } = await supabase
+          .from('profiles').select('nickname').eq('id', data.user_id).maybeSingle()
+        setReviewerNickname((prof as { nickname: string | null } | null)?.nickname ?? null)
+      } else {
+        setReviewerNickname(null)
+      }
       setLoading(false)
       if (data) logPersonalDataAccess('reservations', data.id, data.user_id ?? null)
     }
@@ -438,9 +447,37 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
           )}
         </div>
         <Field label="面談日時" value={fmtDateTime(reservation.start_at)} />
-        <Field label="お名前" value={reservation.user_name || '（未入力）'} />
-        <Field label="メールアドレス" value={reservation.user_email || '（未入力）'} copyable />
-        {reservation.user_phone && <Field label="電話番号" value={reservation.user_phone} copyable />}
+        {(() => {
+          // 連絡先（本名・メール・電話）は送客料の決済確定後のみ開示する。
+          // 判定：user_info_visible（Stripe webhook で true）＝開示。
+          // Stripe 導入(2026-06-14)前の旧予約は従来どおり開示（grandfather）。
+          const STRIPE_LAUNCH_AT = Date.parse('2026-06-14T00:00:00Z')
+          const legacy = reservation.created_at
+            ? Date.parse(reservation.created_at) < STRIPE_LAUNCH_AT
+            : true
+          const disclosed = !!reservation.user_info_visible || legacy
+          if (disclosed) {
+            return (
+              <>
+                <Field label="お名前" value={reservation.user_name || '（未入力）'} />
+                <Field label="メールアドレス" value={reservation.user_email || '（未入力）'} copyable />
+                {reservation.user_phone && <Field label="電話番号" value={reservation.user_phone} copyable />}
+              </>
+            )
+          }
+          return (
+            <>
+              <Field
+                label="お客様"
+                value={reviewerNickname ? `${reviewerNickname}（ニックネーム）` : '（ニックネーム未設定）'}
+              />
+              <div style={{ marginTop: 10, padding: '10px 12px', background: 'var(--bg-elev)', borderRadius: 10, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                お客様の<b>お名前・メールアドレス・電話番号</b>は、<b>送客料（¥5,000）の決済が確定すると開示</b>されます。
+                <br />カードが未登録の場合は「Kinda 請求履歴」ページからご登録ください。
+              </div>
+            </>
+          )
+        })()}
         {reservation.notes && (
           <div style={{ marginTop: 10 }}>
             <div style={{ fontSize: 10, color: 'var(--text-light)', marginBottom: 4, letterSpacing: '.05em' }}>事前に伝えたいこと</div>
