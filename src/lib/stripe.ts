@@ -14,3 +14,5 @@ export const STRIPE_ENABLED = !!STRIPE_SECRET_KEY;
 
 // 送客料：1 件 ¥5,000（JPY はゼロ十進通貨なので amount=5000 が ¥5,000）
 export const REFERRAL_FEE_JPY = 5000;
+
+// redeploy: Stripe env(STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET) 反映 2026-06-14
