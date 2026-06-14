@@ -101,12 +101,28 @@ export default function Step4Confirm({
       sharedKindaNoteFreetext: userInfo.sharedKindaNoteFreetext ?? null,
     });
 
-    setLoading(false);
-
     if (!result.ok) {
+      setLoading(false);
       setError(result.message);
       return;
     }
+
+    // 予約成立 → 相談所カードに送客料(¥5,000)を off_session 課金する。
+    // 課金の成否はユーザーの予約完了を妨げない（カード未登録・失敗は運営/相談所側で対応）。
+    // 課金成功時は Stripe webhook が paid_at / user_info_visible を更新し、相談所に連絡先を開示する。
+    if (result.reservationId) {
+      try {
+        await fetch("/api/stripe/charge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ reservationId: result.reservationId }),
+        });
+      } catch {
+        /* 課金リクエストの失敗はユーザー体験を止めない（運営フォロー） */
+      }
+    }
+
+    setLoading(false);
     onConfirm(result.reservationId);
   };
 
