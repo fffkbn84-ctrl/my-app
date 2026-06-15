@@ -33,7 +33,36 @@
 
 ---
 
-### 🆕 2026-06-09 メール基盤の配線（DNS完了 → コード反映）
+### 🆕 2026-06-14 Stripe決済・連絡先二層開示・取引メール（実装ステータス）
+
+> サンドボックス（テスト）で予約→課金→webhook→台帳/連絡先開示まで end-to-end 成功確認済み。
+> 実装指示書：`docs/implementation/claude-code-stripe-resend-implementation.md`。
+
+#### ✅ 完了（main / counselor 本番に反映済み）
+- [x] **スキーマ**：`agencies.stripe_customer_id`／`reservations`(stripe_payment_intent_id/stripe_refund_id/paid_at/refunded_at/user_info_visible)（migration 037・DB適用済）。
+- [x] **決済バックボーン（user-site）**：`src/lib/stripe.ts`／`/api/stripe/charge`（予約成立で相談所カードに即時¥5,000 off_session・本人検証・二重課金防止）／`/api/stripe/webhook`（payment_intent.succeeded→paid_at/user_info_visible＋billing_events確定同期、charge.refunded→refunded_at＋billing_events無効化）／`/api/stripe/refund`（admin限定）。
+- [x] **カード登録UI（counselor）**：請求ページ(/billing)に SetupIntent+Elements。`/api/stripe/setup-intent`・`/api/stripe/set-default-pm`。実機でテストカード登録OK。
+- [x] **予約成立→課金 配線**：Step4Confirm（BookingFlow/AgencyBookingFlow 共通）。課金失敗はユーザーの予約完了を妨げない設計。
+- [x] **連絡先の二層開示**：詳細＝未決済は本名/連絡先を隠しニックネーム＋案内、決済後に開示。一覧(inbox/dashboard)＝未決済は「お客様（決済前）」。`futarive-counselor/lib/disclosure.ts`。旧予約(2026-06-14前)は grandfather。
+- [x] **取引メール（一部）**：決済確定の初回のみ、ユーザーへ「予約確定」・相談所へ「新規予約＋連絡先開示」メール（webhook 起点・送信失敗は webhook を落とさない・二重送信防止）。
+- [x] **返金（機能完成）**：Stripe ダッシュボードで返金 → charge.refunded webhook で DB(refunded_at)＋台帳(voided)同期。※admin の返金ボタンUIは未作成（ダッシュボード操作で代替可）。
+
+#### ⬜ 残（次セッション）
+- [ ] **③残り：取引メール（キャンセル確定／日程変更 申請・了承）**。各キャンセル・日程変更の RPC/更新フロー（user-site・counselor 両方）に sendEmail を hook する必要あり。文面は webhook の確定メールに倣う。
+- [ ] **カード未登録相談所の予約不可ガード**：一覧/枠レベルで「予約を受けられない」を明示（現状は予約は通り、課金だけ失敗＝運営フォロー）。
+- [ ] （任意）admin に返金ボタンUI（`/api/stripe/refund` 呼び出し）。
+- [ ] （任意）一覧の「お客様（決済前）」をニックネーム表示に格上げ（batch で profiles.nickname 取得）。
+- [ ] **本番化**：特商法に AGOGLIFE 実値（`src/app/tokushou` の [会社名][所在地][電話番号]・事業者向け特商法 公開）→ Stripe 本番有効化（live キー）→ **本番モードで Webhook 再作成**（`https://kinda.jp/api/stripe/webhook`・whsec を Vercel に）→ env を live に差し替え。顧問弁護士レビュー。
+- [ ] **GSC**：「クロール済み‑インデックス未登録」は新規ドメインの正常状態。対応不要。必要なら URL検査でインデックス登録リクエスト。待ちでOK。
+
+#### テスト用メモ
+- 未決済ビューの確認：カード未登録相談所の予約 → 一覧/詳細でマスク。決済済み（Emma/小山楓華の例）は本名表示。
+- 取引メール：相談所宛は `agencies.email` 宛（テスト相談所に email 未設定だとユーザー宛のみ届く）。
+- ⚠️ env：counselor と my-app-rp9u に Stripe テストキー設定済み・Webhook(テスト)作成済み。本番化時に live で作り直す。
+
+---
+
+
 
 > Resend `send.kinda.jp` 認証完了・受信 hello@kinda.jp 構築済み。
 > 指示書：`docs/implementation/claude-code-email-wiring-2026-06-09.md`／引き継ぎ：`docs/handoff/handoff-summary-2026-06-09.md`。
