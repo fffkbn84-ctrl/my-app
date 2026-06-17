@@ -7,6 +7,7 @@ import type { Counselor } from "@/lib/data";
 import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { isUuid } from "@/lib/reservations";
+import { loadBookingDefaults, saveBookingDefaults } from "@/lib/bookingDefaults";
 import Step1DateTime from "./Step1Calendar";
 import Step3Form from "./Step3Form";
 import Step4Confirm, { type AgencyCancelInfo } from "./Step4Confirm";
@@ -518,7 +519,7 @@ interface AgencyState {
 }
 
 export default function AgencyBookingFlow({ agencyId, agencyName, counselors, agencyCancelInfo }: Props) {
-  const { user } = useAuth();
+  const { user, supabase } = useAuth();
   const [state, setState] = useState<AgencyState>({
     step: 1,
     selectedCounselorId: undefined as unknown as null,
@@ -536,6 +537,26 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors, ag
         : { ...prev, userInfo: { ...prev.userInfo, email: user.email ?? "" } },
     );
   }, [user?.email]);
+
+  // 過去に入力した氏名/フリガナを自動入力（初回のみ入力→以降自動）
+  useEffect(() => {
+    if (!user?.id || !supabase) return;
+    let cancelled = false;
+    loadBookingDefaults(supabase, user.id).then((d) => {
+      if (cancelled || !d) return;
+      setState((prev) =>
+        prev.userInfo.fullName || prev.userInfo.fullNameKana
+          ? prev
+          : {
+              ...prev,
+              userInfo: { ...prev.userInfo, fullName: d.fullName, fullNameKana: d.fullNameKana },
+            },
+      );
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, supabase]);
 
   const lockedSlotRef = useRef<Slot | null>(null);
 
@@ -595,9 +616,14 @@ export default function AgencyBookingFlow({ agencyId, agencyName, counselors, ag
   const handleConfirm = useCallback(
     (_reservationId: string | null) => {
       lockedSlotRef.current = null;
+      // 次回以降の自動入力用に氏名/フリガナを保存（best-effort）
+      void saveBookingDefaults(supabase, user?.id, {
+        fullName: state.userInfo.fullName,
+        fullNameKana: state.userInfo.fullNameKana,
+      });
       goToStep(5);
     },
-    [goToStep],
+    [goToStep, supabase, user?.id, state.userInfo.fullName, state.userInfo.fullNameKana],
   );
 
   const selectedCounselor =
