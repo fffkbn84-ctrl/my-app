@@ -48,9 +48,14 @@
 - [x] **返金（機能完成）**：Stripe ダッシュボードで返金 → charge.refunded webhook で DB(refunded_at)＋台帳(voided)同期。※admin の返金ボタンUIは未作成（ダッシュボード操作で代替可）。
 
 #### ⬜ 残（次セッション）
-- [ ] **③残り：取引メール（キャンセル確定／日程変更 申請・了承）**。各キャンセル・日程変更の RPC/更新フロー（user-site・counselor 両方）に sendEmail を hook する必要あり。文面は webhook の確定メールに倣う。
+- [x] **③残り：取引メール（キャンセル確定／日程変更 申請・了承）**（2026-06-17 実装・3ブランチ反映）。RPC は PostgreSQL 関数で Resend を呼べないため、TS 層（RPC 成功後）に通知ルートを hook する方式で実装。
+  - user-site（`claude/peaceful-darwin-e3tdlj`）：`/api/reservations/notify`（本人確認→相談所宛）＋ `cancelReservationViaRpc`/`requestRescheduleViaRpc`/`approveRescheduleViaRpc` から best-effort 発火。
+  - counselor（`claude/fix-profile-creation-1clpG`）：`/api/reservations/notify`（RLSスコープ確認→会員宛）＋ `commitCancel`/日程変更 提案・承認 から発火。
+  - 宛先方針：操作者の相手方に通知（user操作→相談所 / 相談所操作→会員）。文面は確定メールに倣ったクレイ調インラインHTML。
+  - ⚠️ user-site 分は `claude/peaceful-darwin-e3tdlj` 止まり。**main へマージ→ my-app-rp9u 反映が必要**。counselor 分は本番ブランチ反映済み。
 - [ ] **カード未登録相談所の予約不可ガード**：一覧/枠レベルで「予約を受けられない」を明示（現状は予約は通り、課金だけ失敗＝運営フォロー）。
-- [ ] （任意）admin に返金ボタンUI（`/api/stripe/refund` 呼び出し）。
+- [x] **決済状態の表示（admin / counselor）**（2026-06-17）：返金後「返金済み」が画面で分かるように。admin 予約管理（`claude/futarive-admin-dashboard-iKBfw`）に「決済」列＋詳細に決済/返金日時。counselor（`claude/fix-profile-creation-1clpG`）予約詳細に決済済み/返金済みバッジ＋返金注記、inbox カードに返金済みバッジ。`Reservation` 型に `refunded_at`/`stripe_refund_id` 追加。
+- [~] **admin の返金ボタンUI**：相談（2026-06-17）の結論＝**作らない**。返金は方針上 低頻度・要個別判断の例外運用で、webhook(`charge.refunded`)が dashboard 返金でも `refunded_at`/billing_events を自動同期するため、**Stripe ダッシュボードからの返金運用＋上記の状態表示**で十分。頻度が上がったら後付け（`/api/stripe/refund` は user-site に存在、別オリジンの admin から叩くには cookie 認証が効かないので admin 内に専用ルートが必要になる点に留意）。
 - [ ] （任意）一覧の「お客様（決済前）」をニックネーム表示に格上げ（batch で profiles.nickname 取得）。
 - [ ] **本番化**：特商法に AGOGLIFE 実値（`src/app/tokushou` の [会社名][所在地][電話番号]・事業者向け特商法 公開）→ Stripe 本番有効化（live キー）→ **本番モードで Webhook 再作成**（`https://kinda.jp/api/stripe/webhook`・whsec を Vercel に）→ env を live に差し替え。顧問弁護士レビュー。
 - [ ] **GSC**：「クロール済み‑インデックス未登録」は新規ドメインの正常状態。対応不要。必要なら URL検査でインデックス登録リクエスト。待ちでOK。

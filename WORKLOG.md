@@ -4,6 +4,30 @@
 
 ---
 
+## 2026-06-17 取引メール（キャンセル/日程変更）＋決済状態表示
+
+3サブアプリにまたがる作業。各本番ブランチに分けて反映（CLAUDE.md §10）。
+
+### 取引メール（キャンセル確定／日程変更 申請・了承）
+- 設計：キャンセル/日程変更は PostgreSQL RPC（`cancel_reservation_rpc`/`request_reschedule_rpc`/`approve_reschedule_rpc`）または DB 直更新で行われ、関数内から Resend は呼べない。よって **TS 層で RPC 成功直後にサーバ通知ルートを best-effort で叩く**方式（既存の確定メールも webhook=サーバから送る流儀に倣う）。失敗してもユーザー操作は完了済み。
+- 宛先：**操作者の相手方**。会員操作→相談所(`agencies.email`)、相談所操作→会員(`reservations.user_email`)。
+- user-site（`claude/peaceful-darwin-e3tdlj`・commit 451a01f）：`src/app/api/reservations/notify/route.ts`（セッションで本人=`user_id`確認→相談所宛）。`src/lib/reservations.ts` の cancel/reschedule-request/approve ヘルパー成功後に発火。
+- counselor（`claude/fix-profile-creation-1clpG`・commit 299dd11）：`futarive-counselor/app/api/reservations/notify/route.ts`（RLSスコープで読める予約のみ→会員宛）。`ReservationDetailBody.tsx` の `commitCancel`/`handleRequestReschedule`/`handleApprove` から発火。
+- メール文面：確定メールに倣ったクレイ調インラインHTML（#D4A090）。reschedule_approve は元予約ID基準で発火し `reschedule_proposed_start` を確定日時として表示。
+
+### 決済状態の表示（返金済み可視化）
+- counselor：`Reservation` 型に `refunded_at`/`stripe_refund_id` 追加。予約詳細に「決済済み/返金済み」バッジ＋返金注記、inbox カードに返金済みバッジ。
+- admin（`claude/futarive-admin-dashboard-iKBfw`・commit ede6505）：予約管理に「決済」列、詳細モーダルに決済状態/決済日時/返金日時。
+
+### 返金ボタンの判断
+- 結論＝**作らない**。返金は低頻度・要個別判断の例外運用で、webhook(`charge.refunded`)が dashboard 返金でも `refunded_at`/billing_events を自動同期するため、Stripe ダッシュボード運用＋状態表示で充足。`/api/stripe/refund` は user-site にあるが、別オリジンの admin から呼ぶには cookie 認証が効かず admin 内専用ルートが要る点をメモ（後付け時）。
+
+### 残・要対応
+- **user-site の通知ルートは `claude/peaceful-darwin-e3tdlj` 止まり。main マージ→ my-app-rp9u 反映が必要**（counselor/admin は本番ブランチ反映済み）。
+- 実機メールテスト（テスト相談所の `agencies.email` 設定が必要）。RESEND_API_KEY は user-site/counselor とも設定済みのはず。
+
+---
+
 ## プロジェクト概要
 
 **ふたりへ** — 結婚相談所を「カウンセラー個人の口コミ」を見てから予約できるサービス。
