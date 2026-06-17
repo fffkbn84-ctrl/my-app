@@ -22,9 +22,16 @@
 ### 返金ボタンの判断
 - 結論＝**作らない**。返金は低頻度・要個別判断の例外運用で、webhook(`charge.refunded`)が dashboard 返金でも `refunded_at`/billing_events を自動同期するため、Stripe ダッシュボード運用＋状態表示で充足。`/api/stripe/refund` は user-site にあるが、別オリジンの admin から呼ぶには cookie 認証が効かず admin 内専用ルートが要る点をメモ（後付け時）。
 
-### 残・要対応
-- **user-site の通知ルートは `claude/peaceful-darwin-e3tdlj` 止まり。main マージ→ my-app-rp9u 反映が必要**（counselor/admin は本番ブランチ反映済み）。
-- 実機メールテスト（テスト相談所の `agencies.email` 設定が必要）。RESEND_API_KEY は user-site/counselor とも設定済みのはず。
+### ⚠️ デプロイの落とし穴（Ignored Build Step でコードが本番に出ない）
+- 事象：notify コードを main にマージしたのに「キャンセル/日程変更メールが未達」。原因は **Vercel my-app-rp9u の Ignored Build Step が docs-only コミットでビルドをスキップ**していたこと。
+- 仕組み：Ignored Build Step は `git diff --quiet HEAD^ HEAD -- src public content package.json next.config.ts tsconfig.json` を実行し、**直前コミット(HEAD^)との差分に src 等が無ければ CANCELED**（＝スキップ）。
+- 今回：コードは `451a01f`(src あり)、main の HEAD は `ffa7db7`(docs only/TODO・WORKLOG)。FF で main を ffa7db7 に進めたため Vercel は HEAD=ffa7db7 をビルド対象にし `git diff ffa7db7^ ffa7db7 -- src` = 差分なし → スキップ。**コードはツリーにあるのに本番未反映**（webhook メールは1つ前の READY デプロイ 99c4777 に含まれるため届いていた＝紛らわしい）。
+- 対処：src に無害な変更を入れた `4de22d5` を main に積み直し → ビルド実行 → READY。**kinda.jp 反映完了**。
+- **再発防止：main の HEAD（最後のコミット）には必ず src 等の差分を含める。docs-only コミットを main の最後に置かない（docs を先・コードを後、もしくは同一コミットに）。** スキップ時は Vercel deployments が `CANCELED`（約3秒で終了）になり、ログの "canceled as a result of ... Ignored Build Step" で判別できる。
+
+### 反映状況・残
+- ✅ user-site（kinda.jp / my-app-rp9u）= `4de22d5` READY、counselor = `299dd11` READY、admin = `ede6505`。3サブアプリとも本番反映済み。
+- 実機メールテスト：宛先は `agencies.email`（相談所宛）/ `reservations.user_email`（会員宛）。テスト環境では両方とも `fffkbn84@gmail.com`＝同一受信箱。キャンセル/日程変更「申請」は active な予約が必要（取り直し）、「承認」は既存 pending 予約で可。RESEND_API_KEY は user-site/counselor とも設定済み。
 
 ---
 

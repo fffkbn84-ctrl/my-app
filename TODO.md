@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-07
+最終更新: 2026-06-17
 
 ---
 
@@ -14,6 +14,11 @@
 1. `git fetch origin` → **`git checkout -B <feature> origin/main`**（ローカル main は信用しない＝CLAUDE.md §10 デプロイ前チェック）。
 2. 作業 → push → プレビュー確認 → main マージ。
 3. ⚠️ **counselor/admin は別系統**：`futarive-counselor/` は `claude/fix-profile-creation-1clpG`、`futarive-admin/` は `claude/futarive-admin-dashboard-iKBfw`。これらのブランチは **src/ が古い別履歴**なので、編集は各サブディレクトリ配下だけに限定し、作業後 main に戻すこと。
+
+### ⚠️ デプロイの落とし穴（2026-06-17・必読）
+- **my-app-rp9u の Ignored Build Step は `git diff --quiet HEAD^ HEAD -- src public content package.json next.config.ts tsconfig.json`**。main の HEAD（最後のコミット）に src 等の差分が無いと **ビルドをスキップ（CANCELED）し、コードが本番に出ない**。
+- **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
+- 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
 
 ### いま未マージ / 進行中
 - **`claude/review-reservation-flow`** … （済）main マージ済み。
