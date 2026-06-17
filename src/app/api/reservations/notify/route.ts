@@ -1,3 +1,4 @@
+// 会員のキャンセル/日程変更を相談所へ通知する取引メール（best-effort）。
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email";
