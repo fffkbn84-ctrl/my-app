@@ -161,7 +161,9 @@ export default function ReservationsSection() {
     for (const r of list) {
       const isFuture = r.start_at ? new Date(r.start_at).getTime() > now : true;
       const isActive = r.status === "active";
-      if (isActive && isFuture) upcoming.push(r);
+      // 日程変更が了承された元予約は superseded（新予約に置き換わった）ので予定には出さない
+      const isSuperseded = r.reschedule_status === "approved";
+      if (isActive && isFuture && !isSuperseded) upcoming.push(r);
       else past.push(r);
     }
     return { upcoming, past };
@@ -430,7 +432,8 @@ function ReservationCard({
   onCancel: () => void;
   readOnly?: boolean;
 }) {
-  const cancellable = !readOnly && isCancellable(row.start_at, contact.cancelDeadlineHours);
+  const superseded = row.reschedule_status === "approved"; // 日程変更が了承され新予約に置き換わった元予約
+  const cancellable = !readOnly && !superseded && isCancellable(row.start_at, contact.cancelDeadlineHours);
   const canceled = row.status === "canceled";
   const completed = row.status === "completed";
   const isPastActive =
@@ -531,7 +534,19 @@ function ReservationCard({
               )}
           </div>
           <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-            {canceled ? (
+            {superseded ? (
+              <span
+                style={{
+                  fontSize: 10,
+                  background: "var(--pale)",
+                  color: "var(--muted)",
+                  padding: "3px 10px",
+                  borderRadius: 20,
+                }}
+              >
+                日程変更済み
+              </span>
+            ) : canceled ? (
               <span
                 style={{
                   fontSize: 10,
@@ -594,7 +609,7 @@ function ReservationCard({
         </div>
       </Link>
 
-      {!canceled && !readOnly && (
+      {!canceled && !superseded && !readOnly && (
         <div
           style={{
             marginTop: 12,
