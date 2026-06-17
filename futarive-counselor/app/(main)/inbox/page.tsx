@@ -17,6 +17,8 @@ const ALL_SENTINEL = 'ALL'
 /** Reservation を 4 列のどこに振り分けるか */
 function classifyReservation(r: Reservation): ColumnKey {
   if (r.status === 'completed' || r.status === 'canceled') return 'closed'
+  // 日程変更が了承された元予約は superseded（新予約に置き換わった）ので対応列に出さない
+  if (r.reschedule_status === 'approved') return 'closed'
   // active 以下のみ
   if (!r.start_at) return 'pending'
   const startMs = new Date(r.start_at).getTime()
@@ -345,10 +347,10 @@ export default function InboxPage() {
 /** 「すべての予約」タブ：予定 / 過去 の一覧（旧・予約管理ページの内容を統合） */
 function AllReservationsList({ reservations, onOpen }: { reservations: Reservation[]; onOpen: (r: Reservation) => void }) {
   const upcoming = reservations
-    .filter(r => r.status === 'active')
+    .filter(r => r.status === 'active' && r.reschedule_status !== 'approved')
     .sort((a, b) => new Date(a.start_at ?? 0).getTime() - new Date(b.start_at ?? 0).getTime())
   const past = reservations
-    .filter(r => r.status !== 'active')
+    .filter(r => r.status !== 'active' || r.reschedule_status === 'approved')
     .sort((a, b) => new Date(b.start_at ?? b.created_at).getTime() - new Date(a.start_at ?? a.created_at).getTime())
 
   return (
@@ -403,6 +405,9 @@ function ReservationCard({ r, onClick }: { r: Reservation; onClick: () => void }
             <span style={{ fontSize: 10, background: 'var(--bg-elev)', color: 'var(--text-mid)', borderRadius: 6, padding: '2px 8px' }}>キャンセル済み</span>
           )}
           {r.status === 'completed' && <span className="kc-badge kc-badge-booking" style={{ fontSize: 10 }}>完了</span>}
+          {r.reschedule_status === 'approved' && (
+            <span style={{ fontSize: 10, background: 'var(--bg-elev)', color: 'var(--text-mid)', borderRadius: 6, padding: '2px 8px' }}>日程変更済み</span>
+          )}
           {r.refunded_at && (
             <span style={{ fontSize: 10, background: 'var(--bg-elev)', color: 'var(--text-mid)', border: '1px solid var(--border-mid)', borderRadius: 6, padding: '2px 8px' }}>返金済み</span>
           )}
