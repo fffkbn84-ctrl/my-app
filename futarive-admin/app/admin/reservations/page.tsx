@@ -14,6 +14,10 @@ interface ReservationRow {
   review_code: string | null
   review_token_used: boolean
   created_at: string
+  status: string | null
+  paid_at: string | null
+  refunded_at: string | null
+  stripe_payment_intent_id: string | null
 }
 
 type ReservationFull = ReservationRow & {
@@ -49,6 +53,12 @@ export default function ReservationsPage() {
   const fmt = (iso: string | null) =>
     iso ? new Date(iso).toLocaleString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
 
+  // 送客料（¥5,000）の決済状態。返金は webhook(charge.refunded) で refunded_at が立つ。
+  const paymentStatus = (r: { paid_at: string | null; refunded_at: string | null }) =>
+    r.refunded_at ? { label: '返金済み', cls: 'badge badge-draft' }
+      : r.paid_at ? { label: '決済済み', cls: 'badge badge-published' }
+      : { label: '未決済', cls: 'badge badge-draft' }
+
   return (
     <div>
       <div className="page-header">
@@ -71,6 +81,7 @@ export default function ReservationsPage() {
                   <th>ユーザー名</th>
                   <th>メールアドレス</th>
                   <th>カウンセラー</th>
+                  <th>決済</th>
                   <th>口コミ済み</th>
                   <th>予約日</th>
                   <th>操作</th>
@@ -83,6 +94,9 @@ export default function ReservationsPage() {
                     <td style={{ fontWeight: 500, fontSize: 13, whiteSpace: 'nowrap' }}>{r.user_name}</td>
                     <td style={{ fontSize: 12, color: 'var(--muted)' }}>{r.user_email}</td>
                     <td style={{ fontSize: 13, whiteSpace: 'nowrap' }}>{r.counselor_name}</td>
+                    <td>
+                      <span className={paymentStatus(r).cls}>{paymentStatus(r).label}</span>
+                    </td>
                     <td>
                       <span className={r.review_token_used ? 'badge badge-published' : 'badge badge-draft'}>
                         {r.review_token_used ? '済み' : '未'}
@@ -116,6 +130,9 @@ export default function ReservationsPage() {
                 ['カウンセラー', detail.counselor_name],
                 ['面談開始', fmt(detail.start_at)],
                 ['面談終了', fmt(detail.end_at)],
+                ['決済状態', paymentStatus(detail).label],
+                ['決済日時', fmt(detail.paid_at)],
+                ['返金日時', fmt(detail.refunded_at)],
                 ['備考', detail.notes ?? '—'],
                 ['口コミトークン', detail.review_token ?? '—'],
                 ['口コミコード', detail.review_code ?? '—'],
