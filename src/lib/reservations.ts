@@ -8,6 +8,24 @@
 ──────────────────────────────────────────────────────────── */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+/* ────────────────────────────────────────────────────────────
+   notifyAgencyOfReservationEvent
+   - 会員の操作（キャンセル / 日程変更 申請・承認）を相談所へメール通知する。
+   - best-effort：失敗してもユーザー操作は既に完了しているので握りつぶす。
+──────────────────────────────────────────────────────────── */
+function notifyAgencyOfReservationEvent(
+  reservationId: string,
+  event: "cancel" | "reschedule_request" | "reschedule_approve",
+): void {
+  if (typeof fetch === "undefined") return;
+  void fetch("/api/reservations/notify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ reservationId, event }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -255,6 +273,7 @@ export async function cancelReservationViaRpc(
       message: msgs[result.error ?? ""] ?? "キャンセルに失敗しました。",
     };
   }
+  notifyAgencyOfReservationEvent(reservationId, "cancel");
   return { ok: true, withinGrace: result.within_grace ?? false };
 }
 
@@ -340,6 +359,7 @@ export async function requestRescheduleViaRpc(
       message: msgs[result.error ?? ""] ?? "日程変更の申請に失敗しました。",
     };
   }
+  notifyAgencyOfReservationEvent(reservationId, "reschedule_request");
   return { ok: true, expiresAt: result.expires_at ?? "" };
 }
 
@@ -378,5 +398,6 @@ export async function approveRescheduleViaRpc(
       message: msgs[result.error ?? ""] ?? "日程変更の承認に失敗しました。",
     };
   }
+  notifyAgencyOfReservationEvent(reservationId, "reschedule_approve");
   return { ok: true, newReservationId: result.new_reservation_id ?? "" };
 }
