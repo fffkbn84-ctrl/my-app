@@ -33,8 +33,11 @@ const STATUS_COLOR: Record<BillingStatus, { bg: string; fg: string }> = {
 
 const VOID_REASON_LABEL: Record<string, string> = {
   user_cancel_within_grace: 'ユーザー取消（24h以内）',
+  cancelled_within_grace: 'キャンセル（24h以内）',
   agency_cancel: '相談所都合キャンセル',
   admin_resolved_dispute: '運営が異議を認定',
+  reschedule_requested: '日程変更の申請',
+  rescheduled: '日程変更で新予約へ移行',
 }
 
 const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`
