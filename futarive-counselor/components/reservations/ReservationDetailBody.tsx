@@ -9,6 +9,23 @@ import type { Reservation } from '@/lib/types'
 import { KINDA_TYPE_LABEL, KINDA_NOTE_WEATHER, type KindaTypeKey } from '@/lib/diagnosisLabels'
 import { requestRescheduleMultiAsCounselor, approveRescheduleAsCounselor } from '@/lib/reservations'
 
+/**
+ * 相談所の操作（キャンセル / 日程変更 提案・承認）を会員（ユーザー）へメール通知する。
+ * best-effort：失敗しても相談所側の操作は完了済みなので握りつぶす。
+ */
+function notifyUserOfReservationEvent(
+  reservationId: string,
+  event: 'cancel' | 'reschedule_request' | 'reschedule_approve',
+): void {
+  if (typeof fetch === 'undefined') return
+  void fetch('/api/reservations/notify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reservationId, event }),
+    keepalive: true,
+  }).catch(() => {})
+}
+
 interface SlotOption {
   id: string
   start_at: string
@@ -147,6 +164,8 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
       if (pending.snapshot.slot_id) {
         await supabase.from('slots').update({ status: 'open' }).eq('id', pending.snapshot.slot_id)
       }
+      // 会員へキャンセル通知（DB 確定後）
+      notifyUserOfReservationEvent(pending.snapshot.id, 'cancel')
     } catch (e) {
       // 失敗時は元に戻して通知
       setReservation(pending.snapshot)
@@ -271,6 +290,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
       // 添えるメッセージはユーザーに見える agency_message として保存
       const nowIso = new Date().toISOString()
       await supabase.from('reservations').update({ agency_message: message, agency_message_at: nowIso }).eq('id', reservation.id)
+      notifyUserOfReservationEvent(reservation.id, 'reschedule_request')
       setSubmittingReschedule(false)
       showToast(`${candidates.length}件の候補で日程変更を提案しました。ユーザーの了承をお待ちください。`)
       setShowRescheduleModal(false)
@@ -297,6 +317,8 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
     const result = await approveRescheduleAsCounselor(supabase, reservation.id)
     setApproving(false)
     if (result.ok) {
+      // 申請者（会員）へ承認通知。新予約に遷移する前に元予約 ID で発火（確定日時はそこにある）
+      notifyUserOfReservationEvent(reservation.id, 'reschedule_approve')
       showToast('日程変更を了承しました')
       router.push(`/reservations/${result.newReservationId}`)
     } else {
@@ -445,7 +467,17 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
           {reservation.meeting_type && (
             <span style={{ marginLeft: 8, fontSize: 11, color: 'var(--text-mid)' }}>{reservation.meeting_type}</span>
           )}
+          {reservation.refunded_at ? (
+            <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 9px', borderRadius: 999, background: 'var(--bg-elev)', color: 'var(--text-mid)', border: '1px solid var(--border-mid)' }}>返金済み</span>
+          ) : reservation.paid_at ? (
+            <span style={{ marginLeft: 8, fontSize: 11, padding: '2px 9px', borderRadius: 999, background: 'rgba(122,158,135,.16)', color: '#5b7a66' }}>決済済み</span>
+          ) : null}
         </div>
+        {reservation.refunded_at && (
+          <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--bg-elev)', borderRadius: 10, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+            この予約の送客料（¥5,000）は<b>返金済み</b>です（{fmtDateTime(reservation.refunded_at)}）。請求対象から除外されています。
+          </div>
+        )}
         <Field label="面談日時" value={fmtDateTime(reservation.start_at)} />
         {(() => {
           // 連絡先（本名・メール・電話）は送客料の決済確定後のみ開示する。

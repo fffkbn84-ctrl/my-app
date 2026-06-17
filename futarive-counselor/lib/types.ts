@@ -170,6 +170,8 @@ export interface Reservation {
   user_info_visible?: boolean | null
   paid_at?: string | null
   stripe_payment_intent_id?: string | null
+  refunded_at?: string | null
+  stripe_refund_id?: string | null
 }
 
 export interface Review {

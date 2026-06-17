@@ -403,6 +403,9 @@ function ReservationCard({ r, onClick }: { r: Reservation; onClick: () => void }
             <span style={{ fontSize: 10, background: 'var(--bg-elev)', color: 'var(--text-mid)', borderRadius: 6, padding: '2px 8px' }}>キャンセル済み</span>
           )}
           {r.status === 'completed' && <span className="kc-badge kc-badge-booking" style={{ fontSize: 10 }}>完了</span>}
+          {r.refunded_at && (
+            <span style={{ fontSize: 10, background: 'var(--bg-elev)', color: 'var(--text-mid)', border: '1px solid var(--border-mid)', borderRadius: 6, padding: '2px 8px' }}>返金済み</span>
+          )}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-mid)' }}>
           {dateStr}{timeStr ? `　${timeStr}` : ''}{r.meeting_type ? `　${r.meeting_type}` : ''}
