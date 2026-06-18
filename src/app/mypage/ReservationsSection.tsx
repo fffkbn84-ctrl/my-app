@@ -617,6 +617,32 @@ function ReservationCard({
             borderTop: "1px dashed var(--pale)",
           }}
         >
+          {/* 日程変更を最優先のアクションとして表示（申請中でない予約のみ）。詳細ページの申請モーダルへ誘導 */}
+          {row.reschedule_status === null && (
+            <Link
+              href={`/mypage/reservations/${row.id}`}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#fff",
+                background: "var(--accent)",
+                border: "1px solid var(--accent)",
+                borderRadius: 50,
+                padding: "7px 18px",
+                textDecoration: "none",
+                marginBottom: 12,
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <rect x="2" y="3" width="10" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+                <path d="M2 5.5h10M5 2v2M9 2v2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+              日程変更を申請する
+            </Link>
+          )}
           {cancellable ? (
             <div
               style={{

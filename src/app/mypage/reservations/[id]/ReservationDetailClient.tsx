@@ -277,6 +277,8 @@ function RescheduleModal({
   const [slots, setSlots] = useState<SlotRow[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(true);
   const [selected, setSelected] = useState<SlotRow | null>(null);
+  // 2段選択：まず日付を選び、次に時間を選ぶ（カウンセラー管理画面と同じ操作）
+  const [selectedDateLabel, setSelectedDateLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supabase || !counselorId) {
@@ -369,67 +371,108 @@ function RescheduleModal({
                 <br />しばらくしてからもう一度お試しください。
               </p>
             </div>
-          ) : (
-            Object.entries(grouped).map(([dateLabel, daySlots]) => (
-              <div key={dateLabel} style={{ marginBottom: 16 }}>
-                <p
+          ) : selectedDateLabel === null ? (
+            // 1段目：予約枠のある日付の一覧（カウンセラー管理画面と同じ操作）
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {Object.entries(grouped).map(([dateLabel, daySlots]) => (
+                <button
+                  key={dateLabel}
+                  type="button"
+                  onClick={() => {
+                    setSelectedDateLabel(dateLabel);
+                    setSelected(null);
+                  }}
                   style={{
-                    fontSize: 11,
-                    color: "var(--muted)",
-                    letterSpacing: ".06em",
-                    marginBottom: 8,
-                    paddingBottom: 4,
-                    borderBottom: "1px solid var(--pale)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "12px 14px",
+                    borderRadius: 10,
+                    border: "1px solid var(--border)",
+                    background: "white",
+                    cursor: "pointer",
+                    textAlign: "left",
                   }}
                 >
-                  {dateLabel}
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {daySlots.map((slot) => {
-                    const isSelected = selected?.id === slot.id;
-                    return (
-                      <button
-                        key={slot.id}
-                        type="button"
-                        onClick={() => setSelected(slot)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          padding: "10px 14px",
-                          borderRadius: 10,
-                          border: isSelected
-                            ? "1.5px solid var(--accent)"
-                            : "1px solid var(--border)",
-                          background: isSelected ? "rgba(212,168,90,.07)" : "white",
-                          cursor: "pointer",
-                          textAlign: "left",
-                          transition: "border-color .15s, background .15s",
-                        }}
-                      >
-                        <span style={{ fontSize: 13, color: "var(--ink)" }}>
-                          {formatTimeRange(slot.start_at, slot.end_at)}
+                  <span style={{ fontSize: 14, color: "var(--ink)" }}>{dateLabel}</span>
+                  <span style={{ fontSize: 12, color: "var(--muted)", flexShrink: 0 }}>
+                    {daySlots.length}枠 ›
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            // 2段目：選んだ日付の時間一覧
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedDateLabel(null);
+                  setSelected(null);
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  background: "transparent",
+                  border: "none",
+                  color: "var(--mid)",
+                  fontSize: 12,
+                  cursor: "pointer",
+                  padding: 0,
+                  marginBottom: 10,
+                }}
+              >
+                ‹ 日付を選び直す
+              </button>
+              <p style={{ fontSize: 12, color: "var(--ink)", fontWeight: 600, marginBottom: 10 }}>
+                {selectedDateLabel}
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {(grouped[selectedDateLabel] ?? []).map((slot) => {
+                  const isSelected = selected?.id === slot.id;
+                  return (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => setSelected(slot)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "10px 14px",
+                        borderRadius: 10,
+                        border: isSelected
+                          ? "1.5px solid var(--accent)"
+                          : "1px solid var(--border)",
+                        background: isSelected ? "rgba(212,168,90,.07)" : "white",
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "border-color .15s, background .15s",
+                      }}
+                    >
+                      <span style={{ fontSize: 13, color: "var(--ink)" }}>
+                        {formatTimeRange(slot.start_at, slot.end_at)}
+                      </span>
+                      {slot.meeting_type && (
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: "var(--muted)",
+                            background: "var(--pale)",
+                            padding: "2px 8px",
+                            borderRadius: 20,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {slot.meeting_type}
                         </span>
-                        {slot.meeting_type && (
-                          <span
-                            style={{
-                              fontSize: 10,
-                              color: "var(--muted)",
-                              background: "var(--pale)",
-                              padding: "2px 8px",
-                              borderRadius: 20,
-                              flexShrink: 0,
-                            }}
-                          >
-                            {slot.meeting_type}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            ))
+            </div>
           )}
         </div>
 
