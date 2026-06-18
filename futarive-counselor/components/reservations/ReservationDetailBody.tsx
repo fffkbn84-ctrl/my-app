@@ -487,6 +487,14 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
           const legacy = reservation.created_at
             ? Date.parse(reservation.created_at) < STRIPE_LAUNCH_AT
             : true
+          // キャンセル済みの予約は、お客様の氏名・連絡先を表示しない（不要な個人情報を保持・露出しない）
+          if (reservation.status === 'canceled') {
+            return (
+              <div style={{ marginTop: 10, padding: '10px 12px', background: 'var(--bg-elev)', borderRadius: 10, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
+                この予約はキャンセルされたため、お客様の連絡先は表示されません。
+              </div>
+            )
+          }
           const disclosed = !!reservation.user_info_visible || legacy
           if (disclosed) {
             return (
@@ -531,8 +539,8 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         </div>
       </div>
 
-      {/* 事前共有の診断 */}
-      {(reservation.shared_kinda_type_key || reservation.shared_kinda_note_key) && (
+      {/* 事前共有の診断（キャンセル済みは非表示） */}
+      {reservation.status !== 'canceled' && (reservation.shared_kinda_type_key || reservation.shared_kinda_note_key) && (
         <div className="kc-card" style={{ padding: '20px 22px' }}>
           <div style={{ fontSize: 10, color: 'var(--accent)', marginBottom: 8, letterSpacing: '.18em', textTransform: 'uppercase', fontFamily: 'DM Sans, sans-serif', fontWeight: 500 }}>
             Shared by user · 事前共有
