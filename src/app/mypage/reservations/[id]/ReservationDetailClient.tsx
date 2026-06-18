@@ -1360,29 +1360,26 @@ export default function ReservationDetailClient({ reservationId }: { reservation
           >
             {cancellable ? (
               <>
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "var(--mid)",
-                    lineHeight: 1.8,
-                    marginBottom: 12,
-                    display: "inline-flex",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <span>
-                    {agencyInfo.cancelPolicy ?? "面談前であればマイページからキャンセルできます。"}
-                  </span>
-                  <InfoTooltip ariaLabel="キャンセル規定の詳細を見る" variant="muted" align="left-anchor">
-                    <CancelPolicyTooltipContent
-                      policy={agencyInfo.cancelPolicy}
-                      phone={agencyInfo.phone}
-                      email={agencyInfo.email}
-                    />
-                  </InfoTooltip>
-                </p>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {/* 日程変更を主アクションとして優先表示。キャンセルは副アクション */}
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
+                  {reschedulable && (
+                    <button
+                      type="button"
+                      onClick={() => setShowRescheduleModal(true)}
+                      style={{
+                        fontSize: 13,
+                        color: "#fff",
+                        background: "var(--accent)",
+                        border: "1px solid var(--accent)",
+                        borderRadius: 50,
+                        padding: "10px 22px",
+                        cursor: "pointer",
+                        fontFamily: "var(--font-mincho)",
+                      }}
+                    >
+                      日程変更を申請する
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setShowCancelModal(true)}
@@ -1399,25 +1396,28 @@ export default function ReservationDetailClient({ reservationId }: { reservation
                   >
                     この予約をキャンセルする
                   </button>
-                  {reschedulable && (
-                    <button
-                      type="button"
-                      onClick={() => setShowRescheduleModal(true)}
-                      style={{
-                        fontSize: 13,
-                        color: "var(--accent)",
-                        background: "white",
-                        border: "1px solid var(--accent)",
-                        borderRadius: 50,
-                        padding: "10px 22px",
-                        cursor: "pointer",
-                        fontFamily: "var(--font-mincho)",
-                      }}
-                    >
-                      日程変更を申請する
-                    </button>
-                  )}
                 </div>
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: "var(--muted)",
+                    lineHeight: 1.8,
+                    display: "inline-flex",
+                    alignItems: "flex-start",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <span>
+                    {agencyInfo.cancelPolicy ?? "面談前であればマイページからキャンセルできます。"}
+                  </span>
+                  <InfoTooltip ariaLabel="キャンセル規定の詳細を見る" variant="muted" align="left-anchor">
+                    <CancelPolicyTooltipContent
+                      policy={agencyInfo.cancelPolicy}
+                      phone={agencyInfo.phone}
+                      email={agencyInfo.email}
+                    />
+                  </InfoTooltip>
+                </p>
               </>
             ) : (
               <>
