@@ -4,6 +4,51 @@
 
 ---
 
+## 2026-06-19 日程変更の課金引き継ぎ／マイページUX／counselorプライバシー／favicon
+
+このセッションの実装（全て本番反映済み）。詳細は各 migration とコミット参照。
+
+### 日程変更まわり（DB＋3アプリ）
+- **承認の二重INSERT修正（038）**：`approve_reschedule_rpc` の手動 billing_events INSERT を撤去（INSERTトリガー `trg_billing_events_create` が冪等生成するため重複し unique 違反していた）。
+- **課金＝一回引き継ぎ（039）**：`request_reschedule_rpc` の申請時 billing void を廃止。`approve_reschedule_rpc` は新予約へ `paid_at/stripe_payment_intent_id/user_info_visible` を引き継ぎ、新 billing を confirmed に、元 billing を voided（superseded）、Stripe 参照を新予約へ一本化。追加課金/返金なし。ふうか確定方針。
+- 元予約（`reschedule_status='approved'`）を一覧/要対応から除外（counselor inbox・user mypage）。過去側に「日程変更済み」表示。
+- counselor 請求履歴の無効化「理由」を日本語化（`VOID_REASON_LABEL` に reschedule_requested/rescheduled/cancelled_within_grace 追加）。
+
+### マイページUX（user-site）
+- **#4** 一覧カードに「日程変更を申請する」を最優先導線（→詳細）。詳細のアクションも日程変更を主ボタン先頭・キャンセルを副に（list→detail→modal を推奨採用）。
+- **#5** 日程変更モーダルを「予約枠のある日付一覧→時間選択」の2段に（counselor と統一）。
+- **#3** favicon を App Router 規約（`src/app/favicon.ico`・`icon.png`・`apple-icon.png`）に一本化。sharp で軽量生成（1.1MB の直指定を撤去）。`/favicon.ico` 直リクエスト対応で Vercel 既定マークへのフォールバックを解消。ICO は RGBA PNG をラップ（RGB だと Turbopack の image 処理で失敗）。
+
+### プライバシー（counselor）
+- **#1** 予約詳細で `status='canceled'` のときお名前/メール/電話/共有診断を非表示（「キャンセルされたため連絡先は非表示」案内）。一覧カードは識別のため実名維持（確定）。
+
+### 予約フォーム（#2）
+- 氏名/フリガナを **owner限定テーブル `user_booking_defaults`（040）** に保存→次回プリフィル（email と同様・編集可）。profiles は public read のため本名を置かない設計。
+
+---
+
+## 2026-06-19 ファウンダーノート（取材形式・さき）／SNS公開準備
+
+コンテンツ/マーケ作業（Claude.ai 主導）。コードは画像アセットのコミットのみ。
+
+### ファウンダーノート v3 確定
+- 形式を**取材インタビュー（聞き手＝さき／答え＝ふうか）**に全面改稿。v2のトーン問題（経歴自慢で始まる／"良い人ほど埋もれる"の自己投影／preachyな前置き／"浅いのに深い感"）を解消。深さは具体（連絡が取れなくなった会員さんを今も考えている）だけで立て、宣言しない方針。
+- ガード：landmine語を翻訳（「身体目的の人や既婚者」／「結婚できない人の集まり」不使用）、**Emma名はユーザー向けでは出さない**、締めは「いま kinda.jp に開いています」（"まもなく"の事実誤認を修正）。
+- タイトル確定（A）：「結婚してみようかな」と思ったとき、最初になんとなくのぞける場所を / バイライン＝取材・文／さき（Kinda）。
+- 用途：note 1本目／`/about/founder`／営業デッキ素材を兼ねる。原稿＝`kinda-founder-note-v3.md`。
+
+### さきペルソナ確立
+- Kinda の取材・コラム担当（社内の編集voice。外部記者風に偽装しない）。空虚な共感をしない翻訳者トーン。
+- **今後の Kinda Voices（カウンセラー取材）の聞き手バイラインに再利用**する。
+
+### ビジュアルアセット（public/images にコミット）
+- `public/images/saki-editor.webp`：さきのクレイアバター（DALL-E生成→webp）。ふうかと差別化（低めポニテ・丸メガネ・オートミールニット）。
+- `public/images/eyecatch.webp`：ファウンダーノートのアイキャッチ（窓＋天気のクレイシーン、タイトル余白あり）。
+- パレット＝#F5EEE6＋#D4A090、クレイミニチュア風で統一。アカウントアイコンはクレイふうか像で確定済み（SNSキットA3）。
+- 注：`public/` はビルド対象パスなので Ignored Build Step のスキップは起きない。
+
+---
+
 ## 2026-06-17 取引メール（キャンセル/日程変更）＋決済状態表示
 
 3サブアプリにまたがる作業。各本番ブランチに分けて反映（CLAUDE.md §10）。
