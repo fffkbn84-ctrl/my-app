@@ -20,10 +20,36 @@
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
 
-### 🆕 2026-06-20 OGP コピー再考（要・ふうか）
-- [x] トップOGPを専用画像 `OGP-hero.jpg` ＋ブランドコピーに差し替え（`src/app/layout.tsx`・本番反映済・LINEで新カード確認OK）。読み＝カインダ統一・「ふたりへ」維持。
-- [ ] **og/twitter の説明文（title/description）の表現を再検討**：現状は「結婚相談所を、会った人の口コミで選ぶ」。実際の差別化は**カウンセラー個人を選べる**点なので、そこを front に出す表現を検討（例：「結婚相談所を“担当者”で選ぶ／会った人の口コミでカウンセラーを選ぶ」等）。§2のトーン（婚活ワードは出しつつ煽らない）と両立させる。決まったら layout の og/twitter title/description を差し替え。
-  - 参考：検索スニペット用の `description`（page meta）は SEO重視の既存文のまま。og/twitter だけ差し替えればカードに反映。
+### 🆕 2026-06-20 OGP / SNS
+
+#### ✅ 完了
+- [x] OGP専用画像作成（OGP-hero.jpg 1200×632、tagline焼き込み）→ public/images にwebp/jpg併存
+- [x] og:title / og:description 確定（読み＝カインダ統一・「ふたりへ」維持）
+- [x] Claude Code：トップmetadata実装（metadataBase / openGraph / twitter / OGP-hero.jpg・`src/app/layout.tsx`・本番反映済）
+- [x] OGPキャッシュ更新（LINE確認のみで完了）
+
+#### ⏳ note公開（最優先・ふうか操作）
+- [ ] note新規記事：タイトルA／本文v3／アイキャッチeyecatch（webp不可ならpng/jpg）／バイライン確認
+- [ ] 公開→URL取得→展開キットの [note URL] 差し込み
+- [ ] bio差し替え：note・X から「（結婚相談所Emma…）」削除（IGは変更不要）
+
+#### ⏳ SNS発射（note公開後）
+- [ ] IGカルーセル7枚 投稿（スライド画像5枚は要生成、1・7枚目はeyecatch流用）
+- [ ] X：単発 or スレッド投稿
+
+#### 🆕 Instagram 継続方向性の設計（次セッション主要議題）
+- [ ] コンテンツ柱の定義（候補：天気の言葉の使い方／Kinda Voicesカウンセラー紹介／「成婚だけがゴールじゃない」哲学／デート準備・会場探し=Kinda act動線）
+- [ ] 投稿フォーマット（カルーセル/単一/画像リール）と頻度
+- [ ] 初回ローンチ群（ファウンダーノート7枚）以降の継続ネタ設計
+- [ ] ハッシュタグ戦略・プロフィール導線
+- [ ] トーン厳守（煽らない・比較しない・ヒーロー禁止語）
+
+#### 🔁 OGP コピー再考（要・ふうか）
+- [ ] **og/twitter の説明文（title/description）の表現を再検討**：現状は「結婚相談所を、会った人の口コミで選ぶ」。実際の差別化は**カウンセラー個人を選べる**点なので、そこを front に出す表現を検討（例：「結婚相談所を“担当者”で選ぶ／会った人の口コミでカウンセラーを選ぶ」等）。§2のトーンと両立。決まったら layout の og/twitter title/description を差し替え（検索スニペット用 description は据え置きで可）。
+
+> 参照：`kinda-founder-note-launch-kit-v1.html`（SNS発射キット）／`kinda-founder-note-v3.md`（note本文）／`claude-code-ogp-metadata-2026-06-20.md`（OGP指示書・実装済み記録）。
+> 決定ログ：SNSアカウントアイコン＝ロゴで3媒体統一（クレイ ふうか/さき像は著者欄＝バイライン用）。noteバイラインはテキスト1行（v3冒頭に内包・アバターは今回見送り）。OGPは季節ヒーロー流用でなく専用固定画像。
+> 開始手順（次回）：①note公開（タイトルA／本文v3／アイキャッチeyecatch／バイライン）→URL取得→キットの[note URL]差し込み→bio差し替え。②Instagram 継続方向性を 柱→フォーマット→頻度→導線 の順で詰める。
 
 ### 🆕 2026-06-19 実装（このセッション・全て本番反映済み）
 - [x] **取引メール（キャンセル/日程変更 申請・承認）**：RPC 成功後にサーバ通知ルート（user-site `/api/reservations/notify`・counselor 同）を best-effort で叩く方式。会員操作→相談所、相談所操作→会員。

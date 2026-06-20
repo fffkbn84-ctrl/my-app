@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-06-20 OGP対応完成／SNS展開キット
+
+- OGP対応を完成。専用画像 `OGP-hero.jpg`（1200×632、tagline「気持ちを、天気の言葉で。」焼き込み）を作成し、WebP→JPGでクローラー互換を確保（webp版も併存だがOGPはjpg使用）。og:title/description を CTR優先（結婚相談所を前方配置）かつ v3哲学（成婚だけを目的にせず）を織り込んで確定。Claude Code でトップ metadata（metadataBase含む）を実装、LINE でカード表示を確認。
+  - 実装メモ（記録の正確性）：実際の og:title は「**Kinda（カインダ）ふたりへ｜結婚相談所を、会った人の口コミで選ぶ**」。引き継ぎサマリー §1 の og:title は「ふたりへ」抜きだが、**実装は「ふたりへ」維持の決定を反映済み**（読み＝カインダ統一も反映）。検索スニペット用 `description` は SEO重視の既存文を維持し、og/twitter にだけブランドコピーを適用。title の `{default,template}` 化はサブページが既に「| Kinda ふたりへ」を含むため二重ブランドを招くので見送り。`page.tsx` に metadata 定義は無く（type アイコンは og:image 未設定によるクローラー自動選択）、削除対象は無かった。
+- ファウンダーノート展開キット（`kinda-founder-note-launch-kit-v1.html`）作成：note公開GO／bio差し替え／IGカルーセル7枚／X／発射順序。note公開待ちで待機。
+- 決定：SNSアイコンはロゴ統一（クレイ ふうか/さき像は著者欄＝バイライン用）。noteバイラインはテキスト1行のみ（アバター今回見送り）。
+
+---
+
 ## 2026-06-19 日程変更の課金引き継ぎ／マイページUX／counselorプライバシー／favicon
 
 このセッションの実装（全て本番反映済み）。詳細は各 migration とコミット参照。
