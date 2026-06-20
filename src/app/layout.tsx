@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   // ファビコン／ホーム画面アイコンは App Router 規約のファイルに一本化：
   // src/app/favicon.ico（/favicon.ico 直リクエスト対応）, src/app/icon.png, src/app/apple-icon.png。
   // 旧 1.1MB の /images/kinda-icon.png 直指定はサイズ過大で一部環境でフォールバックしていたため撤去。
-  title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
+  title: "Kinda（カインダ）ふたりへ｜結婚相談所を、会った人の口コミで選ぶ",
+  // 検索スニペット用の説明文は SEO 重視の既存文を維持。
+  // シェアカード（og/twitter）の文面はブランドコピーを使う（下記）。
   description:
     "好きな人を見つけて、一緒に過ごす日々まで。プロのカウンセラーと探す、本音の口コミで選ぶ結婚相談所。婚活カウンセラーの相性診断は60秒・無料・登録不要。お見合いのカフェ、デートの場所、ふたりに必要な美容まで、ふたりに寄り添うすべてが Kinda に。",
   keywords: [
@@ -31,18 +33,29 @@ export const metadata: Metadata = {
     "Kinda",
   ],
   openGraph: {
-    title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
-    description:
-      "好きな人を見つけて、一緒に過ごす日々まで。本音の口コミと相性診断で、ふたりになる手前から寄り添う場所。",
     type: "website",
     locale: "ja_JP",
+    url: "https://kinda.jp",
     siteName: "Kinda ふたりへ",
+    title: "Kinda（カインダ）ふたりへ｜結婚相談所を、会った人の口コミで選ぶ",
+    description:
+      "結婚相談所を、実際に会った人の口コミで選ぶ。会う前にカウンセラーの様子まで見られるから「人で選べる」。デートの準備や顔合わせまで、成婚だけを目的にせず、そっと隣に。",
+    // og:image は WebP 非対応クローラー対策で JPG を使う（metadataBase で絶対URL化）
+    images: [
+      {
+        url: "/images/OGP-hero.jpg",
+        width: 1200,
+        height: 632,
+        alt: "Kinda（カインダ）— 気持ちを、天気の言葉で。",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kinda ふたりへ｜担当を選んで予約できる結婚相談所サービス",
+    title: "Kinda（カインダ）ふたりへ｜結婚相談所を、会った人の口コミで選ぶ",
     description:
-      "好きな人を見つけて、一緒に過ごす日々まで。本音の口コミと相性診断、お見合いから美容まで。",
+      "結婚相談所を、実際に会った人の口コミで選ぶ。会う前にカウンセラーの様子まで見られるから「人で選べる」。デートの準備や顔合わせまで、そっと隣に。",
+    images: ["/images/OGP-hero.jpg"],
   },
 };
 
