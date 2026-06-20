@@ -20,6 +20,11 @@
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
 
+### 🆕 2026-06-20 OGP コピー再考（要・ふうか）
+- [x] トップOGPを専用画像 `OGP-hero.jpg` ＋ブランドコピーに差し替え（`src/app/layout.tsx`・本番反映済・LINEで新カード確認OK）。読み＝カインダ統一・「ふたりへ」維持。
+- [ ] **og/twitter の説明文（title/description）の表現を再検討**：現状は「結婚相談所を、会った人の口コミで選ぶ」。実際の差別化は**カウンセラー個人を選べる**点なので、そこを front に出す表現を検討（例：「結婚相談所を“担当者”で選ぶ／会った人の口コミでカウンセラーを選ぶ」等）。§2のトーン（婚活ワードは出しつつ煽らない）と両立させる。決まったら layout の og/twitter title/description を差し替え。
+  - 参考：検索スニペット用の `description`（page meta）は SEO重視の既存文のまま。og/twitter だけ差し替えればカードに反映。
+
 ### 🆕 2026-06-19 実装（このセッション・全て本番反映済み）
 - [x] **取引メール（キャンセル/日程変更 申請・承認）**：RPC 成功後にサーバ通知ルート（user-site `/api/reservations/notify`・counselor 同）を best-effort で叩く方式。会員操作→相談所、相談所操作→会員。
 - [x] **日程変更 承認の不具合修正**：billing_events 二重INSERT（unique違反）解消（migration 038）。
