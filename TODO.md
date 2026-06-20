@@ -51,6 +51,12 @@
 > 決定ログ：SNSアカウントアイコン＝ロゴで3媒体統一（クレイ ふうか/さき像は著者欄＝バイライン用）。noteバイラインはテキスト1行（v3冒頭に内包・アバターは今回見送り）。OGPは季節ヒーロー流用でなく専用固定画像。
 > 開始手順（次回）：①note公開（タイトルA／本文v3／アイキャッチeyecatch／バイライン）→URL取得→キットの[note URL]差し込み→bio差し替え。②Instagram 継続方向性を 柱→フォーマット→頻度→導線 の順で詰める。
 
+#### 法務・事業者情報（2026-06-20・SNS流入前の最優先3点）
+- [x] **プライバシー/特商法/利用規約に事業者情報を実値化**（株式会社AGOGLIFE／〒104-0061 東京都中央区銀座1-12-4 N&E BLD.6F／代表 船田剛／hello@kinda.jp）。特商法の電話番号は非表示＝「請求があれば遅滞なく開示」運用。`src/app/privacy` `src/app/tokushou` `src/app/terms`。本番反映。
+- [ ] **(ふうか手動・1分) Supabase Leaked Password Protection を有効化**：Dashboard → Authentication → Sign In / Providers（または Policies）→ Password セクションの「Leaked password protection（HaveIBeenPwned 照合）」をON。※MCPでは切替不可。advisor で WARN 継続中。
+- [ ] （順次）残りの法務同期（事業者向け特商法 `tokushoho-agency-b2b.md` の counselor 公開・返金モデル全文書同期・顧問弁護士レビュー）。
+- [ ] （順次）残りのセキュリティ advisor：RLS 過剰権限/Security Definer View 権限/anon revoke/Storage listing/search_path（CLAUDE.md §セキュリティ残）。SNS流入では今すぐ事故らない範囲。
+
 ### 🆕 2026-06-19 実装（このセッション・全て本番反映済み）
 - [x] **取引メール（キャンセル/日程変更 申請・承認）**：RPC 成功後にサーバ通知ルート（user-site `/api/reservations/notify`・counselor 同）を best-effort で叩く方式。会員操作→相談所、相談所操作→会員。
 - [x] **日程変更 承認の不具合修正**：billing_events 二重INSERT（unique違反）解消（migration 038）。

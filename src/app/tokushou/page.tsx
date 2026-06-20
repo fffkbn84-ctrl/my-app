@@ -42,31 +42,23 @@ export default function TokushouPage() {
               <tbody>
                 <tr>
                   <th>販売事業者</th>
-                  <td>[会社名]</td>
+                  <td>株式会社AGOGLIFE</td>
                 </tr>
                 <tr>
                   <th>運営統括責任者</th>
-                  <td>[代表者氏名]</td>
+                  <td>船田剛</td>
                 </tr>
                 <tr>
                   <th>所在地</th>
                   <td>
-                    [所在地]
-                    <br />
-                    <span className="legal-note-inline">
-                      ※請求があれば、遅滞なく開示します。開示をご希望の場合は
-                      <a href="/contact" className="legal-link">お問い合わせフォーム</a>
-                      よりご請求ください。
-                    </span>
+                    〒104-0061 東京都中央区銀座1-12-4 N&amp;E BLD.6F
                   </td>
                 </tr>
                 <tr>
                   <th>電話番号</th>
                   <td>
-                    [電話番号]
-                    <br />
                     <span className="legal-note-inline">
-                      ※請求があれば、遅滞なく開示します。お問い合わせは原則としてメールでお願いしています。
+                      請求があれば、遅滞なく開示します。お問い合わせは原則としてメールでお願いしています。
                       電話での対応が必要な場合は、
                       <a href="/contact" className="legal-link">お問い合わせフォーム</a>
                       よりご請求いただければ、折り返しご案内します。

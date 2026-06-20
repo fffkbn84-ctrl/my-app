@@ -27,7 +27,7 @@ export default function PrivacyPage() {
             <h1 className="legal-title">プライバシーポリシー</h1>
             <p className="legal-meta">最終更新日：{LAST_UPDATED}</p>
             <p className="legal-lead">
-              [会社名]（以下「当社」といいます）は、Kinda ふたりへ（以下「本サービス」といいます）における
+              株式会社AGOGLIFE（以下「当社」といいます）は、Kinda ふたりへ（以下「本サービス」といいます）における
               利用者の個人情報の取り扱いについて、個人情報の保護に関する法律（以下「個人情報保護法」といいます）その他関係法令を遵守し、
               以下のとおりプライバシーポリシー（以下「本ポリシー」といいます）を定めます。
             </p>
@@ -199,9 +199,9 @@ export default function PrivacyPage() {
           <section className="legal-section">
             <h2 className="legal-h2">12. お問い合わせ窓口</h2>
             <div className="legal-info-box">
-              <p>事業者名：[会社名]</p>
-              <p>所在地：[所在地]</p>
-              <p>個人情報保護管理者：[氏名]</p>
+              <p>事業者名：株式会社AGOGLIFE</p>
+              <p>所在地：〒104-0061 東京都中央区銀座1-12-4 N&amp;E BLD.6F</p>
+              <p>個人情報保護管理者：船田剛</p>
               <p>
                 お問い合わせ：
                 <a href="/contact" className="legal-link">お問い合わせページ</a>

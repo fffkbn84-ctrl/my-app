@@ -27,7 +27,7 @@ export default function TermsPage() {
             <h1 className="legal-title">利用規約</h1>
             <p className="legal-meta">最終更新日：{LAST_UPDATED}</p>
             <p className="legal-lead">
-              この利用規約（以下「本規約」といいます）は、[会社名]（以下「当社」といいます）が提供する
+              この利用規約（以下「本規約」といいます）は、株式会社AGOGLIFE（以下「当社」といいます）が提供する
               「Kinda ふたりへ」（以下「本サービス」といいます）の利用に関する条件を定めるものです。
               本サービスをご利用いただくすべての方（以下「ユーザー」といいます）は、本規約に同意の上、ご利用ください。
             </p>
