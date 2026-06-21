@@ -53,7 +53,8 @@
 
 #### 法務・事業者情報（2026-06-20・SNS流入前の最優先3点）
 - [x] **プライバシー/特商法/利用規約に事業者情報を実値化**（株式会社AGOGLIFE／〒104-0061 東京都中央区銀座1-12-4 N&E BLD.6F／代表 船田剛／hello@kinda.jp）。特商法の電話番号は非表示＝「請求があれば遅滞なく開示」運用。`src/app/privacy` `src/app/tokushou` `src/app/terms`。本番反映。
-- [ ] **(ふうか手動・1分) Supabase Leaked Password Protection を有効化**：Dashboard → Authentication → Sign In / Providers（または Policies）→ Password セクションの「Leaked password protection（HaveIBeenPwned 照合）」をON。※MCPでは切替不可。advisor で WARN 継続中。
+- [x] **Auth パスワード強化（無料・2026-06-20 実施済）**：最小パスワード長 6→8、Password requirements（文字種）を設定 → Save。弱いパスワードを弾く実用対策。
+- [ ] **Leaked Password Protection は保留（Pro限定）**：HaveIBeenPwned 照合は **Supabase Pro（$25/月・約¥3,700）限定**だったため見送り（Claude.ai は無料前提で勧めていたが実際は有料）。多層防御の補助で「今すぐ事故る」ものではないため advisor の WARN は許容。**Pro 化する時（無操作1週間でのプロジェクト自動停止回避・日次バックアップ等が欲しくなった時）に合わせて ON** する。
 - [ ] （順次）残りの法務同期（事業者向け特商法 `tokushoho-agency-b2b.md` の counselor 公開・返金モデル全文書同期・顧問弁護士レビュー）。
 - [ ] （順次）残りのセキュリティ advisor：RLS 過剰権限/Security Definer View 権限/anon revoke/Storage listing/search_path（CLAUDE.md §セキュリティ残）。SNS流入では今すぐ事故らない範囲。
 
