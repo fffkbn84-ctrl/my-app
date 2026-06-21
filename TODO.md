@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-19
+最終更新: 2026-06-21
 
 ---
 
@@ -19,6 +19,17 @@
 - **my-app-rp9u の Ignored Build Step は `git diff --quiet HEAD^ HEAD -- src public content package.json next.config.ts tsconfig.json`**。main の HEAD（最後のコミット）に src 等の差分が無いと **ビルドをスキップ（CANCELED）し、コードが本番に出ない**。
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
+
+### 🆕 2026-06-21 note公開／IG戦略／動画パイプライン
+- [x] 創業者note公開：https://note.com/kinda_jp/n/ndd5a4776cc13 （さき×ふうか・v3本文）
+- [x] 法人識別情報を privacy/特商法/利用規約に反映（コミット `3c7cce6`・6/20実施）
+- [ ] bio差し替え（note・X から「（結婚相談所Emma…）」削除）→ X 投稿（文面用意済・未投稿。IGは変更不要）
+- [ ] 創業ストーリーカルーセル7枚を投稿→**ピン留め**（1・7枚目=eyecatch流用、中5枚生成）
+- [ ] **動画パイプライン方針決定（次回 .ai 最優先）**：image-to-video 有料ツール選定（候補 Morphed 等で Veo/Sora/Kling/Hailuo/Seedance/WAN を秒単位課金）／月予算ヒアリング／ChatGPT画像プラン確認。決定まで IG戦略の頻度・フォーマット優先順位は仮置き。
+  - Canva 無料：引き継ぎ「生涯5本」で却下 ↔ ふうか再調査「毎月リセット・商用可・AI動画 最大200本/月」。**要再検証（一次情報で）**。
+- [ ] IG戦略 v1（`kinda-instagram-strategy-v1.md`）の実弾化：カルーセル最終コピー・柱A〜D初回案（キャプ＋画像生成プロンプト）。※動画方針確定後に着手（手戻り防止）。
+- [ ] （Code連携・戦略§9）bioリンク着地最適化（診断/天気の軽い入口を確定）／IGキャプKWとサイトSEO KWの統一／bioリンクUTM＋GA4更新／OGP共有見え方の確認。
+- メモ：**「クレイ」=AI生成ミニチュア世界観のスタイル名**（物理オブジェクト無し）。ストップモーション案は撤回。Kinda talk への Emma 掲載判断は保留継続。
 
 ### 🆕 2026-06-20 OGP / SNS
 
