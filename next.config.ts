@@ -29,10 +29,16 @@ const nextConfig: NextConfig = {
     ],
   },
   /**
-   * 301 リダイレクト
+   * リダイレクト
    * /search → /kinda-talk へ統一（カウンセラー検索の主要 UI を一本化）
    * /search?tab=agency → /agencies（相談所一覧の専用ページ）
-   * SEO 評価を新ページに引き継ぐため permanent: true で 301 を返す。
+   *   ↑ SEO 評価を新ページに引き継ぐため permanent: true で 301。
+   *
+   * /note → /kinda-note（SNS bio 着地用の短縮パス）
+   *   Instagram 等の bio リンクは短い /note を貼り、診断ランディング /kinda-note へ送る。
+   *   UTM 等のクエリ（?utm_source=instagram&utm_medium=bio&utm_campaign=launch）は
+   *   Next.js が自動で引き継ぐため、GA4 の流入分類はリダイレクト後の /kinda-note 上で成立する。
+   *   将来 bio 着地先を変える可能性があるため permanent: false（307・恒久キャッシュさせない）。
    */
   async redirects() {
     return [
@@ -46,6 +52,11 @@ const nextConfig: NextConfig = {
         source: "/search",
         destination: "/kinda-talk",
         permanent: true,
+      },
+      {
+        source: "/note",
+        destination: "/kinda-note",
+        permanent: false,
       },
     ];
   },
