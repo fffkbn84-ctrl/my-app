@@ -30,6 +30,22 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Kinda",
     locale: "ja_JP",
+    // openGraph を上書きするため images を明示（無いと親の og:image を継承できない）。
+    images: [
+      {
+        url: `${SITE_URL}/images/OGP-hero.jpg`,
+        width: 1200,
+        height: 632,
+        alt: "Kinda（カインダ）— 気持ちを、天気の言葉で。",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "20の天気タイプ ｜ Kinda note",
+    description:
+      "Kinda noteは、いまの気持ちを20種類の天気で表します。あなたの今日の天気を見つけて、整理することからはじめましょう。",
+    images: [`${SITE_URL}/images/OGP-hero.jpg`],
   },
 };
 

@@ -50,11 +50,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       siteName: "Kinda",
       locale: "ja_JP",
+      // 各天気ページが openGraph を上書きするため、images を明示しないと
+      // 親(layout)のデフォルト og:image を継承できず SNS シェア画像が欠落する。
+      // 当面はブランド共通の OGP-hero.jpg をフォールバックとして使う。
+      images: [
+        {
+          url: `${SITE_URL}/images/OGP-hero.jpg`,
+          width: 1200,
+          height: 632,
+          alt: "Kinda（カインダ）— 気持ちを、天気の言葉で。",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: weather.meta_description,
+      images: [`${SITE_URL}/images/OGP-hero.jpg`],
     },
   };
 }
