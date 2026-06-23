@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-21
+最終更新: 2026-06-23
 
 ---
 
@@ -20,15 +20,36 @@
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
 
+### 🆕 2026-06-23 IG bio着地本番化／GA4計測／カルーセル投稿／SEO実機診断
+
+#### ✅ 完了
+- [x] **`/note` → `/kinda-note` 307 リダイレクト**（`next.config.ts`・UTM保持・PR #21 squash→main `10d24a6`→本番 READY）。bio 短縮URL `https://kinda.jp/note?utm_source=instagram&utm_medium=bio&utm_campaign=launch` が `/kinda-note` に着地。`/note/weather/[slug]` には影響なし（完全一致）。
+- [x] **GA4 計測の実態確認**：診断完了の実イベントは **`kinda_note_complete`**（引き継ぎ文書の `note_diagnosis_complete` は誤記）。リアルタイムで発火確認済み。
+- [x] **創業カルーセル7枚 投稿済み**（ピン留め・Made with AI ラベル対応・テンプレ確定）。
+- [x] **bio 整備（両方）**：note・X の Emma 記述削除 ＋ IG bio に UTM付き `/note` リンク設置。
+- [x] **SEO 実機診断 完了**（claude.ai が Vercel web_fetch で本番HTML直接診断）：土台健全・インデックスゼロは新規未クロールが主因。robots/sitemap/天気ページ noindex無し等は問題なし。
+
+#### ⏳ pending（ふうか操作）
+- [ ] **GA4 キーイベント昇格**：集計の「イベント」一覧（管理→データの表示→イベント→**最近のイベント**タブ）に `kinda_note_complete` が出たら ☆（スター）を付与。※リアルタイムでは発火確認済みだが集計反映は最大24h超。出たら昇格。
+- [ ] **GSC 手動インデックス登録**：URL検査で主要URLをリクエスト（推奨順：トップ→ハブ `/note/weather`・`/columns`→需要大コラム（婚活疲れた/始め方/限界/good-counselor-traits）→主要天気（rain-cloud/morning-mist/twilight））。1日上限あり・上から。
+
+#### 🔧 SEO修正フェーズ（**未着手**・最新引き継ぎ `seo-diagnosis-www-fix` 由来。実バグ3つ）
+- [ ] **① www / non-www 重複（最優先・技術SEO）**：`www.kinda.jp` が 301されず 200 で実体を返し別URLとして生存＝評価分散。**Vercel ドメイン設定で `www.kinda.jp → kinda.jp` を 301**（primary を non-www に）。コード変更不要の可能性大＝ふうか操作（手順は claude.ai が用意予定）。
+- [ ] **② 天気/コラムページの og:image 欠落（Code修正）**：`/note/weather/[slug]`・`/columns/[slug]` に og:image / twitter:image を付与（各ページ固有 or 当面 `OGP-hero.jpg` フォールバック）。
+- [ ] **③ 動的ページの canonical 欠落（Code修正）**：`/kinda-note/quiz` 等に canonical 明示＋独自metadata（現状トップ継承）。
+- [ ] **URL構造の正規化（要・構造確認後）**：実体 `/kinda-note/quiz` vs sitemap掲載 `/kinda-type/quiz` の不整合。`/kinda-note` 系 vs `/kinda-type` 系の正/別を実機と `site-url-structure.md` で突き合わせて統一。
+- [ ] **（中期・拡散エンジン）動的OGP**：`/note/result/[id]` のシェア画像を動的生成。
+- メモ：SEO実装の Code指示書は claude.ai が作成 → Claude Code 実装。レイヤー順＝①www統一/GSC（土台）→②og:image/canonical/JSON-LD（技術基盤）→③コンテンツ最適化→④CWV/拡散。
+
 ### 🆕 2026-06-21 note公開／IG戦略／動画パイプライン
 - [x] 創業者note公開：https://note.com/kinda_jp/n/ndd5a4776cc13 （さき×ふうか・v3本文）
 - [x] 法人識別情報を privacy/特商法/利用規約に反映（コミット `3c7cce6`・6/20実施）
-- [ ] bio差し替え（note・X から「（結婚相談所Emma…）」削除）→ X 投稿（文面用意済・未投稿。IGは変更不要）
-- [ ] 創業ストーリーカルーセル7枚を投稿→**ピン留め**（1・7枚目=eyecatch流用、中5枚生成）
+- [x] bio差し替え（note・X から「（結婚相談所Emma…）」削除）＋ IG bio に UTM付き `/note` リンク設置（2026-06-23 完了）
+- [x] 創業ストーリーカルーセル7枚を投稿→**ピン留め**＋Made with AI ラベル（2026-06-23 完了）
 - [ ] **動画パイプライン方針決定（次回 .ai 最優先）**：image-to-video 有料ツール選定（候補 Morphed 等で Veo/Sora/Kling/Hailuo/Seedance/WAN を秒単位課金）／月予算ヒアリング／ChatGPT画像プラン確認。決定まで IG戦略の頻度・フォーマット優先順位は仮置き。
   - Canva 無料：引き継ぎ「生涯5本」で却下 ↔ ふうか再調査「毎月リセット・商用可・AI動画 最大200本/月」。**要再検証（一次情報で）**。
 - [ ] IG戦略 v1（`kinda-instagram-strategy-v1.md`）の実弾化：カルーセル最終コピー・柱A〜D初回案（キャプ＋画像生成プロンプト）。※動画方針確定後に着手（手戻り防止）。
-- [ ] （Code連携・戦略§9）bioリンク着地最適化（診断/天気の軽い入口を確定）／IGキャプKWとサイトSEO KWの統一／bioリンクUTM＋GA4更新／OGP共有見え方の確認。
+- [~] （Code連携・戦略§9）bioリンク着地最適化＝**済**（`/note`→`/kinda-note` リダイレクト・UTM＋GA4 `kinda_note_complete` 確認、2026-06-23）。残：IGキャプKWとサイトSEO KWの統一（実リポジトリで表記ゆれ監査）／OGP共有見え方の確認（→ 2026-06-23 のSEO修正フェーズ②og:image に統合）。
 - メモ：**「クレイ」=AI生成ミニチュア世界観のスタイル名**（物理オブジェクト無し）。ストップモーション案は撤回。Kinda talk への Emma 掲載判断は保留継続。
 
 ### 🆕 2026-06-20 OGP / SNS

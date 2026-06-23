@@ -4,6 +4,31 @@
 
 ---
 
+## 2026-06-23 IG bio着地リダイレクト本番化／GA4計測確認／創業カルーセル投稿／SEO実機診断
+
+このセッションの Code 実装 ＋ Claude.ai 側で完了した内容の記録。
+
+### Code側（このセッション・本番反映済み）
+- **`/note` → `/kinda-note` 307 リダイレクト**（`next.config.ts` の `redirects()`）。IG等の bio 短縮URL `https://kinda.jp/note?utm_source=instagram&utm_medium=bio&utm_campaign=launch` を診断ランディング `/kinda-note` に着地させる。実リポジトリには `/note` ルートが無く（`/note/weather/...` のみ）そのままでは 404 だった乖離を解消。UTM クエリは Next.js が自動引き継ぎ＝GA4 の流入分類はリダイレクト後の `/kinda-note` で成立。`source: "/note"` は完全一致なので `/note/weather/[slug]` に影響なし。将来差し替え可能性のため `permanent: false`（307）。
+  - PR #21 → squash merge → **main `10d24a6`** → my-app-rp9u 本番 **READY**（`kinda.jp` / `www.kinda.jp` エイリアス確認）。`next.config.ts` 差分ありで Ignored Build Step のスキップ罠は回避。
+- **GA4 診断完了イベントの実態確認（引き継ぎ文書の誤記訂正）**：claude.ai 引き継ぎは `note_diagnosis_complete`（Code側設定済）としていたが、**実装の実イベント名は `kinda_note_complete`**（`src/app/kinda-note/result/ResultContent.tsx` で発火・`weather_type`/`route` 付き、GA4＋Vercel両送信）。GA4 リアルタイムで `kinda_note_complete`（=4）の発火を確認。新規の合成イベントは作らない（重複防止）。
+  - **キーイベント昇格は pending**：集計の「イベント」一覧に出るまで最大24h超。出たら 管理→データの表示→イベント→「最近のイベント」タブで `kinda_note_complete` の☆（スター）を付与＝ふうか操作。
+
+### Claude.ai側（完了の記録）
+- **創業カルーセル7枚＝完成・Instagram 投稿済み・ピン留め・Made with AI ラベル対応**。確定テンプレ（ロック）：3:4（1080×1440・不可なら4:5）／Noto Serif CJK JP Medium／文字色 #46352A／本文50px（窮屈な絵のみ縮小）／行間1.72／上端マージン110px／中央揃え（S3のみ左）／影なし／下の作り込み優先で最下部無地から削る。bio 着地は `/note`（UTM付き）。
+- **bio 整備＝両方対応済み**：note・X の bio から「（結婚相談所Emma…）」記述を削除 ＋ IG bio に UTM付き `/note` リンクを設置。
+- **SEO 実機診断 完了**（claude.ai が Vercel `web_fetch_vercel_url` で本番HTMLを直接診断＝ドキュメントでなく実機）。結論＝**土台は健全。`site:kinda.jp` インデックスゼロは「新規サイトで未クロール」が主因**。
+  - 健全：robots.txt 正常（`Disallow: /` 事故なし・`/admin /api /mypage` のみ除外・Sitemap宣言あり）／sitemap.xml 約70URL網羅（基本＋kinda-talk area/type＋天気20＋天気コラム20＋他）／天気ページ実HTMLは noindex無し・title/description・canonical自己参照・パンくず JSON-LD・静的プリレンダ良好。
+  - GSC：プロパティ登録OK・sitemap送信「成功」・登録済み10／未登録65（内訳：検出-未登録 62＝後回しで正常、クロール済-未登録 0＝品質弾きゼロ、重複1/リダイレクト1/代替1）。
+
+### SEO 実バグ3つ（修正フェーズは未着手＝TODO化）
+1. **www / non-www の重複（最優先・技術SEO）**：`https://www.kinda.jp/...` が 301されず status 200 で実体を返す＝www版が独立生存。GSC登録10件中1件だけ www 始まり＝Googleが別URL登録。評価分散。直し方の方向＝Vercel ドメイン設定で `www.kinda.jp → kinda.jp` 301（primary を non-www に）。コード変更不要の可能性大。
+2. **天気/コラムページの og:image 欠落（拡散レイヤー）**：トップ/デフォルトには og:image（`/images/OGP-hero.jpg`）あるが、個別の `/note/weather/[slug]`・`/columns/[slug]` で og:image/twitter:image 未出力。SNSシェア時に画像が出ず拡散効率低下。
+3. **動的ページの canonical 欠落**：`/kinda-note/quiz` 等が canonical 無し＋title/description/og がトップのデフォルト継承（独自metadata未設定）。
+   - 補足：URL構造の不整合疑い＝実体は `/kinda-note/quiz`（200）だが sitemap には `/kinda-type/quiz` 掲載。`/kinda-note` 系 vs `/kinda-type` 系の正/別を実機と `site-url-structure.md` で突き合わせ正規化が必要。
+
+---
+
 ## 2026-06-21 note創業者note公開／法人識別情報の記録／IG戦略v1／動画パイプライン保留
 
 コンテンツ/マーケ作業（Claude.ai 主導）。Code 側は法務実値反映の正式記録のみ。
