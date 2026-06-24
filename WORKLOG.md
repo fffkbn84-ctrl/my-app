@@ -4,6 +4,31 @@
 
 ---
 
+## 2026-06-24 SEO修正フェーズ完了（天気og:image／kinda-note canonical／sitemap／www統一）＋GA4キーイベント
+
+前日の SEO 実機診断で確定した修正フェーズを完了。**実リポジトリ確認で診断の思い込み2点を補正**し、不要な変更を回避した（重役SE視点＝ドキュメント鵜呑み禁止が効いた例）。
+
+### Code修正（PR #22 → main `c105d72` → 本番 READY）
+- **② 天気ページの og:image 補完**：`/note/weather/[slug]`（詳細）と `/note/weather`（一覧）は `openGraph` を images 無しで上書きしていたため、親(root layout)のデフォルト og:image(OGP-hero.jpg)を継承できず欠落していた（Next.js は子で openGraph を定義すると images を引き継がない）。`openGraph.images` と `twitter.images` に `OGP-hero.jpg`（1200×632・metadataBaseで絶対URL化）を明示。
+  - **診断の補正①**：claude.ai は「コラムも og:image 欠落」としたが、実機では `/columns/[slug]` は `opengraph-image.tsx`（Metadata Files 規約）で og:image を**自動出力済**、`/kinda-note/result` も設定済＝**対象外**。欠落は天気ページのみだった。
+- **③ kinda-note 系の canonical 明示**：`/kinda-note`（bio着地・SEO入口）と `/kinda-note/quiz` は client component で metadata を直接 export できず、親既定を継承し canonical 不在だった。各ディレクトリに `layout.tsx`（passthrough）を新設し、自己参照 canonical＋固有 title/description を付与。`openGraph` は敢えて未指定＝親の og:image を継承（②の轍を踏まない）。`/kinda-note/result` は既存 canonical 維持。
+- **sitemap に `/kinda-note` 追加**：bio着地かつ SEO 入口なのに未掲載だった実ギャップを解消。
+  - **診断の補正②**：claude.ai は「`/kinda-type/quiz` と `/kinda-note/quiz` のURL不整合」を疑ったが、両者は**別機能**（type＝カウンセラー相性チェック＝送客／note＝気持ち整理）で sitemap の `/kinda-type/quiz` は正規＝修正不要。
+- **構造化データは追加せず**：天気ページに Article は付けない。Article は著者・公開日を持つ「記事」用スキーマで、20種の天気は概念/タクソノミー的ページ＝型不適合（架空の著者・日付になり Google が無効/誤用と判断しうる）。実機監査で **トップ=WebSite+SearchAction+Organization／columns=Article+Person+Organization+FAQPage／天気=BreadcrumbList／about=Organization** と過不足なく完備を確認。将来 天気に署名記事や Q&A を足したら Article/FAQPage を付与する。
+- 検証：`next build` green。生成HTMLで 天気詳細=canonical/og:image/twitter:image、天気一覧=og:image、/kinda-note=canonical、/kinda-note/quiz=canonical（親を正しく上書き）、sitemap.xml=/kinda-note 追加 を確認。
+
+### ① www / non-www 統一（Vercel・ふうか操作・完了）
+- Vercel `my-app-rp9u` → Settings → Domains で **`www.kinda.jp` → `kinda.jp` を 308 リダイレクト**設定。`kinda.jp` は「Connect to an environment: Production・Redirect なし」＝プライマリ（本番配信）。
+- 実機確認：`https://www.kinda.jp/kinda-note` → `https://kinda.jp/kinda-note` への転送 OK。これで www 版独立生存による評価分散を解消。
+
+### GA4 キーイベント（ふうか操作・完了）
+- `kinda_note_complete` を GA4 の「最近のイベント」タブで☆付与＝**キーイベント化**。IG流入(`utm_source=instagram`)→診断完了の転換率がコンバージョンとして探索レポートで見えるようになった。
+
+### 残（ふうか操作）
+- **GSC 手動インデックス登録**：URL検査で主要URLを順次リクエスト（トップ→`/note/weather`・`/columns`→需要大コラム→主要天気）。これでSEO修正フェーズは一区切り。
+
+---
+
 ## 2026-06-23 IG bio着地リダイレクト本番化／GA4計測確認／創業カルーセル投稿／SEO実機診断
 
 このセッションの Code 実装 ＋ Claude.ai 側で完了した内容の記録。

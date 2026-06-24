@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-23
+最終更新: 2026-06-24
 
 ---
 
@@ -20,7 +20,7 @@
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
 
-### 🆕 2026-06-23 IG bio着地本番化／GA4計測／カルーセル投稿／SEO実機診断
+### 🆕 2026-06-23〜24 IG bio着地本番化／GA4計測／カルーセル投稿／SEO実機診断→修正フェーズ完了
 
 #### ✅ 完了
 - [x] **`/note` → `/kinda-note` 307 リダイレクト**（`next.config.ts`・UTM保持・PR #21 squash→main `10d24a6`→本番 READY）。bio 短縮URL `https://kinda.jp/note?utm_source=instagram&utm_medium=bio&utm_campaign=launch` が `/kinda-note` に着地。`/note/weather/[slug]` には影響なし（完全一致）。
@@ -29,17 +29,18 @@
 - [x] **bio 整備（両方）**：note・X の Emma 記述削除 ＋ IG bio に UTM付き `/note` リンク設置。
 - [x] **SEO 実機診断 完了**（claude.ai が Vercel web_fetch で本番HTML直接診断）：土台健全・インデックスゼロは新規未クロールが主因。robots/sitemap/天気ページ noindex無し等は問題なし。
 
-#### ⏳ pending（ふうか操作）
-- [ ] **GA4 キーイベント昇格**：集計の「イベント」一覧（管理→データの表示→イベント→**最近のイベント**タブ）に `kinda_note_complete` が出たら ☆（スター）を付与。※リアルタイムでは発火確認済みだが集計反映は最大24h超。出たら昇格。
-- [ ] **GSC 手動インデックス登録**：URL検査で主要URLをリクエスト（推奨順：トップ→ハブ `/note/weather`・`/columns`→需要大コラム（婚活疲れた/始め方/限界/good-counselor-traits）→主要天気（rain-cloud/morning-mist/twilight））。1日上限あり・上から。
+#### ✅ 完了（ふうか操作）
+- [x] **GA4 キーイベント昇格**：`kinda_note_complete` を「最近のイベント」タブで☆付与＝キーイベント化（2026-06-24 完了）。これで IG流入→診断完了の転換率がコンバージョンとして見える。
 
-#### 🔧 SEO修正フェーズ（**未着手**・最新引き継ぎ `seo-diagnosis-www-fix` 由来。実バグ3つ）
-- [ ] **① www / non-www 重複（最優先・技術SEO）**：`www.kinda.jp` が 301されず 200 で実体を返し別URLとして生存＝評価分散。**Vercel ドメイン設定で `www.kinda.jp → kinda.jp` を 301**（primary を non-www に）。コード変更不要の可能性大＝ふうか操作（手順は claude.ai が用意予定）。
-- [ ] **② 天気/コラムページの og:image 欠落（Code修正）**：`/note/weather/[slug]`・`/columns/[slug]` に og:image / twitter:image を付与（各ページ固有 or 当面 `OGP-hero.jpg` フォールバック）。
-- [ ] **③ 動的ページの canonical 欠落（Code修正）**：`/kinda-note/quiz` 等に canonical 明示＋独自metadata（現状トップ継承）。
-- [ ] **URL構造の正規化（要・構造確認後）**：実体 `/kinda-note/quiz` vs sitemap掲載 `/kinda-type/quiz` の不整合。`/kinda-note` 系 vs `/kinda-type` 系の正/別を実機と `site-url-structure.md` で突き合わせて統一。
-- [ ] **（中期・拡散エンジン）動的OGP**：`/note/result/[id]` のシェア画像を動的生成。
-- メモ：SEO実装の Code指示書は claude.ai が作成 → Claude Code 実装。レイヤー順＝①www統一/GSC（土台）→②og:image/canonical/JSON-LD（技術基盤）→③コンテンツ最適化→④CWV/拡散。
+#### 🔧 SEO修正フェーズ（`seo-diagnosis-www-fix` 由来）
+- [x] **① www / non-www 統一（最優先・技術SEO）**：Vercel ドメイン設定で `www.kinda.jp → kinda.jp` を **308 リダイレクト**、`kinda.jp` は Production 接続・リダイレクトなし（＝プライマリ）。実機で `www.kinda.jp/kinda-note` → `kinda.jp/kinda-note` 転送を確認（2026-06-24 完了・ふうか操作）。
+- [x] **② 天気ページの og:image 補完（Code）**：`/note/weather/[slug]`・一覧 `/note/weather` の `openGraph.images`/`twitter.images` に `OGP-hero.jpg` を明示（親 layout の og:image を継承できず欠落していた）。PR #22→main `c105d72`→本番 READY。※実機確認で **columns は `opengraph-image.tsx` で自動出力済・result も設定済**＝対象外（診断の「コラムも欠落」は非該当）。
+- [x] **③ kinda-note 系の canonical 明示（Code）**：`/kinda-note`・`/kinda-note/quiz` は client component のため `layout.tsx` を新設し自己参照 canonical＋固有 title/description を付与。result は既存 canonical 維持。PR #22。
+- [x] **sitemap に `/kinda-note` 追加**（bio着地＆SEO入口の実ギャップ）。PR #22。
+- [x] **URL構造の確認結果**：診断の「`/kinda-type/quiz` と `/kinda-note/quiz` の不整合」は**別機能で両方正規**（type＝相性チェック送客／note＝気持ち整理）＝修正不要と確定。
+- [x] **構造化データの確認結果**：天気ページに Article は**追加しない**（著者・公開日を持たない概念ページで型不適合・架空メタになり逆効果）。実機監査でトップ＝WebSite+SearchAction+Organization、columns＝Article+Person+Organization+FAQPage、天気＝BreadcrumbList と**過不足なく完備**を確認。将来 天気に署名記事/Q&Aを足すなら Article/FAQPage を付与。
+- [ ] **GSC 手動インデックス登録（ふうか・残）**：URL検査で主要URLをリクエスト（推奨順：トップ→ハブ `/note/weather`・`/columns`→需要大コラム（婚活疲れた/始め方/限界/good-counselor-traits）→主要天気（rain-cloud/morning-mist/twilight））。1日上限あり・上から。
+- [ ] **（中期・拡散エンジン）動的OGP**：`/note/result/[id]` のシェア画像を動的生成（既に result は webp 静的 og 済。さらに拡散最適化したい時の伸びしろ）。
 
 ### 🆕 2026-06-21 note公開／IG戦略／動画パイプライン
 - [x] 創業者note公開：https://note.com/kinda_jp/n/ndd5a4776cc13 （さき×ふうか・v3本文）
