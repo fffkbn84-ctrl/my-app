@@ -4,6 +4,34 @@
 
 ---
 
+## 2026-06-24 コラム「結婚相談所の選び方」クラスター6本完成（Pillar＋各論5）
+
+SEO本丸の第一歩。claude.ai と決めた構成を Code 実装。非天気の情報系クラスターで「結婚相談所 選び方／料金／面談／入会／アプリとの違い／担当変更」系のロングテール検索を取りに行く。
+
+### 構成（柱1＋各論5＝計6本・category="結婚相談所の選び方"・author=さき）
+- **柱（Pillar）**：`counselor-de-erabu-soudanjo`（どこより誰で選ぶ・相性の見極め・featured:true）。
+- **各論5（featured:false）**：`kekkon-soudanjo-ryokin-no-mikata`（料金）／`counselor-tantou-henkou`（担当変更）／`shokai-mendan-de-miru-koto`（初回面談）／`soudanjo-to-konkatsu-app-chigai`（アプリ違い）／`soudanjo-nyukai-nagare-shorui`（入会の流れ）。
+
+### 実装（PR #23 → #24）
+- **PR #23（c105d7→07f6e2a）**：新カテゴリ「結婚相談所の選び方」を `ColumnsClient.tsx` の `CATEGORIES`/`CATEGORY_ORDER` 先頭に追加（入会前の入口カテゴリ優先表示）＋ Pillar 1本配置。スキーマ（`columns.ts`）は `category`=string・`weatherKey`=任意で**変更不要**を実機確認。
+- **PR #24（128ac7f）**：各論5本を配置＋ Pillar 末尾の締め引用の直前に「あわせて読みたい」5本ブロックを追加。
+- **双方向リンク循環**：Pillar→各論5、各論5→Pillar、入会→面談/料金/担当変更（横）。6本が参照する内部 `/columns` リンク**全12本が実在ファイルに解決＝404ゼロ**を機械チェックで確認。
+
+### 配置の段取り（重要・実態優先の記録）
+- 引き継ぎ指示書は「前回 各論3本を追加済み」を前提にしていたが、**実リポジトリには Pillar 1本のみ**だった（指示書側の自動更新による齟齬）。パス0の実態確認でこれを検知し、ふうかと突き合わせて**各論5本を一括追加**する形に修正して実装。「ドキュメント鵜呑み禁止・実機優先」が効いた。
+- 当初2本（アプリ違い・入会）のみ添付で、入会記事が未存在の3各論（面談/料金/担当変更）へ横リンクしており404になる懸念を報告→止めた。ふうかが zip（各論5本＋指示書）を再送し、全6本が揃ったため一括で完成。
+
+### 検証（next build green・生成HTML）
+- 各論5本とも：canonical／JSON-LD Article（author Person=さき）＋FAQPage（Question×4）／atomicAnswer 描画／動的og:image。
+- sitemap.xml に5本自動追加。`/columns` 一覧カテゴリ「結婚相談所の選び方」に全6本表示（Pillar=featured 先頭）。
+- 本番 `128ac7f` READY（kinda.jp 反映）。※当日 Vercel Hobby のキュー/ビルドが全体的に重め（プレビュー→本番の直列・1並列制約）で反映に時間を要したが内容は正常。
+
+### 残（ふうか操作）
+- GSC 手動インデックス登録：各論5本＋Pillar（リンク更新の再クロール）＋`/columns`（カテゴリ更新）。
+- 次の執筆：この柱にぶら下げる各論候補を claude.ai と決定し、相互リンクでクラスターを育てる。
+
+---
+
 ## 2026-06-24 SEO修正フェーズ完了（天気og:image／kinda-note canonical／sitemap／www統一）＋GA4キーイベント
 
 前日の SEO 実機診断で確定した修正フェーズを完了。**実リポジトリ確認で診断の思い込み2点を補正**し、不要な変更を回避した（重役SE視点＝ドキュメント鵜呑み禁止が効いた例）。

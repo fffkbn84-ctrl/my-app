@@ -20,6 +20,19 @@
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
 
+### 🆕 2026-06-24 コラム「結婚相談所の選び方」クラスター6本完成
+
+> SEO本丸の第一歩。非天気の情報系Pillar＋各論で「結婚相談所 選び方」系ロングテールを取りに行くクラスター。
+> 詳細は WORKLOG 2026-06-24。
+
+- [x] **新カテゴリ「結婚相談所の選び方」追加**（`ColumnsClient.tsx` の `CATEGORIES`/`CATEGORY_ORDER` 先頭・PR #23）。スキーマ（`columns.ts`）は `category`=string・`weatherKey`=任意で変更不要。
+- [x] **Pillar 1本**：`counselor-de-erabu-soudanjo`（どこより誰で選ぶ・相性の見極め・featured）。PR #23。
+- [x] **各論5本**（author=さき・weatherKeyなし・featured:false）：`kekkon-soudanjo-ryokin-no-mikata`（料金）／`counselor-tantou-henkou`（担当変更）／`shokai-mendan-de-miru-koto`（初回面談）／`soudanjo-to-konkatsu-app-chigai`（アプリ違い）／`soudanjo-nyukai-nagare-shorui`（入会の流れ）。PR #24。
+- [x] **双方向リンク循環成立**：Pillar末尾に「あわせて読みたい」5本、各論→Pillar、入会→面談/料金/担当変更の横リンク。内部 `/columns` リンク全12本が実在解決＝**404ゼロ**。
+- [x] 各論5本とも canonical／JSON-LD Article(author=さき)＋FAQPage(各4問)／atomicAnswer／動的og:image／sitemap自動追加／一覧カテゴリ6本表示 を生成HTMLで確認。**本番 `128ac7f` READY**。
+- [ ] **GSC 手動インデックス登録（ふうか・残）**：各論5本 ＋ Pillar（リンク更新の再クロール）＋ `/columns`（カテゴリ更新）。
+- [ ] （次の執筆）この柱にぶら下げる各論の追加候補を claude.ai と決定。各論↔柱の相互リンクでクラスターを育てる。
+
 ### 🆕 2026-06-23〜24 IG bio着地本番化／GA4計測／カルーセル投稿／SEO実機診断→修正フェーズ完了
 
 #### ✅ 完了
