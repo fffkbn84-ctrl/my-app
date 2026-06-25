@@ -116,15 +116,22 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
         <div className="kt-reel-meta">
           {counselor.agencyName} · {counselor.area}
         </div>
-        <div
-          className="kt-reel-rating"
-          aria-label={`平均評価 ${counselor.rating.toFixed(1)}、レビュー ${counselor.reviewCount}件`}
-        >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
-          <span aria-hidden="true">{counselor.rating.toFixed(1)} ({counselor.reviewCount})</span>
-        </div>
+        {counselor.reviewCount > 0 ? (
+          <div
+            className="kt-reel-rating"
+            aria-label={`平均評価 ${counselor.rating.toFixed(1)}、レビュー ${counselor.reviewCount}件`}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span aria-hidden="true">{counselor.rating.toFixed(1)} ({counselor.reviewCount})</span>
+          </div>
+        ) : (
+          /* レビュー0件は評価ゼロを主役にせず「レビュー募集中」を出す */
+          <div className="kt-reel-rating" aria-label="レビュー募集中">
+            <span aria-hidden="true">レビュー募集中</span>
+          </div>
+        )}
       </div>
     </button>
   );

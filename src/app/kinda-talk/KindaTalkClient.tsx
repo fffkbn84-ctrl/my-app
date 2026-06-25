@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Counselor } from "@/lib/data";
 import { DIAGNOSIS_TYPES, type DiagnosisTypeId } from "@/lib/diagnosis";
 
@@ -17,6 +16,7 @@ import {
   prefecturesInBroadRegion,
 } from "@/lib/areas";
 import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
+import NotifySignup from "@/components/kinda-talk/NotifySignup";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
 
 type SortKey = "match" | "rating" | "review" | "experience";
@@ -50,16 +50,24 @@ export default function KindaTalkClient({ counselors }: Props) {
   const [sortKey, setSortKey] = useState<SortKey>("match");
   const areaRef = useRef<HTMLDivElement>(null);
 
+  /* 架空サンプル（isDemo）は本番ビューでは隠す。
+     ?preview=1（営業デモ用）のときだけ表示する。実データ（is_demo=false）は常に表示。 */
+  const showSamples = searchParams.get("preview") === "1";
+  const visibleCounselors = useMemo(
+    () => (showSamples ? counselors : counselors.filter((c) => !c.isDemo)),
+    [counselors, showSamples],
+  );
+
   /* 各キー（都道府県名・広域名・オンライン）ごとのカウンセラー数 */
   const counselorCountByKey = useMemo(() => {
     const map = new Map<string, number>();
-    for (const c of counselors) {
+    for (const c of visibleCounselors) {
       const k = extractAreaKey(c.area);
       if (!k) continue;
       map.set(k, (map.get(k) ?? 0) + 1);
     }
     return map;
-  }, [counselors]);
+  }, [visibleCounselors]);
 
   /** ある広域エリアの総数（各都道府県 + その広域名で直接登録された人） */
   const countForBroadRegion = (name: string): number => {
@@ -84,7 +92,7 @@ export default function KindaTalkClient({ counselors }: Props) {
   }, [areaOpen]);
 
   const filtered = useMemo(() => {
-    let list = counselors;
+    let list = visibleCounselors;
     if (areaFilter !== "すべて") {
       list = list.filter((c) => matchesAreaFilter(c.area, areaFilter));
     }
@@ -100,7 +108,7 @@ export default function KindaTalkClient({ counselors }: Props) {
       return b.rating * Math.log(b.reviewCount + 2) - a.rating * Math.log(a.reviewCount + 2);
     });
     return sorted;
-  }, [counselors, areaFilter, typeFilter, sortKey]);
+  }, [visibleCounselors, areaFilter, typeFilter, sortKey]);
 
   return (
     <>
@@ -192,7 +200,7 @@ export default function KindaTalkClient({ counselors }: Props) {
                   // 全国は常に有効（カウンセラーが 1 人以上いれば押せる）
                   const count =
                     opt === NATIONAL_OPTION
-                      ? counselors.length
+                      ? visibleCounselors.length
                       : counselorCountByKey.get(opt) ?? 0;
                   const disabled = count === 0;
                   const active = areaFilter === opt;
@@ -376,22 +384,9 @@ export default function KindaTalkClient({ counselors }: Props) {
           {filtered.map((c) => (
             <CounselorReelCard key={c.id} counselor={c} onOpen={setOpenCounselor} />
           ))}
-          <div className="kt-grid-tease">
-            <strong>Kinda は厳選を続けています</strong>
-            <span>
-              新しい相談所・カウンセラーは
-              <br />
-              順番に公開していきます。
-            </span>
-          </div>
-          <Link
-            href="/kinda-type"
-            className="kt-grid-tease"
-            style={{ textDecoration: "none", color: "var(--ink)" }}
-          >
-            <strong>あなたに合うタイプを知る</strong>
-            <span style={{ color: "var(--mid)" }}>1〜3分で診断 →</span>
-          </Link>
+          {/* 架空サンプルの空状態（点線tease）は撤去。実カードの隣に
+              「厳選を続けています＋通知登録」パネルを1枚置く（診断は二次導線で内包）。 */}
+          <NotifySignup />
         </div>
       </div>
 
