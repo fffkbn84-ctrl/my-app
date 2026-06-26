@@ -943,9 +943,27 @@ export default function AboutPage() {
               自分の気持ちも見えて、カウンセラーのことも見える。見えることで、ようやく自分と向き合いながら進んでいける。
               そう思って Kinda をつくりました。
             </p>
-            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--muted)", lineHeight: 1.9, margin: 0 }}>
+            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--muted)", lineHeight: 1.9, margin: "0 0 20px" }}>
               趣味はサーキット場に通うこと。いつか自分でも走れるようになるのが目標です。
             </p>
+            <Link
+              href="/about/founder"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                fontFamily: "'Noto Sans JP', sans-serif",
+                fontSize: 13,
+                color: "#D4A090",
+                textDecoration: "none",
+                letterSpacing: ".03em",
+              }}
+            >
+              ファウンダーストーリーを読む
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
           </div>
 
           <div

@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/shops",
     "/about",
     "/about/editorial-policy",
+    "/about/founder",
     "/about/transparency",
     "/columns",
     // /mypage は robots.txt で Disallow しているため sitemap からも除外（GSC 警告整合）
