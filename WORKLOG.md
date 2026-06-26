@@ -4,6 +4,48 @@
 
 ---
 
+## 2026-06-26 Kinda talk 空状態→通知登録＋架空サンプル分離＋レビュー0件表示（PR #25・本番反映）
+
+> 実装の背景：`/kinda-talk` は実カウンセラーが Emma（小山楓華）1人だけで、架空12件サンプルが紛れていた。架空を `?preview=1` 裏に隠し、空スペースに「厳選を続けています＋メール登録」パネルを差し込む。
+
+### 変更ファイル・実装内容
+
+#### `/api/notify`（新設）
+- `src/app/api/notify/route.ts`：service_role で `notify_signups` テーブルに INSERT する POST エンドポイント。
+- `runtime = "nodejs"` / `dynamic = "force-dynamic"`。email regex バリデーション＋trim/lowercase。
+- 23505（unique 違反＝既登録）は成功扱い（冪等）。env 未設定時のみ 500（ビルド通過・実行時のみ落とす設計）。
+
+#### `NotifySignup.tsx`（新設）
+- `src/components/kinda-talk/NotifySignup.tsx`：グリッド内パネル（厳選メッセージ＋メール登録）。
+- `<form>` 不使用・onClick で fetch。state = idle/loading/done/error。
+- 送信成功で `trackEvent("notify_signup", { source: "talk_empty" })`（GA4 + Vercel Analytics）。
+- Kinda パレット（#D4A090 ボタン・#F5EEE6 背景）。絵文字なし。`/kinda-type` 診断が二次導線。
+
+#### `KindaTalkClient.tsx`（変更）
+- `?preview=1` のときだけ `isDemo` カウンセラーを表示（営業デモ用）。本番は実データのみ。
+- `visibleCounselors` を `counselorCountByKey`/`filtered`/NATIONAL カウントの依存に変更（フィルター件数が架空込みにならないよう修正）。
+- `kt-grid-tease` 点線2枚を撤去 → `<NotifySignup />` 1枚に置換。
+- `import Link` を削除（NotifySignup 追加後に未使用になったため）。
+
+#### `CounselorReelCard.tsx`（変更）
+- `reviewCount === 0` のとき：星(0.0)ではなく「レビュー募集中」を表示。
+
+### Supabase（状態記録）
+
+| 項目 | 状態 |
+|---|---|
+| `notify_signups` テーブル（migration 041）| TODO に完了記録あり。次セッション開始時に実機確認推奨 |
+| Emma テストレビュー2件を `is_published=false` | 同上（trigger で `review_count` → 0） |
+| `SUPABASE_SERVICE_ROLE_KEY`（Vercel env） | ふうか確認待ち。未設定だと `/api/notify` が 500 |
+
+### 確認事項（次セッション）
+- Supabase ダッシュボードで `notify_signups` テーブルの存在確認。
+- Emma の `review_count` が 0 になっているか確認（Kinda talk で「レビュー募集中」が正しく出るか）。
+- Vercel → Settings → Environment Variables で `SUPABASE_SERVICE_ROLE_KEY` 設定確認。
+- GA4 で `notify_signup` をキーイベント化（任意・次フェーズ）。
+
+---
+
 ## 2026-06-24 コラム「結婚相談所の選び方」クラスター6本完成（Pillar＋各論5）
 
 SEO本丸の第一歩。claude.ai と決めた構成を Code 実装。非天気の情報系クラスターで「結婚相談所 選び方／料金／面談／入会／アプリとの違い／担当変更」系のロングテール検索を取りに行く。
