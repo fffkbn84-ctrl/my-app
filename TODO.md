@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-24
+最終更新: 2026-06-26
 
 ---
 
@@ -24,12 +24,12 @@
 
 #### アバター（記録）
 - [x] **ふうか／さき のクレイアバター完成・GitHub保存済み**：`public/images/fuka-profile.webp`・`public/images/saki-editor.webp`（2026-06-21 コミット）。CLAUDE.md §3「顔出しせず・クレイ像を著者アイコンに」と整合。
-- [ ] **アバターのサイト適用方針（要判断）**：現状この2枚は**コード未使用**。既存のアバター表示（`about` の代表ふうか／チームグリッドのさき／コラム著者バイライン）は**全員「イニシャル文字＋色付き丸」で統一**されており、ふうか・さきだけ画像に差し替えると**他メンバー（るな/つよし/みづき/あかり）と不揃い**になる。→ 単独差し替えは見送り推奨。**自然な適用先＝新設するファウンダーページのバイライン（さき）＋本文（ふうか）**。下記ファウンダーページ実装時に組み込むのが筋。
+- [x] **アバターのサイト適用**：`/about/founder` のバイライン（さき）・インタビュー本文（ふうか・さき）にクレイアバター画像を適用（2026-06-26）。`/about` のチームグリッドはイニシャル丸で統一のまま（不揃い回避）。
 
-#### ファウンダーページ `/about/founder`（TODO・claude.ai と要相談）
-- [ ] note 創業Story（v3・取材形式／聞き手さき）を `/about/founder` として実装（既存handoffでも「note 1本目／/about/founder／営業デッキ」兼用と想定済み）。MDXでなく専用ページ or コラム化かは実装時に判断。アバター（ふうか/さき webp）の自然な適用先。
-- [x] **内容レビュー決定（ふうか確定）**：公開note本文の **「身体目的の人や、既婚者が紛れていて」→「安心して活動しづらい相手が紛れていて」** に修正してサイト掲載する。対象（ユーザー向け）自体は適切で変更不要。→ `/about/founder` 実装時にこの修正版で配置。
-- [ ] 構造化データは Article（著者=さき）想定。`/about` からの内部リンク・パンくず。
+#### ファウンダーページ `/about/founder` ✅ 完了（2026-06-26・main `bab323e` 本番反映）
+- [x] note 創業Story（v3・取材形式／聞き手さき）を `/about/founder` として専用ページで実装。アバター（ふうか/さき webp）適用。
+- [x] **内容レビュー決定（ふうか確定）**：「身体目的の人や、既婚者が紛れていて」→「安心して活動しづらい相手が紛れていて」に修正適用済み。
+- [x] 構造化データ Article（著者=さき）・canonical・OGP・パンくず。`/about` からの内部リンク（ふうかカード末尾）。sitemap 追加。
 
 #### Kinda talk 空状態→通知登録＋サンプル分離 ✅ 完了（PR #25・本番反映）
 > ルートは `/kinda-talk`（指示書の `/talk` ではない）。実データは Emma（小山楓華）1人、サンプル12件は全て「（サンプル）」付き。ふうか修正：Emmaは常時表示／隠すのは架空12件のみ。
@@ -39,7 +39,8 @@
 - [x] `KindaTalkClient`：`isDemo` を `?preview=1` の裏に隠す（実データ常時表示）。点線tease2枚撤去→実カード隣に `NotifySignup` パネル1枚。
 - [x] `CounselorReelCard`：`reviewCount===0` は星(0.0)でなく「レビュー募集中」。
 - [x] DB：Emma（小山楓華）のテストレビュー2件を `is_published=false`（trigger で `review_count`→0）。可逆。
-- [ ] **（ふうか・残）** Vercel env `SUPABASE_SERVICE_ROLE_KEY` 設定確認（※cron用に既出。**未設定だと `/api/notify` が500＝メール登録が動かない**）／GA4で `notify_signup` をキーイベント化／営業は `https://kinda.jp/kinda-talk?preview=1` を使用。
+- [x] **Vercel env `SUPABASE_SERVICE_ROLE_KEY` 設定確認済み**（ふうか・2026-06-26）。`/api/notify` は動作可能。
+- [ ] **（ふうか・残）** GA4で `notify_signup` をキーイベント化／営業は `https://kinda.jp/kinda-talk?preview=1` を使用。
 - [ ] **（要検討）** 実カウンセラーがEmma1人のため、本番 `/kinda-talk` は「Emma1枚＋通知パネル」表示。実カウンセラーを増やすまではこの見え方。
 
 ### 🆕 2026-06-24 コラム「結婚相談所の選び方」クラスター6本完成
@@ -52,10 +53,7 @@
 - [x] **各論5本**（author=さき・weatherKeyなし・featured:false）：`kekkon-soudanjo-ryokin-no-mikata`（料金）／`counselor-tantou-henkou`（担当変更）／`shokai-mendan-de-miru-koto`（初回面談）／`soudanjo-to-konkatsu-app-chigai`（アプリ違い）／`soudanjo-nyukai-nagare-shorui`（入会の流れ）。PR #24。
 - [x] **双方向リンク循環成立**：Pillar末尾に「あわせて読みたい」5本、各論→Pillar、入会→面談/料金/担当変更の横リンク。内部 `/columns` リンク全12本が実在解決＝**404ゼロ**。
 - [x] 各論5本とも canonical／JSON-LD Article(author=さき)＋FAQPage(各4問)／atomicAnswer／動的og:image／sitemap自動追加／一覧カテゴリ6本表示 を生成HTMLで確認。**本番 `128ac7f` READY**。
-- [~] **GSC 手動インデックス登録（ふうか）**：Pillar＋各論3本（料金・担当変更・面談）は登録済み。**残り＝明日（1日上限のため）**：
-  - [ ] `https://kinda.jp/columns`（カテゴリ更新の再クロール）
-  - [ ] `https://kinda.jp/columns/soudanjo-to-konkatsu-app-chigai`
-  - [ ] `https://kinda.jp/columns/soudanjo-nyukai-nagare-shorui`
+- [x] **GSC 手動インデックス登録（ふうか・2026-06-26 完了）**：Pillar＋各論5本＋`/columns` 全て登録済み。
 - [ ] （次の執筆）この柱にぶら下げる各論の追加候補を claude.ai と決定。各論↔柱の相互リンクでクラスターを育てる。
 
 ### 🆕 2026-06-23〜24 IG bio着地本番化／GA4計測／カルーセル投稿／SEO実機診断→修正フェーズ完了

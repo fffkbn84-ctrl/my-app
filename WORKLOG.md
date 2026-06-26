@@ -4,6 +4,27 @@
 
 ---
 
+## 2026-06-26 ファウンダーページ `/about/founder` 新設（main `bab323e` 本番反映）
+
+note公開済みの創業ストーリー（v3・取材形式／聞き手さき×答えふうか）を `/about/founder` として専用ページ化。
+
+### 実装内容
+- **`src/app/about/founder/page.tsx`**：取材インタビュー形式の専用ページ。`InterviewBlock` コンポーネントでさき（左寄せ・紫系）とふうか（右寄せ・ローズ系）の対話を交互に表示。
+- **クレイアバター画像の初適用**：`fuka-profile.webp`（ふうか）・`saki-editor.webp`（さき）をバイラインとインタビュー本文に使用。`/about` のチームグリッドはイニシャル丸統一のまま（不揃い回避）。
+- **文言修正適用**：「身体目的の人や、既婚者が紛れていて」→「安心して活動しづらい相手が紛れていて」（ふうか確定・TODO記載の修正）。
+- **SEO**：Article JSON-LD（著者=さき、about=ふうか）・canonical `/about/founder`・OGP（`OGP-hero.jpg`）・パンくず（ホーム→Kindaについて→ファウンダーストーリー）。
+- **内部リンク**：`/about` のふうかフィーチャーカード末尾に「ファウンダーストーリーを読む」→ `/about/founder` を追加。
+- **sitemap**：`/about/founder` を追加。
+- デザインは既存 `/about` と統一（クレイ風ベージュ `#FCF8F2`・Shippori Mincho・DM Sans ラベル）。
+
+### セッション冒頭の確認事項（3点）
+- Supabase `notify_signups` テーブル：存在確認OK。
+- Emma（小山楓華）`review_count`：0（`rating_avg` 0.00）→「レビュー募集中」表示が正しく機能。
+- Vercel env `SUPABASE_SERVICE_ROLE_KEY`：ふうか設定済み確認。`/api/notify` 動作可能。
+- GSC 残3件（`/columns`・アプリ違い・入会の流れ）：ふうか登録済み。
+
+---
+
 ## 2026-06-26 Kinda talk 空状態→通知登録＋架空サンプル分離＋レビュー0件表示（PR #25・本番反映）
 
 > 実装の背景：`/kinda-talk` は実カウンセラーが Emma（小山楓華）1人だけで、架空12件サンプルが紛れていた。架空を `?preview=1` 裏に隠し、空スペースに「厳選を続けています＋メール登録」パネルを差し込む。
