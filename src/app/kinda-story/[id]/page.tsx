@@ -69,8 +69,48 @@ export default async function KindaStoryDetailPage({
   // 関連物語（自分以外を最大3件）
   const related = STORIES.filter((s) => s.id !== story.id).slice(0, 3);
 
+  // 構造化データ：Article のみ（Review/Rating は付けない＝ステマ規制・広告誤認回避）
+  const SITE_URL = "https://kinda.jp";
+  const canonical = `${SITE_URL}/kinda-story/${story.id}`;
+  const articleLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: story.title,
+    description: story.quote.slice(0, 120),
+    image: `${SITE_URL}${getStoryThumbnail(story)}`,
+    author: { "@type": "Person", name: "ふうか" },
+    publisher: {
+      "@type": "Organization",
+      name: "Kinda",
+      url: SITE_URL,
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+  };
+  // FAQPage（質問形 Q&A がある物語のみ）。リッチリザルト狙い。
+  const faqLd = story.faq?.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: story.faq.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      }
+    : null;
+
   return (
     <div className="ks-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}
+      />
+      {faqLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
+        />
+      )}
       <Header />
 
       <main style={{ background: "#FBFCF8" }}>
@@ -146,7 +186,9 @@ export default async function KindaStoryDetailPage({
             {/* シェア */}
             <ShareBar title={story.title} label="この物語をシェアする" />
 
-            {/* 担当 */}
+            {/* 担当（相談所名が非公開の物語ではカード自体を出さない） */}
+            {(counselor || agency) && (
+            <>
             <div className="ks-article-divider" />
             <div className="ks-author-block">
               <p className="ks-author-eyebrow">この物語を支えた人たち</p>
@@ -224,6 +266,8 @@ export default async function KindaStoryDetailPage({
                 </Link>
               )}
             </div>
+            </>
+            )}
           </div>
         </article>
 
