@@ -63,6 +63,12 @@ export interface Story {
   };
 }
 
+/**
+ * 新しい Story は、この配列の「先頭」にオブジェクトを 1 件足す（先頭＝最新表示）。
+ * クレイ画像は stage から自動（成婚=seikon／交際中=kosai／活動中=katsudo）。
+ * 相談所名が同意範囲外なら counselorId/agencyId=0（著者カードが自動で消える）＋実名はコードに書かない。
+ * 詳しい手順は TODO.md「Kinda story の今後の投稿スタイル」を参照。
+ */
 export const STORIES: Story[] = [
   {
     // Kinda story 第1本目（取材・本人同意のうえ仮名で構成）。
