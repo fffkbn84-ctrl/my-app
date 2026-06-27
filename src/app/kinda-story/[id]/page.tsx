@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SympathyButton from "@/components/episodes/SympathyButton";
 import ShareBar from "@/components/share/ShareBar";
+import FAQAccordion from "@/components/kinda-talk/FAQAccordion";
 import ReadingConversionFooter from "@/components/reading/ReadingConversionFooter";
 import InlineBridgeCta from "@/components/reading/InlineBridgeCta";
 import { STORIES, getStoryById, getStoryThumbnail } from "@/lib/mock/stories";
@@ -167,6 +168,50 @@ export default async function KindaStoryDetailPage({
               </blockquote>
             )}
 
+            {/* 関連する天気（内部リンク・送客は前面に出さず穏やかに） */}
+            {story.relatedWeather && story.relatedWeather.length > 0 && (
+              <aside
+                style={{
+                  margin: "28px 0 4px",
+                  padding: "16px 18px",
+                  background: "#F3EFE7",
+                  border: "1px solid #E8DED0",
+                  borderRadius: 12,
+                }}
+              >
+                <p
+                  style={{
+                    fontSize: 12,
+                    letterSpacing: ".08em",
+                    color: "#9A8A7A",
+                    marginBottom: 8,
+                  }}
+                >
+                  この気持ちに近い天気
+                </p>
+                <ul style={{ listStyle: "none", display: "flex", flexWrap: "wrap", gap: "8px 18px" }}>
+                  {story.relatedWeather.map((w) => (
+                    <li key={w.slug}>
+                      <Link
+                        href={`/note/weather/${w.slug}`}
+                        style={{ color: "#5A8050", textDecoration: "underline", fontSize: 14 }}
+                      >
+                        {w.label}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link
+                      href="/note"
+                      style={{ color: "#5A8050", textDecoration: "underline", fontSize: 14 }}
+                    >
+                      気持ちを整理してみる
+                    </Link>
+                  </li>
+                </ul>
+              </aside>
+            )}
+
             {/* タグ */}
             <div className="ks-article-tags">
               {story.tags.map((t) => (
@@ -270,6 +315,22 @@ export default async function KindaStoryDetailPage({
             )}
           </div>
         </article>
+
+        {/* ─── よくある質問（この物語に関する FAQ・AEO） ─── */}
+        {story.faq && story.faq.length > 0 && (
+          <section className="ks-related">
+            <div className="ks-related-inner" style={{ maxWidth: 720 }}>
+              <div className="ks-section-divider" />
+              <h2 className="ks-section-title">
+                <em>questions</em>
+              </h2>
+              <div style={{ fontSize: 13, color: "var(--mid)", marginTop: 4, marginBottom: 16 }}>
+                この物語によく寄せられる質問
+              </div>
+              <FAQAccordion items={story.faq} />
+            </div>
+          </section>
+        )}
 
         {/* ─── 次の物語 ─── */}
         {related.length > 0 && (

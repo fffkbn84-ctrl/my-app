@@ -47,8 +47,11 @@ export interface Story {
   /** カードのサムネ画像（任意・未指定なら stage 別フォールバック）。
    *  同一 stage の物語が並ぶと絵が重複するため、物語ごとに上書きできる。 */
   thumbnail?: string;
-  /** 質問形 Q&A（任意）。詳細ページの FAQPage 構造化データに使う（AEO/リッチリザルト） */
+  /** 質問形 Q&A（任意）。詳細ページに FAQ アコーディオン＋FAQPage 構造化データで出す（AEO/リッチリザルト） */
   faq?: { q: string; a: string }[];
+  /** 関連する天気（任意）。/note/weather/[slug] への内部リンクに使う。
+   *  本文はプレーンテキストのままにし、リンクはこのフィールドで持つ。 */
+  relatedWeather?: { slug: string; label: string }[];
   /** 掲載同意の記録（任意・撤回対応用）。Story フォーマット Part 0 準拠。
    *  agency=false の物語は相談所名を出さない（コードにも実名を持たせない）。 */
   consent?: {
@@ -109,6 +112,10 @@ export const STORIES: Story[] = [
         q: "みんな優しくて選べない、という迷いの正体は？",
         a: "出会う人が優しいからこそ決め手がつかめないとき、それは「自分が何を大切にしたいか」がまだ言葉になっていない状態であることがあります。カウンセラーとの対話で輪郭が見えてくることがあります。",
       },
+    ],
+    relatedWeather: [
+      { slug: "flower-overcast", label: "花曇りの気持ちとは" },
+      { slug: "faint-sunlight", label: "薄日の気持ちとは" },
     ],
     consent: {
       web: true,
