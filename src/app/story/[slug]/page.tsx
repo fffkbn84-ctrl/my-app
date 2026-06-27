@@ -3,7 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
-import { getAllMdxStories, getMdxStoryBySlug } from "@/lib/mdx-stories";
+import {
+  getAllMdxStories,
+  getMdxStoryBySlug,
+  getStoryHeroImage,
+} from "@/lib/mdx-stories";
 import LeadAnswer from "@/components/story/LeadAnswer";
 import PullQuote from "@/components/story/PullQuote";
 import Header from "@/components/layout/Header";
@@ -33,9 +37,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonical = `${SITE_URL}/story/${story.slug}`;
-  const ogImageUrl = story.ogImage?.startsWith("/")
-    ? `${SITE_URL}${story.ogImage}`
-    : `${SITE_URL}/images/OGP-hero.webp`;
+  // OG 画像：個別 ogImage 指定があれば優先、無ければ stage のクレイ情景を流用
+  const ogImagePath = story.ogImage || getStoryHeroImage(story);
+  const ogImageUrl = `${SITE_URL}${ogImagePath}`;
 
   return {
     title: `${story.title} | Kinda story`,
@@ -96,9 +100,8 @@ export default async function StoryDetailPage({ params }: Props) {
   }
 
   const canonical = `${SITE_URL}/story/${story.slug}`;
-  const ogImageUrl = story.ogImage?.startsWith("/")
-    ? `${SITE_URL}${story.ogImage}`
-    : `${SITE_URL}/images/OGP-hero.webp`;
+  const heroImage = getStoryHeroImage(story);
+  const ogImageUrl = `${SITE_URL}${story.ogImage || heroImage}`;
 
   const articleLd = {
     "@context": "https://schema.org",
@@ -139,7 +142,7 @@ export default async function StoryDetailPage({ params }: Props) {
         }
       : null;
 
-  const hasHeroImage = !!story.heroImage;
+  const hasHeroImage = !!heroImage;
 
   return (
     <>
@@ -186,7 +189,7 @@ export default async function StoryDetailPage({ params }: Props) {
           >
             {hasHeroImage && (
               <Image
-                src={story.heroImage}
+                src={heroImage}
                 alt={story.heroAlt}
                 fill
                 priority

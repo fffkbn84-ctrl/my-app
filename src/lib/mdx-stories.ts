@@ -9,6 +9,31 @@ export type StoryFAQ = {
   a: string;
 };
 
+/**
+ * stage（成婚 / 交際中 / 活動中）→ 既存クレイ情景アセットの対応表。
+ * mock/stories.ts の STORY_THUMBNAIL_POOL と同じアセットを使い、
+ * Story のサムネ・ヒーローは stage から自動で出し分ける（個別指定不要）。
+ * 英語キー（marriage / dating / active）と日本語キーの両方を受ける。
+ */
+export const STORY_STAGE_IMAGE: Record<string, string> = {
+  marriage: "/images/story-seikon.webp",
+  成婚: "/images/story-seikon.webp",
+  dating: "/images/story-kosai.webp",
+  交際中: "/images/story-kosai.webp",
+  active: "/images/story-katsudo.webp",
+  活動中: "/images/story-katsudo.webp",
+};
+
+/** stage からクレイ情景画像を解決。未知 stage は成婚アセットへフォールバック。 */
+export function getStoryStageImage(stage: string): string {
+  return STORY_STAGE_IMAGE[stage] ?? "/images/story-seikon.webp";
+}
+
+/** ヒーロー画像。frontmatter.heroImage を個別指定があれば優先、無ければ stage から自動。 */
+export function getStoryHeroImage(story: StoryMeta): string {
+  return story.heroImage || getStoryStageImage(story.stage);
+}
+
 export type StoryMeta = {
   slug: string;
   title: string;
@@ -17,6 +42,7 @@ export type StoryMeta = {
   stage: string;
   area: string;
   pseudonym: string;
+  /** 個別指定の上書き用（任意）。未指定なら stage から自動解決。 */
   heroImage: string;
   heroAlt: string;
   ogImage: string;

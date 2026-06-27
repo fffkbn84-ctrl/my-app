@@ -4,7 +4,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import { getAllMdxStories } from "@/lib/mdx-stories";
+import { getAllMdxStories, getStoryHeroImage } from "@/lib/mdx-stories";
 
 export const metadata: Metadata = {
   title: "Kinda story | ふたりの物語 | Kinda ふたりへ",
@@ -138,15 +138,13 @@ export default async function StoryListPage() {
                       overflow: "hidden",
                     }}
                   >
-                    {story.heroImage && (
-                      <Image
-                        src={story.heroImage}
-                        alt={story.heroAlt}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 320px"
-                        style={{ objectFit: "cover" }}
-                      />
-                    )}
+                    <Image
+                      src={getStoryHeroImage(story)}
+                      alt={story.heroAlt}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 320px"
+                      style={{ objectFit: "cover" }}
+                    />
                     <span
                       style={{
                         position: "absolute",
