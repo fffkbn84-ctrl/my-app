@@ -218,6 +218,10 @@ admin は user 一人運用 + カスタムドメイン不要のため production
 ### 注意
 
 - Vercel の Ignored Build Step が古いブランチ名で固定されている可能性あり。新しいブランチ名で push しても build が走らないときは Vercel ダッシュボードで Ignored Build Step を確認・更新する
+- ⚠️ **本番デプロイは「push の先頭(tip)コミットの変更内容」で要否判定される。ドキュメントのみ（`.md` だけ）のコミットが tip だと Ignored Build Step が本番ビルドを**スキップ（Vercel 上は `CANCELED` 表示）**する**（仕様。docs 変更でビルド時間を浪費しないため）。
+  - **落とし穴**：コード＋ドキュメントをまとめて main に出す時、**docs コミットを最後に積むと本番ビルドが走らず、コード変更が本番未反映になる**（2026-06-27 あつみさん公開で実際に発生）。
+  - **対策**：main へ反映する一連の push は、**最後（tip）のコミットが必ず `src/` 等のコード変更を含む**ようにする（または docs を先に積む）。docs だけ後から足したい時は別 push にし、本番未反映が問題ないことを確認する。
+  - 確認方法：`mcp__Vercel__list_deployments` で `target:"production"` の最新が `CANCELED` でないか／`READY` かを見る。スキップされていたら、tip に軽微な src 変更を置いて再 push でビルドを起こす。
 - `.vercelignore` は repo root から全 Vercel project に適用される。`futarive-counselor/` `futarive-admin/` を ignore しているのは my-app build がサブアプリのファイルを拾わないため。サブアプリ project は Root Directory 設定 + 上記の Production Branch 設定で運用
 
 ### デプロイ前の必須チェック（2026-06-01 追加・厳守）
