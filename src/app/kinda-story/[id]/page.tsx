@@ -327,7 +327,9 @@ export default async function KindaStoryDetailPage({
               <div style={{ fontSize: 13, color: "var(--mid)", marginTop: 4, marginBottom: 16 }}>
                 この物語によく寄せられる質問
               </div>
-              <FAQAccordion items={story.faq} />
+              <div style={{ textAlign: "left" }}>
+                <FAQAccordion items={story.faq} />
+              </div>
             </div>
           </section>
         )}
