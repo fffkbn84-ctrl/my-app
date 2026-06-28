@@ -224,20 +224,6 @@ export function isCancellable(
 }
 
 /* ────────────────────────────────────────────────────────────
-   isWithinBillingGrace
-   - 予約成立から 24h 以内かどうか（相談所への送客料返金基準）
-   - created_at ベースで計算（billing_events.grace_until の簡易代替）
-──────────────────────────────────────────────────────────── */
-export function isWithinBillingGrace(
-  createdAt: string,
-  now: Date = new Date(),
-): boolean {
-  const graceUntil = new Date(createdAt);
-  graceUntil.setHours(graceUntil.getHours() + 24);
-  return now < graceUntil;
-}
-
-/* ────────────────────────────────────────────────────────────
    cancelReservationViaRpc
    - cancel_reservation_rpc を呼ぶ（billing_events も一括更新）
    - Stripe モック：DB 更新のみ、外部 API 呼び出しなし

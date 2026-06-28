@@ -26,13 +26,15 @@ Supabase：予約ステータスを「confirmed」に更新
 Resend：相談所と管理者に決済完了メール送信
 ```
 
-### 返金フロー
+### 返金フロー（2026-06-05 改定・現行モデル）
+
+> 旧「24時間以内 全額返金」モデルは廃止。**予約確定で即時課金・以後は原則返金なし**。例外は運営事務局が個別判断（CLAUDE.md §12）。
 
 | トリガー | 処理 |
 |---|---|
-| 予約成立から24時間以内のキャンセル | Stripe Refund API → 全額返金 |
-| 24時間以降・ユーザー都合キャンセル | 返金なし |
-| 日程変更申請ボタン押下時 | Stripe Refund API → 全額返金（別日確定時に再課金） |
+| 予約確定 | 即時 ¥5,000 課金（猶予期間なし） |
+| 以後のキャンセル・当日キャンセル・ユーザー不参加（ドタキャン） | 原則返金なし（課金確定） |
+| やむを得ない事情 | 運営事務局へ相談 → 個別判断で返金しうる（Stripe Refund API・admin のみ実行） |
 
 ### 支払い手段
 
@@ -330,9 +332,11 @@ import { cookies } from 'next/headers'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
+// 例外返金（運営判断）。現行モデル＝予約確定で即時課金・原則返金なし。
+// 24時間ルールは廃止。返金は「やむを得ない事情」を運営事務局が個別判断した時のみ、
+// admin ユーザーが手動実行する（自動返金フローは持たない）。
 export async function POST(req: Request) {
-  const { reservation_id, reason } = await req.json()
-  // reason: 'cancellation_within_24h' | 'reschedule' | 'agency_cancelled'
+  const { reservation_id } = await req.json()
 
   const cookieStore = cookies()
   const supabase = createServerClient(
@@ -341,46 +345,43 @@ export async function POST(req: Request) {
     { cookies: { get: (name) => cookieStore.get(name)?.value } }
   )
 
+  // admin 権限チェック（運営のみ実行可）
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // ... admin_users で role==='admin' を確認（実装済みルート参照）
+
   const { data: reservation } = await supabase
     .from('reservations')
-    .select('stripe_payment_intent_id, status, created_at')
+    .select('stripe_payment_intent_id, status, refunded_at')
     .eq('id', reservation_id)
     .single()
 
   if (!reservation?.stripe_payment_intent_id) {
     return NextResponse.json({ error: 'No payment found' }, { status: 400 })
   }
-
-  // 24時間チェック（cancellation_within_24h以外はサーバー側でも検証）
-  if (reason === 'user_cancel') {
-    const createdAt = new Date(reservation.created_at)
-    const now = new Date()
-    const diffHours = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60)
-    if (diffHours > 24) {
-      return NextResponse.json({ error: 'Cancellation period expired' }, { status: 400 })
-    }
+  if (reservation.refunded_at) {
+    return NextResponse.json({ ok: true, alreadyRefunded: true })
   }
 
-  // 返金実行
+  // 返金実行（運営の個別判断による例外対応）
   const refund = await stripe.refunds.create({
     payment_intent: reservation.stripe_payment_intent_id,
-    metadata: { reservation_id, reason }
+    metadata: { reservation_id, reason: 'manual_exception' }
   })
 
-  // 予約ステータス更新
   await supabase
     .from('reservations')
     .update({
-      status: 'cancelled',
       refunded_at: new Date().toISOString(),
       stripe_refund_id: refund.id,
-      user_info_visible: false  // キャンセル後は個人情報を非表示
     })
     .eq('id', reservation_id)
 
   return NextResponse.json({ refund_id: refund.id })
 }
 ```
+
+> 実体は `src/app/api/stripe/refund/route.ts`（admin 限定・例外返金）として実装済み。上記は設計サンプル。
 
 ---
 
