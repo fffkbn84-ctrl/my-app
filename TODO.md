@@ -4,7 +4,7 @@
 > 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
 > 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
 
-最終更新: 2026-06-27
+最終更新: 2026-06-28
 
 ---
 
@@ -19,6 +19,22 @@
 - **my-app-rp9u の Ignored Build Step は `git diff --quiet HEAD^ HEAD -- src public content package.json next.config.ts tsconfig.json`**。main の HEAD（最後のコミット）に src 等の差分が無いと **ビルドをスキップ（CANCELED）し、コードが本番に出ない**。
 - **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
 - 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
+
+### 🆕 2026-06-28 X運用戦略確定・Notion X投稿カレンダー実装
+
+#### ✅ 完了
+- [x] **Xの2026年アルゴリズム調査**：評価は「数」でなく行動予測・Author Diversity（連投は食い合い）・会話加点（自リプ+150/リプ+54/プロフ+24）・外部リンクは本文NGでリプへ・Xはテキスト主役。
+- [x] **X運用戦略 v1 確定**（5本柱A天気/B相談所リアル/C問いかけ/Dつくる日記/E告知・週12〜13本・朝夜分散）。成果物 `kinda-x-strategy-calendar-v1.md`。
+- [x] **Notion「X投稿カレンダー」DB新設**（運営ダッシュボード直下・IGと同構造・table＋calendar）。database_id `2c2b426bf123473894a98c1adcff2947`。
+- [x] **2週間分25投稿を投入**（6/28〜7/12・全て実例コピー・下書き済）。6/28(日)夜Cを先頭に追加し当日スタート可能に。
+- [x] **GA4 `notify_signup` キーイベント登録完了**（前セッション継続タスクを消化・ふうか操作）。
+
+#### ⏳ 未着手（ふうか）
+- [ ] **コラム5本の本番URL確認**：B/E投稿リプリンク欄の `kinda.jp/columns/[スラグ]` は推定。スラグ実在ルール（CLAUDE.md）に沿って確認・修正。該当：counselor-de-erabu-soudanjo（Pillar）／soudanjo-to-konkatsu-app-chigai／kekkon-soudanjo-ryokin-no-mikata／counselor-tantou-henkou／shokai-mendan-de-miru-koto。note創業ストーリーは確定 https://note.com/kinda_jp/n/ndd5a4776cc13 。
+- [ ] **X運用開始**：朝1/夜1・リプ返信率80%・能動リプ数件。Notion下書きをコピペ投稿。
+- [ ] 2週間後、伸びた型をA天気の言葉に寄せて増やす。
+
+---
 
 ### 🆕 2026-06-27 X初投稿・IG3シリーズ確定・投稿スケジュール・Notion連携
 
@@ -35,7 +51,7 @@
 
 #### ⏳ 未着手
 - [ ] **投稿案1（夏×日記カルーセル）制作**：プロンプト・キャプション確定済み、画像生成から着手。トレンドカラー適用。7/1投稿予定。
-- [ ] **GA4 `notify_signup` キーイベント化**：テスト送信→24h後に☆付与（ふうか操作）。
+- [x] **GA4 `notify_signup` キーイベント化** → **登録完了（2026-06-28・ふうか操作）**。メール登録の計測が有効に。
 - [x] **Kinda story 投稿原稿** → 第1本目「あつみさん」を `/kinda-story/atsumi-20s-mayoi` で公開（2026-06-27）。詳細は WORKLOG「2026-06-27 追補・方針転換」参照。
 
 #### 📌 Kinda story の今後の投稿スタイル（2026-06-27 確定・以後これに従う）
