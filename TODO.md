@@ -36,6 +36,7 @@
 - [ ] `sk_live_`／`pk_live_`／`whsec_` を **Vercel 本番 env** に設定（`.env.local` でなく Vercel・GitHub に push しない）。
 - [ ] 審査通過後、実カードで少額テスト課金 → 返金で疎通確認。
 - [ ] （任意）顧問弁護士レビュー。
+- [ ] **Google Workspace 契約 → `@kinda.jp` 送信を有効化**（受信 MX は設定済み）。Resend 送信元・Stripe 審査の信頼性に寄与。日割り＋14日無料トライアルのため開始日の損得なし＝早めでよい。
 
 ---
 
