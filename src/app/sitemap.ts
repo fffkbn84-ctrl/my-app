@@ -3,7 +3,6 @@ import { COUNSELORS } from "@/lib/data";
 import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
 import { getAllColumns } from "@/lib/columns";
-import { getPublishedVoices } from "@/lib/mock/voices";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
@@ -103,28 +102,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Kinda voices（公開記事がある時だけ一覧＋記事を載せる。準備中の空ページは出さない）
-  const voices = getPublishedVoices();
-  const voiceEntries: MetadataRoute.Sitemap =
-    voices.length === 0
-      ? []
-      : [
-          {
-            url: `${SITE_URL}/kinda-voices`,
-            lastModified: now,
-            changeFrequency: "weekly" as const,
-            priority: 0.8,
-          },
-          ...voices.map((v) => ({
-            url: `${SITE_URL}/kinda-voices/${v.slug}`,
-            lastModified: v.updatedAt
-              ? new Date(v.updatedAt)
-              : new Date(v.publishedAt),
-            changeFrequency: "monthly" as const,
-            priority: 0.8,
-          })),
-        ];
-
   return [
     ...staticEntries,
     ...legalEntries,
@@ -134,6 +111,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...weatherListEntry,
     ...weatherEntries,
     ...columnEntries,
-    ...voiceEntries,
   ];
 }
