@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-07-02 追補2（UI改善2件・ミニチュア画像ガイド・コールドメール日程化）
+
+### 完了
+- **PCの下部モバイルタブバー表示バグ修正**：`BottomNav` はインライン style の `display:flex` が `md:hidden` クラスを上書きして PC でも表示されていた → display をクラス側（`flex md:hidden`）へ移動。
+- **ホームヒーローにカウンセラー導線追加**：主CTA直下に「担当（カウンセラー）を口コミから見る」テキストリンク（→ /kinda-talk・`.ktp-hero-counselor-link`・控えめ設計）。
+- **見た目レビューのクローズ**：talk サブコピー／type 余白／Summer バッジ／夜明け前の暗さは実機確認により対応不要（ふうか判断）。見出し改行はふうかのスクショでも「日々ま／で。」で発生（幅依存）だが今回は対応対象外。
+- **ミニチュア世界観の画像ガイド**：`docs/guides/miniature-image-guide.md` ＋ Notion 同名ページ。第1弾は **/kinda-act ヒーロー**（`public/images/kinda-act-hero.webp` 差し替え方式）。ChatGPT 用プロンプト確定。
+- **コールドメール日程を Notion 運営カレンダーに投入**：7/8 準備（BELMA 50社リスト＋文面実値化）→ 7/10 第1波50社 → 7/17 レビュー → 7/21 第2波100社 → 8/4 第3波100社（`docs/sales/kinda-cold-email-v1.html`／`kinda-list-strategy-v1.html` 準拠。送信は必ずふうか・特定電子メール法フッター要確認）。
+
+---
+
 ## 2026-07-02 追補（voices 実体判明・TODO全面整理・Notion運営カレンダー・X下書きv2改定）
 
 ### 重要な訂正
