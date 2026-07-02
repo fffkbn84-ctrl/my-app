@@ -291,6 +291,20 @@ export default async function HomePage() {
             <p className="ktp-hero-micro">
               ✓60秒で言葉になる　✓登録不要　✓相談前の整理に
             </p>
+            {/* サイトの核（カウンセラー個人を口コミで選べる）への控えめな導線。
+                主CTA（気持ちの整理）と競わないよう、テキストリンクにとどめる */}
+            <Link href="/kinda-talk" className="ktp-hero-counselor-link">
+              担当（カウンセラー）を口コミから見る
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M3 7h8M7 3l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
           </div>
 
           {/* Block 4 — 副CTA帯（ヒーローの「外」として階層化）

@@ -97,7 +97,9 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="md:hidden"
+      /* display はインライン style に書くと md:hidden より優先されて
+         PC でも表示されてしまうため、クラス側（flex / md:hidden）で持つ */
+      className="flex md:hidden"
       style={{
         position: "fixed",
         bottom: 0,
@@ -108,7 +110,6 @@ export default function BottomNav() {
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         borderTop: "1px solid var(--pale)",
-        display: "flex",
         paddingBottom: "env(safe-area-inset-bottom)",
         height: "60px",
       }}

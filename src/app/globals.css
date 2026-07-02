@@ -5755,6 +5755,26 @@ body:has(.cta-mobile-bar) .floating-back {
   margin: 0;
 }
 
+/* 主CTA直下のカウンセラー導線（サイトの核への控えめなテキストリンク） */
+.ktp-hero-counselor-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  letter-spacing: .03em;
+  transition: opacity .2s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ktp-hero-counselor-link:hover { opacity: .75; }
+}
+
 /* Block 4 — 副CTA帯（ヒーローの「外」） */
 /* 副CTA帯 — 帯全体が 1 つのテキストリンク。
    リードと矢印リンクの2行構成だったものを一体化したので、
