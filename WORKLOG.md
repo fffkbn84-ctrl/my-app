@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-07-02（Claude Code セッション：AI業務改善キット・voices インフラ・SNS方向性 v2）
+
+### 完了
+- **AI業務改善キット導入**（ブランチ `claude/kinda-automation-strategy-4g1k5y`・main 未マージ）：
+  - Skill 4本：`/sns-pack`（1ソース→X/IG/note一括生成→Notion下書き投入・実投稿はしない）／`/sns-review`（実績→伸びた型→翌週方針）／`/kinda-column`／`/kinda-story`（同意ゲート付き）。
+  - `npm run qa:content`（scripts/content-qa.mjs）：絵文字・NG語（中立/焦らせ）・story 同意整合性（agency非同意なのに相談所名あり等）・コラム frontmatter 必須・Review/Rating 禁止スキーマを機械チェック。既存データで検証済み（error 0 / warn 11：モック story 4本の consent 未記録、旧コラム3本の atomicAnswer/faq なし）。
+  - `docs/ops/ai-ops-playbook.md`：業務マップ・自動化候補15案・運用手順。`docs/sns/metrics/`：計測CSV基盤。
+- **Kinda voices 記事インフラ実装**（`/kinda-voices` 一覧＋`[slug]` 詳細）：ks-* 既存意匠を再利用。Article(+Person)/FAQPage JSON-LD のみ。`src/lib/mock/voices.ts` に published フラグ制の雛形。公開0件の間は「準備中」表示・sitemap 非掲載。1本目を入れれば公開が始まる。
+- **metadataBase の古い注記を訂正**：コードは既に kinda.jp（本番 og:url/og:image 出力で確認）。CLAUDE.md §10 の「要修正」注記を削除。
+- **Notion「Kinda 運営ダッシュボード」に2ページ新設**：「SNS発信方向性 v2 — 顕在需要ドリブン」（結婚相談所ワード戦略：発見面は検索語・世界観は語り方で守る／柱B主力化／縦型動画試験／bio二層化は要ふうか決裁）／「AI運用手順」。
+
+### 決定・持ち越し
+- 「結婚相談所」ワードは隠さず**発見面（検索・投稿冒頭・ハッシュタグ・SEO）で取りに行く**方針を提案。bio への機能記述追加は CLAUDE.md §2 の改定を伴うため**ふうか決裁待ち**。
+- ブランチを main にマージする際は tip がコード変更（src/scripts/package.json 含む）なので Vercel ビルドは走る想定。マージ後 production READY を確認する。
+
+---
+
 ## 2026-06-29（Claude Code セッション：あつみ公開・返金モデル統一・Stripe審査準備）
 
 > このセッションで Claude Code 上で実装・整備した内容。SNS系（声ガイド/中の人）は別途下の 2026-06-29 セクション参照。
