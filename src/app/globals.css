@@ -5644,7 +5644,13 @@ body:has(.cta-mobile-bar) .floating-back {
   line-height: 1.5;
   letter-spacing: .02em;
   margin: 0 0 14px;
+  /* 文節（inline-block の .ktp-hero-h1-w）単位でのみ折り返す。
+     単語の途中で割れて "で。" が孤立するのを防ぐ。 */
+  word-break: keep-all;
 }
+/* 意図した2行構成を保ちつつ、各行が狭いときは文節境界で折り返す */
+.ktp-hero-h1-line { display: block; }
+.ktp-hero-h1-w { display: inline-block; }
 .ktp-hero-h2 {
   font-family: var(--font-sans);
   font-weight: 400;

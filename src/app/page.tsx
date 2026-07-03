@@ -26,8 +26,10 @@ const STAGE_VISUAL: Record<StoryStage, { key: string; gradient: string; en: stri
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
 ──────────────────────────────────────────────────────────── */
-const HERO_H1_LINE1 = "好きな人を見つけて、";
-const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
+// 文節単位で分割し、折り返しは文節境界でのみ起こるようにする
+// （「一緒に過ごす日々ま／で。」のように単語の途中で割れて "で。" が孤立するのを防ぐ）
+const HERO_H1_LINE1 = ["好きな人を", "見つけて、"];
+const HERO_H1_LINE2 = ["一緒に過ごす", "日々まで。"];
 const HERO_H2 =
   "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
 const HERO_IMAGE_SRC = "/images/hero-couple-2026ss.webp";
@@ -268,9 +270,20 @@ export default async function HomePage() {
               二重表示になる。ファーストビューの情報整理のため省略。 */}
           <div className="ktp-hero-copy">
             <h1 id="hero-h1" className="ktp-hero-h1">
-              {HERO_H1_LINE1}
-              <br />
-              {HERO_H1_LINE2}
+              <span className="ktp-hero-h1-line">
+                {HERO_H1_LINE1.map((w) => (
+                  <span key={w} className="ktp-hero-h1-w">
+                    {w}
+                  </span>
+                ))}
+              </span>
+              <span className="ktp-hero-h1-line">
+                {HERO_H1_LINE2.map((w) => (
+                  <span key={w} className="ktp-hero-h1-w">
+                    {w}
+                  </span>
+                ))}
+              </span>
             </h1>
             <h2 className="ktp-hero-h2">{HERO_H2}</h2>
           </div>
