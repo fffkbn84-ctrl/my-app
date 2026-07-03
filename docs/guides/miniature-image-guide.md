@@ -57,13 +57,22 @@ no readable text, no logos. Landscape 16:9.
 ### 共通テンプレート（ChatGPT にそのまま）
 
 ```
-A photorealistic miniature dollhouse room diorama, cutaway front view at eye level,
+A photorealistic miniature dollhouse room interior, flat front view at eye level,
 of 【SCENE】. Same doll-house scale, same eye-level camera, same soft warm light from
-above, sitting on a small wooden display base. Warm beige palette (#F5EEE6) with dusty
-rose and terracotta accents (#D4A090). Cozy, handmade, tilt-shift miniature look with
-subtle clay seams that reveal it is a made object. NO people, no figures, no dolls.
-No readable text, no logos. Square 1:1 composition, the room centered and fully visible.
+above. Warm beige palette (#F5EEE6) with dusty rose and terracotta accents (#D4A090).
+Cozy, handmade, tilt-shift miniature look with subtle clay seams that reveal it is a
+made object. NO people, no figures, no dolls. No readable text, no logos.
+The room interior FILLS THE ENTIRE FRAME, seen straight through the open front —
+do NOT show the outer wooden box, the display base, or any background outside the room.
+Square 1:1 composition.
 ```
+
+> ⚠️ **2026-07-03 の学び**：初回の type 生成は「外側の木箱＋台座＋外の背景」まで写り込んだ。
+> それ自体は綺麗だが、サイト側がすでに戸棚UI（升目）で枠を提供しているため **二重の額縁**になり、
+> 4枚それぞれの箱・角度・背景がバラつくと戸棚に入れたとき不揃いに見える。
+> 対策＝上の太字（部屋が画面いっぱい・外箱と背景なし・正面フラット）。
+> **すでに外箱付きで生成済みの画像は、Claude Code 側が「部屋の中だけ」を正方形クロップして使えるので捨てないでよい**
+> （中身＝部屋の作り込みが良ければ流用可。type 初回画像もクロップで採用できることを確認済み）。
 
 ### 各カードの 【SCENE】（4枚を同じ日・同じ設定で連続生成する）
 
