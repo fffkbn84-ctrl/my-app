@@ -43,6 +43,41 @@ no readable text, no logos. Landscape 16:9.
    （WebP変換・`public/images/kinda-act-hero.webp` 配置・ビルド確認・PR まで Claude 側で実施）
 3. プレビューURLで実機確認 → main マージ
 
-## 展開順（うまくいったら）
+## 画像の使い分けルール（2026-07-03 ふうか方針・確定次第 CLAUDE.md §4 へ）
 
-/kinda-act ヒーロー → 天気カード・季節バッジ → Kinda glow/act のカード → 最後にトップヒーロー（ブランドの顔なので最後・要ふうか承認）
+- **人形（人物）を出すのは「気持ちを売る場所」だけ**：トップのヒーロー、サービス紹介、`/about` 系。SNS は別ルール（従来どおり）。
+- **機能を表す場所は「人のいない空の部屋（ミニチュアハウス）」**：トップの4サービスカード（type/talk/act/glow）、天気カード等。「何をする場所か」を一発で伝えるため、視線を人物に取られない空室にする。
+- 狙い：クレイ人形は情報量が多く「ごちゃつく」。機能カードは空室にして用途を明快に、かつ戸棚で覗く一体感を出す。
+
+## 第2弾：4サービスカードを「空の部屋」セットで統一（戸棚B用）
+
+戸棚（升目を覗くUI）に収める4枚。**バラバラに見せない＝カメラ・スケール・光・土台を全部そろえる**のが最重要。
+下の共通テンプレートの `【SCENE】` だけ差し替えて4枚生成する。
+
+### 共通テンプレート（ChatGPT にそのまま）
+
+```
+A photorealistic miniature dollhouse room diorama, cutaway front view at eye level,
+of 【SCENE】. Same doll-house scale, same eye-level camera, same soft warm light from
+above, sitting on a small wooden display base. Warm beige palette (#F5EEE6) with dusty
+rose and terracotta accents (#D4A090). Cozy, handmade, tilt-shift miniature look with
+subtle clay seams that reveal it is a made object. NO people, no figures, no dolls.
+No readable text, no logos. Square 1:1 composition, the room centered and fully visible.
+```
+
+### 各カードの 【SCENE】（4枚を同じ日・同じ設定で連続生成する）
+
+| カード | 色 | 【SCENE】に入れる英語 |
+|---|---|---|
+| **type**（診断） | 青 | `a tiny cozy consultation nook: a small wooden desk with a questionnaire card and a pastel signpost, and a wall chart showing four simple personality icons — a room that says "find the type that fits you"` |
+| **talk**（相談） | 黄 | `an empty counseling room: two soft armchairs facing each other across a low table with two teacups, a warm floor lamp and a small bookshelf` |
+| **act**（お見合い・デート） | 桃 | `a retro Japanese cafe interior for two: a little table by a lace-curtain window with a cream soda and a pudding, two empty chairs, a warm hanging lamp`（※すでに生成済みの kinda-act ジオラマを流用可） |
+| **glow**（自分を整える） | 紫 | `a small dressing room: a lit vanity mirror, a single chair, a cosmetics cart, soft towels` |
+
+- 生成後、Claude Code に「4枚を section カードに差し込んで」と渡す（各 `public/images/section-<key>.webp` に WebP 化・配置・ビルド・PR まで実施）。
+- act は既存の `kinda-act-hero.webp` の正方形クロップでも可（新規生成の手間を省ける）。
+
+## 展開順（確定後）
+
+戸棚B（升目UI）を先に確定 → 4部屋画像を空室セットに差し替え → 装飾（角飾り・小さなラベル）を最後に微調整。
+天気カード・トップヒーローは**人物ありのまま維持**（ふうか方針）。

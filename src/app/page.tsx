@@ -596,39 +596,82 @@ export default async function HomePage() {
             やりたいことが決まっている方へ
           </h2>
 
-          {/* 2×2 グリッド（モバイル）→ 1×4（PC） */}
-          <div className="pc-grid-2to4">
+          {/* 2×2（モバイル）→ 1×4（PC）を、1つの「戸棚」に収める。
+              gap を木トーンの枠色で見せることで升目の仕切り（壁）になる。 */}
+          <div
+            className="pc-grid-2to4"
+            style={{
+              background: "linear-gradient(#E8DDCC,#DED0BA)",
+              padding: 9,
+              gap: 9,
+              borderRadius: 16,
+              border: "1px solid rgba(120,96,64,.35)",
+              boxShadow:
+                "0 12px 32px rgba(120,90,60,.18), inset 0 1px 0 rgba(255,255,255,.5)",
+            }}
+          >
             {DECIDED_CARDS.map((card) => (
               <Link
                 key={card.key}
                 href={card.href}
                 style={{
                   display: "block",
+                  /* 升目（箱）本体はパステル＝色分けを残す */
                   background: card.bg,
-                  borderRadius: 16,
-                  border: "1px solid rgba(0,0,0,.04)",
+                  borderRadius: 7,
+                  border: `1px solid ${card.accent}30`,
                   overflow: "hidden",
-                  boxShadow: "0 4px 16px rgba(200,169,122,.08)",
                   textDecoration: "none",
                   transition: "transform .3s, box-shadow .3s",
                 }}
               >
-                {/* 画像エリア（カードと同色のパステル背景に画像が乗る） */}
+                {/* 覗く窓：パステルの縁（前壁）で一段奥へ、四辺の内影で奥行き */}
                 <div
                   style={{
                     aspectRatio: "1/1",
                     background: card.bg,
-                    overflow: "hidden",
                     position: "relative",
+                    padding: 8,
                   }}
                 >
-                  <Image
-                    src={card.img}
-                    alt={card.alt}
-                    fill
-                    sizes="(min-width: 768px) 240px, 50vw"
-                    style={{ objectFit: "cover" }}
-                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 8,
+                      borderRadius: 4,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Image
+                      src={card.img}
+                      alt={card.alt}
+                      fill
+                      sizes="(min-width: 768px) 240px, 50vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                    {/* ガラス面の斜め反射（覗いている感） */}
+                    <span
+                      aria-hidden
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(125deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 40%)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    {/* 四辺の内影（＝箱の奥に収まっている＝貼り付け感の解消） */}
+                    <span
+                      aria-hidden
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 4,
+                        boxShadow: "inset 0 0 16px 4px rgba(50,32,14,.42)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* テキストエリア — カード bg を継承して馴染ませる */}
