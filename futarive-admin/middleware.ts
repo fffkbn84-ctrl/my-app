@@ -40,6 +40,12 @@ export async function middleware(request: NextRequest) {
     return basicAuthResponse
   }
 
+  // /api/login はここで新規にSupabaseセッションを確立するためのエンドポイントなので、
+  // 「未ログインなら/loginへ」のガード対象から外す（Basic認証は上で通過済み）。
+  if (request.nextUrl.pathname === '/api/login') {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(

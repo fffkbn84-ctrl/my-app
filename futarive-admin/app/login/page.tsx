@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -16,26 +15,17 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const supabase = createClient()
-    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password })
+    // ログイン失敗のカウント・10回失敗時のロックはサーバー側(/api/login)で行う。
+    // ここでは直接 Supabase にサインインせず、cookie 連携のため API 経由にする。
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const result = await res.json()
 
-    if (error) {
-      setError('メールアドレスまたはパスワードが正しくありません')
-      setLoading(false)
-      return
-    }
-
-    // 運営（admin_users.role='admin'）以外はこの管理画面に入れない。
-    // 認証は通ってもロールが admin でなければサインアウトして弾く。
-    const uid = signInData.user?.id
-    const { data: adminRow } = await supabase
-      .from('admin_users')
-      .select('role')
-      .eq('id', uid)
-      .maybeSingle()
-    if ((adminRow as { role?: string } | null)?.role !== 'admin') {
-      await supabase.auth.signOut()
-      setError('この画面は運営専用です。管理者アカウントでログインしてください。')
+    if (!res.ok) {
+      setError(result.error ?? 'ログインに失敗しました')
       setLoading(false)
       return
     }
