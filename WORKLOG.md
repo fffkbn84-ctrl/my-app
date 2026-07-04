@@ -23,10 +23,15 @@
 - 本番 DB でシミュレート認証テスト（booked化・auth.uid固定・二重予約拒否）を確認、副作用はロールバック済み。next build / tsc パス。
 - ⚠️ ユーザーサイト本番(main)反映時の注意：**本番デプロイ前提でポリシーは既に絞ってある**ため、main に本 client 変更（RPC 呼び出し）を必ずマージ・デプロイしてから本番予約を受けること。旧コード（直接 UPDATE）のままだと予約が slot 確保でエラーになる（診断時点で本番稼働予約なしを確認済み）。
 
-### 次
-- Supabase ダッシュボードで Leaked Password Protection を有効化（コード変更不要）。
-- admin（iKBfw）の middleware に admin ロールチェック追加。
-- 予約 PII の決済前開示（診断 §5）／その他アドバイザー WARN（search_path 等）。
+### 追加対応（同セッション最終）
+- **admin 管理画面を admin ロール限定に**（診断 §6・修正済）：middleware で `admin_users.role='admin'` を確認、非 admin は `/login` へ。login でもロール検証＋サインアウト＋「運営専用」表示。`claude/futarive-admin-dashboard-iKBfw` に push・ビルド検証済み。
+- **関数の search_path 固定**（診断 §7・修正済）：`update_updated_at` 等 6関数に `SET search_path = public`（マイグレーション `harden_function_search_path`・本番適用済み）。
+- **main へ反映**：JSON-LD XSS 対策＋slots RPC 化（client）を `claude/claude-mdwo-inqix4` から main へ fast-forward。本番（kinda.jp）デプロイをトリガー（同一コミットの preview build が READY を確認済み）。
+
+### 次（未対応・要判断）
+- **診断 §5（予約PIIの決済前開示）**：あえて未修正。RLS は列マスク不可のため、counselor 実運用アプリ（1clpG）の予約読み取り複数箇所をマスキングRPC/ビュー経由に一本化＋基底テーブルのPII列権限を絞る横断変更が必要（壊れるリスクあり）。独立セッションで計画実施。
+- **Leaked Password Protection の有効化**（ふうかの Supabase ダッシュボード作業・コード不可）。
+- （任意）SECURITY DEFINER 関数群の anon EXECUTE 剥奪（現状も関数内 auth.uid チェックで実害小）。
 
 ---
 
