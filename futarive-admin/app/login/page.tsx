@@ -17,10 +17,25 @@ export default function LoginPage() {
     setError('')
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       setError('メールアドレスまたはパスワードが正しくありません')
+      setLoading(false)
+      return
+    }
+
+    // 運営（admin_users.role='admin'）以外はこの管理画面に入れない。
+    // 認証は通ってもロールが admin でなければサインアウトして弾く。
+    const uid = signInData.user?.id
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('id', uid)
+      .maybeSingle()
+    if ((adminRow as { role?: string } | null)?.role !== 'admin') {
+      await supabase.auth.signOut()
+      setError('この画面は運営専用です。管理者アカウントでログインしてください。')
       setLoading(false)
       return
     }

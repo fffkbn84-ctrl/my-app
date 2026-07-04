@@ -33,13 +33,36 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
+  // 未ログインは /login 以外へ入れない
   if (!user && pathname !== '/login') {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  if (user && pathname === '/login') {
+  // ログイン済みでも「futarive 運営（admin_users.role='admin'）」以外は管理画面に入れない。
+  // カウンセラー/相談所オーナーの Supabase アカウントでこの管理画面に到達できる
+  // 多層防御の穴を塞ぐ（RLS は別途効いているが、UI への到達自体を止める）。
+  // admin_users は self-select ポリシー（id = auth.uid()）で自分の行のみ読める。
+  let isAdmin = false
+  if (user) {
+    const { data: adminRow } = await supabase
+      .from('admin_users')
+      .select('role')
+      .eq('id', user.id)
+      .maybeSingle()
+    isAdmin = (adminRow as { role?: string } | null)?.role === 'admin'
+  }
+
+  // 非 admin のログインユーザーは /login のみ許可（無限リダイレクト防止のため、
+  // /login からの自動遷移は admin のときだけ行う）。
+  if (user && !isAdmin && pathname !== '/login') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  if (user && isAdmin && pathname === '/login') {
     const url = request.nextUrl.clone()
     url.pathname = '/admin'
     return NextResponse.redirect(url)
