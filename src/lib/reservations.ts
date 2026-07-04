@@ -1,10 +1,10 @@
 /* ────────────────────────────────────────────────────────────
    Kinda — 予約作成 / キャンセルのヘルパー
    ──────────────────────────────────────────────────────────────
-   - Step4Confirm から createReservation を呼ぶ
-   - マイページの予約カードから cancelReservation を呼ぶ
-   - 本物の Supabase slot UUID の場合のみ排他制御 UPDATE を効かせる。
-     モック slot（Step1Calendar が動的生成するもの）の場合は INSERT のみ。
+   - Step4Confirm から createReservation を呼ぶ（枠確保＋INSERT は
+     create_reservation_rpc に集約。slots 直接 UPDATE は廃止）。
+   - マイページの予約カードから cancelReservationViaRpc を呼ぶ。
+   - モック slot（Step1Calendar が動的生成するもの）の場合は p_slot_id=null。
 ──────────────────────────────────────────────────────────── */
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -88,21 +88,42 @@ export async function createReservation(
     };
   }
 
-  // 1. 本物の slot UUID なら排他制御 UPDATE（status='open' or 'locked' の時だけ booked にできる）
-  let resolvedSlotId: string | null = null;
-  if (input.slotId && isUuid(input.slotId)) {
-    const { data: updatedSlot, error: slotError } = await supabase
-      .from("slots")
-      .update({ status: "booked" })
-      .eq("id", input.slotId)
-      .in("status", ["open", "locked"])
-      .select("id")
-      .maybeSingle();
+  // 枠確保（open/locked→booked）＋ reservation INSERT を単一トランザクションの
+  // SECURITY DEFINER RPC で実行する。以前は client から slots を直接 UPDATE して
+  // いたため slots の UPDATE ポリシーを全開放せざるを得なかった（他人の枠を
+  // 書き換え可能な脆弱性）。RPC 化により user_id は auth.uid() に固定され、
+  // slots の UPDATE ポリシーは owner/admin スコープに絞られている。
+  const { data, error } = await supabase.rpc("create_reservation_rpc", {
+    p_slot_id: input.slotId && isUuid(input.slotId) ? input.slotId : null,
+    p_start_at: input.startAt,
+    p_end_at: input.endAt,
+    p_meeting_type: input.meetingType,
+    p_counselor_id: isUuid(input.counselorId ?? null) ? input.counselorId : null,
+    p_counselor_name: input.counselorName,
+    p_agency_id: isUuid(input.agencyId ?? null) ? input.agencyId : null,
+    p_agency_name: input.agencyName,
+    p_user_name: input.userName,
+    p_user_email: input.userEmail,
+    p_notes: input.notes ?? null,
+    p_shared_kinda_type_key: input.sharedKindaTypeKey ?? null,
+    p_shared_kinda_type_at: input.sharedKindaTypeAt ?? null,
+    p_shared_kinda_note_key: input.sharedKindaNoteKey ?? null,
+    p_shared_kinda_note_at: input.sharedKindaNoteAt ?? null,
+    p_shared_kinda_note_freetext: input.sharedKindaNoteFreetext ?? null,
+  });
 
-    if (slotError) {
-      return { ok: false, error: "unknown", message: slotError.message };
-    }
-    if (!updatedSlot) {
+  if (error) {
+    return { ok: false, error: "unknown", message: error.message };
+  }
+
+  const result = data as {
+    ok: boolean;
+    reservation_id?: string;
+    error?: string;
+  };
+
+  if (!result.ok) {
+    if (result.error === "slot_unavailable") {
       return {
         ok: false,
         error: "slot_unavailable",
@@ -110,100 +131,22 @@ export async function createReservation(
           "この予約枠は別の方が押さえています。お手数ですが別の枠をお選びください。",
       };
     }
-    resolvedSlotId = (updatedSlot as { id: string }).id;
-  }
-
-  // 2. reservation INSERT
-  const { data: inserted, error: insertError } = await supabase
-    .from("reservations")
-    .insert({
-      user_id: input.userId,
-      slot_id: resolvedSlotId,
-      counselor_id: isUuid(input.counselorId ?? null) ? input.counselorId : null,
-      counselor_name: input.counselorName,
-      agency_id: isUuid(input.agencyId ?? null) ? input.agencyId : null,
-      agency_name: input.agencyName,
-      user_name: input.userName,
-      user_email: input.userEmail,
-      notes: input.notes ?? null,
-      start_at: input.startAt,
-      end_at: input.endAt,
-      meeting_type: input.meetingType,
-      status: "active",
-      // 024_reservations_shared_diagnosis — Kinda type / Kinda note の共有スナップショット
-      shared_kinda_type_key: input.sharedKindaTypeKey ?? null,
-      shared_kinda_type_at: input.sharedKindaTypeAt ?? null,
-      shared_kinda_note_key: input.sharedKindaNoteKey ?? null,
-      shared_kinda_note_at: input.sharedKindaNoteAt ?? null,
-      shared_kinda_note_freetext: input.sharedKindaNoteFreetext ?? null,
-    })
-    .select("id")
-    .maybeSingle();
-
-  if (insertError || !inserted) {
-    // ロールバック: 本物 slot を locked → open に戻す
-    if (resolvedSlotId) {
-      await supabase
-        .from("slots")
-        .update({ status: "open" })
-        .eq("id", resolvedSlotId);
+    if (result.error === "auth_required") {
+      return {
+        ok: false,
+        error: "auth_required",
+        message: "予約するにはログインが必要です。",
+      };
     }
     return {
       ok: false,
       error: "unknown",
       message:
-        insertError?.message ??
         "予約の保存に失敗しました。少し時間をおいてもう一度お試しください。",
     };
   }
 
-  return { ok: true, reservationId: (inserted as { id: string }).id };
-}
-
-/* ────────────────────────────────────────────────────────────
-   cancelReservation
-   - reservations.status を 'canceled' に UPDATE
-   - 本物の slot に紐付いていれば slot を 'open' に戻す
-──────────────────────────────────────────────────────────── */
-export type CancelReservationResult =
-  | { ok: true }
-  | {
-      ok: false;
-      error: "deadline_passed" | "supabase_unavailable" | "unknown";
-      message: string;
-    };
-
-export async function cancelReservation(
-  supabase: SupabaseClient | null,
-  reservationId: string,
-  slotId: string | null,
-): Promise<CancelReservationResult> {
-  if (!supabase) {
-    return {
-      ok: false,
-      error: "supabase_unavailable",
-      message: "予約システムに接続できません。",
-    };
-  }
-
-  const { error: updateError } = await supabase
-    .from("reservations")
-    .update({
-      status: "canceled",
-      canceled_at: new Date().toISOString(),
-    })
-    .eq("id", reservationId);
-
-  if (updateError) {
-    return { ok: false, error: "unknown", message: updateError.message };
-  }
-
-  // 本物の slot UUID なら open に戻す
-  if (slotId && isUuid(slotId)) {
-    await supabase.from("slots").update({ status: "open" }).eq("id", slotId);
-  }
-
-  return { ok: true };
+  return { ok: true, reservationId: result.reservation_id ?? "" };
 }
 
 /* ────────────────────────────────────────────────────────────

@@ -16,10 +16,17 @@
   - 【中・未修正】決済前でも相談所オーナーが REST 直叩きで予約の連絡先 PII を読める／admin の middleware が admin ロールを確認していない。
 - **counselor 管理画面 UX 診断**：【重大・修正済】モバイルでカレンダー・写真・相談所プロフィール・請求履歴への導線が皆無だった → ドロワーに全8ページの「ページ」セクションを追加（`claude/fix-profile-creation-1clpG` に push 済み・ビルド検証済み）。その他の所見はセッション報告参照（全体として toast・エラー整形・確認ダイアログ・パスワードリセット完備で良好）。
 
+### 追加実装（同セッション後半）：slots の RPC 化（診断 §4 を解消）
+- **予約確定を `create_reservation_rpc`（SECURITY DEFINER・単一トランザクション）に集約**。枠確保（open/locked→booked）＋reservation INSERT を1関数化。`user_id := auth.uid()` 固定で成りすまし予約を防止、INSERT 失敗時は関数ごとロールバック（release RPC を作らず「他人の枠解放」攻撃面も排除）。billing 生成トリガーは従来どおり発火。
+- **`slots_update_authed`（USING true 全開放）を削除 → `slots_update_owner_admin`（本人/相談所オーナー/admin）に置換**。counselor カレンダー・admin スロット管理は影響なし。
+- client（`src/lib/reservations.ts`）を RPC 呼び出しに変更。デッドコードの直接版 `cancelReservation` を削除。マイグレーションは `supabase/migrations/042_...sql`（本番適用済み・source of truth）。
+- 本番 DB でシミュレート認証テスト（booked化・auth.uid固定・二重予約拒否）を確認、副作用はロールバック済み。next build / tsc パス。
+- ⚠️ ユーザーサイト本番(main)反映時の注意：**本番デプロイ前提でポリシーは既に絞ってある**ため、main に本 client 変更（RPC 呼び出し）を必ずマージ・デプロイしてから本番予約を受けること。旧コード（直接 UPDATE）のままだと予約が slot 確保でエラーになる（診断時点で本番稼働予約なしを確認済み）。
+
 ### 次
-- slots ポリシーの RPC 化（設計判断が必要・security-audit レポート §4）。
 - Supabase ダッシュボードで Leaked Password Protection を有効化（コード変更不要）。
 - admin（iKBfw）の middleware に admin ロールチェック追加。
+- 予約 PII の決済前開示（診断 §5）／その他アドバイザー WARN（search_path 等）。
 
 ---
 
