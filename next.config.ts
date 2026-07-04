@@ -40,6 +40,22 @@ const nextConfig: NextConfig = {
    *   Next.js が自動で引き継ぐため、GA4 の流入分類はリダイレクト後の /kinda-note 上で成立する。
    *   将来 bio 着地先を変える可能性があるため permanent: false（307・恒久キャッシュさせない）。
    */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
