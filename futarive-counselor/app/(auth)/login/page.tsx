@@ -20,11 +20,17 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const supabase = createClient()
-    const { error: loginError } = await supabase.auth.signInWithPassword({ email, password })
+    // ログイン失敗のカウント・10回失敗時のロックはサーバー側(/api/login)で行う。
+    // ここでは直接 Supabase にサインインせず、cookie 連携のため API 経由にする。
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+    const result = await res.json()
 
-    if (loginError) {
-      setError('おっと、メールアドレスかパスワードが違うようです')
+    if (!res.ok) {
+      setError(result.error ?? 'ログインに失敗しました')
       await logAuthEvent('login_failure', 'failure', { reason: 'invalid_credentials' })
       setLoading(false)
       return
