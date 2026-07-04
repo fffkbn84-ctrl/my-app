@@ -1,0 +1,21 @@
+name: OWASP ZAP Baseline Scan
+
+# 本番サイトに対する定期的な脆弱性診断（DAST）。
+# 週次で自動実行し、検出結果はワークフローのサマリーとIssueに残る。
+
+on:
+  schedule:
+    # 毎週月曜 4:00 UTC（正午すぎ JST）
+    - cron: '0 4 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ZAP Baseline Scan against kinda.jp
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: 'https://kinda.jp'
+          issue_title: 'ZAP脆弱性診断 週次レポート'
+          fail_action: false
