@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import Link from "next/link";
+import { jsonLdStringify } from "@/lib/jsonld";
 
 export type BreadcrumbItem = {
   label: string;
@@ -30,7 +31,7 @@ function BreadcrumbStructuredData({ items }: { items: BreadcrumbItem[] }) {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: jsonLdStringify(data) }}
     />
   );
 }

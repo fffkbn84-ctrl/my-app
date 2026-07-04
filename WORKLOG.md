@@ -4,6 +4,25 @@
 
 ---
 
+## 2026-07-04（Claude Code セッション：act/glow雛形確認・セキュリティ診断・counselor UX診断）
+
+### 完了
+- **Kinda act/glow の投稿用雛形**：新規作成は不要と判明。統括画面の実運用ブランチ `claude/futarive-admin-dashboard-iKBfw` に `/admin/shops/new`（新規登録）と `/admin/shops/[id]/edit`（編集）が既に存在し、`ShopForm`（1,024行）がバッジ3種（取材済み/相談所おすすめ/掲載店・既定は掲載店）・act/glow振り分け（thumb_variant）・推薦元相談所の紐付けまで対応済み。掲載許可のない店舗は「掲載店」バッジのまま登録すればよい。⚠️ main 側の `futarive-admin/` は古い残骸（ビルドも通らない）で、admin の実体は iKBfw ブランチ。
+- **セキュリティ診断**（詳細は `docs/security/security-audit-2026-07-04.md`）：
+  - 【重大・修正済】監査ログ集計ビュー3本（audit_suspicious_access 等）が anon から SELECT 可能で IP 等が公開状態 → REVOKE（マイグレーション `security_lockdown_audit_views_and_counselor_media`）。
+  - 【重大・修正済】counselor_media がログイン済みなら誰でも書き換え可能 → 本人/相談所オーナー/admin に限定。
+  - 【中・修正済】`/counselors/[id]` の JSON-LD に口コミ本文が未エスケープで埋め込まれ stored XSS 可能 → `src/lib/jsonld.ts` の `jsonLdStringify()` を追加して適用。
+  - 【重大・未修正（要設計判断）】slots の UPDATE が全ログインユーザーに無制限（`slots_update_authed`）。予約フローが直接 UPDATE に依存しているため、RPC 化してからポリシーを絞る必要あり（レポート参照）。
+  - 【中・未修正】決済前でも相談所オーナーが REST 直叩きで予約の連絡先 PII を読める／admin の middleware が admin ロールを確認していない。
+- **counselor 管理画面 UX 診断**：【重大・修正済】モバイルでカレンダー・写真・相談所プロフィール・請求履歴への導線が皆無だった → ドロワーに全8ページの「ページ」セクションを追加（`claude/fix-profile-creation-1clpG` に push 済み・ビルド検証済み）。その他の所見はセッション報告参照（全体として toast・エラー整形・確認ダイアログ・パスワードリセット完備で良好）。
+
+### 次
+- slots ポリシーの RPC 化（設計判断が必要・security-audit レポート §4）。
+- Supabase ダッシュボードで Leaked Password Protection を有効化（コード変更不要）。
+- admin（iKBfw）の middleware に admin ロールチェック追加。
+
+---
+
 ## 2026-06-29（Claude Code セッション：あつみ公開・返金モデル統一・Stripe審査準備）
 
 > このセッションで Claude Code 上で実装・整備した内容。SNS系（声ガイド/中の人）は別途下の 2026-06-29 セクション参照。
