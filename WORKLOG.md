@@ -28,9 +28,16 @@
 - **関数の search_path 固定**（診断 §7・修正済）：`update_updated_at` 等 6関数に `SET search_path = public`（マイグレーション `harden_function_search_path`・本番適用済み）。
 - **main へ反映**：JSON-LD XSS 対策＋slots RPC 化（client）を `claude/claude-mdwo-inqix4` から main へ fast-forward。本番（kinda.jp）デプロイをトリガー（同一コミットの preview build が READY を確認済み）。
 
+### §5 の追加調査結果と決定（2026-07-04・専用セッションに回す）
+- **調査で判明**：counselor の inbox / dashboard は `reservations` を Supabase Realtime（`postgres_changes`）で購読している。Realtime はテーブル RLS 依存かつ列マスク不可のため、
+  - 基底 SELECT を剥がすと inbox のライブ更新が壊れる、
+  - 基底 SELECT を残すとビューを足しても PII は Realtime/REST で読めて改善ゼロ。
+  → 「ビュー追加だけ」では直らず、**リアルタイム inbox の作り替えを伴う多段改修**が必要。
+- **決定**：severity は「中（自社宛てのみ・決済で正規開示＝クロステナント漏洩ではない運用リスク）」のため、**当面は現状維持で許容し、恒久対応は専用セッションで実施**（計画は `docs/security/security-audit-2026-07-04.md` §5 に記載）。ふうか選択＝「専用セッションに回す」。
+
 ### 次（未対応・要判断）
-- **診断 §5（予約PIIの決済前開示）**：あえて未修正。RLS は列マスク不可のため、counselor 実運用アプリ（1clpG）の予約読み取り複数箇所をマスキングRPC/ビュー経由に一本化＋基底テーブルのPII列権限を絞る横断変更が必要（壊れるリスクあり）。独立セッションで計画実施。
-- **Leaked Password Protection の有効化**（ふうかの Supabase ダッシュボード作業・コード不可）。
+- **診断 §5**：専用セッションで恒久対応（レポート §5 の5段手順に従う）。
+- **Leaked Password Protection**：8文字等のパスワード条件は設定済み・Free 継続で初期はこのまま運用する方針で**クローズ**（ふうか確認済み・2026-07-04）。
 - （任意）SECURITY DEFINER 関数群の anon EXECUTE 剥奪（現状も関数内 auth.uid チェックで実害小）。
 
 ---
