@@ -1,11 +1,43 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// admin は運営内部のみが使う画面のため、Supabase ログインの手前に共有パスワードの壁を置く。
+// ADMIN_BASIC_AUTH_USER / ADMIN_BASIC_AUTH_PASSWORD が Vercel env に未設定の間は
+// 従来どおり無効（移行期間中に誤って全員ロックアウトしないためのフェイルオープン）。
+function checkBasicAuth(request: NextRequest): NextResponse | null {
+  const expectedUser = process.env.ADMIN_BASIC_AUTH_USER
+  const expectedPassword = process.env.ADMIN_BASIC_AUTH_PASSWORD
+  if (!expectedUser || !expectedPassword) {
+    return null
+  }
+
+  const authHeader = request.headers.get('authorization')
+  if (authHeader?.startsWith('Basic ')) {
+    const decoded = Buffer.from(authHeader.slice(6), 'base64').toString('utf-8')
+    const separatorIndex = decoded.indexOf(':')
+    const user = decoded.slice(0, separatorIndex)
+    const password = decoded.slice(separatorIndex + 1)
+    if (user === expectedUser && password === expectedPassword) {
+      return null
+    }
+  }
+
+  return new NextResponse('Authentication required', {
+    status: 401,
+    headers: { 'WWW-Authenticate': 'Basic realm="Kinda Admin"' },
+  })
+}
+
 export async function middleware(request: NextRequest) {
   // /api/webhooks/* は外部システム（Supabase Database Webhook 等）からの POST を受け取るため、
   // 認証ガードの対象外にする。Route Handler 内で別途シークレット検証を行う。
   if (request.nextUrl.pathname.startsWith('/api/webhooks/')) {
     return NextResponse.next()
+  }
+
+  const basicAuthResponse = checkBasicAuth(request)
+  if (basicAuthResponse) {
+    return basicAuthResponse
   }
 
   let supabaseResponse = NextResponse.next({ request })
