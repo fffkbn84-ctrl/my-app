@@ -12,7 +12,8 @@ export const stripe: Stripe | null = STRIPE_SECRET_KEY
 
 export const STRIPE_ENABLED = !!STRIPE_SECRET_KEY;
 
-// 送客料：1 件 ¥5,000（JPY はゼロ十進通貨なので amount=5000 が ¥5,000）
-export const REFERRAL_FEE_JPY = 5000;
+// 送客料：契約書（agency-agreement.md 第6条）は ¥5,000（税別）＋消費税と定めているため、
+// 実際に課金する金額は税込 ¥5,500。JPY はゼロ十進通貨なので amount=5500 が ¥5,500。
+export const REFERRAL_FEE_JPY = 5500;
 
 // redeploy: Stripe env(STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET) 反映 2026-06-14

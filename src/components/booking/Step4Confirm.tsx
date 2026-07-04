@@ -107,7 +107,7 @@ export default function Step4Confirm({
       return;
     }
 
-    // 予約成立 → 相談所カードに送客料(¥5,000)を off_session 課金する。
+    // 予約成立 → 相談所カードに送客料(税込¥5,500)を off_session 課金する。
     // 課金の成否はユーザーの予約完了を妨げない（カード未登録・失敗は運営/相談所側で対応）。
     // 課金成功時は Stripe webhook が paid_at / user_info_visible を更新し、相談所に連絡先を開示する。
     if (result.reservationId) {
