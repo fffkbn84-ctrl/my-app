@@ -13,6 +13,93 @@ interface MobileTopBarProps {
   agencyName?: string
 }
 
+// ボトムナビは4項目しか置けないため、残りのページへはこのドロワーが唯一の導線。
+// サイドバー（デスクトップ）と同じ8ページをすべて載せる。
+const DRAWER_NAV_ITEMS = [
+  {
+    href: '/dashboard',
+    label: '最初に見る',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M2 7L8 2l6 5v7a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M6 14v-5h4v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/inbox',
+    label: '予約',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M2 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+        <path d="M2 9h3l1 2h4l1-2h3v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V9Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/profile',
+    label: 'プロフィール',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="5" r="3" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M2 13c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/reel',
+    label: '写真',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/>
+        <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+        <circle cx="8" cy="8" r="1" fill="currentColor"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/calendar',
+    label: 'カレンダー',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1" y="3" width="14" height="12" rx="2" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 1v4M11 1v4M1 7h14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/reviews',
+    label: '口コミへの返信',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H6l-3 2v-2H3a1 1 0 0 1-1-1V3Z" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M5 6h6M5 9h4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/billing',
+    label: 'Kinda 請求履歴',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M1.5 6.5h13" stroke="currentColor" strokeWidth="1.4"/>
+        <path d="M4 10h3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+  {
+    href: '/agency',
+    label: '相談所プロフィール',
+    icon: (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M2 14V6l6-4 6 4v8" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+        <path d="M6 14v-4h4v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+      </svg>
+    ),
+  },
+]
+
 export default function MobileTopBar({ accountName, agencyName }: MobileTopBarProps) {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -103,6 +190,16 @@ export default function MobileTopBar({ accountName, agencyName }: MobileTopBarPr
             </svg>
           </button>
         </div>
+
+        <nav className="kc-drawer-section">
+          <p className="kc-drawer-eyebrow">ページ</p>
+          {DRAWER_NAV_ITEMS.map(item => (
+            <Link key={item.href} href={item.href} onClick={closeMenu} className="kc-drawer-item">
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
 
         <nav className="kc-drawer-section">
           <p className="kc-drawer-eyebrow">アカウント</p>
