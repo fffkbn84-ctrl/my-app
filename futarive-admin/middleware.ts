@@ -106,6 +106,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // 2段階認証(TOTP)の強制。ADMIN_MFA_ENFORCED=true になるまでは無効
+  // （ふうか・船田の両名が登録＆動作確認を終えるまでの移行期間の安全策）。
+  if (user && isAdmin && pathname !== '/mfa' && process.env.ADMIN_MFA_ENFORCED === 'true') {
+    const { data: factorsData } = await supabase.auth.mfa.listFactors()
+    const hasVerifiedFactor = (factorsData?.totp ?? []).some(
+      (f: { status: string }) => f.status === 'verified'
+    )
+    if (!hasVerifiedFactor) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/mfa'
+      return NextResponse.redirect(url)
+    }
+
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+    if (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/mfa'
+      return NextResponse.redirect(url)
+    }
+  }
+
   return supabaseResponse
 }
 
