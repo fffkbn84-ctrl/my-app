@@ -76,17 +76,34 @@ Square 1:1 composition.
 
 ### 各カードの 【SCENE】（4枚を同じ日・同じ設定で連続生成する）
 
-| カード | 色 | 【SCENE】に入れる英語 |
-|---|---|---|
-| **type**（診断） | 青 | `a tiny cozy consultation nook: a small wooden desk with a questionnaire card and a pastel signpost, and a wall chart showing four simple personality icons — a room that says "find the type that fits you"` |
-| **talk**（相談） | 黄 | `an empty counseling room: two soft armchairs facing each other across a low table with two teacups, a warm floor lamp and a small bookshelf` |
-| **act**（お見合い・デート） | 桃 | `a retro Japanese cafe interior for two: a little table by a lace-curtain window with a cream soda and a pudding, two empty chairs, a warm hanging lamp`（※すでに生成済みの kinda-act ジオラマを流用可） |
-| **glow**（自分を整える） | 紫 | `a small dressing room: a lit vanity mirror, a single chair, a cosmetics cart, soft towels` |
+> **2026-07-03 決定（B案）**：4部屋は暖色ベージュのままだと色味が似すぎるため、
+> 部屋ごとに**そのサービス色の"小物を1つ"だけ**効かせて区別を付ける（壁ごと塗らない＝ブランド維持）。
+> 小物は目立つ位置（テーブル上・椅子・棚）に1点。共通テンプレートの末尾にこの一文を足す：
+> `Add ONE clearly-colored accent object in <COLOR> as the only strong color pop in the room.`
+
+| カード | 色 | 色の小物（<COLOR>） | 【SCENE】に入れる英語 |
+|---|---|---|---|
+| **type**（診断） | 青 | soft blue | `a tiny cozy consultation nook: a small wooden desk with a questionnaire card and a pastel signpost, and a wall chart showing four simple personality icons. Add ONE soft-blue accent object (a blue book / a blue cushion on the chair) as the only strong color pop` |
+| **talk**（相談） | 黄 | warm yellow | 下の「talk 専用」を参照（2パターン検討） |
+| **act**（お見合い・デート） | 桃 | rose pink | `a retro Japanese cafe interior for two: a little table by a lace-curtain window, two empty chairs, a warm hanging lamp. Add ONE rose-pink accent object (a pink parfait / a pink rose in a vase) as the only strong color pop`（既存 kinda-act ジオラマを流用する場合は小物追加のため再生成推奨） |
+| **glow**（自分を整える） | 紫 | lavender | `a small dressing room: a lit vanity mirror, a single chair, a cosmetics cart, soft towels. Add ONE lavender accent object (lavender flowers in a vase / a lavender towel) as the only strong color pop` |
+
+### talk 専用（カウンセラーを探す場所と伝える・2パターン比較）
+
+talk は「担当（カウンセラー）に会う」＝送客の本命導線。「向き合う椅子2脚」だと"ただのラウンジ"に見え、相談所と伝わりにくい。
+下の2つを生成し、**速く「カウンセラーがいる場所」と伝わる方を採用**する：
+
+- **(A) 人形なし・カウンセラーのデスク型**（まずこちらを試す。空室ルール維持）
+  `an empty counselor's office: a wooden counseling desk with a small blank nameplate stand and an open appointment book, one welcoming visitor chair facing it, a warm lamp and a bookshelf. Add ONE warm-yellow accent object (a yellow lamp glow / yellow flowers) as the only strong color pop`
+- **(B) カウンセラー人形1体**（Aで伝わらない時の例外。talk のみ人物可）
+  `a warm counseling room with ONE miniature clay counselor figure seated behind a small desk, smiling gently and welcoming, one empty visitor chair facing her. Add ONE warm-yellow accent object as the only strong color pop`
+
+> ⚠️ talk に人形を採用する場合、**CLAUDE.md §4 の「カード=空室／人物=ヒーロー等のみ」ルールに talk 例外を追記**する
+> （「talk カードのみ、送客導線として"迎えるカウンセラー1体"を許容」）。採用確定後に Claude Code 側で追記。
 
 - 生成後、Claude Code に「4枚を section カードに差し込んで」と渡す（各 `public/images/section-<key>.webp` に WebP 化・配置・ビルド・PR まで実施）。
-- act は既存の `kinda-act-hero.webp` の正方形クロップでも可（新規生成の手間を省ける）。
 
 ## 展開順（確定後）
 
-戸棚B（升目UI）を先に確定 → 4部屋画像を空室セットに差し替え → 装飾（角飾り・小さなラベル）を最後に微調整。
+戸棚B（升目UI）を先に確定 → 4部屋を色小物付きに差し替え（talk はA/B比較で選定）→ 装飾（角飾り・小さなラベル）を最後に微調整。
 天気カード・トップヒーローは**人物ありのまま維持**（ふうか方針）。
