@@ -4,6 +4,39 @@
 
 ---
 
+## 2026-07-04（Claude Code セッション：Stripe本番審査・セキュリティ対策措置状況申告 対応）
+
+> Stripe 本番環境の有効化をふうかがダッシュボードで進行中、審査の一環で「セキュリティ対策措置状況申告書」の提出を求められた。必須項目（管理者画面のアクセス制限・脆弱性診断・不正ログイン対策 等）を満たすためにコード/インフラを実装したセッション。
+
+### 完了（各系統に直接 push・実機確認済み）
+- **料金を税込 ¥5,500 に統一**：契約書 第6条「¥5,000（税別）＋消費税」に対し実装は ¥5,000 ちょうどだったズレを修正。`src/lib/stripe.ts`（`REFERRAL_FEE_JPY=5500`）＋ partners/transparency の表示。※ブランチ `claude/stripe-production-deployment-sshgj2` 止まり・main 未マージ。
+- **セキュリティヘッダー＋Dependabot**：`next.config.ts` に `headers()`（X-Frame-Options/X-Content-Type-Options/Referrer-Policy/Permissions-Policy）、`.github/dependabot.yml`（npm 週次）。CSP は GA4/JSON-LD と衝突リスクが高く今回見送り。
+- **脆弱性診断の自動化（申告項目3）**：`.github/workflows/codeql.yml`（SAST・push/PR/週次）と `zap-baseline-scan.yml`（OWASP ZAP Baseline で本番 kinda.jp に週次 DAST）。手動ペネトレは未実施だが自動診断で代替し「定期実施」を満たす。
+- **ファイルアップロード制限（申告項目2）**：Supabase Storage `agency-media` バケットに MIME（image/jpeg,png,webp,gif）＋5MB 上限を追加（`counselor-media`/`shop-media` は既設だった）。
+- **admin ログインの多層防御**（ブランチ `claude/futarive-admin-dashboard-iKBfw`）:
+  - Basic 認証（middleware・env `ADMIN_BASIC_AUTH_USER`/`ADMIN_BASIC_AUTH_PASSWORD`）＝申告1a。
+  - 10回失敗で30分ロック（`login_lockouts` テーブル・service_role 専用・RLS 全拒否／`/api/login` に集約）＝申告1c・6。
+  - 2段階認証 TOTP（`app/mfa/page.tsx`・middleware で env `ADMIN_MFA_ENFORCED=true` のとき AAL2 強制）＝申告1b。認証アプリ登録→コード入力→強制まで実機確認済み。
+- **counselor ログイン**（ブランチ `claude/fix-profile-creation-1clpG`）：admin と同じ `login_lockouts` を共用し10回失敗30分ロックを追加。counselor の Vercel に `SUPABASE_SERVICE_ROLE_KEY` を新規設定。
+
+### 決定
+- **counselor の Basic 認証・IP 制限・MFA は見送り**。外部の多数相談所が使う画面で共通パスワード/IP 制限は構造的に不適、MFA 全員強制は現場負荷・離脱リスク大。counselor は個別アカウント認証＋10回ロックで担保する方針をふうかと合意。
+- **申告フォームは AGOGLIFE アカウント全体を問う**ため、admin に 2FA を実装すれば「二段階認証：実施」で回答できる、と整理。
+- ロック時間は 30 分（誤操作でも自力復旧できる・回線少人数運用に妥当）。MFA/ロックの env は「未設定なら無効」のフェイルオープン設計にし、登録・確認を終えてから env を有効化する段取りにした。
+
+### つまずき・学び（次回のために重要）
+- **admin の Redeploy 事故が頻発**：ふうかが Vercel の Redeploy で `main`/Production の行（＝ずっと ERROR の実体なし系統）を叩いてしまい「エラーが出た」となる場面が複数回。実際の MFA/ロックのコードは `claude/futarive-admin-dashboard-iKBfw` の Preview で READY だった。→ TODO に「admin デプロイの落とし穴」を新設し、Claude がふうかに Redeploy を頼む時は**必ずブランチ名まで指定**、確認 URL は**ブランチ固定エイリアス**、確認は**シークレットウィンドウ**、と明文化。
+- **env 変更は Redeploy しないと反映されない**。「env を入れたのに効かない」の一次原因はほぼこれか、古いデプロイ URL を見ていること。
+- **Basic 認証は Safari が資格情報をキャッシュ**するため、「効いているか」の確認は必ず別セッションで。ふうかが当初「Basic のポップアップで10回ミス」と誤解した（正しくは Basic 通過後の Supabase ログインで10回）ように、2段構え（Basic → アプリ内ログイン）の切り分けを丁寧に案内する必要がある。
+- この環境（Claude 実行側）から Vercel の Preview URL へは proxy 制限で直接 curl できない。動作確認は Vercel MCP の runtime logs／list_deployments と、ふうかの実機に頼る。
+
+### 次
+- ふうか：Stripe のセキュリティ申告書を送信 → 審査。通過後に本番 Webhook 作成＋live キーを `my-app-rp9u`/`futarive-counselor` の Vercel env へ → 実カードで少額課金→返金の疎通確認。
+- 税込 ¥5,500 の料金修正を main にマージ（現状ブランチ止まり）。
+- （任意）船田も自分の端末で admin MFA 登録。
+
+---
+
 ## 2026-07-04（Claude Code セッション：act/glow雛形確認・セキュリティ診断・counselor UX診断）
 
 ### 完了
