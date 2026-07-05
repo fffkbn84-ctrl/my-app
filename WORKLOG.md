@@ -75,6 +75,48 @@
 
 ---
 
+## 2026-07-02 追補2（UI改善2件・ミニチュア画像ガイド・コールドメール日程化）
+
+### 完了
+- **PCの下部モバイルタブバー表示バグ修正**：`BottomNav` はインライン style の `display:flex` が `md:hidden` クラスを上書きして PC でも表示されていた → display をクラス側（`flex md:hidden`）へ移動。
+- **ホームヒーローにカウンセラー導線追加**：主CTA直下に「担当（カウンセラー）を口コミから見る」テキストリンク（→ /kinda-talk・`.ktp-hero-counselor-link`・控えめ設計）。
+- **見た目レビューのクローズ**：talk サブコピー／type 余白／Summer バッジ／夜明け前の暗さは実機確認により対応不要（ふうか判断）。見出し改行はふうかのスクショでも「日々ま／で。」で発生（幅依存）だが今回は対応対象外。
+- **ミニチュア世界観の画像ガイド**：`docs/guides/miniature-image-guide.md` ＋ Notion 同名ページ。第1弾は **/kinda-act ヒーロー**（`public/images/kinda-act-hero.webp` 差し替え方式）。ChatGPT 用プロンプト確定。
+- **コールドメール日程を Notion 運営カレンダーに投入**：7/8 準備（BELMA 50社リスト＋文面実値化）→ 7/10 第1波50社 → 7/17 レビュー → 7/21 第2波100社 → 8/4 第3波100社（`docs/sales/kinda-cold-email-v1.html`／`kinda-list-strategy-v1.html` 準拠。送信は必ずふうか・特定電子メール法フッター要確認）。
+
+---
+
+## 2026-07-02 追補（voices 実体判明・TODO全面整理・Notion運営カレンダー・X下書きv2改定）
+
+### 重要な訂正
+- **Kinda voices の実体は既存 `/columns`**（サイト名称「Kinda voices」・29件公開中・カテゴリに取材レポート）。同日前半に作った `/kinda-voices` 専用ルートは重複のため**撤去**。取材記事は columns MDX（category 取材レポート）で投稿する（CLAUDE.md §11 に実体ルート明記・`/kinda-voices` Skill を書き直し）。
+
+### 完了
+- **TODO.md 全面整理**：重複統合・完了退避。全文アーカイブは `docs/archive/todo-full-archive-2026-07-02.md`。`/repo-tidy` Skill 新設（月次棚卸し用）。
+- **bio 二層化を憲法に反映**（ふうか決裁）：CLAUDE.md §2・sns-handoff §3 改定。実作業はふうか（Notion 運営カレンダー 7/3）。
+- **Notion**：「運営カレンダー（TODO・計測日程）」DB 新設（database 85fd412b…／collection a297d3e5-e333-4813-bbdb-29b61a23eb22）。週次計測（月曜）・週次 sns-pack（日曜）・隔週レビュー・月次計測・月次棚卸し・単発ふうか作業を 16 件投入。「SNS運用マップ」ページ新設。AI運用手順ページの voices 記述を訂正。
+- **X投稿カレンダー 7/3以降を v2 点検**：書き換えは B柱 3本のみ（7/3 初回相談無料・7/7 担当変えてもいい・7/9 合う担当＝冒頭に検索語「結婚相談所」を追加）。7/10「入ったら逃げられない？」は既に冒頭にあり不要。A/C/D/F は v2 と整合のため変更なし。
+- **サイト見た目レビュー実施**（ローカル起動＋スクリーンショット）：改善点はチャット報告参照（PCヒーローの改行/余白・PCに出るモバイルタブバー・talkヒーローのサブコピー低コントラスト・type PC の空白等）。
+
+---
+
+## 2026-07-02（Claude Code セッション：AI業務改善キット・voices インフラ・SNS方向性 v2）
+
+### 完了
+- **AI業務改善キット導入**（ブランチ `claude/kinda-automation-strategy-4g1k5y`・main 未マージ）：
+  - Skill 4本：`/sns-pack`（1ソース→X/IG/note一括生成→Notion下書き投入・実投稿はしない）／`/sns-review`（実績→伸びた型→翌週方針）／`/kinda-column`／`/kinda-story`（同意ゲート付き）。
+  - `npm run qa:content`（scripts/content-qa.mjs）：絵文字・NG語（中立/焦らせ）・story 同意整合性（agency非同意なのに相談所名あり等）・コラム frontmatter 必須・Review/Rating 禁止スキーマを機械チェック。既存データで検証済み（error 0 / warn 11：モック story 4本の consent 未記録、旧コラム3本の atomicAnswer/faq なし）。
+  - `docs/ops/ai-ops-playbook.md`：業務マップ・自動化候補15案・運用手順。`docs/sns/metrics/`：計測CSV基盤。
+- **Kinda voices 記事インフラ実装**（`/kinda-voices` 一覧＋`[slug]` 詳細）：ks-* 既存意匠を再利用。Article(+Person)/FAQPage JSON-LD のみ。`src/lib/mock/voices.ts` に published フラグ制の雛形。公開0件の間は「準備中」表示・sitemap 非掲載。1本目を入れれば公開が始まる。
+- **metadataBase の古い注記を訂正**：コードは既に kinda.jp（本番 og:url/og:image 出力で確認）。CLAUDE.md §10 の「要修正」注記を削除。
+- **Notion「Kinda 運営ダッシュボード」に2ページ新設**：「SNS発信方向性 v2 — 顕在需要ドリブン」（結婚相談所ワード戦略：発見面は検索語・世界観は語り方で守る／柱B主力化／縦型動画試験／bio二層化は要ふうか決裁）／「AI運用手順」。
+
+### 決定・持ち越し
+- 「結婚相談所」ワードは隠さず**発見面（検索・投稿冒頭・ハッシュタグ・SEO）で取りに行く**方針を提案。bio への機能記述追加は CLAUDE.md §2 の改定を伴うため**ふうか決裁待ち**。
+- ブランチを main にマージする際は tip がコード変更（src/scripts/package.json 含む）なので Vercel ビルドは走る想定。マージ後 production READY を確認する。
+
+---
+
 ## 2026-06-29（Claude Code セッション：あつみ公開・返金モデル統一・Stripe審査準備）
 
 > このセッションで Claude Code 上で実装・整備した内容。SNS系（声ガイド/中の人）は別途下の 2026-06-29 セクション参照。

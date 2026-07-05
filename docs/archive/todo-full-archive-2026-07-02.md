@@ -1,0 +1,786 @@
+# TODO.md — タスク管理・次セッションへの引き継ぎ
+
+> このファイルは **「次に何をやるか」「今どこまで進んでいるか」** を 1 枚で把握するためのもの。
+> 完了した項目は履歴として残してよいが、行頭を `- [x]` にして本文を 1 行に圧縮する。
+> 詳細な実装メモは `WORKLOG.md`、画像周りの監査は `docs/image-audit.md` を参照。
+
+最終更新: 2026-06-29
+
+---
+
+## 📌 次セッション引き継ぎ（最初に読む）
+
+### 開始手順（ユーザーサイト作業の場合）
+1. `git fetch origin` → **`git checkout -B <feature> origin/main`**（ローカル main は信用しない＝CLAUDE.md §10 デプロイ前チェック）。
+2. 作業 → push → プレビュー確認 → main マージ。
+3. ⚠️ **counselor/admin は別系統**：`futarive-counselor/` は `claude/fix-profile-creation-1clpG`、`futarive-admin/` は `claude/futarive-admin-dashboard-iKBfw`。これらのブランチは **src/ が古い別履歴**なので、編集は各サブディレクトリ配下だけに限定し、作業後 main に戻すこと。
+
+### ⚠️ デプロイの落とし穴（2026-06-17・必読）
+- **my-app-rp9u の Ignored Build Step は `git diff --quiet HEAD^ HEAD -- src public content package.json next.config.ts tsconfig.json`**。main の HEAD（最後のコミット）に src 等の差分が無いと **ビルドをスキップ（CANCELED）し、コードが本番に出ない**。
+- **再発防止：docs-only コミットを main の最後に置かない**（docs を先・コード変更を後、もしくは同一コミットに）。コードを main に出した後は **Vercel で production デプロイが READY か必ず確認**（CANCELED=約3秒で終了ならスキップされている）。
+- 復旧：src に無害な変更を1つ入れて main に積み直せばビルドが走る（例：`4de22d5`）。詳細は WORKLOG 2026-06-17。
+
+### 🆕 2026-06-29 Stripe 本番審査（保留＝再開時にここから読む）
+
+> 料金・返金まわりのコード/文書整備は完了。残りはふうかの Stripe ダッシュボード作業。詳細手順は WORKLOG／CLAUDE.md §12／`docs/implementation/claude-code-stripe-resend-implementation.md`。
+
+#### ✅ 完了（コード/文書側）
+- [x] 返金モデルを現行（予約確定で即時課金・原則返金なし・例外は運営の個別判断）に全文書統一（契約書/B2B特商法/実装指示書/営業材料）。死にコード `isWithinBillingGrace` 削除。
+- [x] 特商法に法人実値（株式会社AGOGLIFE）記載済み。`charge`/`refund` エンドポイント実装済み。
+- [x] 営業資料は柔らかい言い回し／法務書類は厳密表現で役割分担。
+
+#### ⏳ ふうかのダッシュボード作業（これで審査に出せる）
+- [ ] Stripe アカウント有効化：事業形態=法人／法人名=株式会社AGOGLIFE／代表者KYC／入金用銀行口座。
+- [ ] 事業説明に「相談所への成果報酬 ¥5,000・消費者は無料」を明記。サイトは kinda.jp（特商法/規約/プライバシー閲覧可）。
+- [ ] 本番 Webhook（`https://kinda.jp/api/stripe/webhook`）を登録 → `whsec_` 取得。
+- [ ] `sk_live_`／`pk_live_`／`whsec_` を **Vercel 本番 env** に設定（`.env.local` でなく Vercel・GitHub に push しない）。
+- [ ] 審査通過後、実カードで少額テスト課金 → 返金で疎通確認。
+- [ ] （任意）顧問弁護士レビュー。
+- [ ] **Google Workspace 契約 → `@kinda.jp` 送信を有効化**（受信 MX は設定済み）。Resend 送信元・Stripe 審査の信頼性に寄与。日割り＋14日無料トライアルのため開始日の損得なし＝早めでよい。
+
+---
+
+### 🆕 2026-06-29 ふうかの声ガイド・X「中の人」パイロット
+
+#### ✅ 完了
+- [x] 「声を2層に分ける」モデル確定（ブランドの声=穏やか/ふうかの声=クスッOK）。
+- [x] ふうかの声ガイド作成（レジスター・笑いの的OK/NG・置き場所・3秒チェック）。
+- [x] Notion X投稿カレンダーに柱F「中の人」新設＋中の人10本を下書き投入（昼12時台中心・全部追加）。
+
+#### ⏳ 未着手
+- [ ] X日次運用（朝=柱/昼=中の人/夜=柱・リプ全返し）。中の人(柱F)の伸びを別計測。
+- [ ] 7/2「担当」のリプリンク＝コラム本番URL確定後に記入。
+- [ ] 2週間後に柱Fをレビュー→伸びた型を厚く次を生成。
+
+---
+
+### 🆕 2026-06-28 X運用開始・声方針・Voices製品判断
+
+#### ✅ 完了
+- [x] Xの2026アルゴリズム調査→5本柱戦略確定（kinda-x-strategy-calendar-v1.md）。
+- [x] Notion「X投稿カレンダー」DB新設＋2週間分投入。週次ローテ確定。
+- [x] X運用6/28開始：6/27 note開設告知（記録・投稿済）／6/28 IGリールクロス告知／6/28 21時C問いかけ（投稿済）。
+- [x] 7/10のnote告知は固定ツイートと重複→E廃止しBに差し替え。6/27行に開設告知を投稿済記録。
+- [x] 声の方針決定：朗読系（天気の言葉/季節哲学/つくる日記）採用。面白い系は慎重・別枠。
+- [x] Kinda Voices製品案（コスメ/ヘアオイル等）は見送り判断（核衝突・包摂性・薬機法/ステマ/景表法・Voices不適合）。
+
+#### ⏳ 未着手
+- [ ] コラム6本の本番URL確認→Notionリプリンク修正（最優先）。
+- [ ] X日次運用（朝1/夜1・リプ返信80%）。計測開始。
+- [ ] 声の朗読リール試作（任意）。
+
+---
+
+### 🆕 2026-06-28 X運用戦略確定・Notion X投稿カレンダー実装
+
+#### ✅ 完了
+- [x] **Xの2026年アルゴリズム調査**：評価は「数」でなく行動予測・Author Diversity（連投は食い合い）・会話加点（自リプ+150/リプ+54/プロフ+24）・外部リンクは本文NGでリプへ・Xはテキスト主役。
+- [x] **X運用戦略 v1 確定**（5本柱A天気/B相談所リアル/C問いかけ/Dつくる日記/E告知・週12〜13本・朝夜分散）。成果物 `kinda-x-strategy-calendar-v1.md`。
+- [x] **Notion「X投稿カレンダー」DB新設**（運営ダッシュボード直下・IGと同構造・table＋calendar）。database_id `2c2b426bf123473894a98c1adcff2947`。
+- [x] **2週間分25投稿を投入**（6/28〜7/12・全て実例コピー・下書き済）。6/28(日)夜Cを先頭に追加し当日スタート可能に。
+- [x] **GA4 `notify_signup` キーイベント登録完了**（前セッション継続タスクを消化・ふうか操作）。
+
+#### ⏳ 未着手（ふうか）
+- [ ] **コラム5本の本番URL確認**：B/E投稿リプリンク欄の `kinda.jp/columns/[スラグ]` は推定。スラグ実在ルール（CLAUDE.md）に沿って確認・修正。該当：counselor-de-erabu-soudanjo（Pillar）／soudanjo-to-konkatsu-app-chigai／kekkon-soudanjo-ryokin-no-mikata／counselor-tantou-henkou／shokai-mendan-de-miru-koto。note創業ストーリーは確定 https://note.com/kinda_jp/n/ndd5a4776cc13 。
+- [ ] **X運用開始**：朝1/夜1・リプ返信率80%・能動リプ数件。Notion下書きをコピペ投稿。
+- [ ] 2週間後、伸びた型をA天気の言葉に寄せて増やす。
+
+---
+
+### 🆕 2026-06-27 X初投稿・IG3シリーズ確定・投稿スケジュール・Notion連携
+
+#### ✅ 完了
+- [x] **X（@kinda_jp）初投稿＋固定ツイート化**：案A（noteリンク付き開設告知）。3媒体（note・IG・X）の看板が揃った。
+- [x] **IG 3シリーズ構成を確定**：天気リール（週1）＋季節×哲学リール（週1）＋つくる日記カルーセル（隔週〜週1）。リール重視に方針転換（カルーセル偏重を修正）。
+- [x] **投稿案2（夏×哲学リール）制作完了・下書き保存**：3カット動画、テキストは最終カットに1行「急がなくていい夏。」のみ。キャプション確定。
+- [x] **夏パレット方針確定**：7月の投稿はサイトヒーローに合わせた青緑基調（turquoise/light blue/sandy beige/tropical green）。投稿案1以降に適用。
+- [x] **リール制作ルール確定**：テキストは最終カットに1行だけ、詳細はキャプションで。Made with AI必須。ハッシュタグ固定テンプレ。
+- [x] **投稿時間の最適解確認**：リール＝20:00〜21:00、カルーセル＝10:00〜11:00 or 17:00。
+- [x] **動画生成ツール方針**：CapCut＋Canva併用、無料枠で運用。
+- [x] **Notion連携**：「Kinda 運営ダッシュボード」ページとIG投稿カレンダーを作成。投稿管理をNotionで一元化。
+- [x] **投稿案1（夏×日記カルーセル）を軽微修正**：今夏のトレンドカラーを使う投稿へシフト。
+
+#### ⏳ 未着手
+- [ ] **投稿案1（夏×日記カルーセル）制作**：プロンプト・キャプション確定済み、画像生成から着手。トレンドカラー適用。7/1投稿予定。
+- [x] **GA4 `notify_signup` キーイベント化** → **登録完了（2026-06-28・ふうか操作）**。メール登録の計測が有効に。
+- [x] **Kinda story 投稿原稿** → 第1本目「あつみさん」を `/kinda-story/atsumi-20s-mayoi` で公開（2026-06-27）。詳細は WORKLOG「2026-06-27 追補・方針転換」参照。
+
+#### 📌 Kinda story の今後の投稿スタイル（2026-06-27 確定・以後これに従う）
+> 実体は **`/kinda-story`**（`src/lib/mock/stories.ts` のリスト方式）。MDX 方式（`/story`）は廃止。新規 Story は下記手順で追加する。
+1. `src/lib/mock/stories.ts` の `STORIES` 配列の**先頭**に 1 オブジェクト追加（既存を 1 件コピーして書き換えるのが速い）。
+2. **クレイ画像は指定しない**。`stage`（成婚/交際中/活動中）から自動で出し分く（seikon/kosai/katsudo）。記事ごとの画像生成は不要。
+3. **同意の範囲を `consent` に必ず記録**（web/sns/agency/photo/date）。撤回対応の記録用。
+4. **相談所名が非公開**（`consent.agency=false`）の時は `counselorId/agencyId=0`＋名前空欄（著者カードが自動で消える）。**実名はコードにも書かない**（mock はクライアント配信されるため）。自社関与なら本文末尾に透明性の一文。
+5. `faq`（質問形2問）→ 記事内 FAQ＋FAQPage 構造化データに自動反映。`relatedWeather`（天気2本）→ 内部リンク欄に自動反映。
+6. 構造化データは **Article + FAQPage のみ**（Review/Rating/AggregateRating は付けない＝ステマ規制・広告誤認回避）。
+7. トーン：成婚をゴールに煽らない・仮名/年代ぼかし既定・実写なし・絵文字なし（CLAUDE.md §5・§2 準拠）。
+
+### 🆕 2026-06-24 夕 追加（アバター記録／ファウンダーページ／Kinda talk通知登録）
+
+#### アバター（記録）
+- [x] **ふうか／さき のクレイアバター完成・GitHub保存済み**：`public/images/fuka-profile.webp`・`public/images/saki-editor.webp`（2026-06-21 コミット）。CLAUDE.md §3「顔出しせず・クレイ像を著者アイコンに」と整合。
+- [x] **アバターのサイト適用**：`/about/founder` のバイライン（さき）・インタビュー本文（ふうか・さき）にクレイアバター画像を適用（2026-06-26）。`/about` のチームグリッドはイニシャル丸で統一のまま（不揃い回避）。
+
+#### ファウンダーページ `/about/founder` ✅ 完了（2026-06-26・main `bab323e` 本番反映）
+- [x] note 創業Story（v3・取材形式／聞き手さき）を `/about/founder` として専用ページで実装。アバター（ふうか/さき webp）適用。
+- [x] **内容レビュー決定（ふうか確定）**：「身体目的の人や、既婚者が紛れていて」→「安心して活動しづらい相手が紛れていて」に修正適用済み。
+- [x] 構造化データ Article（著者=さき）・canonical・OGP・パンくず。`/about` からの内部リンク（ふうかカード末尾）。sitemap 追加。
+
+#### Kinda talk 空状態→通知登録＋サンプル分離 ✅ 完了（PR #25・本番反映）
+> ルートは `/kinda-talk`（指示書の `/talk` ではない）。実データは Emma（小山楓華）1人、サンプル12件は全て「（サンプル）」付き。ふうか修正：Emmaは常時表示／隠すのは架空12件のみ。
+- [x] Supabase `notify_signups`（email/source/created_at・lower(email) unique・RLS有効/ポリシーなし）＝service_role経由のみ書込。migration 041（本番DB適用済）。
+- [x] `/api/notify`（service_role挿入・email検証・23505冪等・env未設定時のみ500）。
+- [x] `NotifySignup.tsx`（厳選＋メール登録・`<form>`不使用・onClick・Kindaパレット・絵文字なし・GA4 `notify_signup`・診断は二次導線で内包）。
+- [x] `KindaTalkClient`：`isDemo` を `?preview=1` の裏に隠す（実データ常時表示）。点線tease2枚撤去→実カード隣に `NotifySignup` パネル1枚。
+- [x] `CounselorReelCard`：`reviewCount===0` は星(0.0)でなく「レビュー募集中」。
+- [x] DB：Emma（小山楓華）のテストレビュー2件を `is_published=false`（trigger で `review_count`→0）。可逆。
+- [x] **Vercel env `SUPABASE_SERVICE_ROLE_KEY` 設定確認済み**（ふうか・2026-06-26）。`/api/notify` は動作可能。
+- [ ] **（ふうか・残）** GA4で `notify_signup` をキーイベント化／営業は `https://kinda.jp/kinda-talk?preview=1` を使用。
+- [ ] **（要検討）** 実カウンセラーがEmma1人のため、本番 `/kinda-talk` は「Emma1枚＋通知パネル」表示。実カウンセラーを増やすまではこの見え方。
+
+### 🆕 2026-06-24 コラム「結婚相談所の選び方」クラスター6本完成
+
+> SEO本丸の第一歩。非天気の情報系Pillar＋各論で「結婚相談所 選び方」系ロングテールを取りに行くクラスター。
+> 詳細は WORKLOG 2026-06-24。
+
+- [x] **新カテゴリ「結婚相談所の選び方」追加**（`ColumnsClient.tsx` の `CATEGORIES`/`CATEGORY_ORDER` 先頭・PR #23）。スキーマ（`columns.ts`）は `category`=string・`weatherKey`=任意で変更不要。
+- [x] **Pillar 1本**：`counselor-de-erabu-soudanjo`（どこより誰で選ぶ・相性の見極め・featured）。PR #23。
+- [x] **各論5本**（author=さき・weatherKeyなし・featured:false）：`kekkon-soudanjo-ryokin-no-mikata`（料金）／`counselor-tantou-henkou`（担当変更）／`shokai-mendan-de-miru-koto`（初回面談）／`soudanjo-to-konkatsu-app-chigai`（アプリ違い）／`soudanjo-nyukai-nagare-shorui`（入会の流れ）。PR #24。
+- [x] **双方向リンク循環成立**：Pillar末尾に「あわせて読みたい」5本、各論→Pillar、入会→面談/料金/担当変更の横リンク。内部 `/columns` リンク全12本が実在解決＝**404ゼロ**。
+- [x] 各論5本とも canonical／JSON-LD Article(author=さき)＋FAQPage(各4問)／atomicAnswer／動的og:image／sitemap自動追加／一覧カテゴリ6本表示 を生成HTMLで確認。**本番 `128ac7f` READY**。
+- [x] **GSC 手動インデックス登録（ふうか・2026-06-26 完了）**：Pillar＋各論5本＋`/columns` 全て登録済み。
+- [ ] （次の執筆）この柱にぶら下げる各論の追加候補を claude.ai と決定。各論↔柱の相互リンクでクラスターを育てる。
+
+### 🆕 2026-06-23〜24 IG bio着地本番化／GA4計測／カルーセル投稿／SEO実機診断→修正フェーズ完了
+
+#### ✅ 完了
+- [x] **`/note` → `/kinda-note` 307 リダイレクト**（`next.config.ts`・UTM保持・PR #21 squash→main `10d24a6`→本番 READY）。bio 短縮URL `https://kinda.jp/note?utm_source=instagram&utm_medium=bio&utm_campaign=launch` が `/kinda-note` に着地。`/note/weather/[slug]` には影響なし（完全一致）。
+- [x] **GA4 計測の実態確認**：診断完了の実イベントは **`kinda_note_complete`**（引き継ぎ文書の `note_diagnosis_complete` は誤記）。リアルタイムで発火確認済み。
+- [x] **創業カルーセル7枚 投稿済み**（ピン留め・Made with AI ラベル対応・テンプレ確定）。
+- [x] **bio 整備（両方）**：note・X の Emma 記述削除 ＋ IG bio に UTM付き `/note` リンク設置。
+- [x] **SEO 実機診断 完了**（claude.ai が Vercel web_fetch で本番HTML直接診断）：土台健全・インデックスゼロは新規未クロールが主因。robots/sitemap/天気ページ noindex無し等は問題なし。
+
+#### ✅ 完了（ふうか操作）
+- [x] **GA4 キーイベント昇格**：`kinda_note_complete` を「最近のイベント」タブで☆付与＝キーイベント化（2026-06-24 完了）。これで IG流入→診断完了の転換率がコンバージョンとして見える。
+
+#### 🔧 SEO修正フェーズ（`seo-diagnosis-www-fix` 由来）
+- [x] **① www / non-www 統一（最優先・技術SEO）**：Vercel ドメイン設定で `www.kinda.jp → kinda.jp` を **308 リダイレクト**、`kinda.jp` は Production 接続・リダイレクトなし（＝プライマリ）。実機で `www.kinda.jp/kinda-note` → `kinda.jp/kinda-note` 転送を確認（2026-06-24 完了・ふうか操作）。
+- [x] **② 天気ページの og:image 補完（Code）**：`/note/weather/[slug]`・一覧 `/note/weather` の `openGraph.images`/`twitter.images` に `OGP-hero.jpg` を明示（親 layout の og:image を継承できず欠落していた）。PR #22→main `c105d72`→本番 READY。※実機確認で **columns は `opengraph-image.tsx` で自動出力済・result も設定済**＝対象外（診断の「コラムも欠落」は非該当）。
+- [x] **③ kinda-note 系の canonical 明示（Code）**：`/kinda-note`・`/kinda-note/quiz` は client component のため `layout.tsx` を新設し自己参照 canonical＋固有 title/description を付与。result は既存 canonical 維持。PR #22。
+- [x] **sitemap に `/kinda-note` 追加**（bio着地＆SEO入口の実ギャップ）。PR #22。
+- [x] **URL構造の確認結果**：診断の「`/kinda-type/quiz` と `/kinda-note/quiz` の不整合」は**別機能で両方正規**（type＝相性チェック送客／note＝気持ち整理）＝修正不要と確定。
+- [x] **構造化データの確認結果**：天気ページに Article は**追加しない**（著者・公開日を持たない概念ページで型不適合・架空メタになり逆効果）。実機監査でトップ＝WebSite+SearchAction+Organization、columns＝Article+Person+Organization+FAQPage、天気＝BreadcrumbList と**過不足なく完備**を確認。将来 天気に署名記事/Q&Aを足すなら Article/FAQPage を付与。
+- [ ] **GSC 手動インデックス登録（ふうか・残）**：URL検査で主要URLをリクエスト（推奨順：トップ→ハブ `/note/weather`・`/columns`→需要大コラム（婚活疲れた/始め方/限界/good-counselor-traits）→主要天気（rain-cloud/morning-mist/twilight））。1日上限あり・上から。
+- [ ] **（中期・拡散エンジン）動的OGP**：`/note/result/[id]` のシェア画像を動的生成（既に result は webp 静的 og 済。さらに拡散最適化したい時の伸びしろ）。
+
+### 🆕 2026-06-21 note公開／IG戦略／動画パイプライン
+- [x] 創業者note公開：https://note.com/kinda_jp/n/ndd5a4776cc13 （さき×ふうか・v3本文）
+- [x] 法人識別情報を privacy/特商法/利用規約に反映（コミット `3c7cce6`・6/20実施）
+- [x] bio差し替え（note・X から「（結婚相談所Emma…）」削除）＋ IG bio に UTM付き `/note` リンク設置（2026-06-23 完了）
+- [x] 創業ストーリーカルーセル7枚を投稿→**ピン留め**＋Made with AI ラベル（2026-06-23 完了）
+- [ ] **動画パイプライン方針決定（次回 .ai 最優先）**：image-to-video 有料ツール選定（候補 Morphed 等で Veo/Sora/Kling/Hailuo/Seedance/WAN を秒単位課金）／月予算ヒアリング／ChatGPT画像プラン確認。決定まで IG戦略の頻度・フォーマット優先順位は仮置き。
+  - Canva 無料：引き継ぎ「生涯5本」で却下 ↔ ふうか再調査「毎月リセット・商用可・AI動画 最大200本/月」。**要再検証（一次情報で）**。
+- [ ] IG戦略 v1（`kinda-instagram-strategy-v1.md`）の実弾化：カルーセル最終コピー・柱A〜D初回案（キャプ＋画像生成プロンプト）。※動画方針確定後に着手（手戻り防止）。
+- [~] （Code連携・戦略§9）bioリンク着地最適化＝**済**（`/note`→`/kinda-note` リダイレクト・UTM＋GA4 `kinda_note_complete` 確認、2026-06-23）。残：IGキャプKWとサイトSEO KWの統一（実リポジトリで表記ゆれ監査）／OGP共有見え方の確認（→ 2026-06-23 のSEO修正フェーズ②og:image に統合）。
+- メモ：**「クレイ」=AI生成ミニチュア世界観のスタイル名**（物理オブジェクト無し）。ストップモーション案は撤回。Kinda talk への Emma 掲載判断は保留継続。
+
+### 🆕 2026-06-20 OGP / SNS
+
+#### ✅ 完了
+- [x] OGP専用画像作成（OGP-hero.jpg 1200×632、tagline焼き込み）→ public/images にwebp/jpg併存
+- [x] og:title / og:description 確定（読み＝カインダ統一・「ふたりへ」維持）
+- [x] Claude Code：トップmetadata実装（metadataBase / openGraph / twitter / OGP-hero.jpg・`src/app/layout.tsx`・本番反映済）
+- [x] OGPキャッシュ更新（LINE確認のみで完了）
+
+#### ⏳ note公開（最優先・ふうか操作）
+- [ ] note新規記事：タイトルA／本文v3／アイキャッチeyecatch（webp不可ならpng/jpg）／バイライン確認
+- [ ] 公開→URL取得→展開キットの [note URL] 差し込み
+- [ ] bio差し替え：note・X から「（結婚相談所Emma…）」削除（IGは変更不要）
+
+#### ⏳ SNS発射（note公開後）
+- [ ] IGカルーセル7枚 投稿（スライド画像5枚は要生成、1・7枚目はeyecatch流用）
+- [ ] X：単発 or スレッド投稿
+
+#### 🆕 Instagram 継続方向性の設計（次セッション主要議題）
+- [ ] コンテンツ柱の定義（候補：天気の言葉の使い方／Kinda Voicesカウンセラー紹介／「成婚だけがゴールじゃない」哲学／デート準備・会場探し=Kinda act動線）
+- [ ] 投稿フォーマット（カルーセル/単一/画像リール）と頻度
+- [ ] 初回ローンチ群（ファウンダーノート7枚）以降の継続ネタ設計
+- [ ] ハッシュタグ戦略・プロフィール導線
+- [ ] トーン厳守（煽らない・比較しない・ヒーロー禁止語）
+
+#### 🔁 OGP コピー再考（要・ふうか）
+- [ ] **og/twitter の説明文（title/description）の表現を再検討**：現状は「結婚相談所を、会った人の口コミで選ぶ」。実際の差別化は**カウンセラー個人を選べる**点なので、そこを front に出す表現を検討（例：「結婚相談所を“担当者”で選ぶ／会った人の口コミでカウンセラーを選ぶ」等）。§2のトーンと両立。決まったら layout の og/twitter title/description を差し替え（検索スニペット用 description は据え置きで可）。
+
+> 参照：`kinda-founder-note-launch-kit-v1.html`（SNS発射キット）／`kinda-founder-note-v3.md`（note本文）／`claude-code-ogp-metadata-2026-06-20.md`（OGP指示書・実装済み記録）。
+> 決定ログ：SNSアカウントアイコン＝ロゴで3媒体統一（クレイ ふうか/さき像は著者欄＝バイライン用）。noteバイラインはテキスト1行（v3冒頭に内包・アバターは今回見送り）。OGPは季節ヒーロー流用でなく専用固定画像。
+> 開始手順（次回）：①note公開（タイトルA／本文v3／アイキャッチeyecatch／バイライン）→URL取得→キットの[note URL]差し込み→bio差し替え。②Instagram 継続方向性を 柱→フォーマット→頻度→導線 の順で詰める。
+
+#### 法務・事業者情報（2026-06-20・SNS流入前の最優先3点）
+- [x] **プライバシー/特商法/利用規約に事業者情報を実値化**（株式会社AGOGLIFE／〒104-0061 東京都中央区銀座1-12-4 N&E BLD.6F／代表 船田剛／hello@kinda.jp）。特商法の電話番号は非表示＝「請求があれば遅滞なく開示」運用。`src/app/privacy` `src/app/tokushou` `src/app/terms`。本番反映。
+- [x] **Auth パスワード強化（無料・2026-06-20 実施済）**：最小パスワード長 6→8、Password requirements（文字種）を設定 → Save。弱いパスワードを弾く実用対策。
+- [ ] **Leaked Password Protection は保留（Pro限定）**：HaveIBeenPwned 照合は **Supabase Pro（$25/月・約¥3,700）限定**だったため見送り（Claude.ai は無料前提で勧めていたが実際は有料）。多層防御の補助で「今すぐ事故る」ものではないため advisor の WARN は許容。**Pro 化する時（無操作1週間でのプロジェクト自動停止回避・日次バックアップ等が欲しくなった時）に合わせて ON** する。
+- [ ] （順次）残りの法務同期（事業者向け特商法 `tokushoho-agency-b2b.md` の counselor 公開・返金モデル全文書同期・顧問弁護士レビュー）。
+- [ ] （順次）残りのセキュリティ advisor：RLS 過剰権限/Security Definer View 権限/anon revoke/Storage listing/search_path（CLAUDE.md §セキュリティ残）。SNS流入では今すぐ事故らない範囲。
+
+### 🆕 2026-06-19 実装（このセッション・全て本番反映済み）
+- [x] **取引メール（キャンセル/日程変更 申請・承認）**：RPC 成功後にサーバ通知ルート（user-site `/api/reservations/notify`・counselor 同）を best-effort で叩く方式。会員操作→相談所、相談所操作→会員。
+- [x] **日程変更 承認の不具合修正**：billing_events 二重INSERT（unique違反）解消（migration 038）。
+- [x] **日程変更の課金＝一回引き継ぎに統一**（migration 039）：申請時返金を廃止し、承認時に決済を新予約へ引き継ぎ（追加課金/返金なし）。元 billing は voided、台帳は新予約1件に集約。元予約は一覧/要対応から除外（「日程変更済み」表示）。
+- [x] **請求履歴の無効化「理由」を日本語化**（counselor billing の VOID_REASON_LABEL 拡充）。
+- [x] **#1 キャンセル後に氏名/連絡先/共有診断を非表示**（counselor 予約詳細）。※一覧カードは識別のため実名を残す方針（確定）。
+- [x] **#2 予約フォームの氏名/フリガナを初回入力→以降自動**（owner限定 `user_booking_defaults`・migration 040）。
+- [x] **#3 favicon 堅牢化**：App Router 規約の favicon.ico/icon.png/apple-icon.png を軽量生成、layout の 1.1MB 直指定を撤去。
+- [x] **#4 マイページ一覧に日程変更導線＋詳細で日程変更を主アクション優先表示**（導線は 一覧→詳細→モーダル を推奨採用）。
+- [x] **#5 日程変更モーダルを「枠のある日付→時間」の2段に統一**（counselor と揃え）。
+- [ ] （要確認）#1 一覧カードもキャンセル時は氏名を隠すか（現状は実名のまま）。
+
+### 🆕 2026-06-19 ファウンダーノート公開 ＆ SNS展開
+- [x] ファウンダーノートを取材形式（聞き手＝さき）で v3 確定（原稿＝`kinda-founder-note-v3.md`）。
+- [x] さきペルソナ確立（Voices聞き手に再利用）。
+- [x] ビジュアル：`public/images/saki-editor.webp`・`public/images/eyecatch.webp` を生成→webp化→コミット。
+- [ ] note（kinda_jp）公開：タイトルA・アイキャッチ eyecatch・バイラインさき（手順は引き継ぎ参照）。
+- [ ] note・X の bio から「（結婚相談所Emma運営）」を削除（ユーザー向けはEmma名を出さない方針で統一）。
+- [ ] 公開note URLを親コンテンツに、Instagram カルーセル（5〜7枚）＋ X を投稿（SNSキット `kinda-sns-launch-kit-v1.html` のカレンダー準拠）。
+- [ ] eyecatch の webp が note で不可なら png/jpg 版を用意。
+- [ ] （後続）さきを Kinda Voices の聞き手バイラインに適用（Voices記事インフラ実装後）。
+
+### 🆕 2026-06-17 残・要検討
+- [ ] **キャンセル時の返金対応**（今後検討）：現状は予約確定で即時課金・原則返金なし（CLAUDE.md §12）。カウンセラー都合キャンセル等で返金すべきケースの運用・自動化を将来検討する。当面は Stripe ダッシュボード＋運営個別判断で対応。
+- [x] **#2 予約フォームの氏名入力の扱い**（決定＝初回のみ入力→以降自動・2026-06-19 実装済）：owner限定 `user_booking_defaults` に保存しプリフィル。法務上は収集自体に問題なし（個人情報保護法はむしろ最小化を推奨／特商法は事業者側の表示義務で会員入力とは別）。相談所は面談に本名が要るため「氏名を完全に廃止」は不可のため自動入力（編集可）で対応。
+
+### いま未マージ / 進行中
+- **`claude/review-reservation-flow`** … （済）main マージ済み。
+- **`claude/pc-booking-mypage`** … （済）main マージ済み（e6c269a）。
+- ~~**`claude/review-reply-display`**~~ … 口コミへのカウンセラー返信表示。**置き換え済み**：常時インライン表示だったが、要望（返信マーク→タップで展開）に合わせ `claude/review-display-tags-reply` で作り直し main 反映済み（2026-06-07）。当該ブランチは破棄可。
+- **DNS**：✅ `kinda.jp` / `www.kinda.jp` ともに Vercel で **Valid Configuration**（2026-06-08・SSL証明書発行済）。`https://kinda.jp` 本番稼働。
+- **Supabase 本番に適用済み（コードと対）**：`submit_review` RPC／自動完了 cron／reviews＋7テーブルの RLS 最小権限化／`is_admin()`。実機（counselor/admin/予約）動作は確認済み。
+
+### 次の最優先候補
+- [x] ~~`claude/review-reply-display` を main マージ~~ → 返信マーク→タップ展開UXで作り直し main 反映済み（`claude/review-display-tags-reply`・2026-06-07）。
+- [x] **口コミの選択タグ保存・表示**（「アドバイスが具体的」等）：`reviews.good_tags text[]` 追加＋`submit_review` に `p_good_tags` 追加（DB適用済・migration 034）＋`ReviewForm` 送信＋カウンセラー詳細でピル表示。main 反映済み（2026-06-07）。
+- [x] **カウンセラー口コミ返信の不具合修正**（2026-06-07・`claude/fix-profile-creation-1clpG`）：`reviews.agency_replied_at` カラム未存在で返信 UPDATE が常に失敗し未返信のまま何度でも返信できていた → カラム追加（migration 0033）で解消。返信タブに投稿者ニックネーム（profiles.nickname）と相談日時（reservations.start_at）を表示（本名取り違え防止）。
+- [x] **リールの口コミ数が0表示の修正**（2026-06-07・main 反映）：リール/カードが参照する `counselors.review_count`/`rating_avg` が口コミ投稿・公開時に更新されず、実カウンセラー（小山楓華 等）で実口コミ2件あるのに0表示だった。実口コミ行から同期するトリガー＋バックフィル（migration 035・DB適用済）で解消。実体0件の純表示用 seed（中村さくら=14 等）は維持。
+- [x] **マイページの口コミ返信通知を廃止**（2026-06-07・main 反映）：低評価への返信が必ずしも納得のいくものとは限らず能動的に見せる必要が低いため、未読ドット/通知一覧から `reviews.agency_reply` を除外。返信自体はカウンセラー詳細ページで引き続き確認可。
+- [ ] **不要ブランチの削除（要・手作業）**：`claude/review-reply-display`（置き換え済）・`claude/review-display-tags-reply`（merged）・`claude/reel-count-notif-tweak`（merged）は削除可。⚠️ この実行環境の git プロキシはブランチ削除 push を弾くため、Claude からは削除できなかった。**GitHub UI から削除してください**。※`claude/fix-profile-creation-1clpG` は counselor 本番なので削除しないこと。
+- [ ] 返金モデル改定の法務同期（下記）／整合性の横断監査（下記）／残セキュリティ小項目。
+
+---
+
+### 🆕 2026-06-14 Stripe決済・連絡先二層開示・取引メール（実装ステータス）
+
+> サンドボックス（テスト）で予約→課金→webhook→台帳/連絡先開示まで end-to-end 成功確認済み。
+> 実装指示書：`docs/implementation/claude-code-stripe-resend-implementation.md`。
+
+#### ✅ 完了（main / counselor 本番に反映済み）
+- [x] **スキーマ**：`agencies.stripe_customer_id`／`reservations`(stripe_payment_intent_id/stripe_refund_id/paid_at/refunded_at/user_info_visible)（migration 037・DB適用済）。
+- [x] **決済バックボーン（user-site）**：`src/lib/stripe.ts`／`/api/stripe/charge`（予約成立で相談所カードに即時¥5,000 off_session・本人検証・二重課金防止）／`/api/stripe/webhook`（payment_intent.succeeded→paid_at/user_info_visible＋billing_events確定同期、charge.refunded→refunded_at＋billing_events無効化）／`/api/stripe/refund`（admin限定）。
+- [x] **カード登録UI（counselor）**：請求ページ(/billing)に SetupIntent+Elements。`/api/stripe/setup-intent`・`/api/stripe/set-default-pm`。実機でテストカード登録OK。
+- [x] **予約成立→課金 配線**：Step4Confirm（BookingFlow/AgencyBookingFlow 共通）。課金失敗はユーザーの予約完了を妨げない設計。
+- [x] **連絡先の二層開示**：詳細＝未決済は本名/連絡先を隠しニックネーム＋案内、決済後に開示。一覧(inbox/dashboard)＝未決済は「お客様（決済前）」。`futarive-counselor/lib/disclosure.ts`。旧予約(2026-06-14前)は grandfather。
+- [x] **取引メール（一部）**：決済確定の初回のみ、ユーザーへ「予約確定」・相談所へ「新規予約＋連絡先開示」メール（webhook 起点・送信失敗は webhook を落とさない・二重送信防止）。
+- [x] **返金（機能完成）**：Stripe ダッシュボードで返金 → charge.refunded webhook で DB(refunded_at)＋台帳(voided)同期。※admin の返金ボタンUIは未作成（ダッシュボード操作で代替可）。
+
+#### ⬜ 残（次セッション）
+- [x] **③残り：取引メール（キャンセル確定／日程変更 申請・了承）**（2026-06-17 実装・3ブランチ反映）。RPC は PostgreSQL 関数で Resend を呼べないため、TS 層（RPC 成功後）に通知ルートを hook する方式で実装。
+  - user-site（`claude/peaceful-darwin-e3tdlj`）：`/api/reservations/notify`（本人確認→相談所宛）＋ `cancelReservationViaRpc`/`requestRescheduleViaRpc`/`approveRescheduleViaRpc` から best-effort 発火。
+  - counselor（`claude/fix-profile-creation-1clpG`）：`/api/reservations/notify`（RLSスコープ確認→会員宛）＋ `commitCancel`/日程変更 提案・承認 から発火。
+  - 宛先方針：操作者の相手方に通知（user操作→相談所 / 相談所操作→会員）。文面は確定メールに倣ったクレイ調インラインHTML。
+  - ⚠️ user-site 分は `claude/peaceful-darwin-e3tdlj` 止まり。**main へマージ→ my-app-rp9u 反映が必要**。counselor 分は本番ブランチ反映済み。
+- [ ] **カード未登録相談所の予約不可ガード**：一覧/枠レベルで「予約を受けられない」を明示（現状は予約は通り、課金だけ失敗＝運営フォロー）。
+- [x] **決済状態の表示（admin / counselor）**（2026-06-17）：返金後「返金済み」が画面で分かるように。admin 予約管理（`claude/futarive-admin-dashboard-iKBfw`）に「決済」列＋詳細に決済/返金日時。counselor（`claude/fix-profile-creation-1clpG`）予約詳細に決済済み/返金済みバッジ＋返金注記、inbox カードに返金済みバッジ。`Reservation` 型に `refunded_at`/`stripe_refund_id` 追加。
+- [~] **admin の返金ボタンUI**：相談（2026-06-17）の結論＝**作らない**。返金は方針上 低頻度・要個別判断の例外運用で、webhook(`charge.refunded`)が dashboard 返金でも `refunded_at`/billing_events を自動同期するため、**Stripe ダッシュボードからの返金運用＋上記の状態表示**で十分。頻度が上がったら後付け（`/api/stripe/refund` は user-site に存在、別オリジンの admin から叩くには cookie 認証が効かないので admin 内に専用ルートが必要になる点に留意）。
+- [ ] （任意）一覧の「お客様（決済前）」をニックネーム表示に格上げ（batch で profiles.nickname 取得）。
+- [ ] **本番化**：特商法に AGOGLIFE 実値（`src/app/tokushou` の [会社名][所在地][電話番号]・事業者向け特商法 公開）→ Stripe 本番有効化（live キー）→ **本番モードで Webhook 再作成**（`https://kinda.jp/api/stripe/webhook`・whsec を Vercel に）→ env を live に差し替え。顧問弁護士レビュー。
+- [ ] **GSC**：「クロール済み‑インデックス未登録」は新規ドメインの正常状態。対応不要。必要なら URL検査でインデックス登録リクエスト。待ちでOK。
+
+#### テスト用メモ
+- 未決済ビューの確認：カード未登録相談所の予約 → 一覧/詳細でマスク。決済済み（Emma/小山楓華の例）は本名表示。
+- 取引メール：相談所宛は `agencies.email` 宛（テスト相談所に email 未設定だとユーザー宛のみ届く）。
+- ⚠️ env：counselor と my-app-rp9u に Stripe テストキー設定済み・Webhook(テスト)作成済み。本番化時に live で作り直す。
+
+---
+
+
+
+> Resend `send.kinda.jp` 認証完了・受信 hello@kinda.jp 構築済み。
+> 指示書：`docs/implementation/claude-code-email-wiring-2026-06-09.md`／引き継ぎ：`docs/handoff/handoff-summary-2026-06-09.md`。
+> 送信元統一：From=`Kinda ふたりへ <noreply@send.kinda.jp>` / Reply-To=`hello@kinda.jp`。
+
+- [x] **(Claude Code) admin 送信元差し替え**：`futarive-admin/lib/email.ts` を `onboarding@resend.dev` → `noreply@send.kinda.jp`＋Reply-To。`claude/futarive-admin-dashboard-iKBfw` に反映済。
+- [x] **(Claude Code) lib/email.ts を user-site / counselor へ展開**：両プロジェクトに送信ラッパー追加・`resend` 依存追加・キー未設定ガード維持・build green。user-site=main / counselor=`claude/fix-profile-creation-1clpG` に反映済。
+- [x] **(Claude Code) sitemap から `/mypage` 除外**：`src/app/sitemap.ts` 対応・main 反映済（robots と整合）。
+- [x] **(ふうかさん) `RESEND_API_KEY` を user-site(my-app-rp9u) / counselor の Vercel env に追加 → 再デプロイ**（2026-06-09 完了）。
+- [x] **(Claude Code) お問い合わせフォーム＝送信者識別（①B）**：`/contact` をアプリ内フォーム化＋`/api/contact`（Resend送信・サーバ側で会員/カウンセラー/相談所オーナーを判定し問い合わせメールに付与・Reply-To=送信者）。main 反映済（2026-06-09）。※本番 /contact 送信＝Resend送信テストを兼ねる。
+- [x] **(Claude Code) 口コミ促進メール（運営名義・タスクE）**：completed 予約に「面談おつかれさまでした、口コミを」を1回送信。`/api/cron/send-review-requests`（service role・直近14日・未送信・投稿済み除外・`reservations.review_request_sent_at` で冪等／migration 036）＋ `vercel.json` 日次 cron（01:00 UTC=10:00 JST）。From=noreply@send.kinda.jp / Reply-To=hello@kinda.jp。main 反映済（2026-06-09）。
+  - [ ] **(ふうかさん・必須) my-app-rp9u の Vercel env に 2つ追加 → 再デプロイ**：`SUPABASE_SERVICE_ROLE_KEY`（Supabase の Project Settings → API → service_role）と `CRON_SECRET`（任意のランダム文字列）。これが無いと cron は 401 で動かない（送信されない）。Vercel Hobby の cron は日次のみ。
+  - [ ] 動作確認：env投入後、cron 実行（または `curl -H "Authorization: Bearer <CRON_SECRET>" https://kinda.jp/api/cron/send-review-requests`）で completed 予約に促進メールが届くか。
+- [ ] **取引メール本文（決済/予約確定/連絡先開示/日程変更/返金）は Stripe 実装とセット**（Stripe-first・今はやらない）。
+
+#### メール運用の改善（2026-06-09 追加）
+- [ ] **問い合わせ返信を `hello@kinda.jp` 名義で出せるようにする**（現在は Gmail から返信すると差出人が個人 gmail になる）。Gmail「他のアドレスから送信（Send mail as）」に hello@kinda.jp を追加するには送信SMTPが必要。**おすすめ＝Google Workspace（約¥800/月）で hello@kinda.jp を本物のメールボックス化**（送受信とも自然）。代替＝ImprovMX 有料（SMTP付き）。**まず Google Workspace でいくか検討するところから**（ふうかさん希望）。受信転送（ImprovMX）自体は現状維持で可。
+
+#### 🆕 2026-06-09 Kinda note シェアの UI 統一 & 共有深度の検討
+- [x] **Kinda note の結果シェアを共通 ShareBar に統一**（main 反映 3e6b227）。旧：単一ボタンが Web Share API を直接開き X アイコンなのに OS 共有シートが出て分かりにくかった → Kinda type/story と同じ X/LINE/リンク/共有 の明示ボタンに。
+- [x] **共有の「深さ」を決定（2026-06-09・現状維持＝B）**：`includeFreeText`（自分の言葉を保存物に含める）は**既定ON のまま維持**（ふうか判断）。一度 既定OFF にしたが指示に合わせ ON に差し戻し（bb19b5e）。SNSシェア文面は抽象（天気＋1行）。参考：Co-Star/Finch/Daylio は「抽象を共有・プライバシー既定オフ」が定石だが、Kinda は当面 現状維持の判断。
+
+#### DNS後始末の残り（2026-06-09）
+- [ ] **OGP実機検証**（X / LINE / opengraph.xyz）。metadataBase は正しいと確認済み、実機表示チェックのみ。
+- [ ] **GA4 プロパティURLを kinda.jp に更新**（ふうかさん手動）。
+
+#### ✅ 2026-06-09 完了（ふうかさん）
+- [x] GSC ドメインプロパティ登録（DNS TXT・Vercel側）・sitemap 送信成功・主要URLインデックスリクエスト。
+- [x] 受信 `hello@kinda.jp`（ImprovMX・Gmail転送）構築・テストOK。
+- [x] 送信ドメイン認証 `send.kinda.jp`（Resend・DKIM/SPF/MX/DMARC 緑・東京リージョン）。
+- [x] metadataBase が kinda.jp で正しいことを sitemap 実体で確認。
+
+---
+
+### 🆕 2026-06-09 追補2（UI微修正完了＋ロードマップ確認）
+
+#### 完了（main 反映）
+- [x] ~~Kinda note の自由記述を既定OFF~~ → 指示は **B＝現状維持（既定ON）** だったため**差し戻し済み**（bb19b5e）。既定ON のまま。
+- [x] 予約完了/確認の文言を実態に整合：未実装の「確認メールをお送りしました」を撤回→「この画面の表示をもって予約成立」に（メール文言はタスクF実装時に再追加）。
+- [x] favicon：クレイ『Kinda』ロゴを採用（`public/images/kinda-icon.png`・`layout.tsx` の metadata.icons で icon/shortcut/apple 設定・暫定 icon.svg 撤去）。main 反映 9a7897c。Google検索の丸窓は再クロールで数日〜数週間で反映。※1.1MB と大きめなので、将来 256/512px へ縮小最適化すると軽い（任意）。
+- [x] SNS発信 引き継ぎファイル作成：`docs/sns/sns-handoff-for-claude-ai.md`（Claude.ai に渡す用）。
+
+#### ロードマップ確認（2026-06-09 時点の現在地）
+前進の2大トラックは **(1) Stripe（申請→実装）** と **(2) SNS発信（Claude.aiと）** で合っている。ただし**課金・B2B営業の前にやっておきたい背景タスク**が残る：
+- **法務同期**（返金モデル全文書同期・利用規約/特商法/契約書 棚卸し・顧問弁護士レビュー）← 課金/営業の前提。
+- **セキュリティ残**（slots UPDATE の RPC 化・Security Definer View 権限・anon revoke・Leaked Password Protection・Storage listing・search_path）← ローンチ前に潰したい。
+- 小粒：OGP実機検証 / GA4 URL更新 / Google Workspace（hello@名義返信）検討 / 整合性の横断監査 / 運営オペ手引き / MyPage PCレイアウト / SEO記事インフラ（voices·story の MDX·JSON-LD·動的OGP）。
+- → まとめ：**「Stripe」「SNS」を主軸に進めつつ、課金開始前に「法務同期」と「セキュリティ残」を並走**。それ以外はローンチ前後の磨き込み。
+
+---
+
+### 🆕 2026-06-08 追加（SNS／コンテンツ・フォーマット起点）
+
+> Claude.ai セッション（Voices/Story 執筆フォーマット＋SNS立ち上げ設計）からの引き継ぎ。
+> 詳細サマリーは `docs/handoff/handoff-summary-2026-06-08.md`。
+
+#### ドキュメント整備
+- [ ] 3キットHTMLを repo に保存（**HTML本体は未受領＝別途アップ待ち**）
+      - docs/voices/kinda-voices-writing-format.html
+      - docs/voices/kinda-story-writing-format.html
+      - docs/sns/kinda-sns-launch-kit.html
+
+#### Voices／Story 記事インフラ（実装）
+- [ ] voices の MDX frontmatter スキーマを確定（title/description/slug/counselorSlug/area/heroImage/heroAlt/ogImage/author/publishedAt/updatedAt/pullQuote）
+- [ ] story の MDX frontmatter スキーマを確定（上記＋ category/stage/pseudonym ＋ 同意記録：consentWeb/consentSNS/consentAgency/consentDate）
+- [ ] story の stage → クレイ画像マッピング（marriage=夕景／active=夜明けの芽／dating=顔つきの芽）
+- [ ] story の category routing（marriage / dating / struggle → /story/category/[category]）
+- [ ] LeadAnswer / PullQuote の MDX コンポーネント（両フォーマット共通）
+
+#### 構造化データ・OGP（SEO診断★★と連動）
+- [ ] Article ＋ Person（著者=ふうか, url=/about/founder）JSON-LD コンポーネント
+- [ ] FAQPage JSON-LD（記事内の質問形見出しから2〜4問を生成）
+- [ ] 動的OGP（opengraph-image.tsx）：クレイ背景＋タイトル合成、1200×630、WebP配信
+
+#### 内部リンク・E-E-A-T
+- [ ] voices／story 記事テンプレに内部リンク枠（天気2／コラム1〜2／詳細 or 関連Story／診断入口）。アンカーは具体語
+- [ ] /about/founder（ふうかプロフィール）への著者リンクを各記事末尾に固定
+
+#### SNS（※コードではなく運用・ふうか手動）
+- [ ] note / Instagram / X アカウント確保（bio・アイコンは SNSキット参照）
+- [~] クレイふうか像の生成・3媒体共通アイコン化（**2026-06-08：Claude.ai 側で各種SNS用アイコンを選定中**）
+- [ ] 創業ストーリー note 1本目（**2026-06-08 変更：録音→Whisper ではなく Claude との対話式で素材化する方針に決定**）
+
+#### 将来構想：belonging（「ひとりじゃない」場所）— Phase 3（PMF後・ユーザー数が育ってから）
+> 結論：Story を公開投稿型にはしない。belonging は Kinda Note 側で、低リスクに実現する。
+- [ ] 【今・前倒しOK／低コスト】Kinda Note のデータモデルを「任意・匿名で共有できる」前提で設計しておく（weatherKey と日付だけ持つ shared フラグ等。投稿本文や個人特定情報は持たせない方向で検討）
+- [ ] 【Phase 3・本命】Note の「今日の天気」を任意・匿名で共有 → 「同じ天気の人が◯人」表示（他人の物語ではなく"自分の感情の抽象"なのでモデレーション負荷がほぼゼロ）
+- [ ] 【Phase 3】編集Story への「反応」機能（救われた／自分もここにいる）。投稿ではなく応答で belonging
+- [ ] 【さらに先・要体制】招待制の編集UGC（特定ユーザーに声かけ→項目別同意→編集レビュー→公開）。公開投稿箱ではなく"編集Storyパイプラインのスケール"として扱う
+- [ ] 【Phase 3 着手時の前提】通報導線・クライシス相談リソースへの導線・初期はDM不可、等の安全設計
+
+---
+
+### 🆕 2026-06-05 相談メモ（営業資料フィードバック＋口コミ仕組みの信頼性）
+
+#### 【要対応】整合性の横断監査（同じルールが場所により食い違う問題）
+- [ ] **「同一ルールの実装ズレ」を洗い出して統一**。例：カウンセラーのキャンペーンが一覧では期限非表示・別の場所では期限切れでも表示、のように同じ概念が箇所ごとに別実装になっている所がないか横断確認。観点例：①キャンペーン/バッジの有効期限（相談所/カウンセラー/お店/カード/詳細/検索結果で同じ判定か）②is_published の尊重（全リスト/詳細/OGで未公開を漏らさないか）③料金・無料表記のフォーマット④日付/時刻の表示形式⑤デモ（is_demo）の出し分け⑥キャンセル/返金文言の表記ゆれ。ズレを見つけたら共通ヘルパー化して統一。
+
+#### 【最優先・セキュリティ】RLS 過剰権限の是正（auth_all_* を全廃）
+> 2026-06-05 点検で発覚。reviews は対処済み(M2)。残り7テーブルに同じ `auth_all_*`(ALL/true) が残存＝ログインユーザーなら誰でも編集/削除可。
+- [x] **RLS 最小権限化（適用済み）**：7テーブルの auth_all_* を全廃→ owner/admin スコープへ（migration harden_core_tables_rls・`is_admin()` 関数導入）。**要：counselor/admin/ユーザー予約の実機検証**。
+- [ ] **slots UPDATE を RPC 化**：現在は予約フロー依存で UPDATE=authenticated のまま。枠ロックを SECURITY DEFINER RPC 化し UPDATE も owner/admin に絞る。
+- [ ] ERROR: Security Definer View ×3（audit_*）の閲覧権限を admin/service_role に制限。
+- [ ] SECURITY DEFINER 関数群を anon から revoke（authenticated のみに）。
+- [ ] Auth の Leaked Password Protection を有効化（ダッシュボード）。
+- [ ] Storage バケット（*-media）の listing 可否を確認・必要なら制限。
+- [ ] 既存関数6つに `set search_path=public` を付与。
+
+#### 別タスク：法務系・ユーザーサイト情報ページの更新（要対応）
+- [ ] **【最優先】返金モデル改定の全文書同期**（2026-06-05 確定：予約確定で即時課金・原則返金なし・やむを得ない場合のみ運営相談で個別返金）。請求履歴UI・CLAUDE.md §12 は反映済み。残：`agency-agreement.md`／`tokushoho-agency-b2b.md`／営業デッキ slide6 返金脚注／Stripe実装指示書（24h返金ロジック撤廃→即時課金＋例外返金）を統一。顧問弁護士レビュー前提。
+- [ ] **法務系の更新**：利用規約 `src/app/terms/`・プライバシーポリシー `src/app/privacy/`・特商法 `src/app/tokushou/`・契約書類 `docs/contracts/`。kinda.jp ドメイン確定／課金方式（カード前払い・24h返金）／口コミ仕様変更（認証コード廃止→ログイン＋面談完了）に合わせて棚卸し。顧問弁護士レビュー前提。
+- [ ] **ユーザーサイト情報ページの更新**（内容・文言の見直し）：
+  - 編集ポリシー `src/app/about/editorial-policy/`
+  - 運営の透明性 `src/app/about/transparency/`
+  - お問い合わせ `src/app/contact/`（`hello@kinda.jp` 受信設定とセットで）
+  - 掲載のご相談 `src/app/partners/`（送客料¥5,000・無料掲載・kinda.jp）
+
+#### 運営マニュアル（私用の手引き・最後でOK）
+- [ ] **運営オペレーション手引き**を作成（`docs/guides/` 想定）。最低限：①自動完了の仕組み（面談終了+12hで `active`→`completed`・毎時cron。低頻度だが未実施でも自動完了し得る）と **手動で戻す方法**（admin もしくは SQL で `status='active'`・`completed_at=null` に戻す手順）。②no-show 連絡を受けた時の処理（該当 `billing_events` を void／必要なら口コミを `is_published=false` のまま非公開維持・削除）。③口コミ審査（公開/却下）の運用。
+
+#### MyPage（マイページ）PC 表示の改修（別タスク）
+- [ ] MyPage 系の **PC レイアウト**をまとめて整える（モバイル前提の作りで PC が左寄り/余白過多になりがち）。レビュー投稿ページ等の個別対応とは分け、MyPage 系を 1 パスで対応する方針。優先度・着手時期は別途相談。
+
+#### 営業資料（`docs/sales/`）の修正候補（一部 main 反映済み）
+- [x] **「@cosme・食べログ」の比喩を見直し**（@cosme 削除→食べログ一本＋口頭で個人単位を補足。deck/script/cold-email/brief 反映済み）。
+- [x] **「一気通貫」を非・麻雀用語へ**（「ひと続きで」に変更済み）。
+- [ ] **代表の創業エピソード**（なぜ立ち上げた／何がしたい）を**面談終盤に話す**用に台本へブロック追加。**実際のストーリーをふうかさんから受け取って文章化**する。あわせて **Kinda voices に創業ストーリー記事**として載せる案（SEO・信頼担保）。
+
+#### 口コミの信頼性（自動発行で「良い口コミだけ集まる」懸念を断つ）
+> 方針確定（2026-06-05）：①認証コード制は**廃止**（予約がログイン必須なので冗長）②自動完了は**純粋な時間ベース**（`canceled`のみ除外）。**no-showのセルフ申告ボタンは作らない**（相談所を信用して自己除外させない）。未実施は**相談所→運営へメール連絡→運営が手動で除外/返金**する例外運用に一本化。安全弁は `reviews.is_published=false`（運営審査で公開判断）＋課金は予約成立時で完了マークと無関係。③投稿期限**30日**。HPBも「来店翌日に自動解禁＋促進・サロン承認不要」で同型。
+> 注意（現状の穴）：今は ReviewForm がクライアントから直接 `reviews` に insert し、サーバ側で「本人の completed 予約か」を検証していない。RPC 化で塞ぐ。
+- [x] **B. reservation 起点の口コミ投稿を実装**：RPC `submit_review` ＋ ユーザーサイト `/reviews/new?reservation=ID` 配線・`ReviewForm` を RPC 化・投稿ページのPC/モバイル レイアウト修正。**main 反映済み**。
+- [x] **【M2】`reviews` の RLS 厳格化（適用済み）**：過剰権限 `auth_all_reviews` と公開漏れ `public read reviews` を撤去し、user/counselor/agency-owner/admin を網羅した最小権限ポリシーへ置換。
+- [x] **A. 自動完了フォールバック**：`auto_complete_reservations()` ＋ pg_cron（毎時0分・`end_at+12h`・canceled/reschedule=requested除外）**適用済み**。
+- [x] **認証コード制の廃止（ユーザーサイト）**：`ReviewGate`(MOCK_TOKENS)削除・`?token=`廃止。`reservations.review_token/review_code/review_token_used` は当面温存。
+- [ ] **営業資料の「専用URLと認証コード」表現の修正**（deck slide「面談を終えた人だけの認証口コミ」→「ログイン＋面談完了の予約に紐づくため成りすまし不可」へ）。
+- [x] **カウンセラー管理画面の改修（適用済み）**：面談完了時の認証コード発行（`ReservationDetailBody.tsx`/`PendingCompletionsSection.tsx`）を撤去し『お客様はマイページから投稿』案内に置換。`claude/fix-profile-creation-1clpG` に push 済み。
+- [x] **C. 口コミ促進メール（Resend・運営名義）**：completed 契機。**実装済み（タスクE・2026-06-09）**＝`/api/cron/send-review-requests`＋日次cron。要 Vercel env（SUPABASE_SERVICE_ROLE_KEY/CRON_SECRET）。
+
+---
+
+### 🆕 2026-06-05 ドメイン取得（kinda.jp）・Vercel 接続
+
+#### 完了
+- [x] `kinda.jp` ドメイン取得（お名前.com・法人名義 AGOGLIFE Inc.・初年度0円・更新期限 2027/06/30）。
+- [x] お名前.com ネームサーバー → Vercel 向け（`ns1/ns2.vercel-dns.com`）へ変更。
+- [x] Vercel `my-app-rp9u` に `kinda.jp` / `www.kinda.jp` を登録（Production）。
+
+#### 最優先（反映確認・ドメイン切替の後始末）
+- [x] **ドメイン反映確認**：✅ 2026-06-08 に `kinda.jp` / `www.kinda.jp` ともに Vercel で Valid Configuration＋証明書発行完了（NS委任の伝播完了後、放置で自動解決）。
+- [x] **`metadataBase` を `kinda.jp` に修正**：確認済み。`src/app/layout.tsx` は `process.env.NEXT_PUBLIC_SITE_URL ?? "https://kinda.jp"` で既に kinda.jp（前セッションで対応済）。※Vercel に `NEXT_PUBLIC_SITE_URL` を設定している場合は値が `https://kinda.jp` か（古い値が残っていないか）だけ要確認。未設定ならフォールバックで kinda.jp。
+- [x] **サイト内のハードコード URL 棚卸し**：✅ `kinda-futari` / `kinda.futarive.jp` / `my-app-rp9u.vercel.app` は **src 内 0 件**（2026-06-08 確認）。
+- [ ] **OGP の実機検証（ドメイン稼働後＝今やれる）**：`https://kinda.jp` の各ページ（story / columns / type）を X / LINE / opengraph.xyz でカード画像プレビュー確認。
+- [ ] **GA4 のプロパティ URL を `kinda.jp` に更新**（Vercel Analytics は自動反映で対応不要）。
+- [ ] **Stripe 審査用 URL は `kinda.jp` で申請**（アカウント開設時に使用）。
+- [ ] 特商法表記ページが本番ドメインで正しく表示されるか確認（実体は `src/app/tokushou/`）。
+- [x] サイト内の旧ドメイン（`www.kinda-futari.app` / `kinda.futarive.jp` / メール `hello@kinda-futari.app`）を全て `kinda.jp` / `hello@kinda.jp` に統一（src 20ファイル・metadataBase/JSON-LD/sitemap/robots 含む）。
+- [ ] **サポート受信 `hello@kinda.jp` の受信設定（DNS稼働で着手可能に）**（表示だけ変えた状態。今は受信できない）。無料案：ImprovMX / ForwardEmail 等＋**Vercel DNS（kinda.jp ゾーン）に MX レコード追加**で Gmail へ転送。有料案：Google Workspace（約¥800/月）で本格メールボックス。Resend（送信）とは別レイヤー。※NS は Vercel 委任なので、MX は Vercel の DNS 画面で追加する。
+  - 進め方：**DNS（kinda.jp）反映後**に着手。ImprovMX か ForwardEmail のどちらが良いか等は **Claude に相談しながら一緒に設定**していく方針。
+
+---
+
+### 🆕 2026-06-05 Resend（メール送信）の現状と残タスク
+
+> 調査結果：**Resend は admin だけ実装済み**。user-site / counselor は未実装。送信ドメイン認証は `kinda.jp` の DNS 反映後。
+
+#### 現状（実装済み・admin のみ）
+- [x] `futarive-admin/lib/email.ts`：Resend 送信ラッパー（`RESEND_API_KEY` 未設定なら送らず警告＝事故防止）。
+- [x] `futarive-admin/app/api/webhooks/billing-disputed/route.ts`：相談所が課金に異議申立て → 運営宛（`ADMIN_NOTIFY_EMAIL`）に「[ふたりへ] 課金異議申立て：相談所名」を送信。Supabase の `billing_events` UPDATE Webhook 起点。
+- [x] admin の Vercel に `RESEND_API_KEY` 設定済み。テスト送信は `onboarding@resend.dev` から（＝アカウント所有者宛のみ可）で確認済み。
+
+#### 残タスク
+- [x] **送信ドメイン認証 `send.kinda.jp`**（2026-06-09 完了・DKIM/SPF/MX/DMARC 緑）。送信元は `noreply@send.kinda.jp` / Reply-To `hello@kinda.jp` に統一済み。
+- [x] **`RESEND_API_KEY` を user-site / counselor の Vercel に追加**（2026-06-09 完了。user-siteは追加でSUPABASE_SERVICE_ROLE_KEY/CRON_SECRETも要）。
+- [x] **`lib/email.ts` ラッパーを my-app と futarive-counselor へ展開**（2026-06-09 完了）。
+- [ ] **メール本体は Stripe 実装にセットで作る**（Stripe-first）。決済完了 / 予約確定 / 連絡先開示 / 日程変更 / 返金 は全て Stripe `payment_intent.succeeded` Webhook 起点のため。文面ドラフトは Stripe 着手時にこちらで用意。
+  - 役割：user-site→ユーザー宛（確定/決済/日程変更/返金）、counselor→相談所宛（新規予約/決済成立で連絡先開示/日程変更）、admin→運営宛（異議申立て・既存）。
+
+---
+
+### 🆕 2026-06-05 ユーザーサイト UI（日の出 / Kinda story 刷新 / シェア統一 / デプロイ運用）
+
+#### 完了（このセッション・main 反映済み）
+- [x] 噴水SVG → 「日の出」シンボルへ（`KindaLoader` / `SectionDivider` 共通）。
+- [x] トップ story/voices カードに視覚バンド。voices は `/columns` のサムネ出し分けを移植。
+- [x] story サムネを stage プール＋id 分散（`getStoryThumbnail`）。個別 `Story.thumbnail` / og:image 対応。
+- [x] クレイ画像を差別化（成婚=夕景2カップ / 活動中=夜明けの芽 / 交際中=顔つきの芽）。一覧カードにもサムネ帯。
+- [x] story 詳細ページを Kinda voices 仕様（角丸サムネ＋下にタイトル）へ刷新。
+- [x] 一覧ヒーローを横長クレイ情景（`story-hero.webp`）へ差し替え＋濃色文字化。
+- [x] 共通 `ShareBar`（X/LINE/コピー/共有）で story / voices / type を統一。リールに native 共有追加。**note は特別仕様維持**。
+- [x] Vercel Ignored Build Step をパス指定方式へ（3プロジェクト個別）。feature branch の preview が出るように・無駄ビルド解消。
+
+#### 残課題（ドメイン取得後にまとめて）
+- [ ] **OGP（og:image）の実機検証（ドメイン稼働後＝今やれる）**。`metadataBase` は `https://kinda.jp`（フォールバック）で確定済み。`kinda.jp` 本番稼働＆証明書発行済みなので、**X / LINE / opengraph.xyz で実プレビュー確認**（story / columns / type）。カード画像が出るか・タイトル/説明が正しいかを見る。
+- [ ] （任意）診断結果の「保存できる画像」を Kinda type にも追加するか検討（現状 Note のみ html2canvas でDL可。Type は og:image=リンクプレビューのみ）。Instagram ストーリー等への投稿導線を強めたい場合の打ち手。
+- [ ] （任意）OGP 専用 1200×630 画像の用意可否（現状は story サムネ 1672×941 を流用＝16:9 でほぼ問題なし。最適化したい場合のみ）。
+
+---
+
+### 🆕 2026-06-04 決済(Stripe)・メール(Resend)・Kinda voices・リポジトリ整理
+
+#### 完了（このセッション）
+- [x] `files.zip`（引き継ぎ資料）を取り込み、CLAUDE.md §11(Kinda voices運用)・§12(Stripe/Resend)へ反映。
+- [x] リポジトリ整理：散在資料をコーナー別に集約（`docs/sales` `docs/specs` `docs/implementation` `docs/guides` `docs/handoff` `docs/voices`）。`files.zip` は展開後削除。
+- [x] Stripe/Resend 実装指示書を `docs/implementation/claude-code-stripe-resend-implementation.md` として配置（実装はこれを正とする）。
+- [x] 営業台本の強化（Kinda voices切り札・反論2枚追加・¥5,000桁対比・クロージング2分岐・パターンC再接触）。
+- [x] 掲載運用の訂正：入力は**専用アカウントで自分で・編集可**、運営代行は**初期口コミのみ**。台本の事実誤りを修正。
+- [x] 営業資料のURL統一（`my-app-rp9u.vercel.app`）。
+- [x] **Kinda voices 取材キット**作成（`docs/voices/kinda-voices-interview-kit.html`・§11準拠の現場用ツール）。
+- [x] 営業台本を提案デッキのスライド順に全面整合（#4質/#6課金を本編に追加・ステマ反論カード追加・デッキ#n対応明記）。
+- [x] 確認済み：手元の `kinda-deck-2.html` は同じファイルを再DLして OS が `-2` を付けただけ。リポジトリ版 `docs/sales/kinda-deck.html` と同一内容。台本との#n対応はこのままで確定。
+
+#### 最優先（Stripe実装のブロッカー・順に着手）
+- [~] **特商法表記**（Stripe審査の必須条件）。①ユーザー向け `src/app/tokushou/page.tsx` は既存（ユーザーは無料・正しい）→ 更新日改訂＋送客手数料は事業者間契約である旨の注記を追加。②事業者向け（¥5,000/件・カード前払い・24h返金）は `docs/contracts/tokushoho-agency-b2b.md` をドラフト作成。**残：法人名/ドメイン等の実値挿入 → counselor 側に公開ページ化 → 顧問弁護士レビュー。**
+  - [ ] **事業者向け特商法を counselor 管理画面の「利用規約」と並べて掲載**（フッター等に 利用規約／プライバシーポリシー と横並び。ソースは別ブランチ `claude/fix-profile-creation-1clpG`）。
+- [ ] **Stripeアカウント開設**（身分証・銀行口座・特商法URL／ビジネス説明：成果報酬型 ¥5,000/件の送客プラットフォーム）。
+- [ ] **Resendアカウント開設**（ドメインDNS認証・APIキー発行）。
+
+#### Stripe実装（アカウント開設後・Claude Codeへ渡す）
+- [ ] スキーマ追加（TASK7：`agencies.stripe_customer_id`、`reservations` 決済カラム群）。**適用前に `list_tables` 必須**。
+- [ ] カード登録フロー（Customers/SetupIntent）→ 予約成立時即時課金（Payment Intents `off_session`）→ Webhook(`payment_intent.succeeded`)でユーザー情報自動開示 → Refund API。
+- [ ] Vercel に Webhook URL 登録（`/api/stripe/webhook`）。返金→再課金（日程変更）フローも実装。
+
+#### Kinda voices
+- [ ] **Emma取材の実施（voices 1本目）**。質問リスト20問は前チャット（handoff参照）。録音→Whisper→Claude記事化。
+- [ ] Kinda voices 記事一覧UIの実装設計（カード型一覧＋カウンセラー詳細ページへの内部リンク双方向）。
+
+---
+
+### 🆕 2026-06-03 営業デッキ（`docs/sales/kinda-deck.html`・main 反映済み）
+
+#### 完了
+- [x] 結婚相談所向け営業デッキを自己完結HTMLで作成（クレイ風ベージュ / 16:9 / キーボード・タップ送り / 印刷=PDF / `?excerpt=1` で★5枚抜粋）。
+- [x] スライド6 返金条件を「24時間以内のキャンセル／日程変更の合意」の2条件に修正。**相談所さま都合のキャンセルは課金確定（返金対象外）** が確定方針（会員にも当日キャンセルのペナルティがある業態なので相談所側にも規律を求める）。
+
+#### 次にやること（残課題）
+- [ ] **「優遇措置」の中身を内々で確定する**（スライド8）。現状はあえて曖昧表記のまま。候補：送客料の割引／掲載順・露出の優遇／一定期間の送客料ゼロ／将来の定額プランのロック価格。決まったらスライド8を具体内容に差し替える。
+- [ ] 表紙サブコピー・CTAのURL・特商法表記・所要時間 `[◯分]` 等のプレースホルダを、法人設立・ドメイン取得後に実値へ差し替え。
+
+---
+
+### 🆕 2026-06-01 ユーザーサイト通知 / キャンセルUNDO / リール修正（main 反映済み・実機OK）
+
+#### 完了（実機確認OK）
+- [x] 相談所からの通知マーク：BottomNav マイページアイコンに未読ドット（`useUserNotifications`）。元データ = `agency_message` / カウンセラー発の `reschedule_status='requested'` / `reviews.agency_reply`。
+- [x] 通知内容の可視化：マイページに `NotificationsSection`（メッセージ/日程変更提案/口コミ返信を一覧・新着バッジ）。開くと既読化するが一覧は残る。
+- [x] 予約一覧カードに「日程変更の提案あり」バッジ追加。
+- [x] キャンセルUNDO：新RPC `undo_cancel_reservation_rpc`（5分以内・本人・slot空きのみ）＋共通 `UndoToast`。予約詳細・予約一覧の両方。一覧キャンセルを RPC 方式へ統一。
+- [x] リール真っ黒の修正：PC幅(≥768px・iPad横向き含む)でモーダルが0pxに潰れて不可視→ `height` 明示で解消。`ModalErrorBoundary` 安全網も追加。
+
+#### 次にやること（残課題）
+- [ ] `undo_cancel_reservation_rpc` を `supabase/migrations/` にファイル追記（現状 DB 適用のみ。migration 履歴が歯抜けなので整合は要検討）。
+- [ ] 通知の「既読」を localStorage → DB 化するか検討（複数端末で既読同期したい場合）。今は端末ローカル。
+- [x] カウンセラー側の日程変更ピッカー2段化（`dab1f92`）・キャンセルUNDO（`37c4903`）は、**カウンセラー本番ブランチ `claude/fix-profile-creation-1clpG` に既に反映済み**（main ではない）。取り込み作業は不要だった。※当初「main 系へ取り込み」と書いたのは誤り。counselor 本番は CLAUDE.md §10 の通り `claude/fix-profile-creation-1clpG`。
+- [ ] リールが PC幅以外（モバイル縦/iPad縦）でも問題ないか継続確認。
+
+---
+
+### ⚠️ デプロイ運用ルール（2026-06-01 確定・厳守）
+
+> 今回ユーザーサイトの作業を誤ったブランチ起点で始める / ローカル main を信用するミスをした。再発防止のため必ず以下に従う。
+
+- **ローカル `main` は信用しない。常に `origin/main` を真とする。**（ローカル main が unrelated history の古い commit を指していることがある）
+- **ブランチ系統は2つに分岐している**：
+  - ユーザーサイト(`src/`) … Vercel `my-app-rp9u` / Production Branch = **`main`**
+  - カウンセラー(`futarive-counselor/`) … `claude/fix-profile-creation-1clpG` 系統
+  - → 作業対象に応じて正しい系統を起点にする。取り違えない。
+- **ユーザーサイトの正しい手順**：
+  1. `git fetch origin main`
+  2. `git checkout -B <feature> origin/main`（必ず origin/main 起点）
+  3. 実装 → `npm run build` で green 確認
+  4. `git rev-list --count <feature>..origin/main` が 0（ff可能）を確認
+  5. `git push origin <feature>:main` で反映
+- **新セッションでデプロイを依頼されたら、Claude は着手前にふうかさんへ「前回使ったブランチ名と最新コミット（origin/main の HEAD 等）」を伝え、起点ブランチの確認を取ること。** いきなり実装を始めない。
+
+---
+
+### 🆕 2026-05-27 追加タスク（料金・課金フロー確定を受けて）
+
+#### 最優先・ふうかさん本人作業（外部要因／Claude不可）
+- [ ] 独自ドメイン取得（kinda.jp 等）。SEO施策の前提。空き状況確認 → 取得 → Vercel接続。年¥数千・作業1h程度。
+- [ ] Stripeアカウント開設・本人確認・APIキー取得（個人事業主で可）。決済自動化の前提。
+- [ ] 法人設立／屋号の確定（契約書・規約のプレースホルダ実値化、Stripe法人化の前提）。
+
+#### 課金フロー実装（「前払い＋情報ロック」方式）
+- [ ] Supabase `reservations` テーブルに `payment_status` 等のカラム追加（スキーマ設計から）。
+- [ ] Stripe Webhook 受信 → `payment_status` 更新 → 管理画面アンロックの実装。
+- [ ] カウンセラー管理画面「予約者を見る」バーのロック/アンロックUI実装。
+- [ ] 予約者情報の二層化（即時開示＝メッセージ・希望日時・ニックネーム・テーマ／入金後＝本名・連絡先・詳細）。
+- [ ] 予約完了画面のタイムライン明示UI。
+- [ ] 予約の最短実施日「3日後」バリデーション（短縮可能な設計に）。
+- [ ] 入金前メッセージの抜け駆け防止制御（連絡先交換・日程最終確定は入金後に制限）。
+
+#### 契約・法務（課金フロー変更に伴う改訂）
+- [x] 送客契約書 第6条（課金条件）を「面談完了で月末締め銀行振込」→「予約成立で即時カード前払い＋情報ロック＋24h返金」へ改訂（`docs/contracts/agency-agreement.md` §2/§4/§6・2026-06-04）。**残：counselor 側の利用規約（別ブランチ）の課金条文も同様に改訂すること。**
+- [ ] 顧問弁護士レビュー（課金フロー変更箇所）。
+
+#### 営業（シード営業・初期から必須）
+- [ ] 営業資料の初版作成（初見の人に見せてチグハグを洗い出す目的）：リーフレット／提案スライド／FAQ／口頭台本／コールドメール／リスト戦略。
+- [ ] 具体的な営業対象の相談所リスト化（提携0社からのシード獲得対象）。
+
+#### 入金遅延対応（要相談 → ルール確定後にタスク化）
+- [ ] 相談所の入金対応が遅れた場合の運用ルール確定（次セッションで論点整理済み。決定後に実装タスク化）。
+
+#### 契約相談所が決まったら
+- [ ] 相談所向け「使い方ガイド」作成（契約後の相談所が対象）。
+
+#### 集客（SEO軸）
+- [ ] 2026-05-14 SEO診断レポートの10施策から着手対象を選定 → Claude Code指示書化（ドメイン取得後）。
+
+#### 料金プラン後続（フェーズ2移行に向けて）
+- [ ] フェーズ2 掲載課金（月額 ¥11,000 / モニター ¥5,500）への切り替え提案ロジックを設計
+  - 集計対象：Kinda 経由面談が月平均 3 件超 の相談所
+  - 集計・通知方法（admin ダッシュボード列追加 or 月次バッチ）の決定
+- [ ] PR枠・広告枠（仮 ¥30,000）の UI（バッジ・順位調整）と表示透明性の設計
+
+#### UI 微調整・実機確認待ち（2026-05-27 完了分の振り返り対象）
+- [ ] /about のセクション② カード（村背景透け）の実機判断 → 必要なら装飾画像追加
+- [ ] PC ヒーロー全幅シネマティック型でシール位置・グラデ濃度・テキスト位置の微調整
+- [ ] 季節ごとのヒーロー画像差替運用ルールを README 化（命名規則・サイズ規格）
+
+#### 将来の検討事項（ブランド認知が育ってから）
+- [ ] ヘッダーロゴの中央配置 A/B テスト（Lemme / Kourtney 系ブティックスタイル）
+  - 2026-05-27 セッションで判断保留：今は左寄せ（convention 優先）
+  - 指名検索が増えてブランド認知が育った段階で再検討
+  - その時の判断材料：直帰率・ブランド指名検索数・第一印象アンケート
+
+---
+
+## ✅ Task 3: 鮮度管理 — 既存の組み合わせでカバー済み（2026-05-22 確認）
+
+**結論：** 専用 `last_reviewed_at` カラムやダッシュボード UI は新設せず、既にある仕組みで充足する判断。
+
+**カバー手段：**
+
+| 要件 | 既存の手段 |
+|---|---|
+| いつ最後に更新されたか | `counselors.updated_at` / `agencies.updated_at`（`trg_*_updated_at` BEFORE UPDATE トリガーで全 UPDATE 時に自動更新） |
+| 変更履歴 | `trg_audit_*`（INSERT / UPDATE / DELETE の監査ログ） |
+| 古いレコードの検知 | Edge Function `notify-stale-profiles`（90 日経過 → 本人にメール） |
+| 連続通知の抑止 | `last_freshness_alert_sent_at` + 30 日クールダウン |
+| 鮮度リセット | admin が編集保存 → `updated_at` 自動再付与 → 90 日クロックが再スタート |
+
+**自己ループ：** admin 編集 → updated_at リセット → 90 日後にリマインダーメール → 本人が更新 / admin が編集 → リセット。
+
+**意識的に作らなかったもの（後で必要になったら追加）：**
+- admin 一覧の「最終更新」列やソート（updated_at は DB にあるので追加コストは小）
+- admin top の「古いレコード N 件」ウィジェット
+- 「点検済み」専用ボタン（編集と区別する必要が出たら追加）
+
+---
+
+## 🟡 リリース前 must（残）
+
+`docs/image-audit.md` §7 より、未着手項目を転記：
+
+- [x] **#4 `not-found.tsx` 新設 + イラスト 1 枚**（2026-05-22、`w_morning_mist.webp` 流用）
+- [x] **#5 `KindaLoader` コンポーネント新設**（2026-05-22、Suspense fallback 5 箇所差替済 — agencies / kinda-act / kinda-talk / kinda-glow / login）
+
+### 鮮度アラート（Resend 経由メール通知）— インフラ完了・有効化待ち
+
+`claude/claude-md-constitution-jPCIz` で `supabase/functions/notify-stale-profiles` を実装・deploy 済み。
+仕組みは持ったが、サイト稼働まで cron は意図的に未設定。**ローンチ準備の際にここをチェック。**
+
+- [x] **マイグレーション**：`counselors` / `agencies` に `last_freshness_alert_sent_at timestamptz` 追加（クールダウン基準）
+- [x] **Edge Function deploy**：`notify-stale-profiles`（90日未更新 → Resend で本人宛メール、30日クールダウン、DRY_RUN 対応）
+- [x] **CLAUDE.md §8**：連絡用メアドは「リマインダー届く前提」で `auth.users.email` 固定とする運用ルールを追記
+- [ ] **Resend 契約 + ドメイン検証**（リリース近くで実施。`Kinda <noreply@<検証済みドメイン>>` を確保）
+- [ ] **Supabase Function Secrets 投入**：`RESEND_API_KEY` / `STALE_NOTIFY_TOKEN`（`openssl rand -hex 32`）/ `RESEND_FROM` / `KINDA_COUNSELOR_URL`
+- [ ] **DRY_RUN=1 で動作確認**（送信せず対象件数だけ確認）→ 本送信 1 件テスト → 本番有効化
+- [ ] **pg_cron スケジュール登録**：READMEに置いた SQL を 1 回実行（既定：毎週月曜 09:00 JST）。サイト稼働後に有効化する判断
+- [ ] **契約フローへの反映**：カウンセラー／相談所オーナーに「ログイン用メアド = 運用リマインダーの宛先」を契約時に明示
+
+> 詳細手順は `supabase/functions/notify-stale-profiles/README.md`。
+> いつでも開始でき、開始した瞬間から自動で機能する状態。
+
+### サンプルデータの整理（admin / DB 連携の未完部分）— 2026-05-23 確認、すべて完了済
+
+`counselors` 側はサンプル名・isDemo フラグでほぼ揃っているが、`agencies` と admin UI に整理漏れあり、と前回までの認識だったが、2026-05-23 後半セッションで Supabase 実データを SELECT して確認した結果、**全て解消済み**だった：
+
+- [x] **agencies の is_demo フラグ修正**：`（サンプル）` 名 8 件すべて is_demo=true（前回懸念の 6 件 → 8 件に増えて全て true）
+- [x] **agencies 重複登録の整理**：重複ゼロ（Emma〜系も解消済み）
+- [x] **`counselors` 中の "山田孝之"** ：DB から既に消えている（削除 or 改名済み）
+- [x] **admin に `is_demo` 列表示 + トグル**：`claude/futarive-admin-dashboard-iKBfw` の `6adae8dd` で counselors / agencies に実装済（shops は DB に is_demo 列がないため badge_type 運用継続で対象外）
+- [x] **未使用 Next.js scaffolding SVG 削除**：`d27cd1f` で削除済
+
+---
+
+## ✅ 完了（2026-05-23 後半セッション）— サブアプリ運用方針整理
+
+- [x] **futarive-counselor を Production Branch 切替運用に変更**
+  - Production Branch: `main` → `claude/fix-profile-creation-1clpG`
+  - Deployment Protection (Vercel Authentication): Disabled
+  - 新 production URL: `https://futarive-counselor.vercel.app/`（外部カウンセラーに案内可能）
+  - iPhone Safari プライベートモードで未認証アクセス確認済（Supabase Auth ログインまで素直に到達）
+- [x] **futarive-admin は手付かず**（user 一人運用のため preview URL のままで実害なし。将来複数人運用になったら counselor と同じ手順を踏襲する想定）
+
+詳細は `WORKLOG.md` の「2026-05-23 続き（深夜セッション）」参照。
+
+---
+
+## ✅ 完了（2026-05-22 セッション）
+
+- [x] Kinda note intro hero に clay 装飾画像（`kinda-note-deco-1.webp`）を採用（`0e8eb4a`）
+- [x] CTA 直前の deco-2 は配置せず保留、アセットは保全（`61f14a4`）
+- [x] ロゴ 2 枚を webp 化＋コード差替＋旧 PNG 削除（`ba6cfe2`、-1.17MB）
+- [x] 重複 .jpg 2 件削除（`b2b34d4`、-383KB）
+- [x] `docs/image-audit.md` rev. 2 / rev. 3 更新（オーファン誤検出修正、完了タスクの状態反映）
+
+---
+
+## 📌 ロードマップ（2026-05-23 後半セッション時点）
+
+本番リリースまでの大枠と現状：
+
+| Phase | 期間目安 | 内容 | 現状 |
+|---|---|---|---|
+| A：機能拡充 | — | admin / counselor / user-site の主要機能 | ✅ 完了 |
+| B：コンテンツ整備 | 1〜2 週 | 画像監査・実カウンセラー投入・鮮度管理 | 🟢 大半完了（画像監査 ✅ / 鮮度管理は既存で充足判定 ✅ / 残：実カウンセラー投入のみ） |
+| **C：法務・契約** | **1 週** | **利用規約・特商法表記の本番値差替・規約レビュー** | **✅ 主要フェーズ完了（2026-05-23 クローズ）：PR #6-16 で規約・プライバシー・特商法・明示同意 UI・モバイル UI・SNS 抜け駆け禁止条項・契約書テンプレ・admin オーナー一括作成 UI 完備。残：実値差替・弁護士レビュー（外部要因待ち）** |
+| D：リリース前準備 | 数日 | Resend 契約・Auth Confirm ON・本番ドメイン取得・Vercel 本番設定 | ⬜ 鮮度アラート Edge Function は実装済、Resend 契約待ち |
+| C 完了後並走：営業準備 | 数日〜 | 結婚相談所への営業資料・台本・メーリングリスト構築 | ⬜ Phase C 完了後に着手（user 指示・2026-05-23） |
+| E：リリース直後 | 継続 | GA4・PWA・ユーザー導線分析 | ⬜ 未着手 |
+
+### 次セッションの優先順
+
+1. **Phase C 残作業**（外部要因待ち）
+   - 法人設立完了後、プレースホルダ実値差替を 1 コミットで実施
+     - my-app：terms / privacy / tokushou の `[会社名]` `[所在地]` `[代表者氏名]` `[電話番号]` `[氏名]`
+     - counselor：terms / privacy の `[会社名]` `[所在地]` `[氏名]`
+     - 送客契約書テンプレ `docs/contracts/agency-agreement.md` の「甲」欄
+     - サポートメール：✅ 表記は `hello@kinda.jp` に統一済み（残：受信設定＝MX。§2026-06-05 ドメイン取得タスク参照）
+   - 顧問弁護士レビュー（任意・営業前リスク低減のため推奨）
+   - ✅ 2026-05-23 完了：PR #6 〜 PR #17（規約整備・明示同意・モバイル UI・契約書テンプレ・admin オーナー一括作成 UI）
+
+2. **オーナー初期セットアップ運用** — admin から「相談所＋オーナー招待」モーダル (PR #16) で運用開始可能。
+   - [x] **agencies.owner_user_id を admin から手動セットする UI**（2026-05-27 完了、`claude/futarive-admin-dashboard-iKBfw` の `eafaec8`）
+   - [x] **counselor 側でオーナーが配下カウンセラーを招待する UI**（既存の `AddCounselorModal` で実装済を 2026-05-27 確認）
+
+3. **営業準備**（実値差替完了後に着手）
+   - 営業資料・台本・メーリングリスト（特定電子メール法対応は terms / privacy で根拠済）
+   - 契約書 `docs/contracts/agency-agreement.md` を電子契約（クラウドサイン等）に取り込み判断
+
+4. Phase D の Resend 契約・ドメイン取得は営業準備と並走可能
+   - 配信メール本文末尾に**配信停止リンク**を必ず付与する API 実装（特電法第4条・user_metadata.marketing_emails_opt_in を false に書き戻し）
+
+### ブランチ運用の参照先
+
+新規セッション開始時は **CLAUDE.md §10「ブランチ運用」を最初に確認**すること。
+過去の WORKLOG / TODO 内に登場する古いブランチ名（`claude/implement-kinda-talk-uDUoW` 等）は履歴情報で、現在の指定ではない。
+
+---
+
+## 🟢 Phase C 完了後・初期営業（順番厳守・2026-05-23 user 指示）
+
+> **着手タイミング：Phase C（法務・契約）が完了してから。**
+> 規約・特商法・特定電子メール法対応が整わないと営業活動自体が法的リスクになるため、順番を逆にしない。
+
+ローンチに前後して並走するタスク群。プロダクト本体ではなく営業・対外発信。
+
+- [ ] **結婚相談所への営業資料**：1 ページ概要 / 3〜5 ページの提案資料 / 料金表（送客料 ¥5,000・初期費用なし）
+  - Kinda の差別化（口コミ × カウンセラー単位の選び方 / ユーザーファースト / クレイ風ビジュアル）を 1 スライドで伝える
+  - 「掲載するだけ」「ご面談後の発生額のみ」のシンプルさを強調
+- [ ] **営業台本（電話 / メール / 訪問）**：
+  - 初回フック（30秒）／反論への返答（料金疑問・ステマ疑問・既存掲載先との違い）／クロージング
+  - 「中立」と言わない・「ユーザーファースト」で押す（CLAUDE.md §1 準拠）
+- [ ] **メーリングリスト構築**：
+  - 結婚相談所オーナー連絡先の収集元（IBJ / BIU 加盟リスト / 公式サイト掘り起こし）
+  - 送信ツールは Resend / SendGrid / Mailchimp のいずれか。鮮度アラートで Resend を使うなら統一が楽
+  - **特定電子メール法**：オプトイン取得 or 「事業者向けの取引提案」例外を満たす運用設計が必要（要法務確認 → Phase C で整理）
+  - 配信スケジュール（初回提案 → 1 週間後フォロー → 2 週間後最終 の 3 タッチが定番）
+
+---
+
+## 🗂 ドキュメントの使い分け（CLAUDE.md §9 より）
+
+| ファイル | 役割 |
+|---|---|
+| `CLAUDE.md` | Kinda の憲法（世界観・トーン・ルール） |
+| `WORKLOG.md` | 日々の作業ログ・実装メモ・ハマったこと |
+| `TODO.md`（本ファイル） | タスク管理・次セッションへの引き継ぎ |
+| `docs/image-audit.md` | 画像アセット監査の専用ドキュメント |
+| `docs/*.md` | その他テーマ別の設計・実装ドキュメント |

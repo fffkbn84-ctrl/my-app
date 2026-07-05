@@ -26,8 +26,10 @@ const STAGE_VISUAL: Record<StoryStage, { key: string; gradient: string; en: stri
 /* ────────────────────────────────────────────────────────────
    定数（1箇所変更で全体に反映）
 ──────────────────────────────────────────────────────────── */
-const HERO_H1_LINE1 = "好きな人を見つけて、";
-const HERO_H1_LINE2 = "一緒に過ごす日々まで。";
+// 文節単位で分割し、折り返しは文節境界でのみ起こるようにする
+// （「一緒に過ごす日々ま／で。」のように単語の途中で割れて "で。" が孤立するのを防ぐ）
+const HERO_H1_LINE1 = ["好きな人を", "見つけて、"];
+const HERO_H1_LINE2 = ["一緒に過ごす", "日々まで。"];
 const HERO_H2 =
   "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
 const HERO_IMAGE_SRC = "/images/hero-couple-2026ss.webp";
@@ -78,7 +80,7 @@ const DECIDED_CARDS = [
     href: "/kinda-type",
     kindaLabel: "type",
     desc: "診断するだけで合うカウンセラーが見つかる",
-    img: "/images/section-kinda-type.webp",
+    img: "/images/section-type-room.webp",
     alt: "Kinda type",
     bg: "#E0ECF8",
     accent: "#5A7FAF",
@@ -88,7 +90,7 @@ const DECIDED_CARDS = [
     href: "/kinda-talk",
     kindaLabel: "talk",
     desc: "ぴったりのカウンセラーに直接会う",
-    img: "/images/section-counseling.webp",
+    img: "/images/section-talk-room.webp",
     alt: "Kinda talk",
     bg: "#FAF3DE",
     accent: "#B89A4A",
@@ -98,7 +100,7 @@ const DECIDED_CARDS = [
     href: "/kinda-act",
     kindaLabel: "act",
     desc: "お見合いやデートの場所",
-    img: "/images/section-cafe-pastel.webp",
+    img: "/images/section-act-room.webp",
     alt: "Kinda act",
     bg: "#F5E1E0",
     accent: "#B86E68",
@@ -108,7 +110,7 @@ const DECIDED_CARDS = [
     href: "/kinda-glow",
     kindaLabel: "glow",
     desc: "好きな人に会う前に、自分を整える",
-    img: "/images/section-beauty-n2.png.webp",
+    img: "/images/section-glow-room.webp",
     alt: "Kinda glow",
     bg: "#EDE0F4",
     accent: "#8A66B0",
@@ -268,9 +270,20 @@ export default async function HomePage() {
               二重表示になる。ファーストビューの情報整理のため省略。 */}
           <div className="ktp-hero-copy">
             <h1 id="hero-h1" className="ktp-hero-h1">
-              {HERO_H1_LINE1}
-              <br />
-              {HERO_H1_LINE2}
+              <span className="ktp-hero-h1-line">
+                {HERO_H1_LINE1.map((w) => (
+                  <span key={w} className="ktp-hero-h1-w">
+                    {w}
+                  </span>
+                ))}
+              </span>
+              <span className="ktp-hero-h1-line">
+                {HERO_H1_LINE2.map((w) => (
+                  <span key={w} className="ktp-hero-h1-w">
+                    {w}
+                  </span>
+                ))}
+              </span>
             </h1>
             <h2 className="ktp-hero-h2">{HERO_H2}</h2>
           </div>
@@ -291,6 +304,20 @@ export default async function HomePage() {
             <p className="ktp-hero-micro">
               ✓60秒で言葉になる　✓登録不要　✓相談前の整理に
             </p>
+            {/* サイトの核（カウンセラー個人を口コミで選べる）への控えめな導線。
+                主CTA（気持ちの整理）と競わないよう、テキストリンクにとどめる */}
+            <Link href="/kinda-talk" className="ktp-hero-counselor-link">
+              担当（カウンセラー）を口コミから見る
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path
+                  d="M3 7h8M7 3l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
           </div>
 
           {/* Block 4 — 副CTA帯（ヒーローの「外」として階層化）
@@ -569,39 +596,82 @@ export default async function HomePage() {
             やりたいことが決まっている方へ
           </h2>
 
-          {/* 2×2 グリッド（モバイル）→ 1×4（PC） */}
-          <div className="pc-grid-2to4">
+          {/* 2×2（モバイル）→ 1×4（PC）を、1つの「戸棚」に収める。
+              gap を木トーンの枠色で見せることで升目の仕切り（壁）になる。 */}
+          <div
+            className="pc-grid-2to4"
+            style={{
+              background: "linear-gradient(#E8DDCC,#DED0BA)",
+              padding: 9,
+              gap: 9,
+              borderRadius: 16,
+              border: "1px solid rgba(120,96,64,.35)",
+              boxShadow:
+                "0 12px 32px rgba(120,90,60,.18), inset 0 1px 0 rgba(255,255,255,.5)",
+            }}
+          >
             {DECIDED_CARDS.map((card) => (
               <Link
                 key={card.key}
                 href={card.href}
                 style={{
                   display: "block",
+                  /* 升目（箱）本体はパステル＝色分けを残す */
                   background: card.bg,
-                  borderRadius: 16,
-                  border: "1px solid rgba(0,0,0,.04)",
+                  borderRadius: 7,
+                  border: `1px solid ${card.accent}30`,
                   overflow: "hidden",
-                  boxShadow: "0 4px 16px rgba(200,169,122,.08)",
                   textDecoration: "none",
                   transition: "transform .3s, box-shadow .3s",
                 }}
               >
-                {/* 画像エリア（カードと同色のパステル背景に画像が乗る） */}
+                {/* 覗く窓：パステルの縁（前壁）で一段奥へ、四辺の内影で奥行き */}
                 <div
                   style={{
                     aspectRatio: "1/1",
                     background: card.bg,
-                    overflow: "hidden",
                     position: "relative",
+                    padding: 8,
                   }}
                 >
-                  <Image
-                    src={card.img}
-                    alt={card.alt}
-                    fill
-                    sizes="(min-width: 768px) 240px, 50vw"
-                    style={{ objectFit: "cover" }}
-                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 8,
+                      borderRadius: 4,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <Image
+                      src={card.img}
+                      alt={card.alt}
+                      fill
+                      sizes="(min-width: 768px) 240px, 50vw"
+                      style={{ objectFit: "cover" }}
+                    />
+                    {/* ガラス面の斜め反射（覗いている感） */}
+                    <span
+                      aria-hidden
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(125deg, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 40%)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    {/* 四辺の内影（＝箱の奥に収まっている＝貼り付け感の解消） */}
+                    <span
+                      aria-hidden
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 4,
+                        boxShadow: "inset 0 0 16px 4px rgba(50,32,14,.42)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* テキストエリア — カード bg を継承して馴染ませる */}
