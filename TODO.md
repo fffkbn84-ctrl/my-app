@@ -5,7 +5,7 @@
 > 2026-07-02 に全面整理（重複統合・完了項目の退避）。整理前の全文は `docs/archive/todo-full-archive-2026-07-02.md`。
 > 定期整理は `/repo-tidy` Skill で行う。
 
-最終更新: 2026-07-02
+最終更新: 2026-07-05
 
 ---
 
@@ -24,8 +24,43 @@
 - QA: `npm run qa:content`（公開前の機械チェック）
 - 全体像: `docs/ops/ai-ops-playbook.md`／Notion「AI運用手順」「SNS運用マップ」ページ
 
+### ⚠️ admin（futarive-admin）デプロイの落とし穴（2026-07-04・Claudeが指示する時は必ず反映）
+
+> ふうかは Vercel の Redeploy で誤って別デプロイを叩きがち。Claude はふうかに Redeploy を依頼する時、**必ず「どのブランチの行か」まで指定する**こと。
+
+- **admin の本番実体は `claude/futarive-admin-dashboard-iKBfw` ブランチの Preview デプロイ**。`main`/Production 系統は実体を伴わず**ずっと ERROR 表示**（既知・無視してよい）。ふうかが「エラーが出た」と言ったら、まず対象デプロイのブランチが `main` かどうかを疑う。
+- **Redeploy は必ず Deployments 一覧で「ブランチ = `claude/futarive-admin-dashboard-iKBfw`」の行**（＝目的のコミットメッセージの行）から実行するよう指示する。`main` の行を Redeploy しても意味がなく ERROR になる。
+- **Vercel の env（環境変数）を変更したら、反映には Redeploy が必須**。「env を入れたのに効かない」時は未 Redeploy か、古いデプロイ URL を見ている可能性を最初に確認する。
+- **確認 URL はデプロイごとに変わる**。ふうかに渡す時はブランチ固定エイリアス `https://futarive-admin-git-claude-futari-fcf6db-fffkbn84-4095s-projects.vercel.app`（常にこのブランチの最新を指す）を使うと迷子にならない。
+- **動作確認は必ずシークレット/プライベートウィンドウ**で（Basic 認証や自動入力のキャッシュで「効いていないのに通ってしまう/効いているのに弾かれる」を避ける）。
+- Vercel MCP で対象デプロイの `githubCommitRef`/`state`/`target` を見れば、ふうかがどのデプロイを見ているか特定できる（team `team_PUbgx1RuY5muanExK0tdtY6L`／project `prj_mmGS8duJEM9ymxAiPKX3r4onJ7t6`）。
+
+### 🆕 2026-07-04 Stripe セキュリティ対策措置状況申告 対応（実装完了・動作確認済み）
+
+> Stripe 本番審査の途中で「セキュリティ対策措置状況申告書」（割販法・クレジット取引セキュリティ対策協議会のチェックリスト）の提出を求められた。必須項目を満たすため以下を実装。ブランチは各系統に直接 push 済み。
+
+#### ✅ 完了・実機確認済み
+- [x] **送客料を税込 ¥5,500 に統一**（契約書 第6条「¥5,000＋消費税」に実装を合わせた）：`src/lib/stripe.ts`（`REFERRAL_FEE_JPY=5500`）＋ partners/transparency 表示。※stripe-production ブランチ止まり・main 未マージ。
+- [x] **セキュリティヘッダー＋Dependabot**（`next.config.ts` の `headers()`／`.github/dependabot.yml`）。
+- [x] **脆弱性診断の自動化**（`.github/workflows/codeql.yml`＝SAST 週次／`zap-baseline-scan.yml`＝本番 kinda.jp への DAST 週次）。※申告項目3対応。
+- [x] **ファイルアップロード制限**：Supabase Storage の `agency-media` バケットに MIME 制限（image/* のみ）＋5MB 上限を追加（counselor-media/shop-media は既設）。※申告項目2対応。
+- [x] **admin: Basic 認証**（`futarive-admin/middleware.ts`・env `ADMIN_BASIC_AUTH_USER`/`ADMIN_BASIC_AUTH_PASSWORD` 設定済み）。※申告項目1a。
+- [x] **admin/counselor: ログイン10回失敗で30分ロック**（`login_lockouts` テーブル〈service_role 専用・RLS 全拒否〉＋各 `/api/login` に集約）。counselor は env `SUPABASE_SERVICE_ROLE_KEY` を新規追加。※申告項目1c・6。
+- [x] **admin: 2段階認証 TOTP**（`futarive-admin/app/mfa/page.tsx`＋middleware で env `ADMIN_MFA_ENFORCED=true` のとき AAL2 強制）。認証アプリ登録→コード入力→強制まで実機確認済み。※申告項目1b。
+
+#### 判断・見送り（正直に申告）
+- counselor の Basic 認証・IP 制限・MFA は**見送り**（外部の多数相談所が使うため構造的に不適・現場負荷大）。counselor は個別アカウント認証＋10回ロックで担保。
+- admin の 2FA を実装したことで、申告フォーム（AGOGLIFE アカウント全体）の「二段階認証」は「実施」で回答可能。
+- 脆弱性診断のペネトレーションテスト（手動）は未実施。CodeQL/ZAP の自動診断で代替（正直に申告）。
+
+#### ⏳ 残（申告書送信後）
+- [ ] Stripe 申告書を送信 → 審査。
+- [ ] 審査通過 → 本番 Webhook 作成（`https://kinda.jp/api/stripe/webhook`）→ `sk_live_`/`pk_live_`/本番 `whsec_` を `my-app-rp9u`・`futarive-counselor` の Vercel env に設定 → 実カードで少額課金→返金の疎通確認。
+- [ ] ¥5,500 税込の料金修正を main にマージ（現状 stripe-production ブランチ止まり）。
+- [ ] （任意）船田も自分の端末で admin の MFA 登録を済ませる（初回ログイン時に自動で /mfa 登録画面へ）。
+
 ### ⚠️ マージ待ちブランチ
-- [ ] `claude/kinda-automation-strategy-4g1k5y`（AI業務改善キット・CLAUDE.md/TODO整理・bio二層化決裁反映）→ PR → main マージ → production READY 確認。
+- [x] `claude/kinda-automation-strategy-4g1k5y`（AI業務改善キット・CLAUDE.md/TODO整理・bio二層化決裁反映）→ PR → main マージ → production READY 確認（2026-07-05 PR作成）。
 
 ---
 

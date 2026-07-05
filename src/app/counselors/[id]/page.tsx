@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import { jsonLdStringify } from "@/lib/jsonld";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
@@ -1635,7 +1636,7 @@ export default async function CounselorDetailPage({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonLdStringify({
               "@context": "https://schema.org",
               "@graph": [
                 {

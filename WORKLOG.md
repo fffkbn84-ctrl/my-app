@@ -4,6 +4,77 @@
 
 ---
 
+## 2026-07-04（Claude Code セッション：Stripe本番審査・セキュリティ対策措置状況申告 対応）
+
+> Stripe 本番環境の有効化をふうかがダッシュボードで進行中、審査の一環で「セキュリティ対策措置状況申告書」の提出を求められた。必須項目（管理者画面のアクセス制限・脆弱性診断・不正ログイン対策 等）を満たすためにコード/インフラを実装したセッション。
+
+### 完了（各系統に直接 push・実機確認済み）
+- **料金を税込 ¥5,500 に統一**：契約書 第6条「¥5,000（税別）＋消費税」に対し実装は ¥5,000 ちょうどだったズレを修正。`src/lib/stripe.ts`（`REFERRAL_FEE_JPY=5500`）＋ partners/transparency の表示。※ブランチ `claude/stripe-production-deployment-sshgj2` 止まり・main 未マージ。
+- **セキュリティヘッダー＋Dependabot**：`next.config.ts` に `headers()`（X-Frame-Options/X-Content-Type-Options/Referrer-Policy/Permissions-Policy）、`.github/dependabot.yml`（npm 週次）。CSP は GA4/JSON-LD と衝突リスクが高く今回見送り。
+- **脆弱性診断の自動化（申告項目3）**：`.github/workflows/codeql.yml`（SAST・push/PR/週次）と `zap-baseline-scan.yml`（OWASP ZAP Baseline で本番 kinda.jp に週次 DAST）。手動ペネトレは未実施だが自動診断で代替し「定期実施」を満たす。
+- **ファイルアップロード制限（申告項目2）**：Supabase Storage `agency-media` バケットに MIME（image/jpeg,png,webp,gif）＋5MB 上限を追加（`counselor-media`/`shop-media` は既設だった）。
+- **admin ログインの多層防御**（ブランチ `claude/futarive-admin-dashboard-iKBfw`）:
+  - Basic 認証（middleware・env `ADMIN_BASIC_AUTH_USER`/`ADMIN_BASIC_AUTH_PASSWORD`）＝申告1a。
+  - 10回失敗で30分ロック（`login_lockouts` テーブル・service_role 専用・RLS 全拒否／`/api/login` に集約）＝申告1c・6。
+  - 2段階認証 TOTP（`app/mfa/page.tsx`・middleware で env `ADMIN_MFA_ENFORCED=true` のとき AAL2 強制）＝申告1b。認証アプリ登録→コード入力→強制まで実機確認済み。
+- **counselor ログイン**（ブランチ `claude/fix-profile-creation-1clpG`）：admin と同じ `login_lockouts` を共用し10回失敗30分ロックを追加。counselor の Vercel に `SUPABASE_SERVICE_ROLE_KEY` を新規設定。
+
+### 決定
+- **counselor の Basic 認証・IP 制限・MFA は見送り**。外部の多数相談所が使う画面で共通パスワード/IP 制限は構造的に不適、MFA 全員強制は現場負荷・離脱リスク大。counselor は個別アカウント認証＋10回ロックで担保する方針をふうかと合意。
+- **申告フォームは AGOGLIFE アカウント全体を問う**ため、admin に 2FA を実装すれば「二段階認証：実施」で回答できる、と整理。
+- ロック時間は 30 分（誤操作でも自力復旧できる・回線少人数運用に妥当）。MFA/ロックの env は「未設定なら無効」のフェイルオープン設計にし、登録・確認を終えてから env を有効化する段取りにした。
+
+### つまずき・学び（次回のために重要）
+- **admin の Redeploy 事故が頻発**：ふうかが Vercel の Redeploy で `main`/Production の行（＝ずっと ERROR の実体なし系統）を叩いてしまい「エラーが出た」となる場面が複数回。実際の MFA/ロックのコードは `claude/futarive-admin-dashboard-iKBfw` の Preview で READY だった。→ TODO に「admin デプロイの落とし穴」を新設し、Claude がふうかに Redeploy を頼む時は**必ずブランチ名まで指定**、確認 URL は**ブランチ固定エイリアス**、確認は**シークレットウィンドウ**、と明文化。
+- **env 変更は Redeploy しないと反映されない**。「env を入れたのに効かない」の一次原因はほぼこれか、古いデプロイ URL を見ていること。
+- **Basic 認証は Safari が資格情報をキャッシュ**するため、「効いているか」の確認は必ず別セッションで。ふうかが当初「Basic のポップアップで10回ミス」と誤解した（正しくは Basic 通過後の Supabase ログインで10回）ように、2段構え（Basic → アプリ内ログイン）の切り分けを丁寧に案内する必要がある。
+- この環境（Claude 実行側）から Vercel の Preview URL へは proxy 制限で直接 curl できない。動作確認は Vercel MCP の runtime logs／list_deployments と、ふうかの実機に頼る。
+
+### 次
+- ふうか：Stripe のセキュリティ申告書を送信 → 審査。通過後に本番 Webhook 作成＋live キーを `my-app-rp9u`/`futarive-counselor` の Vercel env へ → 実カードで少額課金→返金の疎通確認。
+- 税込 ¥5,500 の料金修正を main にマージ（現状ブランチ止まり）。
+- （任意）船田も自分の端末で admin MFA 登録。
+
+---
+
+## 2026-07-04（Claude Code セッション：act/glow雛形確認・セキュリティ診断・counselor UX診断）
+
+### 完了
+- **Kinda act/glow の投稿用雛形**：新規作成は不要と判明。統括画面の実運用ブランチ `claude/futarive-admin-dashboard-iKBfw` に `/admin/shops/new`（新規登録）と `/admin/shops/[id]/edit`（編集）が既に存在し、`ShopForm`（1,024行）がバッジ3種（取材済み/相談所おすすめ/掲載店・既定は掲載店）・act/glow振り分け（thumb_variant）・推薦元相談所の紐付けまで対応済み。掲載許可のない店舗は「掲載店」バッジのまま登録すればよい。⚠️ main 側の `futarive-admin/` は古い残骸（ビルドも通らない）で、admin の実体は iKBfw ブランチ。
+- **セキュリティ診断**（詳細は `docs/security/security-audit-2026-07-04.md`）：
+  - 【重大・修正済】監査ログ集計ビュー3本（audit_suspicious_access 等）が anon から SELECT 可能で IP 等が公開状態 → REVOKE（マイグレーション `security_lockdown_audit_views_and_counselor_media`）。
+  - 【重大・修正済】counselor_media がログイン済みなら誰でも書き換え可能 → 本人/相談所オーナー/admin に限定。
+  - 【中・修正済】`/counselors/[id]` の JSON-LD に口コミ本文が未エスケープで埋め込まれ stored XSS 可能 → `src/lib/jsonld.ts` の `jsonLdStringify()` を追加して適用。
+  - 【重大・未修正（要設計判断）】slots の UPDATE が全ログインユーザーに無制限（`slots_update_authed`）。予約フローが直接 UPDATE に依存しているため、RPC 化してからポリシーを絞る必要あり（レポート参照）。
+  - 【中・未修正】決済前でも相談所オーナーが REST 直叩きで予約の連絡先 PII を読める／admin の middleware が admin ロールを確認していない。
+- **counselor 管理画面 UX 診断**：【重大・修正済】モバイルでカレンダー・写真・相談所プロフィール・請求履歴への導線が皆無だった → ドロワーに全8ページの「ページ」セクションを追加（`claude/fix-profile-creation-1clpG` に push 済み・ビルド検証済み）。その他の所見はセッション報告参照（全体として toast・エラー整形・確認ダイアログ・パスワードリセット完備で良好）。
+
+### 追加実装（同セッション後半）：slots の RPC 化（診断 §4 を解消）
+- **予約確定を `create_reservation_rpc`（SECURITY DEFINER・単一トランザクション）に集約**。枠確保（open/locked→booked）＋reservation INSERT を1関数化。`user_id := auth.uid()` 固定で成りすまし予約を防止、INSERT 失敗時は関数ごとロールバック（release RPC を作らず「他人の枠解放」攻撃面も排除）。billing 生成トリガーは従来どおり発火。
+- **`slots_update_authed`（USING true 全開放）を削除 → `slots_update_owner_admin`（本人/相談所オーナー/admin）に置換**。counselor カレンダー・admin スロット管理は影響なし。
+- client（`src/lib/reservations.ts`）を RPC 呼び出しに変更。デッドコードの直接版 `cancelReservation` を削除。マイグレーションは `supabase/migrations/042_...sql`（本番適用済み・source of truth）。
+- 本番 DB でシミュレート認証テスト（booked化・auth.uid固定・二重予約拒否）を確認、副作用はロールバック済み。next build / tsc パス。
+- ⚠️ ユーザーサイト本番(main)反映時の注意：**本番デプロイ前提でポリシーは既に絞ってある**ため、main に本 client 変更（RPC 呼び出し）を必ずマージ・デプロイしてから本番予約を受けること。旧コード（直接 UPDATE）のままだと予約が slot 確保でエラーになる（診断時点で本番稼働予約なしを確認済み）。
+
+### 追加対応（同セッション最終）
+- **admin 管理画面を admin ロール限定に**（診断 §6・修正済）：middleware で `admin_users.role='admin'` を確認、非 admin は `/login` へ。login でもロール検証＋サインアウト＋「運営専用」表示。`claude/futarive-admin-dashboard-iKBfw` に push・ビルド検証済み。
+- **関数の search_path 固定**（診断 §7・修正済）：`update_updated_at` 等 6関数に `SET search_path = public`（マイグレーション `harden_function_search_path`・本番適用済み）。
+- **main へ反映**：JSON-LD XSS 対策＋slots RPC 化（client）を `claude/claude-mdwo-inqix4` から main へ fast-forward。本番（kinda.jp）デプロイをトリガー（同一コミットの preview build が READY を確認済み）。
+
+### §5 の追加調査結果と決定（2026-07-04・専用セッションに回す）
+- **調査で判明**：counselor の inbox / dashboard は `reservations` を Supabase Realtime（`postgres_changes`）で購読している。Realtime はテーブル RLS 依存かつ列マスク不可のため、
+  - 基底 SELECT を剥がすと inbox のライブ更新が壊れる、
+  - 基底 SELECT を残すとビューを足しても PII は Realtime/REST で読めて改善ゼロ。
+  → 「ビュー追加だけ」では直らず、**リアルタイム inbox の作り替えを伴う多段改修**が必要。
+- **決定**：severity は「中（自社宛てのみ・決済で正規開示＝クロステナント漏洩ではない運用リスク）」のため、**当面は現状維持で許容し、恒久対応は専用セッションで実施**（計画は `docs/security/security-audit-2026-07-04.md` §5 に記載）。ふうか選択＝「専用セッションに回す」。
+
+### 次（未対応・要判断）
+- **診断 §5**：専用セッションで恒久対応（レポート §5 の5段手順に従う）。
+- **Leaked Password Protection**：8文字等のパスワード条件は設定済み・Free 継続で初期はこのまま運用する方針で**クローズ**（ふうか確認済み・2026-07-04）。
+- （任意）SECURITY DEFINER 関数群の anon EXECUTE 剥奪（現状も関数内 auth.uid チェックで実害小）。
+
+---
+
 ## 2026-07-02 追補2（UI改善2件・ミニチュア画像ガイド・コールドメール日程化）
 
 ### 完了
