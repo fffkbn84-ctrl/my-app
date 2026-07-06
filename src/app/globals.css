@@ -3287,6 +3287,19 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   object-fit: cover;
   object-position: center 30%;
 }
+/* スマホでは横長のPC用画像がcoverで中央だけ大きく切り取られ「アップすぎる」ため、
+   正方形寄りの別カットに差し替える（PC表示はデスクトップ画像のまま変更しない）。 */
+.kt-hero-bg-image--mobile {
+  display: none;
+}
+@media (max-width: 768px) {
+  .kt-hero-bg-image--desktop {
+    display: none;
+  }
+  .kt-hero-bg-image--mobile {
+    display: block;
+  }
+}
 /* ふんわり浮かび上がるヒーロー画像のフェードイン（最初の表示が遅いのを和らげる） */
 .kt-hero-fade-in {
   opacity: 0;

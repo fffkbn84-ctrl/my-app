@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Counselor } from "@/lib/data";
 import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
+import NotifySignup from "@/components/kinda-talk/NotifySignup";
 
 type Props = {
   counselors: Counselor[];
@@ -42,6 +43,18 @@ export default function HomeReelCarousel({ counselors }: Props) {
             <CounselorReelCard counselor={c} onOpen={setOpenCounselor} sourcePage="home" />
           </div>
         ))}
+        {/* Kinda talk 一覧ページと揃え、実カードの隣に「厳選を続けています＋通知登録」パネルを1枚置く */}
+        <div
+          style={{
+            flex: "0 0 auto",
+            width: "min(60vw, 240px)",
+            aspectRatio: "9 / 16",
+            scrollSnapAlign: "start",
+          }}
+        >
+          <NotifySignup fill />
+        </div>
+
         {/* 末尾「すべて見る」CTA カード */}
         <Link
           href="/kinda-talk"

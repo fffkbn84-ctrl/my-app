@@ -30,7 +30,7 @@ export default async function KindaActPage() {
         <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda act" }]} />
         {/* ─── ヒーロー（フルブリード画像 + ふんわりフェードイン + パステルピンクtint） ─── */}
         <section className="kt-hero">
-          <div className="kt-hero-bg-image kt-hero-fade-in" aria-hidden>
+          <div className="kt-hero-bg-image kt-hero-bg-image--desktop kt-hero-fade-in" aria-hidden>
             <Image
               src="/images/kinda-act-hero.webp"
               alt=""
@@ -38,6 +38,16 @@ export default async function KindaActPage() {
               priority
               sizes="100vw"
               style={{ objectFit: "cover", objectPosition: "center 40%" }}
+            />
+          </div>
+          <div className="kt-hero-bg-image kt-hero-bg-image--mobile kt-hero-fade-in" aria-hidden>
+            <Image
+              src="/images/kinda-act-hero-mobile.webp"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              style={{ objectFit: "cover", objectPosition: "center 32%" }}
             />
           </div>
           <div className="kt-hero-tint" aria-hidden />
