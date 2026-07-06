@@ -87,7 +87,7 @@ export default function PartnersPage() {
             <div className="legal-pricing-card">
               <div className="legal-pricing-row">
                 <span className="legal-pricing-label">相談所掲載</span>
-                <span className="legal-pricing-value">面談予約 1 件あたり ¥5,500（税込）</span>
+                <span className="legal-pricing-value">面談予約 1 件あたり ¥5,000</span>
               </div>
               <div className="legal-pricing-row">
                 <span className="legal-pricing-label">初期費用・月額費用</span>
