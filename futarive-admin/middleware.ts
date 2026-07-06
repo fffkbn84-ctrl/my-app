@@ -67,7 +67,22 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // 期限切れ・失効済みのリフレッシュトークンCookieが残っていると getUser() が
+  // AuthApiError を投げ、キャッチしないとミドルウェアごと応答なしになる
+  // （Safariでは「進捗バーが固まって進まない」ように見える不具合の原因だった）。
+  // 未ログイン扱いにフォールバックし、壊れたセッションCookieは明示的に削除する。
+  let user: { id: string } | null = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  } catch {
+    user = null
+    request.cookies.getAll().forEach(({ name }) => {
+      if (name.startsWith('sb-')) {
+        supabaseResponse.cookies.delete(name)
+      }
+    })
+  }
 
   const pathname = request.nextUrl.pathname
 
