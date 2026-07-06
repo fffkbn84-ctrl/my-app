@@ -29,8 +29,6 @@ interface ContentIndex {
   stories: StoryRow[]
 }
 
-const SITE_URL = 'https://kinda.jp'
-
 /**
  * Kinda voices・Kinda story は Claude/コードで content/columns/*.mdx・stories.ts に
  * 直接追加する運用のため、admin の既存「コラム管理」（別のSupabaseテーブル）には反映されない。
@@ -48,7 +46,7 @@ export default function ContentIndexPage() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`${SITE_URL}/api/content-index`, { cache: 'no-store' })
+      const res = await fetch('/api/content-index', { cache: 'no-store' })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       setData(await res.json())
     } catch (e) {
