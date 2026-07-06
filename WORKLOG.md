@@ -31,6 +31,29 @@
 
 ---
 
+## 2026-07-06（Claude Code セッション：Kinda actヒーロー画像・ホーム通知カード・admin状況確認ページ）
+
+### 完了
+- **Kinda act ヒーロー画像のスマホ対応**：横長PC画像をcoverクロップすると中央だけアップになりすぎる問題を修正。768px以下のみ、添付いただいた正方形寄りのカット（`public/images/kinda-act-hero-mobile.webp`）に切り替え。PC表示は変更なし。ふうか確認OK→PR #29でmainマージ・本番反映確認済み。
+- **ホーム「今いるカウンセラーたち」に通知登録カードを追加**：`/kinda-talk`一覧ページと同じ「厳選を続けています＋通知登録」パネル（`NotifySignup`）を、ホームの横スクロールカルーセル末尾にも設置。既存の`/kinda-talk`側の見た目は不変（`fill`オプションを追加し、9:16固定枠でも中身が均等配置されるようにしただけ）。
+- **admin向け「Voices・Story状況」読み取り専用ページを追加**：Kinda voices/storyはClaude/コードで`content/columns/*.mdx`・`stories.ts`に直接追加する運用のため、admin既存の「コラム管理」（別のSupabaseテーブル・成婚エピソード等と紐付いた無関係な機能）には反映されない、というふうかの指摘に対応。
+  - サイト側に読み取り専用API `/api/content-index` を追加（voices・story・その他コラムの一覧を返すだけ・書き込み経路は増やさない）。
+  - admin側（`claude/futarive-admin-dashboard-iKBfw`に直接push）にナビ「Voices・Story状況」を追加。
+  - **セキュリティ指摘への対応**：ふうかより「誰でも見られる状態にならないか」と指摘を受け、`x-content-index-key`ヘッダーによる共有シークレット認証を追加（鍵未設定時は`server_not_configured`でフェイルクローズ）。あわせて、admin側クライアントから直接kinda.jpをfetchするとCORSでブロックされる設計ミスに気づき、admin自身のサーバー経由のプロキシ（`futarive-admin/app/api/content-index/route.ts`）に変更。シークレットはサーバー環境変数のみに置きブラウザには渡さない。
+  - 環境変数`CONTENT_INDEX_KEY`（同じ値）をmy-app-rp9u・futarive-admin両方のVercelに設定してもらう必要あり（Vercel MCPには環境変数を設定/閲覧するツールがないため、ふうか側の作業として依頼）。
+
+### 障害対応：admin(Mac Safari)がBasic認証を通過できない
+- ふうかよりMacのSafariでBasic認証ダイアログの後、画面が固まって強制終了を繰り返す（スマホは問題なし）と報告。
+- **見つけて直したバグ（本物だが今回の直接原因ではなかった）**：`futarive-admin/middleware.ts`の`supabase.auth.getUser()`が例外処理されておらず、期限切れ・失効済みのセッションCookieが残っていると`AuthApiError: Invalid Refresh Token`を投げてリクエストが応答なしになる状態だった。Vercel Runtime Errorsで該当ユーザー1名・複数回発生を確認し特定。try/catchで未ログイン扱いにフォールバックし、壊れた`sb-*`Cookieを削除する修正を`iKBfw`に直接push。
+- **切り分けの結果、実際の原因はSafari(Mac)固有のクライアント側問題と判明**：修正後もVercelのランタイムログを確認すると、彼女のリクエストは毎回「認証情報なしの最初の401」で止まっており、資格情報を入力した後の2回目のリクエストが一度もサーバーに届いていなかった（＝サーバー側は毎回無実）。ふうかがBraveで開いたところ問題なく開けて解決（スマホと同じ状態を確認、admin側の実装自体は正常に動作）。
+- **教訓**：ブラウザの「ハング」報告を受けたら、まずVercelのランタイムログで「2回目の認証済みリクエストがサーバーに届いているか」を確認すると、サーバー側かクライアント側かを素早く切り分けられる。今回はこの確認により、私が最初に疑った複数の仮説（Basic認証キャッシュの古さ→誤り、middlewareの例外→本物だが今回は無関係）を順に消していけた。
+
+### 次
+- ふうか：`CONTENT_INDEX_KEY`をmy-app-rp9u（Production）・futarive-admin（Preview）両方のVercel環境変数に同じ値で設定→Redeploy。設定後、admin「Voices・Story状況」ページで動作確認。
+- Safari(Mac)側の不具合そのもの（拡張機能競合等）は未解明のまま。普段はBraveで代用する方針で当面問題なし。
+
+---
+
 ## 2026-07-04（Claude Code セッション：Stripe本番審査・セキュリティ対策措置状況申告 対応）
 
 > Stripe 本番環境の有効化をふうかがダッシュボードで進行中、審査の一環で「セキュリティ対策措置状況申告書」の提出を求められた。必須項目（管理者画面のアクセス制限・脆弱性診断・不正ログイン対策 等）を満たすためにコード/インフラを実装したセッション。
