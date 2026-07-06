@@ -13,7 +13,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * - 送信成功で GA4/Vercel に notify_signup を送る（trackEvent 経由）。
  * - 診断（Kinda type）は副次導線として下に残す。
  */
-export default function NotifySignup() {
+type Props = {
+  /** ホームのリールカルーセルなど、9:16固定の枠に入れる時 true。高さ100%で中身を均等配置する。 */
+  fill?: boolean;
+};
+
+export default function NotifySignup({ fill = false }: Props) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
@@ -46,11 +51,13 @@ export default function NotifySignup() {
         background: "rgba(255,251,244,.85)",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: fill ? "space-between" : "center",
         textAlign: "center",
         padding: "22px 18px",
         gap: 12,
         boxShadow: "inset 0 1px 0 rgba(255,255,255,.5)",
+        height: fill ? "100%" : undefined,
+        boxSizing: "border-box",
       }}
     >
       <div>
