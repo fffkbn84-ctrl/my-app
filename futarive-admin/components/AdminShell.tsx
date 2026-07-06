@@ -108,6 +108,14 @@ function IconBilling() {
     </svg>
   )
 }
+function IconEye() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+      <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.3"/>
+    </svg>
+  )
+}
 function IconBell() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -186,6 +194,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Kinda story', href: '/admin/episodes', icon: <IconHeart /> },
       { label: 'Kinda voices', href: '/admin/columns', icon: <IconDocument /> },
+      { label: 'Voices・Story状況', href: '/admin/content-index', icon: <IconEye /> },
     ],
   },
 ]
