@@ -110,6 +110,12 @@
   .track{height:14px;background:var(--surface2);border-radius:4px;overflow:hidden;}
   .fill{height:100%;border-radius:0 4px 4px 0;min-width:2px;}
   .bv{font-size:.76rem;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);}
+  .rp-meta{font-size:.8rem;margin:0;}
+  .rp-meta b{display:block;font-size:.86rem;}
+  .rp-sub{font-size:.76rem;color:var(--muted);margin:6px 0 10px;}
+  .rp-step{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 0;border-top:1px dashed var(--line);font-size:.8rem;align-items:start;}
+  .rp-step .t{font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink);}
+  .rp-step .note{color:var(--muted);font-size:.74rem;margin-top:2px;}
   table.logt{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:8px;}
   table.logt th,table.logt td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap;}
   table.logt th{color:var(--muted);font-weight:600;font-size:.7rem;}
@@ -166,6 +172,11 @@
       <select id="postTime"></select>
     </label>
     <p class="hint" id="platHint"></p>
+  </div>
+
+  <div id="reelPlanWrap" style="display:none;">
+    <h2 class="sec">リール設計図（この型の撮り方）</h2>
+    <div class="card" id="reelPlan"></div>
   </div>
 
   <h2 class="sec">3. 中身を埋める</h2>
@@ -375,6 +386,19 @@
     </ul>
   </div>
 
+  <h2 class="sec">リール形式の調査（2026-07・仮説）</h2>
+  <div class="card">
+    <p style="font-size:.84rem;margin:0;">「リール優勢」の先を調査した結論。各型の設計図（つくるタブでIG×リールを選ぶと表示）はこの5原則に基づく。</p>
+    <ul class="plain">
+      <li><b>冒頭1.5〜2秒がすべて。</b>最初の3秒で約半数が離脱し、3秒残存率60%超のリールは40%未満の5〜10倍届く。1フレーム目にテキストフック、2秒以内に2カット目（2カットの法則）</li>
+      <li><b>尺は目的で使い分け。</b>ループ狙い7〜15秒（完了率で伸ばす）／標準15〜30秒／教育・保存狙い30〜60秒。完了率80%が目標線</li>
+      <li><b>無音視聴前提の全編テロップ。</b>音声はふうかの声で二重化（顔なしでも声は信頼をつくる資産）</li>
+      <li><b>作り込まない"raw感"が優勢。</b>広告っぽい高品質より、スマホ実写の粗さが届く。クレイ実写と相性が良い</li>
+      <li><b>静止画スライド式リールで量産。</b>写真1枚2〜5秒＋テロップで成立（イラスト・漫画系アカウントの定石）。まめこ式4コマはこの形式にそのまま載る</li>
+    </ul>
+    <p class="hint">アルゴリズムの上位指標は保存・シェア・完了率。バズよりこの3つを分析タブで追う。すべて仮説なので、2週間の実測で設計図を更新する。</p>
+  </div>
+
   <h2 class="sec">このサイトの使い方</h2>
   <div class="card">
     <ul class="plain" style="margin-top:0;">
@@ -391,7 +415,14 @@
     <a href="https://xtrend.nikkei.com/atcl/contents/18/00019/00046/">不憫かわいい（日経クロストレンド）</a> /
     <a href="https://bunshun.jp/articles/-/47694">轟ちゃん（文春オンライン）</a> /
     <a href="https://studio.persol-group.co.jp/nama/231011-1">サラ（スタジオパーソル）</a> /
-    <a href="https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%BC%E3%83%88%E3%82%A5%E3%83%BC%E3%83%B3!">アートゥーン!（Wikipedia）</a>
+    <a href="https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%BC%E3%83%88%E3%82%A5%E3%83%BC%E3%83%B3!">アートゥーン!（Wikipedia）</a><br>
+    リール調査：
+    <a href="https://tatap.jp/knowledge/instagram-reel-185/">インスタリール攻略2026（tatap）</a> /
+    <a href="https://www.opus.pro/research/best-video-hooks-instagram">フック分析（OpusClip）</a> /
+    <a href="https://heytrendy.app/blog/instagram-reel-length">リール尺ガイド2026（Trendy）</a> /
+    <a href="https://later.com/blog/instagram-reels-trends/">Reels Trends（Later）</a> /
+    <a href="https://www.threadpost.jp/blog/instagram-reel-templates">秒数戦略（ThreadPost）</a> /
+    <a href="https://note.com/nocchi_24/n/nbd21e5bb24b0">静止画リールの作り方（note）</a>
   </p>
 </section>
 </div>
@@ -410,7 +441,7 @@
 const KATA = [
   {id:"jibun", color:"var(--k1)", name:"じぶんツッコミ型", src:"まめきちまめこ式",
    tag:"中の人の小さな失敗を、フリ→展開→セルフツッコミで。矛先は自分だけ。",
-   pillar:"F 中の人", series:"つくる日記", igFormat:"カルーセル",
+   pillar:"F 中の人", series:"つくる日記", igFormat:"リール",
    fields:[
      {k:"scene", l:"きょうの場面（フリ）", p:"例：取材の文字起こしを流しながら夕飯を作っていたら"},
      {k:"twist", l:"起きたこと（展開）", p:"例：カウンセラーさんの声に相づちを打ちながら、味噌を2回入れていた"},
@@ -433,7 +464,7 @@ const KATA = [
   },
   {id:"misete", color:"var(--k3)", name:"ぜんぶ見せる型", src:"轟ちゃん式",
    tag:"運営・取材の裏側を、うまくいかなかったことも含めて正直に見せる。",
-   pillar:"D つくる日記", series:"つくる日記", igFormat:"カルーセル",
+   pillar:"D つくる日記", series:"つくる日記", igFormat:"リール",
    fields:[
      {k:"ura", l:"見せる裏側", p:"例：Kinda voicesの取材、実は1本あたり録音が90分ある"},
      {k:"fail", l:"うまくいかなかったこと（隠さない）", p:"例：最初の取材は緊張して、聞きたいことの半分も聞けなかった"},
@@ -444,7 +475,7 @@ const KATA = [
   },
   {id:"tantan", color:"var(--k4)", name:"淡々型", src:"コスメヲタちゃんねるサラ式",
    tag:"感情を盛らず、事実を3つテンポよく。保存される投稿はこれ。冒頭に検索語。",
-   pillar:"B 相談所リアル", series:"その他", igFormat:"カルーセル",
+   pillar:"B 相談所リアル", series:"その他", igFormat:"リール",
    fields:[
      {k:"theme", l:"テーマ（冒頭・検索語を含める）", p:"例：結婚相談所の初回面談で実際に聞かれること"},
      {k:"f1", l:"事実1", p:"例：これまでの活動より「これからどう過ごしたいか」を聞かれることが多い"},
@@ -458,7 +489,7 @@ const KATA = [
   },
   {id:"honyaku", color:"var(--k5)", name:"翻訳型", src:"アートゥーン!式",
    tag:"カウンセラーの専門知・業界の言葉を、ゆるく日常語にほどく。voicesの素材が原料。",
-   pillar:"B 相談所リアル", series:"その他", igFormat:"カルーセル",
+   pillar:"B 相談所リアル", series:"その他", igFormat:"リール",
    fields:[
      {k:"word", l:"業界の言葉", p:"例：「お見合いの申し込みは月◯件まで」の意味"},
      {k:"yaku", l:"ゆるい翻訳", p:"例：ようするに、無限に迷わないための上限。バイキングの皿と同じ"},
@@ -631,6 +662,62 @@ const SEEDS=[
   {honne:"断り方・気まずさが怖い", ex:"お見合いの断り方／担当変更の言い出し方", kata:["honyaku","fubin"]},
   {honne:"中の人はどんな人か知りたい", ex:"運営の日常の小さな失敗／サイトを手づくりしている裏側", kata:["jibun","misete"]}
 ];
+/* リール設計図（2026-07 トレンド調査に基づく仮説。分析タブで検証しながら更新する）
+   共通原則：冒頭1.5〜2秒のテキストフック／3秒1カット／全編テロップ（無音視聴前提）／
+   作り込まないraw感OK／静止画スライド式で量産（1枚2〜5秒）／保存・シェアが上位指標 */
+const REELS={
+  jibun:{len:"15〜25秒・紙芝居型（まめこ式4コマをそのままリール化）",
+    img:"作業机・粘土・小道具のスマホ実写4〜6枚。作り込まないraw感が今は優勢",
+    audio:"ふうかの声 or ゆるいBGM。無音でも伝わるよう全編テロップ",
+    steps:[
+      ["0〜2秒","フック：オチを匂わすテロップ1行＋1カット目","例「取材してたら、味噌汁が事故った」。2秒以内に2カット目へ"],
+      ["2〜6秒","フリ：場面の写真＋状況テロップ","ナレーションはここから始める"],
+      ["6〜12秒","展開：2カットでテンポを上げる","3秒1カット。中盤の意外性で二度目のフック"],
+      ["12〜16秒","セルフツッコミ：文字を大きく、1拍止める","オチは静止画で見せると効く"],
+      ["16〜20秒","余韻：静かな1枚＋小さい文字","まめこ式の後味。説教で締めない"]]},
+  fubin:{len:"7〜15秒・ループ型（完了率で伸ばす主力）",
+    img:"クレイふうか像の実写3〜5カット。表情は動かなくていい（不憫さは構図と文字で出す）",
+    audio:"静かなBGM推奨。声はなくても成立する",
+    steps:[
+      ["0〜1.5秒","フック：あるある一行＋ふうか像のアップ","例「予約フォームの前で30分固まってる」"],
+      ["1.5〜4秒","場面：ふうか像＋小道具（スマホ・冷めたお茶）","引きのカットで状況がわかるように"],
+      ["4〜8秒","凹みの瞬間：寄り→引きの2カット","ここが「これ私だ」の山"],
+      ["8〜12秒","救いの一行：画面を静止してテロップだけ","焦らせない。そっと置く"],
+      ["12〜13秒","余韻のまま即終了","ループで冒頭に戻る設計。終わりの挨拶は入れない"]]},
+  misete:{len:"30〜60秒・vlog風（声で信頼をつくる型）",
+    img:"手元・机・画面・粘土の実写。編集は粗くていい",
+    audio:"ふうかの声メイン（顔なし）。この型は声が主役",
+    steps:[
+      ["0〜2秒","フック：「口コミサイトの中の人、今日の失敗」系テロップ＋手元カット","何の裏側かを1行で"],
+      ["2〜10秒","裏側：作業風景を3秒1カットで","ナレーション開始"],
+      ["10〜25秒","失敗：隠さずそのまま見せる","轟ちゃん式の核。ここを薄めない"],
+      ["25〜40秒","学びと、いま","落ち着いたトーンに戻す"],
+      ["ラスト2秒","ひとことで締め","次も見たくなる余白を残す"]]},
+  tantan:{len:"30〜45秒・教育型（保存狙い）",
+    img:"ベージュ背景のテキストスライド or クレイ情景写真（静止画リールでOK・1枚5秒以内）",
+    audio:"ふうかの淡々ナレーション。テロップと二重化",
+    steps:[
+      ["0〜2秒","フック：「◯◯、3つ」と数字で言い切るテロップ","前置きゼロ。タイトルがそのままフック"],
+      ["2〜5秒","すぐ1つ目へ","サラ式：無駄な解説をしない"],
+      ["5〜30秒","事実1→2→3。各7〜8秒","番号テロップ＋3秒1カット"],
+      ["30〜40秒","補足ひとこと＋保存の誘い","「保存しておくと面談前に見返せます」"]]},
+  honyaku:{len:"20〜40秒・解説型（voices誘導）",
+    img:"クレイ情景＋例えの小道具写真。「翻訳の絵」が1枚あると強い",
+    audio:"ふうかの声。会話調でゆるく",
+    steps:[
+      ["0〜2秒","フック：疑問形テロップ","例「『仮交際』って、何が仮なの」"],
+      ["2〜8秒","業界の言葉を提示","言葉だけを画面中央に"],
+      ["8〜20秒","ゆるい翻訳：例えのビジュアル1枚","ビュッフェの皿など、絵で笑わせる"],
+      ["20〜30秒","カウンセラーの一言を引用テロップで","同意範囲内の表記"],
+      ["30〜35秒","voicesへの導き","「続きはプロフィールから」"]]},
+  hitokoto:{len:"7〜12秒・静かなループ（最軽量・量産用）",
+    img:"クレイ情景写真1〜2枚で完成。いちばん作りやすい",
+    audio:"静かなBGMのみ。無音の世界観がこの型の武器",
+    steps:[
+      ["0〜2秒","引用の前半だけ見せる","続きが気になる状態を作る"],
+      ["2〜8秒","全文をゆっくり表示＋クレイ情景1枚","文字は1行ずつフェードイン"],
+      ["8〜10秒","話し手の表記＋CTA一行","「◯◯さんの話を、直接聞いてみる。」"]]}
+};
 const TIME_IG=["10:00-11:00","17:00","20:00-21:00","任意"];
 const TIME_X=["朝 7:30-8:30","昼 12:00台","夜 21:00-22:30","任意"];
 
@@ -653,8 +740,8 @@ function copyText(txt,msg){
 }
 function fallbackCopy(txt,done){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){toast("コピーできませんでした");}document.body.removeChild(ta);}
 function xWeight(s){ // Xの280換算（全角2・半角1・URL23）
-  let t=String(s).replace(/https?:\/\/\S+/g," ".repeat(23)), n=0;
-  for(const ch of t){ n += (ch===" ")?1:(ch.charCodeAt(0)>0xFF?2:1); }
+  let t=String(s).replace(/https?:\/\/\S+/g," ".repeat(23)), n=0;
+  for(const ch of t){ n += (ch===" ")?1:(ch.charCodeAt(0)>0xFF?2:1); }
   return n;
 }
 const kataById=id=>KATA.find(k=>k.id===id)||KATA[0];
@@ -705,7 +792,20 @@ function renderPlatform(){
   $("platHint").textContent = curPlat==="ig"
     ? `この型のおすすめ形式：${curKata.igFormat}。シリーズは「${curKata.series}」で記録されます。`
     : `Xの柱は「${curKata.pillar}」で記録されます。冒頭に検索語（結婚相談所 等）を置くと発見されやすくなります。`;
+  renderReelPlan();
   updatePreview();
+}
+/* リール設計図：IG×リールのときだけ、その型の秒数割りを表示 */
+function renderReelPlan(){
+  const show = curPlat==="ig" && $("igFormat").value==="リール" && REELS[curKata.id];
+  $("reelPlanWrap").style.display = show?"":"none";
+  if(!show) return;
+  const r=REELS[curKata.id];
+  $("reelPlan").innerHTML=
+    `<p class="rp-meta"><b>${esc(curKata.name)}リール：${esc(r.len)}</b></p>
+     <p class="rp-sub">画像：${esc(r.img)}<br>音：${esc(r.audio)}</p>
+     ${r.steps.map(s=>`<div class="rp-step"><div class="t">${esc(s[0])}</div><div>${esc(s[1])}<div class="note">${esc(s[2])}</div></div></div>`).join("")}
+     <p class="hint">共通原則：冒頭2秒がすべて（最初の3秒で約半数が離脱）／3秒1カット／無音でも伝わる全編テロップ／作り込まないraw感OK。この設計図は2026年7月のトレンド調査に基づく仮説。分析タブの数字で検証して更新する。</p>`;
 }
 document.querySelectorAll("#platSeg button").forEach(b=>b.addEventListener("click",()=>{curPlat=b.dataset.plat;renderPlatform();}));
 
@@ -748,6 +848,7 @@ function updateCount(){
 $("preview").addEventListener("input",updateCount);
 $("hashtags").addEventListener("input",updatePreview);
 $("anotherDraft").addEventListener("click",()=>{applyDraft();toast("別の案を入れました");});
+$("igFormat").addEventListener("change",renderReelPlan);
 
 /* safety */
 function renderSafety(){
