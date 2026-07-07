@@ -184,6 +184,16 @@
     <p class="hint" style="margin:0 0 4px;">型を選ぶと下書きが自動で入ります。これを叩き台に編集してください。運営の実話系（じぶんツッコミ・ぜんぶ見せる）は、事実と違う部分を実際の出来事に直してから出すこと。</p>
     <div class="btnrow" style="margin-top:6px;">
       <button class="btn ghost small" id="anotherDraft">別の案を出す</button>
+      <button class="btn ghost small" id="rejectDraft">この案はボツ</button>
+    </div>
+    <div id="rejectWrap" style="display:none;">
+      <label class="f">ボツの理由 <span class="sub">（任意。書いておくとClaudeが好みに合わせて補充案を作れます）</span>
+        <input type="text" id="rejectReason" placeholder="例：オチが弱い／ふうか像のキャラが違う／ネタが古い">
+      </label>
+      <div class="btnrow" style="margin-top:8px;">
+        <button class="btn small" id="rejectConfirm">ボツにして次の案へ</button>
+        <button class="btn ghost small" id="rejectCancel">やめる</button>
+      </div>
     </div>
     <label class="f">投稿タイトル <span class="sub">（Notionカレンダー用の管理名）</span>
       <input type="text" id="postTitle" placeholder="例：ふびん型 お見合い前日の靴下">
@@ -218,6 +228,16 @@
 
   <h2 class="sec">下書き</h2>
   <div id="draftList"><p class="hint">まだ下書きはありません。</p></div>
+
+  <details id="rejectedBox" style="margin-top:16px;">
+    <summary>ボツにした案（Claudeに渡して補充してもらう）</summary>
+    <p class="hint">溜まったら下のボタンでコピーして、Claudeのチャットに貼って「この傾向を避けて補充して」と頼んでください。</p>
+    <div class="btnrow">
+      <button class="btn ghost small" id="copyRejected">Claudeに渡す用にコピー</button>
+      <button class="btn ghost small" id="clearRejected">ボツ履歴を空にする（案が復活します）</button>
+    </div>
+    <div id="rejectedList"></div>
+  </details>
 </section>
 
 <!-- ============ ネタ帳 ============ -->
@@ -393,8 +413,9 @@
       <li><b>冒頭1.5〜2秒がすべて。</b>最初の3秒で約半数が離脱し、3秒残存率60%超のリールは40%未満の5〜10倍届く。1フレーム目にテキストフック、2秒以内に2カット目（2カットの法則）</li>
       <li><b>尺は目的で使い分け。</b>ループ狙い7〜15秒（完了率で伸ばす）／標準15〜30秒／教育・保存狙い30〜60秒。完了率80%が目標線</li>
       <li><b>無音視聴前提の全編テロップ。</b>音声はふうかの声で二重化（顔なしでも声は信頼をつくる資産）</li>
-      <li><b>作り込まない"raw感"が優勢。</b>広告っぽい高品質より、スマホ実写の粗さが届く。クレイ実写と相性が良い</li>
-      <li><b>静止画スライド式リールで量産。</b>写真1枚2〜5秒＋テロップで成立（イラスト・漫画系アカウントの定石）。まめこ式4コマはこの形式にそのまま載る</li>
+      <li><b>作り込まない"raw感"が優勢。</b>広告っぽい高品質より、粗さが届く。手元のスマホ写真と生成クレイ画像の混在で問題ない</li>
+      <li><b>静止画スライド式リールで量産。</b>画像1枚2〜5秒＋テロップで成立（イラスト・漫画系アカウントの定石）。まめこ式4コマはこの形式にそのまま載る</li>
+      <li><b>Kindaの制作制約と噛み合う。</b>クレイふうか像は生成AI画像で、枠は1日5〜8枚（ChatGPT無料プラン）。画像の動画化は能力が低いため1本につき1カットまで。静止画スライド中心の設計はこの制約下でちょうど回る（ふびん型3〜4枚＝1日1〜2本分、ひとこと型は1枚）</li>
     </ul>
     <p class="hint">アルゴリズムの上位指標は保存・シェア・完了率。バズよりこの3つを分析タブで追う。すべて仮説なので、2週間の実測で設計図を更新する。</p>
   </div>
@@ -667,7 +688,8 @@ const SEEDS=[
    作り込まないraw感OK／静止画スライド式で量産（1枚2〜5秒）／保存・シェアが上位指標 */
 const REELS={
   jibun:{len:"15〜25秒・紙芝居型（まめこ式4コマをそのままリール化）",
-    img:"作業机・粘土・小道具のスマホ実写4〜6枚。作り込まないraw感が今は優勢",
+    img:"作業机・小道具は実物のスマホ写真でOK（生成AI枠を使わない）。ふうか像を出す場合のみ生成画像1〜2枚",
+    budget:"生成画像0〜2枚／動画化なしで成立（静止画＋テロップ送りで十分）",
     audio:"ふうかの声 or ゆるいBGM。無音でも伝わるよう全編テロップ",
     steps:[
       ["0〜2秒","フック：オチを匂わすテロップ1行＋1カット目","例「取材してたら、味噌汁が事故った」。2秒以内に2カット目へ"],
@@ -676,7 +698,8 @@ const REELS={
       ["12〜16秒","セルフツッコミ：文字を大きく、1拍止める","オチは静止画で見せると効く"],
       ["16〜20秒","余韻：静かな1枚＋小さい文字","まめこ式の後味。説教で締めない"]]},
   fubin:{len:"7〜15秒・ループ型（完了率で伸ばす主力）",
-    img:"クレイふうか像の実写3〜5カット。表情は動かなくていい（不憫さは構図と文字で出す）",
+    img:"クレイふうか像の生成画像3〜4枚（アップ・引き・凹み・救い）。表情は変わらなくていい（不憫さは構図と文字で出す）",
+    budget:"生成3〜4枚＝1日の枠（5〜8枚）で1〜2本分。動画化するなら「凹みの瞬間」の1カットだけ。他は静止画のまま2〜4秒",
     audio:"静かなBGM推奨。声はなくても成立する",
     steps:[
       ["0〜1.5秒","フック：あるある一行＋ふうか像のアップ","例「予約フォームの前で30分固まってる」"],
@@ -685,7 +708,8 @@ const REELS={
       ["8〜12秒","救いの一行：画面を静止してテロップだけ","焦らせない。そっと置く"],
       ["12〜13秒","余韻のまま即終了","ループで冒頭に戻る設計。終わりの挨拶は入れない"]]},
   misete:{len:"30〜60秒・vlog風（声で信頼をつくる型）",
-    img:"手元・机・画面・粘土の実写。編集は粗くていい",
+    img:"手元・机・画面は実物のスマホ撮影（生成AI枠ゼロ）。編集は粗くていい",
+    budget:"生成0枚でOK。動きは実写の手元をそのまま撮る（AI動画変換を使わない型）",
     audio:"ふうかの声メイン（顔なし）。この型は声が主役",
     steps:[
       ["0〜2秒","フック：「口コミサイトの中の人、今日の失敗」系テロップ＋手元カット","何の裏側かを1行で"],
@@ -694,7 +718,8 @@ const REELS={
       ["25〜40秒","学びと、いま","落ち着いたトーンに戻す"],
       ["ラスト2秒","ひとことで締め","次も見たくなる余白を残す"]]},
   tantan:{len:"30〜45秒・教育型（保存狙い）",
-    img:"ベージュ背景のテキストスライド or クレイ情景写真（静止画リールでOK・1枚5秒以内）",
+    img:"ベージュ背景のテキストスライド中心（生成AI不要）。クレイ情景を挟むなら生成1〜2枚（1枚5秒以内）",
+    budget:"生成0〜2枚。動画化なし（静止画リールで成立）",
     audio:"ふうかの淡々ナレーション。テロップと二重化",
     steps:[
       ["0〜2秒","フック：「◯◯、3つ」と数字で言い切るテロップ","前置きゼロ。タイトルがそのままフック"],
@@ -702,7 +727,8 @@ const REELS={
       ["5〜30秒","事実1→2→3。各7〜8秒","番号テロップ＋3秒1カット"],
       ["30〜40秒","補足ひとこと＋保存の誘い","「保存しておくと面談前に見返せます」"]]},
   honyaku:{len:"20〜40秒・解説型（voices誘導）",
-    img:"クレイ情景＋例えの小道具写真。「翻訳の絵」が1枚あると強い",
+    img:"「翻訳の絵」（例えのビジュアル）を生成1枚＋テキストスライド",
+    budget:"生成1〜2枚。動画化するなら翻訳の絵の1カットのみ",
     audio:"ふうかの声。会話調でゆるく",
     steps:[
       ["0〜2秒","フック：疑問形テロップ","例「『仮交際』って、何が仮なの」"],
@@ -711,7 +737,8 @@ const REELS={
       ["20〜30秒","カウンセラーの一言を引用テロップで","同意範囲内の表記"],
       ["30〜35秒","voicesへの導き","「続きはプロフィールから」"]]},
   hitokoto:{len:"7〜12秒・静かなループ（最軽量・量産用）",
-    img:"クレイ情景写真1〜2枚で完成。いちばん作りやすい",
+    img:"クレイ情景の生成画像1枚で完成。いちばん作りやすい",
+    budget:"生成1枚。動画化なし（文字のフェードだけで成立）",
     audio:"静かなBGMのみ。無音の世界観がこの型の武器",
     steps:[
       ["0〜2秒","引用の前半だけ見せる","続きが気になる状態を作る"],
@@ -725,7 +752,7 @@ const TIME_X=["朝 7:30-8:30","昼 12:00台","夜 21:00-22:30","任意"];
 const LS="kinda-sns-studio:v1";
 let store;
 try{ store=JSON.parse(localStorage.getItem(LS)||"{}"); }catch(e){ store={}; }
-store.drafts=store.drafts||[]; store.ideas=store.ideas||[]; store.logs=store.logs||[];
+store.drafts=store.drafts||[]; store.ideas=store.ideas||[]; store.logs=store.logs||[]; store.rejected=store.rejected||[];
 function save(){ localStorage.setItem(LS,JSON.stringify(store)); }
 let curKata=KATA[0], curPlat="ig", curMetric="save";
 
@@ -769,19 +796,57 @@ function renderKataGrid(){
     curKata=kataById(c.dataset.id); renderKataGrid(); applyDraft(); renderPlatform();
   }));
 }
-/* 型を選ぶたびに下書き案を順番に自動セットする */
+/* 型を選ぶたびに下書き案を順番に自動セットする（ボツにした案はスキップ） */
 const draftIdx={};
+let curDraft=null;
+const isRejected=(kata,title)=>store.rejected.some(r=>r.kata===kata&&r.title===title);
 function applyDraft(){
-  const bank=DRAFTS[curKata.id]||[];
-  if(!bank.length){ renderFields(); return; }
+  const bank=(DRAFTS[curKata.id]||[]).filter(d=>!isRejected(curKata.id,d.title));
+  if(!bank.length){
+    curDraft=null; renderFields();
+    $("postTitle").value=""; $("hypothesis").value="";
+    toast("この型の案は出しつくしました。Claudeに補充を頼んでください");
+    return;
+  }
   const i=(draftIdx[curKata.id]??-1)+1;
   draftIdx[curKata.id]=i%bank.length;
-  const d=bank[draftIdx[curKata.id]];
-  $("postTitle").value=d.title;
-  $("hypothesis").value=d.hypo;
-  renderFields(d.f);
+  curDraft=bank[draftIdx[curKata.id]];
+  $("postTitle").value=curDraft.title;
+  $("hypothesis").value=curDraft.hypo;
+  renderFields(curDraft.f);
   resetSafety();
 }
+/* ボツ機能：理由つきで記録し、その案は以後出さない */
+$("rejectDraft").addEventListener("click",()=>{
+  if(!curDraft){toast("いま入っているのは自動案ではありません");return;}
+  $("rejectWrap").style.display="";
+  $("rejectReason").focus();
+});
+$("rejectCancel").addEventListener("click",()=>{$("rejectWrap").style.display="none";$("rejectReason").value="";});
+$("rejectConfirm").addEventListener("click",()=>{
+  if(!curDraft) return;
+  store.rejected.unshift({kata:curKata.id,title:curDraft.title,reason:$("rejectReason").value.trim(),date:new Date().toISOString().slice(0,10)});
+  save();
+  $("rejectWrap").style.display="none"; $("rejectReason").value="";
+  renderRejected(); applyDraft();
+  toast("ボツにしました。次の案です");
+});
+function renderRejected(){
+  const el=$("rejectedList");
+  if(!store.rejected.length){el.innerHTML='<p class="hint">まだボツはありません。</p>';return;}
+  el.innerHTML=store.rejected.map(r=>{const k=kataById(r.kata);
+    return `<div class="item"><div class="t" style="font-size:.8rem;">${esc(r.title)}</div>
+      <div class="m"><span class="chip"><span class="dot" style="background:${k.color}"></span>${esc(k.name)}</span> ${esc(r.date)}${r.reason?"｜理由: "+esc(r.reason):"｜理由なし"}</div></div>`;}).join("");
+}
+$("copyRejected").addEventListener("click",()=>{
+  if(!store.rejected.length){toast("ボツはまだありません");return;}
+  const txt=["Kinda SNS投稿スタジオのボツ案リストです。この傾向を避けて、各型の下書き案を補充してください。",""]
+    .concat(store.rejected.map(r=>`- [${kataById(r.kata).name}] ${r.title} … 理由: ${r.reason||"（未記入）"}`)).join("\n");
+  copyText(txt,"コピーしました。Claudeのチャットに貼ってください");
+});
+$("clearRejected").addEventListener("click",()=>{
+  store.rejected=[]; save(); renderRejected(); toast("ボツ履歴を空にしました。案が復活します");
+});
 function renderPlatform(){
   document.querySelectorAll("#platSeg button").forEach(b=>b.classList.toggle("sel",b.dataset.plat===curPlat));
   $("igFormatWrap").style.display = curPlat==="ig"?"":"none";
@@ -803,9 +868,9 @@ function renderReelPlan(){
   const r=REELS[curKata.id];
   $("reelPlan").innerHTML=
     `<p class="rp-meta"><b>${esc(curKata.name)}リール：${esc(r.len)}</b></p>
-     <p class="rp-sub">画像：${esc(r.img)}<br>音：${esc(r.audio)}</p>
+     <p class="rp-sub">画像：${esc(r.img)}<br>枚数の目安：${esc(r.budget)}<br>音：${esc(r.audio)}</p>
      ${r.steps.map(s=>`<div class="rp-step"><div class="t">${esc(s[0])}</div><div>${esc(s[1])}<div class="note">${esc(s[2])}</div></div></div>`).join("")}
-     <p class="hint">共通原則：冒頭2秒がすべて（最初の3秒で約半数が離脱）／3秒1カット／無音でも伝わる全編テロップ／作り込まないraw感OK。この設計図は2026年7月のトレンド調査に基づく仮説。分析タブの数字で検証して更新する。</p>`;
+     <p class="hint">共通原則：冒頭2秒がすべて（最初の3秒で約半数が離脱）／3秒1カット／無音でも伝わる全編テロップ／作り込まないraw感OK。制作ルール：クレイふうか像は生成AI画像（1日5〜8枚の枠内）、画像の動画化は1本につき1カットまで、残りは静止画スライドで組む。この設計図は2026年7月のトレンド調査に基づく仮説。分析タブの数字で検証して更新する。</p>`;
 }
 document.querySelectorAll("#platSeg button").forEach(b=>b.addEventListener("click",()=>{curPlat=b.dataset.plat;renderPlatform();}));
 
@@ -1063,5 +1128,5 @@ $("copyCsv").addEventListener("click",()=>{
 
 /* ---------- init ---------- */
 renderKataGrid(); renderSafety(); applyDraft(); renderPlatform(); renderDrafts();
-renderSeeds(); renderIdeas(); renderAnalytics();
+renderSeeds(); renderIdeas(); renderAnalytics(); renderRejected();
 </script>
