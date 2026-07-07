@@ -84,8 +84,9 @@
 - [ ] **不要ブランチ削除（GitHub UI から・環境の git プロキシでは削除不可）**：`claude/review-reply-display`・`claude/review-display-tags-reply`・`claude/reel-count-notif-tweak`。⚠️ `claude/fix-profile-creation-1clpG`（counselor本番）と `claude/futarive-admin-dashboard-iKBfw`（admin本番）は削除禁止。
 
 ### SNS まわり（決裁済み・実作業）
-- [ ] **バリューコマース アフィリエイト審査待ち**（2026-07-06 申込・契約者タイプ=法人）：2〜3営業日で結果予定（Notion運営カレンダー 7/9 に記載済み）。承認後、ホットペッパーグルメ・一休.comレストランと提携 → Kinda act のカフェ・デートスポット記事の予約リンクに反映。既存 `omiai-cafe-tokyo` 含め店舗の掲載自体は許可不要（テキストは自由・写真は自撮り前提／自社素材以外の転載のみ要許可）。
-- [ ] **Kinda act 初投稿＋お見合いカフェのアフィリエイト展開**：審査通過後に着手。カフェ記事をKinda voicesにも展開する流れで進行中（ふうか進行）。
+- [x] バリューコマース アフィリエイト**審査通過**（2026-07-06）。店舗掲載の型は `docs/guides/kinda-act-glow-post-template.md` に制定。PR表記＋rel=sponsoredはbooking_urlのASPドメインから自動判定（実装済み）。
+- [ ] **VC管理画面でふうか作業（審査通過後の残り）**：①「一休.comレストラン」「ホットペッパーグルメ」に提携申請 → ②承認後、MyLinkで https://restaurant.ikyu.com/117183 のリンクを発行 → Claudeに渡す（shops.booking_url を差し替え・PR表記が自動で出る）。
+- [ ] **Kinda act 初投稿の続き**：ランデブーラウンジ（帝国ホテル 東京）を掲載済み（shops id: dc483116-0e40-4cc3-a59c-8ffe85877615・badge=掲載店・一休生URL仮置き）。次はカフェ帯（HPG）を1〜2件＋お見合いカフェ記事のKinda voices展開（ふうか進行）。
 - [ ] **bio 二層化の反映**：X / IG / note の bio 1行目に「結婚相談所を、カウンセラーの口コミで選べるサイト」等の機能記述を追記（CLAUDE.md §2 改定済み・2026-07-02 決裁）。あわせて旧タスク「bio から（結婚相談所Emma運営）を削除」も同時に確認。
 - [ ] **コラム本番URLの確認 → Notion X カレンダーのリプリンク欄修正**（B/E投稿の `kinda.jp/columns/[slug]` は推定のまま。5本：counselor-de-erabu-soudanjo／soudanjo-to-konkatsu-app-chigai／kekkon-soudanjo-ryokin-no-mikata／counselor-tantou-henkou／shokai-mendan-de-miru-koto）。
 - [x] 週次SNSレビュー 2026-W27 実施（`docs/sns/reviews/2026-W27.md`）。X「顕在ワード+意見+リプにコラム2本」を勝ち型として特定、IG冒頭1秒フック改善とCTA変更（保存・コメント誘導）をNotionの7/6〜7/11投稿に反映済み。
