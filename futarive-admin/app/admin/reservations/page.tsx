@@ -53,7 +53,7 @@ export default function ReservationsPage() {
   const fmt = (iso: string | null) =>
     iso ? new Date(iso).toLocaleString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
 
-  // 送客料（¥5,000）の決済状態。返金は webhook(charge.refunded) で refunded_at が立つ。
+  // 送客料（¥5,500 税込）の決済状態。返金は webhook(charge.refunded) で refunded_at が立つ。
   const paymentStatus = (r: { paid_at: string | null; refunded_at: string | null }) =>
     r.refunded_at ? { label: '返金済み', cls: 'badge badge-draft' }
       : r.paid_at ? { label: '決済済み', cls: 'badge badge-published' }
