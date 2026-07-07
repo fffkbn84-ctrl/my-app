@@ -99,7 +99,27 @@ type SnsLink = {
   url: string;
   primaryLabel: string;
   iconAriaLabel: string;
+  /** アフィリエイトリンク（ASP経由）のとき true。PR表記と rel="sponsored" を付ける */
+  sponsored?: boolean;
 };
+
+/* 予約URLがアフィリエイト（ASP計測ドメイン経由）かをURLから自動判定する。
+   ステマ規制（景品表示法）対応のPR表記と rel="sponsored" の出し分けに使う。
+   DBにフラグを持たせず判定できるので、booking_url を貼り替えるだけで表示が追従する。 */
+const AFFILIATE_HOSTS = [
+  "valuecommerce.com", // バリューコマース（ck.jp.ap.valuecommerce.com 等）
+  "a8.net",
+  "accesstrade.net",
+  "moshimo.com",
+];
+function isAffiliateUrl(url: string): boolean {
+  try {
+    const host = new URL(url).hostname;
+    return AFFILIATE_HOSTS.some((d) => host === d || host.endsWith(`.${d}`));
+  } catch {
+    return false;
+  }
+}
 
 function pickSnsLinks(shop: ShopDetail): { primary: SnsLink | null; subs: SnsLink[] } {
   const list: SnsLink[] = [];
@@ -109,6 +129,7 @@ function pickSnsLinks(shop: ShopDetail): { primary: SnsLink | null; subs: SnsLin
       url: shop.bookingUrl,
       primaryLabel: "予約サイトを見る",
       iconAriaLabel: "予約サイト",
+      sponsored: isAffiliateUrl(shop.bookingUrl),
     });
   if (shop.instagramUrl)
     list.push({
@@ -580,7 +601,7 @@ export default async function PlaceDetailPage({
                         <a
                           href={primarySns.url}
                           target="_blank"
-                          rel="noopener noreferrer"
+                          rel={primarySns.sponsored ? "sponsored noopener noreferrer" : "noopener noreferrer"}
                           className="cta-book-main"
                         >
                           {primarySns.primaryLabel}
@@ -589,6 +610,20 @@ export default async function PlaceDetailPage({
                               stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         </a>
+                        {primarySns.sponsored && (
+                          <p
+                            style={{
+                              fontSize: 10.5,
+                              lineHeight: 1.7,
+                              color: "var(--muted)",
+                              textAlign: "center",
+                              margin: 0,
+                            }}
+                          >
+                            PR：予約リンクは提携プログラム（アフィリエイト）を利用しています。
+                            掲載店の選定には影響しません。
+                          </p>
+                        )}
                         {subSns.length > 0 && (
                           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
                             {subSns.map((s) => (
@@ -697,11 +732,16 @@ export default async function PlaceDetailPage({
           <a
             href={primarySns.url}
             target="_blank"
-            rel="noopener noreferrer"
+            rel={primarySns.sponsored ? "sponsored noopener noreferrer" : "noopener noreferrer"}
             className="cta-mobile-btn"
             aria-label={primarySns.primaryLabel}
           >
-            <span>{primarySns.kind === "instagram" ? "Instagram" : primarySns.kind === "booking" ? "予約する" : "サイトを見る"}</span>
+            <span>
+              {primarySns.sponsored && (
+                <span style={{ fontSize: 9, opacity: 0.85, marginRight: 5, letterSpacing: ".08em" }}>PR</span>
+              )}
+              {primarySns.kind === "instagram" ? "Instagram" : primarySns.kind === "booking" ? "予約する" : "サイトを見る"}
+            </span>
             <svg className="cta-mobile-btn-arrow" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
