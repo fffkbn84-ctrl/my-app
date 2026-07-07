@@ -475,7 +475,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
         </div>
         {reservation.refunded_at && (
           <div style={{ marginBottom: 12, padding: '10px 12px', background: 'var(--bg-elev)', borderRadius: 10, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
-            この予約の送客料（¥5,000）は<b>返金済み</b>です（{fmtDateTime(reservation.refunded_at)}）。請求対象から除外されています。
+            この予約の送客料（¥5,500 税込）は<b>返金済み</b>です（{fmtDateTime(reservation.refunded_at)}）。請求対象から除外されています。
           </div>
         )}
         <Field label="面談日時" value={fmtDateTime(reservation.start_at)} />
@@ -512,7 +512,7 @@ export default function ReservationDetailBody({ reservationId, slotId }: Props) 
                 value={reviewerNickname ? `${reviewerNickname}（ニックネーム）` : '（ニックネーム未設定）'}
               />
               <div style={{ marginTop: 10, padding: '10px 12px', background: 'var(--bg-elev)', borderRadius: 10, fontSize: 12, color: 'var(--text-mid)', lineHeight: 1.7 }}>
-                お客様の<b>お名前・メールアドレス・電話番号</b>は、<b>送客料（¥5,000）の決済が確定すると開示</b>されます。
+                お客様の<b>お名前・メールアドレス・電話番号</b>は、<b>送客料（¥5,500 税込）の決済が確定すると開示</b>されます。
                 <br />カードが未登録の場合は「Kinda 請求履歴」ページからご登録ください。
               </div>
             </>

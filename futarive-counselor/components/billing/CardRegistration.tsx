@@ -21,7 +21,7 @@ function Section({ children }: { children: React.ReactNode }) {
         お支払い方法（クレジットカード）
       </div>
       <p style={{ ...muted, marginBottom: 14 }}>
-        送客料（予約確定ごとに ¥5,000）はこのカードに請求されます。カード未登録の場合、ご予約をお受けできません。
+        送客料（予約確定ごとに ¥5,500 税込）はこのカードに請求されます。カード未登録の場合、ご予約をお受けできません。
       </p>
       {children}
     </div>

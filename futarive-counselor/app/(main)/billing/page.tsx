@@ -137,7 +137,7 @@ export default function BillingPage() {
         borderRadius: 10,
       }}>
         <div style={{ fontSize: 13, color: 'var(--text-deep)', lineHeight: 1.7 }}>
-          Kinda は予約が確定するごとに <strong>¥5,000 の集客代行費（送客料）</strong>をいただいています。
+          Kinda は予約が確定するごとに <strong>¥5,500（税込）の集客代行費（送客料）</strong>をいただいています。
           このページでは過去の請求履歴と保留中の見込み額を確認できます。
         </div>
         <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
