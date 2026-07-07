@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * 予約成立で相談所カードに即時 ¥5,000 を off_session 課金する。
+ * 予約成立で相談所カードに即時 ¥5,500（税込）を off_session 課金する。
  * - 呼び出しは予約本人（ログインユーザー）に限定。
  * - 相談所が Stripe Customer + カード登録済みであることが前提（未登録は 402）。
  * - 二重課金防止：paid_at / stripe_payment_intent_id があればスキップ。

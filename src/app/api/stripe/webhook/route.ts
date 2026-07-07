@@ -70,7 +70,7 @@ async function sendReservationConfirmedEmails(
         to: agencyEmail,
         subject: "新しいご予約が入りました｜Kinda",
         html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
-          <p>新しいご予約が確定し、送客料（¥5,000）の決済が完了しました。お客様の連絡先を開示します。</p>
+          <p>新しいご予約が確定し、送客料（¥5,500 税込）の決済が完了しました。お客様の連絡先を開示します。</p>
           <table style="font-size:14px;margin:8px 0;">${contactRows}</table>
           <p style="margin:24px 0;"><a href="${COUNSELOR_APP_URL}/reservations" style="display:inline-block;background:#D4A090;color:#fff;text-decoration:none;padding:12px 24px;border-radius:24px;">予約を確認する</a></p>
           <p style="font-size:12px;color:#9a9088;">Kinda 運営事務局</p>
