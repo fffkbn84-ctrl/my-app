@@ -147,7 +147,7 @@
 <section id="page-build" class="tabpage active">
   <h2 class="sec">1. 型を選ぶ</h2>
   <div class="kata-grid" id="kataGrid"></div>
-  <p class="hint" id="kataHint">型の根拠は「型と根拠」タブに。迷ったらネタ帳タブでシャッフル。</p>
+  <p class="hint" id="kataHint">型を選ぶと下の「3. 中身」に完成形の下書きが入ります。迷ったらネタ帳タブでシャッフル。案が尽きたらClaudeのチャットで「◯◯型の題材を5個ちょうだい」と頼めば補充できます。</p>
 
   <h2 class="sec">2. 出し先</h2>
   <div class="card">
@@ -170,6 +170,10 @@
 
   <h2 class="sec">3. 中身を埋める</h2>
   <div class="card">
+    <p class="hint" style="margin:0 0 4px;">型を選ぶと下書きが自動で入ります。これを叩き台に編集してください。運営の実話系（じぶんツッコミ・ぜんぶ見せる）は、事実と違う部分を実際の出来事に直してから出すこと。</p>
+    <div class="btnrow" style="margin-top:6px;">
+      <button class="btn ghost small" id="anotherDraft">別の案を出す</button>
+    </div>
     <label class="f">投稿タイトル <span class="sub">（Notionカレンダー用の管理名）</span>
       <input type="text" id="postTitle" placeholder="例：ふびん型 お見合い前日の靴下">
     </label>
@@ -481,6 +485,136 @@ const KATA = [
      return b.join("\n");}
   }
 ];
+/* 下書き案バンク：型を選ぶと自動で1案入る。編集して使う叩き台。
+   実話系（jibun/misete）は事実に合わせて直す前提。hitokoto の引用は必ず実取材の言葉に差し替える。 */
+const DRAFTS={
+  jibun:[
+    {title:"じぶんツッコミ型 味噌汁が濃い", hypo:"中の人の失敗ネタは告知より反応されるか", f:{
+      scene:"取材音声の文字起こしを流しながら、夕飯を作っていた",
+      twist:"カウンセラーさんの話に相づちを打ちながら、味噌を二回入れていた",
+      tsukkomi:"話を聞く仕事の人の話を、聞きすぎである",
+      yoin:"味噌汁が濃い日は、いい取材ができた日ということにした"}},
+    {title:"じぶんツッコミ型 検索履歴", hypo:"サイト制作の裏側ネタはプロフ遷移につながるか", f:{
+      scene:"「結婚相談所 口コミ」で見つけてもらうサイトを作っている",
+      twist:"ふと見たら、自分の検索履歴が「粘土 ひび 直し方」で埋まっていた",
+      tsukkomi:"婚活サイト運営の検索履歴ではない",
+      yoin:"クレイのふうか像は、今日も無事です"}},
+    {title:"じぶんツッコミ型 お願いお願い", hypo:"失敗ネタはきれいな投稿より保存されるか", f:{
+      scene:"カウンセラーさんへの取材依頼メールを、30分かけて推敲した",
+      twist:"送信した直後、件名が「取材のお願いお願い」になっているのに気づいた",
+      tsukkomi:"お願いしすぎである",
+      yoin:"「熱意が伝わりました」と返事が来た。世界は優しい"}},
+    {title:"じぶんツッコミ型 職業病", hypo:"会話ネタは共感（いいね）を集めるか", f:{
+      scene:"友人の恋バナを聞いていた",
+      twist:"気づいたら「それで、最初の面談ではなんて言われたの」と取材の聞き方をしていた",
+      tsukkomi:"友達は取材対象ではない",
+      yoin:"でもすごくいい話だったので、聞けてよかった"}}
+  ],
+  fubin:[
+    {title:"ふびん型 予約フォームの30分", hypo:"ふびん型は「自分でも大丈夫か」層に保存されるか", f:{
+      aruaru:"はじめての面談予約。ふうか、名前を入力しては消して30分",
+      heko:"送信ボタンの上で指が固まったまま、淹れたお茶が完全に冷めた",
+      sukui:"30分迷えるのは、ちゃんと考えてる証拠だと思う"}},
+    {title:"ふびん型 写真選びで遭難", hypo:"あるある系はDMシェアされるか", f:{
+      aruaru:"プロフィール写真を選ぶふうか。「盛れてる」と「盛りすぎ」のあいだで遭難",
+      heko:"3年前の奇跡の一枚を出しかけて、そっと戻した",
+      sukui:"いまのあなたに会いに来る人を探すんだから、いまの写真でいい"}},
+    {title:"ふびん型 3週目の資料請求", hypo:"先延ばしネタは検討前の層に届くか", f:{
+      aruaru:"「今週こそ資料請求する」と宣言して3週目のふうか",
+      heko:"フォームを開いたまま、気づいたら猫の動画を40分見ていた",
+      sukui:"動き出す前がいちばん重い。フォームを開けただけで、今日は前進"}},
+    {title:"ふびん型 敬語二重事故", hypo:"面談あるあるは経験者にも未経験者にも刺さるか", f:{
+      aruaru:"はじめての面談を終えたふうか。緊張しすぎて敬語が二重になった",
+      heko:"「よろしくお願いいたしますです」と言った瞬間の記憶だけ、妙に鮮明に残っている",
+      sukui:"カウンセラーさんは何百人の緊張を見てきた人。覚えられてるとしたら、良い意味のほう"}},
+    {title:"ふびん型 雨の日の前髪", hypo:"お見合い当日ネタは保存されるか", f:{
+      aruaru:"お見合いの日に限って大雨。前髪が計画どおりにいかないふうか",
+      heko:"駅のガラスに映る自分と3分間の作戦会議をして、結局そのまま行った",
+      sukui:"雨の日に来てくれた、というだけで話すことがひとつ増える"}}
+  ],
+  misete:[
+    {title:"ぜんぶ見せる型 取材の90分", hypo:"裏側開示はvoices記事への遷移を生むか", f:{
+      ura:"Kinda voicesの取材、1本の記事の裏に90分の録音がある",
+      fail:"最初の取材は緊張して、用意した質問を上から順に読むだけになった",
+      manabi:"質問リストを捨てて、雑談から始めるようにした",
+      ima:"いちばんいい言葉は、いつも雑談の中から出てくる"}},
+    {title:"ぜんぶ見せる型 口コミ0件から", hypo:"弱み開示は信頼（フォロー）につながるか", f:{
+      ura:"口コミサイトなのに、最初は口コミが0件だった",
+      fail:"「面談した人だけが書ける」仕組みにこだわった結果、集まるのがとにかく遅い",
+      manabi:"でもこの遅さこそ、やらせゼロの証明だと決めた",
+      ima:"1件ずつしか増えない。それでいいと思っている"}},
+    {title:"ぜんぶ見せる型 初代ふうか像の最期", hypo:"制作裏話はいいねを集めるか", f:{
+      ura:"サイトに出てくるクレイのふうか像、手で作っている",
+      fail:"初代は乾燥でひびが入って、頭から崩れた",
+      manabi:"焦って作るとだいたい失敗する、ということを粘土に教わった",
+      ima:"二代目は元気です。今日も婚活の話をする粘土として働いている"}},
+    {title:"ぜんぶ見せる型 一人運営の時間割", hypo:"運営のリアルは「中の人」ファンを作るか", f:{
+      ura:"Kindaの運営、ほぼ一人でやっている",
+      fail:"取材・記事・SNS・サイト修正を同じ日にやろうとして、全部が中途半端になった日がある",
+      manabi:"1日1タスクに絞ったら、逆に進むようになった",
+      ima:"今日は、この投稿を作る日"}}
+  ],
+  tantan:[
+    {title:"淡々型 初回面談で聞かれること", hypo:"面談の中身系は保存率が最も高いか", f:{
+      theme:"結婚相談所の初回面談で実際に聞かれること",
+      f1:"過去の恋愛より「これからどう過ごしたいか」を聞かれることが多い",
+      f2:"その場で入会を決めなくていい。持ち帰って比べるのが普通",
+      f3:"費用の総額はその場で確認できる。にごされたら候補から外していい",
+      hosoku:"面談した人だけが書いた口コミは、Kindaで読めます"}},
+    {title:"淡々型 契約前に確認する3つ", hypo:"お金系は保存されるか", f:{
+      theme:"結婚相談所の契約前に確認したい3つのこと",
+      f1:"初期費用・月会費・成婚料の「総額」。月会費だけ見ると読み違える",
+      f2:"中途退会したときのお金。契約書で必ず確認できる項目",
+      f3:"担当カウンセラーを途中で変えられるか。聞きにくいけど、聞いていい質問",
+      hosoku:"聞いて嫌な顔をされたら、それもひとつの情報"}},
+    {title:"淡々型 入会からお見合いまで", hypo:"日数・流れ系は未検討層に届くか", f:{
+      theme:"結婚相談所、入会からお見合いまでの実際の流れ",
+      f1:"書類準備と写真撮影で、活動開始までだいたい2〜4週間",
+      f2:"最初の1ヶ月は「申し込みの練習期間」と考えるとちょうどいい",
+      f3:"早い人は1ヶ月ほどで最初のお見合い。遅くても焦る必要はない",
+      hosoku:"ペースはカウンセラーと一緒に決められます"}},
+    {title:"淡々型 カウンセラーの裏側", hypo:"覗き見系はプロフ遷移するか", f:{
+      theme:"結婚相談所のカウンセラーが面談のあと裏でやっていること",
+      f1:"会員同士の相性を考えて、紹介文を1通ずつ書いている相談所がある",
+      f2:"お断りの連絡を本人の代わりに引き受けるのも仕事のうち",
+      f3:"「今週連絡がなかった人」を気にかけて連絡するカウンセラーもいる",
+      hosoku:"どんなカウンセラーかが口コミでわかる場所を作っています"}}
+  ],
+  honyaku:[
+    {title:"翻訳型 申し込み上限のほんとうの意味", hypo:"用語翻訳はvoices遷移を生むか", f:{
+      word:"「お見合いの申し込みは月◯件まで」というルールの意味",
+      yaku:"ようするに、無限に迷わないための上限。ビュッフェの皿と同じで、際限がないと逆に選べなくなる",
+      shiten:"あるカウンセラーさんいわく「件数より、断られたあとの話のほうがずっと大事」",
+      cta:"この話の続きは、Kinda voicesの取材記事で"}},
+    {title:"翻訳型 成婚退会", hypo:"業界用語の解説は保存されるか", f:{
+      word:"「成婚退会」という業界の言葉",
+      yaku:"結婚が決まって辞めること……と思いきや、正確には「ふたりで先に進むと決めて卒業すること」。定義は相談所ごとに違う",
+      shiten:"「成婚の定義は契約前に聞いていい質問です」とカウンセラーさんは言っていた",
+      cta:""}},
+    {title:"翻訳型 仮交際の「仮」", hypo:"言葉の不安をほどく投稿は共感されるか", f:{
+      word:"「仮交際」という不思議な言葉",
+      yaku:"「仮」と言われると軽く聞こえるけど、実際は「お互いを知る期間に名前がついているだけ」。並行して会うことが公認されているのが恋愛との違い",
+      shiten:"現場の感覚では「“仮”の字で気負わなくていい」らしい",
+      cta:""}}
+  ],
+  hitokoto:[
+    {title:"ひとこと型（引用は実取材に差し替え）", hypo:"引用型はDMシェアされるか", f:{
+      quote:"焦って決めた人より、迷った人のほうが、あとで幸せそうなんですよ",
+      who:"※ここは必ずvoices取材の実際の言葉・実際の表記に差し替える（創作引用は出さない）",
+      haikei:"取材の最後、雑談のなかでぽろっと出た",
+      name:""}},
+    {title:"ひとこと型 断られてからが本番（差し替え用）", hypo:"逆説の引用は反応されるか", f:{
+      quote:"お見合いって、断られてからが本番なんです",
+      who:"※実取材の言葉・同意範囲内の表記に差し替える",
+      haikei:"",
+      name:""}},
+    {title:"ひとこと型 べつの才能（差し替え用）", hypo:"静かな引用は夜の時間帯に伸びるか", f:{
+      quote:"「条件が合う」と「一緒にいて楽」は、べつの才能なんですよね",
+      who:"※実取材の言葉・同意範囲内の表記に差し替える",
+      haikei:"",
+      name:""}}
+  ]
+};
 const SAFETY=[
   "笑いの矛先が「自分」か「クレイふうか像」だけになっている",
   "実在の会員・カウンセラー・相談所・活動中の人を落としていない（「〜な人いるよね」がない）",
@@ -545,8 +679,21 @@ function renderKataGrid(){
       <div class="kata-tag">${esc(k.tag)}</div>
     </button>`).join("");
   document.querySelectorAll(".kata-card").forEach(c=>c.addEventListener("click",()=>{
-    curKata=kataById(c.dataset.id); renderKataGrid(); renderFields(); renderPlatform();
+    curKata=kataById(c.dataset.id); renderKataGrid(); applyDraft(); renderPlatform();
   }));
+}
+/* 型を選ぶたびに下書き案を順番に自動セットする */
+const draftIdx={};
+function applyDraft(){
+  const bank=DRAFTS[curKata.id]||[];
+  if(!bank.length){ renderFields(); return; }
+  const i=(draftIdx[curKata.id]??-1)+1;
+  draftIdx[curKata.id]=i%bank.length;
+  const d=bank[draftIdx[curKata.id]];
+  $("postTitle").value=d.title;
+  $("hypothesis").value=d.hypo;
+  renderFields(d.f);
+  resetSafety();
 }
 function renderPlatform(){
   document.querySelectorAll("#platSeg button").forEach(b=>b.classList.toggle("sel",b.dataset.plat===curPlat));
@@ -600,6 +747,7 @@ function updateCount(){
 }
 $("preview").addEventListener("input",updateCount);
 $("hashtags").addEventListener("input",updatePreview);
+$("anotherDraft").addEventListener("click",()=>{applyDraft();toast("別の案を入れました");});
 
 /* safety */
 function renderSafety(){
@@ -687,10 +835,10 @@ function renderSeeds(){
 }
 function startFromSeed(seed,kataId){
   curKata=kataById(kataId);
-  renderKataGrid(); renderPlatform(); renderFields(); resetSafety();
+  renderKataGrid(); applyDraft(); renderPlatform();
   $("hypothesis").value=`「${seed.honne}」層に${curKata.name}が届くか`;
   document.querySelector('nav.tabs button[data-page="build"]').click();
-  toast("型をセットしました");
+  toast("下書きを自動セットしました。編集して使ってください");
 }
 $("shuffleBtn").addEventListener("click",()=>{
   const s=SEEDS[Math.floor(Math.random()*SEEDS.length)];
@@ -813,6 +961,6 @@ $("copyCsv").addEventListener("click",()=>{
 });
 
 /* ---------- init ---------- */
-renderKataGrid(); renderPlatform(); renderFields(); renderSafety(); renderDrafts();
+renderKataGrid(); renderSafety(); applyDraft(); renderPlatform(); renderDrafts();
 renderSeeds(); renderIdeas(); renderAnalytics();
 </script>
