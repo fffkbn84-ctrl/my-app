@@ -1,0 +1,1173 @@
+<title>Kinda SNS投稿スタジオ</title>
+<style>
+  :root{
+    --bg:#F5EEE6; --surface:#FCF8F1; --surface2:#EFE5D5; --ink:#453A2F; --muted:#8C7B69;
+    --line:#E2D5C2; --accent:#B5715A; --accent-ink:#96543E; --accent-soft:#F0DCD1;
+    --good:#4E7D46; --warn:#A65F2E;
+    --k1:#BF5B3B; --k2:#2E6FBF; --k3:#8A7418; --k4:#9A5B8F; --k5:#3D9142; --k6:#0D93A8;
+    --shadow:0 2px 10px rgba(90,70,50,.08);
+    --serif:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP","BIZ UDMincho",serif;
+    --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#221C15; --surface:#2E2720; --surface2:#3A322A; --ink:#EFE6D9; --muted:#A79885;
+      --line:#463C31; --accent:#D4A090; --accent-ink:#E2B4A3; --accent-soft:#453329;
+      --good:#7FA877; --warn:#CF9060;
+      --k1:#D0745B; --k2:#5B8FD6; --k3:#A98F26; --k4:#BD72B3; --k5:#55A85C; --k6:#1E9AA4;
+      --shadow:0 2px 10px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F5EEE6; --surface:#FCF8F1; --surface2:#EFE5D5; --ink:#453A2F; --muted:#8C7B69;
+    --line:#E2D5C2; --accent:#B5715A; --accent-ink:#96543E; --accent-soft:#F0DCD1;
+    --good:#4E7D46; --warn:#A65F2E;
+    --k1:#BF5B3B; --k2:#2E6FBF; --k3:#8A7418; --k4:#9A5B8F; --k5:#3D9142; --k6:#0D93A8;
+    --shadow:0 2px 10px rgba(90,70,50,.08);
+  }
+  :root[data-theme="dark"]{
+    --bg:#221C15; --surface:#2E2720; --surface2:#3A322A; --ink:#EFE6D9; --muted:#A79885;
+    --line:#463C31; --accent:#D4A090; --accent-ink:#E2B4A3; --accent-soft:#453329;
+    --good:#7FA877; --warn:#CF9060;
+    --k1:#D0745B; --k2:#5B8FD6; --k3:#A98F26; --k4:#BD72B3; --k5:#55A85C; --k6:#1E9AA4;
+    --shadow:0 2px 10px rgba(0,0,0,.3);
+  }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;}
+  *{box-sizing:border-box;}
+  .wrap{max-width:680px;margin:0 auto;padding:20px 16px calc(84px + env(safe-area-inset-bottom));}
+  header.app{padding:8px 2px 18px;}
+  header.app h1{font-family:var(--serif);font-weight:600;font-size:1.45rem;margin:0;letter-spacing:.04em;text-wrap:balance;}
+  header.app p{margin:4px 0 0;color:var(--muted);font-size:.82rem;}
+  .tabpage{display:none;}
+  .tabpage.active{display:block;}
+  h2.sec{font-family:var(--serif);font-weight:600;font-size:1.08rem;margin:26px 0 10px;letter-spacing:.03em;}
+  h2.sec:first-child{margin-top:6px;}
+  .eyebrow{font-size:.7rem;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 2px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);}
+  .card + .card{margin-top:12px;}
+  .hint{font-size:.78rem;color:var(--muted);margin:6px 0 0;}
+  /* 型選択 */
+  .kata-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:430px){.kata-grid{grid-template-columns:1fr;}}
+  .kata-card{position:relative;text-align:left;background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:12px 12px 10px;cursor:pointer;font-family:var(--sans);color:var(--ink);transition:border-color .15s;}
+  .kata-card:hover{border-color:var(--accent);}
+  .kata-card.sel{border-color:var(--accent);background:var(--accent-soft);}
+  .kata-card:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .kata-name{font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:7px;}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .kata-src{font-size:.72rem;color:var(--muted);margin-top:2px;}
+  .kata-tag{font-size:.76rem;margin-top:5px;line-height:1.5;}
+  /* segmented */
+  .seg{display:flex;gap:6px;flex-wrap:wrap;}
+  .seg button{flex:1;min-width:70px;padding:9px 8px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font-size:.85rem;cursor:pointer;font-family:var(--sans);}
+  .seg button.sel{border-color:var(--accent);background:var(--accent-soft);font-weight:700;}
+  label.f{display:block;margin-top:12px;font-size:.8rem;font-weight:700;}
+  label.f .sub{font-weight:400;color:var(--muted);}
+  input[type=text],input[type=number],input[type=date],textarea,select{
+    width:100%;margin-top:5px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;
+    background:var(--surface);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;}
+  textarea{resize:vertical;min-height:64px;}
+  textarea.preview{min-height:180px;background:var(--surface2);}
+  .count{font-size:.76rem;color:var(--muted);text-align:right;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .count.over{color:var(--warn);font-weight:700;}
+  /* safety */
+  .safety{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px;}
+  .safety .s-title{font-size:.8rem;font-weight:700;margin-bottom:6px;}
+  .chk{display:flex;gap:9px;align-items:flex-start;font-size:.8rem;padding:5px 0;cursor:pointer;}
+  .chk input{width:18px;height:18px;margin:3px 0 0;flex:none;accent-color:var(--accent);}
+  .safety-state{font-size:.78rem;margin-top:6px;}
+  .safety-state.ok{color:var(--good);font-weight:700;}
+  .safety-state.ng{color:var(--warn);}
+  /* buttons */
+  .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .btn{padding:11px 16px;border-radius:12px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;font-family:var(--sans);}
+  :root[data-theme="dark"] .btn, .btn.darkfix{color:#2A1E16;}
+  .btn.ghost{background:var(--surface);color:var(--accent-ink);border:1.5px solid var(--accent);}
+  .btn.small{padding:7px 12px;font-size:.8rem;border-radius:10px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);padding:9px 18px;border-radius:99px;font-size:.82rem;opacity:0;pointer-events:none;transition:opacity .25s;z-index:50;}
+  .toast.show{opacity:1;}
+  /* chips */
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--surface2);}
+  /* drafts / logs list */
+  .item{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;background:var(--surface);}
+  .item .t{font-weight:700;font-size:.86rem;}
+  .item .m{font-size:.76rem;color:var(--muted);margin-top:2px;}
+  .item .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  /* idea seeds */
+  .seed{border-left:3px solid var(--accent);padding:2px 0 2px 12px;margin-top:12px;}
+  .seed .honne{font-weight:700;font-size:.86rem;}
+  .seed .ex{font-size:.8rem;color:var(--muted);margin-top:2px;}
+  .suggest{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:14px;padding:14px;margin-top:12px;}
+  /* analysis */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media (max-width:430px){.tiles{grid-template-columns:repeat(3,1fr);gap:7px;}}
+  .tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 10px;text-align:center;}
+  .tile .v{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3;}
+  .tile .l{font-size:.68rem;color:var(--muted);margin-top:2px;}
+  .barrow{display:grid;grid-template-columns:120px 1fr 52px;gap:8px;align-items:center;margin-top:9px;}
+  .barrow .bl{font-size:.74rem;font-weight:700;display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;}
+  .track{height:14px;background:var(--surface2);border-radius:4px;overflow:hidden;}
+  .fill{height:100%;border-radius:0 4px 4px 0;min-width:2px;}
+  .bv{font-size:.76rem;font-variant-numeric:tabular-nums;text-align:right;color:var(--ink);}
+  .rp-meta{font-size:.8rem;margin:0;}
+  .rp-meta b{display:block;font-size:.86rem;}
+  .rp-sub{font-size:.76rem;color:var(--muted);margin:6px 0 10px;}
+  .rp-step{display:grid;grid-template-columns:78px 1fr;gap:10px;padding:8px 0;border-top:1px dashed var(--line);font-size:.8rem;align-items:start;}
+  .rp-step .t{font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent-ink);}
+  .rp-step .note{color:var(--muted);font-size:.74rem;margin-top:2px;}
+  table.logt{width:100%;border-collapse:collapse;font-size:.76rem;margin-top:8px;}
+  table.logt th,table.logt td{padding:6px 6px;border-bottom:1px solid var(--line);text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  table.logt th{color:var(--muted);font-weight:600;font-size:.7rem;}
+  .scrollx{overflow-x:auto;}
+  details{border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:10px;background:var(--surface);}
+  details summary{cursor:pointer;font-weight:700;font-size:.86rem;}
+  details[open] summary{margin-bottom:6px;}
+  /* research */
+  .ref{margin-top:12px;}
+  .ref h3{font-family:var(--serif);font-size:.98rem;margin:0;display:flex;align-items:center;gap:8px;}
+  .ref .what{font-size:.78rem;color:var(--muted);margin:2px 0 8px;}
+  .ref dl{margin:0;font-size:.82rem;}
+  .ref dt{font-weight:700;margin-top:8px;font-size:.76rem;color:var(--accent-ink);}
+  .ref dd{margin:2px 0 0;}
+  ul.plain{margin:8px 0 0;padding-left:20px;font-size:.84rem;}
+  ul.plain li{margin-top:6px;}
+  a{color:var(--accent-ink);}
+  .srcs{font-size:.74rem;color:var(--muted);}
+  .srcs a{color:var(--muted);}
+  /* bottom nav */
+  nav.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--line);display:flex;z-index:40;padding-bottom:env(safe-area-inset-bottom);}
+  nav.tabs button{flex:1;padding:11px 4px 9px;border:none;background:none;color:var(--muted);font-size:.72rem;font-weight:700;cursor:pointer;font-family:var(--sans);border-top:2.5px solid transparent;}
+  nav.tabs button.sel{color:var(--accent-ink);border-top-color:var(--accent);}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;}}
+</style>
+
+<div class="wrap">
+<header class="app">
+  <p class="eyebrow">KINDA SNS STUDIO</p>
+  <h1>クスッと、誰も傷つけない投稿をつくる</h1>
+  <p>型を選んで埋めるだけ。IG・X対応／Kinda voices展開用</p>
+</header>
+
+<!-- ============ つくる ============ -->
+<section id="page-build" class="tabpage active">
+  <h2 class="sec">1. 型を選ぶ</h2>
+  <div class="kata-grid" id="kataGrid"></div>
+  <p class="hint" id="kataHint">主力はふびん型（事業計画v1）。週の目安：ふびん3本・淡々2本・ひとこと1〜2本・その他1本。型を選ぶと下の「3. 中身」に完成形の下書きが入ります。案が尽きたらClaudeに「◯◯型の題材を5個」と頼めば補充できます。</p>
+
+  <h2 class="sec">2. 出し先</h2>
+  <div class="card">
+    <div class="seg" id="platSeg">
+      <button data-plat="ig" class="sel">Instagram</button>
+      <button data-plat="x">X</button>
+    </div>
+    <div id="igFormatWrap">
+      <label class="f">IGの形式
+        <select id="igFormat">
+          <option>リール</option><option>カルーセル</option><option>ストーリー</option>
+        </select>
+      </label>
+    </div>
+    <label class="f">投稿時間
+      <select id="postTime"></select>
+    </label>
+    <p class="hint" id="platHint"></p>
+  </div>
+
+  <div id="reelPlanWrap" style="display:none;">
+    <h2 class="sec">リール設計図（この型の撮り方）</h2>
+    <div class="card" id="reelPlan"></div>
+  </div>
+
+  <h2 class="sec">3. 中身を埋める</h2>
+  <div class="card">
+    <p class="hint" style="margin:0 0 4px;">型を選ぶと下書きが自動で入ります。これを叩き台に編集してください。運営の実話系（じぶんツッコミ・ぜんぶ見せる）は、事実と違う部分を実際の出来事に直してから出すこと。</p>
+    <div class="btnrow" style="margin-top:6px;">
+      <button class="btn ghost small" id="anotherDraft">別の案を出す</button>
+      <button class="btn ghost small" id="rejectDraft">この案はボツ</button>
+    </div>
+    <div id="rejectWrap" style="display:none;">
+      <label class="f">ボツの理由 <span class="sub">（任意。書いておくとClaudeが好みに合わせて補充案を作れます）</span>
+        <input type="text" id="rejectReason" placeholder="例：オチが弱い／ふうか像のキャラが違う／ネタが古い">
+      </label>
+      <div class="btnrow" style="margin-top:8px;">
+        <button class="btn small" id="rejectConfirm">ボツにして次の案へ</button>
+        <button class="btn ghost small" id="rejectCancel">やめる</button>
+      </div>
+    </div>
+    <label class="f">投稿タイトル <span class="sub">（Notionカレンダー用の管理名）</span>
+      <input type="text" id="postTitle" placeholder="例：ふびん型 お見合い前日の靴下">
+    </label>
+    <div id="fieldArea"></div>
+    <div id="hashWrap">
+      <label class="f">ハッシュタグ <span class="sub">（発見面。検索語はここで取る）</span>
+        <input type="text" id="hashtags" value="#結婚相談所 #婚活 #カウンセラー">
+      </label>
+    </div>
+    <label class="f">この投稿で検証すること <span class="sub">（分析タブと対応）</span>
+      <input type="text" id="hypothesis" placeholder="例：ふびん型は淡々型より保存されるか">
+    </label>
+  </div>
+
+  <h2 class="sec">4. プレビューと安全チェック</h2>
+  <div class="card">
+    <textarea id="preview" class="preview" aria-label="投稿プレビュー"></textarea>
+    <div class="count" id="charCount"></div>
+    <div class="safety">
+      <div class="s-title">出す前のチェック（第三者が傷つかない構造）</div>
+      <div id="safetyList"></div>
+      <div class="safety-state ng" id="safetyState">未チェックの項目があります</div>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="copyBody">本文をコピー</button>
+      <button class="btn ghost" id="copyNotion">Notion用をコピー</button>
+      <button class="btn ghost" id="saveDraft">下書き保存</button>
+    </div>
+    <p class="hint">Notion用は「Kinda 運営ダッシュボード」のIG／X投稿カレンダーの列（形式・シリーズ・柱・投稿時間・本文）に合わせた書式でコピーされます。</p>
+  </div>
+
+  <h2 class="sec">下書き</h2>
+  <div id="draftList"><p class="hint">まだ下書きはありません。</p></div>
+
+  <details id="rejectedBox" style="margin-top:16px;">
+    <summary>ボツにした案（Claudeに渡して補充してもらう）</summary>
+    <p class="hint">溜まったら下のボタンでコピーして、Claudeのチャットに貼って「この傾向を避けて補充して」と頼んでください。</p>
+    <div class="btnrow">
+      <button class="btn ghost small" id="copyRejected">Claudeに渡す用にコピー</button>
+      <button class="btn ghost small" id="clearRejected">ボツ履歴を空にする（案が復活します）</button>
+    </div>
+    <div id="rejectedList"></div>
+  </details>
+</section>
+
+<!-- ============ ネタ帳 ============ -->
+<section id="page-idea" class="tabpage">
+  <h2 class="sec">ネタをシャッフル</h2>
+  <div class="card">
+    <p style="font-size:.84rem;margin:0;">検討層の「本音」×「型」からランダムに1案出します。</p>
+    <div class="btnrow"><button class="btn" id="shuffleBtn">シャッフルする</button></div>
+    <div id="suggestBox"></div>
+  </div>
+
+  <h2 class="sec">ネタの源泉（検討層の本音マップ）</h2>
+  <div class="card">
+    <p class="hint" style="margin-top:0;">SNS発信方向性 v2（Notion）より。相談所検討層の本音は「怖いから、中を見てから決めたい」。不安を煽らず、答えて安心させる。</p>
+    <div id="seedList"></div>
+  </div>
+
+  <h2 class="sec">じぶんのネタメモ</h2>
+  <div class="card">
+    <label class="f">思いついたら書き捨てる
+      <input type="text" id="ideaInput" placeholder="例：取材の帰り道、録音が切れてた話">
+    </label>
+    <div class="btnrow"><button class="btn small" id="addIdea">メモする</button></div>
+    <div id="ideaList"></div>
+  </div>
+</section>
+
+<!-- ============ 分析 ============ -->
+<section id="page-analyze" class="tabpage">
+  <h2 class="sec">成績のまとめ</h2>
+  <div class="tiles" id="tiles"></div>
+
+  <h2 class="sec">型ごとの平均</h2>
+  <div class="card">
+    <div class="seg" id="metricSeg">
+      <button data-metric="save" class="sel">保存率</button>
+      <button data-metric="prof">プロフ遷移率</button>
+      <button data-metric="eng">反応率</button>
+    </div>
+    <div id="barArea"><p class="hint">記録が増えると、型ごとの比較バーが出ます。</p></div>
+    <p class="hint" id="barNote"></p>
+  </div>
+
+  <details>
+    <summary>判定の目安（いつ「勝ち型」と呼ぶか）</summary>
+    <ul class="plain">
+      <li>同じ型で3投稿たまってから比較する（1本の当たり外れで判断しない）</li>
+      <li>IGは保存率（保存÷リーチ）1.5%以上、プロフ遷移率1%以上が勝ち筋のサイン</li>
+      <li>Xは反応率（エンゲージ÷インプ）3%以上、またはプロフィールクリックが出ているか</li>
+      <li>バズ（いいね）よりも保存・プロフ遷移を上位指標にする（検討層に届いたかどうか）</li>
+      <li>2週間ごとにCSVを書き出して /sns-review に渡し、伸びた型を翌週厚くする</li>
+    </ul>
+  </details>
+
+  <h2 class="sec">投稿を記録する</h2>
+  <div class="card">
+    <label class="f">日付 <input type="date" id="logDate"></label>
+    <label class="f">SNS
+      <select id="logPlat"><option value="ig">Instagram</option><option value="x">X</option></select>
+    </label>
+    <label class="f">型 <select id="logKata"></select></label>
+    <label class="f">投稿タイトル <input type="text" id="logTitle" placeholder="カレンダーと同じ管理名"></label>
+    <label class="f">検証していたこと <input type="text" id="logHypo" placeholder="投稿時に立てた仮説"></label>
+    <div id="logMetricsIg">
+      <label class="f">リーチ <input type="number" id="mReach" inputmode="numeric"></label>
+      <label class="f">保存数 <input type="number" id="mSave" inputmode="numeric"></label>
+      <label class="f">いいね数 <input type="number" id="mLike" inputmode="numeric"></label>
+      <label class="f">プロフィール遷移数 <input type="number" id="mProf" inputmode="numeric"></label>
+      <label class="f">DMシェア数 <input type="number" id="mShare" inputmode="numeric"></label>
+    </div>
+    <div id="logMetricsX" style="display:none;">
+      <label class="f">インプレッション <input type="number" id="mImp" inputmode="numeric"></label>
+      <label class="f">エンゲージメント <input type="number" id="mEng" inputmode="numeric"></label>
+      <label class="f">プロフィールクリック <input type="number" id="mProfX" inputmode="numeric"></label>
+    </div>
+    <label class="f">結果メモ <span class="sub">（仮説はどうだったか）</span>
+      <input type="text" id="logNote" placeholder="例：保存は伸びたがプロフ遷移せず。CTAが弱い">
+    </label>
+    <div class="btnrow"><button class="btn" id="addLog">記録する</button></div>
+  </div>
+
+  <h2 class="sec">記録一覧</h2>
+  <div class="btnrow" style="margin-top:0;">
+    <button class="btn ghost small" id="copyCsv">CSVをコピー（/sns-review用）</button>
+  </div>
+  <div class="scrollx"><div id="logList"><p class="hint">まだ記録がありません。</p></div></div>
+</section>
+
+<!-- ============ 型と根拠 ============ -->
+<section id="page-why" class="tabpage">
+  <h2 class="sec">なぜこの6つの型なのか</h2>
+  <div class="card">
+    <p style="font-size:.86rem;margin:0;">依頼された5つの発信源（まめきちまめこ・可哀想に!・轟ちゃん・サラ・アートゥーン!）を調査し、「クスッと笑えて、第三者が傷つかない」を成立させている共通構造を抽出しました。結論はこの5つです。</p>
+    <ul class="plain">
+      <li><b>笑いの矛先は「自分」か「自作キャラ」だけ。</b> 全員、他人や視聴者や業界を落とさずに笑いを作っている</li>
+      <li><b>定型の反復。</b> 同じ型を繰り返すから「いつもの」として読まれ、数字の比較（検証）もできる</li>
+      <li><b>かわいい×リアルのギャップ。</b> 整えた広告っぽさを消し、本音に触れても重くならない</li>
+      <li><b>失敗を隠さない誠実さが信頼になる。</b> きれいな部分だけ見せる発信は保存されない</li>
+      <li><b>「これ私だ」と重ねられる余白。</b> 具体的な場面で書き、説教や結論で締めない</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">発信源ごとの分析</h2>
+  <div class="card ref">
+    <h3><span class="dot" style="background:var(--k1)"></span>まめきちまめこニートの日常 → じぶんツッコミ型</h3>
+    <p class="what">ライブドアブログ最高記録級の日常マンガブログ。家族・犬・猫と自分の日常だけで月間数千万PV。</p>
+    <dl>
+      <dt>効いている構造</dt><dd>日常の数十秒を「フリ → 予想外の展開 → セルフツッコミ」で切り取る短い定型。登場人物を身内に固定し、笑いの矛先がつねに自分側。猫の擬人化が現実の毒を抜くクッションになっている。</dd>
+      <dt>Kindaが借りるもの</dt><dd>矛先を自分に固定する構造／オチのあとに余韻をひとこと置く呼吸／毎回同じ型で書く反復。</dd>
+      <dt>借りないもの</dt><dd>毒っ気の強いボケ。Kindaトーンでは脱力方向に倒す。</dd>
+    </dl>
+  </div>
+  <div class="card ref">
+    <h3><span class="dot" style="background:var(--k2)"></span>可哀想に!（おぱんちゅうさぎ・んぽちゃむ）→ ふびん型</h3>
+    <p class="what">「不憫かわいい」でZ世代を掴んだキャラクター。かわいい見た目×報われない日常のギャップ。</p>
+    <dl>
+      <dt>効いている構造</dt><dd>キャラが視聴者の代わりに凹み、報われない目に遭う。見る人は誰かを笑うのではなく「これ私だ」と笑いながら救われる。実在の人が一切傷つかない笑いの完成形。</dd>
+      <dt>Kindaが借りるもの</dt><dd>クレイふうか像を「代わりに凹むキャラ」にする。検討層の不安をキャラに背負わせれば、誰も落とさずに共感が作れる。クレイの質感はKindaの差別化資産そのもの。</dd>
+      <dt>借りないもの</dt><dd>「可哀想に!」という突き放し。Kindaは最後にそっと救いのひとことを置く（焦らせない憲法）。</dd>
+    </dl>
+  </div>
+  <div class="card ref">
+    <h3><span class="dot" style="background:var(--k3)"></span>整形アイドル轟ちゃん → ぜんぶ見せる型</h3>
+    <p class="what">整形のリアル（ダウンタイム・失敗談まで）を隠さず発信して信頼を獲得したYouTuber。</p>
+    <dl>
+      <dt>効いている構造</dt><dd>語りにくい領域の当事者開示。成功だけでなく失敗も全部見せるから信じられる。視聴者の相談に答える双方向で、一次情報が湧き続ける。</dd>
+      <dt>Kindaが借りるもの</dt><dd>運営と取材の裏側を失敗込みで見せる誠実さ。「中を覗いてから決めたい」という検討層の本音（柱B）への回答と同じ構造。</dd>
+      <dt>借りないもの</dt><dd>過激さ・ビフォーアフター的な煽り。開示するのは自分たちの裏側だけで、相談所や会員の内情を暴露しない。</dd>
+    </dl>
+  </div>
+  <div class="card ref">
+    <h3><span class="dot" style="background:var(--k4)"></span>コスメヲタちゃんねるサラ → 淡々型</h3>
+    <p class="what">無駄な解説なし・淡々とテンポよく進む正直レビューで登録者100万人超の美容系YouTuber。</p>
+    <dl>
+      <dt>効いている構造</dt><dd>感情を盛らず事実を並べる。誇張しないから信頼され、あとで見返すために保存される。同じ素材をショート3媒体（YouTube・TikTok・リール)に同時展開して量産。</dd>
+      <dt>Kindaが借りるもの</dt><dd>事実を3つ淡々と並べる保存狙いの型。1つの素材をIG・X・noteへ同時展開する運用（/sns-packと同じ思想）。</dd>
+      <dt>借りないもの</dt><dd>比較の言い切り。相談所をランク付け・比較しない（憲法）。</dd>
+    </dl>
+  </div>
+  <div class="card ref">
+    <h3><span class="dot" style="background:var(--k5)"></span>アートゥーン! → 翻訳型</h3>
+    <p class="what">東京藝大出身の8人組。「芸術をもっと身近に」を掲げ、専門知を楽しく翻訳して急成長。</p>
+    <dl>
+      <dt>効いている構造</dt><dd>敷居の高い専門領域を、専門家本人がゆるく日常語にほどく。専門性×ゆるさのギャップが「知らない世界を覗く楽しさ」になる。</dd>
+      <dt>Kindaが借りるもの</dt><dd>カウンセラーの専門知・業界用語を日常語に翻訳する型。Kinda voicesの取材素材（引用ブロック）がそのまま原料になる。</dd>
+      <dt>借りないもの</dt><dd>内輪ノリ。メンバー文化の面白さはKindaには移植できないので、翻訳の構造だけ借りる。</dd>
+    </dl>
+  </div>
+  <div class="card ref">
+    <h3><span class="dot" style="background:var(--k6)"></span>Kinda voices 構成7（引用ブロック）→ ひとこと型</h3>
+    <p class="what">これは外部由来ではなく、voices記事構成の「印象に残っているひとこと（SNS拡散設計）」を独立させた型。</p>
+    <dl>
+      <dt>構造</dt><dd>業界の常識をそっと外す言葉を主役に置き、余計な説明をしない。まめこの「余韻」とサラの「盛らなさ」を掛け合わせた、いちばん静かな型。</dd>
+      <dt>注意</dt><dd>引用者の表記は必ず同意範囲内で。CTAは固定文「〇〇さんの話を、直接聞いてみる。」</dd>
+    </dl>
+  </div>
+
+  <h2 class="sec">安全設計（なぜこのチェックなのか）</h2>
+  <div class="card">
+    <ul class="plain" style="margin-top:0;">
+      <li><b>「〜な人いるよね」を禁止する理由：</b>あるあるの主語を他人にした瞬間、活動中の誰かが自分を笑われたと感じる。主語を自分かクレイふうか像にすれば、同じ共感を誰も傷つけずに作れる（おぱんちゅ構造）</li>
+      <li><b>焦らせ・比較の禁止：</b>Kinda憲法。笑いに紛れても「早くしないと」「周りは」は使わない</li>
+      <li><b>「相手」「ふたり」で書く：</b>LGBTQ+包摂。笑いのネタでも異性・男女を前提にしない</li>
+      <li><b>絵文字は区切りのみ：</b>SNSキャプションは最小限許容（2026-06-08細則）。感情表現は言葉でやる</li>
+      <li><b>同意範囲の確認：</b>voices・story由来の素材は、実名・相談所名・写真の同意項目を出す前に確認（ステマ規制と信頼の核）</li>
+    </ul>
+  </div>
+
+  <h2 class="sec">リール形式の調査（2026-07・仮説）</h2>
+  <div class="card">
+    <p style="font-size:.84rem;margin:0;">「リール優勢」の先を調査した結論。各型の設計図（つくるタブでIG×リールを選ぶと表示）はこの5原則に基づく。</p>
+    <ul class="plain">
+      <li><b>冒頭1.5〜2秒がすべて。</b>最初の3秒で約半数が離脱し、3秒残存率60%超のリールは40%未満の5〜10倍届く。1フレーム目にテキストフック、2秒以内に2カット目（2カットの法則）</li>
+      <li><b>尺は目的で使い分け。</b>ループ狙い7〜15秒（完了率で伸ばす）／標準15〜30秒／教育・保存狙い30〜60秒。完了率80%が目標線</li>
+      <li><b>無音視聴前提の全編テロップ。</b>音声はふうかの声で二重化（顔なしでも声は信頼をつくる資産）</li>
+      <li><b>作り込まない"raw感"が優勢。</b>広告っぽい高品質より、粗さが届く。手元のスマホ写真と生成クレイ画像の混在で問題ない</li>
+      <li><b>静止画スライド式リールで量産。</b>画像1枚2〜5秒＋テロップで成立（イラスト・漫画系アカウントの定石）。まめこ式4コマはこの形式にそのまま載る</li>
+      <li><b>Kindaの制作制約と噛み合う。</b>クレイふうか像は生成AI画像で、枠は1日5〜8枚（ChatGPT無料プラン）。画像の動画化は能力が低いため1本につき1カットまで。静止画スライド中心の設計はこの制約下でちょうど回る（ふびん型3〜4枚＝1日1〜2本分、ひとこと型は1枚）</li>
+    </ul>
+    <p class="hint">アルゴリズムの上位指標は保存・シェア・完了率。バズよりこの3つを分析タブで追う。すべて仮説なので、2週間の実測で設計図を更新する。</p>
+  </div>
+
+  <h2 class="sec">このサイトの使い方</h2>
+  <div class="card">
+    <ul class="plain" style="margin-top:0;">
+      <li><b>ホーム画面に追加：</b>iPhoneのSafariでこのページを開き、共有ボタン → 「ホーム画面に追加」。次からワンタップで開けます</li>
+      <li><b>毎日の流れ：</b>ネタ帳でシャッフル → つくるで型を埋める → 安全チェック → Notion用コピーを投稿カレンダーに貼る</li>
+      <li><b>週次：</b>分析タブに数字を記録 → CSVコピー → /sns-review に渡す</li>
+      <li>下書き・ネタ・記録はこの端末のブラウザ内に保存されます（別端末とは共有されません）</li>
+    </ul>
+  </div>
+
+  <p class="srcs" style="margin-top:16px;">主な調査ソース：
+    <a href="https://ja.wikipedia.org/wiki/%E3%81%BE%E3%82%81%E3%81%8D%E3%81%A1%E3%81%BE%E3%82%81%E3%81%93%E3%83%8B%E3%83%BC%E3%83%88%E3%81%AE%E6%97%A5%E5%B8%B8">まめきちまめこ（Wikipedia）</a> /
+    <a href="https://forbesjapan.com/articles/detail/66135">おぱんちゅうさぎ（Forbes JAPAN）</a> /
+    <a href="https://xtrend.nikkei.com/atcl/contents/18/00019/00046/">不憫かわいい（日経クロストレンド）</a> /
+    <a href="https://bunshun.jp/articles/-/47694">轟ちゃん（文春オンライン）</a> /
+    <a href="https://studio.persol-group.co.jp/nama/231011-1">サラ（スタジオパーソル）</a> /
+    <a href="https://ja.wikipedia.org/wiki/%E3%82%A2%E3%83%BC%E3%83%88%E3%82%A5%E3%83%BC%E3%83%B3!">アートゥーン!（Wikipedia）</a><br>
+    リール調査：
+    <a href="https://tatap.jp/knowledge/instagram-reel-185/">インスタリール攻略2026（tatap）</a> /
+    <a href="https://www.opus.pro/research/best-video-hooks-instagram">フック分析（OpusClip）</a> /
+    <a href="https://heytrendy.app/blog/instagram-reel-length">リール尺ガイド2026（Trendy）</a> /
+    <a href="https://later.com/blog/instagram-reels-trends/">Reels Trends（Later）</a> /
+    <a href="https://www.threadpost.jp/blog/instagram-reel-templates">秒数戦略（ThreadPost）</a> /
+    <a href="https://note.com/nocchi_24/n/nbd21e5bb24b0">静止画リールの作り方（note）</a>
+  </p>
+</section>
+</div>
+
+<nav class="tabs" aria-label="ページ切り替え">
+  <button data-page="build" class="sel">つくる</button>
+  <button data-page="idea">ネタ帳</button>
+  <button data-page="analyze">分析</button>
+  <button data-page="why">型と根拠</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ---------- data ---------- */
+const KATA = [
+  {id:"jibun", color:"var(--k1)", name:"じぶんツッコミ型", src:"まめきちまめこ式",
+   tag:"中の人の小さな失敗を、フリ→展開→セルフツッコミで。矛先は自分だけ。",
+   pillar:"F 中の人", series:"つくる日記", igFormat:"リール",
+   fields:[
+     {k:"scene", l:"きょうの場面（フリ）", p:"例：取材の文字起こしを流しながら夕飯を作っていたら"},
+     {k:"twist", l:"起きたこと（展開）", p:"例：カウンセラーさんの声に相づちを打ちながら、味噌を2回入れていた"},
+     {k:"tsukkomi", l:"セルフツッコミ（オチ・自分に向ける）", p:"例：話の聞きすぎである。味噌汁が濃い"},
+     {k:"yoin", l:"余韻のひとこと", p:"例：いい取材だった証ということにする"}],
+   build(f,plat){
+     const a=[f.scene,f.twist,"",f.tsukkomi];
+     if(f.yoin) a.push("",f.yoin);
+     return a.join("\n");}
+  },
+  {id:"fubin", color:"var(--k2)", name:"ふびん型", src:"可哀想に!（おぱんちゅ）式",
+   tag:"クレイふうか像が、検討層のあるある不安を代わりに引き受けて凹む。最後にそっと救い。",
+   pillar:"C 問いかけ", series:"その他", igFormat:"リール",
+   fields:[
+     {k:"aruaru", l:"あるあるの場面（主語はふうか像）", p:"例：はじめての面談の予約フォーム、名前を入れては消して30分"},
+     {k:"heko", l:"ふうか像がどうなったか", p:"例：送信ボタンの上で指が固まったまま、お茶が完全に冷めた"},
+     {k:"sukui", l:"そっと救いのひとこと（焦らせない）", p:"例：30分迷えるのは、ちゃんと考えてる人だと思う"}],
+   build(f,plat){
+     return [f.aruaru,f.heko,"",f.sukui].join("\n");}
+  },
+  {id:"misete", color:"var(--k3)", name:"ぜんぶ見せる型", src:"轟ちゃん式",
+   tag:"運営・取材の裏側を、うまくいかなかったことも含めて正直に見せる。",
+   pillar:"D つくる日記", series:"つくる日記", igFormat:"リール",
+   fields:[
+     {k:"ura", l:"見せる裏側", p:"例：Kinda voicesの取材、実は1本あたり録音が90分ある"},
+     {k:"fail", l:"うまくいかなかったこと（隠さない）", p:"例：最初の取材は緊張して、聞きたいことの半分も聞けなかった"},
+     {k:"manabi", l:"そこから変えたこと", p:"例：質問リストをやめて、雑談から始めることにした"},
+     {k:"ima", l:"いまの状態", p:"例：いちばんいい言葉は、いつも雑談の中から出てくる"}],
+   build(f,plat){
+     return [f.ura,"",f.fail,f.manabi,"",f.ima].join("\n");}
+  },
+  {id:"tantan", color:"var(--k4)", name:"淡々型", src:"コスメヲタちゃんねるサラ式",
+   tag:"感情を盛らず、事実を3つテンポよく。保存される投稿はこれ。冒頭に検索語。",
+   pillar:"B 相談所リアル", series:"その他", igFormat:"リール",
+   fields:[
+     {k:"theme", l:"テーマ（冒頭・検索語を含める）", p:"例：結婚相談所の初回面談で実際に聞かれること"},
+     {k:"f1", l:"事実1", p:"例：これまでの活動より「これからどう過ごしたいか」を聞かれることが多い"},
+     {k:"f2", l:"事実2", p:"例：その場で入会を決めなくていい。持ち帰って比べるのが普通"},
+     {k:"f3", l:"事実3", p:"例：費用の総額は面談で必ず確認できる。にごす相談所は候補から外していい"},
+     {k:"hosoku", l:"補足ひとこと（盛らない）", p:"例：面談した人の口コミはKindaで読めます"}],
+   build(f,plat){
+     const b=[f.theme,"","1. "+(f.f1||""),"2. "+(f.f2||""),"3. "+(f.f3||"")];
+     if(f.hosoku) b.push("",f.hosoku);
+     return b.join("\n");}
+  },
+  {id:"honyaku", color:"var(--k5)", name:"翻訳型", src:"アートゥーン!式",
+   tag:"カウンセラーの専門知・業界の言葉を、ゆるく日常語にほどく。voicesの素材が原料。",
+   pillar:"B 相談所リアル", series:"その他", igFormat:"リール",
+   fields:[
+     {k:"word", l:"業界の言葉", p:"例：「お見合いの申し込みは月◯件まで」の意味"},
+     {k:"yaku", l:"ゆるい翻訳", p:"例：ようするに、無限に迷わないための上限。バイキングの皿と同じ"},
+     {k:"shiten", l:"カウンセラーの視点（同意範囲内）", p:"例：あるカウンセラーさんいわく「件数より、断られたあとの雑談のほうが大事」"},
+     {k:"cta", l:"記事への導き（任意）", p:"例：この話の続きはKinda voicesの取材記事に"}],
+   build(f,plat){
+     const b=[f.word,"",f.yaku];
+     if(f.shiten) b.push("",f.shiten);
+     if(f.cta) b.push("",f.cta);
+     return b.join("\n");}
+  },
+  {id:"hitokoto", color:"var(--k6)", name:"ひとこと型", src:"voices引用×余韻",
+   tag:"取材で出た「常識をそっと外す言葉」を主役に。いちばん静かな型。",
+   pillar:"E 告知", series:"その他", igFormat:"リール",
+   fields:[
+     {k:"quote", l:"引用（かぎかっこの中身）", p:"例：焦って決めた人より、迷った人のほうが、あとで幸せそうなんですよ"},
+     {k:"who", l:"話し手の表記（同意範囲内で）", p:"例：都内の相談所で15年、というカウンセラーさんの言葉"},
+     {k:"haikei", l:"背景ひとこと（任意）", p:"例：取材の最後、雑談のなかでぽろっと出た"},
+     {k:"name", l:"CTAに入れる名前（任意・同意必須）", p:"例：田中"}],
+   build(f,plat){
+     const b=["「"+(f.quote||"")+"」","",f.who];
+     if(f.haikei) b.push("",f.haikei);
+     if(f.name) b.push("",f.name+"さんの話を、直接聞いてみる。");
+     return b.join("\n");}
+  }
+];
+/* 下書き案バンク：型を選ぶと自動で1案入る。編集して使う叩き台。
+   実話系（jibun/misete）は事実に合わせて直す前提。hitokoto の引用は必ず実取材の言葉に差し替える。 */
+const DRAFTS={
+  jibun:[
+    {title:"じぶんツッコミ型 味噌汁が濃い", hypo:"中の人の失敗ネタは告知より反応されるか", f:{
+      scene:"取材音声の文字起こしを流しながら、夕飯を作っていた",
+      twist:"カウンセラーさんの話に相づちを打ちながら、味噌を二回入れていた",
+      tsukkomi:"話を聞く仕事の人の話を、聞きすぎである",
+      yoin:"味噌汁が濃い日は、いい取材ができた日ということにした"}},
+    {title:"じぶんツッコミ型 検索履歴", hypo:"サイト制作の裏側ネタはプロフ遷移につながるか", f:{
+      scene:"「結婚相談所 口コミ」で見つけてもらうサイトを作っている",
+      twist:"ふと見たら、自分の検索履歴が「粘土 ひび 直し方」で埋まっていた",
+      tsukkomi:"婚活サイト運営の検索履歴ではない",
+      yoin:"クレイのふうか像は、今日も無事です"}},
+    {title:"じぶんツッコミ型 お願いお願い", hypo:"失敗ネタはきれいな投稿より保存されるか", f:{
+      scene:"カウンセラーさんへの取材依頼メールを、30分かけて推敲した",
+      twist:"送信した直後、件名が「取材のお願いお願い」になっているのに気づいた",
+      tsukkomi:"お願いしすぎである",
+      yoin:"「熱意が伝わりました」と返事が来た。世界は優しい"}},
+    {title:"じぶんツッコミ型 職業病", hypo:"会話ネタは共感（いいね）を集めるか", f:{
+      scene:"友人の恋バナを聞いていた",
+      twist:"気づいたら「それで、最初の面談ではなんて言われたの」と取材の聞き方をしていた",
+      tsukkomi:"友達は取材対象ではない",
+      yoin:"でもすごくいい話だったので、聞けてよかった"}}
+  ],
+  fubin:[
+    {title:"ふびん型 予約フォームの30分", hypo:"ふびん型は「自分でも大丈夫か」層に保存されるか", f:{
+      aruaru:"はじめての面談予約。ふうか、名前を入力しては消して30分",
+      heko:"送信ボタンの上で指が固まったまま、淹れたお茶が完全に冷めた",
+      sukui:"30分迷えるのは、ちゃんと考えてる証拠だと思う"}},
+    {title:"ふびん型 写真選びで遭難", hypo:"あるある系はDMシェアされるか", f:{
+      aruaru:"プロフィール写真を選ぶふうか。「盛れてる」と「盛りすぎ」のあいだで遭難",
+      heko:"3年前の奇跡の一枚を出しかけて、そっと戻した",
+      sukui:"いまのあなたに会いに来る人を探すんだから、いまの写真でいい"}},
+    {title:"ふびん型 3週目の資料請求", hypo:"先延ばしネタは検討前の層に届くか", f:{
+      aruaru:"「今週こそ資料請求する」と宣言して3週目のふうか",
+      heko:"フォームを開いたまま、気づいたら猫の動画を40分見ていた",
+      sukui:"動き出す前がいちばん重い。フォームを開けただけで、今日は前進"}},
+    {title:"ふびん型 敬語二重事故", hypo:"面談あるあるは経験者にも未経験者にも刺さるか", f:{
+      aruaru:"はじめての面談を終えたふうか。緊張しすぎて敬語が二重になった",
+      heko:"「よろしくお願いいたしますです」と言った瞬間の記憶だけ、妙に鮮明に残っている",
+      sukui:"カウンセラーさんは何百人の緊張を見てきた人。覚えられてるとしたら、良い意味のほう"}},
+    {title:"ふびん型 雨の日の前髪", hypo:"お見合い当日ネタは保存されるか", f:{
+      aruaru:"お見合いの日に限って大雨。前髪が計画どおりにいかないふうか",
+      heko:"駅のガラスに映る自分と3分間の作戦会議をして、結局そのまま行った",
+      sukui:"雨の日に来てくれた、というだけで話すことがひとつ増える"}}
+  ],
+  misete:[
+    {title:"ぜんぶ見せる型 取材の90分", hypo:"裏側開示はvoices記事への遷移を生むか", f:{
+      ura:"Kinda voicesの取材、1本の記事の裏に90分の録音がある",
+      fail:"最初の取材は緊張して、用意した質問を上から順に読むだけになった",
+      manabi:"質問リストを捨てて、雑談から始めるようにした",
+      ima:"いちばんいい言葉は、いつも雑談の中から出てくる"}},
+    {title:"ぜんぶ見せる型 口コミ0件から", hypo:"弱み開示は信頼（フォロー）につながるか", f:{
+      ura:"口コミサイトなのに、最初は口コミが0件だった",
+      fail:"「面談した人だけが書ける」仕組みにこだわった結果、集まるのがとにかく遅い",
+      manabi:"でもこの遅さこそ、やらせゼロの証明だと決めた",
+      ima:"1件ずつしか増えない。それでいいと思っている"}},
+    {title:"ぜんぶ見せる型 初代ふうか像の最期", hypo:"制作裏話はいいねを集めるか", f:{
+      ura:"サイトに出てくるクレイのふうか像、手で作っている",
+      fail:"初代は乾燥でひびが入って、頭から崩れた",
+      manabi:"焦って作るとだいたい失敗する、ということを粘土に教わった",
+      ima:"二代目は元気です。今日も婚活の話をする粘土として働いている"}},
+    {title:"ぜんぶ見せる型 一人運営の時間割", hypo:"運営のリアルは「中の人」ファンを作るか", f:{
+      ura:"Kindaの運営、ほぼ一人でやっている",
+      fail:"取材・記事・SNS・サイト修正を同じ日にやろうとして、全部が中途半端になった日がある",
+      manabi:"1日1タスクに絞ったら、逆に進むようになった",
+      ima:"今日は、この投稿を作る日"}}
+  ],
+  tantan:[
+    {title:"淡々型 初回面談で聞かれること", hypo:"面談の中身系は保存率が最も高いか", f:{
+      theme:"結婚相談所の初回面談で実際に聞かれること",
+      f1:"過去の恋愛より「これからどう過ごしたいか」を聞かれることが多い",
+      f2:"その場で入会を決めなくていい。持ち帰って比べるのが普通",
+      f3:"費用の総額はその場で確認できる。にごされたら候補から外していい",
+      hosoku:"面談した人だけが書いた口コミは、Kindaで読めます"}},
+    {title:"淡々型 契約前に確認する3つ", hypo:"お金系は保存されるか", f:{
+      theme:"結婚相談所の契約前に確認したい3つのこと",
+      f1:"初期費用・月会費・成婚料の「総額」。月会費だけ見ると読み違える",
+      f2:"中途退会したときのお金。契約書で必ず確認できる項目",
+      f3:"担当カウンセラーを途中で変えられるか。聞きにくいけど、聞いていい質問",
+      hosoku:"聞いて嫌な顔をされたら、それもひとつの情報"}},
+    {title:"淡々型 入会からお見合いまで", hypo:"日数・流れ系は未検討層に届くか", f:{
+      theme:"結婚相談所、入会からお見合いまでの実際の流れ",
+      f1:"書類準備と写真撮影で、活動開始までだいたい2〜4週間",
+      f2:"最初の1ヶ月は「申し込みの練習期間」と考えるとちょうどいい",
+      f3:"早い人は1ヶ月ほどで最初のお見合い。遅くても焦る必要はない",
+      hosoku:"ペースはカウンセラーと一緒に決められます"}},
+    {title:"淡々型 カウンセラーの裏側", hypo:"覗き見系はプロフ遷移するか", f:{
+      theme:"結婚相談所のカウンセラーが面談のあと裏でやっていること",
+      f1:"会員同士の相性を考えて、紹介文を1通ずつ書いている相談所がある",
+      f2:"お断りの連絡を本人の代わりに引き受けるのも仕事のうち",
+      f3:"「今週連絡がなかった人」を気にかけて連絡するカウンセラーもいる",
+      hosoku:"どんなカウンセラーかが口コミでわかる場所を作っています"}}
+  ],
+  honyaku:[
+    {title:"翻訳型 申し込み上限のほんとうの意味", hypo:"用語翻訳はvoices遷移を生むか", f:{
+      word:"「お見合いの申し込みは月◯件まで」というルールの意味",
+      yaku:"ようするに、無限に迷わないための上限。ビュッフェの皿と同じで、際限がないと逆に選べなくなる",
+      shiten:"あるカウンセラーさんいわく「件数より、断られたあとの話のほうがずっと大事」",
+      cta:"この話の続きは、Kinda voicesの取材記事で"}},
+    {title:"翻訳型 成婚退会", hypo:"業界用語の解説は保存されるか", f:{
+      word:"「成婚退会」という業界の言葉",
+      yaku:"結婚が決まって辞めること……と思いきや、正確には「ふたりで先に進むと決めて卒業すること」。定義は相談所ごとに違う",
+      shiten:"「成婚の定義は契約前に聞いていい質問です」とカウンセラーさんは言っていた",
+      cta:""}},
+    {title:"翻訳型 仮交際の「仮」", hypo:"言葉の不安をほどく投稿は共感されるか", f:{
+      word:"「仮交際」という不思議な言葉",
+      yaku:"「仮」と言われると軽く聞こえるけど、実際は「お互いを知る期間に名前がついているだけ」。並行して会うことが公認されているのが恋愛との違い",
+      shiten:"現場の感覚では「“仮”の字で気負わなくていい」らしい",
+      cta:""}}
+  ],
+  hitokoto:[
+    {title:"ひとこと型（引用は実取材に差し替え）", hypo:"引用型はDMシェアされるか", f:{
+      quote:"焦って決めた人より、迷った人のほうが、あとで幸せそうなんですよ",
+      who:"※ここは必ずvoices取材の実際の言葉・実際の表記に差し替える（創作引用は出さない）",
+      haikei:"取材の最後、雑談のなかでぽろっと出た",
+      name:""}},
+    {title:"ひとこと型 断られてからが本番（差し替え用）", hypo:"逆説の引用は反応されるか", f:{
+      quote:"お見合いって、断られてからが本番なんです",
+      who:"※実取材の言葉・同意範囲内の表記に差し替える",
+      haikei:"",
+      name:""}},
+    {title:"ひとこと型 べつの才能（差し替え用）", hypo:"静かな引用は夜の時間帯に伸びるか", f:{
+      quote:"「条件が合う」と「一緒にいて楽」は、べつの才能なんですよね",
+      who:"※実取材の言葉・同意範囲内の表記に差し替える",
+      haikei:"",
+      name:""}}
+  ]
+};
+const SAFETY=[
+  "笑いの矛先が「自分」か「クレイふうか像」だけになっている",
+  "実在の会員・カウンセラー・相談所・活動中の人を落としていない（「〜な人いるよね」がない）",
+  "焦らせ・比較・煽りの言葉がない（「早くしないと」「周りは」）",
+  "「相手」「ふたり」で書けている（異性・男女を前提にしていない）",
+  "絵文字は区切り用途で最小限（感情表現に使っていない）",
+  "voices・story由来の素材は同意範囲（実名・相談所名・写真）を確認した"
+];
+const SEEDS=[
+  {honne:"損したくない・騙されたくない", ex:"料金の内訳のほんとうの見方／契約前に確認する3点／中途退会のお金の話", kata:["tantan"]},
+  {honne:"中を覗いてから決めたい", ex:"初回面談で実際に聞かれること／入会からお見合いまでの実際の日数／カウンセラーが裏でやっていること", kata:["tantan","honyaku"]},
+  {honne:"自分でも大丈夫か確かめたい", ex:"予約フォームの前で固まる夜／恋愛の経験が少ないままの一歩目", kata:["fubin","hitokoto"]},
+  {honne:"失敗談のほうが信じられる", ex:"合わなくてやめた話／うまくいかなかった取材・運営の裏側", kata:["misete"]},
+  {honne:"断り方・気まずさが怖い", ex:"お見合いの断り方／担当変更の言い出し方", kata:["honyaku","fubin"]},
+  {honne:"中の人はどんな人か知りたい", ex:"運営の日常の小さな失敗／サイトを手づくりしている裏側", kata:["jibun","misete"]}
+];
+/* リール設計図（2026-07 トレンド調査に基づく仮説。分析タブで検証しながら更新する）
+   共通原則：冒頭1.5〜2秒のテキストフック／3秒1カット／全編テロップ（無音視聴前提）／
+   作り込まないraw感OK／静止画スライド式で量産（1枚2〜5秒）／保存・シェアが上位指標 */
+const REELS={
+  jibun:{len:"15〜25秒・紙芝居型（まめこ式4コマをそのままリール化）",
+    img:"作業机・小道具は実物のスマホ写真でOK（生成AI枠を使わない）。ふうか像を出す場合のみ生成画像1〜2枚",
+    budget:"生成画像0〜2枚／動画化なしで成立（静止画＋テロップ送りで十分）",
+    audio:"ふうかの声 or ゆるいBGM。無音でも伝わるよう全編テロップ",
+    steps:[
+      ["0〜2秒","フック：オチを匂わすテロップ1行＋1カット目","例「取材してたら、味噌汁が事故った」。2秒以内に2カット目へ"],
+      ["2〜6秒","フリ：場面の写真＋状況テロップ","ナレーションはここから始める"],
+      ["6〜12秒","展開：2カットでテンポを上げる","3秒1カット。中盤の意外性で二度目のフック"],
+      ["12〜16秒","セルフツッコミ：文字を大きく、1拍止める","オチは静止画で見せると効く"],
+      ["16〜20秒","余韻：静かな1枚＋小さい文字","まめこ式の後味。説教で締めない"]]},
+  fubin:{len:"7〜15秒・ループ型（完了率で伸ばす主力）",
+    img:"クレイふうか像の生成画像3〜4枚（アップ・引き・凹み・救い）。表情は変わらなくていい（不憫さは構図と文字で出す）",
+    budget:"生成3〜4枚＝1日の枠（5〜8枚）で1〜2本分。動画化するなら「凹みの瞬間」の1カットだけ。他は静止画のまま2〜4秒",
+    audio:"静かなBGM推奨。声はなくても成立する",
+    steps:[
+      ["0〜1.5秒","フック：あるある一行＋ふうか像のアップ","例「予約フォームの前で30分固まってる」"],
+      ["1.5〜4秒","場面：ふうか像＋小道具（スマホ・冷めたお茶）","引きのカットで状況がわかるように"],
+      ["4〜8秒","凹みの瞬間：寄り→引きの2カット","ここが「これ私だ」の山"],
+      ["8〜12秒","救いの一行：画面を静止してテロップだけ","焦らせない。そっと置く"],
+      ["12〜13秒","余韻のまま即終了","ループで冒頭に戻る設計。終わりの挨拶は入れない"]]},
+  misete:{len:"30〜60秒・vlog風（声で信頼をつくる型）",
+    img:"手元・机・画面は実物のスマホ撮影（生成AI枠ゼロ）。編集は粗くていい",
+    budget:"生成0枚でOK。動きは実写の手元をそのまま撮る（AI動画変換を使わない型）",
+    audio:"ふうかの声メイン（顔なし）。この型は声が主役",
+    steps:[
+      ["0〜2秒","フック：「口コミサイトの中の人、今日の失敗」系テロップ＋手元カット","何の裏側かを1行で"],
+      ["2〜10秒","裏側：作業風景を3秒1カットで","ナレーション開始"],
+      ["10〜25秒","失敗：隠さずそのまま見せる","轟ちゃん式の核。ここを薄めない"],
+      ["25〜40秒","学びと、いま","落ち着いたトーンに戻す"],
+      ["ラスト2秒","ひとことで締め","次も見たくなる余白を残す"]]},
+  tantan:{len:"30〜45秒・教育型（保存狙い）",
+    img:"ベージュ背景のテキストスライド中心（生成AI不要）。クレイ情景を挟むなら生成1〜2枚（1枚5秒以内）",
+    budget:"生成0〜2枚。動画化なし（静止画リールで成立）",
+    audio:"ふうかの淡々ナレーション。テロップと二重化",
+    steps:[
+      ["0〜2秒","フック：「◯◯、3つ」と数字で言い切るテロップ","前置きゼロ。タイトルがそのままフック"],
+      ["2〜5秒","すぐ1つ目へ","サラ式：無駄な解説をしない"],
+      ["5〜30秒","事実1→2→3。各7〜8秒","番号テロップ＋3秒1カット"],
+      ["30〜40秒","補足ひとこと＋保存の誘い","「保存しておくと面談前に見返せます」"]]},
+  honyaku:{len:"20〜40秒・解説型（voices誘導）",
+    img:"「翻訳の絵」（例えのビジュアル）を生成1枚＋テキストスライド",
+    budget:"生成1〜2枚。動画化するなら翻訳の絵の1カットのみ",
+    audio:"ふうかの声。会話調でゆるく",
+    steps:[
+      ["0〜2秒","フック：疑問形テロップ","例「『仮交際』って、何が仮なの」"],
+      ["2〜8秒","業界の言葉を提示","言葉だけを画面中央に"],
+      ["8〜20秒","ゆるい翻訳：例えのビジュアル1枚","ビュッフェの皿など、絵で笑わせる"],
+      ["20〜30秒","カウンセラーの一言を引用テロップで","同意範囲内の表記"],
+      ["30〜35秒","voicesへの導き","「続きはプロフィールから」"]]},
+  hitokoto:{len:"7〜12秒・静かなループ（最軽量・量産用）",
+    img:"クレイ情景の生成画像1枚で完成。いちばん作りやすい",
+    budget:"生成1枚。動画化なし（文字のフェードだけで成立）",
+    audio:"静かなBGMのみ。無音の世界観がこの型の武器",
+    steps:[
+      ["0〜2秒","引用の前半だけ見せる","続きが気になる状態を作る"],
+      ["2〜8秒","全文をゆっくり表示＋クレイ情景1枚","文字は1行ずつフェードイン"],
+      ["8〜10秒","話し手の表記＋CTA一行","「◯◯さんの話を、直接聞いてみる。」"]]}
+};
+const TIME_IG=["10:00-11:00","17:00","20:00-21:00","任意"];
+const TIME_X=["朝 7:30-8:30","昼 12:00台","夜 21:00-22:30","任意"];
+
+/* 画像生成プロンプト（ChatGPTに「ふうかプロフィール画像1枚」を毎回添付して使う）
+   シーン部分は投稿の題材に合わせて書き換えてよい。うまくいかない特殊シーンだけClaudeに相談 */
+const PROMPT_ANCHOR="添付のクレイ人形（ふうか）の写真を参照し、同一キャラクターをまったく同じ造形・肌の質感・髪型・服の色のまま登場させてください。ミニチュアクレイ（粘土）風、柔らかいマット質感、丸み、ウォームベージュ #F5EEE6 の背景、上からの柔らかい光。写真的なリアルさではなく手作りの粘土ジオラマ感。画像内に文字・ロゴは入れない。縦長 9:16。シーン：";
+const PROMPTS={
+  fubin:[
+    {label:"カット1 アップ（フック用）", scene:"ふうかが不安そうな表情でスマートフォンを両手で持ち、画面を見つめている。胸から上のアップ"},
+    {label:"カット2 引き（場面説明）", scene:"ふうかがテーブルの前に座っている。テーブルにはスマートフォンと、湯気の消えた湯のみ。少し引いた構図で部屋の空気がわかる"},
+    {label:"カット3 凹み（山場・動画化するならこれ）", scene:"ふうかがテーブルにそっと突っ伏している。かたわらにスマートフォン。斜め上からの構図"},
+    {label:"カット4 救い（テロップ用の余白）", scene:"ふうかが顔を上げて、窓の外のやわらかい光を見ている横顔。画面の上半分に余白を大きく残す"}],
+  hitokoto:[
+    {label:"情景1枚（引用の背景）", scene:"人物なしのクレイのミニチュア情景。ベージュの部屋に小さなテーブルとふたつの湯のみ。静かな雰囲気。画面中央に文字を置ける余白を残す"}],
+  tantan:[
+    {label:"クレイ情景（任意・表紙用）", scene:"人物なしのクレイのミニチュア情景。相談室の机と椅子、小さな観葉植物。落ち着いた清潔な雰囲気。画面上部に見出しを置ける余白"}],
+  honyaku:[
+    {label:"翻訳の絵（例えビジュアル）", scene:"クレイで作ったビュッフェの皿に小さな料理がのっている俯瞰のワンカット（※例え話の内容に合わせて差し替える）"}],
+  jibun:[
+    {label:"ふうか像カット（任意）", scene:"ふうかが作業机でノートパソコンに向かっている。夜の部屋、あたたかいスタンドの光。周りに粘土の道具"}],
+  misete:[]
+};
+
+/* ---------- state ---------- */
+const LS="kinda-sns-studio:v1";
+let store;
+try{ store=JSON.parse(localStorage.getItem(LS)||"{}"); }catch(e){ store={}; }
+store.drafts=store.drafts||[]; store.ideas=store.ideas||[]; store.logs=store.logs||[]; store.rejected=store.rejected||[];
+function save(){ localStorage.setItem(LS,JSON.stringify(store)); }
+let curKata=KATA[0], curPlat="ig", curMetric="save";
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),1800);}
+function copyText(txt,msg){
+  const done=()=>toast(msg||"コピーしました");
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done));}
+  else fallbackCopy(txt,done);
+}
+function fallbackCopy(txt,done){const ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done();}catch(e){toast("コピーできませんでした");}document.body.removeChild(ta);}
+function xWeight(s){ // Xの280換算（全角2・半角1・URL23）
+  let t=String(s).replace(/https?:\/\/\S+/g," ".repeat(23)), n=0;
+  for(const ch of t){ n += (ch===" ")?1:(ch.charCodeAt(0)>0xFF?2:1); }
+  return n;
+}
+const kataById=id=>KATA.find(k=>k.id===id)||KATA[0];
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("sel",x===b));
+    document.querySelectorAll(".tabpage").forEach(p=>p.classList.remove("active"));
+    $("page-"+b.dataset.page).classList.add("active");
+    window.scrollTo({top:0});
+    if(b.dataset.page==="analyze") renderAnalytics();
+  });
+});
+
+/* ---------- builder ---------- */
+const KATA_ORDER=["fubin","tantan","hitokoto","jibun","misete","honyaku"];
+function renderKataGrid(){
+  const ordered=KATA_ORDER.map(kataById);
+  $("kataGrid").innerHTML=ordered.map(k=>
+    `<button class="kata-card${k.id===curKata.id?" sel":""}" data-id="${k.id}" aria-pressed="${k.id===curKata.id}">
+      <div class="kata-name"><span class="dot" style="background:${k.color}"></span>${esc(k.name)}${k.id==="fubin"?' <span class="chip" style="background:var(--accent-soft);color:var(--accent-ink);">主力</span>':""}</div>
+      <div class="kata-src">${esc(k.src)}｜柱${esc(k.pillar.charAt(0))}</div>
+      <div class="kata-tag">${esc(k.tag)}</div>
+    </button>`).join("");
+  document.querySelectorAll(".kata-card").forEach(c=>c.addEventListener("click",()=>{
+    curKata=kataById(c.dataset.id); renderKataGrid(); applyDraft(); renderPlatform();
+  }));
+}
+/* 型を選ぶたびに下書き案を順番に自動セットする（ボツにした案はスキップ） */
+const draftIdx={};
+let curDraft=null;
+const isRejected=(kata,title)=>store.rejected.some(r=>r.kata===kata&&r.title===title);
+function applyDraft(){
+  const bank=(DRAFTS[curKata.id]||[]).filter(d=>!isRejected(curKata.id,d.title));
+  if(!bank.length){
+    curDraft=null; renderFields();
+    $("postTitle").value=""; $("hypothesis").value="";
+    toast("この型の案は出しつくしました。Claudeに補充を頼んでください");
+    return;
+  }
+  const i=(draftIdx[curKata.id]??-1)+1;
+  draftIdx[curKata.id]=i%bank.length;
+  curDraft=bank[draftIdx[curKata.id]];
+  $("postTitle").value=curDraft.title;
+  $("hypothesis").value=curDraft.hypo;
+  renderFields(curDraft.f);
+  resetSafety();
+}
+/* ボツ機能：理由つきで記録し、その案は以後出さない */
+$("rejectDraft").addEventListener("click",()=>{
+  if(!curDraft){toast("いま入っているのは自動案ではありません");return;}
+  $("rejectWrap").style.display="";
+  $("rejectReason").focus();
+});
+$("rejectCancel").addEventListener("click",()=>{$("rejectWrap").style.display="none";$("rejectReason").value="";});
+$("rejectConfirm").addEventListener("click",()=>{
+  if(!curDraft) return;
+  store.rejected.unshift({kata:curKata.id,title:curDraft.title,reason:$("rejectReason").value.trim(),date:new Date().toISOString().slice(0,10)});
+  save();
+  $("rejectWrap").style.display="none"; $("rejectReason").value="";
+  renderRejected(); applyDraft();
+  toast("ボツにしました。次の案です");
+});
+function renderRejected(){
+  const el=$("rejectedList");
+  if(!store.rejected.length){el.innerHTML='<p class="hint">まだボツはありません。</p>';return;}
+  el.innerHTML=store.rejected.map(r=>{const k=kataById(r.kata);
+    return `<div class="item"><div class="t" style="font-size:.8rem;">${esc(r.title)}</div>
+      <div class="m"><span class="chip"><span class="dot" style="background:${k.color}"></span>${esc(k.name)}</span> ${esc(r.date)}${r.reason?"｜理由: "+esc(r.reason):"｜理由なし"}</div></div>`;}).join("");
+}
+$("copyRejected").addEventListener("click",()=>{
+  if(!store.rejected.length){toast("ボツはまだありません");return;}
+  const txt=["Kinda SNS投稿スタジオのボツ案リストです。この傾向を避けて、各型の下書き案を補充してください。",""]
+    .concat(store.rejected.map(r=>`- [${kataById(r.kata).name}] ${r.title} … 理由: ${r.reason||"（未記入）"}`)).join("\n");
+  copyText(txt,"コピーしました。Claudeのチャットに貼ってください");
+});
+$("clearRejected").addEventListener("click",()=>{
+  store.rejected=[]; save(); renderRejected(); toast("ボツ履歴を空にしました。案が復活します");
+});
+function renderPlatform(){
+  document.querySelectorAll("#platSeg button").forEach(b=>b.classList.toggle("sel",b.dataset.plat===curPlat));
+  $("igFormatWrap").style.display = curPlat==="ig"?"":"none";
+  $("hashWrap").style.display = curPlat==="ig"?"":"none";
+  const times = curPlat==="ig"?TIME_IG:TIME_X;
+  $("postTime").innerHTML = times.map(t=>`<option>${t}</option>`).join("");
+  if(curPlat==="ig") $("igFormat").value=curKata.igFormat;
+  $("platHint").textContent = curPlat==="ig"
+    ? `この型のおすすめ形式：${curKata.igFormat}。シリーズは「${curKata.series}」で記録されます。`
+    : `Xの柱は「${curKata.pillar}」で記録されます。冒頭に検索語（結婚相談所 等）を置くと発見されやすくなります。`;
+  renderReelPlan();
+  updatePreview();
+}
+/* リール設計図：IG×リールのときだけ、その型の秒数割りを表示 */
+function renderReelPlan(){
+  const show = curPlat==="ig" && $("igFormat").value==="リール" && REELS[curKata.id];
+  $("reelPlanWrap").style.display = show?"":"none";
+  if(!show) return;
+  const r=REELS[curKata.id];
+  $("reelPlan").innerHTML=
+    `<p class="rp-meta"><b>${esc(curKata.name)}リール：${esc(r.len)}</b></p>
+     <p class="rp-sub">画像：${esc(r.img)}<br>枚数の目安：${esc(r.budget)}<br>音：${esc(r.audio)}</p>
+     ${r.steps.map(s=>`<div class="rp-step"><div class="t">${esc(s[0])}</div><div>${esc(s[1])}<div class="note">${esc(s[2])}</div></div></div>`).join("")}
+     ${renderPrompts()}
+     <p class="hint">共通原則：冒頭2秒がすべて（最初の3秒で約半数が離脱）／3秒1カット／無音でも伝わる全編テロップ／作り込まないraw感OK。制作ルール：クレイふうか像は生成AI画像（1日5〜8枚の枠内）、画像の動画化は1本につき1カットまで、残りは静止画スライドで組む。</p>
+     <p class="hint">テロップ標準（全リール共通で固定）：横書き・太めの角ゴシック（Noto Sans JP Bold相当）／こげ茶 #453A2F＋白の角丸帯（不透明度85〜90%）／位置は画面上端から20%の高さに固定（カット1〜3で動かさない）／1行13字以内・最大2行・中央揃え／フックのテロップは0秒から表示（アニメなし）、途中はカット切替と同時表示、救い・余韻の一行だけ帯なし・中央（上下中央〜40%）・0.5秒フェードイン／フェードアウトは使わず即終了でループ／上10%（ユーザー名）と下25%（キャプションUI）には置かない。この設計図は2026年7月のトレンド調査に基づく仮説。分析タブの数字で検証して更新する。</p>`;
+  $("reelPlan").querySelectorAll("button[data-prompt]").forEach(b=>b.addEventListener("click",()=>{
+    const p=PROMPTS[curKata.id][+b.dataset.prompt];
+    copyText(PROMPT_ANCHOR+p.scene,"プロンプトをコピーしました。ふうか画像を添付して生成");
+  }));
+}
+/* 画像生成プロンプト欄（ChatGPT用・参照画像は「ふうかプロフィール1枚」が唯一の正） */
+function renderPrompts(){
+  const ps=PROMPTS[curKata.id]||[];
+  if(!ps.length) return `<div class="safety" style="margin-top:12px;"><div class="s-title">画像生成プロンプト</div><p class="hint" style="margin:0;">この型は生成AI画像不要（実物のスマホ撮影で作る）。生成枠を消費しません。</p></div>`;
+  return `<div class="safety" style="margin-top:12px;">
+    <div class="s-title">画像生成プロンプト（ChatGPTにふうか画像を毎回添付して使う）</div>
+    ${ps.map((p,i)=>`<div class="rp-step"><div class="t" style="font-size:.72rem;">${esc(p.label)}</div>
+      <div><div class="note" style="margin-top:0;">${esc(p.scene)}</div>
+      <button class="btn ghost small" data-prompt="${i}" style="margin-top:6px;">プロンプトをコピー</button></div></div>`).join("")}
+    <p class="hint">コピーされる文＝共通アンカー（同一キャラ・クレイ質感・ベージュ背景・9:16・文字なし）＋シーン。シーンは題材に合わせて書き換えてOK。参照画像は「ふうかプロフィール1枚」だけが正。うまく出ない特殊シーンだけClaudeに相談してください。</p>
+  </div>`;
+}
+document.querySelectorAll("#platSeg button").forEach(b=>b.addEventListener("click",()=>{curPlat=b.dataset.plat;renderPlatform();}));
+
+function renderFields(vals){
+  vals=vals||{};
+  $("fieldArea").innerHTML=curKata.fields.map(f=>
+    `<label class="f">${esc(f.l)}
+      <textarea data-k="${f.k}" rows="2" placeholder="${esc(f.p)}">${esc(vals[f.k]||"")}</textarea>
+    </label>`).join("");
+  document.querySelectorAll("#fieldArea textarea").forEach(t=>t.addEventListener("input",updatePreview));
+  updatePreview();
+}
+function fieldVals(){
+  const v={};
+  document.querySelectorAll("#fieldArea textarea").forEach(t=>v[t.dataset.k]=t.value.trim());
+  return v;
+}
+function updatePreview(){
+  const v=fieldVals();
+  let body=curKata.build(v,curPlat).replace(/\n{3,}/g,"\n\n").trim();
+  if(curPlat==="ig"){
+    const h=$("hashtags").value.trim();
+    if(h) body=body+"\n\n"+h;
+  }
+  $("preview").value=body;
+  updateCount();
+}
+function updateCount(){
+  const body=$("preview").value;
+  const el=$("charCount");
+  if(curPlat==="x"){
+    const w=xWeight(body);
+    el.textContent=`X換算 ${w} / 280（全角=2）`;
+    el.classList.toggle("over",w>280);
+  }else{
+    el.textContent=`${[...body].length} 文字（IGキャプション上限 2,200）`;
+    el.classList.toggle("over",[...body].length>2200);
+  }
+}
+$("preview").addEventListener("input",updateCount);
+$("hashtags").addEventListener("input",updatePreview);
+$("anotherDraft").addEventListener("click",()=>{applyDraft();toast("別の案を入れました");});
+$("igFormat").addEventListener("change",renderReelPlan);
+
+/* safety */
+function renderSafety(){
+  $("safetyList").innerHTML=SAFETY.map((s,i)=>
+    `<label class="chk"><input type="checkbox" data-i="${i}"><span>${esc(s)}</span></label>`).join("");
+  document.querySelectorAll("#safetyList input").forEach(c=>c.addEventListener("change",safetyState));
+  safetyState();
+}
+function safetyOk(){return [...document.querySelectorAll("#safetyList input")].every(c=>c.checked);}
+function safetyState(){
+  const ok=safetyOk(), el=$("safetyState");
+  el.textContent=ok?"チェック完了。出せます":"未チェックの項目があります";
+  el.className="safety-state "+(ok?"ok":"ng");
+}
+function resetSafety(){document.querySelectorAll("#safetyList input").forEach(c=>c.checked=false);safetyState();}
+
+/* copy / draft */
+$("copyBody").addEventListener("click",()=>{
+  if(!safetyOk()){toast("先に安全チェックを終えてください");return;}
+  copyText($("preview").value,"本文をコピーしました");
+});
+$("copyNotion").addEventListener("click",()=>{
+  if(!safetyOk()){toast("先に安全チェックを終えてください");return;}
+  const title=$("postTitle").value.trim()||"(無題) "+curKata.name;
+  const hypo=$("hypothesis").value.trim();
+  let out;
+  if(curPlat==="ig"){
+    out=[`投稿タイトル：${title}`,`形式：${$("igFormat").value}`,`シリーズ：${curKata.series}`,
+         `投稿時間：${$("postTime").value}`,`状態：下書き済`,``,`キャプション：`,$("preview").value];
+  }else{
+    out=[`投稿タイトル：${title}`,`柱：${curKata.pillar}`,`投稿時間：${$("postTime").value}`,`状態：下書き済`,``,`本文：`,$("preview").value];
+  }
+  if(hypo) out.push("",`メモ（検証）：${hypo}`);
+  copyText(out.join("\n"),"Notion用をコピーしました");
+});
+$("saveDraft").addEventListener("click",()=>{
+  store.drafts.unshift({
+    id:Date.now(), kata:curKata.id, plat:curPlat,
+    igFormat:curPlat==="ig"?$("igFormat").value:"", time:$("postTime").value,
+    title:$("postTitle").value.trim(), hypo:$("hypothesis").value.trim(),
+    fields:fieldVals(), body:$("preview").value, hashtags:$("hashtags").value,
+    date:new Date().toISOString().slice(0,10)
+  });
+  save(); renderDrafts(); toast("下書きを保存しました");
+});
+function renderDrafts(){
+  const el=$("draftList");
+  if(!store.drafts.length){el.innerHTML='<p class="hint">まだ下書きはありません。</p>';return;}
+  el.innerHTML=store.drafts.map(d=>{
+    const k=kataById(d.kata);
+    return `<div class="item">
+      <div class="t">${esc(d.title||"(無題)")}</div>
+      <div class="m"><span class="chip"><span class="dot" style="background:${k.color}"></span>${esc(k.name)}</span>
+        ${d.plat==="ig"?"IG "+esc(d.igFormat):"X"}｜${esc(d.date)}${d.hypo?"｜検証: "+esc(d.hypo):""}</div>
+      <div class="row">
+        <button class="btn ghost small" data-act="load" data-id="${d.id}">読み込む</button>
+        <button class="btn ghost small" data-act="copy" data-id="${d.id}">本文コピー</button>
+        <button class="btn ghost small" data-act="del" data-id="${d.id}">削除</button>
+      </div></div>`;}).join("");
+  el.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    const d=store.drafts.find(x=>x.id==b.dataset.id); if(!d) return;
+    if(b.dataset.act==="del"){store.drafts=store.drafts.filter(x=>x.id!=b.dataset.id);save();renderDrafts();toast("削除しました");}
+    else if(b.dataset.act==="copy"){copyText(d.body,"本文をコピーしました");}
+    else{
+      curKata=kataById(d.kata); curPlat=d.plat;
+      renderKataGrid(); renderPlatform();
+      if(d.plat==="ig"){$("igFormat").value=d.igFormat||curKata.igFormat;$("hashtags").value=d.hashtags||"";}
+      $("postTime").value=d.time; $("postTitle").value=d.title; $("hypothesis").value=d.hypo;
+      renderFields(d.fields); resetSafety();
+      window.scrollTo({top:0}); toast("下書きを読み込みました");
+    }
+  }));
+}
+
+/* ---------- idea tab ---------- */
+function renderSeeds(){
+  $("seedList").innerHTML=SEEDS.map((s,i)=>
+    `<div class="seed"><div class="honne">${esc(s.honne)}</div>
+      <div class="ex">${esc(s.ex)}</div>
+      <div class="row" style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">
+        ${s.kata.map(id=>{const k=kataById(id);
+          return `<button class="btn ghost small" data-seed="${i}" data-kata="${id}">${esc(k.name)}でつくる</button>`;}).join("")}
+      </div></div>`).join("");
+  $("seedList").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>startFromSeed(SEEDS[b.dataset.seed],b.dataset.kata)));
+}
+function startFromSeed(seed,kataId){
+  curKata=kataById(kataId);
+  renderKataGrid(); applyDraft(); renderPlatform();
+  $("hypothesis").value=`「${seed.honne}」層に${curKata.name}が届くか`;
+  document.querySelector('nav.tabs button[data-page="build"]').click();
+  toast("下書きを自動セットしました。編集して使ってください");
+}
+$("shuffleBtn").addEventListener("click",()=>{
+  const s=SEEDS[Math.floor(Math.random()*SEEDS.length)];
+  const kid=s.kata[Math.floor(Math.random()*s.kata.length)];
+  const k=kataById(kid);
+  $("suggestBox").innerHTML=`<div class="suggest">
+    <div style="font-size:.78rem;color:var(--muted);">本音：${esc(s.honne)}</div>
+    <div style="font-weight:700;margin-top:4px;"><span class="dot" style="background:${k.color};display:inline-block;"></span> ${esc(k.name)}（${esc(k.src)}）</div>
+    <div style="font-size:.82rem;margin-top:4px;">ネタの方向：${esc(s.ex)}</div>
+    <div class="btnrow"><button class="btn small" id="useSuggest">この組み合わせでつくる</button></div>
+  </div>`;
+  $("useSuggest").addEventListener("click",()=>startFromSeed(s,kid));
+});
+$("addIdea").addEventListener("click",()=>{
+  const v=$("ideaInput").value.trim(); if(!v){toast("内容を入れてください");return;}
+  store.ideas.unshift({id:Date.now(),text:v,date:new Date().toISOString().slice(0,10)});
+  $("ideaInput").value=""; save(); renderIdeas(); toast("メモしました");
+});
+function renderIdeas(){
+  const el=$("ideaList");
+  if(!store.ideas.length){el.innerHTML='<p class="hint">まだメモはありません。</p>';return;}
+  el.innerHTML=store.ideas.map(i=>`<div class="item"><div class="t" style="font-weight:400;font-size:.84rem;">${esc(i.text)}</div>
+    <div class="m">${esc(i.date)}</div>
+    <div class="row"><button class="btn ghost small" data-id="${i.id}">削除</button></div></div>`).join("");
+  el.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    store.ideas=store.ideas.filter(x=>x.id!=b.dataset.id);save();renderIdeas();
+  }));
+}
+
+/* ---------- analysis ---------- */
+$("logDate").value=new Date().toISOString().slice(0,10);
+$("logKata").innerHTML=KATA.map(k=>`<option value="${k.id}">${k.name}</option>`).join("");
+$("logPlat").addEventListener("change",()=>{
+  const ig=$("logPlat").value==="ig";
+  $("logMetricsIg").style.display=ig?"":"none";
+  $("logMetricsX").style.display=ig?"none":"";
+});
+$("addLog").addEventListener("click",()=>{
+  const plat=$("logPlat").value;
+  const n=id=>{const v=parseFloat($(id).value);return isNaN(v)?null:v;};
+  const log={id:Date.now(),date:$("logDate").value,plat,kata:$("logKata").value,
+    title:$("logTitle").value.trim(),hypo:$("logHypo").value.trim(),note:$("logNote").value.trim()};
+  if(plat==="ig"){log.reach=n("mReach");log.saves=n("mSave");log.likes=n("mLike");log.prof=n("mProf");log.shares=n("mShare");}
+  else{log.imp=n("mImp");log.eng=n("mEng");log.prof=n("mProfX");}
+  if(!log.title){toast("投稿タイトルを入れてください");return;}
+  store.logs.unshift(log); save();
+  ["logTitle","logHypo","logNote","mReach","mSave","mLike","mProf","mShare","mImp","mEng","mProfX"].forEach(id=>$(id).value="");
+  renderAnalytics(); toast("記録しました");
+});
+function rate(a,b){return (a!=null&&b)?a/b:null;}
+function fmtPct(v){return v==null?"—":(v*100).toFixed(1)+"%";}
+function logRates(l){
+  if(l.plat==="ig") return {save:rate(l.saves,l.reach), prof:rate(l.prof,l.reach), eng:rate(l.likes,l.reach)};
+  return {save:null, prof:rate(l.prof,l.imp), eng:rate(l.eng,l.imp)};
+}
+function renderAnalytics(){
+  /* tiles */
+  const logs=store.logs;
+  const withRates=logs.map(l=>({l,r:logRates(l)}));
+  const avg=key=>{const vs=withRates.map(x=>x.r[key]).filter(v=>v!=null);return vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:null;};
+  // best kata by current metric with >=1 data point
+  const byKata={};
+  withRates.forEach(x=>{(byKata[x.l.kata]=byKata[x.l.kata]||[]).push(x.r);});
+  let best=null,bestV=null;
+  Object.entries(byKata).forEach(([id,rs])=>{
+    const vs=rs.map(r=>r[curMetric]).filter(v=>v!=null);
+    if(!vs.length)return;
+    const m=vs.reduce((a,b)=>a+b,0)/vs.length;
+    if(bestV==null||m>bestV){bestV=m;best=id;}
+  });
+  $("tiles").innerHTML=`
+    <div class="tile"><div class="v">${logs.length}</div><div class="l">記録数</div></div>
+    <div class="tile"><div class="v">${fmtPct(avg("save"))}</div><div class="l">平均保存率（IG）</div></div>
+    <div class="tile"><div class="v" style="font-size:.9rem;line-height:1.9;">${best?esc(kataById(best).name):"—"}</div><div class="l">いまの勝ち型</div></div>`;
+  /* bars */
+  document.querySelectorAll("#metricSeg button").forEach(b=>b.classList.toggle("sel",b.dataset.metric===curMetric));
+  const rows=KATA.map(k=>{
+    const rs=(byKata[k.id]||[]).map(r=>r[curMetric]).filter(v=>v!=null);
+    return {k,n:rs.length,v:rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:null};
+  }).filter(r=>r.n>0);
+  const names={save:"保存率（保存÷リーチ・IGのみ）",prof:"プロフ遷移率（遷移÷リーチ/インプ）",eng:"反応率（いいね÷リーチ／エンゲージ÷インプ）"};
+  $("barNote").textContent=names[curMetric]+"。型ごとの平均。件数3未満は参考値。";
+  if(!rows.length){$("barArea").innerHTML='<p class="hint">この指標のデータはまだありません。</p>';}
+  else{
+    const max=Math.max(...rows.map(r=>r.v));
+    $("barArea").innerHTML=rows.sort((a,b)=>b.v-a.v).map(r=>
+      `<div class="barrow">
+        <div class="bl"><span class="dot" style="background:${r.k.color}"></span>${esc(r.k.name)}<span style="color:var(--muted);font-weight:400;">(${r.n})</span></div>
+        <div class="track"><div class="fill" style="width:${max?Math.max(2,r.v/max*100):0}%;background:${r.k.color};"></div></div>
+        <div class="bv">${fmtPct(r.v)}</div>
+      </div>`).join("");
+  }
+  /* table */
+  if(!logs.length){$("logList").innerHTML='<p class="hint">まだ記録がありません。</p>';}
+  else{
+    $("logList").innerHTML=`<table class="logt"><thead><tr>
+      <th>日付</th><th>SNS</th><th>型</th><th>タイトル</th><th>リーチ/インプ</th><th>保存</th><th>プロフ</th><th>保存率</th><th>プロフ率</th><th></th>
+      </tr></thead><tbody>${logs.map(l=>{const r=logRates(l);const k=kataById(l.kata);
+      return `<tr><td>${esc(l.date||"")}</td><td>${l.plat==="ig"?"IG":"X"}</td>
+        <td><span class="dot" style="background:${k.color};display:inline-block;vertical-align:middle;"></span> ${esc(k.name.slice(0,5))}</td>
+        <td>${esc((l.title||"").slice(0,14))}</td>
+        <td>${l.plat==="ig"?(l.reach??"—"):(l.imp??"—")}</td>
+        <td>${l.plat==="ig"?(l.saves??"—"):"—"}</td>
+        <td>${l.prof??"—"}</td><td>${fmtPct(r.save)}</td><td>${fmtPct(r.prof)}</td>
+        <td><button class="btn ghost small" data-del="${l.id}">削除</button></td></tr>`;}).join("")}</tbody></table>`;
+    $("logList").querySelectorAll("button[data-del]").forEach(b=>b.addEventListener("click",()=>{
+      store.logs=store.logs.filter(x=>x.id!=b.dataset.del);save();renderAnalytics();
+    }));
+  }
+}
+document.querySelectorAll("#metricSeg button").forEach(b=>b.addEventListener("click",()=>{curMetric=b.dataset.metric;renderAnalytics();}));
+$("copyCsv").addEventListener("click",()=>{
+  if(!store.logs.length){toast("記録がありません");return;}
+  const head="date,platform,kata,title,hypothesis,reach_or_imp,saves,likes_or_eng,profile,dm_share,save_rate,profile_rate,note";
+  const lines=store.logs.map(l=>{const r=logRates(l);const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
+    return [l.date,l.plat,kataById(l.kata).name,q(l.title),q(l.hypo),
+      l.plat==="ig"?l.reach:l.imp, l.plat==="ig"?l.saves:"", l.plat==="ig"?l.likes:l.eng,
+      l.prof, l.plat==="ig"?l.shares:"", r.save==null?"":(r.save*100).toFixed(2), r.prof==null?"":(r.prof*100).toFixed(2), q(l.note)].join(",");});
+  copyText([head,...lines].join("\n"),"CSVをコピーしました（/sns-reviewに貼れます）");
+});
+
+/* ---------- init ---------- */
+curKata=kataById("fubin");
+renderKataGrid(); renderSafety(); applyDraft(); renderPlatform(); renderDrafts();
+renderSeeds(); renderIdeas(); renderAnalytics(); renderRejected();
+</script>
