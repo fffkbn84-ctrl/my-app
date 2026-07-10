@@ -5,11 +5,21 @@
 > 2026-07-02 に全面整理（重複統合・完了項目の退避）。整理前の全文は `docs/archive/todo-full-archive-2026-07-02.md`。
 > 定期整理は `/repo-tidy` Skill で行う。
 
-最終更新: 2026-07-06
+最終更新: 2026-07-10
 
 ---
 
 ## 📌 次セッション引き継ぎ（最初に読む）
+
+### 🆕 2026-07-10 SNS投稿スタジオ・事業計画v1（今セッション分）
+
+- [ ] **hello@kinda.jp を受信可能にする**（Google Workspace の既存ユーザーにエイリアス or グループで追加＝ライセンス追加不要。kinda.jp の MX/SPF/DKIM/DMARC を Vercel DNS に追加）→ 完了後フォーム営業第1波50社
+- [ ] リスト戦略v1をフォーム営業優先に書き換え（`docs/sales/kinda-list-strategy-v1.html`。調査：フォームはメールの数倍の反響率）
+- [ ] X/IG 自動投稿 Phase 2 の判断（まずは X ネイティブ予約投稿＋Meta Business Suite 予約で週1セット運用。効果が出たら X API（無料枠500件/月）＋Vercel Cron で Notion→自動投稿を構築）
+- [ ] voices 取材素材が届き次第 `/kinda-voices` で記事化（Claude 待機中）
+- [ ] IG「じぶんツッコミ型R」（7/20）は投稿前に実話へ差し替え
+- [ ] IG は**1日1本ルール**（7/10〜7/20 リスケ済み。下書き投入時は既存エントリの日付を確認）
+- 資産：SNS投稿スタジオ https://claude.ai/code/artifact/845b9c73-1a9f-4d65-b218-1775fdb299a4 ／事業計画v1（Notion・運営ダッシュボード直下）／6つの型・テロップ標準・フックの型はスタジオ内「型と根拠」参照
 
 ### 開始手順（ユーザーサイト作業の場合）
 1. `git fetch origin` → **`git checkout -B <feature> origin/main`**（ローカル main は信用しない＝CLAUDE.md §10）。
