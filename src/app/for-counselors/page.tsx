@@ -177,7 +177,7 @@ const DIFF_CARDS = [
 const STEPS = [
   {
     title: "お問い合わせ",
-    body: "下のフォームからご連絡ください。運営（ふうか）から3営業日以内にご返信します。",
+    body: "下のフォームからご連絡ください。運営から3営業日以内にご返信します。",
   },
   {
     title: "日程の調整",
@@ -205,7 +205,7 @@ const LISTING_CARDS = [
   },
   {
     title: "Kinda type への掲載",
-    body: "ユーザーがカウンセラーとの相性を確認できる仕組みです。6タイプに沿ってご自身の傾向を登録いただきます。",
+    body: "ユーザーがカウンセラーとの相性を確認できる仕組みです。4タイプに沿ってご自身の傾向を登録いただきます。",
   },
   {
     title: "これまでの口コミの代理掲載",
@@ -459,9 +459,6 @@ export default async function ForCounselorsPage() {
             <li>
               予約が成立した時点で送客料が発生します。以後のキャンセルは原則返金いたしませんが、やむを得ない事情の場合は運営事務局にご相談ください。
             </li>
-            <li>
-              将来的に定額掲載プランを選択肢としてご案内する予定です。切り替えは任意で、強制ではありません。
-            </li>
           </ul>
 
           {/* 7-3. 掲載までの流れ */}
@@ -497,7 +494,7 @@ export default async function ForCounselorsPage() {
           <h2 className="fc-h2">お問い合わせ</h2>
           <p className="fc-inquiry-lead">
             取材のご相談も、掲載のご相談も、こちらからお願いします。
-            運営（ふうか）から3営業日以内にご返信します。
+            運営から3営業日以内にご返信します。
           </p>
           <CounselorInquiryForm />
         </section>
@@ -506,13 +503,12 @@ export default async function ForCounselorsPage() {
         <section className="fc-section fc-operator">
           <h2 className="fc-h2">運営者について</h2>
           <p className="fc-operator-body">
-            Kinda を運営しているのは、ふうか（一人）です。
-            自身も結婚相談所「Emma」を運営しています。
+            Kinda の運営チームには、結婚相談所「Emma」の運営者も参加しています。
             Kinda では Emma を他の相談所と完全に同じ扱いで掲載しており、
             検索結果やおすすめで優遇することはありません。
           </p>
           <p className="fc-operator-link">
-            <a href="/">Kinda を見てみる →</a>
+            <a href="/about">このサービスについて →</a>
           </p>
         </section>
 
