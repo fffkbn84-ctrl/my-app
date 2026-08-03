@@ -42,6 +42,12 @@ const nextConfig: NextConfig = {
    */
   async redirects() {
     return [
+      // /partners（旧・掲載のご相談）は /for-counselors に統合。SEO 評価を引き継ぐため 308。
+      {
+        source: "/partners",
+        destination: "/for-counselors",
+        permanent: true,
+      },
       {
         source: "/search",
         has: [{ type: "query", key: "tab", value: "agency" }],

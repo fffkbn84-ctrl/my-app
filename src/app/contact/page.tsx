@@ -74,12 +74,12 @@ export default function ContactPage() {
           </section>
 
           <section className="legal-section">
-            <h2 className="legal-h2">掲載をご希望の事業者様</h2>
+            <h2 className="legal-h2">結婚相談所・カウンセラーの方へ</h2>
             <p className="legal-text">
-              相談所オーナー・お店オーナー様の掲載に関するお問い合わせは、専用ページからどうぞ。
+              カウンセラーの取材・掲載に関するお問い合わせは、専用ページからどうぞ。
             </p>
-            <a href="/partners" className="legal-cta-ghost">
-              掲載のご相談を見る
+            <a href="/for-counselors" className="legal-cta-ghost">
+              カウンセラーの方へ
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M2 7h10M7 2l5 5-5 5" />
               </svg>

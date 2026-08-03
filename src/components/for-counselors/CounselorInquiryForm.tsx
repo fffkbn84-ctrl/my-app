@@ -2,11 +2,21 @@
 
 import { useState } from "react";
 import { ALL_PREFECTURES } from "@/lib/areas";
+import { trackEvent } from "@/lib/analytics";
 
 const SUPPORT_EMAIL = "hello@kinda.jp";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type InquiryType = "interview" | "listing" | "other";
+
+const INQUIRY_TYPES: { value: InquiryType; label: string }[] = [
+  { value: "interview", label: "取材について聞きたい" },
+  { value: "listing", label: "掲載について聞きたい" },
+  { value: "other", label: "その他" },
+];
+
 export default function CounselorInquiryForm() {
+  const [inquiryType, setInquiryType] = useState<InquiryType>("interview");
   const [agencyName, setAgencyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,6 +59,7 @@ export default function CounselorInquiryForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          inquiry_type: inquiryType,
           agency_name: agencyName.trim(),
           contact_name: contactName.trim(),
           email: email.trim(),
@@ -66,6 +77,7 @@ export default function CounselorInquiryForm() {
         setSubmitting(false);
         return;
       }
+      trackEvent("counselor_inquiry_submit", { inquiry_type: inquiryType });
       setDone(true);
     } catch {
       setError(
@@ -76,9 +88,13 @@ export default function CounselorInquiryForm() {
   };
 
   if (done) {
+    const doneMsg =
+      inquiryType === "interview"
+        ? "お問い合わせを受け付けました。3営業日以内に、運営より取材の日程についてご返信いたします。"
+        : "お問い合わせを受け付けました。3営業日以内に、運営よりご返信いたします。";
     return (
       <div className="fci-done">
-        お問い合わせを受け付けました。3営業日以内に、運営よりご返信いたします。
+        {doneMsg}
         <br />
         ご入力のメールアドレス宛に確認メールをお送りしています。届かない場合は迷惑メールフォルダもご確認ください。
       </div>
@@ -98,6 +114,29 @@ export default function CounselorInquiryForm() {
         aria-hidden="true"
         className="fci-hp"
       />
+
+      <div className="fci-field">
+        <span className="fci-label" id="fci-type-label">
+          ご用件<span className="fci-req">*</span>
+        </span>
+        <div className="fci-radiogroup" role="radiogroup" aria-labelledby="fci-type-label">
+          {INQUIRY_TYPES.map((t) => (
+            <label
+              key={t.value}
+              className={`fci-radio${inquiryType === t.value ? " is-selected" : ""}`}
+            >
+              <input
+                type="radio"
+                name="inquiry_type"
+                value={t.value}
+                checked={inquiryType === t.value}
+                onChange={() => setInquiryType(t.value)}
+              />
+              <span>{t.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
 
       <div className="fci-field">
         <label className="fci-label" htmlFor="fci-agency">
@@ -228,8 +267,26 @@ export default function CounselorInquiryForm() {
         .fci-form { display: flex; flex-direction: column; gap: 16px; }
         .fci-hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
         .fci-field { display: flex; flex-direction: column; }
-        .fci-label { font-size: 12px; color: var(--mid); margin-bottom: 6px; }
+        .fci-label { display: block; font-size: 12px; color: var(--mid); margin-bottom: 6px; }
         .fci-req { color: var(--rose); margin-left: 4px; }
+        .fci-radiogroup { display: flex; flex-direction: column; gap: 8px; }
+        .fci-radio {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 14px;
+          border: 1px solid var(--light);
+          border-radius: 10px;
+          font-size: 14px;
+          color: var(--ink);
+          cursor: pointer;
+          transition: border-color .15s ease, background .15s ease;
+        }
+        .fci-radio input { flex: none; accent-color: var(--accent); }
+        .fci-radio.is-selected {
+          border-color: var(--accent);
+          background: var(--accent-dim, rgba(212,160,144,.08));
+        }
         .fci-input {
           width: 100%;
           padding: 12px 14px;

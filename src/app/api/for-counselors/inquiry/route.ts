@@ -54,6 +54,13 @@ export async function POST(req: NextRequest) {
   }
 
   // 2. サーバー側バリデーション（クライアント検証を信用しない）
+  // 用件（inquiry_type）。不正値はエラーにせず interview にフォールバック（取りこぼさない方針）。
+  const ALLOWED_TYPES = ["interview", "listing", "other"] as const;
+  const inquiryTypeRaw = String(body.inquiry_type ?? "interview").trim();
+  const inquiryType = (ALLOWED_TYPES as readonly string[]).includes(inquiryTypeRaw)
+    ? inquiryTypeRaw
+    : "interview";
+
   const agencyName = String(body.agency_name ?? "").trim().slice(0, 200);
   const contactName = String(body.contact_name ?? "").trim().slice(0, 100);
   const emailRaw = String(body.email ?? "").trim().slice(0, 200);
@@ -91,6 +98,7 @@ export async function POST(req: NextRequest) {
 
   const supabase = createClient(url, serviceKey);
   const { error: insertError } = await supabase.from("counselor_inquiries").insert({
+    inquiry_type: inquiryType,
     agency_name: agencyName,
     contact_name: contactName,
     email: emailRaw,
@@ -116,11 +124,26 @@ export async function POST(req: NextRequest) {
     minute: "2-digit",
   }).format(new Date());
 
+  // 用件に応じた表示ラベル
+  const subjectPrefix =
+    inquiryType === "interview"
+      ? "取材のお問い合わせ"
+      : inquiryType === "listing"
+        ? "掲載のお問い合わせ"
+        : "お問い合わせ";
+  const inquiryTypeLabel =
+    inquiryType === "interview"
+      ? "取材について"
+      : inquiryType === "listing"
+        ? "掲載について"
+        : "その他";
+
   // (a) 運営宛通知（Reply-To は送信者）
   const adminHtml = `
     <div style="font-family:sans-serif;line-height:1.8;color:#2A2A2A;">
-      <h2 style="font-size:16px;margin:0 0 12px;">掲載のお問い合わせ</h2>
+      <h2 style="font-size:16px;margin:0 0 12px;">${escapeHtml(subjectPrefix)}</h2>
       <table style="border-collapse:collapse;font-size:14px;">
+        <tr><td style="padding:4px 12px 4px 0;color:#8a7;">ご用件</td><td><strong>${escapeHtml(inquiryTypeLabel)}</strong></td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#8a7;">相談所名</td><td><strong>${escapeHtml(agencyName)}</strong></td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#8a7;">ご担当者名</td><td>${escapeHtml(contactName)}</td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#8a7;">メール</td><td>${escapeHtml(emailRaw)}</td></tr>
@@ -137,7 +160,7 @@ export async function POST(req: NextRequest) {
   try {
     const notifyResult = await sendEmail({
       to: SUPPORT_INBOX,
-      subject: `[Kinda] 掲載のお問い合わせ：${agencyName}`,
+      subject: `[Kinda] ${subjectPrefix}：${agencyName}`,
       html: adminHtml,
       replyTo: emailRaw,
     });
@@ -149,6 +172,11 @@ export async function POST(req: NextRequest) {
   }
 
   // (b) 送信者への自動返信（Reply-To は hello@kinda.jp）
+  const replyClosing =
+    inquiryType === "interview"
+      ? `<p>3営業日以内に、取材の日程についてご連絡いたします。<br>取材はオンライン（Google Meet）で60分ほどです。費用はいただきません。<br>Kinda への掲載は取材の条件ではありませんので、その点はご安心ください。</p>`
+      : `<p>3営業日以内に、運営よりご返信いたします。</p>`;
+
   const autoReplyHtml = `
     <div style="font-family:sans-serif;line-height:1.9;color:#2A2A2A;font-size:14px;">
       <p>${escapeHtml(contactName)} 様</p>
@@ -158,15 +186,21 @@ export async function POST(req: NextRequest) {
         <tr><td style="padding:4px 12px 4px 0;color:#8a7;">ご担当者名</td><td>${escapeHtml(contactName)}</td></tr>
         <tr><td style="padding:4px 12px 4px 0;color:#8a7;">ご連絡先</td><td>${escapeHtml(emailRaw)}</td></tr>
       </table>
-      <p>3営業日以内に、運営よりご返信いたします。<br>お急ぎの場合は、このメールにそのままご返信ください。</p>
+      ${replyClosing}
+      <p>お急ぎの場合は、このメールにそのままご返信ください。</p>
       <p style="margin-top:18px;">Kinda<br><a href="https://kinda.jp" style="color:#B8806E;">https://kinda.jp</a></p>
     </div>
   `;
 
+  const replySubject =
+    inquiryType === "interview"
+      ? "取材のお問い合わせありがとうございます（Kinda）"
+      : "お問い合わせありがとうございます（Kinda）";
+
   try {
     const replyResult = await sendEmail({
       to: emailRaw,
-      subject: "お問い合わせありがとうございます（Kinda）",
+      subject: replySubject,
       html: autoReplyHtml,
       replyTo: SUPPORT_INBOX,
     });

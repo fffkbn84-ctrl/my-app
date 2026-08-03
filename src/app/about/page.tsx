@@ -1173,9 +1173,9 @@ export default function AboutPage() {
         }}
       >
         <p style={{ fontSize: 13, color: "#6B5D52", lineHeight: 1.9, margin: 0 }}>
-          結婚相談所・カウンセラーとして掲載をお考えの方は{" "}
+          結婚相談所のカウンセラーの方へ、取材と掲載のご案内は{" "}
           <Link href="/for-counselors" style={{ color: "#B8806E", textDecoration: "underline" }}>
-            掲載をお考えの方へ
+            カウンセラーの方へ
           </Link>{" "}
           をご覧ください。
         </p>

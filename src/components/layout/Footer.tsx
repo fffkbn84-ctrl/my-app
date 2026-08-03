@@ -51,8 +51,7 @@ export default function Footer() {
             <li><Link href="/about/editorial-policy">編集ポリシー</Link></li>
             <li><Link href="/about/transparency">運営の透明性</Link></li>
             <li><Link href="/contact">お問い合わせ</Link></li>
-            <li><Link href="/for-counselors">掲載をお考えの方へ</Link></li>
-            <li><Link href="/partners">掲載のご相談</Link></li>
+            <li><Link href="/for-counselors">カウンセラーの方へ</Link></li>
           </ul>
 
           <h5 style={{ marginTop: 28 }}>規約・表記</h5>
