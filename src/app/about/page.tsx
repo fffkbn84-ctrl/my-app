@@ -1163,6 +1163,24 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* 事業者向け導線（掲載検討中の相談所・カウンセラー） */}
+      <section
+        style={{
+          maxWidth: 720,
+          margin: "0 auto",
+          padding: "0 22px 64px",
+          textAlign: "center",
+        }}
+      >
+        <p style={{ fontSize: 13, color: "#6B5D52", lineHeight: 1.9, margin: 0 }}>
+          結婚相談所・カウンセラーとして掲載をお考えの方は{" "}
+          <Link href="/for-counselors" style={{ color: "#B8806E", textDecoration: "underline" }}>
+            掲載をお考えの方へ
+          </Link>{" "}
+          をご覧ください。
+        </p>
+      </section>
+
       <style>{`
         .brand-name {
           color: var(--accent);

@@ -36,6 +36,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : 0.7,
   }));
 
+  const forCounselorsEntry: MetadataRoute.Sitemap = [
+    {
+      url: `${SITE_URL}/for-counselors`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    },
+  ];
+
   const legalEntries: MetadataRoute.Sitemap = [
     "/terms",
     "/privacy",
@@ -104,6 +113,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticEntries,
+    ...forCounselorsEntry,
     ...legalEntries,
     ...counselorEntries,
     ...areaEntries,
