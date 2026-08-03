@@ -9,6 +9,7 @@ import { getAllColumns, type ColumnMeta } from "@/lib/columns";
 import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
 
 // 動的トラストシグナルは 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
+// 取材ファースト構成（S1-S10）。
 export const revalidate = 3600;
 
 const SITE_URL = "https://kinda.jp";
