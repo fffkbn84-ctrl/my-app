@@ -13,6 +13,7 @@ const MENU_SECTIONS: { label: string; items: { href: string; label: string; sub?
       { href: "/kinda-type", label: "Kinda type", sub: "診断するだけで合うカウンセラーが見つかる" },
       { href: "/kinda-talk", label: "Kinda talk", sub: "カウンセラーを見る" },
       { href: "/kinda-act", label: "Kinda act", sub: "お見合い・デートの場所" },
+      { href: "/kinda-pair", label: "Kinda pair", sub: "話したことと、まだ話していないこと" },
       { href: "/kinda-glow", label: "Kinda glow", sub: "自分を整える" },
       { href: "/kinda-note", label: "Kinda note", sub: "気持ちを整理する" },
     ],

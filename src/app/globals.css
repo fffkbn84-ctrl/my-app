@@ -8244,6 +8244,78 @@ body:has(.cta-mobile-bar) .floating-back {
   color: var(--mid);
   margin: 0 0 20px;
 }
+.kp-topics-cta-note {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #a3968a;
+  margin: 16px 0 0;
+}
+
+/* 本文段落（原稿の段落区切りをそのまま出す） */
+.kp-topics-p {
+  font-size: 14px;
+  line-height: 2.15;
+  color: #5f544c;
+  margin: 0 0 18px;
+}
+.kp-topics-p:last-child { margin-bottom: 0; }
+
+/* トピックごとの解説（topics ページのみ。solo には出さない） */
+.kp-topics-about {
+  font-size: 13px;
+  line-height: 2.05;
+  color: #6f645b;
+  margin: 11px 0 0;
+}
+
+/* 4つの層の一覧（本文中の凡例） */
+.kp-layer-legend {
+  list-style: none;
+  margin: 4px 0 20px;
+  padding: 16px 18px;
+  border: 1px solid #EAE0D8;
+  border-radius: 13px;
+  background: rgba(255,251,244,.75);
+}
+.kp-layer-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+}
+.kp-layer-legend-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14.5px;
+  color: var(--ink);
+  flex-shrink: 0;
+  min-width: 3.8em;
+  letter-spacing: .04em;
+}
+.kp-layer-legend-lead { font-size: 12.5px; line-height: 1.8; color: var(--mid); }
+
+/* 副導線リンクブロック（コラム末尾と同じ書式） */
+.kp-related { list-style: none; margin: 0; padding: 0; }
+.kp-related li {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(234,224,216,.75);
+}
+.kp-related li:last-child { border-bottom: none; }
+.kp-related-link {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #a8705d;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+.kp-related-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.kp-related-desc {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--mid);
+}
 
 @media (min-width: 720px) {
   .kp-solo-title { font-size: 27px; }
