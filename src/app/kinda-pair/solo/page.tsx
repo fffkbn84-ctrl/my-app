@@ -467,7 +467,9 @@ function ResultView({
               <div className="kp-band-head">
                 <span className="kp-band-name">{l.label}</span>
                 <span className="kp-band-count">
-                  {ts.length}のうち{talkedInLayer}に触れています
+                  {talkedInLayer === 0
+                    ? "まだこれからの層です"
+                    : `${ts.length}のうち${talkedInLayer}に触れています`}
                 </span>
               </div>
               <div className="kp-band-cells">

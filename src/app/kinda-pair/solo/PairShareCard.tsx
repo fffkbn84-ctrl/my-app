@@ -71,7 +71,9 @@ const PairShareCard = forwardRef<HTMLDivElement, Props>(function PairShareCard(
           まだ話していないこと
         </div>
         <div style={{ fontSize: 17, color: "#7d7168", letterSpacing: "0.02em" }}>
-          {totalCount}のうち{talkedCount}に触れています
+          {talkedCount === 0
+            ? "まだこれからの話題です"
+            : `${totalCount}のうち${talkedCount}に触れています`}
         </div>
       </div>
 
