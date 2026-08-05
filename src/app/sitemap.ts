@@ -21,6 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/kinda-note",
     "/kinda-type",
     "/kinda-type/quiz",
+    "/kinda-pair",
+    "/kinda-pair/topics",
+    // /kinda-pair/solo は noindex（個人の回答画面）のため sitemap に含めない
     "/agencies",
     "/shops",
     "/about",

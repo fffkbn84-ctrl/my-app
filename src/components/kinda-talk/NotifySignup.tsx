@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,13 +12,35 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * - <form> は使わず onClick で送信（既存方針）。絵文字なし・中立トーン。
  * - 送信成功で GA4/Vercel に notify_signup を送る（trackEvent 経由）。
  * - 診断（Kinda type）は副次導線として下に残す。
+ *
+ * 文言系の props は既定値が Kinda talk の従来表示。Kinda pair の LP など
+ * 別セクションから使うときだけ差し替える（source も併せて渡すこと）。
  */
 type Props = {
   /** ホームのリールカルーセルなど、9:16固定の枠に入れる時 true。高さ100%で中身を均等配置する。 */
   fill?: boolean;
+  /** GA4 notify_signup の source パラメータ。設置場所ごとに変える */
+  source?: string;
+  /** 見出し */
+  heading?: string;
+  /** 見出し下の説明文 */
+  body?: ReactNode;
+  /** 入力欄下の注記 */
+  footnote?: string;
+  /** 下部の副次導線（既定は Kinda type） */
+  secondaryHref?: string;
+  secondaryLabel?: string;
 };
 
-export default function NotifySignup({ fill = false }: Props) {
+export default function NotifySignup({
+  fill = false,
+  source = "talk_empty",
+  heading = "Kinda は厳選を続けています",
+  body,
+  footnote = "新しい相談所・カウンセラーが公開されたときのみご連絡します。",
+  secondaryHref = "/kinda-type",
+  secondaryLabel = "あなたに合うタイプを知る（1〜3分で診断）→",
+}: Props) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
@@ -37,7 +59,7 @@ export default function NotifySignup({ fill = false }: Props) {
       });
       if (!res.ok) throw new Error();
       setState("done");
-      trackEvent("notify_signup", { source: "talk_empty" });
+      trackEvent("notify_signup", { source });
     } catch {
       setState("error");
     }
@@ -71,12 +93,16 @@ export default function NotifySignup({ fill = false }: Props) {
             marginBottom: 6,
           }}
         >
-          Kinda は厳選を続けています
+          {heading}
         </strong>
         <span style={{ fontSize: 11.5, lineHeight: 1.8, color: "var(--mid)" }}>
-          新しい相談所・カウンセラーは順番に公開していきます。
-          <br />
-          公開されたら、いちばんにお知らせします。
+          {body ?? (
+            <>
+              新しい相談所・カウンセラーは順番に公開していきます。
+              <br />
+              公開されたら、いちばんにお知らせします。
+            </>
+          )}
         </span>
       </div>
 
@@ -135,13 +161,13 @@ export default function NotifySignup({ fill = false }: Props) {
             </p>
           )}
           <p style={{ fontSize: 10, lineHeight: 1.7, color: "#9a8d80", margin: 0 }}>
-            新しい相談所・カウンセラーが公開されたときのみご連絡します。
+            {footnote}
           </p>
         </div>
       )}
 
       <Link
-        href="/kinda-type"
+        href={secondaryHref}
         style={{
           fontSize: 11.5,
           color: "var(--mid)",
@@ -150,7 +176,7 @@ export default function NotifySignup({ fill = false }: Props) {
           paddingTop: 10,
         }}
       >
-        あなたに合うタイプを知る（1〜3分で診断）→
+        {secondaryLabel}
       </Link>
     </div>
   );
