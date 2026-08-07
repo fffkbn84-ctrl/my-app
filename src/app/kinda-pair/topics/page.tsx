@@ -125,7 +125,7 @@ const RELATED_LINKS = [
   {
     href: "/kinda-act",
     label: "会う場所を選ぶ（Kinda act）→",
-    desc: "1時間ちょうどで自然に切り上げられるか、という視点でお店を見ています。",
+    desc: "初めてのふたりが過ごしやすい空間かどうか、という視点でお店を見ています。",
   },
   {
     href: "/kinda-note",
