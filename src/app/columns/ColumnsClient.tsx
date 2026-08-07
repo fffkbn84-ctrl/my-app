@@ -6,7 +6,7 @@ import type { ColumnMeta } from "@/lib/columns";
 import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
 import type { WeatherKey } from "@/app/kinda-note/data/weatherDescriptions";
 
-const CATEGORIES = ["すべて", "結婚相談所の選び方", "気持ちの整理", "取材レポート", "お見合い準備", "デートプラン"] as const;
+const CATEGORIES = ["すべて", "結婚相談所の選び方", "気持ちの整理", "取材レポート", "お見合い準備", "デートプラン", "お見合いと交際のこと"] as const;
 type CategoryKey = (typeof CATEGORIES)[number];
 
 /** カテゴリ別表示順（「すべて」モードでセクションを並べる順番） */
@@ -16,6 +16,7 @@ const CATEGORY_ORDER: Exclude<CategoryKey, "すべて">[] = [
   "取材レポート",
   "お見合い準備",
   "デートプラン",
+  "お見合いと交際のこと",
 ];
 
 /** 「すべて」モードでカテゴリセクションに出す最大件数。超えたら「もっと見る →」を出す */

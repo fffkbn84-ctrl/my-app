@@ -181,18 +181,24 @@
 | `/columns` `/columns/[slug]` | index |
 | `/kinda-pair` `/kinda-pair/topics` | index |
 | `/kinda-pair/solo` および将来のトークン系ページ | **noindex**（メタ + `X-Robots-Tag`） |
-| `/kinda-note/quiz` `/kinda-note/result` | **index**（`robots` メタ未指定＝既定で index）。ただし **sitemap には登録していない**。両者とも自己参照 canonical あり（`/kinda-note/result` は `?weather=` 付き） |
-| `/kinda-type/quiz` | index。sitemap 登録あり |
-| `/kinda-type/result` | index（`robots` メタ未指定）。sitemap 未登録 |
+| `/kinda-note/quiz` `/kinda-type/quiz` | index。sitemap 登録あり。自己参照 canonical あり |
+| `/kinda-note/result` `/kinda-type/result` | index（`robots` メタ未指定＝既定で index）。**sitemap には入れない**（クエリで内容が変わる結果画面。`/kinda-note/result` の canonical は `?weather=` 付きの自己参照） |
+| `/kinda-story` `/kinda-story/[id]` | index。sitemap は**掲載同意の記録がある物語だけ**（下記） |
 | `/mypage` `/mypage/*` `/api/*` | robots.txt で Disallow。sitemap 未登録 |
 
 sitemap は動的生成（静的配列 + データ由来を結合）。**noindex のページを sitemap に入れない。**
 
-### 現状の申し送り（2026-08-05 時点の実測）
+### Kinda story の sitemap 収録条件 ★
 
-- **`/kinda-story` と `/kinda-story/[id]` が sitemap に入っていない。** index 可能なページなので、
-  意図的な除外でなければ `src/app/sitemap.ts` の `staticEntries` に追加する
-- `/contact` も sitemap 未登録
+`src/app/sitemap.ts` は `STORIES.filter((s) => !!s.consent)` で絞っている。
+
+- **掲載同意の記録（`consent`）を持つ物語だけ**を検索エンジンに送る
+- `consent` を持たない初期のサンプル物語（`id: "1" "4" "5" "6"` ／ A.M さん等）は
+  実在の取材素材ではないため、実話として index させない（CLAUDE.md §5 Story 細則・ステマ規制回避）
+- 新しい物語を追加するときは `consent` を必ず記録する。記録した時点で自動的に sitemap に入る
+
+> 申し送り：サンプル物語4本は sitemap から外れたが、**URL 自体は公開されたまま**
+> （`/kinda-story` の一覧にも出る）。これを残すか下げるかは content 側の判断が要る。
 
 ---
 
@@ -256,4 +262,5 @@ sitemap は動的生成（静的配列 + データ由来を結合）。**noindex
 |---|---|
 | 2026-04-30 | 初版（`/note` `/type` `/talk` `/biz` `/column` 前提） |
 | 2026-08-05 | 全面改訂。実体 prefix を `/kinda-*` に統一。`/note/weather` の特例を明記。`/biz` `/guide` `/mypage` 系を破棄。Kinda pair を追加 |
+| 2026-08-05 | sitemap を修正：`/kinda-story`（一覧）・`/contact`・`/kinda-note/quiz` を追加。`/kinda-story/[id]` は `consent` を持つ物語のみ収録。結果画面2本は意図的に除外と明記。コラムのカテゴリに「お見合いと交際のこと」を追加 |
 | 2026-08-05 | リポジトリへ配置。旧 §3「存在確認が必要なルート」は9件すべて実在したため §1-2 へ移動し節を削除。旧 §4 のうち実装済みだった `/for-counselors` `/kinda-story/[id]` `/kinda-talk/area/[area]` を §1 へ移動。別紙に記載のなかった実在ルート（検索・予約・口コミ・アカウント・API）を §1-3 〜 §1-5 として追記。§4 の `/kinda-note/quiz` `/kinda-note/result` を実測値に更新 |
