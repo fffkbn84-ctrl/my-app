@@ -5,7 +5,7 @@ import Footer from "@/components/layout/Footer";
 import RevealObserver from "@/components/ui/RevealObserver";
 import SectionDivider from "@/components/ui/SectionDivider";
 import HomeReelCarousel from "@/components/home/HomeReelCarousel";
-import { getCounselors } from "@/lib/data";
+import { getPublicCounselors } from "@/lib/data";
 import { STORIES, getStoryThumbnail } from "@/lib/mock/stories";
 import type { StoryStage } from "@/lib/mock/stories";
 import { getAllColumns } from "@/lib/columns";
@@ -213,7 +213,7 @@ function SectionLabel({ label, en }: { label: string; en?: string }) {
 export default async function HomePage() {
   // ホームのリールカルーセル用：Supabase or mock fallback から取得し
   // rating × log(reviewCount+2) で上位 6 件
-  const allCounselors = await getCounselors();
+  const allCounselors = await getPublicCounselors();
   const homeReelCounselors = [...allCounselors]
     .sort(
       (a, b) =>

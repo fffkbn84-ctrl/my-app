@@ -5,9 +5,10 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
-import { getCounselors } from "@/lib/data";
+import { getPublicCounselors } from "@/lib/data";
 import { KINDA_TYPES, KINDA_TYPE_KEYS, KindaTypeKey } from "@/lib/kinda-types";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
+import CounselorEmptyState from "@/components/kinda-talk/CounselorEmptyState";
 
 export function generateStaticParams() {
   return KINDA_TYPE_KEYS.map((type) => ({ type }));
@@ -42,7 +43,7 @@ export default async function TypePage({
   const t = KINDA_TYPES[type as KindaTypeKey];
   if (!t) notFound();
 
-  const all = await getCounselors();
+  const all = await getPublicCounselors();
   const filtered = all.filter((c) =>
     (c.matchingTypes ?? []).includes(type),
   ).sort(
@@ -123,13 +124,13 @@ export default async function TypePage({
         </div>
 
         <div className="kt-grid-wrap">
-          {filtered.length > 0 ? (
-            <CounselorReelGrid counselors={filtered} />
+          {filtered.length === 0 ? (
+            <CounselorEmptyState
+              message="このタイプに合うカウンセラーは、まだ公開していません。"
+              source="talk_type_empty"
+            />
           ) : (
-            <div className="kt-grid-tease" style={{ maxWidth: 320, margin: "0 auto" }}>
-              <strong>該当するカウンセラーは現在準備中です</strong>
-              <span>新しいカウンセラーは順次公開していきます。</span>
-            </div>
+            <CounselorReelGrid counselors={filtered} />
           )}
           <div style={{ textAlign: "center", marginTop: 32 }}>
             <Link

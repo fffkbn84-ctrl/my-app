@@ -126,9 +126,14 @@ function AgencyCard({ a, counselors }: { a: Agency; counselors: Counselor[] }) {
 /* ────────────────────────────────────────────────────────────
    メイン
 ──────────────────────────────────────────────────────────── */
+/* 営業デモ（isDemo）はユーザー向け画面に出さない。
+   架空の評価値が実データと同列に並ぶのを避けるため、既定値の段階で除外する。 */
+const PUBLIC_AGENCIES = AGENCIES.filter((a) => !a.isDemo);
+const PUBLIC_COUNSELORS = COUNSELORS.filter((c) => !c.isDemo);
+
 export default function AgenciesClient({
-  agencies = AGENCIES,
-  counselors = COUNSELORS,
+  agencies = PUBLIC_AGENCIES,
+  counselors = PUBLIC_COUNSELORS,
 }: {
   agencies?: Agency[];
   counselors?: Counselor[];

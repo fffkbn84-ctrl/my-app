@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import CounselorInquiryForm from "@/components/for-counselors/CounselorInquiryForm";
 import { getAllColumns, type ColumnMeta } from "@/lib/columns";
-import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
+import { getDemoCounselors } from "@/lib/data";
 
-// 動的トラストシグナルは 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
+// 掲載イメージのサンプル取得は 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
 // 取材ファースト構成（S1-S10）。
 export const revalidate = 3600;
 
 const SITE_URL = "https://kinda.jp";
-
-// 件数が少ないうちは数字を出さない（0 や 1 の表示は B2B 獲得ページで不利になるため）
-const MIN_DISPLAY = 5;
 
 export const metadata: Metadata = {
   title: "カウンセラー取材と掲載のご案内｜結婚相談所の方へ | Kinda",
@@ -40,87 +36,12 @@ export const metadata: Metadata = {
   },
 };
 
-type TrustStat = { label: string; value: number };
-
-/**
- * トラストシグナル。
- * - counselors / agencies / reviews は Supabase から count を取得（cookies 不要の anon クライアント）。
- * - 件数が MIN_DISPLAY 未満、または取得失敗した項目は push しない（0 や 1 を出さない）。
- * - 「公開している記事」は MDX + 天気ページの静的カウント（閾値対象外・取得失敗しない）。
- */
-async function getTrustStats(): Promise<TrustStat[]> {
-  const stats: TrustStat[] = [];
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (url && anonKey) {
-    try {
-      const supabase = createClient(url, anonKey);
-
-      const safeCount = async (
-        label: string,
-        build: () => PromiseLike<{ count: number | null; error: unknown }>,
-      ): Promise<{ label: string; count: number | null }> => {
-        try {
-          const r = await build();
-          return { label, count: r.error ? null : r.count };
-        } catch {
-          return { label, count: null };
-        }
-      };
-
-      const counts = await Promise.all([
-        safeCount("掲載カウンセラー", () =>
-          supabase
-            .from("counselors")
-            .select("*", { count: "exact", head: true })
-            .eq("is_published", true)
-            .eq("is_demo", false),
-        ),
-        safeCount("掲載相談所", () =>
-          supabase
-            .from("agencies")
-            .select("*", { count: "exact", head: true })
-            .eq("is_published", true)
-            .eq("is_demo", false),
-        ),
-        safeCount("掲載中の口コミ", () =>
-          supabase
-            .from("reviews")
-            .select("*", { count: "exact", head: true })
-            .eq("is_published", true),
-        ),
-      ]);
-
-      for (const c of counts) {
-        // 閾値未満（0 / 1 など）は出さない
-        if (typeof c.count === "number" && c.count >= MIN_DISPLAY) {
-          stats.push({ label: c.label, value: c.count });
-        }
-      }
-    } catch {
-      // Supabase 取得に失敗しても数値項目を出さないだけ（ページは壊さない）
-    }
-  }
-
-  // 公開している記事 = コラム MDX + 紐づく天気ページ（静的カウント・閾値対象外）
-  try {
-    const columns = await getAllColumns();
-    const weatherPages = getAllWeathers().filter((w) => !!w.column_slug).length;
-    const articleTotal = columns.length + weatherPages;
-    if (articleTotal > 0) stats.push({ label: "公開している記事", value: articleTotal });
-  } catch {
-    // 記事集計に失敗してもページは出す（その項目だけ非表示）
-  }
-
-  return stats;
-}
-
+// 3本ともカテゴリ「結婚相談所の選び方」だと入会前の話に偏るため、
+// 1枠を交際期の記事に差し替えてカテゴリの幅を見せる。
 const PRIORITY_COLUMN_SLUGS = [
   "counselor-de-erabu-soudanjo",
   "kekkon-soudanjo-ryokin-no-mikata",
-  "shokai-mendan-de-miru-koto",
+  "kousai-totsuzen-owatta",
 ];
 
 /** S6 に並べる記事3本。優先スラッグ→先頭フォールバック。取得失敗時は空配列（セクション非表示）。 */
@@ -270,7 +191,10 @@ const FAQ_ITEMS = [
 ];
 
 export default async function ForCounselorsPage() {
-  const [stats, exampleColumns] = await Promise.all([getTrustStats(), getExampleColumns()]);
+  const [demoCounselors, exampleColumns] = await Promise.all([
+    getDemoCounselors(),
+    getExampleColumns(),
+  ]);
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -282,7 +206,6 @@ export default async function ForCounselorsPage() {
     })),
   };
 
-  const numberFmt = new Intl.NumberFormat("ja-JP");
 
   return (
     <>
@@ -382,20 +305,52 @@ export default async function ForCounselorsPage() {
           </div>
         </section>
 
-        {/* トラストシグナル（数値）— S6 の直前に小さく置く */}
-        {stats.length > 0 && (
-          <section className="fc-section fc-trust">
-            <div
-              className="fc-stat-grid"
-              style={{ maxWidth: stats.length <= 1 ? 260 : 640 }}
-            >
-              {stats.map((s) => (
-                <div key={s.label} className="fc-stat">
-                  <span className="fc-stat-value">{numberFmt.format(s.value)}</span>
-                  <span className="fc-stat-label">{s.label}</span>
-                </div>
-              ))}
+        {/* S5-2. 掲載イメージ（旧トラスト数値の位置）
+            営業用サンプルはここに集約する。rating / reviewCount / fee / campaign は
+            一切レンダリングしない。構造化データ（Person / Review / AggregateRating）も付けない。 */}
+        {demoCounselors.length > 0 && (
+          <section className="fc-section">
+            <h2 className="fc-h2">掲載イメージ</h2>
+            <p className="fc-section-lead">
+              実際の掲載ページは、このように表示されます。
+              <br />
+              以下はすべて表示例で、実在のカウンセラーではありません。
+            </p>
+
+            <div className="fc-sample-area">
+              <div className="fc-card-grid fc-card-grid-3">
+                {demoCounselors.slice(0, 3).map((c) => (
+                  <div key={String(c.id)} className="fc-sample-card">
+                    <span className="fc-sample-tag">表示例</span>
+                    <h3 className="fc-sample-name">{c.name}</h3>
+                    <p className="fc-sample-meta">
+                      {c.agencyName}
+                      {c.area ? ` / ${c.area}` : ""}
+                    </p>
+                    {c.experience > 0 && (
+                      <p className="fc-sample-meta">経歴 {c.experience} 年</p>
+                    )}
+                    {c.catchphrase && (
+                      <p className="fc-sample-catch">{c.catchphrase}</p>
+                    )}
+                    {c.tags.length > 0 && (
+                      <ul className="fc-sample-tags">
+                        {c.tags.slice(0, 3).map((t) => (
+                          <li key={t}>{t}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="fc-sample-review-slot">
+                      面談された方の口コミが、ここに表示されます
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+
+            <p className="fc-section-note">
+              掲載後は、プロフィール・写真をカウンセラーご自身が管理画面から編集できます。
+            </p>
           </section>
         )}
 
@@ -658,34 +613,85 @@ export default async function ForCounselorsPage() {
           color: var(--ink) !important;
         }
 
-        /* トラスト数値 */
-        .fc-trust { text-align: center; }
-        .fc-stat-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 14px;
-          margin: 0 auto;
+        /* 掲載イメージ（サンプル領域）— 一目でサンプルと分かるよう枠で囲う */
+        .fc-sample-area {
+          border: 1px dashed rgba(212,160,144,.7);
+          border-radius: 20px;
+          background: rgba(245,238,230,.5);
+          padding: 20px 16px;
         }
-        .fc-stat {
+        .fc-sample-card {
+          position: relative;
           background: #fff;
           border-radius: 18px;
-          padding: 26px 16px;
+          padding: 40px 18px 18px;
           box-shadow: 0 1px 2px rgba(26,19,14,.04), 0 8px 24px rgba(26,19,14,.05);
+          text-align: left;
         }
-        .fc-stat-value {
-          display: block;
-          font-family: 'DM Sans', sans-serif;
-          font-size: clamp(30px, 7vw, 42px);
-          font-weight: 700;
-          color: var(--accent);
-          line-height: 1.1;
+        .fc-sample-tag {
+          position: absolute;
+          top: 14px;
+          left: 16px;
+          display: inline-block;
+          padding: 3px 10px;
+          border: 1px solid #D4A090;
+          border-radius: 999px;
+          color: #D4A090;
+          font-size: 10.5px;
+          letter-spacing: .1em;
+          line-height: 1.6;
         }
-        .fc-stat-label {
-          display: block;
-          margin-top: 8px;
-          font-size: 13px;
+        .fc-sample-name {
+          font-family: 'Shippori Mincho', serif;
+          font-size: 17px;
+          font-weight: 500;
+          color: var(--ink);
+          margin: 0 0 6px;
+        }
+        .fc-sample-meta {
+          font-size: 12.5px;
+          line-height: 1.8;
           color: var(--mid);
+          margin: 0 0 4px;
         }
+        .fc-sample-catch {
+          font-size: 13px;
+          line-height: 1.9;
+          color: #5f544c;
+          margin: 10px 0 0;
+          padding-left: 11px;
+          border-left: 2px solid #D4A090;
+        }
+        .fc-sample-tags {
+          list-style: none;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin: 12px 0 0;
+          padding: 0;
+        }
+        .fc-sample-tags li {
+          font-size: 11px;
+          color: var(--mid);
+          background: #F5EEE6;
+          border-radius: 999px;
+          padding: 3px 10px;
+        }
+        .fc-sample-review-slot {
+          margin-top: 14px;
+          border: 1px dashed #EAE0D8;
+          border-radius: 12px;
+          padding: 16px 12px;
+          font-size: 11.5px;
+          line-height: 1.8;
+          color: #a3968a;
+          text-align: center;
+        }
+        .fc-section-note {
+          margin: 16px 0 0;
+          font-size: 12.5px;
+          line-height: 1.9;
+          color: var(--mid);}
 
         /* カードグリッド（S5 / S7-1 / S6） */
         .fc-card-grid {
