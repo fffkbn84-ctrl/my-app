@@ -12,18 +12,23 @@ export const contentType = "image/png";
  * SEO/SNS 拡散用に、各コラムごとに 1200x630 の OGP 画像を動的生成する。
  * - thumbnail のグラデーション文字列をそのまま背景に流用
  * - タイトル（最大 2 行）+ カテゴリ + Kinda ふたりへ ロゴ
- * - フォントは Next.js が同梱する Inter（日本語は OS 標準にフォールバック）
+ * - フォントは @vercel/og 同梱の Geist(欧文)。日本語は @vercel/og が実行時に
+ *   Google Fonts から必要なグリフのみ取得してフォールバックする（fonts 未指定でも描画される）。
  *
  * Next.js Metadata Files API で /columns/[slug]/opengraph-image.png として配信される。
  */
 export default async function OpengraphImage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  // Next 16 では params は Promise。await せずに .slug を読むと undefined になり、
+  // getColumnBySlug が throw して全記事が同じフォールバック画像になる。
+  const { slug } = await params;
+
   let column;
   try {
-    column = await getColumnBySlug(params.slug);
+    column = await getColumnBySlug(slug);
   } catch {
     column = null;
   }
