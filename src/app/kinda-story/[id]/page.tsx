@@ -115,7 +115,7 @@ export default async function KindaStoryDetailPage({
       <Header />
 
       <main style={{ background: "#FBFCF8" }}>
-        {/* ─── 記事ヘッダー（Kinda voices 仕様：角丸サムネ + 下にタイトル） ─── */}
+        {/* ─── 記事ヘッダー（コラム記事と同じ仕様：角丸サムネ + 下にタイトル） ─── */}
         <header className="ks-detail-head">
           <nav className="ks-breadcrumb" aria-label="パンくず">
             <Link href="/">ふたりへ</Link>

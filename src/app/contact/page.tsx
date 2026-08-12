@@ -67,7 +67,7 @@ export default function ContactPage() {
               </li>
               <li>
                 <a href="/columns" className="legal-link">
-                  Kinda voices（コラム）のよくある質問
+                  コラムのよくある質問
                 </a>
               </li>
             </ul>

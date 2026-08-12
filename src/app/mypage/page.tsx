@@ -28,7 +28,7 @@ export default async function MyPage() {
   }
   const allCounselors = Array.from(counselorById.values());
 
-  // コラム（Kinda voices）のメタデータを取得
+  // コラムのメタデータを取得
   const allColumns = await getAllColumns();
 
   return (
@@ -127,7 +127,7 @@ export default async function MyPage() {
               />
             </div>
 
-            {/* 共感した（Kinda story / Kinda voices） */}
+            {/* 共感した（Kinda story / コラム） */}
             <div id="sympathy" className="mypage-section">
               <SympathySavedSection allColumns={allColumns} />
             </div>

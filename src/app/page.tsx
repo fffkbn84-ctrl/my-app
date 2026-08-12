@@ -222,7 +222,7 @@ export default async function HomePage() {
     )
     .slice(0, 6);
 
-  // Kinda voices（ふたりを見守る人たち）— 取材・コラム最新3件
+  // コラム — 最新3件
   const homeColumns = (await getAllColumns()).slice(0, 3);
 
   return (
@@ -961,7 +961,7 @@ export default async function HomePage() {
         </section>
 
         {/* ═══════════════════════════════════════════════════
-            C' — Kinda voices より | ふたりを見守る人たち
+            C' — コラム より | 答えを急がないための読みもの
         ═══════════════════════════════════════════════════ */}
         <section
           style={{
@@ -982,7 +982,7 @@ export default async function HomePage() {
                 marginBottom: 6,
               }}
             >
-              Kinda voices{" "}
+              コラム{" "}
               <em
                 style={{
                   fontFamily: "Georgia, serif",
@@ -1004,7 +1004,7 @@ export default async function HomePage() {
                 margin: "4px 0",
               }}
             >
-              ふたりを見守る人たち
+              答えを急がないための読みもの
             </h2>
             <div
               style={{

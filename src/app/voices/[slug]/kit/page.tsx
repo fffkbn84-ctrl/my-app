@@ -274,7 +274,7 @@ export default async function VoiceKitPage({ params }: Props) {
             <CopyBlock
               label="テキストだけのご紹介"
               hint="HTML を貼れない場合は、こちらをお使いください。"
-              text={`Kinda voices にインタビューを掲載していただきました\n${articleUrl}`}
+              text={`Kinda voices にインタビューが掲載されました\n${articleUrl}`}
             />
           </section>
 

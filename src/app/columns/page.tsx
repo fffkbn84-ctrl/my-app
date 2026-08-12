@@ -8,14 +8,14 @@ import { getAllColumns } from "@/lib/columns";
 import ColumnsClient from "./ColumnsClient";
 
 export const metadata: Metadata = {
-  title: "Kinda voices | ふたりを見守る人たち | Kinda ふたりへ",
+  title: "コラム | 気持ちの整理と、相談所の選び方 | Kinda ふたりへ",
   description:
-    "Kinda voices は、結婚相談所のカウンセラーやスタッフへの取材レポート、編集部のコラム。実際に足を運んで書いた、ふたりを見守る人たちの声です。",
+    "結婚相談所の選び方、お見合いやデートの準備、揺れる気持ちの整理。Kinda 編集部が書いた読みものです。カウンセラー個人への取材記事は Kinda voices にあります。",
 };
 
 const FAQ_ITEMS: FAQItem[] = [
   {
-    q: "Kinda voices に載る記事は誰が書いていますか？",
+    q: "コラムは誰が書いていますか？",
     a: "Kinda 編集部が、全国の結婚相談所・カフェ・レストランに実際に足を運び、自分たちの言葉で書いています。広告記事ではなく、編集部の目で見た本音の温度感をお届けします。",
   },
   {
@@ -51,17 +51,15 @@ export default async function ColumnsPage() {
           <div className="kv-hero-bg" aria-hidden />
           <div className="kv-hero-overlay" aria-hidden />
           <div className="kv-hero-inner">
-            <div className="kv-hero-eyebrow">Kinda voices</div>
-            <h1 className="kv-hero-title">
-              Kinda <em>voices</em>
-            </h1>
-            <div className="kv-hero-sub">ふたりを見守る人たち</div>
+            <div className="kv-hero-eyebrow">column</div>
+            <h1 className="kv-hero-title">コラム</h1>
+            <div className="kv-hero-sub">読みながら、整理する</div>
 
             <div className="kv-hero-divider" />
             <p className="kv-hero-copy">
-              全国に足を運んで、本人の口から聞いた話。
+              決めきれない日も、比べたくなる日もある。
               <br />
-              編集部の目で書いた、本音の温度感。
+              そのままの順番で考えるための読みもの。
             </p>
           </div>
         </section>
@@ -69,22 +67,23 @@ export default async function ColumnsPage() {
         {/* パンくず */}
         <div style={{ background: "#FCF8F2" }}>
           <Breadcrumb
-            items={[{ label: "ホーム", href: "/" }, { label: "Kinda voices" }]}
+            items={[{ label: "ホーム", href: "/" }, { label: "コラム" }]}
           />
         </div>
 
         {/* ─── イントロ ─── */}
         <section className="kv-intro">
           <div className="kv-intro-inner">
-            <div className="kv-intro-eyebrow">about kinda voices</div>
+            <div className="kv-intro-eyebrow">about column</div>
             <div className="kv-intro-divider" />
-            <h2 className="kv-intro-title">広告ではなく、足で書いた記事</h2>
+            <h2 className="kv-intro-title">答えを急がないための読みもの</h2>
             <div className="kv-intro-divider" />
             <p className="kv-intro-text">
-              相談所・カフェ・レストランに、編集部が実際に行く。
-              カウンセラーに会って話を聞く。そうして集めた声を、整えてお届けします。
+              相談所の選び方、はじめての面談、揺れたときの気持ちの置き場所。
+              編集部が調べたことと、実際に見聞きしたことをもとに書いています。
               うまくいった人の自慢でも、検索結果のまとめでもなく、
-              ふたりを見守る人たちのリアルな言葉として読めるように。
+              自分のペースで考えるための材料として読めるように。
+              カウンセラー個人への取材記事は Kinda voices にあります。
             </p>
           </div>
         </section>

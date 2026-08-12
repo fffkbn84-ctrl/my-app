@@ -12,7 +12,7 @@ type Props = {
 /**
  * マイページの「共感した」一覧。
  * - Kinda story（エピソード）
- * - Kinda voices（コラム）
+ * - コラム
  * favorites の target_type = 'story' / 'voice' を表示。
  * 0 件なら何も描画しない。
  */
@@ -110,7 +110,7 @@ export default function SympathySavedSection({ allColumns }: Props) {
       {savedVoices.length > 0 && (
         <div style={{ marginBottom: 24 }}>
           <SectionHeader
-            eyebrow="KINDA VOICES"
+            eyebrow="COLUMN"
             label="気持ちの整理コラム"
             count={savedVoices.length}
             href="/columns"

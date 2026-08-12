@@ -159,7 +159,7 @@ export default async function OpengraphImage({
               letterSpacing: "0.16em",
             }}
           >
-            KINDA VOICES
+            COLUMN
           </div>
         </div>
       </div>

@@ -190,7 +190,7 @@ export default async function WeatherDetailPage({ params }: Props) {
                   fontWeight: 500,
                 }}
               >
-                Kinda voices で深く読む
+                コラムで深く読む
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden>
                   <path
                     d="M2 7h10M7 2l5 5-5 5"

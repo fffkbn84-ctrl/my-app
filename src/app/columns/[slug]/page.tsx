@@ -173,11 +173,11 @@ export default async function ColumnDetailPage({ params }: Props) {
 
       <Header />
       <div className="kv-page" style={{ background: "#FCF8F2", minHeight: "100vh" }}>
-        <SectionSubHeader sectionName="Kinda voices" sectionRoot="/columns" />
+        <SectionSubHeader sectionName="コラム" sectionRoot="/columns" />
         <Breadcrumb
           items={[
             { label: "ホーム", href: "/" },
-            { label: "Kinda voices", href: "/columns" },
+            { label: "コラム", href: "/columns" },
             { label: column.category },
           ]}
         />
