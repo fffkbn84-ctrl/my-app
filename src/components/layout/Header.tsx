@@ -21,7 +21,8 @@ const MENU_SECTIONS: { label: string; items: { href: string; label: string; sub?
     label: "ふたりを知る",
     items: [
       { href: "/kinda-story", label: "Kinda story", sub: "ふたりの物語" },
-      { href: "/columns", label: "Kinda voices", sub: "取材・コラム" },
+      { href: "/voices", label: "Kinda voices", sub: "カウンセラー取材" },
+      { href: "/columns", label: "コラム", sub: "読みもの" },
     ],
   },
   {

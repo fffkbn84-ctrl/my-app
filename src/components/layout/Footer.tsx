@@ -34,7 +34,8 @@ export default function Footer() {
           <h5>読みもの</h5>
           <ul>
             <li><Link href="/kinda-story">Kinda story — ふたりの物語</Link></li>
-            <li><Link href="/columns">Kinda voices — 取材・コラム</Link></li>
+            <li><Link href="/voices">Kinda voices — カウンセラー取材</Link></li>
+            <li><Link href="/columns">コラム — 読みもの</Link></li>
           </ul>
 
           <h5 style={{ marginTop: 28 }}>アカウント</h5>

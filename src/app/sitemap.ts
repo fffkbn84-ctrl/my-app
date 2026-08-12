@@ -3,6 +3,7 @@ import { COUNSELORS } from "@/lib/data";
 import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
 import { getAllColumns } from "@/lib/columns";
+import { getPublishedVoices } from "@/lib/voices";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
@@ -28,6 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/about/founder",
     "/about/transparency",
     "/columns",
+    "/voices",
     // /mypage は robots.txt で Disallow しているため sitemap からも除外（GSC 警告整合）
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
@@ -111,6 +113,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Kinda voices（取材記事）。公開済みのみ。
+  // /voices/[slug]/kit は noindex のため sitemap に含めない。
+  const voices = await getPublishedVoices();
+  const voiceEntries: MetadataRoute.Sitemap = voices.map((v) => ({
+    url: `${SITE_URL}/voices/${v.slug}`,
+    lastModified: v.updatedAt
+      ? new Date(v.updatedAt)
+      : v.publishedAt
+        ? new Date(v.publishedAt)
+        : now,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   return [
     ...staticEntries,
     ...forCounselorsEntry,
@@ -121,5 +137,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...weatherListEntry,
     ...weatherEntries,
     ...columnEntries,
+    ...voiceEntries,
   ];
 }

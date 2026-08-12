@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllColumns } from "@/lib/columns";
+import { getAllVoices, isPublished } from "@/lib/voices";
 import { STORIES } from "@/lib/mock/stories";
 
 /**
  * admin(futarive-admin)からKinda voices・Kinda storyの本数と一覧を確認するための
- * 読み取り専用API。site側は自分のファイル（content/columns/*.mdx・stories.ts）を
+ * 読み取り専用API。site側は自分のファイル（content/voices/*.mdx・content/columns/*.mdx・stories.ts）を
  * 直接読めるが、admin は別デプロイのため、この公開エンドポイント経由で参照する。
  * 書き込み経路は増やさない（作成・編集はこれまで通りClaude/コードで行う）。
  *
@@ -27,23 +28,27 @@ export async function GET(req: NextRequest) {
 
   const columns = await getAllColumns();
 
-  const voices = columns
-    .filter((c) => c.category === "取材レポート")
-    .map((c) => ({
-      slug: c.slug,
-      title: c.title,
-      author: c.author,
-      publishedAt: c.publishedAt,
-    }));
+  // voices は content/voices/ ディレクトリの存在で判定する。
+  // 旧実装は category === "取材レポート" で抽出していたが、これは誤りだった
+  // （good-counselor-traits は全国取材の総論であってカウンセラー個人の取材ではない）。
+  const allVoices = await getAllVoices();
+  const voices = allVoices.map((v) => ({
+    slug: v.slug,
+    title: v.title,
+    author: v.author,
+    publishedAt: v.publishedAt,
+    counselorName: v.counselorName,
+    agencyName: v.agencyName,
+    area: v.area,
+    published: isPublished(v),
+  }));
 
-  const otherColumns = columns
-    .filter((c) => c.category !== "取材レポート")
-    .map((c) => ({
-      slug: c.slug,
-      title: c.title,
-      category: c.category,
-      publishedAt: c.publishedAt,
-    }));
+  const otherColumns = columns.map((c) => ({
+    slug: c.slug,
+    title: c.title,
+    category: c.category,
+    publishedAt: c.publishedAt,
+  }));
 
   const stories = STORIES.map((s) => ({
     id: s.id,
