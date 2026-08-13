@@ -5,11 +5,52 @@
 > 2026-07-02 に全面整理（重複統合・完了項目の退避）。整理前の全文は `docs/archive/todo-full-archive-2026-07-02.md`。
 > 定期整理は `/repo-tidy` Skill で行う。
 
-最終更新: 2026-07-10
+最終更新: 2026-08-13
 
 ---
 
 ## 📌 次セッション引き継ぎ（最初に読む）
+
+### 🆕 2026-08-13 Kinda pair v1.0・交際期コラム4本・デモ隔離（今セッション分）
+
+> ブランチ `claude/kinda-pair-creation-f42ul0` に全部入り（origin/main より 11 コミット先行・**未マージ**）。
+> 実装メモは WORKLOG 2026-08-05〜13。URL の正は `docs/site-url-structure.md`。
+
+**マージ前に決めること（3件）**
+
+- [ ] **トップのセクションカードに Kinda pair を追加**（実装指示書 2026-08-08 §5-1）。`type/talk/act/glow` の4枚帯に5枚目として入れる。**着手には支給が必要**：クレイ風画像（`/images/section-pair-room.webp` 相当）＋パステルの背景色・アクセント色（既存 type=`#E0ECF8` / talk=`#FAF3DE` / act=`#F5E1E0` / glow=`#EDE0F4`）。カード定義は `src/app/page.tsx` の `DECIDED_CARDS` に1オブジェクト足すだけ
+- [ ] **Kinda story のサンプル4本（`id: "1" "4" "5" "6"`・consent なし）の扱い**。デモカウンセラーを全画面から隠したため、**サイト上に存在しないカウンセラー名（田中 美紀・林 俊介）が物語の署名としてトップに残っている**。sitemap からは既に除外済みだが、URL と一覧表示は生きている
+- [ ] **`/counselors` 一覧の是正方針**。`src/app/counselors/page.tsx` に**ページ内直書きの架空カウンセラー**（4.9/82件 等）があり、`is_demo` の仕組みの外にある。是正すると一覧が空になるため、Supabase 接続に切替か、ページごと下げるかの判断が要る。sitemap には未登録で、`/counselors/[id]` からのリンクのみ
+
+**やり残し・確認待ち**
+
+- [ ] GA4 DebugView で pair のイベント6種の発火確認（`pair_start` / `pair_layer_complete` / `pair_solo_complete` / `pair_copy` / `pair_image_save` / `notify_signup{source:"pair_lp"}`）
+- [ ] iPhone 16 Pro で `/kinda-pair` 3ページと0件表示の実機確認
+- [ ] `/kinda-pair/solo` の `X-Robots-Tag` がプレビューのレスポンスヘッダーに乗っているか確認（メタタグ側は確認済み）
+- [ ] `/kinda-pair` に `FAQPage` を付けるか（`docs/site-url-structure.md` §5 の表は LP にも想定。実装指示書 v1.0 §6 は `WebApplication` + `BreadcrumbList` のみと定義しており、指示書に従った）
+- [ ] `SECTION_PREVIEW_COUNT = 6` の見直し（7件目のコラムが `/columns` 一覧に出ない。`soudanjo-to-konkatsu-app-chigai` が該当。バグではないが取りこぼし）
+
+**この系統で確定した不変則（変更しない）**
+
+- Kinda pair v1.0 は **Supabase を使わない**。solo は `localStorage` のみ・`fetch` を書かない・`pair_*` テーブルを作らない
+- 話題28件の正は `src/lib/pair/topics.ts` の1ファイル。ページに文言をハードコードしない
+- `/kinda-pair/solo` は noindex（メタ + `X-Robots-Tag`）・sitemap に入れない
+- ％表示をどこにも出さない。実数のみ。絵文字ゼロ
+- 連盟差の注記は**この2行のみ**（「コネクトシップ」は全廃・リポジトリ全体0件）
+  ```
+  結婚相談所が加盟している連盟によって、ルールが異なる場合があります。
+  詳しくは担当の方にご確認ください。
+  ```
+- カウンセラー0件時は「準備中」「近日公開」を使わず「**まだ公開していません**」＋ `NotifySignup`
+- デモ（`is_demo`）はレコードを消さない。ユーザー向け画面では `getPublicCounselors()` を使う。
+  `getCounselors()`（デモ込み）を使ってよいのは `/kinda-talk` の `?preview=1` と `/for-counselors` の掲載イメージだけ
+
+**v1.1 以降（未着手・仕様は受領済み）**
+
+- [ ] ふたりモード（招待・突き合わせ）＋**終了体験**（パッチ v1.1 で v1.1 に格上げ）。見送り画面・`pair_tombstones`（sha256 は Web Crypto API。`node:crypto` 不可）・Kinda note への一行導線
+- [ ] ルームのライフサイクル（`active` / `continued` / `ended`。固定180日は廃止、例外的に最終アクセスから730日）
+- [ ] 担当共有URL（v1.2・**オプション扱いに格下げ**。「担当の方によって使い方は異なります」の一行を必ず添える）
+- [ ] カウンセラープロフィールの属性項目（v1.3・`/kinda-talk/counselors/[slug]` と同時）
 
 ### 🆕 2026-07-10 SNS投稿スタジオ・事業計画v1（今セッション分）
 
@@ -131,6 +172,8 @@
 - [ ] **法務同期の残り**：事業者向け特商法の counselor 管理画面掲載／利用規約・プライバシー・特商法の棚卸し（顧問弁護士レビュー前提）。
 - [ ] **セキュリティ advisor 残**：slots UPDATE の RPC 化／Security Definer View 権限／anon revoke／search_path 付与／Storage listing 確認／Leaked Password Protection（Supabase Pro 化時に ON）。
 - [ ] **同一ルールの実装ズレ横断監査**（キャンペーン期限・is_published・料金表記・is_demo 等 → 共通ヘルパー化）。
+  - 2026-08-13 に **キャンペーン期限**（`isExpiryDateActive()` に共通化・日付単位に統一）と
+    **is_demo**（`getPublicCounselors()` に入口を集約）は着手済み。残りは is_published と料金表記。
 - [ ] 動的 OGP（@vercel/og）：/note/result 等のシェア画像動的生成（拡散エンジン・中期）。
 - [ ] MyPage 系の PC レイアウト一括調整。
 - [ ] Kinda Note「任意・匿名の天気共有」データモデル設計（Phase 3 の belonging 本命。shared フラグ等・本文は持たせない）。

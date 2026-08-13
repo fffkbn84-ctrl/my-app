@@ -1,6 +1,6 @@
 # Kinda サイトURL構造マップ
 
-最終更新：2026-08-05
+最終更新：2026-08-13
 このファイルは `docs/site-url-structure.md` としてリポジトリで管理する。
 **実装を変えたら、同じコミットでこのファイルも直す。** 乖離したら実装が正。
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 1. 実在するルート（Claude Code 確認済み・2026-08-05）
+## 1. 実在するルート（Claude Code 確認済み・2026-08-13）
 
 ### 1-1. サブブランド・読みもの
 
@@ -124,7 +124,7 @@
 
 ---
 
-## 2. Kinda pair（v1.0 実装済み・2026-08-05）
+## 2. Kinda pair（v1.0 実装済み・2026-08-13）
 
 ```
 /kinda-pair                       LP                    index する
@@ -184,9 +184,26 @@
 | `/kinda-note/quiz` `/kinda-type/quiz` | index。sitemap 登録あり。自己参照 canonical あり |
 | `/kinda-note/result` `/kinda-type/result` | index（`robots` メタ未指定＝既定で index）。**sitemap には入れない**（クエリで内容が変わる結果画面。`/kinda-note/result` の canonical は `?weather=` 付きの自己参照） |
 | `/kinda-story` `/kinda-story/[id]` | index。sitemap は**掲載同意の記録がある物語だけ**（下記） |
+| `/counselors/[id]` | index。ただし**営業デモ（`is_demo = true`）のカウンセラーは noindex**（下記） |
 | `/mypage` `/mypage/*` `/api/*` | robots.txt で Disallow。sitemap 未登録 |
 
 sitemap は動的生成（静的配列 + データ由来を結合）。**noindex のページを sitemap に入れない。**
+
+### 営業デモ（`is_demo`）の扱い ★
+
+`counselors` / `agencies` の `is_demo` は **NOT NULL / default false**（NULL レコードは存在しない）。
+デモのレコードは**削除しない。表示場所を変えるだけ**。
+
+| 面 | 扱い |
+|---|---|
+| ユーザー向け一覧・診断結果・カルーセル | `getPublicCounselors()` で除外する |
+| `/kinda-talk` | `?preview=1` のときだけデモを出す（client 側で出し分け） |
+| `/for-counselors` の「掲載イメージ」 | `getDemoCounselors()` で意図的に3件出す。rating / reviewCount / fee / campaign は出さない |
+| `/counselors/[id]`（デモ） | **ページは残し noindex**。一覧・診断からの導線は切ってある |
+
+- `getCounselors()`（デモ込み）を直接使ってよいのは上記2箇所だけ。それ以外は `getPublicCounselors()`
+- デモ除外の結果、`/kinda-talk/area/*`（5本）と `/kinda-talk/type/*`（6本）は実データが埋まるまで0件になる。
+  0件時は `CounselorEmptyState`（「まだ公開していません」＋ `NotifySignup`）を出す。「準備中」「近日公開」は使わない
 
 ### Kinda story の sitemap 収録条件 ★
 
@@ -262,5 +279,6 @@ sitemap は動的生成（静的配列 + データ由来を結合）。**noindex
 |---|---|
 | 2026-04-30 | 初版（`/note` `/type` `/talk` `/biz` `/column` 前提） |
 | 2026-08-05 | 全面改訂。実体 prefix を `/kinda-*` に統一。`/note/weather` の特例を明記。`/biz` `/guide` `/mypage` 系を破棄。Kinda pair を追加 |
+| 2026-08-13 | 営業デモの隔離を反映：デモは `getPublicCounselors()` で全ユーザー向け画面から除外、デモの個別ページは noindex、0件時の表示を規定。§4 に「営業デモの扱い」を追加 |
 | 2026-08-05 | sitemap を修正：`/kinda-story`（一覧）・`/contact`・`/kinda-note/quiz` を追加。`/kinda-story/[id]` は `consent` を持つ物語のみ収録。結果画面2本は意図的に除外と明記。コラムのカテゴリに「お見合いと交際のこと」を追加 |
 | 2026-08-05 | リポジトリへ配置。旧 §3「存在確認が必要なルート」は9件すべて実在したため §1-2 へ移動し節を削除。旧 §4 のうち実装済みだった `/for-counselors` `/kinda-story/[id]` `/kinda-talk/area/[area]` を §1 へ移動。別紙に記載のなかった実在ルート（検索・予約・口コミ・アカウント・API）を §1-3 〜 §1-5 として追記。§4 の `/kinda-note/quiz` `/kinda-note/result` を実測値に更新 |

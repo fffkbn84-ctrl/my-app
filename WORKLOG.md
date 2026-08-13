@@ -4,6 +4,67 @@
 
 ---
 
+## 2026-08-05〜13（Claude Code セッション：Kinda pair v1.0・交際期コラム4本・デモデータ隔離）
+
+### 完了
+
+**Kinda pair v1.0（3ページ・ブランチ `claude/kinda-pair-creation-f42ul0`）**
+- `/kinda-pair`（LP・index）／`/kinda-pair/topics`（28話題の全公開・index・約5,700字）／`/kinda-pair/solo`（ひとりモード・noindex）
+- **Supabase を使わない**。solo の状態は `localStorage`（`kinda_pair_solo_v1`）のみで、`fetch` を1つも書いていない。`pair_*` テーブル・マイグレーションは作っていない
+- 話題定義は `src/lib/pair/topics.ts` が単一の source of truth（`key` / `title` / `ask` / `about` / `note`）。LP・topics・solo はすべてここから生成し、文言をページにハードコードしていない
+- 結果表示は実数のみ（％を出さない）。0件の層は「まだこれからの層です」。状態の区別は色と細い SVG で、絵文字ゼロ
+- 持ち出しはコピー（`navigator.clipboard`）と画像保存（`html2canvas`・Kinda note の `ShareCard.tsx` の作法に準拠）
+- GA4 6種：`pair_start` / `pair_layer_complete` / `pair_solo_complete` / `pair_copy` / `pair_image_save` / `notify_signup{source:"pair_lp"}`
+- `noindex` は robots メタと `X-Robots-Tag`（`next.config.ts` の `headers()`）の両方で落とし、`referrer: no-referrer` も付与
+- 導線：フッター（act の次）・ハンバーガー「ふたりを知る」。**グローバルナビ（`<header>`）には出さない**
+
+**コラム4本（category「お見合いと交際のこと」・author さき）**
+- `nenshu-wakaru-noni-okane-no-hanashi` / `omiai-wakaregiwa-hitokoto` / `ii-hito-o-kotowaru-mayoi` / `kousai-totsuzen-owatta`
+- 不安マップ Phase 4-3（良い人を切る痛み）・4-5（断られた理由が分からない）・4-6（突然終わる）に直接あたる。4本とも本文から `/kinda-pair` へ内部リンクが通り、新規ページの被リンクゼロが解消
+- 新カテゴリ「お見合いと交際のこと」を `ColumnsClient.tsx` の `CATEGORIES` と `CATEGORY_ORDER` に追加（末尾）
+
+**デモデータの隔離（公開中のコンプライアンス問題・最優先で対応）**
+- `getPublicCounselors()` / `getDemoCounselors()` を新設。`getCounselors()` は従来どおりデモを含み、使ってよいのは `/kinda-talk`（`?preview=1`）と `/for-counselors` の掲載イメージだけ
+- 除外を適用：area 別・type 別・トップのリールカルーセル・`/counselors/booking`・`/agencies/[id]` の在籍一覧・`/agencies`（mock 既定値）・Kinda type の診断結果
+- カウンセラー個別ページは**残して noindex**（掲載イメージから実際の見え方を確認できるようにするため）
+- 0件表示は `CounselorEmptyState` を新設。「まだ公開していません」＋既存 `NotifySignup`
+- `/kinda-talk` の FAQ 5問目を代理掲載に触れる文言へ差し替え（`FAQ_ITEMS` が表示と JSON-LD の単一ソースなのでズレない）
+
+**キャンペーン期限・`/for-counselors`**
+- 期限判定を `isExpiryDateActive()` に共通化して日付単位に統一。相談所側 `isCampaignActive` が当日0時に失効していたのを当日いっぱいに揃えた
+- 旧 `campaign` 文字列だけが期限判定を通らず出続ける経路（`CounselorReelCard`）を塞いだ
+- トラスト数値セクションを丸ごと削除（`getTrustStats` ごと撤去）。同じ位置に「掲載イメージ」を新設（デモ3件・数値と構造化データを一切出さない・破線枠＋「表示例」ラベル）
+- S6 の記事3枚のうち1枚を `kousai-totsuzen-owatta` に差し替え
+
+**ドキュメント**
+- `docs/site-url-structure.md` を新規作成（実ファイルと突き合わせ済み）
+- sitemap を補修：`/kinda-story`・`/contact`・`/kinda-note/quiz` を追加。`/kinda-story/[id]` は **`consent` を持つ物語だけ**
+
+### 決定
+- **0件表示の文言**：「準備中」も「まだいません」も使わず「**まだ公開していません**」＋通知登録。「準備中」は煽りではないが、どちらも行き止まりで次の行動がない。主語を Kinda 側に置くことで、供給が無いのではなく Kinda がまだ出していない、という事実に寄せた
+- **デモの個別ページは 404 にせず noindex**。営業時にサンプルの詳細を見せる用途を残すため
+- **Kinda story の sitemap は `consent` ゲート**。同意記録のない初期サンプル4本を実話として検索エンジンに送らない
+- 連盟差の注記は「結婚相談所が加盟している連盟によって〜」の2行に全面統一（旧「コネクトシップ加盟の相談所を前提」は全廃）
+
+### つまずき・学び
+- **実装指示書が先・仕様書が後で届いたため、28話題を丸ごと2回書き直した**（key ごと差し替え）。`topics.ts` に一本化してあったので**ページ側の修正はゼロ**で済んだ。二重管理を作らない設計がそのまま効いた
+- **`/columns` のカテゴリは固定リスト**。frontmatter に新カテゴリを書いても `CATEGORY_ORDER` に無いと一覧・ピルに**一切出ない**（sitemap には出るので気づきにくい）
+- `SECTION_PREVIEW_COUNT = 6` のため、7件あるカテゴリの7件目は「もっと見る」の裏に入る（`soudanjo-to-konkatsu-app-chigai` が一覧に出ない原因。バグではない）
+- `is_demo` は counselors / agencies とも **NOT NULL default false** で NULL は0件。`.eq("is_demo", false)` で足りる（`.not(...is...true)` は不要だった）
+- **`getCounselors()` が全画面共通の入口なのに `is_demo` を絞っていなかった**＝除外漏れが起きやすい構造だった。入口を `getPublicCounselors()` に分けて、デモを見てよい箇所を2つに限定した
+- キャンペーン期限の判定関数が2つあり、**当日の扱いが食い違っていた**（TODO 中期の「同一ルールの実装ズレ横断監査」の実例）
+- **ローカルビルドは Supabase env が無く mock fallback になる**ため、デモ隔離の検証はビルド済み HTML だけでは不十分。Supabase MCP で実データを直接見る必要があった
+- 公開中の口コミ9件は**全件がデモカウンセラー紐づき**、実在カウンセラーの公開口コミは0件だった（`/for-counselors` の「9」の正体）
+- リポジトリ内で**同じルールの記述が矛盾**していた：交際終了後の連絡先削除について、`kekkon-soudanjo-fukuen.mdx` は正しく、新規の `kousai-totsuzen-owatta.mdx` は「直接尋ねるのは避けて」と誤記（実際は連絡先削除がルールで、問いただすと最悪強制退会）。既存記事の言い回しに揃えて修正
+- `<h2>` を flex で label + span に分けると、テキストとしては `ふれる— 好みや…` のように**空白が落ちる**。`{" "}` を明示して原稿どおりに戻した
+
+### 次
+- `/kinda-pair` をトップページのセクションカード（type/talk/act/glow の帯）に5枚目として追加 → **クレイ風画像とパステル配色の支給待ち**
+- Kinda story のサンプル4本（consent なし）の扱いを決める。デモ隔離後、サイト上に存在しないカウンセラー名が物語の署名として残っている
+- `/counselors` 一覧のページ内直書きモック（架空・4.9/82件）の是正方針を決める
+
+---
+
 ## 2026-07-08〜10（Claude Code セッション：SNS投稿スタジオ・6つの型・事業計画v1・口コミコラム）
 
 ### 完了
