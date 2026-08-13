@@ -7,6 +7,13 @@ export type PlaceReview = {
   rating: number;
   text: string;
   date: string;
+  /**
+   * 出所。表示側では user / editorial のどちらにもラベルを出す。
+   * 片方だけ注記すると「無印＝正しいもの」という暗黙の序列ができるため。
+   */
+  sourceType?: "user" | "editorial" | "proxy";
+  /** 訪問した時間帯（平日昼 等）。分かる場合のみ */
+  visitedTimeframe?: string | null;
 };
 
 export type Place = {

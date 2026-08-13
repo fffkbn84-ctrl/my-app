@@ -3,7 +3,7 @@
 ──────────────────────────────────────────────────────────── */
 import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'
-import { places } from '@/lib/mock/places'
+import { places, type PlaceReview } from '@/lib/mock/places'
 import { placesHomeData, type PlaceHome, type PlaceTabCategory, type ThumbVariant } from '@/lib/mock/places-home'
 import type { Database } from '@/types/database'
 
@@ -1185,4 +1185,50 @@ export async function getEpisodeById(id: string) {
     .single()
   if (error) return null
   return data
+}
+
+/**
+ * お店の公開済み口コミを取得する。
+ *
+ * shop_reviews は Database 型に未登録の新規テーブルのため、
+ * /api/notify や /api/for-counselors/inquiry と同様に untyped で扱う。
+ * RLS で is_published=true のみ SELECT 可なので、取得結果は常に公開済み。
+ */
+export async function getShopReviews(shopId: string): Promise<PlaceReview[]> {
+  const res = await supabase
+    .from('shop_reviews')
+    .select('id, rating, body, title, author_label, source_type, visited_timeframe, created_at')
+    .eq('shop_id', shopId)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+
+  if (res.error || !res.data) return []
+
+  type Row = {
+    id: string
+    rating: number
+    body: string
+    title: string | null
+    author_label: string | null
+    source_type: string | null
+    visited_timeframe: string | null
+    created_at: string
+  }
+
+  return (res.data as unknown as Row[]).map((r) => {
+    const d = new Date(r.created_at)
+    const sourceType =
+      r.source_type === 'editorial' || r.source_type === 'proxy'
+        ? r.source_type
+        : 'user'
+    return {
+      id: r.id,
+      user: r.author_label || '読者',
+      rating: r.rating,
+      text: r.body,
+      date: `${d.getFullYear()}年${d.getMonth() + 1}月`,
+      sourceType,
+      visitedTimeframe: r.visited_timeframe,
+    } satisfies PlaceReview
+  })
 }

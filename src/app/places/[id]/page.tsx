@@ -9,7 +9,7 @@ import {
   PlacePriceTooltipContent,
   PlaceHoursTooltipContent,
 } from "@/lib/policyMessages";
-import { getShopById, type ShopDetail } from "@/lib/data";
+import { getShopById, getShopReviews, type ShopDetail } from "@/lib/data";
 import type { PlaceReview, Place } from "@/lib/mock/places";
 
 /* ────────────────────────────────────────────────────────────
@@ -61,10 +61,16 @@ function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[] 
     description: shop.description,
     features: shop.features,
     scenes: shop.scenes ?? [],
-    // Supabase shop_reviews テーブル未実装のため空配列を返す。
-    // 将来的に shop_reviews を作る or reviews テーブルに place_id 追加で対応。
+    // 口コミは getShopReviews で別途取得して差し込む（ここでは空で初期化）。
     reviews: [],
   };
+}
+
+/** 口コミの出所ラベル。user / editorial のどちらにも必ず出す。 */
+function sourceLabel(sourceType: PlaceReview["sourceType"]): string {
+  if (sourceType === "editorial") return "編集部が訪問";
+  if (sourceType === "proxy") return "代理掲載";
+  return "読者の投稿";
 }
 
 /* ────────────────────────────────────────────────────────────
@@ -213,6 +219,7 @@ export default async function PlaceDetailPage({
   const shop = await getShopById(id);
   if (!shop) notFound();
   const place = buildPlaceFromShop(shop);
+  place.reviews = await getShopReviews(id);
 
   const avgRating =
     place.reviews.length > 0
@@ -554,12 +561,13 @@ export default async function PlaceDetailPage({
                     {place.reviews.map((review) => (
                       <div key={review.id} className="clay-rv-card">
                         <div className="rv-meta">
-                          <span className="rv-date">{review.date}</span>
+                          <span className="rv-date">
+                            {review.date}
+                            {review.visitedTimeframe ? ` · ${review.visitedTimeframe}` : ""}
+                          </span>
+                          {/* 出所ラベル。読者の投稿にも編集部の観測にも必ず出す */}
                           <span className="rv-verified">
-                            <svg width="11" height="11" viewBox="0 0 10 10" fill="currentColor">
-                              <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
-                            </svg>
-                            利用済み口コミ
+                            {sourceLabel(review.sourceType)}
                           </span>
                         </div>
                         <div className="rv-stars-row">
