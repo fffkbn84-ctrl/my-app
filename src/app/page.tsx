@@ -111,9 +111,11 @@ const DECIDED_CARDS = [
     href: "/kinda-pair",
     kindaLabel: "pair",
     desc: "話したことと、まだ話していないこと",
-    // v2＝照明を明るくした版。同名で差し替えると Vercel の画像最適化キャッシュに
-    // 旧版が残りうるため、ファイル名でキャッシュを分ける。
-    img: "/images/section-pair-room-v2.webp",
+    // v3＝v2 の明度と赤みを他4枚に合わせた版（生成しなおしではなく数値調整）。
+    // 戸棚に5枚並べたとき pair だけ暗く緑に寄っていたため。
+    // 同名で差し替えると Vercel の画像最適化キャッシュに旧版が残りうるので、
+    // 作り直したらファイル名を変える。
+    img: "/images/section-pair-room-v3.webp",
     alt: "Kinda pair",
     bg: "#E7EEE1",
     accent: "#6F8A5E",
