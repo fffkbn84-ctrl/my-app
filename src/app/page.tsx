@@ -72,6 +72,7 @@ const ORG_JSONLD = {
  *   type → #E0ECF8（パステルブルー）
  *   talk → #FAF3DE（パステルイエロー）
  *   act  → #F5E1E0（パステルピンク）
+ *   pair → #E7EEE1（パステルセージ）
  *   glow → #EDE0F4（パステルパープル）
  */
 const DECIDED_CARDS = [
@@ -104,6 +105,16 @@ const DECIDED_CARDS = [
     alt: "Kinda act",
     bg: "#F5E1E0",
     accent: "#B86E68",
+  },
+  {
+    key: "pair",
+    href: "/kinda-pair",
+    kindaLabel: "pair",
+    desc: "話したことと、まだ話していないこと",
+    img: "/images/section-pair-room.webp",
+    alt: "Kinda pair",
+    bg: "#E7EEE1",
+    accent: "#6F8A5E",
   },
   {
     key: "glow",
@@ -596,10 +607,13 @@ export default async function HomePage() {
             やりたいことが決まっている方へ
           </h2>
 
-          {/* 2×2（モバイル）→ 1×4（PC）を、1つの「戸棚」に収める。
-              gap を木トーンの枠色で見せることで升目の仕切り（壁）になる。 */}
+          {/* 2+2+1（モバイル・最下段は中央寄せ）→ 1×5（PC）を、1つの「戸棚」に収める。
+              gap を木トーンの枠色で見せることで升目の仕切り（壁）になる。
+              5枚は半端に見えるが、「行き先が決まっている人の選択肢」がちょうど5つ
+              （type / talk / act / pair / glow）。Kinda note はヒーロー主CTA と
+              直前の専用セクションに既にあるため、ここには入れない。 */}
           <div
-            className="pc-grid-2to4"
+            className="pc-grid-2to5"
             style={{
               background: "linear-gradient(#E8DDCC,#DED0BA)",
               padding: 9,
@@ -646,7 +660,7 @@ export default async function HomePage() {
                       src={card.img}
                       alt={card.alt}
                       fill
-                      sizes="(min-width: 768px) 240px, 50vw"
+                      sizes="(min-width: 768px) 200px, 50vw"
                       style={{ objectFit: "cover" }}
                     />
                     {/* ガラス面の斜め反射（覗いている感） */}

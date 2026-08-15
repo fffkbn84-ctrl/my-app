@@ -3259,6 +3259,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
 [data-section="meet"]  { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
 [data-section="act"]   { --section-bg:#F5E1E0; --section-tint:#ECC8C5; --section-deep:#B86E68; }
 [data-section="glow"]  { --section-bg:#EDE0F4; --section-tint:#DCC5E8; --section-deep:#8A66B0; }
+[data-section="pair"]  { --section-bg:#E7EEE1; --section-tint:#CFDCC4; --section-deep:#6F8A5E; }
 [data-section="story"] { --section-bg:#E8F4E4; --section-tint:#C8E0C0; --section-deep:#5A8050; }
 
 /* ─── /kinda-talk レイアウト全体 ─── */
@@ -7524,7 +7525,12 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 
 /* 2x2 → 4 列に展開するグリッド（やりたいことカード等） */
-.pc-grid-2to4 {
+/* トップの戸棚：5枚版（type / talk / act / pair / glow）
+   モバイルは 2 + 2 + 1。最下段の1枚を列幅のまま中央に置くことで、
+   升目が片側だけ空いて欠けて見えるのを避ける。
+   PC は 5 マスを1列に並べる。5枚とも 1:1 のまま揃えるので、
+   画像は正方形1枚ずつで足りる（横長版を別に用意しない）。 */
+.pc-grid-2to5 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
@@ -7532,11 +7538,25 @@ body:has(.cta-mobile-bar) .floating-back {
   margin-left: auto;
   margin-right: auto;
 }
+/* 奇数個の最後の1枚＝2列ぶち抜きにしたうえで列幅に絞って中央寄せ */
+.pc-grid-2to5 > :last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  width: calc(50% - 6px);
+  margin-left: auto;
+  margin-right: auto;
+}
 @media (min-width: 768px) {
-  .pc-grid-2to4 {
-    grid-template-columns: repeat(4, 1fr);
-    max-width: 960px;
-    gap: 16px;
+  .pc-grid-2to5 {
+    grid-template-columns: repeat(5, 1fr);
+    max-width: 1040px;
+    gap: 14px;
+  }
+  /* PC は5列に収まるので中央寄せの上書きを解除する */
+  .pc-grid-2to5 > :last-child:nth-child(odd) {
+    grid-column: auto;
+    width: auto;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
