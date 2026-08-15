@@ -360,6 +360,26 @@ function RatingBar({ label, value }: { label: string; value: number }) {
 /* ────────────────────────────────────────────────────────────
    メタデータ生成（SEO）
 ──────────────────────────────────────────────────────────── */
+/**
+ * 営業デモのカウンセラーか判定する。
+ * mock 側は isDemo フラグ、Supabase 側は is_demo を見る。
+ * 判定できないときは false（＝index する）に倒す。
+ */
+async function isDemoCounselor(
+  id: string,
+  mockIsDemo?: boolean,
+): Promise<boolean> {
+  if (mockIsDemo) return true;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  if (!isUuid) return false;
+  try {
+    const c = await getCounselorById(id);
+    return !!c?.isDemo;
+  } catch {
+    return false;
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -385,9 +405,15 @@ export async function generateMetadata({
   const title = `${name} | ${agency}${area ? " " + area : ""} | Kinda ふたりへ`;
   const description = (catchphrase + " " + intro).trim().slice(0, 140);
 
+  // 営業デモ（is_demo）の詳細ページは残すが検索には出さない。
+  // 一覧・診断結果からの導線は切ってあり、/for-counselors の「掲載イメージ」から
+  // 実際の見え方を確認する用途にだけ使う。
+  const isDemo = await isDemoCounselor(id, fromCounselors?.isDemo);
+
   return {
     title,
     description,
+    ...(isDemo ? { robots: { index: false, follow: false } } : {}),
     openGraph: {
       title: `${name} - Kinda ふたりへ`,
       description,

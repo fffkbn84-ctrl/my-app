@@ -20,6 +20,7 @@ const MENU_SECTIONS: { label: string; items: { href: string; label: string; sub?
   {
     label: "ふたりを知る",
     items: [
+      { href: "/kinda-pair", label: "Kinda pair", sub: "話したことと、まだ話していないこと" },
       { href: "/kinda-story", label: "Kinda story", sub: "ふたりの物語" },
       { href: "/columns", label: "Kinda voices", sub: "取材・コラム" },
     ],

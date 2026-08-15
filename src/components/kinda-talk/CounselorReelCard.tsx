@@ -73,11 +73,15 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
       </div>
 
       <div className="kt-reel-card-bottom">
-        {/* カウンセラー個別キャンペーンバッジ（任意） — campaignLabel は有効期限切れなら非表示。
-            旧 campaign 文字列（モック・期限なし）はそのまま表示 */}
-        {(counselor.campaignLabel
-          ? isCounselorCampaignActive(counselor.campaignLabel, counselor.campaignExpiry)
-          : !!counselor.campaign) && (
+        {/* カウンセラー個別キャンペーンバッジ（任意）。
+            campaignLabel / 旧 campaign 文字列のどちらを出す場合も、
+            campaignExpiry が過ぎていれば表示しない（判定は日付単位）。
+            以前は旧 campaign 文字列だけ期限判定を通っておらず、
+            期限切れのラベルが残る経路になっていた。 */}
+        {isCounselorCampaignActive(
+          counselor.campaignLabel ?? counselor.campaign,
+          counselor.campaignExpiry,
+        ) && (
           <div
             style={{
               display: "inline-flex",

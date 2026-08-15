@@ -7,7 +7,7 @@ import {
   AGENCIES,
   COUNSELORS,
   getAgencyById,
-  getCounselors,
+  getPublicCounselors,
   type Counselor,
 } from "@/lib/data";
 
@@ -40,11 +40,12 @@ export default async function CounselorBookingPage({
   if (!agencyName) notFound();
 
   // 在籍カウンセラー: mock を最優先、Supabase なら getCounselors で agency_id 一致を抽出
+  // 営業デモ（isDemo）はユーザー向け画面に出さない
   let counselors: Counselor[] = COUNSELORS.filter(
-    (c) => String(c.agencyId) === String(agencyId),
+    (c) => !c.isDemo && String(c.agencyId) === String(agencyId),
   );
   if (counselors.length === 0) {
-    const all = await getCounselors();
+    const all = await getPublicCounselors();
     counselors = all.filter((c) => String(c.agencyId) === String(agencyId));
   }
 

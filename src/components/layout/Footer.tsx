@@ -25,6 +25,7 @@ export default function Footer() {
             <li><Link href="/kinda-type">Kinda type — 診断するだけで合うカウンセラーが見つかる</Link></li>
             <li><Link href="/kinda-talk">Kinda talk — カウンセラーを見る</Link></li>
             <li><Link href="/kinda-act">Kinda act — お見合い・デートの場所</Link></li>
+            <li><Link href="/kinda-pair">Kinda pair — 話したことと、まだ話していないこと</Link></li>
             <li><Link href="/kinda-glow">Kinda glow — 自分を整える</Link></li>
             <li><Link href="/kinda-note">Kinda note — 気持ちを整理する</Link></li>
           </ul>

@@ -135,6 +135,11 @@ export default function PrivacyPage() {
               </a>
               をご利用ください。
             </p>
+            <p className="legal-text">
+              Kinda pair（ひとりでお使いいただく機能）では、選択いただいた内容を
+              お使いの端末内にのみ保存し、当社のサーバーには送信していません。
+              ブラウザの保存データを削除すると、記録も消えます。
+            </p>
           </section>
 
           <section className="legal-section">

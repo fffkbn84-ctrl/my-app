@@ -5,8 +5,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
-import { getCounselors } from "@/lib/data";
+import { getPublicCounselors } from "@/lib/data";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
+import CounselorEmptyState from "@/components/kinda-talk/CounselorEmptyState";
 
 /* スラグ（URL）→ 検索用部分文字列・表示名 */
 const AREA_MAP: Record<string, { label: string; match: string[] }> = {
@@ -50,7 +51,7 @@ export default async function AreaPage({
   const info = AREA_MAP[area];
   if (!info) notFound();
 
-  const all = await getCounselors();
+  const all = await getPublicCounselors();
   const filtered = all.filter((c) =>
     info.match.some((m) => c.area.includes(m)),
   ).sort(
@@ -112,7 +113,14 @@ export default async function AreaPage({
         </div>
 
         <div className="kt-grid-wrap">
-          <CounselorReelGrid counselors={filtered} />
+          {filtered.length === 0 ? (
+            <CounselorEmptyState
+              message="このエリアのカウンセラーは、まだ公開していません。"
+              source="talk_area_empty"
+            />
+          ) : (
+            <CounselorReelGrid counselors={filtered} />
+          )}
           <div style={{ textAlign: "center", marginTop: 32 }}>
             <Link
               href="/kinda-talk"

@@ -151,8 +151,9 @@ export default async function DiagnosisResultPage({
   const siteUrl = await deriveSiteUrl();
 
   // typeに合うカウンセラーを最大2件取得
+  // 営業デモ（isDemo）は診断結果に出さない（架空の評価値を実データと同列に並べない）
   const matchedCounselors = COUNSELORS.filter(
-    (c) => c.diagnosisType === typeId
+    (c) => !c.isDemo && c.diagnosisType === typeId
   ).slice(0, 2);
 
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);

@@ -583,6 +583,28 @@ export async function getCounselors(): Promise<Counselor[]> {
   })
 }
 
+/**
+ * 一般ユーザー向け画面で使うカウンセラー一覧。
+ *
+ * getCounselors() は営業用のデモ（is_demo = true）も含めて返す。
+ * デモには架空の評価値（rating / reviewCount）が入っているため、
+ * **ユーザー向けの一覧・詳細・診断結果では必ずこちらを使うこと。**
+ *
+ * getCounselors() を直接使ってよいのは次の2つだけ：
+ * - /kinda-talk（?preview=1 の営業デモ表示を client 側で出し分けるため）
+ * - /for-counselors の「掲載イメージ」（デモを意図的に見せるセクション）
+ *
+ * is_demo は counselors テーブルで NOT NULL / default false のため NULL は存在しない。
+ */
+export async function getPublicCounselors(): Promise<Counselor[]> {
+  return (await getCounselors()).filter((c) => !c.isDemo)
+}
+
+/** 営業デモのカウンセラーだけを返す（/for-counselors の掲載イメージ用） */
+export async function getDemoCounselors(): Promise<Counselor[]> {
+  return (await getCounselors()).filter((c) => !!c.isDemo)
+}
+
 /* ────────────────────────────────────────────────────────────
    カウンセラー詳細取得
    - Supabase の row を Counselor 型で返す
@@ -703,16 +725,32 @@ function mapAgencyMediaToReelImage(rows: AgencyMediaRow[]): { bg: string; captio
     }));
 }
 
-/** キャンペーン本文を表示すべきか判定（期限切れ・空文字は false） */
+/** キャンペーン本文を表示すべきか判定（期限切れ・空文字は false）。
+ *  判定は日付単位（時刻を含めない）。期限日の当日いっぱいは有効とする。 */
 export function isCampaignActive(
   text?: string | null,
   expiresAt?: string | null,
 ): boolean {
   if (!text || !text.trim()) return false;
-  if (!expiresAt) return true;
-  const expiry = new Date(expiresAt);
-  if (isNaN(expiry.getTime())) return true;
-  return expiry > new Date();
+  return isExpiryDateActive(expiresAt);
+}
+
+/**
+ * 期限テキストが本日以降かを日付単位で判定する共通ロジック。
+ * - 期限テキストなし → true（期限のないキャンペーンは出し続ける）
+ * - 日付を抽出できない → true（誤って隠さない安全側）
+ * - 抽出できた → 期限日の当日いっぱい（23:59:59）まで true
+ */
+function isExpiryDateActive(expiry?: string | null): boolean {
+  if (!expiry || !expiry.trim()) return true;
+  const m = expiry.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+  if (!m) return true;
+  const end = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 23, 59, 59);
+  if (isNaN(end.getTime())) return true;
+  // 本日の 0:00 を基準にし、時刻の影響を受けないようにする
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return end >= today;
 }
 
 /**
@@ -727,12 +765,7 @@ export function isCounselorCampaignActive(
   expiry?: string | null,
 ): boolean {
   if (!label || !label.trim()) return false;
-  if (!expiry || !expiry.trim()) return true;
-  const m = expiry.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
-  if (!m) return true;
-  const end = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 23, 59, 59);
-  if (isNaN(end.getTime())) return true;
-  return new Date() <= end;
+  return isExpiryDateActive(expiry);
 }
 
 /** 新店舗バッジを表示すべきか（創業から NEW_SHOP_DAYS 以内かつ未来でない） */

@@ -7651,3 +7651,694 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 /* モバイルではサマリーカードは出さない（従来体験を維持） */
 @media (max-width: 899px) { .mypage-summary { display: none; } }
+
+/* ══════════════════════════════════════════════════════════════════
+   Kinda pair（/kinda-pair, /kinda-pair/topics, /kinda-pair/solo）
+   既存のクレイ風ベージュ配色のみ使用。新規色は追加しない。
+   #F5EEE6 背景 / #D4A090 アクセント / #EAE0D8 罫 / var(--ink) var(--mid)
+   ══════════════════════════════════════════════════════════════════ */
+
+.kp-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #b09a8c;
+  margin: 0 0 14px;
+}
+
+/* ── 共通ボタン ───────────────────────────────────────────── */
+.kp-btn-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin: 24px 0 0;
+}
+.kp-btn-col--hero { margin-top: 30px; }
+
+.kp-btn-primary,
+.kp-btn-outline,
+.kp-btn-quiet,
+.kp-btn-ghost {
+  width: 100%;
+  border-radius: 11px;
+  padding: 14px 18px;
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  cursor: pointer;
+  transition: opacity .15s ease, background .15s ease, border-color .15s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.kp-btn-primary {
+  border: none;
+  background: #D4A090;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(212,160,144,.28);
+}
+.kp-btn-primary:hover { opacity: .9; }
+.kp-btn-outline {
+  border: 1px solid rgba(212,160,144,.55);
+  background: rgba(255,251,244,.9);
+  color: #a8705d;
+}
+.kp-btn-outline:hover { background: #fff; }
+.kp-btn-outline:disabled { opacity: .55; cursor: default; }
+.kp-btn-quiet {
+  border: 1px solid #EAE0D8;
+  background: transparent;
+  color: var(--mid);
+  font-size: 13.5px;
+  font-weight: 400;
+  margin-top: 14px;
+}
+.kp-btn-quiet:hover { background: rgba(255,255,255,.55); }
+.kp-btn-ghost {
+  border: none;
+  background: transparent;
+  color: #a3968a;
+  font-size: 12.5px;
+  font-weight: 400;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  margin-top: 26px;
+}
+.kp-btn-inline {
+  display: inline-block;
+  width: auto;
+  min-width: 260px;
+  text-decoration: none;
+}
+
+.kp-textlink {
+  display: inline-block;
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--mid);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212,160,144,.4);
+  padding-bottom: 2px;
+}
+.kp-textlink:hover { color: var(--ink); }
+
+/* ══ ひとりモード（/kinda-pair/solo）═══════════════════════════ */
+.kp-solo {
+  background: #F5EEE6;
+  min-height: 100vh;
+}
+.kp-solo-main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 20px calc(96px + env(safe-area-inset-bottom));
+}
+.kp-panel {
+  background: rgba(255,251,244,.72);
+  border: 1px solid #EAE0D8;
+  border-radius: 18px;
+  padding: 30px 22px 32px;
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
+}
+.kp-solo-title {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.65;
+  letter-spacing: .04em;
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+.kp-solo-title--result { font-size: 21px; }
+.kp-solo-lead {
+  font-size: 13.5px;
+  line-height: 2;
+  color: var(--mid);
+  margin: 0 0 24px;
+}
+.kp-solo-note {
+  font-size: 11.5px;
+  line-height: 1.9;
+  color: #a3968a;
+  margin: 22px 0 0;
+}
+
+.kp-layer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #EAE0D8;
+}
+.kp-layer-list-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 2px;
+  border-bottom: 1px solid #EAE0D8;
+}
+.kp-layer-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--ink);
+  flex-shrink: 0;
+  min-width: 3.6em;
+}
+.kp-layer-lead { font-size: 12.5px; color: var(--mid); line-height: 1.7; }
+
+/* ── カード画面 ───────────────────────────────────────────── */
+.kp-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+.kp-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  cursor: pointer;
+  color: var(--mid);
+  font-size: 12.5px;
+  font-family: inherit;
+}
+.kp-progress-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: .08em;
+  color: #b09a8c;
+}
+.kp-card-layer {
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  color: #b09a8c;
+  margin: 0 0 12px;
+}
+.kp-card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.7;
+  letter-spacing: .03em;
+  color: var(--ink);
+  margin: 0 0 10px;
+  min-height: 2.4em;
+}
+.kp-card-note {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #a3968a;
+  margin: 0 0 4px;
+  padding-left: 11px;
+  border-left: 2px solid rgba(212,160,144,.4);
+}
+.kp-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 28px;
+}
+.kp-choice {
+  width: 100%;
+  border: 1px solid #EAE0D8;
+  border-radius: 12px;
+  background: rgba(255,255,255,.7);
+  color: var(--ink);
+  padding: 16px 18px;
+  font-size: 14.5px;
+  font-weight: 400;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s ease, background .15s ease;
+}
+.kp-choice:hover { border-color: rgba(212,160,144,.6); background: #fff; }
+.kp-choice.is-selected {
+  border-color: #D4A090;
+  background: rgba(212,160,144,.1);
+}
+
+/* ── 層の区切り画面 ───────────────────────────────────────── */
+.kp-divider { text-align: center; padding: 54px 22px 40px; }
+.kp-divider-mark {
+  font-size: 11.5px;
+  letter-spacing: .18em;
+  color: #b09a8c;
+  margin: 0 0 14px;
+}
+.kp-divider-title {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: .1em;
+  color: var(--ink);
+  margin: 0 0 14px;
+}
+.kp-divider-lead { font-size: 13.5px; line-height: 2; color: var(--mid); margin: 0; }
+
+/* ── 結果画面 ─────────────────────────────────────────────── */
+.kp-bands {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 26px 0 8px;
+}
+.kp-band-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.kp-band-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+.kp-band-count { font-size: 11.5px; color: #a3968a; }
+.kp-band-cells { display: flex; gap: 4px; }
+.kp-cell {
+  flex: 1;
+  height: 7px;
+  border-radius: 4px;
+  background: rgba(234,224,216,.55);
+}
+.kp-cell--talked { background: #D4A090; }
+.kp-cell--want { background: rgba(212,160,144,.38); }
+.kp-cell--hold { background: #EAE0D8; }
+
+.kp-result-h2 {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: .05em;
+  color: var(--ink);
+  margin: 34px 0 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #EAE0D8;
+}
+.kp-empty { font-size: 13.5px; line-height: 2; color: var(--mid); margin: 0; }
+.kp-want-list { list-style: none; margin: 0; padding: 0; }
+.kp-want-item { padding: 16px 0; border-bottom: 1px solid rgba(234,224,216,.7); }
+.kp-want-item:last-child { border-bottom: none; }
+.kp-want-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+.kp-want-ask {
+  font-size: 13.5px;
+  line-height: 1.95;
+  color: #6b5d52;
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid #D4A090;
+}
+.kp-want-note {
+  font-size: 11.5px;
+  line-height: 1.85;
+  color: #a3968a;
+  margin: 8px 0 0;
+}
+
+.kp-fold { border-top: 1px solid #EAE0D8; }
+.kp-fold:last-of-type { border-bottom: 1px solid #EAE0D8; }
+.kp-fold-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 16px 2px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.kp-fold-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 2px 16px;
+}
+.kp-fold-list li {
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--mid);
+  padding: 5px 0 5px 13px;
+  position: relative;
+}
+.kp-fold-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  width: 5px;
+  height: 1px;
+  background: #D4A090;
+}
+.kp-fold-empty { color: #a3968a; }
+
+.kp-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(84px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 60;
+  max-width: min(92vw, 460px);
+  background: rgba(42,42,42,.92);
+  color: #fff;
+  font-size: 12.5px;
+  line-height: 1.7;
+  padding: 12px 18px;
+  border-radius: 11px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
+}
+
+/* ══ LP（/kinda-pair）════════════════════════════════════════ */
+.kp-lp { background: #F5EEE6; }
+.kp-lp-hero {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 46px 22px 40px;
+  text-align: center;
+}
+.kp-lp-h1 {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 27px;
+  line-height: 1.7;
+  letter-spacing: .05em;
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+.kp-lp-hero-lead {
+  font-size: 14px;
+  line-height: 2.1;
+  color: var(--mid);
+  margin: 0;
+}
+.kp-lp-meta {
+  font-size: 11.5px;
+  line-height: 1.9;
+  color: #a3968a;
+  margin: 20px 0 0;
+}
+.kp-lp-section {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 34px 22px;
+  border-top: 1px solid #EAE0D8;
+}
+.kp-lp-h2 {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.75;
+  letter-spacing: .04em;
+  color: var(--ink);
+  margin: 0 0 18px;
+}
+.kp-lp-text {
+  font-size: 13.5px;
+  line-height: 2.15;
+  color: #5f544c;
+  margin: 0 0 16px;
+}
+.kp-lp-text:last-child { margin-bottom: 0; }
+
+.kp-steps { list-style: none; margin: 0 0 20px; padding: 0; }
+.kp-step {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(234,224,216,.8);
+}
+.kp-step:last-child { border-bottom: none; }
+.kp-step-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,160,144,.55);
+  color: #a8705d;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kp-step-title { font-size: 14px; color: var(--ink); margin: 2px 0 5px; font-weight: 500; }
+.kp-step-desc { font-size: 12.5px; line-height: 1.85; color: var(--mid); margin: 0; }
+
+.kp-layer-cards {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.kp-layer-card {
+  border: 1px solid #EAE0D8;
+  border-radius: 13px;
+  background: rgba(255,251,244,.75);
+  padding: 16px 14px;
+}
+.kp-layer-card-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  margin: 0 0 7px;
+  letter-spacing: .06em;
+}
+.kp-layer-card-lead { font-size: 12px; line-height: 1.8; color: var(--mid); margin: 0; }
+
+.kp-notify { max-width: 340px; margin: 4px auto 0; }
+
+/* ══ 話題一覧（/kinda-pair/topics）════════════════════════════ */
+.kp-topics { background: #F5EEE6; }
+.kp-topics-article {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 30px 22px 70px;
+}
+.kp-topics-header { margin-bottom: 12px; }
+.kp-topics-h1 {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 25px;
+  line-height: 1.7;
+  letter-spacing: .04em;
+  color: var(--ink);
+  margin: 0 0 22px;
+}
+.kp-atomic {
+  font-size: 14px;
+  line-height: 2;
+  color: var(--ink);
+  background: rgba(255,251,244,.85);
+  border-left: 3px solid #D4A090;
+  border-radius: 0 11px 11px 0;
+  padding: 15px 17px;
+  margin: 0 0 22px;
+}
+.kp-topics-lead {
+  font-size: 13.5px;
+  line-height: 2.15;
+  color: #5f544c;
+  margin: 0;
+}
+.kp-topics-section {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid #EAE0D8;
+}
+.kp-topics-h2 {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: .07em;
+  color: var(--ink);
+  margin: 0 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+.kp-topics-h2-sub {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+  font-size: 12.5px;
+  font-weight: 400;
+  letter-spacing: .02em;
+  color: var(--mid);
+}
+.kp-topics-items { display: flex; flex-direction: column; gap: 4px; }
+.kp-topics-item {
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(234,224,216,.75);
+}
+.kp-topics-item:last-child { border-bottom: none; }
+.kp-topics-h3 {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 0 0 9px;
+}
+.kp-topics-ask {
+  font-size: 13.5px;
+  line-height: 2;
+  color: #6b5d52;
+  margin: 0;
+  padding-left: 12px;
+  border-left: 2px solid #D4A090;
+}
+.kp-topics-ask-label {
+  display: block;
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  color: #b09a8c;
+  margin-bottom: 3px;
+}
+.kp-topics-note {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #a3968a;
+  margin: 9px 0 0;
+}
+.kp-topics-answer {
+  font-size: 13.5px;
+  line-height: 2.1;
+  color: #5f544c;
+  margin: 0;
+}
+.kp-topics-callout {
+  border: 1px solid #EAE0D8;
+  border-radius: 13px;
+  background: rgba(255,251,244,.8);
+  padding: 18px 17px;
+}
+.kp-topics-callout p {
+  font-size: 12.5px;
+  line-height: 2;
+  color: #5f544c;
+  margin: 0;
+}
+.kp-topics-cta {
+  margin-top: 44px;
+  padding: 30px 22px;
+  text-align: center;
+  border-top: 1px solid #EAE0D8;
+}
+.kp-topics-cta-lead {
+  font-size: 13.5px;
+  line-height: 2;
+  color: var(--mid);
+  margin: 0 0 20px;
+}
+.kp-topics-cta-note {
+  font-size: 12px;
+  line-height: 1.9;
+  color: #a3968a;
+  margin: 16px 0 0;
+}
+
+/* 本文段落（原稿の段落区切りをそのまま出す） */
+.kp-topics-p {
+  font-size: 14px;
+  line-height: 2.15;
+  color: #5f544c;
+  margin: 0 0 18px;
+}
+.kp-topics-p:last-child { margin-bottom: 0; }
+
+/* トピックごとの解説（topics ページのみ。solo には出さない） */
+.kp-topics-about {
+  font-size: 13px;
+  line-height: 2.05;
+  color: #6f645b;
+  margin: 11px 0 0;
+}
+
+/* 4つの層の一覧（本文中の凡例） */
+.kp-layer-legend {
+  list-style: none;
+  margin: 4px 0 20px;
+  padding: 16px 18px;
+  border: 1px solid #EAE0D8;
+  border-radius: 13px;
+  background: rgba(255,251,244,.75);
+}
+.kp-layer-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 0;
+}
+.kp-layer-legend-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14.5px;
+  color: var(--ink);
+  flex-shrink: 0;
+  min-width: 3.8em;
+  letter-spacing: .04em;
+}
+.kp-layer-legend-lead { font-size: 12.5px; line-height: 1.8; color: var(--mid); }
+
+/* 副導線リンクブロック（コラム末尾と同じ書式） */
+.kp-related { list-style: none; margin: 0; padding: 0; }
+.kp-related li {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(234,224,216,.75);
+}
+.kp-related li:last-child { border-bottom: none; }
+.kp-related-link {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #a8705d;
+  text-decoration: none;
+  margin-bottom: 5px;
+}
+.kp-related-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.kp-related-desc {
+  display: block;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--mid);
+}
+
+@media (min-width: 720px) {
+  .kp-solo-title { font-size: 27px; }
+  .kp-lp-h1 { font-size: 31px; }
+  .kp-topics-h1 { font-size: 28px; }
+  .kp-panel { padding: 38px 32px 36px; }
+  .kp-card-title { font-size: 24px; }
+}
+
+/* ── カウンセラー一覧の0件表示（デモ隔離後のエリア別・タイプ別ページ）───── */
+.kt-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 32px 20px 8px;
+  text-align: center;
+}
+.kt-empty-message {
+  font-size: 14px;
+  line-height: 2;
+  color: var(--mid);
+  margin: 0;
+  max-width: 30em;
+}
+.kt-empty-notify { width: 100%; max-width: 340px; }

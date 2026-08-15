@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { COUNSELORS } from "@/lib/data";
+import { STORIES } from "@/lib/mock/stories";
 import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
 import { getAllColumns } from "@/lib/columns";
@@ -19,10 +20,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/kinda-act",
     "/kinda-glow",
     "/kinda-note",
+    "/kinda-note/quiz",
     "/kinda-type",
     "/kinda-type/quiz",
+    // /kinda-note/result と /kinda-type/result は結果画面（クエリで内容が変わる）ため入れない
+    "/kinda-pair",
+    "/kinda-pair/topics",
+    // /kinda-pair/solo は noindex（個人の回答画面）のため sitemap に含めない
+    "/kinda-story",
     "/agencies",
     "/shops",
+    "/contact",
     "/about",
     "/about/editorial-policy",
     "/about/founder",
@@ -63,6 +71,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    }));
+
+  // Kinda story は「掲載同意の記録がある物語」だけを sitemap に載せる。
+  // consent を持たない初期のサンプル物語（A.M さん等）は実在の取材素材ではないため、
+  // 検索エンジンに実話として送信しない（CLAUDE.md §5 Story 細則・ステマ規制回避）。
+  const storyEntries: MetadataRoute.Sitemap = STORIES
+    .filter((s) => !!s.consent)
+    .map((s) => ({
+      url: `${SITE_URL}/kinda-story/${s.id}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     }));
 
   const areaEntries: MetadataRoute.Sitemap = AREA_SLUGS.map((a) => ({
@@ -116,6 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...forCounselorsEntry,
     ...legalEntries,
     ...counselorEntries,
+    ...storyEntries,
     ...areaEntries,
     ...typeEntries,
     ...weatherListEntry,

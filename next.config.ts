@@ -40,6 +40,22 @@ const nextConfig: NextConfig = {
    *   Next.js が自動で引き継ぐため、GA4 の流入分類はリダイレクト後の /kinda-note 上で成立する。
    *   将来 bio 着地先を変える可能性があるため permanent: false（307・恒久キャッシュさせない）。
    */
+  /**
+   * ヘッダ
+   * /kinda-pair/solo は個人の回答を扱う画面のため noindex。
+   * Kinda pair 仕様書 §6 に従い、robots メタタグだけでなく
+   * X-Robots-Tag ヘッダでも落とす（片方の付け忘れで検索に出る事故を防ぐ）。
+   */
+  async headers() {
+    return [
+      {
+        source: "/kinda-pair/solo",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // /partners（旧・掲載のご相談）は /for-counselors に統合。SEO 評価を引き継ぐため 308。
