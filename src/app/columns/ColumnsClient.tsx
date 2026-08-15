@@ -129,6 +129,21 @@ function ColumnCard({
               <span className="kv-card-read">{column.readTime} min</span>
             </>
           )}
+          {/* カード内の唯一のアクション。トップページのコラムカードと同じ作法。
+              説明文（description）は検索スニペット用に書かれた80〜110字で、
+              カード内で2行に切ると文の途中で切れるため置かない。 */}
+          <span className="kv-card-cta">
+            読む
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path
+                d="M3 7h8M7 3l4 4-4 4"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </div>
       </div>
     </Link>

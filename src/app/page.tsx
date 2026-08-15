@@ -1069,12 +1069,19 @@ export default async function HomePage() {
                         : "url('/images/Kinda-voices-nouse.webp') center/cover no-repeat",
                   }}
                 >
-                  {article.weatherKey && (
+                  {article.weatherKey ? (
                     <WeatherColumnThumb
                       weatherKey={article.weatherKey as WeatherKey}
                       slug={article.slug}
                       height={132}
                     />
+                  ) : (
+                    /* 天気コラム以外は /columns と同じ活字サムネ。
+                       地は記事ごとの thumbnail グラデーションのまま。 */
+                    <div className="kv-thumb-type">
+                      <span className="kv-thumb-veil" aria-hidden />
+                      <p className="kv-thumb-title">{article.title}</p>
+                    </div>
                   )}
                 </div>
 
@@ -1108,23 +1115,25 @@ export default async function HomePage() {
                   )}
                 </div>
 
-                {/* タイトル */}
-                <p
-                  style={{
-                    fontFamily: "var(--font-mincho)",
-                    fontSize: 15,
-                    color: "var(--ink)",
-                    lineHeight: 1.95,
-                    marginBottom: 14,
-                    letterSpacing: ".02em",
-                    display: "-webkit-box",
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                  }}
-                >
-                  {article.title}
-                </p>
+                {/* タイトル（活字サムネの記事はサムネ側に出ているので繰り返さない） */}
+                {article.weatherKey && (
+                  <p
+                    style={{
+                      fontFamily: "var(--font-mincho)",
+                      fontSize: 15,
+                      color: "var(--ink)",
+                      lineHeight: 1.95,
+                      marginBottom: 14,
+                      letterSpacing: ".02em",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {article.title}
+                  </p>
+                )}
 
                 {/* 著者・日付・読む */}
                 <div

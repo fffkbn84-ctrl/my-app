@@ -7122,6 +7122,17 @@ body:has(.cta-mobile-bar) .floating-back {
   gap: 8px;
   margin-top: 4px;
 }
+/* カード内の唯一のアクション。メタ行の右端に寄せる */
+.kv-card-cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #8B7355;
+}
+
 .kv-card-avatar {
   width: 22px;
   height: 22px;
