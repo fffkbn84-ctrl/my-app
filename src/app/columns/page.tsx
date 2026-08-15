@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Kinda voices | ふたりを見守る人たち | Kinda ふたりへ",
   description:
     "Kinda voices は、結婚相談所のカウンセラーやスタッフへの取材レポート、編集部のコラム。実際に足を運んで書いた、ふたりを見守る人たちの声です。",
+  alternates: { canonical: "/columns" },
 };
 
 const FAQ_ITEMS: FAQItem[] = [
