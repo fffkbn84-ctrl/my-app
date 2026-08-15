@@ -103,6 +103,64 @@ talk は「担当（カウンセラー）に会う」＝送客の本命導線。
 
 - 生成後、Claude Code に「4枚を section カードに差し込んで」と渡す（各 `public/images/section-<key>.webp` に WebP 化・配置・ビルド・PR まで実施）。
 
+## 第3弾：5枚目「pair」を戸棚に足す（2026-08-13 追加）
+
+Kinda pair をトップの戸棚（`DECIDED_CARDS`）に5枚目として入れる場合のプロンプト。
+**第2弾の共通テンプレートをそのまま使い、`【SCENE】` だけ差し替える**（4枚と同じ日・同じ設定で生成できない場合は、
+既存4枚を並べて色味・カメラ・光を目視で合わせる）。
+
+| カード | 色 | 色の小物（<COLOR>） |
+|---|---|---|
+| **pair**（話したこと／まだ話していないこと） | セージグリーン | sage green |
+
+> 色の選定理由：既存4枚は青(type)・黄(talk)・桃(act)・紫(glow)。
+> 5枚目は残る寒色〜中間色でぶつからず、ベージュ地に馴染むセージグリーンにする。
+> Kinda story のカードも淡いグリーン系だが、story は戸棚に入らないため干渉しない。
+
+### 【SCENE】（共通テンプレートの `【SCENE】` に差し込む）
+
+```
+a small tea table for two seen straight from the front: two empty chairs facing each
+other, two cups on the table, and a row of tiny blank cards laid out between them —
+some cards lying face-up, some still stacked face-down, as if a conversation is being
+sorted out. Add ONE sage-green accent object (a sage-green cushion on one chair /
+a sage-green plant in a small pot) as the only strong color pop
+```
+
+### 貼り付け用（テンプレート＋SCENE を合体済み・ChatGPT にそのまま）
+
+```
+A photorealistic miniature dollhouse room interior, flat front view at eye level,
+of a small tea table for two seen straight from the front: two empty chairs facing each
+other, two cups on the table, and a row of tiny blank cards laid out between them —
+some cards lying face-up, some still stacked face-down, as if a conversation is being
+sorted out. Add ONE sage-green accent object (a sage-green cushion on one chair /
+a sage-green plant in a small pot) as the only strong color pop. Same doll-house scale,
+same eye-level camera, same soft warm light from above. Warm beige palette (#F5EEE6)
+with dusty rose and terracotta accents (#D4A090). Cozy, handmade, tilt-shift miniature
+look with subtle clay seams that reveal it is a made object. NO people, no figures,
+no dolls. No readable text, no logos. The room interior FILLS THE ENTIRE FRAME, seen
+straight through the open front — do NOT show the outer wooden box, the display base,
+or any background outside the room. Square 1:1 composition.
+```
+
+### 意図（生成物を選ぶときの基準）
+
+- **「並べる」が絵で伝わること**が最優先。伏せたカードと表のカードが混ざっているのが要点
+  （＝話したこと／まだ話していないこと）。カードが1枚も伏せていない絵は不採用
+- **カードに文字が読めてはいけない**（ルール7）。読める文字が出たら再生成
+- 椅子は2脚・**人形は入れない**（ルール1・8。talk のような人物例外は pair には設けない）
+- 「診断」「点数」を思わせる小物（チェックシート・グラフ・星）を入れない。
+  Kinda pair は判定しないため、絵の側でも評価を連想させない
+
+### 生成後
+
+1. 正方形にクロップ（外箱が写り込んだら部屋の中だけを切り出す）
+2. WebP 変換して `public/images/section-pair-room.webp` に置く
+3. Claude Code に「5枚目を戸棚に差し込んで」と渡す（`DECIDED_CARDS` に1オブジェクト追加）
+4. **戸棚のグリッドは4枚前提（モバイル2×2／PC1×4）なので、5枚にするならレイアウトの決定が要る**
+   （TODO の「トップの戸棚を5枚にする」参照）
+
 ## 展開順（確定後）
 
 戸棚B（升目UI）を先に確定 → 4部屋を色小物付きに差し替え（talk はA/B比較で選定）→ 装飾（角飾り・小さなラベル）を最後に微調整。
