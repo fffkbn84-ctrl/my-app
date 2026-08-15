@@ -111,7 +111,9 @@ const DECIDED_CARDS = [
     href: "/kinda-pair",
     kindaLabel: "pair",
     desc: "話したことと、まだ話していないこと",
-    img: "/images/section-pair-room.webp",
+    // v2＝照明を明るくした版。同名で差し替えると Vercel の画像最適化キャッシュに
+    // 旧版が残りうるため、ファイル名でキャッシュを分ける。
+    img: "/images/section-pair-room-v2.webp",
     alt: "Kinda pair",
     bg: "#E7EEE1",
     accent: "#6F8A5E",

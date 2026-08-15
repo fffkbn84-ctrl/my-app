@@ -156,7 +156,9 @@ or any background outside the room. Square 1:1 composition.
 ### 生成後
 
 1. 正方形にクロップ（外箱が写り込んだら部屋の中だけを切り出す）
-2. WebP 変換して `public/images/section-pair-room.webp` に置く
+2. WebP 変換して `public/images/section-pair-room-v2.webp` に置く（560×560・40KB前後。既存4枚に合わせる）
+   - **同名で差し替えない**：Vercel の画像最適化キャッシュに旧版が残ることがあるため、
+     作り直したらファイル名を変える（初版 → v2 と改版した実績あり。理由は照明が暗かったため）
 3. Claude Code に「5枚目を戸棚に差し込んで」と渡す（`DECIDED_CARDS` に1オブジェクト追加）
 4. **戸棚のグリッドは4枚前提（モバイル2×2／PC1×4）なので、5枚にするならレイアウトの決定が要る**
    （TODO の「トップの戸棚を5枚にする」参照）
