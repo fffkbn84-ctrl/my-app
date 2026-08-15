@@ -11,9 +11,19 @@ const SITE_URL =
 
 const AREA_SLUGS = ["tokyo", "osaka", "nagoya", "fukuoka", "online"];
 
+/**
+ * lastmod について
+ *
+ * 以前は実際の更新日を持たないページにも `new Date()`（＝ビルド時刻）を入れていた。
+ * その結果 92 URL 中 56 URL の lastmod が常に「今日」になり、Google から
+ * 信頼できない値と見なされてサイト全体で lastmod が無視される状態だった
+ * （2026-08-15 時点で最終読み込みが約1か月前で止まっていた）。
+ *
+ * Google のガイダンスは「正確な lastmod を出せないなら省略する」。
+ * そのため、実日付を持つコラム（updatedAt / publishedAt）にだけ lastmod を付け、
+ * それ以外は付けない。将来ページ単位の更新日を持てるようになったら復活させる。
+ */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-
   const staticEntries: MetadataRoute.Sitemap = [
     "",
     "/kinda-talk",
@@ -39,7 +49,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // /mypage は robots.txt で Disallow しているため sitemap からも除外（GSC 警告整合）
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
-    lastModified: now,
     changeFrequency: "weekly" as const,
     priority: path === "" ? 1 : 0.7,
   }));
@@ -47,7 +56,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const forCounselorsEntry: MetadataRoute.Sitemap = [
     {
       url: `${SITE_URL}/for-counselors`,
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     },
@@ -59,7 +67,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/tokushou",
   ].map((path) => ({
     url: `${SITE_URL}${path}`,
-    lastModified: now,
     changeFrequency: "yearly" as const,
     priority: 0.3,
   }));
@@ -68,7 +75,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((c) => !c.isDemo)
     .map((c) => ({
       url: `${SITE_URL}/counselors/${c.id}`,
-      lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     }));
@@ -80,21 +86,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((s) => !!s.consent)
     .map((s) => ({
       url: `${SITE_URL}/kinda-story/${s.id}`,
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     }));
 
   const areaEntries: MetadataRoute.Sitemap = AREA_SLUGS.map((a) => ({
     url: `${SITE_URL}/kinda-talk/area/${a}`,
-    lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.6,
   }));
 
   const typeEntries: MetadataRoute.Sitemap = KINDA_TYPE_KEYS.map((t) => ({
     url: `${SITE_URL}/kinda-talk/type/${t}`,
-    lastModified: now,
     changeFrequency: "weekly" as const,
     priority: 0.6,
   }));
@@ -102,7 +105,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const weatherListEntry: MetadataRoute.Sitemap = [
     {
       url: `${SITE_URL}/note/weather`,
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     },
@@ -113,7 +115,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((w) => !!w.column_slug)
     .map((w) => ({
       url: `${SITE_URL}/note/weather/${w.slug}`,
-      lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     }));
@@ -122,11 +123,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const columns = await getAllColumns();
   const columnEntries: MetadataRoute.Sitemap = columns.map((c) => ({
     url: `${SITE_URL}/columns/${c.slug}`,
-    lastModified: c.updatedAt
-      ? new Date(c.updatedAt)
-      : c.publishedAt
-        ? new Date(c.publishedAt)
-        : now,
+    // 実日付を持つのはコラムだけ。どちらも無い記事は lastmod を付けない
+    ...(c.updatedAt || c.publishedAt
+      ? { lastModified: new Date((c.updatedAt ?? c.publishedAt) as string) }
+      : {}),
     changeFrequency: "monthly" as const,
     priority: 0.8,
   }));
