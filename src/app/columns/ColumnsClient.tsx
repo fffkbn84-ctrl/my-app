@@ -35,8 +35,11 @@ function ColumnCard({
   /** 編集部おすすめの太枠スタイル */
   pickup?: boolean;
 }) {
-  // 「気持ちの整理」カテゴリ (= weatherKey あり) はポラロイド風サムネを使う
+  // 「気持ちの整理」カテゴリ (= weatherKey あり) はポラロイド風サムネを使う。
+  // それ以外（実務コラム）はサムネが無地のグラデーションで中身が読めなかったため、
+  // タイトルを組んだ活字カードにする。タイトルは記事ごとに違うので一覧が単調にならない。
   const hasWeatherKey = !!column.weatherKey;
+  const isTypographic = !hasWeatherKey;
 
   return (
     <Link
@@ -64,6 +67,19 @@ function ColumnCard({
             height={160}
           />
         )}
+        {isTypographic && (
+          <div className="kv-thumb-type">
+            {/* 地のグラデーションが濃い記事でも文字が沈まないよう、薄い白のヴェールを敷く */}
+            <span className="kv-thumb-veil" aria-hidden />
+            <p
+              className={`kv-thumb-title ${
+                pickup ? "kv-thumb-title-featured" : ""
+              }`}
+            >
+              {column.title}
+            </p>
+          </div>
+        )}
         {pickup && (
           <span
             style={{
@@ -87,11 +103,15 @@ function ColumnCard({
         )}
       </div>
 
-      {/* テキストエリア */}
-      <div className="kv-card-body">
-        <span className="kv-card-tag">{column.category}</span>
+      {/* テキストエリア。
+          カテゴリはカード外の見出し（「すべて」モードのセクション見出し／
+          個別カテゴリモードのピル）で既に示されているため、通常のカードには出さない。
+          カテゴリが混ざる Editor's Pick の枠でだけ意味を持つので、そこだけ残す。 */}
+      <div className={`kv-card-body ${isTypographic ? "kv-card-body-slim" : ""}`}>
+        {pickup && <span className="kv-card-tag">{column.category}</span>}
 
-        <p className="kv-card-title">{column.title}</p>
+        {/* 活字カードはサムネ側でタイトルを見せているので、ここでは繰り返さない */}
+        {!isTypographic && <p className="kv-card-title">{column.title}</p>}
 
         <div className="kv-card-meta">
           <div
@@ -109,6 +129,21 @@ function ColumnCard({
               <span className="kv-card-read">{column.readTime} min</span>
             </>
           )}
+          {/* カード内の唯一のアクション。トップページのコラムカードと同じ作法。
+              説明文（description）は検索スニペット用に書かれた80〜110字で、
+              カード内で2行に切ると文の途中で切れるため置かない。 */}
+          <span className="kv-card-cta">
+            読む
+            <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden>
+              <path
+                d="M3 7h8M7 3l4 4-4 4"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </div>
       </div>
     </Link>

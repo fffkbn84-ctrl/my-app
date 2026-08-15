@@ -7068,12 +7068,71 @@ body:has(.cta-mobile-bar) .floating-back {
 .kv-card-title-featured {
   font-size: 16px;
 }
+/* ── コラム一覧：活字サムネ（天気コラム以外）──────────────────────
+   無地のグラデーションだけで中身が読めなかったため、サムネにタイトルを組む。
+   地の色は記事ごとの thumbnail グラデーションをそのまま使うので統一感は保つ。
+   タイトルはカード下では繰り返さない（kv-card-title を出さない）。 */
+.kv-thumb-type {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 20px 22px;
+}
+/* 濃いグラデーションの記事でも可読性を確保する薄いヴェール */
+.kv-thumb-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 253, 250, 0.74) 0%,
+    rgba(255, 253, 250, 0.50) 55%,
+    rgba(255, 253, 250, 0.28) 100%
+  );
+}
+.kv-thumb-title {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-mincho);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: .03em;
+  color: var(--ink);
+  /* 3行で切る。長いタイトルでもサムネの高さ(160px)を超えない */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.kv-thumb-title-featured { font-size: 17px; }
+@media (min-width: 768px) {
+  .kv-thumb-title { font-size: 17px; }
+  .kv-thumb-title-featured { font-size: 18px; }
+}
+/* 活字カードは本文側にタイトルが無いぶん、余白を詰めて他カードと高さを揃える */
+.kv-card-body-slim {
+  padding-top: 14px;
+  gap: 0;
+}
+
 .kv-card-meta {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 4px;
 }
+/* カード内の唯一のアクション。メタ行の右端に寄せる */
+.kv-card-cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #8B7355;
+}
+
 .kv-card-avatar {
   width: 22px;
   height: 22px;
