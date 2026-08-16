@@ -393,10 +393,10 @@ export const STORIES: Story[] = [
     date: "2025年2月",
     periodLabel: "出会いから6ヶ月で成婚",
     periodMonths: 6,
-    counselorId: 1,
-    counselorName: "田中 美紀",
-    agencyId: 1,
-    agencyName: "Atelier Mariage 銀座",
+    counselorId: 0,
+    counselorName: "",
+    agencyId: 0,
+    agencyName: "",
     body: [
       "32歳になって、周りが結婚していくのを見るたびに『私だけ取り残されてる』と感じていました。婚活アプリを見ても比較ばかりが目について、SNSはむしろ疲れる。婚活パーティーは何度か行きましたが、誰と話したかも覚えていない夜が増えました。",
       "結婚相談所は『高そう』『押しつけられそう』というイメージで、ずっと選択肢に入れていなかったんです。でも、ふたりへで田中さんのリールを見たとき、『この人なら、ちゃんと話を聞いてくれそう』と思えた。最初の面談で『焦らなくていいよ』と言われて、自分でも驚くくらい涙が出ました。",
@@ -408,6 +408,15 @@ export const STORIES: Story[] = [
     sympathyCount: 47,
     accentColor: "#5A8050",
     accentSoft: "#E8F4E4",
+    // 掲載同意（2026-08-16 記録）。ふうか本人の経験にもとづく物語のため、
+    // 相談所・カウンセラーの帰属は付けない（agency: false）。
+    consent: {
+      web: true,
+      sns: true,
+      agency: false,
+      photo: false,
+      date: "2026-08-16",
+    },
   },
   {
     id: "4",
@@ -422,10 +431,10 @@ export const STORIES: Story[] = [
     date: "2024年12月",
     periodLabel: "出会いから10ヶ月で成婚",
     periodMonths: 10,
-    counselorId: 6,
-    counselorName: "林 俊介",
-    agencyId: 5,
-    agencyName: "Marry Hub 新宿",
+    counselorId: 0,
+    counselorName: "",
+    agencyId: 0,
+    agencyName: "",
     body: [
       "エンジニアをしていて、リリース前は終電も普通でした。婚活なんて自分には無理、とずっと思っていたんです。でも30歳が見えてきたとき、『何もしないまま後悔するのは嫌だ』と気づいて。",
       "林さんはオンライン専門で、夜10時からの面談にも対応してくれました。最初は『そんなに遅くまで働かせて申し訳ないな』と思いましたが、『繁忙期はペースを落としていいから、辞めないで続けようね』と言ってくれて。",
@@ -435,6 +444,15 @@ export const STORIES: Story[] = [
     sympathyCount: 29,
     accentColor: "#5A8050",
     accentSoft: "#E8F4E4",
+    // 掲載同意（2026-08-16 記録）。ふうか本人の経験にもとづく物語のため、
+    // 相談所・カウンセラーの帰属は付けない（agency: false）。
+    consent: {
+      web: true,
+      sns: true,
+      agency: false,
+      photo: false,
+      date: "2026-08-16",
+    },
   },
   {
     id: "5",
@@ -449,10 +467,10 @@ export const STORIES: Story[] = [
     date: "2025年4月",
     periodLabel: "活動2ヶ月目",
     periodMonths: 2,
-    counselorId: 3,
-    counselorName: "佐藤 綾乃",
-    agencyId: 2,
-    agencyName: "Wedding Note 渋谷",
+    counselorId: 0,
+    counselorName: "",
+    agencyId: 0,
+    agencyName: "",
     body: [
       "婚活を始めるのに、ものすごく勇気がいりました。何度も入会ボタンの前で止まって、結局SNSを閉じて寝る、を繰り返していて。",
       "ふたりへで佐藤さんのリールを見たのは、たまたま夜中にスクロールしていた時でした。『ゆっくり、急がず、でも確実に』というキャッチコピーに、なぜか涙が出ました。",
@@ -464,6 +482,15 @@ export const STORIES: Story[] = [
     sympathyCount: 24,
     accentColor: "#5A8050",
     accentSoft: "#E8F4E4",
+    // 掲載同意（2026-08-16 記録）。ふうか本人の経験にもとづく物語のため、
+    // 相談所・カウンセラーの帰属は付けない（agency: false）。
+    consent: {
+      web: true,
+      sns: true,
+      agency: false,
+      photo: false,
+      date: "2026-08-16",
+    },
   },
   {
     id: "6",
@@ -478,10 +505,10 @@ export const STORIES: Story[] = [
     date: "2024年11月",
     periodLabel: "出会いから1年で成婚",
     periodMonths: 12,
-    counselorId: 2,
-    counselorName: "山田 健太郎",
-    agencyId: 1,
-    agencyName: "Atelier Mariage 銀座",
+    counselorId: 0,
+    counselorName: "",
+    agencyId: 0,
+    agencyName: "",
     body: [
       "40代に入ってから、婚活は『若い人のもの』という空気を強く感じるようになりました。アプリを使えば年齢で弾かれ、パーティーに行けば浮いている気がして。",
       "山田さんは、初回面談で2時間以上、私の話を聞いてくれました。仕事のこと、これまでの恋愛、家族のこと。『年齢の話は後でいい。まずあなた自身を知りたい』と言われて、はじめて『この人と組めば動けるかも』と思いました。",
@@ -493,6 +520,15 @@ export const STORIES: Story[] = [
     sympathyCount: 33,
     accentColor: "#5A8050",
     accentSoft: "#E8F4E4",
+    // 掲載同意（2026-08-16 記録）。ふうか本人の経験にもとづく物語のため、
+    // 相談所・カウンセラーの帰属は付けない（agency: false）。
+    consent: {
+      web: true,
+      sns: true,
+      agency: false,
+      photo: false,
+      date: "2026-08-16",
+    },
   },
 ];
 
