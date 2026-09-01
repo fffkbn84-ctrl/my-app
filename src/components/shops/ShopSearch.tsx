@@ -24,7 +24,7 @@ const BADGE_FILTERS = [
 type BadgeFilter = typeof BADGE_FILTERS[number]["value"];
 
 const CATEGORIES = ["すべて", "カフェ", "レストラン", "美容室", "ネイルサロン", "眉毛サロン", "フォトスタジオ"];
-const AREAS      = ["すべて", "東京", "大阪", "名古屋"];
+const AREAS      = ["すべて", "東京", "神奈川", "大阪", "名古屋"];
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
