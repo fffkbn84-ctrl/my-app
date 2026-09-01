@@ -61,7 +61,7 @@
   <!-- 通路 -->
   <path d="M500 486 v26" class="lead"/>
   <path d="M492 504 l8 10 l8 -10" fill="none" stroke="#B9A697" stroke-width="1"/>
-  <text class="lbl" x="500" y="542" text-anchor="middle">通路（出入りはこの一辺のみ）</text>
+  <text class="lbl" x="500" y="542" text-anchor="middle">通路（どちらの席もこの一辺から出入りする）</text>
 
   <!-- 左ラベル -->
   <path d="M320 200 H280" class="lead"/>
@@ -69,7 +69,7 @@
   <text class="lbl-s" x="270" y="214" text-anchor="end">気になるほど見通せない</text>
 
   <path d="M332 298 H280" class="lead"/>
-  <text class="lbl" x="270" y="294" text-anchor="end">店奥側のベンチ</text>
+  <text class="lbl" x="270" y="294" text-anchor="end">奥側のベンチ</text>
   <text class="lbl-s" x="270" y="312" text-anchor="end">撮影者はこちらに着席</text>
 
   <path d="M324 470 H280" class="lead"/>
@@ -86,7 +86,7 @@
   <text class="lbl-s" x="730" y="214">木ルーバー。見通せない</text>
 
   <path d="M668 298 H720" class="lead"/>
-  <text class="lbl" x="730" y="302">通路寄りのベンチ</text>
+  <text class="lbl" x="730" y="302">手前側のベンチ</text>
 
   <path d="M660 460 H720" class="lead"/>
   <text class="lbl-s" x="730" y="464">破線＝カーテンを閉めた位置</text>
