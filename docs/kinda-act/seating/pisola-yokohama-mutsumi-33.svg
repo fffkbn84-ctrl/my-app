@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" role="img" aria-label="PISOLA 横浜睦町店 卓番33 半個室ボックス席の俯瞰図">
+  <title>PISOLA 横浜睦町店 卓番33 半個室ボックス席（俯瞰）</title>
+  <defs>
+    <pattern id="sudare" width="6" height="6" patternUnits="userSpaceOnUse">
+      <path d="M0 0 V6" stroke="#C6A98F" stroke-width="1"/>
+    </pattern>
+    <style>
+      .lbl { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 14px; fill: #6B5B50; }
+      .lbl-s { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 12px; fill: #8A7A6E; }
+      .ttl { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 17px; fill: #4A3D35; }
+      .lead { stroke: #B9A697; stroke-width: 1; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1000" height="620" fill="#F5EEE6"/>
+
+  <text class="ttl" x="40" y="44">PISOLA 横浜睦町店／卓番 33　半個室ボックス席（俯瞰）</text>
+  <text class="lbl-s" x="40" y="66">訪問 2026-08-25 平日夜／ふたり検証済み。図は実際に座った席の周囲のみ</text>
+
+  <!-- 隣のテーブル（すだれの向こう） -->
+  <rect x="380" y="92" width="240" height="32" rx="6" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <text class="lbl-s" x="500" y="113" text-anchor="middle">隣のテーブル</text>
+
+  <!-- すだれの間仕切り -->
+  <rect x="320" y="136" width="360" height="16" fill="url(#sudare)" stroke="#B0937A" stroke-width="1"/>
+
+  <!-- ブースの床 -->
+  <rect x="320" y="152" width="360" height="308" fill="#FBF6F0" stroke="#DCCBBC" stroke-width="1"/>
+
+  <!-- ベンチソファ -->
+  <rect x="332" y="172" width="78" height="266" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+  <rect x="590" y="172" width="78" height="266" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+
+  <!-- テーブル（角を落とした六角形・一本脚） -->
+  <polygon points="438,180 562,180 562,352 530,412 470,412 438,352"
+           fill="#EFE2D3" stroke="#D4A090" stroke-width="1.5"/>
+  <circle cx="500" cy="298" r="15" fill="none" stroke="#D4A090" stroke-width="1.5"/>
+  <text class="lbl-s" x="500" y="302" text-anchor="middle" fill="#B07E6C">脚</text>
+  <text class="lbl" x="500" y="398" text-anchor="middle" fill="#8A7A6E">33</text>
+
+  <!-- 着席位置 -->
+  <circle cx="371" cy="298" r="17" fill="#D4A090"/>
+  <circle cx="629" cy="298" r="17" fill="none" stroke="#D4A090" stroke-width="1.5"/>
+
+  <!-- 左右のカーテン -->
+  <path d="M320 172 q7 15 0 30 q-7 15 0 30 q7 15 0 30 q-7 15 0 30 q7 15 0 30 q-7 15 0 30 q7 15 0 30 q-7 15 0 30 q7 15 0 26"
+        fill="none" stroke="#A9A29C" stroke-width="2"/>
+  <path d="M680 172 q-7 15 0 30 q7 15 0 30 q-7 15 0 30 q7 15 0 30 q-7 15 0 30 q7 15 0 30 q-7 15 0 30 q7 15 0 30 q-7 15 0 26"
+        fill="none" stroke="#A9A29C" stroke-width="2"/>
+
+  <!-- 通路（開いている一辺） -->
+  <line x1="320" y1="460" x2="680" y2="460" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="6 5"/>
+  <path d="M500 470 v28" class="lead"/>
+  <path d="M492 490 l8 10 l8 -10" fill="none" stroke="#B9A697" stroke-width="1"/>
+  <text class="lbl" x="500" y="524" text-anchor="middle">通路（出入りはこの一辺のみ）</text>
+
+  <!-- 左ラベル -->
+  <path d="M332 298 H280" class="lead"/>
+  <text class="lbl" x="270" y="294" text-anchor="end">店奥側のベンチ</text>
+  <text class="lbl-s" x="270" y="312" text-anchor="end">撮影者はこちらに着席</text>
+
+  <path d="M320 200 H280" class="lead"/>
+  <text class="lbl" x="270" y="196" text-anchor="end">布カーテン</text>
+  <text class="lbl-s" x="270" y="214" text-anchor="end">閉めると隣席から見えない</text>
+
+  <!-- 右ラベル -->
+  <path d="M668 298 H720" class="lead"/>
+  <text class="lbl" x="730" y="302">通路寄りのベンチ</text>
+
+  <path d="M680 200 H720" class="lead"/>
+  <text class="lbl" x="730" y="196">布カーテン・木ルーバー</text>
+
+  <path d="M680 144 H720" class="lead"/>
+  <text class="lbl" x="730" y="140">すだれの間仕切り</text>
+  <text class="lbl-s" x="730" y="158">腰高の木枠＋すだれ</text>
+
+  <!-- 対面距離 -->
+  <line x1="438" y1="440" x2="562" y2="440" stroke="#B9A697" stroke-width="1"/>
+  <line x1="438" y1="435" x2="438" y2="445" stroke="#B9A697" stroke-width="1"/>
+  <line x1="562" y1="435" x2="562" y2="445" stroke="#B9A697" stroke-width="1"/>
+  <text class="lbl-s" x="500" y="432" text-anchor="middle">対面 約0.5m</text>
+
+  <!-- 補足 -->
+  <text class="lbl-s" x="40" y="580">天板は角を落とした六角形・一本脚で足元に柱がない。注文は卓上のQRからスマホ、支払いは席を出てレジ。</text>
+</svg>
