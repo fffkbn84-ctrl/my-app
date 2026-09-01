@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 570" width="1000" height="570" role="img" aria-label="PISOLA 横浜睦町店 卓番33 半個室ボックス席の俯瞰図">
-  <title>PISOLA 横浜睦町店 卓番33 半個室ボックス席（俯瞰）</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 570" width="1000" height="570" role="img" aria-label="PISOLA 横浜睦町店 半個室ボックス席の俯瞰図">
+  <title>PISOLA 横浜睦町店 半個室ボックス席</title>
   <defs>
     <pattern id="sudare" width="6" height="6" patternUnits="userSpaceOnUse">
       <path d="M0 0 V6" stroke="#C6A98F" stroke-width="1"/>
@@ -14,7 +14,7 @@
 
   <rect width="1000" height="570" fill="#F5EEE6"/>
 
-  <text class="ttl" x="40" y="44">PISOLA 横浜睦町店／卓番 33　半個室ボックス席（俯瞰）</text>
+  <text class="ttl" x="40" y="44">PISOLA 横浜睦町店　半個室ボックス席</text>
   <text class="lbl-s" x="40" y="66">訪問 2026-08-25 平日夜／ふたり検証済み。図は実際に座った席の周囲のみ</text>
 
   <!-- すだれの向こうの隣テーブル -->
@@ -35,12 +35,9 @@
   <rect x="332" y="172" width="78" height="266" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
   <rect x="590" y="172" width="78" height="266" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
 
-  <!-- テーブル（角を落とした六角形・一本脚） -->
+  <!-- テーブル（角を落とした六角形） -->
   <polygon points="438,180 562,180 562,352 530,412 470,412 438,352"
            fill="#EFE2D3" stroke="#D4A090" stroke-width="1.5"/>
-  <circle cx="500" cy="298" r="15" fill="none" stroke="#D4A090" stroke-width="1.5"/>
-  <text class="lbl-s" x="500" y="302" text-anchor="middle" fill="#B07E6C">脚</text>
-  <text class="lbl" x="500" y="398" text-anchor="middle" fill="#8A7A6E">33</text>
 
   <!-- 着席位置 -->
   <circle cx="371" cy="298" r="17" fill="#D4A090"/>
