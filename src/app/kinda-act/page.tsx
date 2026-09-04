@@ -15,6 +15,12 @@ import KindaActClient from "./KindaActClient";
  */
 const ACT_THUMB_VARIANTS = new Set(["cafe", "lounge"]);
 
+/**
+ * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
+ * 掲載・取り下げが本番へ出るまで最大 5 分。
+ */
+export const revalidate = 300;
+
 export default async function KindaActPage() {
   // F-3 (2026-05-21): Supabase 経由に統一。
   // 以前は placesHomeData (mock) を直接 filter していたため、
@@ -152,7 +158,7 @@ export default async function KindaActPage() {
             </div>
 
             <p className="kt-guide-text">
-              「取材済み」のバッジは、運営スタッフが現地で確認したお店。
+              「行って確かめた」のバッジは、運営スタッフが実際に足を運んで確かめたお店。
               <br />
               「相談所おすすめ」は、現役カウンセラーが推薦する場所です。
             </p>

@@ -37,7 +37,7 @@ const THUMB_VARIANT_SVG_COLORS: Record<string, string> = {
   esthetic: "#C49890",
 };
 
-function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[] } {
+function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[]; address: string | null } {
   return {
     // Supabase の id は UUID 文字列だが、Place 型は number。
     // UI 側で id は文字列比較しないので、表示用に Number 変換を避けて 0 を入れる。
@@ -58,6 +58,8 @@ function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[] 
     hours: shop.hours ?? "営業時間はお店にお問合せください",
     holiday: shop.holiday ?? "-",
     access: shop.access ?? "-",
+    // 地図は駅からの徒歩案内より住所のほうが正確に引ける
+    address: shop.address,
     description: shop.description,
     features: shop.features,
     scenes: shop.scenes ?? [],
@@ -178,7 +180,7 @@ function BadgePill({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
       <span className="rt-certified inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full">
-        Kinda ふたりへ取材済み
+        Kinda が行って確かめた
       </span>
     );
   }
@@ -202,6 +204,12 @@ function BadgePill({ badge }: { badge: Place["badge"] }) {
 /* ────────────────────────────────────────────────────────────
    ページ
 ──────────────────────────────────────────────────────────── */
+/**
+ * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
+ * 掲載・取り下げが本番へ出るまで最大 5 分。
+ */
+export const revalidate = 300;
+
 export default async function PlaceDetailPage({
   params,
 }: {
@@ -699,7 +707,9 @@ export default async function PlaceDetailPage({
                   <iframe
                     title={`${place.name} の地図`}
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                      `${place.name} ${place.access}`,
+                      place.address
+                        ? `${place.name} ${place.address}`
+                        : `${place.name} ${place.access}`,
                     )}&z=15&output=embed`}
                     width="100%"
                     height="280"

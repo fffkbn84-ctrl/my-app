@@ -9,8 +9,14 @@ import type { PlaceHome } from "@/lib/mock/places-home";
 
 export const metadata: Metadata = {
   title: "お店を探す | Kinda ふたりへ",
-  description: "取材済み・相談所おすすめのお店を、実際に利用した方の口コミで探せます。",
+  description: "行って確かめたお店・相談所おすすめのお店を、実際に利用した方の口コミで探せます。",
 };
+
+/**
+ * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
+ * 掲載・取り下げが本番へ出るまで最大 5 分。
+ */
+export const revalidate = 300;
 
 export default async function ShopsPage() {
   const shops = await getShops();
@@ -41,7 +47,7 @@ export default async function ShopsPage() {
               お店を探す
             </h1>
             <p className="text-sm text-mid">
-              取材済み・相談所おすすめのお店を、実際に利用した方の口コミで探せます
+              行って確かめたお店・相談所おすすめのお店を、実際に利用した方の口コミで探せます
             </p>
           </div>
         </section>

@@ -34,7 +34,7 @@ const shopReviews: Record<string, {
    バッジ設定
 ──────────────────────────────────────────────────────────── */
 const BADGE_CONFIG: Record<BadgeType, { label: string; color: string; bg: string }> = {
-  certified: { label: "Kinda ふたりへ取材済み", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
+  certified: { label: "Kinda が行って確かめた", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
   agency:    { label: "相談所おすすめ",   color: "var(--blue)",   bg: "color-mix(in srgb, var(--blue) 12%, transparent)" },
   listed:    { label: "掲載店",           color: "var(--muted)",  bg: "color-mix(in srgb, var(--muted) 12%, transparent)" },
 };
