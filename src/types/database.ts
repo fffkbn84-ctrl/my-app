@@ -244,13 +244,19 @@ export interface Database {
           booking_url: string | null;
           instagram_url: string | null;
           other_social_url: string | null;
+          /* Kinda が最後に現地へ行った日。DB 側は NOT NULL・now() 既定 */
+          last_reviewed_at: string;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["shops"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<
+          Database["public"]["Tables"]["shops"]["Row"],
+          "id" | "created_at" | "updated_at" | "last_reviewed_at"
+        > & {
           id?: string;
           created_at?: string;
           updated_at?: string;
+          last_reviewed_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["shops"]["Insert"]>;
       };

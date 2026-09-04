@@ -1070,6 +1070,13 @@ export type ShopDetail = PlaceHome & {
   otherSocialUrl: string | null
   /** shop_media テーブルから取得した詳細ページ用ギャラリー（display_order 昇順） */
   gallery: ShopGalleryItem[]
+  /**
+   * Kinda が最後にそのお店へ行った日。
+   * 営業時間・定休日は二次情報なので持たない方針だが、
+   * 「いつ時点の観察か」だけは Kinda が責任を持てるので出す。
+   * 行っていないお店（listed）では意味を持たないため表示側で出し分ける。
+   */
+  lastReviewedAt: string | null
 }
 
 export async function getShopById(id: string): Promise<ShopDetail | null> {
@@ -1113,6 +1120,7 @@ export async function getShopById(id: string): Promise<ShopDetail | null> {
     bookingUrl: row.booking_url ?? null,
     instagramUrl: row.instagram_url ?? null,
     otherSocialUrl: row.other_social_url ?? null,
+    lastReviewedAt: row.last_reviewed_at,
     gallery,
   }
 }

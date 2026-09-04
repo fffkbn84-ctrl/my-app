@@ -37,7 +37,9 @@ const THUMB_VARIANT_SVG_COLORS: Record<string, string> = {
   esthetic: "#C49890",
 };
 
-function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[]; address: string | null } {
+function buildPlaceFromShop(
+  shop: ShopDetail,
+): Place & { reviews: PlaceReview[]; address: string | null; lastReviewedAt: string | null } {
   return {
     // Supabase の id は UUID 文字列だが、Place 型は number。
     // UI 側で id は文字列比較しないので、表示用に Number 変換を避けて 0 を入れる。
@@ -55,11 +57,14 @@ function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[];
     rating: shop.rating,
     reviewCount: shop.reviewCount,
     priceRange: shop.priceRange ?? "-",
-    hours: shop.hours ?? "営業時間はお店にお問合せください",
-    holiday: shop.holiday ?? "-",
+    // 営業時間・定休日は Kinda では保持しない方針（古い値を抱えるリスクを負わない）。
+    // 空のまま渡し、表示側で Google マップへの導線に置き換える。
+    hours: shop.hours ?? "",
+    holiday: shop.holiday ?? "",
     access: shop.access ?? "-",
     // 地図は駅からの徒歩案内より住所のほうが正確に引ける
     address: shop.address,
+    lastReviewedAt: shop.lastReviewedAt,
     description: shop.description,
     features: shop.features,
     scenes: shop.scenes ?? [],
@@ -176,6 +181,24 @@ function SnsIcon({ kind }: { kind: SnsLink["kind"] }) {
   );
 }
 
+/**
+ * 営業時間・定休日の代わりに Google マップへ渡す導線。
+ * Kinda が値を持つと古くなったときに責任を負えないが、
+ * 地図には常に最新の営業時間が出るため、そちらのほうが正確でいられる。
+ */
+function MapsLookupLink({ query }: { query: string }) {
+  return (
+    <a
+      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "underline", textUnderlineOffset: 3 }}
+    >
+      Googleマップで確認する
+    </a>
+  );
+}
+
 function BadgePill({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
@@ -221,6 +244,11 @@ export default async function PlaceDetailPage({
   const shop = await getShopById(id);
   if (!shop) notFound();
   const place = buildPlaceFromShop(shop);
+
+  // 地図・営業時間の照会に使う検索語。駅からの徒歩案内より住所のほうが正確に引ける。
+  const mapsQuery = place.address
+    ? `${place.name} ${place.address}`
+    : `${place.name} ${place.access}`;
 
   const avgRating =
     place.reviews.length > 0
@@ -478,12 +506,29 @@ export default async function PlaceDetailPage({
                           <PlaceHoursTooltipContent />
                         </InfoTooltip>
                       </div>
-                      <div className="clay-info-val">{place.hours}</div>
+                      <div className="clay-info-val">
+                        {place.hours || <MapsLookupLink query={mapsQuery} />}
+                      </div>
                     </div>
                     <div className="clay-info-item">
                       <div className="clay-info-key">定休日</div>
-                      <div className="clay-info-val">{place.holiday}</div>
+                      <div className="clay-info-val">
+                        {place.holiday || <MapsLookupLink query={mapsQuery} />}
+                      </div>
                     </div>
+                    {/* 行っていないお店では last_reviewed_at が意味を持たないため出さない */}
+                    {place.badge === "certified" && place.lastReviewedAt && (
+                      <div className="clay-info-item">
+                        <div className="clay-info-key">Kinda が行った日</div>
+                        <div className="clay-info-val">
+                          {new Date(place.lastReviewedAt).toLocaleDateString("ja-JP", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    )}
                     <div className="clay-info-item">
                       <div className="clay-info-key" style={{ display: "inline-flex", alignItems: "center" }}>
                         価格帯
@@ -707,9 +752,7 @@ export default async function PlaceDetailPage({
                   <iframe
                     title={`${place.name} の地図`}
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                      place.address
-                        ? `${place.name} ${place.address}`
-                        : `${place.name} ${place.access}`,
+                      mapsQuery,
                     )}&z=15&output=embed`}
                     width="100%"
                     height="280"
