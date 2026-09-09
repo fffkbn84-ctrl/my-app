@@ -11,7 +11,7 @@ import {
 } from "@/lib/policyMessages";
 import { getShopById, type ShopDetail } from "@/lib/data";
 import type { PlaceReview, Place } from "@/lib/mock/places";
-import type { ActObservations } from "@/types/database";
+import type { ActObservations, PriceGuide } from "@/types/database";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -45,6 +45,7 @@ function buildPlaceFromShop(
   address: string | null;
   lastReviewedAt: string | null;
   actObservations: ActObservations | null;
+  priceGuides: PriceGuide[] | null;
 } {
   return {
     // Supabase の id は UUID 文字列だが、Place 型は number。
@@ -72,6 +73,7 @@ function buildPlaceFromShop(
     address: shop.address,
     lastReviewedAt: shop.lastReviewedAt,
     actObservations: shop.actObservations,
+    priceGuides: shop.priceGuides,
     description: shop.description,
     features: shop.features,
     scenes: shop.scenes ?? [],
@@ -194,6 +196,26 @@ function SnsIcon({ kind }: { kind: SnsLink["kind"] }) {
    ふたりが店に着いてから別れるまでを 4 段階に分けて並べる。
    良し悪しは書かない。実際に見てきた現象だけを置く（CLAUDE.md §3）。
 ──────────────────────────────────────────────────────────── */
+/**
+ * 使い方ごとの価格。お見合いはドリンク1杯で1時間、デートは食事をして長くいる。
+ * 同じ店でも金額がまるで違うので、ひとつの記号にまとめない。
+ */
+function PriceGuideList({ guides, fallback }: { guides: PriceGuide[] | null; fallback: string }) {
+  if (!guides || guides.length === 0) return <>{fallback}</>;
+  return (
+    <span style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {guides.map((g) => (
+        <span key={`${g.scene}-${g.label}`} style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+          <span style={{ fontSize: 11, color: "var(--muted)", flexShrink: 0 }}>{g.scene}</span>
+          <span>
+            {g.label} {g.amount}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
 function ObservationItem({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
@@ -766,7 +788,9 @@ export default async function PlaceDetailPage({
                           <PlacePriceTooltipContent />
                         </InfoTooltip>
                       </div>
-                      <div className="clay-info-val">{place.priceRange}</div>
+                      <div className="clay-info-val">
+                        <PriceGuideList guides={place.priceGuides} fallback={place.priceRange} />
+                      </div>
                     </div>
                     <div className="clay-info-item">
                       <div className="clay-info-key">こんなシーンに</div>
@@ -867,16 +891,17 @@ export default async function PlaceDetailPage({
                 <div className="clay-sidebar-card" style={{ marginBottom: 16 }}>
                   <div style={{ padding: "24px 24px 0" }}>
                     <p className="clay-info-key" style={{ marginBottom: 6 }}>価格帯</p>
-                    <p
+                    <div
                       style={{
                         fontFamily: "var(--font-serif)",
-                        fontSize: 24,
+                        fontSize: place.priceGuides?.length ? 16 : 24,
                         color: "var(--ink)",
                         marginBottom: 20,
+                        lineHeight: 1.6,
                       }}
                     >
-                      {place.priceRange}
-                    </p>
+                      <PriceGuideList guides={place.priceGuides} fallback={place.priceRange} />
+                    </div>
                   </div>
                   <div style={{ padding: "0 24px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
                     {primarySns ? (

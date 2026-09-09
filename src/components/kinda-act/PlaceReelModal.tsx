@@ -262,8 +262,15 @@ export default function PlaceReelModal({ place, onClose }: Props) {
                 </div>
                 <div className="kt-reel-modal-name">{place.name}</div>
                 <div className="kt-reel-modal-meta">
-                  {place.stage} · {place.location} · ★{place.rating.toFixed(1)} ({place.reviewCount})
+                  {/* 口コミが 1 件もないうちは ★0.0 と出るだけなので伏せる */}
+                  {place.stage} · {place.location}
+                  {place.reviewCount > 0 && ` · ★${place.rating.toFixed(1)} (${place.reviewCount})`}
                 </div>
+                {place.observationLine && (
+                  <div className="kt-reel-modal-meta" style={{ marginTop: 8, lineHeight: 1.7 }}>
+                    {place.observationLine}
+                  </div>
+                )}
 
                 <div className="kt-reel-modal-cta-row">
                   <Link

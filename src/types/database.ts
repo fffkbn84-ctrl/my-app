@@ -13,6 +13,21 @@ export type Json =
  * 感想や評価ではなく現象の記述を置く（CLAUDE.md §3 のトーン）。
  * 項目が育っている最中のため、列を増やさず shops.act_observations に jsonb で持つ。
  */
+/**
+ * 使い方ごとの価格の目安。
+ * お見合いとデートでは、同じ店でもかかる金額がまるで違う。
+ * お見合いはドリンク1杯で1時間、デートは食事をして長くいる。
+ * ¥ 記号ひとつではどちらの話か分からないので、使い方ごとに分けて持つ。
+ */
+export type PriceGuide = {
+  /** どの使い方のときの目安か（お見合い／デート） */
+  scene: string;
+  /** 何の値段か（ドリンク1杯／食事1人 など） */
+  label: string;
+  /** 金額の目安（〜600円 / 1,500円〜 など） */
+  amount: string;
+};
+
 export type ActObservations = {
   /** 着く — 店に着いて、席に座るまで */
   arrive?: {
@@ -306,6 +321,10 @@ export interface Database {
           act_observations: ActObservations | null;
           /* 営業デモ用のダミー店。true のときだけ「サンプル」バッジを出す */
           is_demo: boolean;
+          /* 使い方（お見合い／デート）ごとの価格の目安 */
+          price_guides: PriceGuide[] | null;
+          /* 一覧カードに出す一行の観察 */
+          observation_line: string | null;
           created_at: string;
           updated_at: string;
         };

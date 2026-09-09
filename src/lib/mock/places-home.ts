@@ -50,6 +50,11 @@ export interface PlaceHome {
    * shops.is_demo を見て出し分ける。
    */
   isDemo: boolean;
+  /**
+   * 一覧カードに出す一行の観察。
+   * 説明文ではなく、行って見てきたことを一文で。行っていない店では持たない。
+   */
+  observationLine?: string;
 }
 
 const demoPlacesHomeData: Omit<PlaceHome, "isDemo">[] = [
