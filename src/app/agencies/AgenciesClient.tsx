@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AGENCIES, COUNSELORS, isCampaignActive, isNewShop, type Counselor, type Agency } from "@/lib/data";
 import { matchesAreaFilter } from "@/lib/areas";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import Pagination from "@/components/ui/Pagination";
 import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
 
@@ -101,8 +102,13 @@ function AgencyCard({ a, counselors }: { a: Agency; counselors: Counselor[] }) {
         <p className="agc-meta">入会金 {formatPrice(minAdmission)}〜</p>
 
         <div className="agc-rating">
-          <StarRating rating={a.rating} />
-          <span className="agc-rating-num">{a.rating}</span>
+          {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+          {hasEnoughReviewsForRating(a.reviewCount) && (
+            <>
+              <StarRating rating={a.rating} />
+              <span className="agc-rating-num">{a.rating}</span>
+            </>
+          )}
           <span className="agc-rating-count">（{a.reviewCount}件）</span>
         </div>
 

@@ -10,6 +10,7 @@ import {
   type PlaceTabCategory,
   type ThumbVariant,
 } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
@@ -120,7 +121,7 @@ function PlaceThumb({ variant, photoUrl, alt }: { variant: ThumbVariant; photoUr
 function PlaceBadge({ type }: { type: PlaceHome["badgeType"] }) {
   if (type === "listed") return null;
   const map = {
-    certified: { cls: "rt-certified", label: "取材済み" },
+    certified: { cls: "rt-certified", label: "行って確かめた" },
     agency:    { cls: "rt-agency",    label: "相談所おすすめ" },
   } as const;
   const { cls, label } = map[type];
@@ -197,15 +198,15 @@ export default function PlacesSection() {
         <h2 className="sec-h">
           Kinda ふたりへが選んだお店
           <span className="sec-h-jp">
-            取材済み・相談所おすすめのお店を掲載しています
+            行って確かめたお店・相談所おすすめのお店を掲載しています
           </span>
         </h2>
         <p className="sec-sub" style={{ marginBottom: 0 }}>
-          運営が現地取材したお店、相談所・カウンセラーが推薦するお店を中心に掲載しています。口コミは利用後なら誰でも書けます。
+          運営が実際に足を運んで確かめたお店、相談所・カウンセラーが推薦するお店を中心に掲載しています。口コミは利用後なら誰でも書けます。
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 20, marginBottom: 32 }}>
           <span className="pt-review-type rt-certified" style={{ fontSize: 10, padding: "5px 12px" }}>
-            Kinda ふたりへ取材済み
+            Kinda が行って確かめた
           </span>
           <span className="pt-review-type rt-agency" style={{ fontSize: 10, padding: "5px 12px" }}>
             相談所おすすめ
@@ -249,7 +250,8 @@ export default function PlacesSection() {
                 </div>
                 <div className="pt-bottom">
                   <div className="pt-rating">
-                    <Stars rating={place.rating} />
+                    {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                    {hasEnoughReviewsForRating(place.reviewCount) && <Stars rating={place.rating} />}
                     <span className="pt-cnt">口コミ {place.reviewCount}件</span>
                   </div>
                   <PlaceBadge type={place.badgeType} />

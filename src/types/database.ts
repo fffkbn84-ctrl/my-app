@@ -6,6 +6,77 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+/**
+ * Kinda act の観察記録。
+ * ふたりが店に着いてから別れるまでを「着く／話せる／なじむ／終われる」の
+ * 4 段階に分け、実際に行って見てきたことだけを入れる。
+ * 感想や評価ではなく現象の記述を置く（CLAUDE.md §3 のトーン）。
+ * 項目が育っている最中のため、列を増やさず shops.act_observations に jsonb で持つ。
+ */
+/**
+ * 使い方ごとの価格の目安。
+ * お見合いとデートでは、同じ店でもかかる金額がまるで違う。
+ * お見合いはドリンク1杯で1時間、デートは食事をして長くいる。
+ * ¥ 記号ひとつではどちらの話か分からないので、使い方ごとに分けて持つ。
+ */
+export type PriceGuide = {
+  /** どの使い方のときの目安か（お見合い／デート） */
+  scene: string;
+  /** 何の値段か（ドリンク1杯／食事1人 など） */
+  label: string;
+  /** 金額の目安（〜600円 / 1,500円〜 など） */
+  amount: string;
+};
+
+export type ActObservations = {
+  /** 着く — 店に着いて、席に座るまで */
+  arrive?: {
+    /** 入口の分かりやすさ */
+    entrance?: string;
+    /** 迷いやすいところ */
+    hardToFind?: string;
+    /** 予約の要否 */
+    reservation?: string;
+    /** 入ってから席に着くまでに起きること。初対面の緊張が最も高いところ。1行1事実 */
+    firstFiveMinutes?: string[];
+    /** 先に着いた側が相手を待つ場所 */
+    waitingSpot?: string;
+  };
+  /** 話せる — 席のかたちと、聞こえ方 */
+  talk?: {
+    seatShapes?: string[];
+    /**
+     * 席配置。1 行 1 項目で、俯瞰図の番号と同じ順に並べる。
+     * 長い一文にすると読めなくなるため、必ず短く切って持つ。
+     */
+    layout?: string[];
+    /** 席配置の俯瞰図（public 配下のパス） */
+    layoutImage?: string;
+    neighborDistance?: string;
+    neighborMeters?: number;
+    volume?: string;
+    tableSize?: string;
+    /** 会話が途切れたときに目をやれるもの、席を立つ口実。1行1事実 */
+    silenceEscape?: string[];
+  };
+  /** なじむ — その場から浮かないか */
+  fit?: {
+    crowd?: string[];
+    dressCode?: string;
+    standOut?: string;
+    privateRoom?: string;
+  };
+  /** 終われる — 切り上げと、もう少し居たいとき */
+  leave?: {
+    turnoverPressure?: string;
+    wrapUp?: string;
+    extend?: string;
+    payment?: string;
+    /** 店を出たあとどうなるか。1行1事実 */
+    afterwards?: string[];
+  };
+};
+
 export interface Database {
   public: {
     Tables: {
@@ -244,13 +315,28 @@ export interface Database {
           booking_url: string | null;
           instagram_url: string | null;
           other_social_url: string | null;
+          /* Kinda が最後に現地へ行った日。DB 側は NOT NULL・now() 既定 */
+          last_reviewed_at: string;
+          /* Kinda act の観察記録（着く／話せる／なじむ／終われる）。行って確かめたお店のみ */
+          act_observations: ActObservations | null;
+          /* 営業デモ用のダミー店。true のときだけ「サンプル」バッジを出す */
+          is_demo: boolean;
+          /* 使い方（お見合い／デート）ごとの価格の目安 */
+          price_guides: PriceGuide[] | null;
+          /* 一覧カードに出す一行の観察 */
+          observation_line: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["shops"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<
+          Database["public"]["Tables"]["shops"]["Row"],
+          "id" | "created_at" | "updated_at" | "last_reviewed_at" | "is_demo"
+        > & {
           id?: string;
           created_at?: string;
           updated_at?: string;
+          last_reviewed_at?: string;
+          is_demo?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["shops"]["Insert"]>;
       };

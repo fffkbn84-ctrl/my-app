@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 type Counselor = {
   id: string;
@@ -77,10 +78,13 @@ function CounselorCard({ counselor }: { counselor: Counselor }) {
             <p className="text-xs text-muted mt-0.5">{counselor.nameKana}</p>
           </div>
           <div className="text-right shrink-0">
-            <div className="flex items-center gap-1 justify-end">
-              <StarRating rating={Math.round(counselor.rating)} />
-              <span className="text-xs font-medium text-ink">{counselor.rating}</span>
-            </div>
+            {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+            {hasEnoughReviewsForRating(counselor.reviewCount) && (
+              <div className="flex items-center gap-1 justify-end">
+                <StarRating rating={Math.round(counselor.rating)} />
+                <span className="text-xs font-medium text-ink">{counselor.rating}</span>
+              </div>
+            )}
             <p className="text-xs text-muted">{counselor.reviewCount}件</p>
           </div>
         </div>

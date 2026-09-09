@@ -7,6 +7,7 @@ import {
   type PlaceHome,
   type ThumbVariant,
 } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import Pagination from "@/components/ui/Pagination";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 
@@ -17,14 +18,14 @@ const ITEMS_PER_PAGE = 8;
 ──────────────────────────────────────────────────────────── */
 const BADGE_FILTERS = [
   { value: "all",       label: "すべて" },
-  { value: "certified", label: "取材済み" },
+  { value: "certified", label: "行って確かめた" },
   { value: "agency",    label: "相談所おすすめ" },
 ] as const;
 
 type BadgeFilter = typeof BADGE_FILTERS[number]["value"];
 
 const CATEGORIES = ["すべて", "カフェ", "レストラン", "美容室", "ネイルサロン", "眉毛サロン", "フォトスタジオ"];
-const AREAS      = ["すべて", "東京", "大阪", "名古屋"];
+const AREAS      = ["すべて", "東京", "神奈川", "大阪", "名古屋"];
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
@@ -171,7 +172,7 @@ function ShopCard({ place }: { place: PlaceHome }) {
               className={`pt-review-type ${place.badgeType === "certified" ? "rt-certified" : "rt-agency"}`}
               style={{ fontSize: 9, padding: "3px 8px" }}
             >
-              {place.badgeType === "certified" ? "取材済み" : "相談所おすすめ"}
+              {place.badgeType === "certified" ? "行って確かめた" : "相談所おすすめ"}
             </span>
           </div>
         )}
@@ -243,14 +244,15 @@ function ShopCard({ place }: { place: PlaceHome }) {
         {/* 下部 */}
         <div className="pt-bottom">
           <div className="pt-rating">
-            <Stars rating={place.rating} />
+            {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+            {hasEnoughReviewsForRating(place.reviewCount) && <Stars rating={place.rating} />}
             <span className="pt-cnt">口コミ {place.reviewCount}件</span>
           </div>
           {place.badgeType !== "listed" && (
             <span
               className={`pt-review-type ${place.badgeType === "certified" ? "rt-certified" : "rt-agency"}`}
             >
-              {place.badgeType === "certified" ? "取材済み" : "相談所おすすめ"}
+              {place.badgeType === "certified" ? "行って確かめた" : "相談所おすすめ"}
             </span>
           )}
         </div>
@@ -354,9 +356,9 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="pt-review-type rt-certified" style={{ fontSize: 10, padding: "4px 10px" }}>
-              Kinda ふたりへ取材済み
+              Kinda が行って確かめた
             </span>
-            <span style={{ fontSize: 12, color: "var(--mid)" }}>Kinda ふたりへスタッフが現地訪問・取材したお店</span>
+            <span style={{ fontSize: 12, color: "var(--mid)" }}>Kinda ふたりへスタッフが実際に足を運んで確かめたお店</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="pt-review-type rt-agency" style={{ fontSize: 10, padding: "4px 10px" }}>

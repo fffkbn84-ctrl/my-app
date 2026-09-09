@@ -44,9 +44,20 @@ export interface PlaceHome {
    * L-1/L-2（2026-05-22）追加。
    */
   images?: string[];
+  /**
+   * 営業デモ用のダミー店。true のときだけ「サンプル」バッジを出す。
+   * 以前は全カードに無条件で出していたが、実在店に付くと誤解を招くため
+   * shops.is_demo を見て出し分ける。
+   */
+  isDemo: boolean;
+  /**
+   * 一覧カードに出す一行の観察。
+   * 説明文ではなく、行って見てきたことを一文で。行っていない店では持たない。
+   */
+  observationLine?: string;
 }
 
-export const placesHomeData: PlaceHome[] = [
+const demoPlacesHomeData: Omit<PlaceHome, "isDemo">[] = [
   {
     id: "1",
     name: "カフェ ノエル 表参道",
@@ -338,6 +349,13 @@ export const placesHomeData: PlaceHome[] = [
     priceRange: "¥",
   },
 ];
+
+
+/** mock は営業デモ用のダミーデータなので、すべて「サンプル」として扱う */
+export const placesHomeData: PlaceHome[] = demoPlacesHomeData.map((p) => ({
+  ...p,
+  isDemo: true,
+}));
 
 export const placeTabs: { label: string; value: PlaceTabCategory }[] = [
   { label: "すべて",    value: "all" },

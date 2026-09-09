@@ -9,6 +9,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { PLACE_CATEGORY_ICON } from "./placeIcons";
 import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import ShareSheet from "@/components/kinda-talk/ShareSheet";
 
 type Props = {
@@ -255,15 +256,26 @@ export default function PlaceReelModal({ place, onClose }: Props) {
               <div className="kt-reel-modal-bottom">
                 <div style={{ display: "flex", gap: 4, marginBottom: 8, flexWrap: "wrap" }}>
                   <PlaceBadge type={place.badgeType} />
-                  <DemoBadge />
+                  {place.isDemo && <DemoBadge />}
                 </div>
                 <div className="kt-reel-modal-catchphrase" id={`ka-reel-title-${place.id}`}>
                   {currentSlide?.caption ?? place.name}
                 </div>
                 <div className="kt-reel-modal-name">{place.name}</div>
                 <div className="kt-reel-modal-meta">
-                  {place.stage} · {place.location} · ★{place.rating.toFixed(1)} ({place.reviewCount})
+                  {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                  {place.stage} · {place.location}
+                  {hasEnoughReviewsForRating(place.reviewCount)
+                    ? ` · ★${place.rating.toFixed(1)} (${place.reviewCount})`
+                    : place.reviewCount > 0
+                      ? ` · 口コミ ${place.reviewCount}件`
+                      : ""}
                 </div>
+                {place.observationLine && (
+                  <div className="kt-reel-modal-meta" style={{ marginTop: 8, lineHeight: 1.7 }}>
+                    {place.observationLine}
+                  </div>
+                )}
 
                 <div className="kt-reel-modal-cta-row">
                   <Link

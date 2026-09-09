@@ -4360,7 +4360,7 @@ a.d-review-badge:hover { background: rgba(255,255,255,.85); border-color: rgba(4
   font-family: 'DM Sans', sans-serif;
 }
 
-/* ─── お店バッジ（取材済み・相談所おすすめ） ─── */
+/* ─── お店バッジ（行って確かめた・相談所おすすめ） ─── */
 .ka-place-badge {
   display: inline-flex;
   align-items: center;

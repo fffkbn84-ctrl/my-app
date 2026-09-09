@@ -6,6 +6,7 @@ import { trackEvent } from "@/lib/analytics";
 import KindaTypeBadge from "./KindaTypeBadge";
 import DemoBadge from "./DemoBadge";
 import NewBadge from "./NewBadge";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 type Props = {
   counselor: Counselor;
@@ -120,7 +121,8 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
         <div className="kt-reel-meta">
           {counselor.agencyName} · {counselor.area}
         </div>
-        {counselor.reviewCount > 0 ? (
+        {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+        {hasEnoughReviewsForRating(counselor.reviewCount) ? (
           <div
             className="kt-reel-rating"
             aria-label={`平均評価 ${counselor.rating.toFixed(1)}、レビュー ${counselor.reviewCount}件`}
@@ -129,6 +131,10 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
             <span aria-hidden="true">{counselor.rating.toFixed(1)} ({counselor.reviewCount})</span>
+          </div>
+        ) : counselor.reviewCount > 0 ? (
+          <div className="kt-reel-rating" aria-label={`口コミ ${counselor.reviewCount}件`}>
+            <span aria-hidden="true">口コミ {counselor.reviewCount}件</span>
           </div>
         ) : (
           /* レビュー0件は評価ゼロを主役にせず「レビュー募集中」を出す */

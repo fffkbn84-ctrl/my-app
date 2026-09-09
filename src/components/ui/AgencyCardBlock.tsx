@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { isCampaignActive, isNewShop, type Agency, type FeePlan } from "@/lib/data";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 /**
  * カウンセラー詳細の「所属相談所」枠で使うカード。
@@ -220,6 +221,8 @@ export default function AgencyCardBlock({ agency, fallbackName, fallbackAddress 
 
         {reviewCount > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+            {hasEnoughReviewsForRating(reviewCount) && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 2 }}>
               {[1, 2, 3, 4, 5].map((s) => (
                 <svg key={s} width="11" height="11" viewBox="0 0 12 12">
@@ -230,9 +233,12 @@ export default function AgencyCardBlock({ agency, fallbackName, fallbackAddress 
                 </svg>
               ))}
             </span>
-            <span style={{ fontSize: 13, fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-              {rating}
-            </span>
+            )}
+            {hasEnoughReviewsForRating(reviewCount) && (
+              <span style={{ fontSize: 13, fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+                {rating}
+              </span>
+            )}
             <span style={{ fontSize: 11, color: "var(--muted)" }}>（{reviewCount}件）</span>
           </div>
         )}

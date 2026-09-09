@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import { jsonLdStringify } from "@/lib/jsonld";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
@@ -735,8 +736,9 @@ export default async function CounselorDetailPage({
                 </div>
               </div>
 
-              {/* 星評価 + 口コミ件数 */}
+              {/* 星評価 + 口コミ件数。件数が少ないうちは平均を出さない */}
               <div className="d-rating-row">
+                {hasEnoughReviewsForRating(counselorReviews.length) && (
                 <div className="d-stars">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg key={star} width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -750,8 +752,13 @@ export default async function CounselorDetailPage({
                     </svg>
                   ))}
                 </div>
-                <span className="d-rating-num">{avgRating.toFixed(1)}</span>
-                <span className="d-rating-sep" />
+                )}
+                {hasEnoughReviewsForRating(counselorReviews.length) && (
+                  <>
+                    <span className="d-rating-num">{avgRating.toFixed(1)}</span>
+                    <span className="d-rating-sep" />
+                  </>
+                )}
                 {/* コメントアイコン（独自作成） */}
                 <Link href="#reviews" className="d-review-badge">
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -1374,13 +1381,18 @@ export default async function CounselorDetailPage({
                     <div className="bg-pale rounded-2xl p-6 mb-6">
                       <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                         <div className="text-center md:w-32 shrink-0">
-                          <p
-                            className="text-5xl text-ink leading-none mb-2"
-                            style={{ fontFamily: "var(--font-serif)" }}
-                          >
-                            {avgRating.toFixed(1)}
-                          </p>
-                          <StarRating rating={Math.round(avgRating)} size={16} />
+                          {/* 件数が少ないうちは平均が振れるため出さない */}
+                          {hasEnoughReviewsForRating(counselorReviews.length) && (
+                            <>
+                              <p
+                                className="text-5xl text-ink leading-none mb-2"
+                                style={{ fontFamily: "var(--font-serif)" }}
+                              >
+                                {avgRating.toFixed(1)}
+                              </p>
+                              <StarRating rating={Math.round(avgRating)} size={16} />
+                            </>
+                          )}
                           <p className="text-xs text-muted mt-1">{counselorReviews.length}件の評価</p>
                         </div>
                         {/* 評価カテゴリの棒グラフは口コミが一定数集まってから出す。
@@ -1689,14 +1701,19 @@ export default async function CounselorDetailPage({
                       ? counselor.bio.slice(0, 280)
                       : "",
                 },
-                {
-                  "@type": "AggregateRating",
-                  itemReviewed: { "@id": `/counselors/${counselor.id}#person` },
-                  ratingValue: avgRating.toFixed(2),
-                  reviewCount: counselorReviews.length,
-                  bestRating: "5",
-                  worstRating: "1",
-                },
+                // 件数が少ないうちは平均を出さない方針に合わせ、構造化データにも載せない
+                ...(hasEnoughReviewsForRating(counselorReviews.length)
+                  ? [
+                      {
+                        "@type": "AggregateRating",
+                        itemReviewed: { "@id": `/counselors/${counselor.id}#person` },
+                        ratingValue: avgRating.toFixed(2),
+                        reviewCount: counselorReviews.length,
+                        bestRating: "5",
+                        worstRating: "1",
+                      },
+                    ]
+                  : []),
                 ...counselorReviews.slice(0, 5).map((r: { rating: number; user?: string; text?: string; body?: string; date?: string }) => ({
                   "@type": "Review",
                   itemReviewed: { "@id": `/counselors/${counselor.id}#person` },

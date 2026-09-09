@@ -8,6 +8,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import { COUNSELORS } from "@/lib/data";
 import ShareRetryActions from "./ShareRetryActions";
 
@@ -308,9 +309,12 @@ export default async function DiagnosisResultPage({
                       className="ktr-counselor-rating"
                       aria-label={`評価 ${c.rating} 5段階中、口コミ ${c.reviewCount} 件、経験 ${c.experience} 年`}
                     >
-                      <span className="ktr-counselor-rating-star" style={{ color: diagType.color }}>
-                        ★ {c.rating.toFixed(1)}
-                      </span>
+                      {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                      {hasEnoughReviewsForRating(c.reviewCount) && (
+                        <span className="ktr-counselor-rating-star" style={{ color: diagType.color }}>
+                          ★ {c.rating.toFixed(1)}
+                        </span>
+                      )}
                       <span className="ktr-counselor-rating-sub">口コミ {c.reviewCount}件</span>
                       <span className="ktr-counselor-rating-sub">経験{c.experience}年</span>
                     </div>

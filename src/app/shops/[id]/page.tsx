@@ -7,6 +7,7 @@ import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 import { PlacePriceTooltipContent } from "@/lib/policyMessages";
 import { placesHomeData } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import type { BadgeType } from "@/lib/mock/places-home";
 
 /* ────────────────────────────────────────────────────────────
@@ -34,7 +35,7 @@ const shopReviews: Record<string, {
    バッジ設定
 ──────────────────────────────────────────────────────────── */
 const BADGE_CONFIG: Record<BadgeType, { label: string; color: string; bg: string }> = {
-  certified: { label: "Kinda ふたりへ取材済み", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
+  certified: { label: "Kinda が行って確かめた", color: "var(--accent)", bg: "color-mix(in srgb, var(--accent) 12%, transparent)" },
   agency:    { label: "相談所おすすめ",   color: "var(--blue)",   bg: "color-mix(in srgb, var(--blue) 12%, transparent)" },
   listed:    { label: "掲載店",           color: "var(--muted)",  bg: "color-mix(in srgb, var(--muted) 12%, transparent)" },
 };
@@ -129,7 +130,8 @@ export default async function ShopDetailPage({
                       {shop.location}
                     </p>
 
-                    {avgRating !== null && (
+                    {/* 件数が少ないうちは平均が振れるため出さない */}
+                    {avgRating !== null && hasEnoughReviewsForRating(reviews.length) && (
                       <div className="flex items-center gap-2 mb-4 pb-4 border-b border-light">
                         <StarRating rating={avgRating} size={16} />
                         <span className="text-lg font-medium text-ink">{avgRating.toFixed(1)}</span>
@@ -223,7 +225,7 @@ export default async function ShopDetailPage({
 
                 {reviews.length > 0 ? (
                   <>
-                    {avgRating !== null && (
+                    {avgRating !== null && hasEnoughReviewsForRating(reviews.length) && (
                       <div className="bg-pale rounded-2xl p-6 mb-6 flex items-center gap-6">
                         <div className="text-center shrink-0">
                           <p className="text-5xl text-ink leading-none mb-1" style={{ fontFamily: "var(--font-serif)" }}>

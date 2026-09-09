@@ -11,6 +11,8 @@ import {
 } from "@/lib/policyMessages";
 import { getShopById, type ShopDetail } from "@/lib/data";
 import type { PlaceReview, Place } from "@/lib/mock/places";
+import type { ActObservations, PriceGuide } from "@/types/database";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -37,7 +39,15 @@ const THUMB_VARIANT_SVG_COLORS: Record<string, string> = {
   esthetic: "#C49890",
 };
 
-function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[] } {
+function buildPlaceFromShop(
+  shop: ShopDetail,
+): Place & {
+  reviews: PlaceReview[];
+  address: string | null;
+  lastReviewedAt: string | null;
+  actObservations: ActObservations | null;
+  priceGuides: PriceGuide[] | null;
+} {
   return {
     // Supabase の id は UUID 文字列だが、Place 型は number。
     // UI 側で id は文字列比較しないので、表示用に Number 変換を避けて 0 を入れる。
@@ -55,9 +65,16 @@ function buildPlaceFromShop(shop: ShopDetail): Place & { reviews: PlaceReview[] 
     rating: shop.rating,
     reviewCount: shop.reviewCount,
     priceRange: shop.priceRange ?? "-",
-    hours: shop.hours ?? "営業時間はお店にお問合せください",
-    holiday: shop.holiday ?? "-",
+    // 営業時間・定休日は Kinda では保持しない方針（古い値を抱えるリスクを負わない）。
+    // 空のまま渡し、表示側で Google マップへの導線に置き換える。
+    hours: shop.hours ?? "",
+    holiday: shop.holiday ?? "",
     access: shop.access ?? "-",
+    // 地図は駅からの徒歩案内より住所のほうが正確に引ける
+    address: shop.address,
+    lastReviewedAt: shop.lastReviewedAt,
+    actObservations: shop.actObservations,
+    priceGuides: shop.priceGuides,
     description: shop.description,
     features: shop.features,
     scenes: shop.scenes ?? [],
@@ -174,11 +191,267 @@ function SnsIcon({ kind }: { kind: SnsLink["kind"] }) {
   );
 }
 
+/* ────────────────────────────────────────────────────────────
+   行って確かめたこと（着く／話せる／なじむ／終われる）
+
+   ふたりが店に着いてから別れるまでを 4 段階に分けて並べる。
+   良し悪しは書かない。実際に見てきた現象だけを置く（CLAUDE.md §3）。
+──────────────────────────────────────────────────────────── */
+/**
+ * 使い方ごとの価格。お見合いはドリンク1杯で1時間、デートは食事をして長くいる。
+ * 同じ店でも金額がまるで違うので、ひとつの記号にまとめない。
+ */
+function PriceGuideList({ guides, fallback }: { guides: PriceGuide[] | null; fallback: string }) {
+  if (!guides || guides.length === 0) return <>{fallback}</>;
+  return (
+    <span style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      {guides.map((g) => (
+        <span key={`${g.scene}-${g.label}`} style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+          <span style={{ fontSize: 11, color: "var(--muted)", flexShrink: 0 }}>{g.scene}</span>
+          <span>
+            {g.label} {g.amount}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function ObservationItem({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null;
+  return (
+    <div className="clay-info-item">
+      <div className="clay-info-key">{label}</div>
+      <div className="clay-info-val">{value}</div>
+    </div>
+  );
+}
+
+/**
+ * 観察のまとまり。長い一文を四角で囲むと読みにくいので、
+ * 複数行あるときは箇条書きにする。1行だけならそのまま出す。
+ */
+function ObservationNote({
+  label,
+  lines,
+  ordered = false,
+}: {
+  label?: string;
+  lines?: string[];
+  ordered?: boolean;
+}) {
+  if (!lines || lines.length === 0) return null;
+  const List = ordered ? "ol" : "ul";
+  return (
+    <div className="clay-desc-block">
+      {label && (
+        <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: lines.length > 1 ? 10 : 6 }}>
+          {label}
+        </div>
+      )}
+      {lines.length === 1 ? (
+        <span>{lines[0]}</span>
+      ) : (
+        <List
+          style={{
+            margin: 0,
+            paddingLeft: "1.3em",
+            listStyle: ordered ? "decimal" : "disc",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          {lines.map((line, i) => (
+            <li key={i} style={{ lineHeight: 1.85 }}>{line}</li>
+          ))}
+        </List>
+      )}
+    </div>
+  );
+}
+
+function ObservationCard({
+  step,
+  title,
+  lead,
+  children,
+}: {
+  step: string;
+  title: string;
+  lead: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="clay-card">
+      <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".08em", marginBottom: 6 }}>
+        {step}
+      </div>
+      <h2 className="clay-sec-h" style={{ marginBottom: 4 }}>{title}</h2>
+      <p style={{ fontSize: 12, color: "var(--mid)", margin: "0 0 18px" }}>{lead}</p>
+      {children}
+    </div>
+  );
+}
+
+function ActObservationSections({
+  obs,
+  placeName,
+}: {
+  obs: ActObservations;
+  placeName: string;
+}) {
+  const { arrive, talk, fit, leave } = obs;
+  const filled = (o?: Record<string, unknown>) =>
+    !!o && Object.values(o).some((v) => (Array.isArray(v) ? v.length > 0 : v != null && v !== ""));
+
+  // 「会話は聞こえない」だけだと距離感が伝わらないので目測を添える
+  const neighbor = talk?.neighborDistance
+    ? talk.neighborMeters
+      ? `${talk.neighborDistance}（目測 約${talk.neighborMeters}m）`
+      : talk.neighborDistance
+    : undefined;
+
+  return (
+    <>
+      {filled(arrive) && (
+        <ObservationCard
+          step="1 / 4"
+          title="着く"
+          lead="店に着いて、席に座るまで。緊張がいちばん高いところです。"
+        >
+          <div className="clay-info-grid">
+            <ObservationItem label="入口" value={arrive?.entrance} />
+            <ObservationItem label="迷いやすいところ" value={arrive?.hardToFind} />
+            <ObservationItem label="予約" value={arrive?.reservation} />
+            <ObservationItem label="先に着いたら" value={arrive?.waitingSpot} />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <ObservationNote label="最初の5分" lines={arrive?.firstFiveMinutes} />
+          </div>
+        </ObservationCard>
+      )}
+
+      {filled(talk) && (
+        <ObservationCard
+          step="2 / 4"
+          title="話せる"
+          lead="席のかたちと、声の届き方。ふたりの距離はここで決まります。"
+        >
+          {talk?.seatShapes && talk.seatShapes.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+              {talk.seatShapes.map((shape) => (
+                <span key={shape} className="clay-tag">{shape}</span>
+              ))}
+            </div>
+          )}
+
+          {talk?.layoutImage && (
+            <figure style={{ margin: "0 0 16px" }}>
+              {/*
+                図の中に説明を書き込むと、狭い画面で文字が潰れて横スクロールが要る。
+                図には番号だけを置き、説明は下の番号付きリストで読ませる。
+                こうすると図はどの幅にも収まり、文章は本文と同じ大きさで読める。
+              */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={talk.layoutImage}
+                alt={`${placeName} で実際に座った席の配置図`}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  maxWidth: 420,
+                  height: "auto",
+                  display: "block",
+                  margin: "0 auto",
+                }}
+              />
+              <figcaption style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, textAlign: "center" }}>
+                実際に座った席の配置。店全体の見取り図ではありません。
+              </figcaption>
+            </figure>
+          )}
+
+          {/* 図の番号と同じ順に並ぶ */}
+          <ObservationNote lines={talk?.layout} ordered />
+
+          <div className="clay-info-grid" style={{ marginTop: 16 }}>
+            <ObservationItem label="隣の席との距離" value={neighbor} />
+            <ObservationItem label="店内の音" value={talk?.volume} />
+            <ObservationItem label="テーブル" value={talk?.tableSize} />
+          </div>
+
+          <div style={{ marginTop: 16 }}>
+            <ObservationNote label="会話が途切れたとき" lines={talk?.silenceEscape} />
+          </div>
+        </ObservationCard>
+      )}
+
+      {filled(fit) && (
+        <ObservationCard
+          step="3 / 4"
+          title="なじむ"
+          lead="その場から浮かないか。服装で迷わずに済むか。"
+        >
+          {fit?.crowd && fit.crowd.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+              {fit.crowd.map((c) => (
+                <span key={c} className="clay-tag">{c}</span>
+              ))}
+            </div>
+          )}
+          <div className="clay-info-grid">
+            <ObservationItem label="服装" value={fit?.dressCode} />
+            <ObservationItem label="ふたりで行ったとき" value={fit?.standOut} />
+            <ObservationItem label="個室・半個室" value={fit?.privateRoom} />
+          </div>
+        </ObservationCard>
+      )}
+
+      {filled(leave) && (
+        <ObservationCard
+          step="4 / 4"
+          title="終われる"
+          lead="切り上げやすさと、もう少し居たくなったときの逃げ道。"
+        >
+          <div className="clay-info-grid">
+            <ObservationItem label="長居" value={leave?.turnoverPressure} />
+            <ObservationItem label="切り上げ" value={leave?.wrapUp} />
+            <ObservationItem label="延長" value={leave?.extend} />
+            <ObservationItem label="会計" value={leave?.payment} />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <ObservationNote label="店を出たあと" lines={leave?.afterwards} />
+          </div>
+        </ObservationCard>
+      )}
+    </>
+  );
+}
+
+/**
+ * 営業時間・定休日の代わりに Google マップへ渡す導線。
+ * Kinda が値を持つと古くなったときに責任を負えないが、
+ * 地図には常に最新の営業時間が出るため、そちらのほうが正確でいられる。
+ */
+function MapsLookupLink({ query }: { query: string }) {
+  return (
+    <a
+      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ textDecoration: "underline", textUnderlineOffset: 3 }}
+    >
+      Googleマップで確認する
+    </a>
+  );
+}
+
 function BadgePill({ badge }: { badge: Place["badge"] }) {
   if (badge === "certified") {
     return (
       <span className="rt-certified inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full">
-        Kinda ふたりへ取材済み
+        Kinda が行って確かめた
       </span>
     );
   }
@@ -202,6 +475,12 @@ function BadgePill({ badge }: { badge: Place["badge"] }) {
 /* ────────────────────────────────────────────────────────────
    ページ
 ──────────────────────────────────────────────────────────── */
+/**
+ * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
+ * 掲載・取り下げが本番へ出るまで最大 5 分。
+ */
+export const revalidate = 300;
+
 export default async function PlaceDetailPage({
   params,
 }: {
@@ -213,6 +492,11 @@ export default async function PlaceDetailPage({
   const shop = await getShopById(id);
   if (!shop) notFound();
   const place = buildPlaceFromShop(shop);
+
+  // 地図・営業時間の照会に使う検索語。駅からの徒歩案内より住所のほうが正確に引ける。
+  const mapsQuery = place.address
+    ? `${place.name} ${place.address}`
+    : `${place.name} ${place.access}`;
 
   const avgRating =
     place.reviews.length > 0
@@ -294,8 +578,9 @@ export default async function PlaceDetailPage({
               {place.category} · {place.area}
             </p>
 
-            {/* 評価 + 口コミリンク */}
+            {/* 評価 + 口コミリンク。件数が少ないうちは平均を出さない */}
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              {hasEnoughReviewsForRating(place.reviewCount) && (
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg key={star} width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -312,6 +597,7 @@ export default async function PlaceDetailPage({
                   {avgRating.toFixed(1)}
                 </span>
               </div>
+              )}
               <Link
                 href="#reviews"
                 style={{
@@ -451,6 +737,11 @@ export default async function PlaceDetailPage({
                   </div>
                 </div>
 
+                {/* 行って確かめたこと（着く／話せる／なじむ／終われる） */}
+                {place.actObservations && (
+                  <ActObservationSections obs={place.actObservations} placeName={place.name} />
+                )}
+
                 {/* 基本情報 */}
                 <div className="clay-card">
                   <h2 className="clay-sec-h">基本情報</h2>
@@ -470,12 +761,29 @@ export default async function PlaceDetailPage({
                           <PlaceHoursTooltipContent />
                         </InfoTooltip>
                       </div>
-                      <div className="clay-info-val">{place.hours}</div>
+                      <div className="clay-info-val">
+                        {place.hours || <MapsLookupLink query={mapsQuery} />}
+                      </div>
                     </div>
                     <div className="clay-info-item">
                       <div className="clay-info-key">定休日</div>
-                      <div className="clay-info-val">{place.holiday}</div>
+                      <div className="clay-info-val">
+                        {place.holiday || <MapsLookupLink query={mapsQuery} />}
+                      </div>
                     </div>
+                    {/* 行っていないお店では last_reviewed_at が意味を持たないため出さない */}
+                    {place.badge === "certified" && place.lastReviewedAt && (
+                      <div className="clay-info-item">
+                        <div className="clay-info-key">Kinda が行った日</div>
+                        <div className="clay-info-val">
+                          {new Date(place.lastReviewedAt).toLocaleDateString("ja-JP", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    )}
                     <div className="clay-info-item">
                       <div className="clay-info-key" style={{ display: "inline-flex", alignItems: "center" }}>
                         価格帯
@@ -483,7 +791,9 @@ export default async function PlaceDetailPage({
                           <PlacePriceTooltipContent />
                         </InfoTooltip>
                       </div>
-                      <div className="clay-info-val">{place.priceRange}</div>
+                      <div className="clay-info-val">
+                        <PriceGuideList guides={place.priceGuides} fallback={place.priceRange} />
+                      </div>
                     </div>
                     <div className="clay-info-item">
                       <div className="clay-info-key">こんなシーンに</div>
@@ -528,9 +838,11 @@ export default async function PlaceDetailPage({
                             marginBottom: 8,
                           }}
                         >
-                          {avgRating.toFixed(1)}
+                          {hasEnoughReviewsForRating(place.reviews.length) ? avgRating.toFixed(1) : "—"}
                         </p>
-                        <StarRatingLight rating={Math.round(avgRating)} size={16} />
+                        {hasEnoughReviewsForRating(place.reviews.length) && (
+                          <StarRatingLight rating={Math.round(avgRating)} size={16} />
+                        )}
                         <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 6 }}>
                           {place.reviews.length}件の評価
                         </p>
@@ -584,16 +896,17 @@ export default async function PlaceDetailPage({
                 <div className="clay-sidebar-card" style={{ marginBottom: 16 }}>
                   <div style={{ padding: "24px 24px 0" }}>
                     <p className="clay-info-key" style={{ marginBottom: 6 }}>価格帯</p>
-                    <p
+                    <div
                       style={{
                         fontFamily: "var(--font-serif)",
-                        fontSize: 24,
+                        fontSize: place.priceGuides?.length ? 16 : 24,
                         color: "var(--ink)",
                         marginBottom: 20,
+                        lineHeight: 1.6,
                       }}
                     >
-                      {place.priceRange}
-                    </p>
+                      <PriceGuideList guides={place.priceGuides} fallback={place.priceRange} />
+                    </div>
                   </div>
                   <div style={{ padding: "0 24px 24px", display: "flex", flexDirection: "column", gap: 10 }}>
                     {primarySns ? (
@@ -699,7 +1012,7 @@ export default async function PlaceDetailPage({
                   <iframe
                     title={`${place.name} の地図`}
                     src={`https://maps.google.com/maps?q=${encodeURIComponent(
-                      `${place.name} ${place.access}`,
+                      mapsQuery,
                     )}&z=15&output=embed`}
                     width="100%"
                     height="280"
