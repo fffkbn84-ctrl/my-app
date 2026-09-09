@@ -44,6 +44,7 @@
 - [x] **`/api/notify` に簡易レート制限を追加**（2026-09-09）。`/api/for-counselors/inquiry` にはあった連投対策が無く、メール登録の連投・リスト汚染が可能だった。
 - [ ] **Supabase Auth の「漏洩パスワード保護」を有効化**（ふうか操作・ダッシュボードのみ）。Authentication → Policies → Leaked password protection を ON。
 - [ ] **admin の env 実設定を確認**（ふうか操作）。`ADMIN_BASIC_AUTH_USER` / `ADMIN_BASIC_AUTH_PASSWORD` は**未設定だと Basic 認証がフェイルオープン**、`ADMIN_MFA_ENFORCED=true` でないと MFA が発動しない。Vercel の futarive-admin プロジェクトで実際に入っているか見る。
+- [ ] **main 配下のサブアプリのコピーが軒並み古い**（稼働ブランチが正）。`futarive-counselor/app/(main)/calendar/page.tsx` も main 側は `slots` を `start_time` / `end_time` で読み書きしており、実際のDB列（`start_at` / `end_at`）と食い違う。稼働ブランチ `claude/fix-profile-creation-1clpG` は正しい実装（週/日/月ビュー・一括生成つき）。**main 側のサブアプリコードを信用して作業しないこと。**
 - [ ] **main の `futarive-admin/middleware.ts` が古い**。稼働ブランチ `claude/futarive-admin-dashboard-iKBfw` には Basic 認証＋admin ロール確認＋MFA が入っているが、main 側はログイン確認のみ。今は穴ではないが、将来 main を実体にすると開く。ブランチ統合時に必ず新しい方を残す。
 
 #### ✅ 点検で問題なしだったところ（再点検不要）
