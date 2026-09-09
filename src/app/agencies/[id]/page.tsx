@@ -443,16 +443,21 @@ export default async function AgencyDetailPage({
                 textDecoration: "none",
               }}
             >
-              <StarRating rating={agency.rating} size={16} />
-              <span
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: 20,
-                  color: "var(--ink)",
-                }}
-              >
-                {agency.rating}
-              </span>
+              {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+              {hasEnoughReviewsForRating(agency.reviewCount) && (
+                <>
+                  <StarRating rating={agency.rating} size={16} />
+                  <span
+                    style={{
+                      fontFamily: "var(--font-serif)",
+                      fontSize: 20,
+                      color: "var(--ink)",
+                    }}
+                  >
+                    {agency.rating}
+                  </span>
+                </>
+              )}
               <span
                 style={{
                   fontSize: 12,

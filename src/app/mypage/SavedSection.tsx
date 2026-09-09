@@ -197,7 +197,13 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
                     {a.name}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--mid)", marginTop: 2 }}>
-                    {a.area} · ★{a.rating.toFixed(1)} ({a.reviewCount})
+                    {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                    {a.area}
+                    {hasEnoughReviewsForRating(a.reviewCount)
+                      ? ` · ★${a.rating.toFixed(1)} (${a.reviewCount})`
+                      : a.reviewCount > 0
+                        ? ` · 口コミ ${a.reviewCount}件`
+                        : ""}
                   </div>
                 </div>
                 <svg
