@@ -64,6 +64,16 @@ const nextConfig: NextConfig = {
         destination: "/for-counselors",
         permanent: true,
       },
+      /* /counselors（旧・カウンセラー一覧）は /kinda-talk へ。
+         ページ内直書きの架空カウンセラー（評価・口コミ件数つき）が is_demo の仕組みの外で
+         公開されていたため、ページごと削除した（2026-09-09）。実データの一覧は /kinda-talk が担う。
+         将来 Supabase 接続で一覧を作り直す可能性があるため permanent: false（307）。
+         カウンセラー個別ページ /counselors/[id] は実データ用に残しており、この指定では止まらない。 */
+      {
+        source: "/counselors",
+        destination: "/kinda-talk",
+        permanent: false,
+      },
       {
         source: "/search",
         has: [{ type: "query", key: "tab", value: "agency" }],
