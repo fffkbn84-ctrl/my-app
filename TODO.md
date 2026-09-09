@@ -42,8 +42,8 @@
 
 - [x] **anon から実行できた SECURITY DEFINER 関数2本の実行権限を剥奪**（2026-09-09・マイグレーション `045`）。`billing_events_auto_confirm_past_due()`（請求行を pending→confirmed にできる）と `auto_cancel_expired_reschedules()`（期限切れ予約をキャンセルできる）が未ログインでも `/rest/v1/rpc/...` から呼べていた。どちらも pg_cron が `postgres` 権限で回しているため定期実行には影響しない。
 - [x] **`/api/notify` に簡易レート制限を追加**（2026-09-09）。`/api/for-counselors/inquiry` にはあった連投対策が無く、メール登録の連投・リスト汚染が可能だった。
-- [ ] **Supabase Auth の「漏洩パスワード保護」を有効化**（ふうか操作・ダッシュボードのみ）。Authentication → Policies → Leaked password protection を ON。
-- [ ] **admin の env 実設定を確認**（ふうか操作）。`ADMIN_BASIC_AUTH_USER` / `ADMIN_BASIC_AUTH_PASSWORD` は**未設定だと Basic 認証がフェイルオープン**、`ADMIN_MFA_ENFORCED=true` でないと MFA が発動しない。Vercel の futarive-admin プロジェクトで実際に入っているか見る。
+- [~] **Supabase Auth の「漏洩パスワード保護」は見送り**（2026-09-09 判断・正直に申告）。有効化に有料プランが要るため現段階では入れない。**代替としてパスワード要件（最低文字数・文字種の条件）を強化済み**。将来 Pro に上げる場面が来たら同時に ON にする。
+- [x] **admin の Basic 認証 env は設定済み**（2026-09-09 確認）。`ADMIN_BASIC_AUTH_USER` / `ADMIN_BASIC_AUTH_PASSWORD` の2つとも Vercel に入っている（未設定だとフェイルオープンする実装なので、この2つは常にセットで維持すること）。`ADMIN_MFA_ENFORCED=true` の有無は別途確認する。
 - [ ] **main 配下のサブアプリのコピーが軒並み古い**（稼働ブランチが正）。`futarive-counselor/app/(main)/calendar/page.tsx` も main 側は `slots` を `start_time` / `end_time` で読み書きしており、実際のDB列（`start_at` / `end_at`）と食い違う。稼働ブランチ `claude/fix-profile-creation-1clpG` は正しい実装（週/日/月ビュー・一括生成つき）。**main 側のサブアプリコードを信用して作業しないこと。**
 - [ ] **main の `futarive-admin/middleware.ts` が古い**。稼働ブランチ `claude/futarive-admin-dashboard-iKBfw` には Basic 認証＋admin ロール確認＋MFA が入っているが、main 側はログイン確認のみ。今は穴ではないが、将来 main を実体にすると開く。ブランチ統合時に必ず新しい方を残す。
 
