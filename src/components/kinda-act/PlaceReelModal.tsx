@@ -9,6 +9,7 @@ import { useFavorites } from "@/hooks/useFavorites";
 import { PLACE_CATEGORY_ICON } from "./placeIcons";
 import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import ShareSheet from "@/components/kinda-talk/ShareSheet";
 
 type Props = {
@@ -262,9 +263,13 @@ export default function PlaceReelModal({ place, onClose }: Props) {
                 </div>
                 <div className="kt-reel-modal-name">{place.name}</div>
                 <div className="kt-reel-modal-meta">
-                  {/* 口コミが 1 件もないうちは ★0.0 と出るだけなので伏せる */}
+                  {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
                   {place.stage} · {place.location}
-                  {place.reviewCount > 0 && ` · ★${place.rating.toFixed(1)} (${place.reviewCount})`}
+                  {hasEnoughReviewsForRating(place.reviewCount)
+                    ? ` · ★${place.rating.toFixed(1)} (${place.reviewCount})`
+                    : place.reviewCount > 0
+                      ? ` · 口コミ ${place.reviewCount}件`
+                      : ""}
                 </div>
                 {place.observationLine && (
                   <div className="kt-reel-modal-meta" style={{ marginTop: 8, lineHeight: 1.7 }}>

@@ -5,6 +5,7 @@ import type { PlaceHome } from "@/lib/mock/places-home";
 import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
 import { PLACE_CATEGORY_ICON } from "./placeIcons";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 const GRADIENT_BG: Record<string, string> = {
   cafe: "linear-gradient(135deg,#FAEAE5,#F0D8D0)",
@@ -168,8 +169,8 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
             {place.observationLine}
           </p>
         )}
-        {/* 口コミが 1 件もないうちは ★0.0 と出るだけで、かえって誤解を招く */}
-        {place.reviewCount > 0 && (
+        {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+        {hasEnoughReviewsForRating(place.reviewCount) ? (
           <div
             className="kt-reel-rating"
             aria-label={`平均評価 ${place.rating.toFixed(1)}、レビュー ${place.reviewCount}件`}
@@ -181,7 +182,11 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
               {place.rating.toFixed(1)} ({place.reviewCount})
             </span>
           </div>
-        )}
+        ) : place.reviewCount > 0 ? (
+          <div className="kt-reel-rating">
+            <span aria-hidden="true">口コミ {place.reviewCount}件</span>
+          </div>
+        ) : null}
       </div>
     </button>
   );

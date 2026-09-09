@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import SaveButton from "@/components/ui/SaveButton";
 import Breadcrumb from "@/components/ui/Breadcrumb";
@@ -142,10 +143,15 @@ function CounselorScrollCard({ c }: { c: Counselor }) {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 12 }}>
-          <StarRating rating={c.rating} size={11} />
-          <span style={{ fontSize: 12, fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
-            {c.rating}
-          </span>
+          {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+          {hasEnoughReviewsForRating(c.reviewCount) && (
+            <>
+              <StarRating rating={c.rating} size={11} />
+              <span style={{ fontSize: 12, fontFamily: "var(--font-serif)", color: "var(--ink)" }}>
+                {c.rating}
+              </span>
+            </>
+          )}
           <span style={{ fontSize: 10, color: "var(--muted)" }}>（{c.reviewCount}件）</span>
         </div>
 

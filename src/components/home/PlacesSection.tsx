@@ -10,6 +10,7 @@ import {
   type PlaceTabCategory,
   type ThumbVariant,
 } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
@@ -249,7 +250,8 @@ export default function PlacesSection() {
                 </div>
                 <div className="pt-bottom">
                   <div className="pt-rating">
-                    <Stars rating={place.rating} />
+                    {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                    {hasEnoughReviewsForRating(place.reviewCount) && <Stars rating={place.rating} />}
                     <span className="pt-cnt">口コミ {place.reviewCount}件</span>
                   </div>
                   <PlaceBadge type={place.badgeType} />

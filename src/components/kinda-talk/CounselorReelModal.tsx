@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Counselor, isNewShop } from "@/lib/data";
 import { KindaTypeKey } from "@/lib/kinda-types";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import { useFavorites } from "@/hooks/useFavorites";
 import KindaTypeBadge from "./KindaTypeBadge";
 import ShareSheet from "./ShareSheet";
@@ -264,7 +265,13 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
                 )}
               </div>
               <div className="kt-reel-modal-meta">
-                {counselor.agencyName} · {counselor.area} · ★{counselor.rating.toFixed(1)} ({counselor.reviewCount})
+                {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                {counselor.agencyName} · {counselor.area}
+                {hasEnoughReviewsForRating(counselor.reviewCount)
+                  ? ` · ★${counselor.rating.toFixed(1)} (${counselor.reviewCount})`
+                  : counselor.reviewCount > 0
+                    ? ` · 口コミ ${counselor.reviewCount}件`
+                    : ""}
               </div>
 
               <div className="kt-reel-modal-cta-row">

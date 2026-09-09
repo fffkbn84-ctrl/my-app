@@ -12,6 +12,7 @@ import {
 import { getShopById, type ShopDetail } from "@/lib/data";
 import type { PlaceReview, Place } from "@/lib/mock/places";
 import type { ActObservations, PriceGuide } from "@/types/database";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -577,8 +578,9 @@ export default async function PlaceDetailPage({
               {place.category} · {place.area}
             </p>
 
-            {/* 評価 + 口コミリンク */}
+            {/* 評価 + 口コミリンク。件数が少ないうちは平均を出さない */}
             <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              {hasEnoughReviewsForRating(place.reviewCount) && (
               <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg key={star} width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -595,6 +597,7 @@ export default async function PlaceDetailPage({
                   {avgRating.toFixed(1)}
                 </span>
               </div>
+              )}
               <Link
                 href="#reviews"
                 style={{
@@ -835,9 +838,11 @@ export default async function PlaceDetailPage({
                             marginBottom: 8,
                           }}
                         >
-                          {avgRating.toFixed(1)}
+                          {hasEnoughReviewsForRating(place.reviews.length) ? avgRating.toFixed(1) : "—"}
                         </p>
-                        <StarRatingLight rating={Math.round(avgRating)} size={16} />
+                        {hasEnoughReviewsForRating(place.reviews.length) && (
+                          <StarRatingLight rating={Math.round(avgRating)} size={16} />
+                        )}
                         <p style={{ fontSize: 11, color: "var(--muted)", marginTop: 6 }}>
                           {place.reviews.length}件の評価
                         </p>

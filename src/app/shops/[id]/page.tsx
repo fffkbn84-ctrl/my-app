@@ -7,6 +7,7 @@ import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 import { PlacePriceTooltipContent } from "@/lib/policyMessages";
 import { placesHomeData } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import type { BadgeType } from "@/lib/mock/places-home";
 
 /* ────────────────────────────────────────────────────────────
@@ -129,7 +130,8 @@ export default async function ShopDetailPage({
                       {shop.location}
                     </p>
 
-                    {avgRating !== null && (
+                    {/* 件数が少ないうちは平均が振れるため出さない */}
+                    {avgRating !== null && hasEnoughReviewsForRating(reviews.length) && (
                       <div className="flex items-center gap-2 mb-4 pb-4 border-b border-light">
                         <StarRating rating={avgRating} size={16} />
                         <span className="text-lg font-medium text-ink">{avgRating.toFixed(1)}</span>
@@ -223,7 +225,7 @@ export default async function ShopDetailPage({
 
                 {reviews.length > 0 ? (
                   <>
-                    {avgRating !== null && (
+                    {avgRating !== null && hasEnoughReviewsForRating(reviews.length) && (
                       <div className="bg-pale rounded-2xl p-6 mb-6 flex items-center gap-6">
                         <div className="text-center shrink-0">
                           <p className="text-5xl text-ink leading-none mb-1" style={{ fontFamily: "var(--font-serif)" }}>
