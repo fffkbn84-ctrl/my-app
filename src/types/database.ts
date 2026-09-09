@@ -6,6 +6,59 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+/**
+ * Kinda act の観察記録。
+ * ふたりが店に着いてから別れるまでを「着く／話せる／なじむ／終われる」の
+ * 4 段階に分け、実際に行って見てきたことだけを入れる。
+ * 感想や評価ではなく現象の記述を置く（CLAUDE.md §3 のトーン）。
+ * 項目が育っている最中のため、列を増やさず shops.act_observations に jsonb で持つ。
+ */
+export type ActObservations = {
+  /** 着く — 店に着いて、席に座るまで */
+  arrive?: {
+    /** 入口の分かりやすさ */
+    entrance?: string;
+    /** 迷いやすいところ */
+    hardToFind?: string;
+    /** 予約の要否 */
+    reservation?: string;
+    /** 入ってから席に着くまでに起きること。初対面の緊張が最も高いところ */
+    firstFiveMinutes?: string;
+    /** 先に着いた側が相手を待つ場所 */
+    waitingSpot?: string;
+  };
+  /** 話せる — 席のかたちと、聞こえ方 */
+  talk?: {
+    seatShapes?: string[];
+    /** 席配置を文章にしたもの */
+    layout?: string;
+    /** 席配置の俯瞰図（public 配下のパス） */
+    layoutImage?: string;
+    neighborDistance?: string;
+    neighborMeters?: number;
+    volume?: string;
+    tableSize?: string;
+    /** 会話が途切れたときに目をやれるもの、席を立つ口実 */
+    silenceEscape?: string;
+  };
+  /** なじむ — その場から浮かないか */
+  fit?: {
+    crowd?: string[];
+    dressCode?: string;
+    standOut?: string;
+    privateRoom?: string;
+  };
+  /** 終われる — 切り上げと、もう少し居たいとき */
+  leave?: {
+    turnoverPressure?: string;
+    wrapUp?: string;
+    extend?: string;
+    payment?: string;
+    /** 店を出たあとどうなるか */
+    afterwards?: string;
+  };
+};
+
 export interface Database {
   public: {
     Tables: {
@@ -246,6 +299,8 @@ export interface Database {
           other_social_url: string | null;
           /* Kinda が最後に現地へ行った日。DB 側は NOT NULL・now() 既定 */
           last_reviewed_at: string;
+          /* Kinda act の観察記録（着く／話せる／なじむ／終われる）。行って確かめたお店のみ */
+          act_observations: ActObservations | null;
           created_at: string;
           updated_at: string;
         };

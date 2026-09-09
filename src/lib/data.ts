@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'
 import { places } from '@/lib/mock/places'
 import { placesHomeData, type PlaceHome, type PlaceTabCategory, type ThumbVariant } from '@/lib/mock/places-home'
-import type { Database } from '@/types/database'
+import type { ActObservations, Database } from '@/types/database'
 
 type CounselorRow = Database['public']['Tables']['counselors']['Row']
 type CounselorMediaRow = Database['public']['Tables']['counselor_media']['Row']
@@ -1077,6 +1077,8 @@ export type ShopDetail = PlaceHome & {
    * 行っていないお店（listed）では意味を持たないため表示側で出し分ける。
    */
   lastReviewedAt: string | null
+  /** 着く／話せる／なじむ／終われる の観察記録 */
+  actObservations: ActObservations | null
 }
 
 export async function getShopById(id: string): Promise<ShopDetail | null> {
@@ -1121,6 +1123,7 @@ export async function getShopById(id: string): Promise<ShopDetail | null> {
     instagramUrl: row.instagram_url ?? null,
     otherSocialUrl: row.other_social_url ?? null,
     lastReviewedAt: row.last_reviewed_at,
+    actObservations: row.act_observations,
     gallery,
   }
 }

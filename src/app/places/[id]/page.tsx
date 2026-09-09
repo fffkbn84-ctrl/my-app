@@ -11,6 +11,7 @@ import {
 } from "@/lib/policyMessages";
 import { getShopById, type ShopDetail } from "@/lib/data";
 import type { PlaceReview, Place } from "@/lib/mock/places";
+import type { ActObservations } from "@/types/database";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -39,7 +40,12 @@ const THUMB_VARIANT_SVG_COLORS: Record<string, string> = {
 
 function buildPlaceFromShop(
   shop: ShopDetail,
-): Place & { reviews: PlaceReview[]; address: string | null; lastReviewedAt: string | null } {
+): Place & {
+  reviews: PlaceReview[];
+  address: string | null;
+  lastReviewedAt: string | null;
+  actObservations: ActObservations | null;
+} {
   return {
     // Supabase の id は UUID 文字列だが、Place 型は number。
     // UI 側で id は文字列比較しないので、表示用に Number 変換を避けて 0 を入れる。
@@ -65,6 +71,7 @@ function buildPlaceFromShop(
     // 地図は駅からの徒歩案内より住所のほうが正確に引ける
     address: shop.address,
     lastReviewedAt: shop.lastReviewedAt,
+    actObservations: shop.actObservations,
     description: shop.description,
     features: shop.features,
     scenes: shop.scenes ?? [],
@@ -178,6 +185,193 @@ function SnsIcon({ kind }: { kind: SnsLink["kind"] }) {
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
       <path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" stroke="currentColor" strokeWidth="1.4" />
     </svg>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────
+   行って確かめたこと（着く／話せる／なじむ／終われる）
+
+   ふたりが店に着いてから別れるまでを 4 段階に分けて並べる。
+   良し悪しは書かない。実際に見てきた現象だけを置く（CLAUDE.md §3）。
+──────────────────────────────────────────────────────────── */
+function ObservationItem({ label, value }: { label: string; value?: string | null }) {
+  if (!value) return null;
+  return (
+    <div className="clay-info-item">
+      <div className="clay-info-key">{label}</div>
+      <div className="clay-info-val">{value}</div>
+    </div>
+  );
+}
+
+function ObservationCard({
+  step,
+  title,
+  lead,
+  children,
+}: {
+  step: string;
+  title: string;
+  lead: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="clay-card">
+      <div style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".08em", marginBottom: 6 }}>
+        {step}
+      </div>
+      <h2 className="clay-sec-h" style={{ marginBottom: 4 }}>{title}</h2>
+      <p style={{ fontSize: 12, color: "var(--mid)", margin: "0 0 18px" }}>{lead}</p>
+      {children}
+    </div>
+  );
+}
+
+function ActObservationSections({
+  obs,
+  placeName,
+}: {
+  obs: ActObservations;
+  placeName: string;
+}) {
+  const { arrive, talk, fit, leave } = obs;
+  const filled = (o?: Record<string, unknown>) =>
+    !!o && Object.values(o).some((v) => (Array.isArray(v) ? v.length > 0 : v != null && v !== ""));
+
+  // 「会話は聞こえない」だけだと距離感が伝わらないので目測を添える
+  const neighbor = talk?.neighborDistance
+    ? talk.neighborMeters
+      ? `${talk.neighborDistance}（目測 約${talk.neighborMeters}m）`
+      : talk.neighborDistance
+    : undefined;
+
+  return (
+    <>
+      {filled(arrive) && (
+        <ObservationCard
+          step="1 / 4"
+          title="着く"
+          lead="店に着いて、席に座るまで。緊張がいちばん高いところです。"
+        >
+          <div className="clay-info-grid">
+            <ObservationItem label="入口" value={arrive?.entrance} />
+            <ObservationItem label="迷いやすいところ" value={arrive?.hardToFind} />
+            <ObservationItem label="予約" value={arrive?.reservation} />
+            <ObservationItem label="先に着いたら" value={arrive?.waitingSpot} />
+          </div>
+          {arrive?.firstFiveMinutes && (
+            <div className="clay-desc-block" style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>最初の5分</div>
+              {arrive.firstFiveMinutes}
+            </div>
+          )}
+        </ObservationCard>
+      )}
+
+      {filled(talk) && (
+        <ObservationCard
+          step="2 / 4"
+          title="話せる"
+          lead="席のかたちと、声の届き方。ふたりの距離はここで決まります。"
+        >
+          {talk?.seatShapes && talk.seatShapes.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+              {talk.seatShapes.map((shape) => (
+                <span key={shape} className="clay-tag">{shape}</span>
+              ))}
+            </div>
+          )}
+
+          {talk?.layoutImage && (
+            <figure style={{ margin: "0 0 16px" }}>
+              {/*
+                図のラベルは狭い画面だと潰れて読めなくなるため、
+                最小幅を確保して図だけを横スクロールさせる（ページ自体は横に出さない）。
+              */}
+              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                {/* SVG の俯瞰図。next/image を通さず素の img で出す */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={talk.layoutImage}
+                  alt={`${placeName} で実際に座った席の配置図`}
+                  loading="lazy"
+                  style={{
+                    width: "100%",
+                    minWidth: 860,
+                    height: "auto",
+                    display: "block",
+                    borderRadius: 12,
+                    border: "1px solid var(--border)",
+                  }}
+                />
+              </div>
+              <figcaption style={{ fontSize: 11, color: "var(--muted)", marginTop: 8 }}>
+                実際に座った席の配置。店全体の見取り図ではありません。
+              </figcaption>
+            </figure>
+          )}
+
+          {talk?.layout && <div className="clay-desc-block">{talk.layout}</div>}
+
+          <div className="clay-info-grid" style={{ marginTop: 16 }}>
+            <ObservationItem label="隣の席との距離" value={neighbor} />
+            <ObservationItem label="店内の音" value={talk?.volume} />
+            <ObservationItem label="テーブル" value={talk?.tableSize} />
+          </div>
+
+          {talk?.silenceEscape && (
+            <div className="clay-desc-block" style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>
+                会話が途切れたとき
+              </div>
+              {talk.silenceEscape}
+            </div>
+          )}
+        </ObservationCard>
+      )}
+
+      {filled(fit) && (
+        <ObservationCard
+          step="3 / 4"
+          title="なじむ"
+          lead="その場から浮かないか。服装で迷わずに済むか。"
+        >
+          {fit?.crowd && fit.crowd.length > 0 && (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+              {fit.crowd.map((c) => (
+                <span key={c} className="clay-tag">{c}</span>
+              ))}
+            </div>
+          )}
+          <div className="clay-info-grid">
+            <ObservationItem label="服装" value={fit?.dressCode} />
+            <ObservationItem label="ふたりで行ったとき" value={fit?.standOut} />
+            <ObservationItem label="個室・半個室" value={fit?.privateRoom} />
+          </div>
+        </ObservationCard>
+      )}
+
+      {filled(leave) && (
+        <ObservationCard
+          step="4 / 4"
+          title="終われる"
+          lead="切り上げやすさと、もう少し居たくなったときの逃げ道。"
+        >
+          <div className="clay-info-grid">
+            <ObservationItem label="長居" value={leave?.turnoverPressure} />
+            <ObservationItem label="切り上げ" value={leave?.wrapUp} />
+            <ObservationItem label="延長" value={leave?.extend} />
+            <ObservationItem label="会計" value={leave?.payment} />
+          </div>
+          {leave?.afterwards && (
+            <div className="clay-desc-block" style={{ marginTop: 16 }}>
+              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>店を出たあと</div>
+              {leave.afterwards}
+            </div>
+          )}
+        </ObservationCard>
+      )}
+    </>
   );
 }
 
@@ -486,6 +680,11 @@ export default async function PlaceDetailPage({
                     {place.description}
                   </div>
                 </div>
+
+                {/* 行って確かめたこと（着く／話せる／なじむ／終われる） */}
+                {place.actObservations && (
+                  <ActObservationSections obs={place.actObservations} placeName={place.name} />
+                )}
 
                 {/* 基本情報 */}
                 <div className="clay-card">
