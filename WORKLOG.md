@@ -4,6 +4,84 @@
 
 ---
 
+## 2026-09-09（Claude Code セッション：営業開始前の公開状態点検とセキュリティ修正）
+
+### きっかけ
+
+「今の Kinda の状態で結婚相談所に営業の連絡をしてよいか」を判断するための点検依頼。
+本番サイト・Supabase・Vercel・リポジトリの4方向を見た。結論は
+**取材営業は今すぐ可・掲載/送客営業はブロッカー解消後**（詳細は TODO.md 冒頭の 2026-09-09 ブロック）。
+
+### 点検で分かった実データの状態
+
+- 相談所1社（Emma）／カウンセラー1名（小山楓華）／**公開済み口コミ 0件**（未公開3件が保留のまま）
+- **未来の空き枠（`slots`）が全体で 0件**。DB 上の最後の枠は 2026-06-27 開始で、以降が入っていない
+  → サイトの見た目は正常なのに、予約導線を最後まで進めない状態だった
+- 課金は Stripe テストキーのまま（本番審査が未完）
+
+### 修正1：`/counselors` の架空カウンセラーを公開から外した
+
+- `src/app/counselors/page.tsx` に**ページ内直書きの架空4名**（田中 美紀 4.9/82件、山田 健太郎 4.8/41件 等）があり、
+  `is_demo` / `isDemo` の仕組みの**外**にあった。サンプルバッジも noindex も無く本番公開されていた
+  （Vercel 経由で本番 HTML に4名とも出ていることを確認）。口コミサイトとしては景表法・ステマ規制の観点で最も危ない箇所
+- 内部リンクは0件・sitemap にも未登録の孤立ページだったため、**ページごと削除**し
+  `next.config.ts` で `/counselors` → `/kinda-talk` にリダイレクト（将来作り直す可能性があるため 307）
+- **`/counselors/[id]`（実カウンセラーの個別ページ）は残す**。redirect の source は完全一致なので個別ページは素通り。
+  ビルド後のルート一覧で `/counselors/[id]` と `/counselors/booking` の存続を確認済み
+
+### 修正2：口コミを「書かれた側」が書き換えられる穴を塞いだ（最重要）
+
+- `reviews` の UPDATE ポリシー `reviews_update_admin_or_owner` は、返信（`agency_reply`）を書くために
+  カウンセラー本人・相談所オーナーにも UPDATE を許していた。だが **RLS は列を絞れず、列 GRANT も全列に付いていた**ため、
+  `body` / `rating` / `is_published` まで PostgREST 経由で書き換え可能だった
+  （＝自分に付いた低評価の本文改変・非公開化ができる）。「面談した人だけが書ける・やらせは構造上できない」という
+  営業トークの核と正面から矛盾するため最優先で修正
+- **列 GRANT の剥奪ではなく BEFORE UPDATE トリガーで防いだ**。理由：運営 admin 画面も同じ `authenticated` ロールで
+  `is_published` を切り替えているため、列 GRANT を落とすと公開・非公開の運用まで壊れる。
+  トリガーなら `auth.uid()` と `is_admin()` で「誰が触ったか」を見て分岐できる
+- マイグレーション `supabase/migrations/045_reviews_protect_columns_and_revoke_public_rpc.sql`（本番適用済み）
+- 検証（本番データを変えずに DO ブロック内で試行→意図的に例外で全ロールバック）：
+  非 admin のカウンセラーからは **本文・公開状態・評価の変更がすべて拒否**され、**返信は従来どおり通る**ことを確認
+
+#### ハマったところ：小山楓華のアカウントは `admin_users` にも入っている
+
+- 最初の検証で「ガードが効いていない」と出たが、原因は**小山楓華＝ふうか本人が運営 admin でもある**ため、
+  トリガーの admin 分岐を通っていただけだった。非 admin の uuid で再検証して正しく拒否されることを確認
+- もう1つの偽陽性：`rating` の検証で元の値が既に 5 だったため `SET rating = 5` が
+  「変更なし」と判定され通過した。別値に変えて再検証 → 正しく拒否
+
+### 修正3：未ログインから叩けた RPC 2本の実行権限を剥奪
+
+- `billing_events_auto_confirm_past_due()`（請求行を pending→confirmed にできる）と
+  `auto_cancel_expired_reschedules()`（期限切れ予約をキャンセルできる）が PUBLIC に EXECUTE を持ち、
+  未ログインでも `/rest/v1/rpc/...` から呼べていた
+- **先に `cron.job` を確認**し、どちらも pg_cron が `postgres` 権限で回している（＝外部実行権限は不要）ことを確かめてから
+  PUBLIC / anon / authenticated から REVOKE。`service_role` には明示 GRANT を残した
+- 剥奪後、`has_function_privilege('anon', ...)` が両方 false になったことを確認
+
+### 修正4：`/api/notify` に簡易レート制限
+
+- `/api/for-counselors/inquiry` には入っていた IP 単位の連投抑止（60秒5回）が、メール登録側には無かった。
+  同じ実装を移植。リスト汚染の抑止が目的で、永続的な保証ではない
+
+### 点検して問題なしだったところ（記録）
+
+- RLS は public スキーマの全22テーブルで有効。予約・口コミのポリシーは owner ベースで妥当
+- 秘密情報のコミットなし（`.env.example` はプレースホルダのみ）。WORKLOG/TODO に出てくる `sk_test_…` 等は伏字で実キーではない
+- Stripe webhook は署名検証あり／`charge` は予約本人のみ／`refund` は admin 限定／cron は `CRON_SECRET` 必須
+- `profiles` は anon から全行読めるが列は `nickname` のみ。**この表にメール・電話を足さないこと**
+
+### 残（ふうか操作待ち・TODO.md に転記済み）
+
+- 予約枠の投入（counselor 管理画面から小山楓華の未来の枠を作る）と、未公開口コミ3件の公開判断
+- Supabase Auth の「漏洩パスワード保護」を ON
+- Vercel の futarive-admin に `ADMIN_BASIC_AUTH_*` が実際に入っているかの確認
+  （**未設定だと Basic 認証はフェイルオープン**する実装）／`ADMIN_MFA_ENFORCED=true` の確認
+- main の `futarive-admin/middleware.ts` が稼働ブランチより古い（Basic 認証・admin ロール確認・MFA が無い版）。
+  ブランチ統合時に**新しい方を残す**こと
+
+---
+
 ## 2026-08-15（Claude Code セッション：コラムカードの活字サムネ・SEO の実害を1件修正）
 
 ### 完了
