@@ -127,7 +127,7 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
 
       <div className="kt-reel-card-top">
         <PlaceBadge type={place.badgeType} />
-        <DemoBadge />
+        {place.isDemo && <DemoBadge />}
       </div>
 
       <div className="kt-reel-card-bottom">

@@ -22,24 +22,27 @@ export type ActObservations = {
     hardToFind?: string;
     /** 予約の要否 */
     reservation?: string;
-    /** 入ってから席に着くまでに起きること。初対面の緊張が最も高いところ */
-    firstFiveMinutes?: string;
+    /** 入ってから席に着くまでに起きること。初対面の緊張が最も高いところ。1行1事実 */
+    firstFiveMinutes?: string[];
     /** 先に着いた側が相手を待つ場所 */
     waitingSpot?: string;
   };
   /** 話せる — 席のかたちと、聞こえ方 */
   talk?: {
     seatShapes?: string[];
-    /** 席配置を文章にしたもの */
-    layout?: string;
+    /**
+     * 席配置。1 行 1 項目で、俯瞰図の番号と同じ順に並べる。
+     * 長い一文にすると読めなくなるため、必ず短く切って持つ。
+     */
+    layout?: string[];
     /** 席配置の俯瞰図（public 配下のパス） */
     layoutImage?: string;
     neighborDistance?: string;
     neighborMeters?: number;
     volume?: string;
     tableSize?: string;
-    /** 会話が途切れたときに目をやれるもの、席を立つ口実 */
-    silenceEscape?: string;
+    /** 会話が途切れたときに目をやれるもの、席を立つ口実。1行1事実 */
+    silenceEscape?: string[];
   };
   /** なじむ — その場から浮かないか */
   fit?: {
@@ -54,8 +57,8 @@ export type ActObservations = {
     wrapUp?: string;
     extend?: string;
     payment?: string;
-    /** 店を出たあとどうなるか */
-    afterwards?: string;
+    /** 店を出たあとどうなるか。1行1事実 */
+    afterwards?: string[];
   };
 };
 
@@ -301,17 +304,20 @@ export interface Database {
           last_reviewed_at: string;
           /* Kinda act の観察記録（着く／話せる／なじむ／終われる）。行って確かめたお店のみ */
           act_observations: ActObservations | null;
+          /* 営業デモ用のダミー店。true のときだけ「サンプル」バッジを出す */
+          is_demo: boolean;
           created_at: string;
           updated_at: string;
         };
         Insert: Omit<
           Database["public"]["Tables"]["shops"]["Row"],
-          "id" | "created_at" | "updated_at" | "last_reviewed_at"
+          "id" | "created_at" | "updated_at" | "last_reviewed_at" | "is_demo"
         > & {
           id?: string;
           created_at?: string;
           updated_at?: string;
           last_reviewed_at?: string;
+          is_demo?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["shops"]["Insert"]>;
       };

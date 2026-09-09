@@ -988,6 +988,7 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
     areaLabel: row.area_label ?? row.area ?? '',
     priceRange: row.price_range ?? undefined,
     photoUrl: row.photo_url ?? undefined,
+    isDemo: row.is_demo,
   }
 }
 

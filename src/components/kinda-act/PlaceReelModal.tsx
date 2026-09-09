@@ -255,7 +255,7 @@ export default function PlaceReelModal({ place, onClose }: Props) {
               <div className="kt-reel-modal-bottom">
                 <div style={{ display: "flex", gap: 4, marginBottom: 8, flexWrap: "wrap" }}>
                   <PlaceBadge type={place.badgeType} />
-                  <DemoBadge />
+                  {place.isDemo && <DemoBadge />}
                 </div>
                 <div className="kt-reel-modal-catchphrase" id={`ka-reel-title-${place.id}`}>
                   {currentSlide?.caption ?? place.name}

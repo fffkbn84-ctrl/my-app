@@ -204,6 +204,50 @@ function ObservationItem({ label, value }: { label: string; value?: string | nul
   );
 }
 
+/**
+ * 観察のまとまり。長い一文を四角で囲むと読みにくいので、
+ * 複数行あるときは箇条書きにする。1行だけならそのまま出す。
+ */
+function ObservationNote({
+  label,
+  lines,
+  ordered = false,
+}: {
+  label?: string;
+  lines?: string[];
+  ordered?: boolean;
+}) {
+  if (!lines || lines.length === 0) return null;
+  const List = ordered ? "ol" : "ul";
+  return (
+    <div className="clay-desc-block">
+      {label && (
+        <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: lines.length > 1 ? 10 : 6 }}>
+          {label}
+        </div>
+      )}
+      {lines.length === 1 ? (
+        <span>{lines[0]}</span>
+      ) : (
+        <List
+          style={{
+            margin: 0,
+            paddingLeft: "1.3em",
+            listStyle: ordered ? "decimal" : "disc",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+          {lines.map((line, i) => (
+            <li key={i} style={{ lineHeight: 1.85 }}>{line}</li>
+          ))}
+        </List>
+      )}
+    </div>
+  );
+}
+
 function ObservationCard({
   step,
   title,
@@ -259,12 +303,9 @@ function ActObservationSections({
             <ObservationItem label="予約" value={arrive?.reservation} />
             <ObservationItem label="先に着いたら" value={arrive?.waitingSpot} />
           </div>
-          {arrive?.firstFiveMinutes && (
-            <div className="clay-desc-block" style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>最初の5分</div>
-              {arrive.firstFiveMinutes}
-            </div>
-          )}
+          <div style={{ marginTop: 16 }}>
+            <ObservationNote label="最初の5分" lines={arrive?.firstFiveMinutes} />
+          </div>
         </ObservationCard>
       )}
 
@@ -285,33 +326,31 @@ function ActObservationSections({
           {talk?.layoutImage && (
             <figure style={{ margin: "0 0 16px" }}>
               {/*
-                図のラベルは狭い画面だと潰れて読めなくなるため、
-                最小幅を確保して図だけを横スクロールさせる（ページ自体は横に出さない）。
+                図の中に説明を書き込むと、狭い画面で文字が潰れて横スクロールが要る。
+                図には番号だけを置き、説明は下の番号付きリストで読ませる。
+                こうすると図はどの幅にも収まり、文章は本文と同じ大きさで読める。
               */}
-              <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-                {/* SVG の俯瞰図。next/image を通さず素の img で出す */}
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={talk.layoutImage}
-                  alt={`${placeName} で実際に座った席の配置図`}
-                  loading="lazy"
-                  style={{
-                    width: "100%",
-                    minWidth: 860,
-                    height: "auto",
-                    display: "block",
-                    borderRadius: 12,
-                    border: "1px solid var(--border)",
-                  }}
-                />
-              </div>
-              <figcaption style={{ fontSize: 11, color: "var(--muted)", marginTop: 8 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={talk.layoutImage}
+                alt={`${placeName} で実際に座った席の配置図`}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  maxWidth: 420,
+                  height: "auto",
+                  display: "block",
+                  margin: "0 auto",
+                }}
+              />
+              <figcaption style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, textAlign: "center" }}>
                 実際に座った席の配置。店全体の見取り図ではありません。
               </figcaption>
             </figure>
           )}
 
-          {talk?.layout && <div className="clay-desc-block">{talk.layout}</div>}
+          {/* 図の番号と同じ順に並ぶ */}
+          <ObservationNote lines={talk?.layout} ordered />
 
           <div className="clay-info-grid" style={{ marginTop: 16 }}>
             <ObservationItem label="隣の席との距離" value={neighbor} />
@@ -319,14 +358,9 @@ function ActObservationSections({
             <ObservationItem label="テーブル" value={talk?.tableSize} />
           </div>
 
-          {talk?.silenceEscape && (
-            <div className="clay-desc-block" style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>
-                会話が途切れたとき
-              </div>
-              {talk.silenceEscape}
-            </div>
-          )}
+          <div style={{ marginTop: 16 }}>
+            <ObservationNote label="会話が途切れたとき" lines={talk?.silenceEscape} />
+          </div>
         </ObservationCard>
       )}
 
@@ -363,12 +397,9 @@ function ActObservationSections({
             <ObservationItem label="延長" value={leave?.extend} />
             <ObservationItem label="会計" value={leave?.payment} />
           </div>
-          {leave?.afterwards && (
-            <div className="clay-desc-block" style={{ marginTop: 16 }}>
-              <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 6 }}>店を出たあと</div>
-              {leave.afterwards}
-            </div>
-          )}
+          <div style={{ marginTop: 16 }}>
+            <ObservationNote label="店を出たあと" lines={leave?.afterwards} />
+          </div>
         </ObservationCard>
       )}
     </>
