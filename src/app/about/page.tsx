@@ -928,23 +928,21 @@ export default function AboutPage() {
             </div>
 
             <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
-              新卒で大手自動車メーカーの接客・提案の仕事を経験したのち、結婚相談所に5年間勤務。
-              在籍中はトップレベルの成婚率を維持してきました。婚活の現場ではお金にまつわる相談も多く、
-              よりお客様の側に立って伴走するために、FP2級技能士・証券外務員一種・宅地建物取引士の資格を取得。
-              その後、独立して Kinda ふたりへ を立ち上げました。
+              新卒で大手自動車メーカーの接客・提案の仕事を経て、結婚相談所に5年間勤務。
+              在籍中はトップレベルの成婚率を維持してきました。現場ではお金にまつわる相談も多く、
+              FP2級技能士・証券外務員一種・宅地建物取引士を取得。その後、独立して Kinda を立ち上げました。
             </p>
             <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
-              相談所に勤めるなかで、改善したいことを伝えても、企業の中ではなかなかスピードが出せないもどかしさがありました。
-              そのうちに気づいたのは、相談所とユーザーのあいだにある「気持ち」のこと。
-              人の心は0か100ではなく、たいてい複雑な感情と一緒にあります。
-              悩んだり、嬉しかったりしながら、ゆるく進んでいける場所がほしい。
-              そして、カウンセラーとの相性で婚活の進み方は驚くほど変わる——だからこそ、
-              不透明になりがちなカウンセラーを「見える」ようにしたかった。
-              自分の気持ちも見えて、カウンセラーのことも見える。見えることで、ようやく自分と向き合いながら進んでいける。
-              そう思って Kinda をつくりました。
+              考えるより先に手が動いてしまうほうです。Kinda も、構想が固まる前にサイトを作り始めてしまいました。
+              足したり、削ったり、これは今後の課題と置いたりしながら、いまも作っている途中です。
+            </p>
+            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
+              人の気持ちは0か100ではなくて、たいてい複雑なまま進んでいくものだと思っています。
+              だから Kinda では、誰かを急かす言葉を置かないようにしています。
+              サイトの文章はほとんど、そこだけを気にしながら書いています。
             </p>
             <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--muted)", lineHeight: 1.9, margin: "0 0 20px" }}>
-              趣味はサーキット場に通うこと。いつか自分でも走れるようになるのが目標です。
+              休みの日はサーキット場にいます。いつか自分でも走れるようになるのが目標です。
             </p>
             <Link
               href="/about/founder"
@@ -959,7 +957,7 @@ export default function AboutPage() {
                 letterSpacing: ".03em",
               }}
             >
-              ファウンダーストーリーを読む
+              Kinda をつくった理由を読む
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
