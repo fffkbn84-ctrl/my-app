@@ -83,8 +83,8 @@ export const STORIES: Story[] = [
     status: "活動中",
     stage: "活動中",
     date: "2026年9月",
-    periodLabel: "活動数ヶ月目",
-    periodMonths: 3,
+    periodLabel: "活動4ヶ月目",
+    periodMonths: 4,
     // 相談所名は同意範囲外（consent.agency=false）。0 は実データに存在しないため著者カードは出ない。
     counselorId: 0,
     counselorName: "",
