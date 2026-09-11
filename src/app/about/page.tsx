@@ -46,7 +46,7 @@ export default function AboutPage() {
       name: "ふうか",
       jobTitle: "代表",
       description:
-        "結婚相談所で5年間勤務しトップレベルの成婚率を維持したのち独立。FP2級技能士・証券外務員一種・宅地建物取引士の資格を持ち、婚活とお金の両面から伴走する。Kinda ふたりへ の創業者。",
+        "結婚相談所に勤務しトップレベルの成婚率を維持したのち独立。FP2級技能士・証券外務員一種・宅地建物取引士の資格を持ち、婚活とお金の両面から伴走する。Kinda ふたりへ の創業者。",
       knowsAbout: ["結婚相談所", "婚活", "ファイナンシャルプランニング"],
     },
   };
@@ -928,9 +928,10 @@ export default function AboutPage() {
             </div>
 
             <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
-              新卒で大手自動車メーカーの接客・提案の仕事を経て、結婚相談所に5年間勤務。
-              在籍中はトップレベルの成婚率を維持してきました。現場ではお金にまつわる相談も多く、
-              FP2級技能士・証券外務員一種・宅地建物取引士を取得。その後、独立して Kinda を立ち上げました。
+              新卒で入ったのは自動車メーカーの、車を売るというよりコンセプトを見せるための場所でした。
+              その後、結婚相談所へ。在籍中はトップレベルの成婚率を維持してきました。
+              現場ではお金にまつわる相談も多く、FP2級技能士・証券外務員一種・宅地建物取引士を取得。
+              そこから独立して Kinda を立ち上げました。
             </p>
             <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
               考えるより先に手が動いてしまうほうです。Kinda も、構想が固まる前にサイトを作り始めてしまいました。
@@ -943,6 +944,7 @@ export default function AboutPage() {
             </p>
             <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--muted)", lineHeight: 1.9, margin: "0 0 20px" }}>
               休みの日はサーキット場にいます。いつか自分でも走れるようになるのが目標です。
+              家では犬を溺愛しています。
             </p>
             <Link
               href="/about/founder"
