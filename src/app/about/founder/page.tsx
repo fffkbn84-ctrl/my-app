@@ -10,7 +10,7 @@ export const metadata = {
   title:
     "「結婚してみようかな」と思ったとき、最初になんとなくのぞける場所を｜Kinda ふたりへ",
   description:
-    "Kinda（カインダ）をつくった、ふうかへのインタビュー。結婚相談所で5年働いた経験から、カウンセラーを口コミで選べる場所をなぜつくったのか。取材・文／さき。",
+    "Kinda（カインダ）をつくった、ふうかへのインタビュー。結婚相談所で働いた経験から、カウンセラーを口コミで選べる場所をなぜつくったのか。取材・文／さき。",
   alternates: { canonical: "/about/founder" },
   robots: { index: true, follow: true },
   openGraph: {
@@ -113,7 +113,7 @@ export default function FounderPage() {
     headline:
       "「結婚してみようかな」と思ったとき、最初になんとなくのぞける場所を",
     description:
-      "Kinda（カインダ）をつくった、ふうかへのインタビュー。結婚相談所で5年働いた経験から、カウンセラーを口コミで選べる場所をなぜつくったのか。",
+      "Kinda（カインダ）をつくった、ふうかへのインタビュー。結婚相談所で働いた経験から、カウンセラーを口コミで選べる場所をなぜつくったのか。",
     image: `${SITE_URL}/images/OGP-hero.jpg`,
     mainEntityOfPage: {
       "@type": "WebPage",

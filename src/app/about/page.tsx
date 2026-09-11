@@ -46,7 +46,7 @@ export default function AboutPage() {
       name: "ふうか",
       jobTitle: "代表",
       description:
-        "結婚相談所で5年間勤務しトップレベルの成婚率を維持したのち独立。FP2級技能士・証券外務員一種・宅地建物取引士の資格を持ち、婚活とお金の両面から伴走する。Kinda ふたりへ の創業者。",
+        "結婚相談所に勤務しトップレベルの成婚率を維持したのち独立。FP2級技能士・証券外務員一種・宅地建物取引士の資格を持ち、婚活とお金の両面から伴走する。Kinda ふたりへ の創業者。",
       knowsAbout: ["結婚相談所", "婚活", "ファイナンシャルプランニング"],
     },
   };
@@ -927,25 +927,68 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
-              新卒で大手自動車メーカーの接客・提案の仕事を経験したのち、結婚相談所に5年間勤務。
-              在籍中はトップレベルの成婚率を維持してきました。婚活の現場ではお金にまつわる相談も多く、
-              よりお客様の側に立って伴走するために、FP2級技能士・証券外務員一種・宅地建物取引士の資格を取得。
-              その後、独立して Kinda ふたりへ を立ち上げました。
+            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13, color: "var(--muted)", lineHeight: 2, margin: "0 0 28px" }}>
+              新卒で自動車メーカーへ。車を売るというよりコンセプトを見せるための場所でした。
+              その後、結婚相談所を経て独立し、Kinda を立ち上げました。
+              FP2級技能士・証券外務員一種・宅地建物取引士。
             </p>
-            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 13.5, color: "var(--mid)", lineHeight: 2, margin: "0 0 16px" }}>
-              相談所に勤めるなかで、改善したいことを伝えても、企業の中ではなかなかスピードが出せないもどかしさがありました。
-              そのうちに気づいたのは、相談所とユーザーのあいだにある「気持ち」のこと。
-              人の心は0か100ではなく、たいてい複雑な感情と一緒にあります。
-              悩んだり、嬉しかったりしながら、ゆるく進んでいける場所がほしい。
-              そして、カウンセラーとの相性で婚活の進み方は驚くほど変わる——だからこそ、
-              不透明になりがちなカウンセラーを「見える」ようにしたかった。
-              自分の気持ちも見えて、カウンセラーのことも見える。見えることで、ようやく自分と向き合いながら進んでいける。
-              そう思って Kinda をつくりました。
-            </p>
-            <p style={{ fontFamily: "'Noto Sans JP', sans-serif", fontSize: 12, color: "var(--muted)", lineHeight: 1.9, margin: "0 0 20px" }}>
-              趣味はサーキット場に通うこと。いつか自分でも走れるようになるのが目標です。
-            </p>
+
+            {/* 一問一答（雑誌の巻頭インタビュー形式）*/}
+            <dl style={{ margin: "0 0 24px" }}>
+              {[
+                {
+                  q: "仕事の進め方は。",
+                  a: "考えるより先に手が動いてしまうほうです。Kinda も構想が固まる前に作り始めて、いまも足したり削ったりしています。",
+                },
+                {
+                  q: "文章を書くとき、気にしていることは。",
+                  a: "誰かを急かす言葉を置かないこと。人の気持ちは0か100ではなくて、たいてい複雑なまま進んでいくものだと思うので。",
+                },
+                {
+                  q: "最近うれしかったことは。",
+                  a: "マイページに登録してくれている方がいると分かったこと。この嬉しさをパワーに進んでいきたいです。",
+                },
+                {
+                  q: "休みの日は。",
+                  a: "サーキット場にいます。自分でも走れるようになるのが目標です。",
+                },
+                {
+                  q: "家にいるときは。",
+                  a: "犬を溺愛しています。",
+                },
+                {
+                  q: "Kinda をどんな場所にしたいですか。",
+                  a: "「結婚してみようかな」とふと思えたとき、最初になんとなくのぞいてくれる場所に。",
+                },
+              ].map((item) => (
+                <div key={item.q} style={{ marginBottom: 22 }}>
+                  <dt
+                    style={{
+                      fontFamily: "'Shippori Mincho', serif",
+                      fontWeight: 500,
+                      fontSize: 13,
+                      color: "#D4A090",
+                      letterSpacing: ".04em",
+                      lineHeight: 1.8,
+                      marginBottom: 6,
+                    }}
+                  >
+                    — {item.q}
+                  </dt>
+                  <dd
+                    style={{
+                      fontFamily: "'Noto Sans JP', sans-serif",
+                      fontSize: 13.5,
+                      color: "var(--mid)",
+                      lineHeight: 2,
+                      margin: 0,
+                    }}
+                  >
+                    {item.a}
+                  </dd>
+                </div>
+              ))}
+            </dl>
             <Link
               href="/about/founder"
               style={{
@@ -959,7 +1002,7 @@ export default function AboutPage() {
                 letterSpacing: ".03em",
               }}
             >
-              ファウンダーストーリーを読む
+              Kinda をつくった理由を読む
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path d="M2 7h10M7 2l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
