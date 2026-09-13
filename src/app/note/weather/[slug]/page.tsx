@@ -34,15 +34,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `Kinda ${weather.name_ja} ｜ ${weather.sub_title} - Kinda note`;
   const url = `${SITE_URL}/note/weather/${weather.slug}`;
 
-  // 紐づくコラムが無いページ（15件）は noindex で除外。
-  // ドメイン全体の E-E-A-T を毀損しないため。
-  const noindex = !weather.column_slug;
+  /* 天気の個別ページは全件 noindex, follow（2026-09-13）。
+     本文が約400字のティーザーで、紐づくコラム本体と内容も検索意図も重複するため、
+     インデックス対象をコラムに一本化する。follow は残すので、
+     ここからコラム本体へのリンクは引き続きクロールされる。
+     厚い解説を持たせる方針に変える場合は、未描画の
+     body_essence / body_scenes / body_science を本文に出したうえでここを戻す。 */
 
   return {
     title,
     description: weather.meta_description,
     alternates: { canonical: url },
-    robots: noindex ? { index: false, follow: true } : undefined,
+    robots: { index: false, follow: true },
     openGraph: {
       title,
       description: weather.meta_description,
