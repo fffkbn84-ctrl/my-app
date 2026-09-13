@@ -71,6 +71,15 @@ npm run build
 
 ### ハマったこと・注意
 
+- **調査中に「`/note/weather/mist` の本文に `\n` が文字列のまま出ている」と報告したが、これは誤りだった。**
+  原因は、`mcp__Vercel__web_fetch_vercel_url` の結果が大きすぎてファイルに保存されたとき、
+  その**ファイルが JSON エスケープされた状態**だったこと。HTML 中の本物の改行が `\n`
+  （バックスラッシュ + n の2文字）として保存されるため、そこから本文を抜き出すと
+  あたかもデータに `\n` が混入しているように見える。
+  実際には `weatherDescriptions.ts` の `description` は正しい改行エスケープで、
+  `WeatherHero.tsx` 側も `whiteSpace: "pre-line"` を当てているので**意図どおり改行して表示されている**。
+  → **保存されたツール出力から本文を判定しない。** 生の HTML かどうかを
+  `repr()` で確かめる（`\\n` と出たらそのファイルは JSON エスケープ済み）
 - **`curl` も `WebFetch` も `kinda.jp` に届かない**（セッションのegressプロキシが遮断）。
   `mcp__Vercel__web_fetch_vercel_url` で `my-app-rp9u.vercel.app` を叩けば本番と同じ内容が取れる。
   次も本番HTMLを見たいときはこれを使う
@@ -78,6 +87,10 @@ npm run build
   `grep` / Python で処理すれば読める（全文を読み込む必要はない）
 - TODO.md の 2026-08-16 の表に「検出 - インデックス未登録 → **待つのが正解**」と書いてあったが、
   **これは誤りだった**。待っても解消しない。該当箇所に訂正を入れた
+- TODO.md の判断待ち項目 B に「Kinda story のサンプル4本は **consent なし・sitemap からは除外済み**」と
+  あったが、**2026-08-16 に4本とも consent が記録されたため現在は sitemap に載っている**。
+  本番 sitemap で `/kinda-story/1` `/4` `/5` `/6` を確認して訂正した。
+  **フィルタ条件（`!!s.consent`）を変えなくても、データ側が変わると送信対象が変わる**という例
 
 ### 判断したこと
 
@@ -87,6 +100,10 @@ npm run build
   恒久対応の引き金と移行先は TODO.md の独立項目と `ColumnsClient.tsx` の TODO ブロックに残した
 - **小山さんの `matching_types` は空のままにする**。1名だけの状態で埋めると
   「1名だけのタイプページ」がまた薄いページになる。複数名そろうまで待つ
+- **デプロイは merge commit で行った**（PR #44 → `458e441`）。CLAUDE.md §10 の
+  「tip コミットが docs だけだと production ビルドがスキップされる」落とし穴は、
+  マージコミットが `src/` の変更を含むため回避できた。
+  `list_deployments` で `target: "production"` が `CANCELED` でないことを確認している
 - ここから先の伸びしろは**被リンク**で、コードでは解決できない。
   相談所の公式サイトからの相互リンクが最も効く（関連性が高く dofollow）。
   note / X / Instagram は `nofollow` なので評価は渡らない
