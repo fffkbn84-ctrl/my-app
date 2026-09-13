@@ -7003,6 +7003,58 @@ body:has(.cta-mobile-bar) .floating-back {
   .kv-card-featured { grid-row: auto !important; }
 }
 
+/* ─── カテゴリセクションの「他の記事」テキストリンク ───
+   プレビュー6枚に入らなかった記事への実リンク。
+   「もっと見る」ボタンはクライアント状態を切り替えるだけでクローラーから
+   リンクに見えないため、ここで全記事への導線を確保する（2026-09-13）。
+
+   ⚠️ これは GSC のインデックス停滞を止めるための応急処置。
+   記事が増えるとテキストリンクが一方的に伸びる（スマホは1カラム）ため、
+   将来はカテゴリアーカイブ + ページネーションに置き換えてこの一式を削除する。
+   移行の引き金・移行先の形・Google の要件は
+   src/app/columns/ColumnsClient.tsx の TODO ブロックに書いてある。 */
+.kv-more-links {
+  max-width: 1000px;
+  margin: 20px auto 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(42, 42, 42, .08);
+}
+.kv-more-links-label {
+  font-family: var(--font-mincho);
+  font-size: 12px;
+  color: var(--mid);
+  letter-spacing: .08em;
+  margin: 0 0 10px;
+}
+.kv-more-links-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 6px 24px;
+}
+.kv-more-links-list a {
+  display: block;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 3px 0;
+  transition: color .18s ease;
+}
+.kv-more-links-list a:hover {
+  color: var(--accent);
+}
+.kv-more-links-list a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+@media (max-width: 640px) {
+  .kv-more-links-list { grid-template-columns: 1fr; }
+}
+
 /* ─── 記事カード ─── */
 .kv-card {
   display: flex;
