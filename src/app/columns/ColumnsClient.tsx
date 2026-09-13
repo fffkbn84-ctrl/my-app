@@ -344,6 +344,27 @@ export default function ColumnsClient({ columns }: { columns: ColumnMeta[] }) {
                       <ColumnCard key={col.slug} column={col} />
                     ))}
                   </div>
+
+                  {/* プレビュー6枚に入らなかった記事へのテキストリンク。
+                      「もっと見る」は onClick でクライアント状態を切り替えるだけの
+                      ボタンなのでクローラーからはリンクが存在せず、
+                      「気持ちの整理」の16本などがトップから深さ3のページになっていた。
+                      ここに実リンクを置いて全記事を深さ2に引き上げる（2026-09-13）。 */}
+                  {hasMore && (
+                    <nav
+                      className="kv-more-links"
+                      aria-label={`${cat}の他の記事`}
+                    >
+                      <p className="kv-more-links-label">このカテゴリの他の記事</p>
+                      <ul className="kv-more-links-list">
+                        {items.slice(SECTION_PREVIEW_COUNT).map((col) => (
+                          <li key={col.slug}>
+                            <Link href={`/columns/${col.slug}`}>{col.title}</Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  )}
                 </section>
               );
             })}
