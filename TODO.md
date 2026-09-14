@@ -335,7 +335,9 @@ canonical / meta description / OGP / robots.txt はすべて正しく出てお�
 - [ ] **VC管理画面でふうか作業（審査通過後の残り）**：①「一休.comレストラン」「ホットペッパーグルメ」に提携申請 → ②承認後、MyLinkで https://restaurant.ikyu.com/117183 のリンクを発行 → Claudeに渡す（shops.booking_url を差し替え・PR表記が自動で出る）。
 - [ ] **Kinda act 初投稿の続き**：ランデブーラウンジ（帝国ホテル 東京）を掲載済み（shops id: dc483116-0e40-4cc3-a59c-8ffe85877615・badge=掲載店・一休生URL仮置き）。次はカフェ帯（HPG）を1〜2件＋お見合いカフェ記事のKinda voices展開（ふうか進行）。
 - [ ] **bio 二層化の反映**：X / IG / note の bio 1行目に「結婚相談所を、カウンセラーの口コミで選べるサイト」等の機能記述を追記（CLAUDE.md §2 改定済み・2026-07-02 決裁）。あわせて旧タスク「bio から（結婚相談所Emma運営）を削除」も同時に確認。
-- [ ] **コラム本番URLの確認 → Notion X カレンダーのリプリンク欄修正**（B/E投稿の `kinda.jp/columns/[slug]` は推定のまま。5本：counselor-de-erabu-soudanjo／soudanjo-to-konkatsu-app-chigai／kekkon-soudanjo-ryokin-no-mikata／counselor-tantou-henkou／shokai-mendan-de-miru-koto）。
+- [x] **コラム本番URLの確認 → Notion X カレンダーのリプリンク欄修正**（2026-07-03 完了・運営カレンダーで確認済み。`kinda.jp/columns/[slug]` が正しいURL形式）。
+- [x] **9/15〜9/30 のB柱下書き6件にリプリンク（コラム2本）を追加**（2026-09-14）。W27 の勝ち型「B柱＋冒頭に顕在ワード＋リプにコラム2本」のうち、リプ2本だけが9月のカレンダーから落ちていたため復元。
+- [ ] **9/12〜9/14 の投稿を計測**（この2つが今いちばん知りたい仮説の答え）。①9/12 IGリール `l1-holiday` の3秒視聴継続率＝1秒目を `topics.ts` の `ask` に変えた効果（現状は公開40分の暫定値のみ）②9/14 IG【型検証】単色背景・1枚1文の保存数・DMシェア数。**リーチ・保存・シェアの確定値は 9/19 以降に取り直す**。
 - [x] 週次SNSレビュー 2026-W27 実施（`docs/sns/reviews/2026-W27.md`）。X「顕在ワード+意見+リプにコラム2本」を勝ち型として特定、IG冒頭1秒フック改善とCTA変更（保存・コメント誘導）をNotionの7/6〜7/11投稿に反映済み。
 - [x] コラム追加・公開：「お見合いの服装、初デートまで」（`content/columns/omiai-shodate-fukuso.mdx`）男女別＋清潔感共通土台の構成。PR #28 で main マージ・本番反映確認済み。
 
@@ -343,11 +345,14 @@ canonical / meta description / OGP / robots.txt はすべて正しく出てお�
 
 ## 🟠 定常運用（リズム・日程の正は Notion 運営カレンダー）
 
+> 2026-09-14 改定。**計測の正は Notion の計測列**（X／IG 投稿カレンダー）。CSV 運用は 2026-07 で凍結。
+> 運用の詳細は `docs/sns/metrics-operations.md`。
+
 - [ ] X 日次運用：朝=柱／昼=中の人／夜=柱・リプ全返し。柱F（中の人）は別計測。
-- [ ] 週1：`/sns-pack` で翌週分生成 → Notion 下書き承認。
-- [ ] 週1（月曜推奨）：X アナリティクスの数字を貼る → `/sns-review` が整形・分析（CSV は `docs/sns/metrics/`）。
-- [ ] 隔週：柱F・発信方向性 v2 のレビュー → 伸びた型を厚く。
-- [ ] 月1：note・IG の数字も同 CSV に記録 → 月次方針。
+- [ ] 毎朝：Routine「朝のTODO＆発信ブリーフ」が数字の入力と期限超過を催促 → ふうかが数字を報告、Claude が Notion に転記。
+- [ ] 計測は二段構え：**翌日〜2日後**に X の数字と IG リールの比率（暫定）、**1週間後**に IG のリーチ・保存・DMシェア（確定）。
+- [ ] 月1：`/sns-review` の月次レビュー → 伸びた型を厚く（`docs/sns/reviews/YYYY-MM.md`）。**週次レビューはやらない**（週5〜7件・インプ2桁では差が読めないため）。
+- [ ] 投稿カレンダーが尽きる前に `/sns-pack` で次の期間分を生成 → Notion 下書き承認（現在は 9/30 まで投入済み）。
 
 ---
 
