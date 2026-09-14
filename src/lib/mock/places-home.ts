@@ -55,6 +55,11 @@ export interface PlaceHome {
    * 説明文ではなく、行って見てきたことを一文で。行っていない店では持たない。
    */
   observationLine?: string;
+  /**
+   * 最寄駅からの行き方。「吉野町駅 徒歩11分」の形。
+   * 生活圏で店を探すとき、いちばん自然な単位が駅なので検索対象に含める。
+   */
+  access?: string | null;
 }
 
 const demoPlacesHomeData: Omit<PlaceHome, "isDemo">[] = [

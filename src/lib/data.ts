@@ -990,6 +990,7 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
     photoUrl: row.photo_url ?? undefined,
     isDemo: row.is_demo,
     observationLine: row.observation_line ?? undefined,
+    access: row.access ?? undefined,
   }
 }
 
