@@ -7,7 +7,7 @@ MOTIF_SIZE = 340     # geometric mean of the motif bbox -- same visual weight on
 MOTIF_CY   = 500     # motif optical centre, identical on all 6
 MAX_W, MAX_H = 640, 380
 
-def prep(src, out):
+def prep(src, out, motif_size=MOTIF_SIZE, motif_cy=MOTIF_CY):
     im = Image.open(src).convert('RGB')
     a = np.asarray(im).astype(np.float64)
     h, w, _ = a.shape
@@ -35,14 +35,15 @@ def prep(src, out):
     ocx, ocy = (x0+x1)/2, (y0+y1)/2
 
     # 4) same visual weight for every motif, whatever its proportions
-    s = MOTIF_SIZE / (ow*oh) ** 0.5
+    s = motif_size / (ow*oh) ** 0.5
     s = min(s, MAX_W/ow, MAX_H/oh)
 
     im2 = Image.fromarray(a.astype('uint8')).resize((round(w*s), round(h*s)), Image.LANCZOS)
     out_im = Image.new('RGB', (W,H), tuple(TARGET.astype(int)))
-    out_im.paste(im2, (round(W/2 - ocx*s), round(MOTIF_CY - ocy*s)))
+    out_im.paste(im2, (round(W/2 - ocx*s), round(motif_cy - ocy*s)))
     out_im.save(out)
     print(json.dumps({'src_bbox':[int(x0),int(y0),int(x1),int(y1)],
                       'placed_w':round(ow*s), 'placed_h':round(oh*s), 'out':out}))
 
-prep(sys.argv[1], sys.argv[2])
+prep(sys.argv[1], sys.argv[2],
+     *(int(a) for a in sys.argv[3:5]))
