@@ -13,6 +13,7 @@ import { getShopById, type ShopDetail } from "@/lib/data";
 import type { PlaceReview, Place } from "@/lib/mock/places";
 import type { ActObservations, PriceGuide } from "@/types/database";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
+import { sortActScenes } from "@/lib/actScenes";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -77,7 +78,10 @@ function buildPlaceFromShop(
     priceGuides: shop.priceGuides,
     description: shop.description,
     features: shop.features,
-    scenes: shop.scenes ?? [],
+    // 並び順は DB の配列順ではなく語彙の並び（関係が進む順）に固定する。
+    // 入力した順がそのまま出ると、店ごとに「お見合い / 初回デート」と
+    // 「初回デート / お見合い」が混ざって読みにくい。
+    scenes: sortActScenes(shop.scenes ?? []),
     // Supabase shop_reviews テーブル未実装のため空配列を返す。
     // 将来的に shop_reviews を作る or reviews テーブルに place_id 追加で対応。
     reviews: [],

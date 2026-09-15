@@ -112,7 +112,10 @@ canonical / meta description / OGP / robots.txt はすべて正しく出てお�
   `顔合わせ・待ち合わせ` を廃止し、`何度か会ってから` を新設した。
   判定のしかたは **店を出たあとに行き先が要るか**。お見合いは1時間で二軒目に移らないので
   周りに何もなくても成立する。初回デートだけが周辺環境に依存する。
-  `scenes` は Supabase の `text[]` で enum 制約がないため、**足すときはここを更新する**
+  **正は `src/lib/actScenes.ts` の `ACT_SCENES`**。DB 側にも同じ語彙の CHECK 制約
+  （`shops_real_scenes_vocabulary`）がかかっていて、実在店に語彙外の値を入れると弾かれる。
+  サンプル（`is_demo = true`）は旧語彙を持ったままなので対象外。
+  **語彙を増やすときは配列と DB 制約の両方を変える。片方だけ直さない**
 - **「店の空気」と「客層」は別の軸。** 誰がいるか＝`fit.crowd`、その場がどんな感じか＝
   `fit.atmosphere`。取材ログで「落ち着いた雰囲気」が毎回 客層 に混ざっていたため分けた
 - お店ページ（`/kinda-act` `/shops` `/kinda-glow` `/places/[id]`）は **ISR（5分）**。
