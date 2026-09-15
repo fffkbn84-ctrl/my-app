@@ -8,6 +8,8 @@ import {
   type ThumbVariant,
 } from "@/lib/mock/places-home";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
+import { matchesAreaFilter } from "@/lib/areas";
+import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
 import Pagination from "@/components/ui/Pagination";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 
@@ -25,7 +27,6 @@ const BADGE_FILTERS = [
 type BadgeFilter = typeof BADGE_FILTERS[number]["value"];
 
 const CATEGORIES = ["すべて", "カフェ", "レストラン", "美容室", "ネイルサロン", "眉毛サロン", "フォトスタジオ"];
-const AREAS      = ["すべて", "東京", "神奈川", "大阪", "名古屋"];
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
@@ -272,15 +273,24 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
   const [query, setQuery]       = useState("");
   const [page, setPage]         = useState(1);
 
+  /* 掲載中のお店から都道府県ごとの件数を作る。0 件の県はグレーアウトされる */
+  const areaCountMap = useMemo(() => buildAreaCountMap(shops), [shops]);
+
   const filtered = useMemo(() => {
     return shops.filter((p) => {
       const matchB = badge === "all" || p.badgeType === badge;
       const matchC = category === "すべて" || p.categoryLabel === category;
-      const matchA = area === "すべて" || p.areaLabel === area;
-      const matchQ = query === "" || p.name.includes(query) || p.location.includes(query);
+      // "東京"・"東京都"・"東京・新宿" を同じものとして扱い、広域エリアにも対応する
+      const matchA = matchesAreaFilter(p.location || p.areaLabel, area);
+      // 生活圏で探すときの単位は駅なので、最寄駅も検索対象に入れる
+      const matchQ =
+        query === "" ||
+        p.name.includes(query) ||
+        p.location.includes(query) ||
+        (p.access ?? "").includes(query);
       return matchB && matchC && matchA && matchQ;
     });
-  }, [badge, category, area, query]);
+  }, [shops, badge, category, area, query]);
 
   /* フィルター変更時にページをリセット */
   useEffect(() => { setPage(1); }, [badge, category, area, query]);
@@ -326,8 +336,14 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
               {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
             </select>
 
-            <select value={area} onChange={(e) => setArea(e.target.value)} style={selectStyle}>
-              {AREAS.map((a) => <option key={a}>{a}</option>)}
+            <select
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              aria-label="エリア"
+              style={selectStyle}
+            >
+              <option value="すべて">エリアを選ぶ</option>
+              <AreaOptions countMap={areaCountMap} />
             </select>
 
             <div style={{ position: "relative" }}>
@@ -341,7 +357,7 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="店名・エリアで検索"
+                placeholder="店名・駅・エリアで検索"
                 style={{
                   ...selectStyle,
                   paddingLeft: 34,

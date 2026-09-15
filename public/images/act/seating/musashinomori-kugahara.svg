@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 440" width="480" height="440" role="img" aria-label="むさしの森珈琲 久が原店 対面ボックス席の配置図。番号は本文の説明に対応する">
+  <title>むさしの森珈琲 久が原店 対面ボックス席の配置</title>
+  <defs>
+    <style>
+      .mk { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 15px; font-weight: 600; fill: #FFFFFF; }
+      .cap { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 14px; fill: #8A7A6E; }
+    </style>
+  </defs>
+
+  <rect width="480" height="440" fill="#F5EEE6"/>
+
+  <text class="cap" x="240" y="34" text-anchor="middle">窓の外（ブラインド越しに緑）</text>
+
+  <!-- 窓 -->
+  <line x1="96" y1="58" x2="384" y2="58" stroke="#A8BCC4" stroke-width="4"/>
+
+  <!-- ボックスの床 -->
+  <rect x="96" y="58" width="288" height="260" fill="#FBF6F0" stroke="#DCCBBC" stroke-width="1"/>
+
+  <!-- 高い背もたれ（隣のボックスとの仕切り） -->
+  <line x1="96" y1="58" x2="96" y2="318" stroke="#B0937A" stroke-width="4"/>
+  <line x1="384" y1="58" x2="384" y2="318" stroke="#B0937A" stroke-width="4"/>
+
+  <!-- 隣のボックス -->
+  <rect x="26" y="110" width="52" height="156" rx="6" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <rect x="402" y="110" width="52" height="156" rx="6" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <text class="cap" x="52" y="284" text-anchor="middle">隣の席</text>
+  <text class="cap" x="428" y="284" text-anchor="middle">隣の席</text>
+
+  <!-- ベンチソファ（対面） -->
+  <rect x="112" y="76" width="256" height="50" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+  <rect x="112" y="252" width="256" height="50" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+
+  <!-- テーブル -->
+  <rect x="152" y="146" width="176" height="86" rx="10" fill="#EFE2D3" stroke="#D4A090" stroke-width="1.5"/>
+
+  <!-- 着席位置 -->
+  <circle cx="240" cy="104" r="16" fill="none" stroke="#D4A090" stroke-width="1.5"/>
+  <circle cx="240" cy="280" r="16" fill="#D4A090"/>
+
+  <!-- 通路（手前） -->
+  <line x1="96" y1="318" x2="384" y2="318" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="6 5"/>
+  <path d="M240 336 v28" stroke="#B9A697" stroke-width="1" fill="none"/>
+  <path d="M232 356 l8 10 l8 -10" fill="none" stroke="#B9A697" stroke-width="1"/>
+  <text class="cap" x="240" y="400" text-anchor="middle">通路</text>
+
+  <!-- 本文の番号付きリストと対応する -->
+  <g>
+    <circle cx="150" cy="58" r="13" fill="#B07E6C"/><text class="mk" x="150" y="63" text-anchor="middle">1</text>
+    <circle cx="200" cy="189" r="13" fill="#B07E6C"/><text class="mk" x="200" y="194" text-anchor="middle">2</text>
+    <circle cx="96" cy="189" r="13" fill="#B07E6C"/><text class="mk" x="96" y="194" text-anchor="middle">3</text>
+    <circle cx="200" cy="330" r="13" fill="#B07E6C"/><text class="mk" x="200" y="335" text-anchor="middle">4</text>
+  </g>
+</svg>

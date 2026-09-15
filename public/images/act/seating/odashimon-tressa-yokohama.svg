@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440" width="520" height="440" role="img" aria-label="おだしもん トレッサ横浜店 対面ボックス席の配置図。番号は本文の説明に対応する">
+  <title>おだしもん トレッサ横浜店 対面ボックス席の配置</title>
+  <defs>
+    <style>
+      .mk { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 15px; font-weight: 600; fill: #FFFFFF; }
+      .cap { font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; font-size: 14px; fill: #8A7A6E; }
+    </style>
+  </defs>
+
+  <rect width="520" height="440" fill="#F5EEE6"/>
+
+  <!-- うしろの席（高い背もたれの向こう） -->
+  <rect x="120" y="24" width="220" height="34" rx="6" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <text class="cap" x="230" y="46" text-anchor="middle">うしろの席</text>
+
+  <!-- 高い背もたれ（仕切り） -->
+  <line x1="106" y1="78" x2="354" y2="78" stroke="#B0937A" stroke-width="4"/>
+
+  <!-- ボックスの床 -->
+  <rect x="106" y="78" width="248" height="254" fill="#FBF6F0" stroke="#DCCBBC" stroke-width="1"/>
+
+  <!-- ベンチソファ（対面） -->
+  <rect x="120" y="92" width="220" height="52" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+  <rect x="120" y="266" width="220" height="52" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+
+  <!-- テーブル（角の丸い四角） -->
+  <rect x="146" y="162" width="168" height="86" rx="18" fill="#EFE2D3" stroke="#D4A090" stroke-width="1.5"/>
+  <!-- タブレット -->
+  <rect x="272" y="176" width="28" height="20" rx="3" fill="none" stroke="#B07E6C" stroke-width="1.2"/>
+
+  <!-- 着席位置（撮影者は手前） -->
+  <circle cx="230" cy="122" r="16" fill="none" stroke="#D4A090" stroke-width="1.5"/>
+  <circle cx="230" cy="296" r="16" fill="#D4A090"/>
+
+  <!-- 通路（右側） -->
+  <line x1="354" y1="78" x2="354" y2="332" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="6 5"/>
+  <path d="M372 205 h34" stroke="#B9A697" stroke-width="1" fill="none"/>
+  <path d="M396 197 l10 8 l-10 8" fill="none" stroke="#B9A697" stroke-width="1"/>
+  <text class="cap" x="388" y="180" text-anchor="middle">通路</text>
+
+  <!-- 通路の向かいの小さめテーブル -->
+  <rect x="424" y="150" width="70" height="110" rx="6" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <text class="cap" x="459" y="284" text-anchor="middle">小さめの席</text>
+
+  <!-- 本文の番号付きリストと対応する -->
+  <g>
+    <circle cx="230" cy="78" r="13" fill="#B07E6C"/><text class="mk" x="230" y="83" text-anchor="middle">1</text>
+    <circle cx="176" cy="205" r="13" fill="#B07E6C"/><text class="mk" x="176" y="210" text-anchor="middle">2</text>
+    <circle cx="354" cy="300" r="13" fill="#B07E6C"/><text class="mk" x="354" y="305" text-anchor="middle">3</text>
+    <circle cx="459" cy="205" r="13" fill="#B07E6C"/><text class="mk" x="459" y="210" text-anchor="middle">4</text>
+    <circle cx="286" cy="186" r="13" fill="#B07E6C"/><text class="mk" x="286" y="191" text-anchor="middle">5</text>
+  </g>
+</svg>

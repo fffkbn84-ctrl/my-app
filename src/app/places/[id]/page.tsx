@@ -367,7 +367,7 @@ function ActObservationSections({
                 }}
               />
               <figcaption style={{ fontSize: 11, color: "var(--muted)", marginTop: 4, textAlign: "center" }}>
-                実際に座った席の配置。店全体の見取り図ではありません。
+                実際に座った席の配置です。店全体の見取り図ではなく、同じ席に案内されるとはかぎりません。
               </figcaption>
             </figure>
           )}
@@ -401,6 +401,7 @@ function ActObservationSections({
             </div>
           )}
           <div className="clay-info-grid">
+            <ObservationItem label="店の空気" value={fit?.atmosphere} />
             <ObservationItem label="服装" value={fit?.dressCode} />
             <ObservationItem label="ふたりで行ったとき" value={fit?.standOut} />
             <ObservationItem label="個室・半個室" value={fit?.privateRoom} />
