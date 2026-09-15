@@ -401,6 +401,7 @@ function ActObservationSections({
             </div>
           )}
           <div className="clay-info-grid">
+            <ObservationItem label="店の空気" value={fit?.atmosphere} />
             <ObservationItem label="服装" value={fit?.dressCode} />
             <ObservationItem label="ふたりで行ったとき" value={fit?.standOut} />
             <ObservationItem label="個室・半個室" value={fit?.privateRoom} />

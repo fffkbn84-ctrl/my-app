@@ -65,6 +65,11 @@ export type ActObservations = {
     dressCode?: string;
     standOut?: string;
     privateRoom?: string;
+    /**
+     * 店の空気。「誰がいるか」（crowd）とは別の軸で、その場がどんな感じかを書く。
+     * 取材ログでこの観察が毎回 客層 に混ざっていたため、独立した項目にした。
+     */
+    atmosphere?: string;
   };
   /** 終われる — 切り上げと、もう少し居たいとき */
   leave?: {
