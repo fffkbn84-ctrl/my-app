@@ -1,6 +1,7 @@
 // 連載「ふたりの話題、ひとつずつ」用。3レイアウト。
 //   hook  : モチーフ小(上) + 質問を大きく      -> 1枚目
 //   body  : 文字のみ・天地中央                 -> 2〜4枚目
+//   note  : モチーフ小(上) + 見出しを54pxで     -> つくる日記の1枚目
 //   close : モチーフ小(上) + 本文 + CTA        -> 5枚目
 const {chromium}=require('playwright'); const fs=require('fs');
 const [,,kind,plate,out,json]=process.argv;
@@ -8,6 +9,7 @@ const lines=JSON.parse(json);               // ["行", ...]  close は {gap:true
 const span=l=>typeof l==='string'?`<span>${l}</span>`:`<span class="gap"></span>`;
 const L={
   hook : {top:'690px', size:'62px', lh:'1.85', ls:'.06em'},
+  note : {top:'690px', size:'54px', lh:'1.90', ls:'.07em'},
   body : {top:null,    size:'44px', lh:'2.05', ls:'.08em'},
   close: {top:'710px', size:'44px', lh:'2.05', ls:'.08em'},
 }[kind];

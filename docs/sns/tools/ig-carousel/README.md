@@ -4,8 +4,9 @@ IG カルーセル2種で共用する。仕様と運用の正はそれぞれ：
 
 | 型 | 曜日 | 文字入れ | 正 |
 |---|---|---|---|
+| ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-series.js`（`hook`/`body`/`close`） | `docs/sns/series/kinda-pair-28.md` |
+| つくる日記 | 毎週木 20:00 | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
 | 言いにくい気持ち（1枚1文） | 不定（外枠） | `render.js` | `docs/sns/series/iinikui-kimochi.md` |
-| ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-series.js` | `docs/sns/series/kinda-pair-28.md` |
 
 ChatGPT が出したクレイのモチーフ画像を、**全枚とも同じ地色・同じ位置・同じ大きさ**に揃えて、
 Shippori Mincho で文字を焼き込む。グリッドに並んだとき1枚の作品に見せることが目的。
@@ -29,17 +30,21 @@ cp package/files/shippori-mincho-japanese-400-normal.woff2 ./shippori400.woff2
 python3 prep.py <生成画像.png> bg-01.png
 NODE_PATH=$(npm root -g) node render.js bg-01.png out-01.png "1行目" "2行目" "3行目"
 
-# 連載：モチーフのサイズと中心 y を引数で渡す
+# 連載・つくる日記：モチーフのサイズと中心 y を引数で渡す
 python3 prep.py <生成画像.png> pair-bg-01.png 300 420
 NODE_PATH=$(npm root -g) node render-series.js hook  pair-bg-01.png out-01.png '["行1","行2","行3"]'
+NODE_PATH=$(npm root -g) node render-series.js note  pair-bg-01.png out-01.png '["行1","行2"]'
 NODE_PATH=$(npm root -g) node render-series.js body  none           out-02.png '["行1","行2"]'
 NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '["行1",{"gap":true},"CTA"]'
 ```
 
 - `prep.py` の第3・第4引数は `モチーフサイズ` と `モチーフ中心y`（省略すると 340 / 500）
-- `render-series.js` の第1引数は版面の種類：`hook`（モチーフ＋質問を62pxで）／
-  `body`（文字のみ・天地中央・44px）／`close`（モチーフ＋本文44px）。
+- `render-series.js` の第1引数は版面の種類：
+  `hook`（モチーフ＋質問を**62px**。連載の1枚目）／`note`（モチーフ＋見出しを**54px**。つくる日記の1枚目）／
+  `body`（文字のみ・天地中央・44px）／`close`（モチーフ＋本文44px＋CTA。連載の5枚目）。
   プレートが要らない枚は `none` を渡す。`{"gap":true}` を挟むと .7em の余白が入る
+- **1枚目の級数で火曜と木曜を見分けさせている**（連載62px＝疑問形／つくる日記54px＝断言形）。
+  そろえてはいけない
 - どちらも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` を相対参照する
 
 ## 過去に踏んだバグ
