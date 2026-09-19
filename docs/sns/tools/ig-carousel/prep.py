@@ -2,12 +2,13 @@ import sys, json, numpy as np
 from PIL import Image, ImageFilter
 
 TARGET = np.array([0xF5,0xEE,0xE6], dtype=np.float64)
-W, H = 1080, 1350
-MOTIF_SIZE = 340     # geometric mean of the motif bbox -- same visual weight on all 6
-MOTIF_CY   = 500     # motif optical centre, identical on all 6
+MOTIF_SIZE = 340     # geometric mean of the motif bbox -- same visual weight everywhere
+MOTIF_CY   = 500     # motif optical centre
+CANVAS     = (1080, 1350)
 MAX_W, MAX_H = 640, 380
 
-def prep(src, out, motif_size=MOTIF_SIZE, motif_cy=MOTIF_CY):
+def prep(src, out, motif_size=MOTIF_SIZE, motif_cy=MOTIF_CY, canvas=CANVAS):
+    W, H = canvas
     im = Image.open(src).convert('RGB')
     a = np.asarray(im).astype(np.float64)
     h, w, _ = a.shape
@@ -43,7 +44,13 @@ def prep(src, out, motif_size=MOTIF_SIZE, motif_cy=MOTIF_CY):
     out_im.paste(im2, (round(W/2 - ocx*s), round(motif_cy - ocy*s)))
     out_im.save(out)
     print(json.dumps({'src_bbox':[int(x0),int(y0),int(x1),int(y1)],
-                      'placed_w':round(ow*s), 'placed_h':round(oh*s), 'out':out}))
+                      'placed_w':round(ow*s), 'placed_h':round(oh*s),
+                      'canvas':[W,H], 'out':out}))
 
-prep(sys.argv[1], sys.argv[2],
-     *(int(a) for a in sys.argv[3:5]))
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    src, out = args[0], args[1]
+    size = int(args[2]) if len(args) > 2 else MOTIF_SIZE
+    cy   = int(args[3]) if len(args) > 3 else MOTIF_CY
+    cv   = (int(args[4]), int(args[5])) if len(args) > 5 else CANVAS
+    prep(src, out, size, cy, cv)

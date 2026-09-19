@@ -1,11 +1,12 @@
-# ig-carousel — 単色背景カルーセルの画像処理＋文字入れ
+# ig-carousel — 単色背景の IG 投稿を作る（画像処理＋文字入れ＋リール書き出し）
 
-IG カルーセル2種で共用する。仕様と運用の正はそれぞれ：
+IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 
-| 型 | 曜日 | 文字入れ | 正 |
+| 型 | 曜日 | 書き出し | 正 |
 |---|---|---|---|
 | ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-series.js`（`hook`/`body`/`close`） | `docs/sns/series/kinda-pair-28.md` |
 | つくる日記 | 毎週木 20:00 | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
+| 入口リール | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/nyuguchi-reel.md` |
 | 言いにくい気持ち（1枚1文） | 不定（外枠） | `render.js` | `docs/sns/series/iinikui-kimochi.md` |
 
 ChatGPT が出したクレイのモチーフ画像を、**全枚とも同じ地色・同じ位置・同じ大きさ**に揃えて、
@@ -15,6 +16,7 @@ Shippori Mincho で文字を焼き込む。グリッドに並んだとき1枚の
 
 ```bash
 python3 -m pip install --break-system-packages Pillow numpy
+python3 -m pip install --break-system-packages imageio-ffmpeg   # リールを書き出す回だけ
 npm pack @fontsource/shippori-mincho
 tar xzf fontsource-shippori-mincho-*.tgz
 cp package/files/shippori-mincho-japanese-400-normal.woff2 ./shippori400.woff2
@@ -22,6 +24,9 @@ cp package/files/shippori-mincho-japanese-400-normal.woff2 ./shippori400.woff2
 
 `fonts.google.com` はセッションの egress で塞がっているので、必ず npm レジストリから取る
 （`registry.npmjs.org` は noProxy に入っていて直通で届く）。
+
+**ffmpeg も同様**。Playwright 同梱の ffmpeg は VP8/WebM だけの縮小ビルドで H.264 を吐けない。
+`imageio-ffmpeg`（PyPI）が libx264・aac・xfade・zoompan 入りのバイナリを持っているので、そちらを使う。
 
 ## 実行
 
@@ -38,14 +43,19 @@ NODE_PATH=$(npm root -g) node render-series.js body  none           out-02.png '
 NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '["行1",{"gap":true},"CTA"]'
 ```
 
-- `prep.py` の第3・第4引数は `モチーフサイズ` と `モチーフ中心y`（省略すると 340 / 500）
+- `prep.py` の引数は `<入力> <出力> [モチーフサイズ] [モチーフ中心y] [カンバス幅] [カンバス高]`
+  （省略すると 340 / 500 / 1080×1350）。**同じ生成画像から 4:5 と 9:16 の両方を作れる**ので、
+  土曜リールの絵を火曜カルーセルに使い回せる
 - `render-series.js` の第1引数は版面の種類：
   `hook`（モチーフ＋質問を**62px**。連載の1枚目）／`note`（モチーフ＋見出しを**54px**。つくる日記の1枚目）／
   `body`（文字のみ・天地中央・44px）／`close`（モチーフ＋本文44px＋CTA。連載の5枚目）。
   プレートが要らない枚は `none` を渡す。`{"gap":true}` を挟むと .7em の余白が入る
 - **1枚目の級数で火曜と木曜を見分けさせている**（連載62px＝疑問形／つくる日記54px＝断言形）。
   そろえてはいけない
-- どちらも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` を相対参照する
+- `render-reel.js` は 1080×1920。第1引数は `hook`（1秒目・58px）／`body`（48px）
+- `build_reel.py` は `SEGS`（フレーム・尺・ズーム）を書き換えて実行すると
+  H.264 / yuv420p / 30fps / 無音AAC入りの MP4 を書き出す。**音楽は IG 側で足す**
+- いずれも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` / `f*.png` を相対参照する
 
 ## 過去に踏んだバグ
 
