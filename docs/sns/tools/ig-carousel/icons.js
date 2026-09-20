@@ -22,13 +22,23 @@ const ICONS = {
     <path d="M248,276 C264,254 296,254 312,276"/>
     <path d="M66,266 L24,232"/><path d="M494,266 L536,232"/></g>
    <path d="M108,326 L150,280" fill="none" stroke="${ACC}" stroke-width="15" stroke-linecap="round"/>`,
- 'feelings': `<g transform="translate(22,16)"><path d="M120,350 C85,350 60,325 60,292 C60,259 85,234 118,234
-    C122,186 163,150 212,152 C240,116 288,104 328,124 C360,140 380,170 381,204
-    C421,200 456,230 458,270 C460,312 428,348 388,348 Z"
-    fill="none" stroke="${INK}" stroke-width="13" stroke-linejoin="round"/></g>
-   <circle cx="280" cy="420" r="21" fill="${ACC}"/>`,
+ 'feelings': `<g fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="280" cy="180" r="82"/>
+    <path d="M280,262 L280,462"/>
+    <path d="M280,390 L340,390"/><path d="M280,450 L326,450"/></g>
+   <circle cx="280" cy="180" r="28" fill="${ACC}"/>`,
  'making': `<g fill="none" stroke="${INK}" stroke-width="13" stroke-linejoin="round">
     <path d="M182,398 L372,208 L424,260 L234,450 Z"/><path d="M336,244 L388,296"/></g>
    <path d="M182,398 L234,450 L150,482 Z" fill="${ACC}" stroke="${ACC}" stroke-width="13" stroke-linejoin="round"/>`,
+ 'note': `<circle cx="412" cy="206" r="66" fill="${ACC}"/>
+   <g transform="translate(22,70)"><path d="M120,350 C85,350 60,325 60,292 C60,259 85,234 118,234
+    C122,186 163,150 212,152 C240,116 288,104 328,124 C360,140 380,170 381,204
+    C421,200 456,230 458,270 C460,312 428,348 388,348 Z"
+    fill="${BG}" stroke="${INK}" stroke-width="13" stroke-linejoin="round"/></g>`,
+ 'type': `<g fill="none" stroke="${INK}" stroke-width="13" stroke-linejoin="round">
+    <rect x="62" y="62" width="196" height="196" rx="34"/>
+    <rect x="62" y="302" width="196" height="196" rx="34"/>
+    <rect x="302" y="302" width="196" height="196" rx="34"/></g>
+   <rect x="302" y="62" width="196" height="196" rx="34" fill="${ACC}"/>`,
 };
 module.exports = {ICONS, INK, ACC, BG};

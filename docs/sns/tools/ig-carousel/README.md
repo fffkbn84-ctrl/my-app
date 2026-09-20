@@ -83,7 +83,8 @@ NODE_PATH=$(npm root -g) node render-story.js body none  hl1-02.png '["行1","�
 ```
 
 - 第1引数は `lead`（アイコン＋見出し56px・各ハイライトの1枚目）／`body`（文字だけ48px）／`note`（44px）
-- 第2引数は `icons.js` のキー（`about` `topics` `places` `kotosan` `feelings` `making`）。要らない枚は `none`
+- 第2引数は `icons.js` のキー（`about` `note` `topics` `places` `type` `kotosan` `feelings`）。要らない枚は `none`
+  （`making` はつくる日記が休止中で未使用。再開したら使う）
 - **上下は IG の UI に隠れる**ので、中身は y=400〜1500 に収めてある。ここを動かさない
 - カバーと中身の1枚目で**同じアイコンを使う**。棚の見出しと中身がつながる
 - `icons.js` が `covers.js` と `render-story.js` の共通の正。**アイコンは1箇所だけ直せば両方に効く**
