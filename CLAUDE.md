@@ -187,7 +187,7 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 | 曜日 | 内容 | 形式 | 正（これを読む） |
 |---|---|---|---|
 | **火 20:00** | 連載「ふたりの話題」28週 | **リール** | `docs/sns/series/kinda-pair-28.md` |
-| **金 18:00** | ことさん（キャラクター） | **リール** | `docs/sns/series/kotosan-reel.md` |
+| **水・金 18:00** | ことさん（キャラクター） | **リール** | `docs/sns/series/kotosan-reel.md` |
 | **土 12:00** | 「言いにくい気持ち」 | **リール** | `docs/sns/series/iinikui-kimochi.md` |
 | 木 | つくる日記 | — | **休止中**（`docs/sns/series/tsukuru-nikki.md`） |
 
