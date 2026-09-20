@@ -4,10 +4,15 @@ IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 
 | 型 | 曜日 | 書き出し | 正 |
 |---|---|---|---|
-| ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-series.js`（`hook`/`body`/`close`） | `docs/sns/series/kinda-pair-28.md` |
-| つくる日記 | 毎週木 20:00 | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
-| 入口リール | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/nyuguchi-reel.md` |
-| 言いにくい気持ち（1枚1文） | 不定（外枠） | `render.js` | `docs/sns/series/iinikui-kimochi.md` |
+| ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/kinda-pair-28.md` |
+| ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js`（**未実装**）＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md` |
+| 言いにくい気持ち | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/iinikui-kimochi.md` |
+| （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
+| ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
+
+> **2026-09-20 から全枠リール。** カルーセル（`render.js` / `render-series.js`）は型としては生きているが、
+> フォロワー0の段階ではフィード投稿のリーチが0だったため使っていない（理由は `ig-week-2026-09.md` §0）。
+> `render.js`・`render-series.js` は**フォロワーが付いてカルーセルを戻すときに使う**。
 
 ChatGPT が出したクレイのモチーフ画像を、**全枚とも同じ地色・同じ位置・同じ大きさ**に揃えて、
 Shippori Mincho で文字を焼き込む。グリッドに並んだとき1枚の作品に見せることが目的。
@@ -56,6 +61,18 @@ NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '
 - `build_reel.py` は `SEGS`（フレーム・尺・ズーム）を書き換えて実行すると
   H.264 / yuv420p / 30fps / 無音AAC入りの MP4 を書き出す。**音楽は IG 側で足す**
 - いずれも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` / `f*.png` を相対参照する
+
+## ハイライトのカバーを作る（`covers.js`）
+
+```bash
+NODE_PATH=$(npm root -g) node covers.js   # cover-about.png 他6枚を書き出す
+```
+
+- 1080×1920。IG は**中央を円でクロップして直径60px 前後で出す**ので、確認は必ず縮小してから行う
+- 地色 `#F5EEE6`／線 `#2E2620`・太さ13／アクセント `#D4A090` を1枚に1箇所だけ
+- **文字とロゴを入れない。** 円に切られると読めないし、6枚並ぶと騒がしくなる
+- アイコンを足す・直すときは `ICONS` に 560×560 の inline SVG を書く。
+  **そのあと必ず150px 前後に縮めた一覧で読めるか見る**（等倍で見ると全部読めてしまう）
 
 ## 過去に踏んだバグ
 
