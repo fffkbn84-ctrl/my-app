@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import KindaLoader from "@/components/ui/KindaLoader";
 import { getShops } from "@/lib/data";
+import { GLOW_THUMB_VARIANTS, hasPublishedPlaces } from "@/lib/placeSections";
 import PlacesDataNotice from "@/components/places/PlacesDataNotice";
 import KindaGlowClient from "./KindaGlowClient";
 
@@ -17,31 +18,38 @@ const TITLE = "Kinda glow｜好きな人に会う前に、自分を整える";
 const DESCRIPTION =
   "美容室・フォトスタジオ・サロンを Kinda ふたりへが厳選してご紹介。お見合いやデートの前に、自分のコンディションを整える時間を見つけよう。";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: `${SITE_URL}/kinda-glow` },
-  openGraph: {
+/**
+ * 掲載が0件のあいだは noindex にする。店名も観察もないページを検索に出さない。
+ * **判定はデータで行う。** noindex をベタ書きすると掲載開始時に外し忘れる。
+ * 1件でも公開されれば、次の再生成で自動的に index に戻る。
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const hasPlaces = hasPublishedPlaces(await getShops(), GLOW_THUMB_VARIANTS);
+  return {
     title: TITLE,
     description: DESCRIPTION,
-    url: `${SITE_URL}/kinda-glow`,
-    siteName: "Kinda ふたりへ",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-  },
-};
+    alternates: { canonical: `${SITE_URL}/kinda-glow` },
+    robots: hasPlaces ? undefined : { index: false, follow: true },
+    openGraph: {
+      title: TITLE,
+      description: DESCRIPTION,
+      url: `${SITE_URL}/kinda-glow`,
+      siteName: "Kinda ふたりへ",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: TITLE,
+      description: DESCRIPTION,
+    },
+  };
+}
 
 /**
  * Kinda glow は「好きな人に会う前に、自分を整える」ための場所。
  * 美容室・フォトスタジオ・ネイル・眉毛・エステの 5 カテゴリ。
  * Supabase の thumb_variant が hair / nail / brow / esthetic / photo-studio を表示。
  */
-const GLOW_THUMB_VARIANTS = new Set(["hair", "nail", "brow", "esthetic", "photo-studio"]);
-
 /**
  * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
  * 掲載・取り下げが本番へ出るまで最大 5 分。
@@ -182,10 +190,14 @@ export default async function KindaGlowPage() {
         </section>
 
         {/* ─── 一覧（クライアント。useSearchParams 利用のため Suspense 必須） ─── */}
+        {/* 掲載0件のときは絞り込みUIを出さない。中身が無いのに検索窓だけあると
+            「条件が悪くて0件」に見えるが、実際はまだ1件も載せていないだけ。 */}
         <div id="places" />
-        <Suspense fallback={<KindaLoader variant="page" />}>
-          <KindaGlowClient places={places} />
-        </Suspense>
+        {places.length > 0 && (
+          <Suspense fallback={<KindaLoader variant="page" />}>
+            <KindaGlowClient places={places} />
+          </Suspense>
+        )}
 
         <PlacesDataNotice places={places} borderColor="rgba(138,102,176,.4)" />
       </main>
