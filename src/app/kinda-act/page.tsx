@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import KindaLoader from "@/components/ui/KindaLoader";
 import { getShops } from "@/lib/data";
+import { ACT_THUMB_VARIANTS } from "@/lib/placeSections";
 import PlacesDataNotice from "@/components/places/PlacesDataNotice";
 import KindaActClient from "./KindaActClient";
 
@@ -14,8 +15,6 @@ import KindaActClient from "./KindaActClient";
  * Supabase の thumb_variant が cafe / lounge のお店を表示する。
  * 美容室・ネイル・眉毛・エステ・フォトスタジオは Kinda glow へ分離。
  */
-const ACT_THUMB_VARIANTS = new Set(["cafe", "lounge"]);
-
 /**
  * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
  * 掲載・取り下げが本番へ出るまで最大 5 分。

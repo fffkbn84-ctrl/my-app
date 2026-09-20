@@ -4,6 +4,12 @@ import { STORIES } from "@/lib/mock/stories";
 import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 import { getAllColumns } from "@/lib/columns";
 import { AREA_SLUGS, matchesArea } from "@/lib/talk-areas";
+import { getShops } from "@/lib/data";
+import {
+  ACT_THUMB_VARIANTS,
+  GLOW_THUMB_VARIANTS,
+  hasPublishedPlaces,
+} from "@/lib/placeSections";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
@@ -29,8 +35,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     "",
     "/kinda-talk",
-    "/kinda-act",
-    "/kinda-glow",
     "/kinda-note",
     "/kinda-note/quiz",
     "/kinda-type",
@@ -96,6 +100,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
+  /* お店の一覧も同じ理由で、掲載が1件以上あるセクションだけ送信する。
+     掲載を始めれば次の再生成で自動的に戻る（ページ側の noindex 判定と同じデータを見る）。 */
+  const allShops = await getShops();
+  const shopSectionEntries: MetadataRoute.Sitemap = (
+    [
+      ["/kinda-act", ACT_THUMB_VARIANTS],
+      ["/kinda-glow", GLOW_THUMB_VARIANTS],
+    ] as const
+  )
+    .filter(([, variants]) => hasPublishedPlaces(allShops, variants))
+    .map(([path]) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
+
   /* 一覧ページは「掲載0名」だと実質空ページになり、Google に
      「クロール済み - インデックス未登録」と判定されてドメイン全体の評価を下げる。
      該当カウンセラーが1名以上いるエリア/タイプだけを送信する。
@@ -147,6 +167,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...legalEntries,
     ...counselorEntries,
     ...storyEntries,
+    ...shopSectionEntries,
     ...areaEntries,
     ...typeEntries,
     ...weatherListEntry,
