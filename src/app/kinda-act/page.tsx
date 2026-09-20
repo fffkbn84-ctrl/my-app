@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import KindaLoader from "@/components/ui/KindaLoader";
 import { getShops } from "@/lib/data";
+import PlacesDataNotice from "@/components/places/PlacesDataNotice";
 import KindaActClient from "./KindaActClient";
 
 /**
@@ -171,34 +172,7 @@ export default async function KindaActPage() {
           <KindaActClient places={places} />
         </Suspense>
 
-        {/* ─── 注記：すべてサンプル表示 ─── */}
-        <section
-          style={{
-            padding: "32px 20px 56px",
-            background: "rgba(254,252,250,.18)",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 540,
-              margin: "0 auto",
-              padding: "20px 24px",
-              background: "rgba(255,255,255,.72)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              border: "1px dashed rgba(184,110,104,.4)",
-              borderRadius: 16,
-              textAlign: "center",
-              fontSize: 12,
-              color: "var(--mid)",
-              lineHeight: 1.85,
-            }}
-          >
-            現在掲載中のお店はすべて<strong style={{ color: "var(--ink)" }}>サンプル表示</strong>です。
-            <br />
-            Kinda ふたりへが実際に取材した本物のお店は、これから順次公開予定です。
-          </div>
-        </section>
+        <PlacesDataNotice places={places} borderColor="rgba(184,110,104,.4)" />
       </main>
 
       <Footer />
