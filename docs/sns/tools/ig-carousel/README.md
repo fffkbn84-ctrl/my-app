@@ -9,6 +9,7 @@ IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 | 言いにくい気持ち | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/iinikui-kimochi.md` |
 | （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
 | ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
+| ハイライトの中身（ストーリー） | 単発 | `render-story.js` | `docs/sns/ig-week-2026-09.md` §6 |
 
 > **2026-09-20 から全枠リール。** カルーセル（`render.js` / `render-series.js`）は型としては生きているが、
 > フォロワー0の段階ではフィード投稿のリーチが0だったため使っていない（理由は `ig-week-2026-09.md` §0）。
@@ -62,7 +63,7 @@ NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '
   H.264 / yuv420p / 30fps / 無音AAC入りの MP4 を書き出す。**音楽は IG 側で足す**
 - いずれも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` / `f*.png` を相対参照する
 
-## ハイライトのカバーを作る（`covers.js`）
+## ハイライトを作る（`covers.js` / `render-story.js` / `icons.js`）
 
 ```bash
 NODE_PATH=$(npm root -g) node covers.js   # cover-about.png 他6枚を書き出す
@@ -73,6 +74,19 @@ NODE_PATH=$(npm root -g) node covers.js   # cover-about.png 他6枚を書き出�
 - **文字とロゴを入れない。** 円に切られると読めないし、6枚並ぶと騒がしくなる
 - アイコンを足す・直すときは `ICONS` に 560×560 の inline SVG を書く。
   **そのあと必ず150px 前後に縮めた一覧で読めるか見る**（等倍で見ると全部読めてしまう）
+
+中身（ハイライトに入れるストーリー）は `render-story.js`。
+
+```bash
+NODE_PATH=$(npm root -g) node render-story.js lead about hl1-01.png '["行1","行2"]'
+NODE_PATH=$(npm root -g) node render-story.js body none  hl1-02.png '["行1","行2","行3"]'
+```
+
+- 第1引数は `lead`（アイコン＋見出し56px・各ハイライトの1枚目）／`body`（文字だけ48px）／`note`（44px）
+- 第2引数は `icons.js` のキー（`about` `topics` `places` `kotosan` `feelings` `making`）。要らない枚は `none`
+- **上下は IG の UI に隠れる**ので、中身は y=400〜1500 に収めてある。ここを動かさない
+- カバーと中身の1枚目で**同じアイコンを使う**。棚の見出しと中身がつながる
+- `icons.js` が `covers.js` と `render-story.js` の共通の正。**アイコンは1箇所だけ直せば両方に効く**
 
 ## 過去に踏んだバグ
 
