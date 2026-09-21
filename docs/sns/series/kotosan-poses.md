@@ -41,7 +41,7 @@
 ## 1. 共通ロック（毎回そのまま貼る）
 
 ```
-Use the attached image as the exact character reference. Keep everything about the character identical: dusty blue drawstring pouch plush with a gathered top, terracotta drawstring cord with two wooden beads, no mouth, vertical oval matte black embroidered eyes that are slightly uneven, thin round silver-grey wire glasses resting on the face, a completely blank cream felt staff ID badge hanging slightly off-center on a thin terracotta cord (nothing printed or stitched on it: no text, no shape, no square, no icon, no colored patch), short round fabric arms, flat base. Looped fluffy fabric texture exactly like the reference, soft and fuzzy, not carved, with visible hand-stitched seams. Do not turn the character into clay. No cheek blush, no glossy eyes, no perfect left-right symmetry.
+Use the attached image as the exact character reference. Keep everything about the character identical: dusty blue drawstring pouch plush with a gathered top, terracotta drawstring cord with two wooden beads, no mouth, vertical oval matte black embroidered eyes that are slightly uneven, thin round gold wire glasses resting on the face, a cream felt staff ID badge with a small dusty blue square patch in its centre (exactly as in the reference: no text, no letters, no logo on it) hanging slightly off-center on a thin terracotta cord, short round fabric arms, flat base. Looped fluffy fabric texture exactly like the reference, soft and fuzzy, not carved, with visible hand-stitched seams. Do not turn the character into clay. No cheek blush, no glossy eyes, no perfect left-right symmetry.
 ```
 
 ## 2. 共通フッタ（毎回そのまま貼る）
@@ -51,7 +51,7 @@ Lighting: soft diffused daylight from the upper left, falling equally on the plu
 
 Camera: miniature photography at desk eye level. Vertical 2:3. Keep the upper third empty for text.
 
-No text, no letters, no numbers, no logos anywhere, including on the ID badge. No gold, no brass, no shiny metallic props. No photorealism: the clay keeps fingerprints, tool marks and slightly uneven handmade shapes, soft matte finish.
+No text, no letters, no numbers, no logos anywhere, including on the ID badge. No shiny metallic props in the scene (the gold glasses are the only metal). No photorealism: the clay keeps fingerprints, tool marks and slightly uneven handmade shapes, soft matte finish.
 ```
 
 ## 3. 場面セット（2種・下のポーズ文に挟んで使う）
@@ -138,7 +138,7 @@ Pose: the character stands facing the camera, head lowered, and one short round 
 | ファイル名 | 使いどころ | 差分プロンプト |
 |---|---|---|
 | `kotosan-pose-puff-eyes-v1` | 既存・基本（目が見える） | （手元のものを使う） |
-| `kotosan-pose-puff-side-v1` | 真横から。ふくらみが一番分かる | **生成済**（2026-09-21・`assets/kotosan/`） |
+| `kotosan-pose-puff-side-v1` | 真横から。ふくらみが一番分かる | **要再生成**（眼鏡が銀色で出た。プロンプト修正済） |
 | `kotosan-plain-puff-low-v1` | 無地・下から見上げる | 下 ⑧ |
 | `kotosan-pose-puff-badge-v1` | ふくらみで社員証が押し出される | 下 ⑨ |
 
@@ -186,8 +186,8 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 
 - [ ] **口が無い**（生成AIは口を足したがる。最頻出の事故）
 - [ ] 目が**縦長の楕円・マットな黒・少し左右不揃い**。ツヤ目・丸目になっていない
-- [ ] 眼鏡が**細い丸眼鏡**。金・真鍮になっていない
-- [ ] 社員証が**無地**。文字・ロゴ・**図形（四角や色の当て布）**が入っていない（2026-09-21 の ⑦ で実際に青い四角が出た）
+- [ ] 眼鏡が**細い丸眼鏡でゴールド**（基準絵どおり。銀色で出たら作り直す）
+- [ ] 社員証が**クリーム色のフェルト＋中央に小さなくすみブルーの四角**（基準絵どおり）。文字・ロゴは無い
 - [ ] ことさんだけ**ふわふわのループ生地**。粘土になっていない
 - [ ] 背景・小物は**全部クレイ**。指紋・ヘラ跡が見える。写実になっていない
 - [ ] 壁が無地の `#F5EEE6`。棚・窓・額縁・手前のぼかしが湧いていない（⑤ の窓を除く）
