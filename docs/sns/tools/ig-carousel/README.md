@@ -5,7 +5,7 @@ IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 | 型 | 曜日 | 書き出し | 正 |
 |---|---|---|---|
 | ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/kinda-pair-28.md` |
-| ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js`（**未実装**）＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md` |
+| ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js` ＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md`／画像は `kotosan-poses.md` |
 | 言いにくい気持ち | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/iinikui-kimochi.md` |
 | （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
 | ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
@@ -59,8 +59,33 @@ NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '
 - **1枚目の級数で火曜と木曜を見分けさせている**（連載62px＝疑問形／つくる日記54px＝断言形）。
   そろえてはいけない
 - `render-reel.js` は 1080×1920。第1引数は `hook`（1秒目・58px）／`body`（48px）
-- `build_reel.py` は `SEGS`（フレーム・尺・ズーム）を書き換えて実行すると
-  H.264 / yuv420p / 30fps / 無音AAC入りの MP4 を書き出す。**音楽は IG 側で足す**
+- `build_reel.py` は**プリセット名と出力名を引数で渡す**。H.264 / yuv420p / 30fps / 無音AAC入りの
+  MP4 を書き出す。**音楽は IG 側で足す**。引数なしは従来どおり連載の値（`pair`）
+
+```bash
+# ことさん（水・金）：場面はその回の生成画像、カット2以降は assets/kotosan/ のポーズ
+NODE_PATH=$(npm root -g) node render-kotosan.js scene kt-scene.png f1.png '["金曜17時55分","上司から「ちょっといい？」"]' 2
+NODE_PATH=$(npm root -g) node render-kotosan.js omote kt-glare.png f2.png '["はい、大丈夫です！"]'
+NODE_PATH=$(npm root -g) node render-kotosan.js honne kt-down.png  f3.png '["ちょっとで","済んだ試しがない"]'
+NODE_PATH=$(npm root -g) node render-kotosan.js gokun kt-puff.png  f4.png '["（ごくん）"]'
+NODE_PATH=$(npm root -g) node render-kotosan.js sukui kt-mug.png   f5.png '["今日はもう、ここまでで十分"]'   # 重さのある回だけ
+
+python3 build_reel.py kotosan4 kinda-ig-0925-kotosan.mp4   # 軽い回（4カット・12.15秒）
+python3 build_reel.py kotosan5 kinda-ig-1009-kotosan.mp4   # 救いのある回（5カット・14.80秒）
+```
+
+- `render-kotosan.js` の第1引数は版面：`scene`（場面＋シリーズ名＋状況44px）／`omote`（白い吹き出し48px）／
+  `honne`（薄茶の透ける吹き出し44px）／`gokun`（88px・吹き出しなし・天地中央）／`sukui`（白44px）。
+  第5引数はシリーズ番号（`scene` のときだけ効く）
+- **版面の正は `kotosan-reel.md` §3。** 級数・位置・色をこのスクリプト側で勝手に変えない
+- **落ちる条件を3つ持たせてある**（黙って壊れたフレームを出さないため）。
+  ① 1行の字数上限超え（48px=16字／44px=17字／88px=8字）
+  ② 吹き出しの下端が y=1500 を超える（IG の UI に隠れる）
+  ③ `gokun` が空（シリーズの目印を省かせない）
+- `build_reel.py` のプリセットは `pair`（連載・従来値）／`kotosan4`／`kotosan5`。
+  `SEGS` の5つ目の値が**静止**で、ことさんは3カット目の末尾 0.5 秒だけズームを止める
+  （「飲み込む間」。`kotosan-reel.md` §2）。クロスディゾルブは `XFS` でカット間ごとに指定し、
+  **ことさんは 3→4 だけ 0.15**
 - いずれも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` / `f*.png` を相対参照する
 
 ## ハイライトを作る（`covers.js` / `render-story.js` / `icons.js`）
