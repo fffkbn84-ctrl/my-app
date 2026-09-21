@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" width="520" height="420" role="img" aria-label="RIE COFFEE 本店 壁沿いの対面席の配置図。番号は本文の説明に対応する">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 390" width="520" height="390" role="img" aria-label="RIE COFFEE 本店 壁沿いの対面席の配置図。番号は本文の説明に対応する">
   <title>RIE COFFEE 本店 壁沿いの対面席の配置</title>
   <defs>
     <style>
@@ -7,47 +7,40 @@
     </style>
   </defs>
 
-  <rect width="520" height="420" fill="#F5EEE6"/>
-
-  <!-- 壁の上の本棚 -->
-  <rect x="40" y="26" width="440" height="24" rx="4" fill="none" stroke="#C9B7A8" stroke-width="1"/>
-  <line x1="150" y1="26" x2="150" y2="50" stroke="#C9B7A8" stroke-width="1"/>
-  <line x1="260" y1="26" x2="260" y2="50" stroke="#C9B7A8" stroke-width="1"/>
-  <line x1="370" y1="26" x2="370" y2="50" stroke="#C9B7A8" stroke-width="1"/>
+  <rect width="520" height="390" fill="#F5EEE6"/>
 
   <!-- 壁 -->
-  <line x1="40" y1="62" x2="480" y2="62" stroke="#B0937A" stroke-width="4"/>
+  <line x1="40" y1="32" x2="480" y2="32" stroke="#B0937A" stroke-width="4"/>
 
   <!-- ベンチソファ（壁沿いに一続き・区切りなし） -->
-  <rect x="48" y="74" width="424" height="46" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+  <rect x="48" y="44" width="424" height="46" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
 
   <!-- 隣のテーブル（左） -->
-  <rect x="62" y="152" width="96" height="92" rx="8" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <rect x="62" y="122" width="96" height="92" rx="8" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
   <!-- 観測した席のテーブル -->
-  <rect x="202" y="152" width="116" height="92" rx="8" fill="#EFE2D3" stroke="#D4A090" stroke-width="1.5"/>
+  <rect x="202" y="122" width="116" height="92" rx="8" fill="#EFE2D3" stroke="#D4A090" stroke-width="1.5"/>
   <!-- 隣のテーブル（右） -->
-  <rect x="362" y="152" width="96" height="92" rx="8" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
+  <rect x="362" y="122" width="96" height="92" rx="8" fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4"/>
 
-  <text class="cap" x="110" y="272" text-anchor="middle">隣の席</text>
-  <text class="cap" x="410" y="272" text-anchor="middle">隣の席</text>
+  <text class="cap" x="110" y="242" text-anchor="middle">隣の席</text>
+  <text class="cap" x="410" y="242" text-anchor="middle">隣の席</text>
 
   <!-- 通路側のいす -->
-  <rect x="226" y="268" width="68" height="40" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
+  <rect x="226" y="238" width="68" height="40" rx="8" fill="#EADFD2" stroke="#C9B7A8" stroke-width="1"/>
 
   <!-- 着席位置 -->
-  <circle cx="260" cy="102" r="16" fill="none" stroke="#D4A090" stroke-width="1.5"/>
-  <circle cx="260" cy="288" r="16" fill="none" stroke="#D4A090" stroke-width="1.5"/>
+  <circle cx="260" cy="72" r="16" fill="none" stroke="#D4A090" stroke-width="1.5"/>
+  <circle cx="260" cy="258" r="16" fill="none" stroke="#D4A090" stroke-width="1.5"/>
 
   <!-- 通路 -->
-  <line x1="40" y1="340" x2="480" y2="340" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="6 5"/>
-  <text class="cap" x="260" y="364" text-anchor="middle">通路</text>
+  <line x1="40" y1="310" x2="480" y2="310" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="6 5"/>
+  <text class="cap" x="260" y="334" text-anchor="middle">通路</text>
 
   <!-- 本文の番号付きリストと対応する -->
   <g>
-    <circle cx="118" cy="97" r="13" fill="#B07E6C"/><text class="mk" x="118" y="102" text-anchor="middle">1</text>
-    <circle cx="260" cy="198" r="13" fill="#B07E6C"/><text class="mk" x="260" y="203" text-anchor="middle">2</text>
-    <circle cx="340" cy="198" r="13" fill="#B07E6C"/><text class="mk" x="340" y="203" text-anchor="middle">3</text>
-    <circle cx="160" cy="340" r="13" fill="#B07E6C"/><text class="mk" x="160" y="345" text-anchor="middle">4</text>
-    <circle cx="418" cy="38" r="13" fill="#B07E6C"/><text class="mk" x="418" y="43" text-anchor="middle">5</text>
+    <circle cx="118" cy="67" r="13" fill="#B07E6C"/><text class="mk" x="118" y="72" text-anchor="middle">1</text>
+    <circle cx="260" cy="168" r="13" fill="#B07E6C"/><text class="mk" x="260" y="173" text-anchor="middle">2</text>
+    <circle cx="340" cy="168" r="13" fill="#B07E6C"/><text class="mk" x="340" y="173" text-anchor="middle">3</text>
+    <circle cx="160" cy="310" r="13" fill="#B07E6C"/><text class="mk" x="160" y="315" text-anchor="middle">4</text>
   </g>
 </svg>
