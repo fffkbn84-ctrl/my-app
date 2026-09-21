@@ -54,10 +54,10 @@ export const SEASON_VISUALS: Record<SeasonKey, SeasonVisual> = {
  * いま出している季節。
  *
  * 切り替え履歴／予定：
- * - summer    … 〜2026-09（現行）
- * - autumn    … 秋の 2 枚（hero-couple-2026aw{,-pc}.webp）を置いたら切り替える
+ * - summer    … 〜2026-09-21
+ * - autumn    … 2026-09-22〜（現行）
  * - halloween … 10 月頭に、かぼちゃ入りの 2 枚を置いてから切り替える。11 月に autumn へ戻す
  */
-export const CURRENT_SEASON: SeasonKey = "summer";
+export const CURRENT_SEASON: SeasonKey = "autumn";
 
 export const seasonVisual = SEASON_VISUALS[CURRENT_SEASON];
