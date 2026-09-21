@@ -5,7 +5,7 @@ IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 | 型 | 曜日 | 書き出し | 正 |
 |---|---|---|---|
 | ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/kinda-pair-28.md` |
-| ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js`（**未実装**）＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md` |
+| ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js`（**未実装**）＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md`／画像は `kotosan-poses.md` |
 | 言いにくい気持ち | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/iinikui-kimochi.md` |
 | （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
 | ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
