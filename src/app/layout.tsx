@@ -7,6 +7,7 @@ import FloatingScrollToTop from "@/components/ui/FloatingScrollToTop";
 import FloatingBackButton from "@/components/ui/FloatingBackButton";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { seasonVisual } from "@/lib/season";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -90,11 +91,23 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@200;300;400&family=Noto+Sans+JP:wght@200;300;400;500&family=Shippori+Mincho:wght@400;500&display=swap"
           rel="stylesheet"
         />
-        {/* ヒーロー用 LCP 画像の preload（Lighthouse の "Largest Contentful Paint image was not preloaded" 対策）*/}
+        {/* ヒーロー用 LCP 画像の preload（Lighthouse の "Largest Contentful Paint image was not preloaded" 対策）
+            トップの <picture> と同じ分岐（1024px）を media で張る。
+            分けないと PC でモバイル用の縦長画像まで先読みしてしまい、preload が効かないどころか
+            無駄な転送になる。パスは src/lib/season.ts が正（季節切替で自動追従）。*/}
         <link
           rel="preload"
           as="image"
-          href="/images/hero-couple-new.webp"
+          href={seasonVisual.hero}
+          media="(max-width: 1023.98px)"
+          fetchPriority="high"
+          type="image/webp"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href={seasonVisual.heroPc}
+          media="(min-width: 1024px)"
           fetchPriority="high"
           type="image/webp"
         />
