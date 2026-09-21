@@ -11,6 +11,7 @@ import type { StoryStage } from "@/lib/mock/stories";
 import { getAllColumns } from "@/lib/columns";
 import WeatherColumnThumb from "@/components/columns/WeatherColumnThumb";
 import type { WeatherKey } from "@/app/kinda-note/data/weatherDescriptions";
+import { seasonVisual } from "@/lib/season";
 
 /* ────────────────────────────────────────────────────────────
    Kinda story カードの装飾バンド（stage 別）
@@ -32,8 +33,10 @@ const HERO_H1_LINE1 = ["好きな人を", "見つけて、"];
 const HERO_H1_LINE2 = ["一緒に過ごす", "日々まで。"];
 const HERO_H2 =
   "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
-const HERO_IMAGE_SRC = "/images/hero-couple-2026ss.webp";
-const HERO_IMAGE_PC_SRC = "/images/hero-couple-2026ss-pc.webp";
+// 季節ビジュアルは src/lib/season.ts の CURRENT_SEASON が正。
+// ここではパスを直書きしない（layout.tsx の LCP preload とズレるため）。
+const HERO_IMAGE_SRC = seasonVisual.hero;
+const HERO_IMAGE_PC_SRC = seasonVisual.heroPc;
 
 /* SEO 用の構造化データ（JSON-LD）。婚活キーワード対策の中核。 */
 const SITE_JSONLD = {
@@ -272,7 +275,7 @@ export default async function HomePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={HERO_IMAGE_SRC}
-                alt="Kindaの世界観：ミニチュアクレイで作られた、ふたりが歩く村"
+                alt={seasonVisual.heroAlt}
                 className="ktp-hero-visual-img"
                 fetchPriority="high"
                 decoding="async"
