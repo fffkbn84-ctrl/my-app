@@ -13,7 +13,9 @@
 ## 0. 使い方
 
 1. **ChatGPT の新しいメッセージ**を立てる（会話を重ねるとブレが溜まる。設定書§8）
-2. **基準画像 v1（`kotosan-reference-v1`）を添付する**。喉袋型（案B）は絶対に添付しない
+2. **基準画像を添付する。** デスクの回は**2枚**（`kotosan-reference-v1` ＝ 4面キャラシート、
+   `kotosan-scene-desk-v1` ＝ 基準オフィス）。無地の回はキャラシートだけ。
+   どちらも `docs/sns/assets/kotosan/` にある。喉袋型（案B）は絶対に添付しない
 3. 下の **§1 共通ロック** をそのまま貼る
 4. その下に **§3〜§6 から1つ**選んで貼る
 5. 最後に **§2 共通フッタ** を貼る
@@ -30,8 +32,11 @@
 切り替わるので、**机の色が変わると視聴者に気づかれる**。
 
 最初の場面セットには机の色を書いていなかったため、同じプロンプトからテラコッタの机と
-クリームの机が出た。いまは §3-A で**机・椅子・ノートパソコンをテラコッタ（#D4A090）に固定**してある。
+クリームの机が出た。いまは §3-A で**基準オフィス画像（`kotosan-scene-desk-v1`）に合わせて固定**してある。
 古いプロンプトで作った画像を混ぜない。
+
+> **壁の斜めの光は基準にある。** 2026-09-22 に一度「壁に影を落とさない」と書いたが、
+> 基準オフィス画像には左上からの光の帯が入っている。消さない。
 
 生成は1日8枚まで。**節約しすぎない**（ポーズを増やすことが目的なので、1日で1枠ぶん作り切ってよい）。
 
@@ -68,7 +73,7 @@ No text, no letters, no numbers, no logos anywhere, including on the ID badge. N
 **A. デスク（仕事・Kinda社内の回）**
 
 ```
-Scene: a simple handmade polymer clay miniature office set. The desk, the office chair and the laptop are all muted terracotta clay (#D4A090); the potted plant sits in a small cream clay pot; the mug is the same terracotta. They stand against a plain warm beige wall (#F5EEE6) with nothing on it and no shadow cast on the wall. On the desk: only the laptop, the mug and the one small potted plant. No foreground objects, no shelves, no window, no picture frames. The character is sized like a coworker: its head rises well above the desk.
+Scene: match the attached office reference exactly. A simple handmade polymer clay miniature office set: the desk, the office chair, the laptop and the mug are all muted terracotta clay (#D4A090), standing on a floor of the same warm terracotta clay; the one small potted plant sits in a cream clay pot with pale sage leaves. The wall behind is plain warm beige (#F5EEE6) with nothing on it, crossed by one soft diagonal band of light from the upper left. On the desk: only the laptop, the mug and the plant. No foreground objects, no shelves, no window, no picture frames. The character is sized like a coworker: its head rises well above the desk.
 ```
 
 **B. 無地（日常・人間関係・恋愛の回）**
@@ -204,7 +209,7 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 - [ ] 光が**左上から**。夕焼けのオレンジが入っていない
 - [ ] **上3分の1が空いている**（文字を置く）
 - [ ] 画面内に文字・数字が無い
-- [ ] **同じ回で使う他のカットと、机・椅子の色がそろっている**（テラコッタ #D4A090）
+- [ ] **同じ回で使う他のカットと、机・椅子の色がそろっている**（基準オフィス画像どおりのテラコッタ）
 
 ## 8. 足したら書くところ
 
