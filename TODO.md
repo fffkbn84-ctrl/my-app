@@ -23,7 +23,7 @@
   詳細と枠の比率ごとの切られ方は `seasonal-visuals.md` §4-2
 - **判断は目視でやらない。** CSS の値を再現して実際の表示枠にレンダリングして確かめる。
   シミュレーション自体は現行画像で検算してから使う（「夏は切れない・秋は切れる」を先に確認した）
-- SNS：**X に1本出した（`seasonal-visuals.md` §7 に実例）。IG には出さない**（`ig-week-2026-09.md` §1）
+- SNS：**X に1本出した（`seasonal-visuals.md` §7 に実例）。X ヘッダーも秋に差し替え済み。IG には出さない**（`ig-week-2026-09.md` §1）
 
 - [ ] **10/1 前後：ハロウィーンに切り替える。** `seasonal-visuals.md` §5-3 の差分プロンプトで2枚生成 → 渡す → `CURRENT_SEASON = "halloween"`。**11月に `autumn` へ戻す**
 
@@ -436,7 +436,7 @@ canonical / meta description / OGP / robots.txt はすべて正しく出てお�
 - [ ] **不要ブランチ削除（GitHub UI から・環境の git プロキシでは削除不可）**：`claude/review-reply-display`・`claude/review-display-tags-reply`・`claude/reel-count-notif-tweak`。⚠️ `claude/fix-profile-creation-1clpG`（counselor本番）と `claude/futarive-admin-dashboard-iKBfw`（admin本番）は削除禁止。
 
 ### SNS まわり（決裁済み・実作業）
-- [ ] **X ヘッダーを秋に差し替える（手動アップロード）**：`docs/sns/assets/x-header-autumn.png`（1500×500）を X の設定画面から。左下はプロフィールアイコンが重なる想定の構図。2026-09-22 時点で未実施
+- [x] **X ヘッダーを秋に差し替えた**（2026-09-22・`docs/sns/assets/x-header-autumn.png` 1500×500）。季節を変えたらここも差し替える（手順は `docs/sns/seasonal-visuals.md` §6-7）
 - [x] バリューコマース アフィリエイト**審査通過**（2026-07-06）。店舗掲載の型は `docs/guides/kinda-act-glow-post-template.md` に制定。PR表記＋rel=sponsoredはbooking_urlのASPドメインから自動判定（実装済み）。
 - [ ] **VC管理画面でふうか作業（審査通過後の残り）**：①「一休.comレストラン」「ホットペッパーグルメ」に提携申請 → ②承認後、MyLinkで https://restaurant.ikyu.com/117183 のリンクを発行 → Claudeに渡す（shops.booking_url を差し替え・PR表記が自動で出る）。
 - [ ] **Kinda act 初投稿の続き**：ランデブーラウンジ（帝国ホテル 東京）を掲載済み（shops id: dc483116-0e40-4cc3-a59c-8ffe85877615・badge=掲載店・一休生URL仮置き）。次はカフェ帯（HPG）を1〜2件＋お見合いカフェ記事のKinda voices展開（ふうか進行）。
