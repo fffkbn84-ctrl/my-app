@@ -7,6 +7,7 @@ _kotosan_*.html
 # 書き出したフレームと動画
 f*.png
 *-bg-*.png
+reel-*.png
 out-*.png
 hl*-*.png
 cover-*.png
