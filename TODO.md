@@ -5,11 +5,27 @@
 > 2026-07-02 に全面整理（重複統合・完了項目の退避）。整理前の全文は `docs/archive/todo-full-archive-2026-07-02.md`。
 > 定期整理は `/repo-tidy` Skill で行う。
 
-最終更新: 2026-09-21
+最終更新: 2026-09-22
 
 ---
 
 ## 📌 次セッション引き継ぎ（最初に読む）
+
+### 🟢 2026-09-22 ヒーローを秋にした・季節を1行で切り替えられるようにした（PR #56 / #57・main マージ済み・本番反映確認済み）
+
+> **季節を変えるときは `docs/sns/seasonal-visuals.md` を読む。** 規格・生成プロンプト・安全域・X の文言まで全部そこ。
+
+- 実体は `src/lib/season.ts` の **`CURRENT_SEASON` 1行**。ヒーロー（モバイル/PC）と LCP preload が同時に追従する
+- 「サイトのヘッダーが夏」の正体は**トップのヒーロー画像**。`Header.tsx` に季節の要素はない（シールも情景も画像に焼き込み）
+- ついでに `layout.tsx` の preload が**未使用の旧画像**を指していたバグを直した（無駄な1枚を先読みし、LCP の preload は効いていなかった）
+- ⚠️ **切れに2回やられた。** PC のシール（横）とモバイルのシール位置（端末差）。
+  安全域＝**シール上端は 12% より下・左端は 15% より右／ふたり下端は 88%（モバイルは 85%）より上**。
+  詳細と枠の比率ごとの切られ方は `seasonal-visuals.md` §4-2
+- **判断は目視でやらない。** CSS の値を再現して実際の表示枠にレンダリングして確かめる。
+  シミュレーション自体は現行画像で検算してから使う（「夏は切れない・秋は切れる」を先に確認した）
+- SNS：**X に1本出した（`seasonal-visuals.md` §7 に実例）。IG には出さない**（`ig-week-2026-09.md` §1）
+
+- [ ] **10/1 前後：ハロウィーンに切り替える。** `seasonal-visuals.md` §5-3 の差分プロンプトで2枚生成 → 渡す → `CURRENT_SEASON = "halloween"`。**11月に `autumn` へ戻す**
 
 ### 🟢 2026-09-20 IG を全枠リールに切り替えた（main マージ済み）
 
@@ -420,6 +436,7 @@ canonical / meta description / OGP / robots.txt はすべて正しく出てお�
 - [ ] **不要ブランチ削除（GitHub UI から・環境の git プロキシでは削除不可）**：`claude/review-reply-display`・`claude/review-display-tags-reply`・`claude/reel-count-notif-tweak`。⚠️ `claude/fix-profile-creation-1clpG`（counselor本番）と `claude/futarive-admin-dashboard-iKBfw`（admin本番）は削除禁止。
 
 ### SNS まわり（決裁済み・実作業）
+- [ ] **X ヘッダーを秋に差し替える（手動アップロード）**：`docs/sns/assets/x-header-autumn.png`（1500×500）を X の設定画面から。左下はプロフィールアイコンが重なる想定の構図。2026-09-22 時点で未実施
 - [x] バリューコマース アフィリエイト**審査通過**（2026-07-06）。店舗掲載の型は `docs/guides/kinda-act-glow-post-template.md` に制定。PR表記＋rel=sponsoredはbooking_urlのASPドメインから自動判定（実装済み）。
 - [ ] **VC管理画面でふうか作業（審査通過後の残り）**：①「一休.comレストラン」「ホットペッパーグルメ」に提携申請 → ②承認後、MyLinkで https://restaurant.ikyu.com/117183 のリンクを発行 → Claudeに渡す（shops.booking_url を差し替え・PR表記が自動で出る）。
 - [ ] **Kinda act 初投稿の続き**：ランデブーラウンジ（帝国ホテル 東京）を掲載済み（shops id: dc483116-0e40-4cc3-a59c-8ffe85877615・badge=掲載店・一休生URL仮置き）。次はカフェ帯（HPG）を1〜2件＋お見合いカフェ記事のKinda voices展開（ふうか進行）。
