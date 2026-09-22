@@ -24,6 +24,15 @@
 > `public/` には置かない。kinda.jp から配信されてしまうため。SNS の作業素材は `docs/sns/assets/` に置く。
 > 保存は WebP・quality 95（2MB の PNG が 180KB 程度になる。リールに焼くぶんには劣化は見えない）。
 
+### 1本のリールの中では、セットをそろえる（2026-09-22 に実際にズレた）
+
+カット2〜4 は**同じ机・同じ椅子・同じ色**でなければいけない。12秒でクロスディゾルブしながら
+切り替わるので、**机の色が変わると視聴者に気づかれる**。
+
+最初の場面セットには机の色を書いていなかったため、同じプロンプトからテラコッタの机と
+クリームの机が出た。いまは §3-A で**机・椅子・ノートパソコンをテラコッタ（#D4A090）に固定**してある。
+古いプロンプトで作った画像を混ぜない。
+
 生成は1日8枚まで。**節約しすぎない**（ポーズを増やすことが目的なので、1日で1枠ぶん作り切ってよい）。
 
 ### 比率は 2:3（2026-09-21 ふうか決裁・確定）
@@ -59,7 +68,7 @@ No text, no letters, no numbers, no logos anywhere, including on the ID badge. N
 **A. デスク（仕事・Kinda社内の回）**
 
 ```
-Scene: a simple handmade polymer clay miniature office set. A clay desk and clay office chair against a plain warm beige wall (#F5EEE6) with nothing on it. On the desk: only a clay laptop, a clay mug and one small clay potted plant. No foreground objects, no shelves, no window, no picture frames. The character is sized like a coworker: its head rises well above the desk. Muted dusty rose and terracotta accents (#D4A090).
+Scene: a simple handmade polymer clay miniature office set. The desk, the office chair and the laptop are all muted terracotta clay (#D4A090); the potted plant sits in a small cream clay pot; the mug is the same terracotta. They stand against a plain warm beige wall (#F5EEE6) with nothing on it and no shadow cast on the wall. On the desk: only the laptop, the mug and the one small potted plant. No foreground objects, no shelves, no window, no picture frames. The character is sized like a coworker: its head rises well above the desk.
 ```
 
 **B. 無地（日常・人間関係・恋愛の回）**
@@ -77,7 +86,8 @@ Scene: nothing but a plain warm beige seamless background (#F5EEE6). The charact
 | ファイル名 | 使いどころ | 差分プロンプト |
 |---|---|---|
 | `kotosan-pose-glare-v1` | 既存・基本 | （手元のものを使う） |
-| `kotosan-pose-glare-turn-v1` | 背後から声をかけられた回（金曜の「ちょっといい？」） | 下 ① |
+| `kotosan-pose-glare-desk-v1` | 机ごしの正面。既存 glare より引きの画 | **生成済**（2026-09-22・机はクリーム。要再生成） |
+| `kotosan-pose-glare-turn-v1` | 背後から声をかけられた回（金曜の「ちょっといい？」） | 下 ①（**未生成**。①で出したら正面になった） |
 | `kotosan-pose-glare-lean-v1` | 「承知しました〜」と受ける回 | 下 ② |
 | `kotosan-plain-glare-v1` | 既存・無地 | （手元のものを使う） |
 | `kotosan-plain-glare-bow-v1` | 無地・会釈する回 | 下 ③ |
@@ -106,7 +116,7 @@ Pose: the character stands facing the camera and tips its whole body forward in 
 | ファイル名 | 使いどころ | 差分プロンプト |
 |---|---|---|
 | `kotosan-pose-lookdown-v1` | 既存・基本 | （手元のものを使う） |
-| `kotosan-pose-lookdown-tilt-v1` | 角度違い・同じ回を続けて出す週に | 下 ④ |
+| `kotosan-pose-lookdown-tilt-v1` | 角度違い・同じ回を続けて出す週に | **生成済**（2026-09-22・机はテラコッタ） |
 | `kotosan-pose-back-window-v1` | 理不尽を受け流す回（設定書§9） | 下 ⑤ |
 | `kotosan-plain-lookdown-v1` | 既存・無地 | （手元のものを使う） |
 | `kotosan-plain-lookdown-badge-v1` | 人間関係・恋愛の回 | 下 ⑥ |
@@ -138,7 +148,7 @@ Pose: the character stands facing the camera, head lowered, and one short round 
 | ファイル名 | 使いどころ | 差分プロンプト |
 |---|---|---|
 | `kotosan-pose-puff-eyes-v1` | 既存・基本（目が見える） | （手元のものを使う） |
-| `kotosan-pose-puff-side-v1` | 真横から。ふくらみが一番分かる | **要再生成**（眼鏡が銀色で出た。プロンプト修正済） |
+| `kotosan-pose-puff-side-v1` | 真横から。ふくらみが一番分かる | **要再生成**（眼鏡が銀色。机はテラコッタ） |
 | `kotosan-plain-puff-low-v1` | 無地・下から見上げる | 下 ⑧ |
 | `kotosan-pose-puff-badge-v1` | ふくらみで社員証が押し出される | 下 ⑨ |
 
@@ -186,7 +196,7 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 
 - [ ] **口が無い**（生成AIは口を足したがる。最頻出の事故）
 - [ ] 目が**縦長の楕円・マットな黒・少し左右不揃い**。ツヤ目・丸目になっていない
-- [ ] 眼鏡が**細い丸眼鏡でゴールド**（基準絵どおり。銀色で出たら作り直す）
+- [ ] 眼鏡が**細い丸眼鏡でゴールド**（基準絵どおり・2026-09-22 ふうか決裁。銀色で出たら作り直す）
 - [ ] 社員証が**クリーム色のフェルト＋中央に小さなくすみブルーの四角**（基準絵どおり）。文字・ロゴは無い
 - [ ] ことさんだけ**ふわふわのループ生地**。粘土になっていない
 - [ ] 背景・小物は**全部クレイ**。指紋・ヘラ跡が見える。写実になっていない
@@ -194,6 +204,7 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 - [ ] 光が**左上から**。夕焼けのオレンジが入っていない
 - [ ] **上3分の1が空いている**（文字を置く）
 - [ ] 画面内に文字・数字が無い
+- [ ] **同じ回で使う他のカットと、机・椅子の色がそろっている**（テラコッタ #D4A090）
 
 ## 8. 足したら書くところ
 
@@ -209,7 +220,7 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 | 回 | カット2 | カット3 | カット4 | カット5 |
 |---|---|---|---|---|
 | #1（社内） | glare-v1 | lookdown-v1 | puff-eyes-v1 | — |
-| #2（仕事・金曜） | glare-turn-v1 | lookdown-tilt-v1 | puff-side-v1 | — |
+| #2（仕事・金曜） | glare-desk-v1（要再生成） | lookdown-tilt-v1 | puff-side-v1（要再生成） | — |
 | #3（日常） | plain-glare-bow-v1 | plain-lookdown-badge-v1 | plain-puff-low-v1 | — |
 | #4（仕事） | glare-lean-v1 | back-window-v1 | puff-badge-v1 | — |
 | #5（人間関係） | plain-glare-v1 | plain-lookdown-v1 | plain-puff-low-v1 | — |
