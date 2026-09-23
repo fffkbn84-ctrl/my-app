@@ -100,9 +100,114 @@ Portrait 2:3 (1024x1536).
 - 窓ごとに1人か2人。**2人の窓は「関係の途中」**（並んで座っているが別々にスマホ、同じ料理を作る、玄関で靴を脱いでいる…）
 - **明かりの消えた窓（12番）は無人のまま残す。** いない夜も並列、の線は守る
 
-### 次のセッションで決めること
+### 次のセッションで決めること → §6 で決着（2026-09-23 深夜）
 
-- v2 のプロンプト（v1 の12場面を「人がいる場面」に書き直す）
-- **ことさんを1つの窓に隠すか。** 「ことさんがどこかにいます」でループ視聴（探す時間）が伸びる。
-  ただしことさんはテスト中（10/16 判定）なので、別の枠に出すことが判定を濁さないかを先に考える
-- 投稿日：9/24(木) 20:00 に間に合わなければ 10/1(木) にずらしてよい（無理に間に合わせない）
+- ~~v2 のプロンプト~~ → §6-1
+- ~~ことさんを1つの窓に隠すか~~ → **今回は隠さない**（§6-2）
+- ~~投稿日~~ → 9/24(木) 20:00 を狙う。**9/24 17:00 までに1枚が決まらなければ 10/1(木) 20:00**（§6-3）
+
+---
+
+## 6. v2（顔のないクレイ人形を入れる）
+
+### 6-1. ChatGPT プロンプト（新しいチャットで・添付なし・2:3）
+
+v1 から変えたのは3点だけ。**①人形を入れた ②12場面を人のいる場面に書き直した ③左右の余白を強くした**。
+壁・窓枠・光・空は v1 のまま（v1 で当たっている部分は動かさない）。
+
+```
+A handmade miniature clay diorama photographed straight-on: the front wall of a small four-storey apartment building at dusk. The wall is soft warm beige clay (#F5EEE6 tone) with gentle hand-pressed texture, faint fingerprints and slightly uneven edges.
+
+Twelve windows in a loose 3-column by 4-row grid. The windows are fairly large so the rooms inside are easy to see. Each window is slightly different in size, and the frames are painted in muted colours (dusty rose #D4A090, soft sage, cream, faded terracotta), a little crooked as if made by hand. Eleven windows are lit from inside with soft warm light, some more amber, some paler cream.
+
+The people inside are small faceless clay figures, all made in the same simple style: smooth round heads with no eyes, no nose, no mouth and no hair; soft rounded bodies; plain loose tops and trousers in muted colours (oatmeal, sage, dusty blue, terracotta, cream). No skirts, no dresses, no ties, no jewellery, no makeup, nothing that shows gender or age. The figures are busy with their own evening and do not look out of the window.
+
+One scene per window:
+1. two figures sit across a tiny round table with two mugs, one mug still steaming; one figure has a hand raised mid-sentence
+2. one figure lies on its stomach on a single bed, feet in the air, holding a smartphone whose blank screen glows
+3. at a doorway, one figure sits on the step untying a sneaker while a second figure stands just inside; two pairs of sneakers in two different colours
+4. one figure curled up in an armchair reading a book, a small blanket over its knees
+5. two figures side by side at a small sink, both brushing their teeth
+6. one figure at a desk with an open laptop whose blank screen glows softly, a mug beside it
+7. two figures cooking together at a small counter, one stirring a pot, the other holding out a plate
+8. one figure sits on the floor holding a small wrapped gift box with its ribbon untied, looking down at it
+9. two figures sit side by side on a small sofa, shoulders touching, each looking at their own smartphone
+10. one figure has just come in, holding a dripping umbrella; a second umbrella already stands in the umbrella stand
+11. one figure waters a potted plant on the sill with a small watering can
+12. the light is off, curtains open, the room dark, calm and empty, with no figure
+
+The top 20 percent of the image is empty dusk sky in soft muted blue-mauve: no moon, no stars, no clouds with shapes. Leave a wide plain wall margin on the left and right: no window comes closer than one eighth of the image width to either side edge. Soft light from above, gentle matte shadows, quiet and cozy. Miniature clay and felt handcraft look, not glossy, not a 3D render, not a realistic photo.
+
+No realistic people, no faces, no eyes, no mouths, no hair. No pets. No text, no letters, no numbers, no logos, no signs, nothing written on any screen. No gold, no brass, no metallic parts.
+Portrait 2:3 (1024x1536).
+```
+
+**2人の窓と1人の窓を市松に置いた**（1段目 2・1・2／2段目 1・2・1／3段目 2・1・2／4段目 1・1・無人）。
+2人の窓が片寄ると「ふたりの建物」、1人が片寄ると「ひとりの建物」に読めるため。
+
+| 窓 | 人数 | 何が「途中」か |
+|---|---|---|
+| 1 マグ | 2 | 話している最中。片方の手が上がっている |
+| 2 ベッドとスマホ | 1 | 返事を待っているのか、ただ見ているのか分からない |
+| 3 玄関 | 2 | 帰ってきたのか、これから帰るのか分からない |
+| 4 肘掛け椅子 | 1 | ひとりの夜。寂しく描かない（毛布・読書） |
+| 5 洗面台 | 2 | 同じことを並んでしている |
+| 6 机とノートPC | 1 | 遅くまで何かしている |
+| 7 台所 | 2 | 同じ料理を作っている |
+| 8 贈り物 | 1 | **渡す前か、もらった後か分からない**（いちばん覗きたくなる窓） |
+| 9 ソファ | 2 | 並んでいるが、別々のスマホ |
+| 10 傘 | 1 | 傘がもう1本ある。**誰かいるのかは分からない** |
+| 11 植木 | 1 | 自分のペース |
+| 12 消灯 | 0 | いない夜も並列（§5 で決定済み） |
+
+「分からない」を残してあるのが要点。**答えを絵で確定させない**と、見る人が自分の事情で埋める（§1-3）。
+
+#### 崩れやすいところ（出たら作り直す）
+
+- [ ] **人形に顔が出る**（目・口・眉。いちばん出やすい）→「The figures have completely blank, smooth faces.」を足す
+- [ ] 人形に髪が出る／スカート・ネクタイが出る（性別が確定する）
+- [ ] 人形がこちら（窓の外）を向いて手を振る・覗き返す
+- [ ] 12番の暗い窓に人形が入る
+- [ ] 窓が12個より減る／同じ場面が2つ出る／スマホや PC の画面に文字が出る
+- [ ] **左右の窓が端から1/8より近い**（v1 は約6%まで寄っていて、9:16 に切ると両端の窓枠が約20pxずつ切れる）
+- [ ] 人形がリアルな人間・フィギュア（ツヤのあるプラスチック）になっている
+- [ ] 1024×1536 の原寸で受け取る（プレビューの縮小版を貼らない。`kotosan-poses.md` 場面画像の解像度）
+
+**12窓で人形が崩れるなら、6窓（2列×3段）に落とす。** 残すのは 1・2・8・9・10・12
+（2人／1人／贈り物／並んで別々／傘／消灯。この6つで「関係の途中」と「いない夜」が両方残る）。
+6窓にすると窓が大きくなり、人形の崩れも減る。
+
+#### 左右が寄ってしまったときの逃げ道（Claude 側）
+
+作り直しが続くなら、切らずに**縮めて上下を足す**。1024 幅を 864 に縮め（84%）、上に空の色、下に壁の色を足して 9:16 にする。
+空は単色なので継ぎ目が目立たない。下の足し分は壁の続きとして 1 割程度に収まる。
+
+### 6-2. ことさんを1つの窓に隠すか → **今回は隠さない**
+
+**判断：隠さない。10/16 の判定後に、夜の窓 #2 の候補として持つ。** 理由の強い順。
+
+1. **この回が測りたいものが濁る。** 夜の窓は木曜1枚リールの**1本目**で、確かめたいのは
+   「たくさん並んだ中から自分に近い窓を探す」型が送られるか（`ig-strategy` §15）。
+   ことさんを入れて伸びたら、型が効いたのか、ことさんを探す遊びが効いたのか**切り分けられない**。
+   ことさん側の「テスト中は変数を増やさない」（`kotosan-reel.md` §8）と同じ理屈を、こちら側にも当てる
+2. **問いが2つになる。** 「今夜は、どの窓？」は**自分を探す**問い（送信を生む）。「ことさんはどこ？」は**キャラを探す**問い
+   （ループ視聴は伸びるが、送信は生みにくい。`ig-strategy` §15 で「キャラの問いかけは送られない」と整理済み）。
+   1枚に2つ置くと、弱いほうに目が取られる
+3. **見る人のほとんどがことさんを知らない。** 流入はリールタブ・発見が半分ずつで、フォロワーはまだ少ない。
+   知らないキャラを探させても、探す動機がない
+4. **絵として馴染まない。** ことさんは**ふわふわのループ生地・金の丸眼鏡**で、ほかは全部クレイ。
+   窓の大きさでは「ひとつだけ質感が違う」ことで**隠れずに浮く**か、潰れて誰だか分からなくなるかのどちらか。
+   しかも参照画像を添付して12窓を生成させると、ほかの人形までことさんに寄っていく（眼鏡が生える等）。
+   v2 のプロンプトの「no gold」ともぶつかる
+
+**判定後にやるなら**：場面は生成せず、`kotosan-poses.md` の既存ポーズを**スクリプトで1つの窓に合成**する
+（生成で混ぜない）。問いは「今夜は、どの窓？」のまま、ことさんは**キャプションで1行だけ**明かす
+（「ことさんも、どこかの窓に。」）。ことさんのテスト結果が良かった場合に限る。
+
+### 6-3. 投稿日
+
+- **9/24(木) 20:00 を狙う。** 生成（ふうかさん）→ 9:16 化・文字入れ・7秒 MP4（Claude）は、1枚なら短時間で終わる
+- **9/24 17:00 までに1枚が決まらなければ 10/1(木) 20:00 にずらす。** 20:00 の直前に慌てて出すより、
+  1週間おいても何も失わない（木曜枠はまだ型が決まっていない）
+- 9/25(金) 18:00 はことさん#2。夜の窓と22時間空くので、互いの計測は混ざらない
+- キャプション（§4）はそのまま使える。1番の窓にマグが2つ・12番が消灯なので「マグがふたつの窓も、明かりの消えた窓も」が合っている
