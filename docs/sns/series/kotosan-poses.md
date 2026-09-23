@@ -91,7 +91,8 @@ Scene: nothing but a plain warm beige seamless background (#F5EEE6). The charact
 | ファイル名 | 使いどころ | 差分プロンプト |
 |---|---|---|
 | `kotosan-pose-glare-v1` | 既存・基本 | （手元のものを使う） |
-| `kotosan-pose-glare-desk-v1` | 机ごしの正面。既存 glare より引きの画 | **生成済**（2026-09-22・机はクリーム。要再生成） |
+| `kotosan-pose-glare-v2` | 机ごしの正面。カット2の標準 | **生成済**（2026-09-23・机テラコッタ・基準どおり） |
+| `kotosan-pose-glare-desk-v1` | 同上の旧版 | **使わない**（机がクリームで他カットと揃わない） |
 | `kotosan-pose-glare-turn-v1` | 背後から声をかけられた回（金曜の「ちょっといい？」） | 下 ①（**未生成**。①で出したら正面になった） |
 | `kotosan-pose-glare-lean-v1` | 「承知しました〜」と受ける回 | 下 ② |
 | `kotosan-plain-glare-v1` | 既存・無地 | （手元のものを使う） |
@@ -225,7 +226,7 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 | 回 | カット2 | カット3 | カット4 | カット5 |
 |---|---|---|---|---|
 | #1（社内） | glare-v1 | lookdown-v1 | puff-eyes-v1 | — |
-| #2（仕事・金曜） | glare-desk-v1（要再生成） | lookdown-tilt-v1 | puff-side-v1（要再生成） | — |
+| #2（仕事・金曜） | glare-v2 | lookdown-tilt-v1 | puff-side-v1（要再生成） | — |
 | #3（日常） | plain-glare-bow-v1 | plain-lookdown-badge-v1 | plain-puff-low-v1 | — |
 | #4（仕事） | glare-lean-v1 | back-window-v1 | puff-badge-v1 | — |
 | #5（人間関係） | plain-glare-v1 | plain-lookdown-v1 | plain-puff-low-v1 | — |
