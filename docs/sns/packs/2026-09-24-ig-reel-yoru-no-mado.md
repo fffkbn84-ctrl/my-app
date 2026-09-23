@@ -211,3 +211,91 @@ Portrait 2:3 (1024x1536).
   1週間おいても何も失わない（木曜枠はまだ型が決まっていない）
 - 9/25(金) 18:00 はことさん#2。夜の窓と22時間空くので、互いの計測は混ざらない
 - キャプション（§4）はそのまま使える。1番の窓にマグが2つ・12番が消灯なので「マグがふたつの窓も、明かりの消えた窓も」が合っている
+
+---
+
+## 7. v2 の結果と v3（夜・逆光のシルエット）への切り替え（2026-09-23 22時台）
+
+**v2（顔のない人形）**：`docs/sns/assets/yoru-no-mado/v2-faceless.webp`。12場面・人数・消灯・左右の余白（端から約10%）はすべて指示どおりに出た。
+**不採用。** ふうかさんの指摘：
+
+> 表情がほしい。LGBTQ が混ざっていていいし、友達と取るか恋愛と取るかも見た人の自由。細い線の人のほうが見ていて気持ちいい。
+> 逆光（参考：窓の写真を集めたコラージュ）なら表情がなくても成り立つ。情緒が出る。その場合は夜にしたい。
+
+**Claude の判断：賛成。逆光のシルエットにする。** v2 を見て分かったこと。
+
+- **のっぺらぼうの顔は、表情が「ない」のではなく「空白」に見える。** 明るい部屋で丸い頭が正面を向くと、卵が並んでいるように見えて感情が読めない。
+  **逆光なら顔は最初から見えないので、空白が気にならない。** 感情は首の傾き・肩・姿勢・ふたりの距離が運ぶ。参考のコラージュが表情なしで情緒を出せているのはこの理由
+- **「性別を示さない」は、v2 で「性別の手がかりを全部消す」にしてしまっていた。** これは行き過ぎだった。
+  髪型も体つきもばらばらに混ぜ、**組み合わせを性別で決めない**ほうが包摂になる。友達か恋人かも決めない（§1-3 の「答えを渡さない」と同じ線）
+- **細い人形にする。** v2 の人形は頭が大きく胴が太い。姿勢で感情を出すには、首・肩・腕の角度が読める細い体が要る
+
+### 7-1. ブランドとの線（何を参考にして、何を参考にしないか）
+
+| 参考コラージュの要素 | v3 では | 理由 |
+|---|---|---|
+| 逆光のシルエット・姿勢で語る | **取り入れる** | 表情の問題と包摂の両方が解ける |
+| 夜・窓の光だけで見せる | **取り入れる** | 「今夜は、どの窓？」の問いとも合う |
+| 窓の形がばらばら（アーチ・格子・バルコニー） | **少しだけ**（窓の大きさと格子の有無を変える程度） | 12場面の読みやすさを優先 |
+| 実写の人物・写真の切り貼り | **取り入れない** | §5 で決定済み（リアルな人は使わない）。クレイの世界は残す |
+| 真っ黒な背景 | **取り入れない**。夜空は深い藍、壁は窓明かりに照らされた暖かいクレイ | 黒は Kinda の世界にない色。暖かさは窓の光で出す |
+
+§1 の「単色背景のルールを当てない」例外の延長として、**この回だけ夜にする**。クレイ質感・窓の暖かい光・ダスティローズの窓枠は残るので、Kinda の絵であることは変わらない。
+
+### 7-2. ChatGPT プロンプト v3（新しいチャットで・添付なし・2:3）
+
+v2 から変えたのは4点。**①夜 ②逆光のシルエット ③細い人形・髪型と体つきを混ぜる ④場面を姿勢で語るものに書き直す**。
+左右の余白・12窓の並び・市松の人数配置は v2 で当たったので**そのまま**。
+
+```
+A handmade miniature clay diorama photographed straight-on: the front wall of a small four-storey apartment building at night. The wall is warm beige clay with gentle hand-pressed texture and faint fingerprints, darkened by the night but softly lit around each window by the glow spilling out.
+
+Twelve windows in a loose 3-column by 4-row grid, fairly large so the rooms inside are easy to see. Each window is a little different: some taller, some wider, a few with thin window bars or a sheer curtain pulled halfway. The frames are painted in muted colours (dusty rose #D4A090, soft sage, cream, faded terracotta), a little crooked as if made by hand. Eleven windows glow from inside with warm light, some deep amber, some pale cream, one soft rose.
+
+Every room is lit from behind, so the people inside are seen as dark backlit silhouettes against the glowing room, with only a thin rim of light along their edges. Their faces cannot be seen; feeling is shown only by posture, the tilt of the head, the shoulders, the hands and the distance between them. The figures are slender handmade clay figures with thin arms and legs, long necks and small heads, elegant and light. Their hairstyles and body shapes are all different and freely mixed (short hair, long hair, a bun, a cap, curls, broad, narrow). Pairs are not matched by gender or look: every pair is a different combination, and whether they are friends, partners or family is left open.
+
+One scene per window:
+1. two figures sit across a tiny round table with two steaming mugs; one leans back laughing, head tipped up, the other leans forward on both elbows
+2. one figure lies on its stomach on a bed, feet in the air, chin in one hand, the other hand holding a smartphone whose blank screen glows faintly
+3. at a doorway, one figure sits on the step untying a sneaker while a second figure leans against the door frame, watching
+4. one figure curled up in an armchair beside a lamp, knees drawn up, a book open on its knees
+5. two figures sit facing each other on a deep window sill, knees drawn up, feet almost touching
+6. one figure at a desk with an open laptop whose blank screen glows softly, head resting on one hand
+7. two figures cooking at a small counter; one holds out a spoon and the other leans in to taste
+8. one figure sits on the floor holding a small wrapped gift box with its ribbon untied, head bowed over it
+9. two figures sit side by side on a small sofa, shoulders touching, heads bowed, each lit by their own phone
+10. one figure has just come in, holding a dripping umbrella, head turned toward the inner room; a second umbrella already stands in the umbrella stand
+11. one figure stands at the sill watering a small potted plant, the other hand on its hip
+12. the light is off, curtains open, the room dark, calm and empty, with no figure
+
+The top 20 percent of the image is empty night sky in deep muted indigo blue, not black: no moon, no stars, no clouds with shapes. Leave a wide plain wall margin on the left and right: no window comes closer than one eighth of the image width to either side edge. Quiet, tender, cinematic mood made only by warm window light. Miniature clay and felt handcraft look, soft matte surfaces, not glossy, not a 3D render, not a realistic photo.
+
+No realistic people, no photographs, no visible faces, no eyes, no mouths. No pets. No text, no letters, no numbers, no logos, no signs, nothing written on any screen. No gold, no brass, no metallic parts. No pure black anywhere.
+Portrait 2:3 (1024x1536).
+```
+
+#### 場面の書き換え（v2 → v3）
+
+| 窓 | v2 | v3 | 理由 |
+|---|---|---|---|
+| 1 | 手を上げて話している | **片方がのけぞって笑う・片方が身を乗り出す** | 逆光では手の上げ下げより体全体の角度が読める |
+| 3 | もう1人は立っているだけ | **ドア枠にもたれて見ている** | ふたりの間の空気が姿勢に出る |
+| 5 | 洗面台で並んで歯みがき | **出窓に向かい合って座る・足先が触れそう** | 歯みがきは逆光で何をしているか読めない。参考コラージュで最も情緒が出ていた構図 |
+| 7 | 鍋と皿 | **スプーンで味見させる** | 動作が1つで読める |
+| 9 | 並んで別々のスマホ | そのまま＋**スマホの光で照らされる** | 逆光の中に2つの小さな光が入り、「別々」が絵で見える |
+
+#### 崩れやすいところ（出たら作り直す）
+
+- [ ] **顔が描かれる**（目・口が見える）→「The faces stay completely in shadow.」を足す
+- [ ] 人形が太い・頭が大きい（v2 に戻っている）→「slender, small heads, thin limbs」を繰り返す
+- [ ] ペアが全部「髪の長い人＋短い人」になる（男女の記号で組まれる）→「Pairs are not matched by gender」を先頭の段落に移す
+- [ ] 夜空・壁が黒くなる（Kinda の色から外れる）
+- [ ] 写実の写真になる・人がリアルになる
+- [ ] 12番の暗い窓に人が入る／窓が12個より減る／画面に文字
+- [ ] 左右の窓が端から1/8より近い（v2 は約10%で、9:16 に切っても枠は切れない）
+
+### 7-3. 版面の変更
+
+- 吹き出しは**白のまま**「今夜は、どの窓？」。夜空の藍の上に白は v1〜v2 のときより目立つ
+- 尺7秒・ズームなし・カバーは1カット目、は変えない
+- キャプション（§4）もそのまま使える（「マグがふたつの窓も」＝1番、「明かりの消えた窓も」＝12番）
