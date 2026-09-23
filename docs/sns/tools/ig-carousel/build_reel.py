@@ -4,6 +4,7 @@
 #   python3 build_reel.py pair      out.mp4
 #   python3 build_reel.py kotosan4  out.mp4    # ことさん・軽い回（4カット）
 #   python3 build_reel.py kotosan5  out.mp4    # ことさん・救いのある回（5カット）
+#   python3 build_reel.py one7      out.mp4    # 木曜の1枚リール（1枚・7秒・ズームなし）
 #
 # SEGS は (frame, 尺, ズーム開始, ズーム終了, 静止)。
 #   静止 = 尺の最後の何秒をズームを止めて見せるか。ことさんは 3カット目の末尾 0.5 秒が
@@ -40,6 +41,11 @@ PRESETS = {
      ("f4.png",2.5,1.00,1.08,0.0),
      ("f5.png",3.0,1.00,1.03,0.0)],  # 救い
     [0.35,0.35,0.15,0.35]),
+
+  # 木曜の1枚リール（夜の窓など）。1枚・7秒・ズームなし。ループで見返させる
+  "one7": (
+    [("f1.png",7.0,1.00,1.00,0.0)],
+    []),
 }
 
 preset = sys.argv[1] if len(sys.argv) > 1 else "pair"
