@@ -132,3 +132,67 @@ python3 build_reel.py one7 kinda-ig-madori.mp4
 
 **投稿日は未定。** 木曜の順番（夜の窓 9/24 → note 紹介 → 間取り）どおりなら 10/8 か 10/15。
 夜の窓の数字（送信・「○番」のコメント）を見てから、問いとキャプションを決める。曲は木曜1枚リールの曲（夜の窓で決めるもの）。
+
+---
+
+## 8. 別案「人のいない、くわしい間取り」（2026-09-23 夜・ふうか提案・未生成）
+
+> ふうかさん：「人を無くす代わりに、もうちょい詳しい家の間取りにフォーカスしたバージョンも欲しい」
+
+**賛成。v3 とは別の1本として作る**（v3 の差し替えではない）。v3 は「4つの暮らしから選ぶ」、こちらは「1つの家の中を目で歩く」。
+間取りはそれ自体を眺める人が多いジャンルなので、人がいなくても**細部そのものが見る理由**になる。
+
+### 設計で外さないこと
+
+- **1つの家を画面いっぱいに。** 4つ並べると1つずつが小さく、くわしくできない。v3 の 1LDK より広い **2LDK** にして、歩き回る場所を増やす
+- **縦長の家にする。** 日本の集合住宅によくある「玄関が下・廊下がまっすぐ上へ・奥が LDK とベランダ」の形。9:16 の縦に素直に収まる
+- **選ぶものを残す。** `ig-strategy` §15 ①-2 で「リビング1枚は選ぶものがなく送られにくい」とした。1つの家でも**「どこが自分の場所か」**を選べるように、
+  性格の違う居場所を 6〜8 か所置く（窓辺の机・ソファ・キッチンカウンター・ベランダの椅子・寝室・ウォークインクローゼット・洗面所など）
+- **人の代わりに「いま出かけたところ」の気配を置く。** 夜の窓 v1（ものだけ）が弱かったのは「覗く相手」がいなかったから。
+  椅子にかけたカーディガン、伏せた本、湯気のないマグ、ベランダの洗濯物などで、**誰かが暮らしている**ことだけを見せる
+- **何人で住んでいるかは読ませない。** 椅子やスリッパの数でふたり暮らしに見せない（v3 の左下と同じく「ふたり」をゴールにしない）
+- 昼の光（夜の窓と並べて同じ型に見せない）
+
+### 問い（案）
+
+- **「この家で、あなたの場所は？」**（第一案）。コメントは「ベランダ」「窓辺の机」のように場所で返せる。夜の窓の「○番」と同じ形
+- 予備：「この家で、いちばん長くいる場所は？」
+- どちらも pair の `l2-alone`（一人の時間）・`l4-home`（住まいの形）と地続き。答えを先に渡さない
+
+### ChatGPT プロンプト（新しいチャットで・添付なし・2:3）
+
+```
+One handmade miniature clay model of a two-bedroom apartment, seen from above at a gentle isometric angle, like a dollhouse with no roof and no front walls, so every room inside is visible. The model fills most of the image, on a plain warm beige background (#F5EEE6).
+
+The apartment is long and narrow, with its long side running from the bottom of the image to the top, like a typical Japanese apartment floor plan. Make the floor plan clear, realistic and livable, the kind people enjoy studying in detail.
+
+Bottom: the front door is in the bottom wall. It opens into a small entrance area with a low shoe cabinet, a small step up and one pair of slippers.
+Middle: a straight corridor runs from the entrance up toward the living room. On the left side of the corridor: a small toilet room with its own door, then a washroom with a sink, a mirror and a washing machine, and behind the washroom a bathroom with a small bathtub. On the right side of the corridor: a small bedroom with a desk by its window, a desk lamp, a bookshelf and a single bed. Every one of these doors opens into the corridor, inside the apartment, never to the outside.
+Top: the corridor opens into a wide living-dining-kitchen. A kitchen counter with a sink and a small stove faces the dining area, with a kettle on the stove and a few jars on a shelf. A small wooden dining table with mismatched chairs. A sofa with a low table and a soft rug. The larger bedroom sits beside the living room, with a bed, a bedside lamp and a walk-in closet with clothes on a rail. Along the top wall, a big window opens onto a narrow balcony with potted plants, a small folding chair and a laundry rack with a few clothes.
+
+Nobody is in the apartment, but it looks lived in, as if someone just stepped out: a cardigan over a chair, an open book face down on the sofa, a mug on the desk, a watering can beside the plants. Tidy but not staged. Nothing shows how many people live here.
+
+Soft daylight coming in from the balcony window, gentle matte shadows, warm and quiet. Muted colours only: beige, cream, oatmeal, sage, dusty rose #D4A090, faded terracotta, light wood. Miniature clay and felt handcraft look with faint fingerprints, not glossy, not a 3D render, not a realistic photo.
+
+The top 20 percent of the image is plain empty beige background. Leave a plain margin on the left and right: the model comes no closer than one twelfth of the image width to either side edge.
+
+No people, no figures, no pets. No text, no letters, no numbers, no labels, no room names, no measurements, no logos, nothing written on any object, no book titles. No floor plan drawing lines. No gold, no brass, no metallic parts.
+Portrait 2:3 (1024x1536).
+```
+
+### 崩れやすいところ（出たら作り直す）
+
+- [ ] **外からしか入れない部屋**（トイレ・浴室のドアが外壁側）。v1 と同じ事故。いちばん先に見る
+- [ ] 廊下や部屋が行き止まりで、**玄関から LDK まで歩けない**
+- [ ] 「2LDK」「6畳」などの**文字・寸法・部屋名**、本の背表紙の文字
+- [ ] **人形やペットが出る**
+- [ ] 椅子2脚・スリッパ2足・歯ブラシ2本など、**ふたり暮らしに読める数の揃い**
+- [ ] 家具がキッチン・ドアの前をふさぐ（v2 の本棚と同じ。住めないところはコメントがそっちに流れる）
+- [ ] 家が横長に出て、9:16 で小さくなる
+- [ ] 1024×1536 の原寸で受け取る
+
+### 版面・投稿
+
+- 版面は §7 と同じ流れ（`prep-fill.py` → `render-kotosan.js omote` → `build_reel.py one7`）。模型の外周は生成後に測る
+- **v3 と同じ週に出さない**（近似重複）。10/1 に夜の窓の数字を見るとき、v3 とこの案のどちらを先に出すかも一緒に決める。
+  夜の窓で「○番」のコメントが多ければ、同じ「場所で答える」形のこの案とも相性がいい
