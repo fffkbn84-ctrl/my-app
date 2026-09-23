@@ -32,10 +32,10 @@ The floor plan is exactly the same in all four models: the front door is in the 
 
 The people are slender handmade clay figures with thin arms and legs, long necks and small heads. Their faces are soft and simple, with no detailed features. Their hairstyles and body shapes are all different and freely mixed. Pairs are not matched by gender or look, and whether they are friends, partners or family is left open.
 
-Top left: both figures work from home. The living room has become an office: two desks, each with a laptop and a monitor whose blank screens glow, office chairs, cables, coffee mugs, a stack of folders. One figure wears headphones and waves at the blank screen as if on a video call; the other types, leaning in. The sofa is pushed against the wall. In the bedroom, two single beds with a gap between them.
-Top right: both figures are fully absorbed in their own hobbies, and the living room is split into two hobby corners. On one side, a figure paints at a wooden easel, surrounded by small canvases with simple soft colour shapes, jars of brushes and paint-stained cloths. On the other side, a figure plays an acoustic guitar on a stool beside a shelf of records and a small amplifier. The two corners look completely different from each other. In the bedroom, one large bed with two blankets in two different colours.
-Bottom left: one figure alone in a reading chair by the big window. The living room is full of bookshelves and potted plants, cosy and tidy, not cluttered. In the bedroom, one small bed and a stack of books.
-Bottom right: two figures sitting on floor cushions at a low wooden table, drinking tea. The rooms are almost empty and calm: bare floor, one plant, a folded futon in the bedroom.
+Top left: both figures work from home. The living room has become an office: two desks, each with a laptop and a monitor whose blank screens glow, office chairs, cables, coffee mugs, a stack of folders. Both figures have short hair. One wears headphones and waves at the blank screen as if on a video call; the other types, leaning in. The sofa is pushed against the wall. In the bedroom, two single beds with a gap between them.
+Top right: both figures are fully absorbed in their own hobbies, and the living room is split into two hobby corners. One figure has long loose hair and the other wears a knit beanie. On one side, a figure paints at a wooden easel, surrounded by small canvases with simple soft colour shapes, jars of brushes and paint-stained cloths. On the other side, a figure plays an acoustic guitar on a stool beside a shelf of records and a small amplifier. The two corners look completely different from each other. In the bedroom, one large bed with two blankets in two different colours.
+Bottom left: one figure alone in a reading chair by the big window. The living room is full of bookshelves and potted plants, cosy and tidy, not cluttered. The bookshelves stand along the top wall of the living room and beside the big window. The kitchen counter stays completely clear and usable, with open floor in front of it: nothing stands in front of the kitchen. In the bedroom, one small bed and a stack of books.
+Bottom right: two figures, both with their hair tied up in buns, sitting on floor cushions at a low wooden table, drinking tea. The rooms are almost empty and calm: bare floor, one plant, a folded futon in the bedroom.
 
 Soft daylight from above, gentle matte shadows, warm and quiet. Muted colours only: beige, cream, oatmeal, sage, dusty rose #D4A090, faded terracotta, light wood. Miniature clay and felt handcraft look with faint fingerprints, not glossy, not a 3D render, not a realistic photo.
 
@@ -94,3 +94,18 @@ Portrait 2:3 (1024x1536).
 
 **気になる点（直さない）**：人形が小さい（9:16 で1体30px前後）。スマホでは何をしているかがぎりぎり読める大きさ。
 v2 で在宅勤務・趣味の動作が読めなければ、模型を大きく（余白を減らす）するか、2段階方式（§3）で1部屋ずつ作る。
+
+## 6. 試作 v2 の結果（2026-09-23 夜）
+
+`docs/sns/assets/madori/v2-trial.webp`。**トイレは室内から入れるようになった。在宅勤務と趣味の違いも一目で分かる。** 人形も v1 より大きく写り、動作が読める。
+
+直すのは2点（v3 のプロンプトに反映済み）。
+
+1. **左下の読書部屋で、本棚と植物の列がキッチンの目の前に立っている**（料理ができない）。ふうかさん：「このくらい気にしないべき？」
+   **Claude の判断：直す。** 間取りが好きな人ほど細かいところまで見る。この投稿は細部を眺めさせるのが価値なので、
+   トイレと同じく「住めない」ところはコメントがそっちに流れる。本棚は上の壁と窓際に置き、キッチン前は空けると明記した
+2. **ふたり暮らしの3組が、全部「お団子＋短い髪」になった**（v1 でも同じ傾向）。3組そろうと、3組とも男女に見える。
+   「組み合わせを性別で決めない」はプロンプトの一般論だけでは効かなかったので、**部屋ごとに髪型を指定した**
+   （在宅勤務＝ふたりとも短い髪／趣味＝長い髪とニット帽／お茶＝ふたりともお団子）
+
+**v3 で崩れたら v2 に戻る。** v2 でも出せる出来なので、作り直しで他が壊れたら深追いしない（投稿日は未定で急がない）。
