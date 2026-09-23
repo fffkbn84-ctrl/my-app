@@ -16,8 +16,8 @@
 
 | 部屋 | 人数 | 暮らし方 | つながる pair の話題 |
 |---|---|---|---|
-| 左上 | 2 | **机が部屋の両端に離れている**。それぞれの隅に自分のランプ | `l2-alone` 一人の時間 |
-| 右上 | 2 | **大きなソファ1つを分け合う**。台所でもうひとりが料理 | `l3-housework` 家事の分担 |
+| 左上 | 2 | **ふたりとも在宅勤務**。リビングが職場。片方はビデオ通話中 | `l2-work-view` 仕事への考え方 |
+| 右上 | 2 | **お互い趣味に全力**。リビングが2つの趣味の隅に分かれている（絵とギター） | `l2-alone` 一人の時間 |
 | 左下 | 1 | **本と植物でいっぱい**。窓辺に読書の椅子（片づいている） | ひとり暮らし |
 | 右下 | 2 | **ほとんど物がない**。低いテーブル、座布団2つ、丸めた布団 | `l4-home` 住まいの形 |
 
@@ -28,12 +28,12 @@
 ```
 Four identical handmade miniature clay apartment models, arranged in a neat 2 by 2 grid on a plain warm beige background (#F5EEE6). Each model is the same small one-bedroom apartment seen from above at an isometric angle, like a dollhouse with no roof and no front walls, so every room inside is visible.
 
-The floor plan is exactly the same in all four models: the entrance at the bottom left corner, a small kitchen counter along the left wall, a large open living room in the middle, one bedroom behind a wall at the top right with its door open, a small bathroom next to the entrance, and one big window on the right wall. Same walls, same doors, same window, same size. Only the furniture, the objects and the people are different.
+The floor plan is exactly the same in all four models: the front door is in the bottom wall near the left corner and opens into a short entrance hall inside the apartment. A small bathroom sits beside the entrance hall, and its door opens into the entrance hall, inside the apartment, never to the outside. A small kitchen counter runs along the left wall, a large open living room is in the middle, one bedroom sits behind a wall at the top right with its door open to the living room, and one big window is on the right wall. Same walls, same doors, same window, same size. Only the furniture, the objects and the people are different.
 
 The people are slender handmade clay figures with thin arms and legs, long necks and small heads. Their faces are soft and simple, with no detailed features. Their hairstyles and body shapes are all different and freely mixed. Pairs are not matched by gender or look, and whether they are friends, partners or family is left open.
 
-Top left: two figures, each at their own desk in opposite corners of the living room, each with their own lamp, both absorbed in their own work. A small sofa sits between the two desks. In the bedroom, two single beds with a gap between them.
-Top right: two figures sharing one big soft sofa, one sitting at each end with a mug; a second figure's plate waits on the counter where a pot is on the stove. In the bedroom, one large bed with two blankets in two different colours.
+Top left: both figures work from home. The living room has become an office: two desks, each with a laptop and a monitor whose blank screens glow, office chairs, cables, coffee mugs, a stack of folders. One figure wears headphones and waves at the blank screen as if on a video call; the other types, leaning in. The sofa is pushed against the wall. In the bedroom, two single beds with a gap between them.
+Top right: both figures are fully absorbed in their own hobbies, and the living room is split into two hobby corners. On one side, a figure paints at a wooden easel, surrounded by small canvases with simple soft colour shapes, jars of brushes and paint-stained cloths. On the other side, a figure plays an acoustic guitar on a stool beside a shelf of records and a small amplifier. The two corners look completely different from each other. In the bedroom, one large bed with two blankets in two different colours.
 Bottom left: one figure alone in a reading chair by the big window. The living room is full of bookshelves and potted plants, cosy and tidy, not cluttered. In the bedroom, one small bed and a stack of books.
 Bottom right: two figures sitting on floor cushions at a low wooden table, drinking tea. The rooms are almost empty and calm: bare floor, one plant, a folded futon in the bedroom.
 
@@ -73,3 +73,24 @@ Portrait 2:3 (1024x1536).
 - 問いは白い吹き出しで **「住むなら、どの部屋？」**（`render-kotosan.js omote`）
 - 1枚・7秒・ズームなし（`build_reel.py one7`）。曲は木曜1枚リールの曲（夜の窓で決めたもの）
 - 背景が単色のベージュなので、吹き出しを白にすると沈む。試作を見てから、吹き出しの色（白のまま／薄い縁取り）を決める
+
+---
+
+## 5. 試作 v1 の結果（2026-09-23 夜）
+
+`docs/sns/assets/madori/v1-trial.webp`。**4つの間取りがそろった**（いちばんの難所を越えた）。上 20% の余白・文字なし・人形の顔の簡素さも指示どおり。
+ふうかさんの評価は「なかなか良い」。直すのは2点。
+
+1. **トイレに外からしか入れない。** 浴室のドアがアパートの外壁側に開いていて、玄関もどこか分かりにくい。
+   ふうかさん：「一回外に出ないと行けないんかい、とツッコまれる（コメント狙いならアリ）」。
+   **Claude の判断：直す。** 付くコメントは「どの部屋に住みたいか」ではなく「AI の間違い」になり、問いから目がそれる。
+   しかも「AI が作った、よく見ると変な絵」と読まれると、クレイの手作り感（`ig-strategy` §13 のオーセンティシティ）が崩れる。
+   → プロンプトで**玄関と玄関ホールを明示し、浴室のドアは玄関ホール側（室内）に開く**と書いた
+2. **上2つのふたり暮らしの違いが分かりにくい**（机で作業／ソファでくつろぐ）。ふうかさん：「お互い趣味に全力／在宅勤務くらい違うほうが面白い」。
+   **賛成。** 見た瞬間に違いが分からないと、比べる楽しさが生まれない。
+   → 左上を**ふたりとも在宅勤務**（リビングが職場・片方はビデオ通話中）、右上を**お互い趣味に全力**（絵とギターの2つの隅）に書き換えた
+
+**残したところ**：4つの間取り・左下のひとり暮らし・右下のほとんど物がない部屋・背景・光。当たっているので動かさない。
+
+**気になる点（直さない）**：人形が小さい（9:16 で1体30px前後）。スマホでは何をしているかがぎりぎり読める大きさ。
+v2 で在宅勤務・趣味の動作が読めなければ、模型を大きく（余白を減らす）するか、2段階方式（§3）で1部屋ずつ作る。
