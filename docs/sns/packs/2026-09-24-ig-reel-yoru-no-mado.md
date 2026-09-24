@@ -362,4 +362,6 @@ python3 build_reel.py one7 kinda-ig-0924-yoru-no-mado.mp4    # 7.00秒
 **探す言葉**（IG の音源検索）：`night piano`／`quiet night`／`lofi night`／`sleep piano`／`おやすみ`／`夜 ピアノ`
 
 **決めたら、木曜1枚リールの曲として固定する。** 次の1枚（間取りなど）も同じ曲にして、曲を木曜の目印にする。
-曲名はここと Notion のメモに書く（曲名：＿＿＿＿）。
+曲名はここと Notion のメモに書く。
+
+**決定（2026-09-24・ふうかさん選曲）：「reset, restart, refocus」（cozy lofi 系・IG 音源ライブラリ）。** 木曜1枚リールの曲としてこれに固定する。
