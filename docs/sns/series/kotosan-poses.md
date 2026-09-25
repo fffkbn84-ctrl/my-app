@@ -93,14 +93,15 @@ Scene: nothing but a plain warm beige seamless background (#F5EEE6). The charact
 | `kotosan-pose-glare-v1` | 既存・基本 | （手元のものを使う） |
 | `kotosan-pose-glare-v2` | 机ごしの正面。カット2の標準 | **生成済**（2026-09-23・机テラコッタ・基準どおり） |
 | `kotosan-pose-glare-desk-v1` | 同上の旧版 | **使わない**（机がクリームで他カットと揃わない） |
-| `kotosan-pose-glare-turn-v1` | 背後から声をかけられた回（金曜の「ちょっといい？」） | 下 ①（**未生成**。①で出したら正面になった） |
+| `kotosan-pose-glare-turn-v1` | 背後から声をかけられた回（#2 金曜の「ちょっといい？」で使用） | 下 ①（**生成済**・2026-09-25。カメラを背後に置く書き方にしたら振り返りが出た） |
 | `kotosan-pose-glare-lean-v1` | 「承知しました〜」と受ける回 | 下 ② |
 | `kotosan-plain-glare-v1` | 既存・無地 | （手元のものを使う） |
 | `kotosan-plain-glare-bow-v1` | 無地・会釈する回 | 下 ③ |
 
-**① 椅子ごと半身で振り返る**
+**① 椅子ごと半身で振り返る**（2026-09-25 書き直し。旧文は「halfway toward the camera」だけで正面に出た。
+**カメラを背後に置き、椅子の背もたれをこちらに向ける**と書いたら振り返りが出た）
 ```
-Pose: the character is seated on the clay office chair and has turned its upper body halfway toward the camera, as if answering someone who called from behind. Both round wire lenses catch the light in a flat bright glare, so the eyes are not visible. One short arm still rests on the desk, the other hangs at its side. The ID badge has swung slightly with the turn.
+Pose: the camera is behind and to the side of the character. The desk is in the far side of the frame and the back of the terracotta office chair faces the camera. The character's body still faces the desk, away from the camera, but it has twisted its upper body around over its left shoulder to look back at the camera, as if answering someone who just called from behind. We see its body in three-quarter back view and its face turned toward us. Both round gold wire lenses catch the light in a flat bright glare, so the eyes are not visible. One short arm still rests on the desk. The ID badge has swung sideways with the turn.
 ```
 
 **② 膝に腕を揃えて少し前のめり**
@@ -226,7 +227,8 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 | 回 | カット2 | カット3 | カット4 | カット5 |
 |---|---|---|---|---|
 | #1（社内） | glare-v1 | lookdown-v1 | puff-eyes-v1 | — |
-| #2（仕事・金曜） | glare-v2 | lookdown-tilt-v1 | puff-side-v1（要再生成） | — |
+| #1（仕事・実績 9/23） | glare-v2 | lookdown-tilt-v1 | puff-side-v2 | — |
+| #2（仕事・金曜・実績 9/25） | **glare-turn-v1** | lookdown-tilt-v1 | puff-side-v2 | — |
 | #3（日常） | plain-glare-bow-v1 | plain-lookdown-badge-v1 | plain-puff-low-v1 | — |
 | #4（仕事） | glare-lean-v1 | back-window-v1 | puff-badge-v1 | — |
 | #5（人間関係） | plain-glare-v1 | plain-lookdown-v1 | plain-puff-low-v1 | — |
@@ -241,4 +243,9 @@ Pose: the character sits on a small square clay floor cushion, its flat base set
 （ポーズ画像は 125〜177% で保っている）。**1カット目は3秒の勝負どころ**なので、
 ここが一番ボケてはいけない。プレビューではなく生成物の原寸を貼ってもらう。
 
-生成済みの場面：`kotosan-scene-meeting-v1`（会議・同僚は顔のないクレイ人形）
+生成済みの場面：`kotosan-scene-meeting-v1`（会議・同僚は顔のないクレイ人形）／
+`kotosan-scene-friday-v1`（#2・帰り支度のトートと閉じたノートPC、背後から書類の束を抱えた上司が「ちょっといい？」）
+
+> #1 は予定表の #1（社内）を仕事回に差し替えたため、表の #1 行は実績と違う。実績は上の2行。
+> #2 は #1 と3枚そろって同じにならないよう、カット2だけ新規にした（2日後の同型なので近似重複を避ける）。
+> カット3・4 は #1 と同じ。**#3 以降は無地セットに移るので、デスクのカット3・4 の新ポーズは #4（10/2 社内）までに足す**
