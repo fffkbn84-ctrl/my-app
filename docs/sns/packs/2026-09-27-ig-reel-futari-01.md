@@ -78,3 +78,14 @@ No text, no letters, no numbers, no logos, nothing written in the notebook. No s
 - 相手役（上司・友人など）を同じ絵柄で画面に出す
 - 本音の文字を減らし、真顔 ↔ 笑顔の切り替えで見せる
 - 9/30 の #3 から。相手役の生成と `render-kotosan.js` の版面追加が要る
+
+## 5. 第1回の書き出し（2026-09-27）
+
+- 生成5枚は `assets/futari/`（`reference`＝設定画、`sofa-eager / stretch / blank / stiff`＝カット1〜4）。**次回以降もキャラの参照に使う**
+- 台紙：`python3 prep-futari.py <生成画像> plate-futari-N.png 200`（横幅いっぱい・上端 y=200）
+- 文字：`node render-futari.js plate-futari-N.png fN.png '<帯>' <A|B> '<セリフ>'`
+  - 帯＝黒 #141110・白の Noto Sans JP 900・64px（vs だけ 52px・#E8B8A8）。全カット同じ
+  - 吹き出し＝白・縁 #2E2620 5px・Noto Sans JP 700・48px。しっぽは話している側の頭の上（A x=300／B x=740）
+  - フォントは npm の `@fontsource/noto-sans-jp` から `noto900.woff2` `noto700.woff2` を取る（README の準備と同じ手順）
+- 動画：`python3 build_reel.py futari4 kinda-ig-0927-futari01.mp4`（4カット・10.4秒・ズームなし・つなぎ 0.1秒）
+- 所感：カット3の真顔は「プロンプトほど強くない」。第2回以降は真顔のカットだけ `flat line mouth, completely expressionless` を強めに書く
