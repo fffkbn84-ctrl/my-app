@@ -11,6 +11,7 @@
 //
 //   node render-kotosan-v2.js <plate.png> <out.png> '["題","シリーズ名"]' <say|think|gokun|none> <x> '["行1","行2"]'
 //     x = しっぽの先を置く横位置（話している側の頭の上。ことさん≈400／相手役≈760）
+//     行の先頭に "@美容師" のように @ で始まる要素を置くと、吹き出しの左上に話し手の名札が付く（say のみ）
 const {chromium} = require('playwright');
 const fs = require('fs');
 
@@ -20,7 +21,9 @@ if (!plate || !out || !bandJson || !kind) {
   process.exit(2);
 }
 const [title, series] = JSON.parse(bandJson);
-const lines = JSON.parse(lineJson);
+let lines = JSON.parse(lineJson);
+const who = lines[0] && lines[0].startsWith('@') ? lines.shift().slice(1) : '';
+if (who && kind !== 'say') { console.error('名札（@）は say のみ'); process.exit(1); }
 const tailX = Number(xArg) || 540;
 
 const L = {
@@ -79,10 +82,13 @@ img{position:absolute;inset:0;width:1080px;height:1920px;display:block}
 .bub{position:absolute;top:0;text-align:center;white-space:nowrap;box-sizing:border-box}
 ${bubble}
 .tail{position:absolute}
+.who{position:absolute;left:28px;top:-26px;background:${INK};color:#fff;font-family:N7;font-size:28px;
+  line-height:1;padding:10px 18px;border-radius:24px;letter-spacing:.08em}
+.bub{overflow:visible}
 </style>
 ${plate === 'none' ? '' : `<img src="./${plate}">`}
 <div class="band"><div class="t">${title}</div>${series ? `<div class="s">${series}</div>` : ''}</div>
-${kind === 'none' ? '' : `<div class="bub" id="b">${lines.map(l => `<div>${l}</div>`).join('')}</div>${tail}`}`;
+${kind === 'none' ? '' : `<div class="bub" id="b">${who ? `<span class="who">${who}</span>` : ''}${lines.map(l => `<div>${l}</div>`).join('')}</div>${tail}`}`;
 
 const tmp = `_kotosan2_${Date.now()}.html`;
 fs.writeFileSync(tmp, html);

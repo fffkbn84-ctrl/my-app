@@ -10,26 +10,32 @@
 | 題 | 1カット目だけ、明朝の小さなシリーズ名 | **黒帯・白の太ゴシックで全カット出しっぱなし**。その回の皮肉の題＋小さくシリーズ名 |
 | 相手 | 1カット目だけ（#1 会議・#2 上司） | **全カット同じ構図で画面にいる**（顔のないクレイ人形） |
 | 文字 | 状況・表・本音・ごくんの4回。全部読ませる | **1カットに1つだけ**。状況説明は捨てた（絵で分かる） |
-| 笑い | 本音の文章 | **真顔 ↔ 建前の顔の切り替え** |
-| 尺 | 12.15秒・ディゾルブ 0.35秒 | **10.1秒・0.1秒のほぼカット切り** |
+| 笑い | 本音の文章 | **真顔で本音を言いかける → 飲み込む → 建前の顔** |
+| 尺 | 12.15秒・ディゾルブ 0.35秒 | **9.1秒・0.1秒のほぼカット切り** |
 
 **ことさんには口がない。** なので「笑顔」＝眼鏡が光る建前の顔（シリーズで確立済み）、
 「真顔」＝眼鏡が光らず、縦長の目がそのままこちらを見ている無表情、とする。
 
-## 1. 台本
+## 1. 台本（2026-09-27 改訂：本音を言いかけて、その場で飲み込む）
 
 | # | 秒 | 画面 | 文字 | 音 |
 |---|---|---|---|---|
 | 帯 | 全編 | — | **充実した休日の答え方**／ことさんは、飲み込んだ。#3 | — |
-| 1 | 0〜2.8 | 美容師がくしを持って、ことさんに話しかけている。ことさんは普通の顔 | 美容師「このあと／お出かけですか？」（白い吹き出し） | ポン／曲が始まる |
-| 2 | 2.7〜4.9 | **ことさんが真顔でまっすぐこちらを見る。** 美容師は気づかず髪をとかしている | 心の声「帰って寝る」（薄いローズの思考の吹き出し） | **カッ・曲が止まる** |
-| 3 | 4.8〜7.4 | **眼鏡がきらっと光り、小さく会釈**（建前の顔） | ことさん「はい、ちょっと〜」（白い吹き出し） | キラッ → ポン |
-| 4 | 7.3〜10.1 | ことさんがまんまるにふくらむ。美容師は両手を上げて「いいですね〜」の身ぶり | **（ごくん）** | ごくん／曲がフェードインで戻る |
+| 1 | 0〜2.6 | 美容師がくしを持って、ことさんに話しかけている | 〔美容師〕「このあと／お出かけですか？」 | ポン／曲が始まる |
+| 2 | 2.5〜4.5 | **ことさんが真顔のまま、正直に答えかける**（少し前のめり・片手が上がる） | 〔ことさん〕「帰って寝…」（**言葉が途中で切れる**） | ポン |
+| 3 | 4.4〜6.2 | **ことさんがまんまるにふくらむ。** 美容師は答えを待っている | **（ごくん）** | **ごくん・曲が止まる** |
+| 4 | 6.1〜9.1 | **眼鏡がきらっと光り、会釈。** 美容師は両手を上げて「いいですね〜」の身ぶり | 〔ことさん〕「はい、ちょっと〜」 | キラッ → ポン／曲がフェードインで戻る |
 
-- 題は Notion のキャプション「予定がない休日も、ちゃんと予定です。」と同じ皮肉の向き
-- 笑う対象は**ことさん自身の建前**。美容師は悪者にしない（気づかず、ただ感じがいい）
-- 真顔のカット2 に「帰って寝る」を置くのは、何を飲み込んだかが分からないと送る理由にならないため。
-  文字は5字まで減らした（元の本音は「帰って寝る、という予定が」）
+### なぜこの順番か（初版からの訂正・ふうか指摘 2026-09-27）
+
+初版は「美容師の質問 → 真顔の心の声『帰って寝る』→ 建前 → （ごくん）」だった。
+ふうかさんの指摘どおり、**ごくんが建前のあとに来ると、何を飲み込んだのかが分からない**
+（ごくんの時点で、もう嘘をつき終わっている）。
+
+- **飲み込むのは「言いかけた本音」。** だから本音は心の声ではなく**口に出しかけて途中で切れる**形にし、その直後にごくんを置いた
+- **オチは建前の顔**（眼鏡キラッ＋「はい、ちょっと〜」）。飲み込んだ直後に何事もなかったように答えるのが笑いどころ
+- **誰が話しているかは名札で出す**（吹き出しの左上に「美容師」「ことさん」）。しっぽだけだと、4枚の中で頭の位置が少しずれたときに迷う
+- ごくんは「シリーズの最後の目印」から「**飲み込む瞬間そのもの**」になる。シリーズ名どおりの使い方になった
 
 ## 2. ChatGPT プロンプト（同じスレッドで4枚・2:3）
 
@@ -54,9 +60,9 @@ No text, no letters, no numbers, no logos anywhere. No speech bubbles. No scisso
 | # | 【ACTING】 |
 |---|---|
 | 1 | `The hairdresser leans slightly toward the character in a chatty, friendly way, holding the clay comb up near the character's head, its round head tilted as if asking a question. The character looks slightly up and to the side toward the hairdresser, eyes visible behind the glasses, no glare, a calm ordinary face.` |
-| 2 | `The character now stares straight into the camera with a completely blank, flat, expressionless face: the matte black oval eyes are fully visible and perfectly still, no glare on the lenses, the body sits dead straight and motionless, arms flat against the sides under the cape. The hairdresser does not notice and keeps combing the top of the character's head, looking down at the work.` |
-| 3 | `The character tips its whole body forward in a small polite bow toward the hairdresser, one short round arm lifted slightly out from under the cape. Both round gold wire lenses catch the light in a flat bright glare, so the eyes are not visible. The hairdresser holds the comb still and looks at the character.` |
-| 4 | `The character's pouch body has swollen into a round ball, clearly wider than in the reference, the cape stretched tight around it, and the gathered top is cinched shut hard so the terracotta drawstring bites into the fabric and the two wooden beads stick out sideways. Both matte black eyes are visible behind the glasses, no glare. The hairdresser has raised both arms happily, comb in one hand, as if saying "that sounds lovely".` |
+| 2 | `The character turns to face the camera with a completely blank, flat, honest face: the matte black oval eyes are fully visible and perfectly still, no glare on the lenses. It leans slightly forward and one short round arm is lifted a little out from under the cape, as if it has just started to answer. The hairdresser waits with the comb held still, round head tilted, listening.` |
+| 3 | `The character's pouch body has suddenly swollen into a round ball, clearly wider than in the reference, the cape stretched tight around it, and the gathered top is cinched shut hard so the terracotta drawstring bites into the fabric and the two wooden beads stick out sideways. Both matte black eyes are visible behind the glasses, no glare. The hairdresser is still waiting in exactly the same pose as before, comb held still, not noticing anything.` |
+| 4 | `The character is back to its normal size and tips its whole body forward in a small polite bow toward the hairdresser, one short round arm lifted slightly out from under the cape. Both round gold wire lenses catch the light in a flat bright glare, so the eyes are not visible. The hairdresser has raised both arms happily, comb in one hand, as if saying "that sounds lovely".` |
 
 ### 崩れやすいところ（出たら作り直す）
 
@@ -65,7 +71,8 @@ No text, no letters, no numbers, no logos anywhere. No speech bubbles. No scisso
 - 美容師に顔・髪・性別の手がかりが付く
 - 4枚で**ことさんと美容師の位置・大きさが変わる**（帯と吹き出しの位置が崩れる。とくに2→3の切り替えで目立つ）
 - 上の38%に何か写り込む
-- **カット2の真顔が弱い**（この回のオチ）。首をかしげる・目が笑う・眼鏡が光るのはすべて不採用。2だけ作り直してよい
+- **カット2の真顔が弱い**。首をかしげる・目が笑う・眼鏡が光るのはすべて不採用。2だけ作り直してよい
+- **カット3で美容師が動く**（3の美容師は2と同じ姿勢でないと「気づかれていない」が伝わらない）
 - 1枚ずつ 1024×1536 の原寸で貼ってもらう（プレビューは不可。`kotosan-poses.md` §9 の解像度の件）
 
 ## 3. 書き出し（Claude の担当）
@@ -75,23 +82,23 @@ No text, no letters, no numbers, no logos anywhere. No speech bubbles. No scisso
 python3 prep-futari.py <生成1.png> plate-1.png 200     # 2〜4 も同じ
 
 B='["充実した休日の答え方","ことさんは、飲み込んだ。#3"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   760 '["このあと","お出かけですか？"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" think 400 '["帰って寝る"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" say   400 '["はい、ちょっと〜"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" gokun 540 '["（ごくん）"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   760 '["@美容師","このあと","お出かけですか？"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say   400 '["@ことさん","帰って寝…"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" gokun 540 '["（ごくん）"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say   400 '["@ことさん","はい、ちょっと〜"]'
 
-python3 build_reel.py kotosanv2 kinda-ig-0930-kotosan03.mp4          # 10.1秒
+python3 build_reel.py kotosanv2 kinda-ig-0930-kotosan03.mp4          # 9.1秒
 python3 add_sfx.py kinda-ig-0930-kotosan03.mp4 kinda-ig-0930-kotosan03-sfx.mp4 kotosan03
 ```
 
 - しっぽの x（760／400）は**仮の値**。生成画像で美容師とことさんの頭の位置を見てから合わせる
 - 生成4枚は `docs/sns/assets/kotosan/` に WebP（quality 95）で入れて commit する。
-  ファイル名：`kotosan-salon-talk-v1`／`-blank-v1`／`-glare-bow-v1`／`-puff-v1`
+  ファイル名：`kotosan-salon-talk-v1`／`-answer-v1`／`-puff-v1`／`-glare-bow-v1`
 
 ## 4. 音
 
 効果音は焼き込み済み（`add_sfx.py kotosan03`）。**曲は Edits で「ふたり」#1 と同じ形**にする：
-0秒から曲 → **2.7秒（真顔のカッ）で切る** → カット4（7.3秒〜）でフェードインして戻し、10秒でフェードアウト。
+0秒から曲 → **4.4秒（ごくん）で切る** → カット4（6.1秒〜）でフェードインして戻し、9秒でフェードアウト。
 曲はことさん専用の「のほほん」（`ig-strategy` §14）。
 
 ## 5. キャプション（Notion のまま・直すところなし）
