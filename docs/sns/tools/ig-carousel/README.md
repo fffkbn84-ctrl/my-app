@@ -74,6 +74,10 @@ python3 build_reel.py kotosan4 kinda-ig-0925-kotosan.mp4   # 軽い回（4カッ
 python3 build_reel.py kotosan5 kinda-ig-1009-kotosan.mp4   # 救いのある回（5カット・14.80秒）
 ```
 
+- **#3 からは v2（`render-kotosan-v2.js`）。** 黒帯＋1カット1文字。使い方は `packs/2026-09-30-ig-reel-kotosan-03.md` §3、
+  版面の正は `kotosan-reel.md` §3-b。動画は `build_reel.py kotosanv2`（10.1秒）、効果音は `add_sfx.py <in> <out> kotosan03`。
+  フォントは「ふたり」と同じ `noto900.woff2` `noto700.woff2`（`@fontsource/noto-sans-jp` の `japanese-900/700-normal`）。
+  下の v1（`render-kotosan.js`）は #1・#2 の再現用に残している
 - `render-kotosan.js` の第1引数は版面：`scene`（場面＋シリーズ名＋状況44px）／`omote`（白い吹き出し48px）／
   `honne`（薄茶の透ける吹き出し44px）／`gokun`（88px・吹き出しなし・天地中央）／`sukui`（白44px）。
   第5引数はシリーズ番号（`scene` のときだけ効く）

@@ -6,6 +6,7 @@
 # 合成できる音：
 #   pop   吹き出しが出る「ポン」      slide 力の抜ける下がり笛「ひゅ〜ん」
 #   clack 真顔の「カッ」（拍子木）     ping  固まる「ピキーン」       drip 汗の「ぽた」
+#   kira  眼鏡が光る「キラッ」         gulp  飲み込む「ごくん」
 import sys, subprocess, wave
 import numpy as np, imageio_ffmpeg
 
@@ -24,12 +25,16 @@ SFX = {
                     + .25*np.random.RandomState(1).randn(int(SR*.12))*env(int(SR*.12), d=.006)) * .7,
   "ping":  lambda: (sweep(2350, 2400, .5, .16) + .7*sweep(3150, 3200, .5, .12)) * .35,
   "drip":  lambda: sweep(1500, 520, .11, .05) * .6,
+  "kira":  lambda: (sweep(2800, 3600, .35, .12) + .6*sweep(4200, 5000, .35, .08)) * .25,
+  "gulp":  lambda: (sweep(420, 140, .22, .09) + .5*sweep(210, 90, .22, .12)) * .9,
 }
 # 「ふたり」第1回（cut 開始 0 / 2.5 / 5.3 / 7.6）
 PRESETS = {
   "futari01": [(0.05,"pop"), (2.55,"pop"), (2.9,"slide"),
                (5.30,"clack"), (5.55,"pop"),
                (7.60,"ping"), (7.95,"pop"), (8.35,"drip")],
+  # ことさん v2 #3（kotosanv2：cut 開始 0 / 2.7 / 4.8 / 7.3）
+  "kotosan03": [(0.05,"pop"), (2.70,"clack"), (4.80,"kira"), (4.95,"pop"), (7.30,"gulp")],
 }
 src, out, preset = sys.argv[1], sys.argv[2], sys.argv[3]
 FF = imageio_ffmpeg.get_ffmpeg_exe()
