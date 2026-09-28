@@ -206,9 +206,7 @@ Square 1:1 composition.
 | `booth-window-green`（窓に面した対面ソファ） | むさしの森珈琲 久が原 |
 | `banquette-open-row`（壁沿いの一続きベンチ・仕切りなし） | RIE COFFEE 本店 |
 | `lounge-armchairs`（ラウンジの肘掛け椅子が対面） | ランデブーラウンジ |
+| `table-open-dining`（開けたダイニングのテーブル席・仕切りなし） | フィオレンティーナ／フレンチ キッチン（グランド ハイアット東京） |
 
-### 未作成
-
-| 席タイプ | 使う店 | 【SCENE】 |
-|---|---|---|
-| `table-open-dining`（開けたダイニングのテーブル席・仕切りなし） | フィオレンティーナ／フレンチ キッチン（グランド ハイアット東京） | `a bright open hotel dining room: a small square wooden table for two with two empty chairs facing each other in the center of the room, other tables spaced well apart around it, no partitions between tables, tall windows along one side letting in soft daylight` |
+`table-open-dining` の 【SCENE】（2026-09-28 生成）：
+`a bright open hotel dining room: a small square wooden table for two with two empty chairs facing each other in the center of the room, other tables spaced well apart around it, no partitions between tables, tall windows along one side letting in soft daylight`
