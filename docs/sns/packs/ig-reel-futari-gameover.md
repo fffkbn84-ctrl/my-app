@@ -1,4 +1,4 @@
-# 「ふたり」ゲームオーバー回 制作キット（2026-09-27 ふうか採用・投稿日未定）
+# 「ふたり」ゲームオーバー回 制作キット（2026-09-27 ふうか採用・**2026-09-28（月）に外枠で投稿**）
 
 > 案の経緯とトーンの線は `docs/sns/series/futari-ideas.md` 案1。型は第1回 `packs/2026-09-27-ig-reel-futari-01.md`。
 
@@ -45,14 +45,14 @@
 `noto900.woff2` も要る（第1回と同じ）。
 
 ```bash
-python3 prep-futari.py <生成1.png> plate-1.png 200      # 2・5・6 も同じ
+python3 prep-futari.py <生成1.png> plate-1.png 260      # 2・5・6 も同じ（200 だと窓が頭にかかる。9/28 実測）
 
-NODE_PATH=$(npm root -g) node render-game.js plate-1.png f1.png win  '{"lines":["かのじょの　きげんが　わるい。","どうする？"],"cmd":{"items":["そっとしておく","きいてみる"],"sel":0}}'
-NODE_PATH=$(npm root -g) node render-game.js plate-2.png f2.png win  '{"lines":["そっとしておいた。","……3時間が　たった。"]}'
+NODE_PATH=$(npm root -g) node render-game.js plate-1.png f1.png win  '{"lines":["かのじょの　きげんが　わるい。","どうする？"],"cmd":{"items":["そっとしておく","きいてみる"],"sel":0},"top":400}'
+NODE_PATH=$(npm root -g) node render-game.js plate-2.png f2.png win  '{"lines":["そっとしておいた。","……3時間が　たった。"],"top":400}'
 NODE_PATH=$(npm root -g) node render-game.js plate-2.png f3.png over '{"lines":["きもちは　ためると","かたくなる。"],"cmd":{"items":["もういちど","やめる"],"sel":0}}'
-NODE_PATH=$(npm root -g) node render-game.js plate-1.png f4.png win  '{"lines":["かのじょの　きげんが　わるい。","どうする？"],"cmd":{"items":["そっとしておく","きいてみる"],"sel":1}}'
-NODE_PATH=$(npm root -g) node render-game.js plate-5.png f5.png win  '{"lines":["「どうした？　なにかあった？」"]}'
-NODE_PATH=$(npm root -g) node render-game.js plate-6.png f6.png win  '{"lines":["かのじょの　きげんが","すこし　なおった！"]}'
+NODE_PATH=$(npm root -g) node render-game.js plate-1.png f4.png win  '{"lines":["かのじょの　きげんが　わるい。","どうする？"],"cmd":{"items":["そっとしておく","きいてみる"],"sel":1},"top":400}'
+NODE_PATH=$(npm root -g) node render-game.js plate-5.png f5.png win  '{"lines":["「どうした？　なにかあった？」"],"top":400}'
+NODE_PATH=$(npm root -g) node render-game.js plate-6.png f6.png win  '{"lines":["かのじょの　きげんが","すこし　なおった！"],"top":400}'
 
 python3 build_reel.py futari-go6 kinda-ig-futari-gameover.mp4          # 12.5秒
 python3 add_sfx.py kinda-ig-futari-gameover.mp4 kinda-ig-futari-gameover-sfx.mp4 futari-go
@@ -82,3 +82,12 @@ Edits で第1回と同じ形：明るい曲を0秒から → **GAME OVER（4.3�
 ```
 
 投稿時：カバーは1カット目／AI 生成の開示。見る数字は**送信数**と3秒残存。
+
+## 6. 実際に作った形（2026-09-28）
+
+- 月曜の外枠で投稿（ふうか「予定にないが1件投稿したい」）。Notion「ふたり#2」
+- 生成4枚は**初回で全採用**。`assets/futari/futari-go-{1-sulk,2-phone,5-ask,6-soften}-v1.webp`
+- 生成画像は上の空きが約15%しかなく（プロンプトの38%より少ない）、台紙の上端 200 では窓が頭にかかった。
+  **台紙の上端 260・窓の top 400** で、帯（170〜378）→ 窓（400〜820）→ 頭（約870〜）が重ならずに縦に収まる
+- `……` は DotGothic の latin 側で描かれるが、見た目の問題はなかった
+- 書き出し：`kinda-ig-0928-futari-gameover-sfx.mp4`（12.5秒・効果音8つ焼き込み）
