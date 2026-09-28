@@ -103,7 +103,7 @@ export default async function KindaActPage() {
             <p className="kt-guide-text">
               お見合いやデートで使うお店は、空気で決まります。
               <br />
-              Kinda ふたりへは、ふたりが店に着いてから別れるまでを、次の 4 つで確かめています。
+              Kinda ふたりへは、実際に行って、店に着いてから別れるまでを次の 4 つで確かめています。
             </p>
 
             {/*
@@ -111,6 +111,8 @@ export default async function KindaActPage() {
               詳細ページの4章（着く／話せる／なじむ／終われる）と同じ言葉にそろえる。
               ここに並べるのは取材ログで実際に記録している項目だけ。
               以前あった「店員の干渉」は一度も記録しておらず、基準として掲げる根拠がなかった。
+              「話せる」を音量や席の距離ではなく沈黙で書くのは、関係をつくっている途中のふたりに
+              いちばん効くのが「途切れたときに気まずくならないか」だから（取材ログの音量も沈黙の側から測っている）。
             */}
             <div className="ka-criteria-grid">
               <div className="ka-criterion">
@@ -132,7 +134,7 @@ export default async function KindaActPage() {
                   </svg>
                 </div>
                 <div className="ka-criterion-label">話せる</div>
-                <div className="ka-criterion-desc">声の届き方と、隣との距離</div>
+                <div className="ka-criterion-desc">沈黙が気まずくならないか</div>
               </div>
               <div className="ka-criterion">
                 <div className="ka-criterion-icon" aria-hidden>
