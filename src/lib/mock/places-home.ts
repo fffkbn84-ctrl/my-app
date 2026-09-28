@@ -60,6 +60,11 @@ export interface PlaceHome {
    * 生活圏で店を探すとき、いちばん自然な単位が駅なので検索対象に含める。
    */
   access?: string | null;
+  /**
+   * 使える場面（お見合い／初回デート／何度か会ってから）。語彙の正は src/lib/actScenes.ts。
+   * 一覧の「使う場面」で絞り込むのに使う。
+   */
+  scenes?: string[];
 }
 
 const demoPlacesHomeData: Omit<PlaceHome, "isDemo">[] = [

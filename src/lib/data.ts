@@ -991,6 +991,7 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
     isDemo: row.is_demo,
     observationLine: row.observation_line ?? undefined,
     access: row.access ?? undefined,
+    scenes: row.scenes ?? undefined,
   }
 }
 
@@ -1060,7 +1061,7 @@ export type ShopGalleryItem = {
   altText: string | null
 }
 
-export type ShopDetail = PlaceHome & {
+export type ShopDetail = Omit<PlaceHome, 'scenes'> & {
   category: PlaceTabCategory
   hours: string | null
   holiday: string | null
