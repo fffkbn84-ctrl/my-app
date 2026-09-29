@@ -15,7 +15,7 @@ img{position:absolute;inset:0;width:1080px;height:1920px;display:block}
  font-family:"Shippori Mincho",serif;color:#2E2620;font-weight:400;
  font-size:${L.size};line-height:${L.lh};letter-spacing:${L.ls};margin-right:-${L.ls}}
 .t span{display:block}
-</style><img src="./${plate}"><div class="t">${lines.map(l=>`<span>${l}</span>`).join('')}</div>`;
+</style>${plate==='none'?'':`<img src="./${plate}">`}<div class="t">${lines.map(l=>`<span>${l}</span>`).join('')}</div>`;
 fs.writeFileSync('_reel.html',html);
 (async()=>{const b=await chromium.launch();
 const p=await b.newPage({viewport:{width:1080,height:1920},deviceScaleFactor:1});
