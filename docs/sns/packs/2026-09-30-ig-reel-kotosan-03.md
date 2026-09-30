@@ -82,16 +82,18 @@ No text, no letters, no numbers, no logos anywhere. No speech bubbles. No scisso
 python3 prep-futari.py <生成1.png> plate-1.png 200     # 2〜4 も同じ
 
 B='["充実した休日の答え方","ことさんは、飲み込んだ。#3"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   760 '["@美容師","このあと","お出かけですか？"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   770 '["@美容師","このあと","お出かけですか？"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say   400 '["@ことさん","帰って寝…"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" gokun 540 '["（ごくん）"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say   400 '["@ことさん","はい、ちょっと〜"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" gokun 360 '["（ごくん）"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say   370 '["@ことさん","はい、ちょっと〜"]'
 
 python3 build_reel.py kotosanv2 kinda-ig-0930-kotosan03.mp4          # 9.1秒
 python3 add_sfx.py kinda-ig-0930-kotosan03.mp4 kinda-ig-0930-kotosan03-sfx.mp4 kotosan03
 ```
 
-- しっぽの x（760／400）は**仮の値**。生成画像で美容師とことさんの頭の位置を見てから合わせる
+- しっぽの x は**実際の生成画像に合わせた値**（2026-09-30 確定：770／400／360／370）。
+  中央（540）に置くと、ごくんと4カット目の吹き出しが美容師の頭にかかった。
+  そのため `render-kotosan-v2.js` を直し、**`gokun` も x に置く**ようにした（以前は常に中央だった）
 - 生成4枚は `docs/sns/assets/kotosan/` に WebP（quality 95）で入れて commit する。
   ファイル名：`kotosan-salon-talk-v1`／`-answer-v1`／`-puff-v1`／`-glare-bow-v1`
 
@@ -117,3 +119,10 @@ python3 add_sfx.py kinda-ig-0930-kotosan03.mp4 kinda-ig-0930-kotosan03-sfx.mp4 k
 
 > **テストとの関係。** #1・#2 は v1、#3 以降は v2 になるので、10/16 の判定は「v1 の2本 vs v2 の4本」の比較になる。
 > v2 に変えたことが効いたのか、題材の差なのかは完全には切り分けられない（2026-09-27 ふうか OK 済みの変更）。
+
+## 6. 制作記録（2026-09-30）
+
+- ChatGPT で4枚とも1回で採用（口なし・3枚目の美容師は2枚目と同じ姿勢）。`assets/kotosan/kotosan-salon-*-v1.webp`
+- **Kling で試作（本番とは別件）。** 2→3 の「ふくらむ」を、最初と最後のフレームを指定して動かす。
+  無料版は書き出したものすべてに透かしが入るので投稿しない。ことさんのテストは 10/16 判定なので、
+  採用するかどうかは判定のあとに決める（`kotosan-reel.md` §8「真似できない壁」への答えの候補）

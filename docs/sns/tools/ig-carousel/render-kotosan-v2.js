@@ -106,7 +106,7 @@ fs.writeFileSync(tmp, html);
     const tailH = kind === 'think' ? 90 : kind === 'say' ? 55 : 0;
     // しっぽの先が頭の少し上（y≈780）に来るように。帯とは 50px 空ける
     const top = Math.max(band.bottom + 50, 780 - tailH - h);
-    const left = kind === 'gokun' ? (1080 - w) / 2 : Math.min(Math.max(tailX - w / 2, 40), 1040 - w);
+    const left = Math.min(Math.max(tailX - w / 2, 40), 1040 - w);   // gokun も x に置く（相手役の頭を避ける。#3 で必要になった）
     bub.style.top = top + 'px'; bub.style.left = left + 'px';
     const t = document.getElementById('t');
     if (t) { t.style.left = (tailX - 35) + 'px'; t.style.top = (top + h - (kind === 'say' ? 5 : -6)) + 'px'; }
