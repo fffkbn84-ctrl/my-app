@@ -207,8 +207,8 @@ Square 1:1 composition.
 | `banquette-open-row`（壁沿いの一続きベンチ・仕切りなし） | RIE COFFEE 本店 |
 | `lounge-armchairs`（ラウンジの肘掛け椅子が対面） | ランデブーラウンジ |
 | `table-open-dining`（開けたダイニングのテーブル席・仕切りなし） | フィオレンティーナ／フレンチ キッチン（グランド ハイアット東京） |
-| `table-fryer-partition`（真ん中に鍋のあるテーブル席・腰高の仕切り・奥に窓向きカウンター） | 串揚げ・串天ブッフェ くし葉 横浜ワールドポーターズ（未掲載・候補） |
-| `tatami-private-room`（和室の個室・畳にテーブルといす・掛け軸と丸窓の床の間） | 明神下 神田川 本店（未掲載・候補） |
+| `table-fryer-partition`（真ん中に鍋のあるテーブル席・腰高の仕切り・奥に窓向きカウンター） | 串揚げ・串天ブッフェ くし葉 横浜ワールドポーターズ |
+| `tatami-private-room`（和室の個室・畳にテーブルといす・掛け軸と丸窓の床の間） | 明神下 神田川 本店 |
 
 `table-open-dining` の 【SCENE】（2026-09-28 生成）：
 `a bright open hotel dining room: a small square wooden table for two with two empty chairs facing each other in the center of the room, other tables spaced well apart around it, no partitions between tables, tall windows along one side letting in soft daylight`
