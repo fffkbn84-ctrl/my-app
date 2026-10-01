@@ -27,6 +27,8 @@ const L = {
   sukui: {size:44, max:17, bubble:'white', top:380, label:false},
 }[kind];
 if (!L) { console.error('unknown kind:', kind); process.exit(2); }
+// 吹き出しの上端を変えたい回だけ BUBBLE_TOP=270 のように渡す（間取り 10/1：上の空白を詰めた）
+if (process.env.BUBBLE_TOP && L.top !== null) L.top = Number(process.env.BUBBLE_TOP);
 
 // 1行の字数上限を破ると吹き出しが画面から出る。黙って出さずに落とす
 const over = lines.filter(t => [...t].length > L.max);

@@ -29,5 +29,15 @@ if oy > 0:
         y -= band_h
         canvas.paste(ImageOps.flip(band) if flip else band, (0, y))
         flip = not flip
+# 中身を上に寄せると下が足りなくなる。下も同じく、元画像の最下部の帯を反転して積む
+bottom = oy + im.height
+if bottom < 1920:
+    band_h = min(120, im.height)
+    band = im.crop((-ox, im.height - band_h, -ox + 1080, im.height))
+    y, flip = bottom, True
+    while y < 1920:
+        canvas.paste(ImageOps.flip(band) if flip else band, (0, y))
+        y += band_h
+        flip = not flip
 canvas.save(out)
 print(f"-> {out}  scale={k:.3f} offset=({ox},{oy})")
