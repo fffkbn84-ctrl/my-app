@@ -29,9 +29,9 @@
   <!-- 通路 -->
   <text class="cap" x="232" y="130">通路</text>
 
-  <!-- テーブル席の列（腰の高さの仕切りで区切られている） -->
+  <!-- テーブル席の列（テーブル2つごとに腰の高さの仕切り） -->
   <g stroke="#B0937A" stroke-width="3">
-    <line x1="168" y1="170" x2="168" y2="330"/><line x1="352" y1="170" x2="352" y2="330"/>
+    <line x1="352" y1="170" x2="352" y2="330"/>
   </g>
   <g fill="none" stroke="#C9B7A8" stroke-width="1" stroke-dasharray="4 4">
     <rect x="60" y="210" width="90" height="80" rx="8"/>
