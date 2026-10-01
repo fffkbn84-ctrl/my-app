@@ -144,9 +144,12 @@ function getSubCards(subRoute: "cafe" | "beauty" | "counselor"): [SubCardDef, Su
 export default async function DiagnosisResultPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; utm_source?: string }>;
 }) {
-  const { type } = await searchParams;
+  const { type, utm_source } = await searchParams;
+  // シェアされた URL から来た人（＝まだ診断していない人）。
+  // 受け取った人の手間を最小にするため、冒頭で「自分も60秒で」を出す。
+  const isShared = utm_source === "share";
   const typeId = (type as DiagnosisTypeId) || "C";
   const diagType = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
   const siteUrl = await deriveSiteUrl();
@@ -160,6 +163,8 @@ export default async function DiagnosisResultPage({
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);
 
   const pageUrl = `${siteUrl}/kinda-type/result?type=${typeId}`;
+  // シェア用 URL。UTM で「シェア経由の着地」を識別する（canonical は pageUrl のまま）
+  const shareUrl = `${pageUrl}&utm_source=share&utm_medium=social&utm_campaign=kinda_type_result`;
   const imageUrl = `${siteUrl}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
 
   // JSON-LD 構造化データ（Article + FAQPage schema）
@@ -215,6 +220,23 @@ export default async function DiagnosisResultPage({
           ]}
         />
         <div className="ktr-content">
+
+          {/* ══════════════════════════════════
+              ⓪ シェア経由で来た人向け：自分も診断する（ログイン不要・60秒）
+          ══════════════════════════════════ */}
+          {isShared && (
+            <div className="ktr-shared">
+              <p className="ktr-shared-text">
+                これは、シェアされた診断結果です。
+                <br />
+                あなたのタイプも、60秒でわかります。
+              </p>
+              <Link href="/kinda-type/quiz" className="ktl-cta">
+                自分のタイプを見つける →
+              </Link>
+              <p className="ktr-shared-note">会員登録・ログイン不要です</p>
+            </div>
+          )}
 
           {/* ══════════════════════════════════
               ① ヒーロー
@@ -478,17 +500,20 @@ export default async function DiagnosisResultPage({
               /mypage は未ログイン時 AuthCard でログイン/新規登録を促す。
               履歴は DiagnosisTypeHistorySection が表示する。
           ══════════════════════════════════ */}
-          <div className="ktr-recall">
-            <Link href="/mypage" className="ktr-recall-link">
-              あとから見返したい人はこちら（無料）
-            </Link>
-          </div>
+          {!isShared && (
+            <div className="ktr-recall">
+              <Link href="/mypage" className="ktr-recall-link">
+                あとから見返したい人はこちら（無料）
+              </Link>
+            </div>
+          )}
 
           {/* ══════════════════════════════════
               ⑥ SNSシェア + もう一度試す（trackEvent付き Client Component）
           ══════════════════════════════════ */}
           <ShareRetryActions
-            pageUrl={pageUrl}
+            pageUrl={shareUrl}
+            isShared={isShared}
             shareText={`私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`}
             shareTitle={`私は${diagType.name}でした`}
             resultType={typeId}

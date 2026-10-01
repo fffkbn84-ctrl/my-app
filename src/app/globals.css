@@ -4975,6 +4975,17 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 
 /* ③ 分岐テキスト */
+/* シェア経由で来た人向けの導線（Kinda type 結果の冒頭） */
+.ktr-shared { padding: 24px 24px 8px; text-align: center; }
+.ktr-shared-text {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px;
+  color: var(--ink);
+  line-height: 1.9;
+  letter-spacing: .03em;
+  margin-bottom: 16px;
+}
+.ktr-shared-note { font-size: 11px; color: var(--muted); margin-top: 8px; }
 .ktr-branch { padding: 28px 24px 0; }
 .ktr-branch p {
   font-family: 'Shippori Mincho', serif;
