@@ -8,7 +8,7 @@ const STEPS = [
   {
     num: 1,
     title: "8つの質問に答える",
-    desc: "感覚で選ぶだけ。1〜3分で終わります",
+    desc: "感覚で選ぶだけ。60秒で終わります",
   },
   {
     num: 2,
@@ -61,7 +61,7 @@ export default function KindaTypeLandingPage() {
                 <circle cx="5.5" cy="5.5" r="4.5" stroke="var(--accent)" strokeWidth="1.2" />
                 <path d="M5.5 3v2.5l1.5 1.5" stroke="var(--accent)" strokeWidth="1.2" strokeLinecap="round" />
               </svg>
-              会員登録なし · 1〜3分 · 無料
+              会員登録なし · 60秒 · 無料
             </div>
           </section>
 

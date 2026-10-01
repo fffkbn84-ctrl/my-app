@@ -39,7 +39,7 @@ export default function NotifySignup({
   body,
   footnote = "新しい相談所・カウンセラーが公開されたときのみご連絡します。",
   secondaryHref = "/kinda-type",
-  secondaryLabel = "あなたに合うタイプを知る（1〜3分で診断）→",
+  secondaryLabel = "あなたに合うタイプを知る（60秒で診断）→",
 }: Props) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");

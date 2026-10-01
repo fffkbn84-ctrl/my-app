@@ -138,7 +138,7 @@ export default function KindaNotePage() {
           >
             今の気持ちをそのままでいい。
             <br />
-            1分くらいで終わるよ。
+            60秒で終わるよ。
           </p>
 
           {/* バッジ */}
@@ -159,7 +159,7 @@ export default function KindaNotePage() {
               <circle cx="5.5" cy="5.5" r="4.5" stroke="#D4A090" strokeWidth="1.2" />
               <path d="M5.5 3v2.5l1.5 1.5" stroke="#D4A090" strokeWidth="1.2" strokeLinecap="round" />
             </svg>
-            会員登録なし・約1分・無料
+            会員登録なし・60秒・無料
           </div>
         </div>
 
