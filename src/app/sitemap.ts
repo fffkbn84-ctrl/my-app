@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getPublicCounselors } from "@/lib/data";
 import { STORIES } from "@/lib/mock/stories";
-import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
 import { getAllColumns } from "@/lib/columns";
 import { AREA_SLUGS, matchesArea } from "@/lib/talk-areas";
 import { getShops } from "@/lib/data";
@@ -118,7 +117,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   /* 一覧ページは「掲載0名」だと実質空ページになり、Google に
      「クロール済み - インデックス未登録」と判定されてドメイン全体の評価を下げる。
-     該当カウンセラーが1名以上いるエリア/タイプだけを送信する。
+     該当カウンセラーが1名以上いるエリアだけを送信する。
      掲載が増えれば次のビルドで自動的に sitemap へ戻る。 */
   const areaEntries: MetadataRoute.Sitemap = AREA_SLUGS
     .filter((a) => publicCounselors.some((c) => matchesArea(c.area, a)))
@@ -128,13 +127,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-  const typeEntries: MetadataRoute.Sitemap = KINDA_TYPE_KEYS
-    .filter((t) => publicCounselors.some((c) => (c.matchingTypes ?? []).includes(t)))
-    .map((t) => ({
-      url: `${SITE_URL}/kinda-talk/type/${t}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
 
   const weatherListEntry: MetadataRoute.Sitemap = [
     {
@@ -169,7 +161,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...storyEntries,
     ...shopSectionEntries,
     ...areaEntries,
-    ...typeEntries,
     ...weatherListEntry,
     ...columnEntries,
   ];

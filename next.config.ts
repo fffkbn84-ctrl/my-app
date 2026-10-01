@@ -75,6 +75,18 @@ const nextConfig: NextConfig = {
         destination: "/kinda-talk",
         permanent: true,
       },
+      // /counselors（旧一覧）はハードコードの架空データだったため廃止。一覧の正は /kinda-talk。
+      {
+        source: "/counselors",
+        destination: "/kinda-talk",
+        permanent: true,
+      },
+      // 旧6タイプ（anshin 等）のタイプ別ページは廃止。Kinda type は4タイプが正。
+      {
+        source: "/kinda-talk/type/:type(anshin|jibunjiku|zenryoku|senryaku|lifestyle|restart)",
+        destination: "/kinda-talk",
+        permanent: true,
+      },
       {
         source: "/note",
         destination: "/kinda-note",

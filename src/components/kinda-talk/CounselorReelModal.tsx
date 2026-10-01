@@ -6,7 +6,7 @@ import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Counselor, isNewShop } from "@/lib/data";
-import { KindaTypeKey } from "@/lib/kinda-types";
+import type { DiagnosisTypeId } from "@/lib/diagnosis";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import { useFavorites } from "@/hooks/useFavorites";
 import KindaTypeBadge from "./KindaTypeBadge";
@@ -103,7 +103,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
 
   const images = counselor?.reelImages ?? [];
   const currentImage = images[imgIndex];
-  const matchingTypes = (counselor?.matchingTypes ?? []) as KindaTypeKey[];
+  const diagnosisType = counselor?.diagnosisType as DiagnosisTypeId | undefined;
   const shareUrl = counselor
     ? typeof window !== "undefined"
       ? `${window.location.origin}/counselors/${counselor.id}`
@@ -233,9 +233,7 @@ export default function CounselorReelModal({ counselor, onClose }: Props) {
 
             <div className="kt-reel-modal-bottom">
               <div style={{ display: "flex", gap: 4, marginBottom: 8, flexWrap: "wrap" }}>
-                {matchingTypes.slice(0, 2).map((t, i) => (
-                  <KindaTypeBadge key={t} type={t} manual={i === 1} />
-                ))}
+                {diagnosisType && <KindaTypeBadge type={diagnosisType} />}
               </div>
               <div className="kt-reel-modal-catchphrase" id={`kt-reel-title-${counselor.id}`}>
                 {currentImage?.caption ?? counselor.catchphrase ?? counselor.message}

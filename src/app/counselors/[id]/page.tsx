@@ -689,7 +689,7 @@ export default async function CounselorDetailPage({
               <div className="d-breadcrumb">
                 <Link href="/">トップ</Link>
                 <span>/</span>
-                <Link href="/counselors">カウンセラー一覧</Link>
+                <Link href="/kinda-talk">カウンセラー一覧</Link>
                 <span>/</span>
                 <span>{counselor.name}</span>
               </div>
