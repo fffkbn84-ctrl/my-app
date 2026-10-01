@@ -207,6 +207,13 @@ Square 1:1 composition.
 | `banquette-open-row`（壁沿いの一続きベンチ・仕切りなし） | RIE COFFEE 本店 |
 | `lounge-armchairs`（ラウンジの肘掛け椅子が対面） | ランデブーラウンジ |
 | `table-open-dining`（開けたダイニングのテーブル席・仕切りなし） | フィオレンティーナ／フレンチ キッチン（グランド ハイアット東京） |
+| `table-fryer-partition`（真ん中に鍋のあるテーブル席・腰高の仕切り・奥に窓向きカウンター） | 串揚げ・串天ブッフェ くし葉 横浜ワールドポーターズ（未掲載・候補） |
+| `tatami-private-room`（和室の個室・畳にテーブルといす・掛け軸と丸窓の床の間） | 明神下 神田川 本店（未掲載・候補） |
 
 `table-open-dining` の 【SCENE】（2026-09-28 生成）：
 `a bright open hotel dining room: a small square wooden table for two with two empty chairs facing each other in the center of the room, other tables spaced well apart around it, no partitions between tables, tall windows along one side letting in soft daylight`
+
+`table-fryer-partition` / `tatami-private-room` の 【SCENE】（2026-10-01 生成。元はふうかさんが撮った店内写真）：
+- `table-fryer-partition`：`a bright casual buffet restaurant: a light wooden table for two with a small built-in fryer pot in the center and two chairs facing each other, low wooden partitions between tables, a long counter facing tall windows in the background`
+- `tatami-private-room`：`a quiet traditional Japanese private dining room: a dark wooden table for two with two wooden chairs on tatami mats, a hanging scroll on the wall, an alcove with a small oval paper window, warm dim light, no other tables`
+- 2枚とも外枠の木の縁が少し写っている（テンプレートは「箱を写さない」）。一覧カードは `objectFit: cover` で縁が細く出る程度なので、そのまま使う

@@ -272,6 +272,9 @@ canonical / meta description / OGP / robots.txt はすべて正しく出てお�
 - [x] 同2件の訪問日・一行の観察はふうかさん確認済み（2026-09-27）
 - [x] 同2件を公開（2026-09-27）。俯瞰図は PR #60。実在店は8件に
 - [x] 席タイプ画像 `table-open-dining` を作成し、2店の `photo_url` に設定（2026-09-28・PR #61）。本番の一覧で表示を確認
+- [ ] **候補2件（明神下 神田川 本店／くし葉 横浜ワールドポーターズ）の掲載。** Notion の Claude 分・席配置・一行の観察は 2026-10-01 に確定済み。
+      席タイプ画像 `tatami-private-room` / `table-fryer-partition` は作成済み（`public/images/seats/`）。
+      残り：`shops` への登録と `act_observations`、`photo_url` 設定、俯瞰図。神田川はドリンク1杯の価格帯が未記入
 - [x] ネットワーク設定をフルにした（2026-09-27）。公式ページとメニュー PDF は curl で読める
 - [x] Notion に「ふうか記入（現地で書く分だけ）」ビューを作った（2026-09-27）
 
