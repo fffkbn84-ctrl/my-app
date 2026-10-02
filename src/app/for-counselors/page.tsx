@@ -5,10 +5,12 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import CounselorInquiryForm from "@/components/for-counselors/CounselorInquiryForm";
 import { getAllColumns, type ColumnMeta } from "@/lib/columns";
-import { getDemoCounselors } from "@/lib/data";
+import { createClient } from "@supabase/supabase-js";
+import { getDemoCounselors, getPublicCounselors } from "@/lib/data";
 
 // 掲載イメージのサンプル取得は 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
-// 取材ファースト構成（S1-S10）。
+// 構成：導入の手間 → 口コミの安全性 → 実績の数字 → 運営者 → 考え方 → 取材 → FAQ・問い合わせ。
+// カウンセラーは哲学より先に「手間」と「変なレビューを書かれないか」を見るため、その答えを上に置く。
 export const revalidate = 3600;
 
 const SITE_URL = "https://kinda.jp";
@@ -86,13 +88,75 @@ const DIFF_CARDS = [
   },
   {
     title: "口コミは、実際に面談した方からのみ届きます",
-    body: "Kinda 経由で面談を完了した方に発行される認証コードがないと投稿できません。第三者の書き込みは構造上できない仕組みです。",
+    body: "Kinda 経由で面談を完了したご本人が、その予約からしか投稿できません。第三者の書き込みは構造上できない仕組みです。",
   },
   {
     title: "書かれた記事が、資産として残ります",
     body: "Kinda は検索から人が訪れるサイトです。取材記事も、コラムも、相談所名やカウンセラー名で調べた方に届きます。広告枠ではなく、読まれる文章として残ります。",
   },
 ];
+
+// 1. 導入の手間（定義リスト）
+const SETUP_ITEMS = [
+  { term: "かかる時間", desc: "プロフィールの入力は10分ほどです（書く内容が決まっていれば）。その前に、オンラインで15分ほど仕組みをご説明します。" },
+  { term: "用意するもの", desc: "プロフィール文、顔写真（任意）、送客料のお支払いに使うクレジットカード。" },
+  { term: "入力する人", desc: "カウンセラーご自身が管理画面から入力します。公開後もいつでも編集できます。" },
+  { term: "やめるとき", desc: "いつでも停止できます。違約金・最低利用期間はありません。" },
+];
+
+// 2. 口コミの安全性（実装されている仕組みだけ。異議申し立ての専用画面は未実装のため「運営へのご連絡」と書く）
+const REVIEW_SAFETY_CARDS = [
+  {
+    title: "書けるのは、面談を終えたご本人だけ",
+    body: "Kinda 経由で予約し、面談が完了したご本人が、その予約からだけ投稿できます。1回の面談につき1件、面談完了から30日以内です。",
+  },
+  {
+    title: "公開の前に、運営が目を通します",
+    body: "届いた口コミはすぐには公開されません。運営が確認してから公開します。虚偽・誹謗中傷・個人情報を含むものは公開しません。",
+  },
+  {
+    title: "気になる口コミは、運営にご連絡ください",
+    body: "公開後の口コミについてのご相談は、運営へのご連絡で受け付けます。ガイドラインに反するものは確認のうえ非公開にします。評価が低いことだけを理由にした削除はしていません。",
+  },
+  {
+    title: "返信で、ご自身の言葉を添えられます",
+    body: "口コミには公開の返信ができます。口コミの本文や評価を、書かれた側が変えることはできない仕組みです。",
+  },
+  {
+    title: "代理掲載は、必ずそれと分かるように",
+    body: "掲載前からお持ちのお客様の声を運営が代わりに入力する場合は、「代理掲載」のバッジを必ず表示します。",
+  },
+];
+
+// 3. 実績の数字：掲載カウンセラーがこの人数に届くまでは数字を出さない（少数の数字は逆効果のため）
+const STATS_MIN_COUNSELORS = 5;
+
+type Stats = { counselors: number; reviews: number; articles: number; hasWaitingUsers: boolean };
+
+/** 実績の数字を Supabase / コンテンツから取得する（ハードコード禁止） */
+async function getStats(articles: number): Promise<Stats> {
+  const publicCounselors = await getPublicCounselors();
+  const counselors = publicCounselors.length;
+  // review_count は公開済み口コミからトリガーで再計算されている
+  const reviews = publicCounselors.reduce((sum, c) => sum + (c.reviewCount ?? 0), 0);
+
+  // 掲載のお知らせ登録者（notify_signups）。RLS で anon は読めないため service_role で件数だけ取る。
+  // 人数は表示しない（「待っている方がいます」の有無だけに使う）
+  let hasWaitingUsers = false;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (url && serviceKey) {
+    try {
+      const { count } = await createClient(url, serviceKey)
+        .from("notify_signups")
+        .select("id", { count: "exact", head: true });
+      hasWaitingUsers = (count ?? 0) > 0;
+    } catch {
+      hasWaitingUsers = false;
+    }
+  }
+  return { counselors, reviews, articles, hasWaitingUsers };
+}
 
 // S4 取材から公開までの流れ
 const STEPS = [
@@ -191,10 +255,12 @@ const FAQ_ITEMS = [
 ];
 
 export default async function ForCounselorsPage() {
-  const [demoCounselors, exampleColumns] = await Promise.all([
+  const [demoCounselors, exampleColumns, articleCount] = await Promise.all([
     getDemoCounselors(),
     getExampleColumns(),
+    getAllColumns().then((all) => all.length).catch(() => 0),
   ]);
+  const stats = await getStats(articleCount);
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -216,7 +282,7 @@ export default async function ForCounselorsPage() {
           items={[{ label: "ホーム", href: "/" }, { label: "カウンセラーの方へ" }]}
         />
 
-        {/* S1. ヒーロー（取材が主CTA） */}
+        {/* ヒーロー */}
         <section className="fc-hero">
           <p className="fc-eyebrow">for counselors</p>
           <h1 className="fc-hero-title">
@@ -238,74 +304,72 @@ export default async function ForCounselorsPage() {
           </div>
         </section>
 
-        {/* S2. 取材について（ページの中核） */}
-        <section className="fc-section">
-          <h2 className="fc-h2">取材について</h2>
+        {/* 1. 導入の手間（カウンセラーが最初に知りたいことを最上段に） */}
+        <section id="listing" className="fc-section">
+          <h2 className="fc-h2">掲載にかかる手間と費用</h2>
           <p className="fc-section-lead">
-            面談で大切にしていること、どんなご相談が多いか、この仕事を選んだ理由。
-            そういったことを伺って、記事にまとめます。
+            取材とは別に、Kinda にカウンセラーページを掲載していただくこともできます。
+            取材を受けた方に掲載をお願いすることはありません。
           </p>
           <dl className="fc-deflist">
-            {INTERVIEW_ITEMS.map((item) => (
+            {SETUP_ITEMS.map((item) => (
               <div key={item.term} className="fc-def">
                 <dt className="fc-dt">{item.term}</dt>
                 <dd className="fc-dd">{item.desc}</dd>
               </div>
             ))}
           </dl>
-        </section>
 
-        {/* S3. なぜ取材からなのか */}
-        <section className="fc-section">
-          <h2 className="fc-h2">なぜ、取材からお願いしているのか</h2>
-          <div className="fc-prose">
-            <p>
-              Kinda は 2026 年に立ち上がったばかりのサイトです。
-              いま掲載をお勧めしても、お渡しできる実績はまだ多くありません。
-            </p>
-            <p>
-              だから先に、カウンセラーの方が考えていることを記事として残すことから始めています。
-              記事は検索で見つかります。相談所名やお名前で調べた方が、
-              広告ではない文章としてそれを読むことになります。
-            </p>
-            <p>掲載していただくかどうかは、そのあとで決めていただければ十分です。</p>
-            <p className="fc-prose-note">
-              早い時期に掲載いただいた相談所ほど、口コミが先に積み上がっていきます。
-            </p>
+          {/* 1-a. 費用 */}
+          <h3 className="fc-h3">費用</h3>
+          <div className="fc-price-card">
+            <div className="fc-price-row">
+              <span className="fc-price-label">初期費用</span>
+              <span className="fc-price-value">無料</span>
+            </div>
+            <div className="fc-price-row">
+              <span className="fc-price-label">月額掲載料</span>
+              <span className="fc-price-value">無料</span>
+            </div>
+            <div className="fc-price-row">
+              <span className="fc-price-label">送客料</span>
+              <span className="fc-price-value">面談予約の成立ごとに ¥5,000</span>
+            </div>
           </div>
-        </section>
+          <ul className="fc-price-notes">
+            <li>取材は無料です。掲載していただかない場合も費用は発生しません。</li>
+            <li>
+              予約が成立した時点で送客料が発生します。以後のキャンセルは原則返金いたしませんが、やむを得ない事情の場合は運営事務局にご相談ください。
+            </li>
+          </ul>
 
-        {/* S4. 取材から公開までの流れ */}
-        <section className="fc-section">
-          <h2 className="fc-h2">取材から公開までの流れ</h2>
+          {/* 1-b. 掲載までの流れ */}
+          <h3 className="fc-h3">掲載までの流れ</h3>
           <ol className="fc-steps">
-            {STEPS.map((s, i) => (
+            {LISTING_STEPS.map((s, i) => (
               <li key={s.title} className="fc-step">
                 <span className="fc-step-num">{i + 1}</span>
                 <div>
-                  <h3 className="fc-step-title">{s.title}</h3>
+                  <h4 className="fc-step-title">{s.title}</h4>
                   <p className="fc-step-body">{s.body}</p>
                 </div>
               </li>
             ))}
           </ol>
-        </section>
-
-        {/* S5. Kinda が大切にしている3つのこと */}
-        <section className="fc-section">
-          <h2 className="fc-h2">Kinda が大切にしている3つのこと</h2>
+          {/* 1-c. 掲載いただける内容 */}
+          <h3 className="fc-h3">掲載いただける内容</h3>
           <div className="fc-card-grid fc-card-grid-3">
-            {DIFF_CARDS.map((c, i) => (
+            {LISTING_CARDS.map((c) => (
               <div key={c.title} className="fc-card">
-                <span className="fc-card-num">{i + 1}</span>
-                <h3 className="fc-card-title">{c.title}</h3>
+                <h4 className="fc-card-title">{c.title}</h4>
                 <p className="fc-card-body">{c.body}</p>
               </div>
             ))}
           </div>
+
         </section>
 
-        {/* S5-2. 掲載イメージ（旧トラスト数値の位置）
+        {/* 1-2. 掲載イメージ（導入の手間の直後に「こう表示される」を見せる）
             営業用サンプルはここに集約する。rating / reviewCount / fee / campaign は
             一切レンダリングしない。構造化データ（Person / Review / AggregateRating）も付けない。 */}
         {demoCounselors.length > 0 && (
@@ -354,7 +418,144 @@ export default async function ForCounselorsPage() {
           </section>
         )}
 
-        {/* S6. 公開している記事の例 */}
+        {/* 2. 口コミの安全性（実装されている仕組みだけを書く） */}
+        <section id="review-safety" className="fc-section">
+          <h2 className="fc-h2">口コミについて</h2>
+          <p className="fc-section-lead">
+            誰でも書ける口コミではありません。仕組みとして決まっていることだけを書いています。
+          </p>
+          <div className="fc-card-grid fc-card-grid-3">
+            {REVIEW_SAFETY_CARDS.map((c, i) => (
+              <div key={c.title} className="fc-card">
+                <span className="fc-card-num">{i + 1}</span>
+                <h3 className="fc-card-title">{c.title}</h3>
+                <p className="fc-card-body">{c.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 3. 実績の数字（Supabase から取得。掲載が一定数に届くまでは数字を出さない） */}
+        <section className="fc-section">
+          <h2 className="fc-h2">いまの Kinda</h2>
+          {stats.counselors >= STATS_MIN_COUNSELORS ? (
+            <div className="fc-price-card">
+              <div className="fc-price-row">
+                <span className="fc-price-label">掲載カウンセラー</span>
+                <span className="fc-price-value">{stats.counselors}名</span>
+              </div>
+              <div className="fc-price-row">
+                <span className="fc-price-label">面談した方の口コミ</span>
+                <span className="fc-price-value">{stats.reviews}件</span>
+              </div>
+              <div className="fc-price-row">
+                <span className="fc-price-label">公開している記事</span>
+                <span className="fc-price-value">{stats.articles}本</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="fc-section-lead">
+                掲載の実績は、これからです。相談所への掲載のご案内を、いま始めたところです。
+              </p>
+              <div className="fc-price-card">
+                <div className="fc-price-row">
+                  <span className="fc-price-label">公開している記事</span>
+                  <span className="fc-price-value">{stats.articles}本</span>
+                </div>
+              </div>
+            </>
+          )}
+          {stats.hasWaitingUsers && (
+            <p className="fc-section-note">
+              カウンセラーの掲載のお知らせを登録して、情報を待っている方がいます。
+            </p>
+          )}
+        </section>
+
+        {/* 4. 運営者について（業界の中にいる人がつくっていることを伝える） */}
+        <section className="fc-section fc-operator">
+          <h2 className="fc-h2">運営者について</h2>
+          <p className="fc-operator-body">
+            Kinda は AGOGLIFE Inc. が運営しています。
+            運営のふうかも、結婚相談所のカウンセラーです。
+          </p>
+          <p className="fc-operator-body">
+            Kinda の運営チームには、結婚相談所「Emma」の運営者も参加しています。
+            Kinda では Emma を他の相談所と完全に同じ扱いで掲載しており、
+            検索結果やおすすめで優遇することはありません。
+          </p>
+          <p className="fc-operator-link">
+            <a href="/about">このサービスについて →</a>
+          </p>
+        </section>
+
+        {/* 5. Kinda の考え方 */}
+        <section className="fc-section">
+          <h2 className="fc-h2">Kinda の考え方</h2>
+          <h3 className="fc-h3">なぜ、取材からお願いしているのか</h3>
+          <div className="fc-prose">
+            <p>
+              Kinda は 2026 年に立ち上がったサイトです。
+              掲載の実績は、これからつくっていきます。
+            </p>
+            <p>
+              だから先に、カウンセラーの方が考えていることを記事として残すことから始めています。
+              記事は検索で見つかります。相談所名やお名前で調べた方が、
+              広告ではない文章としてそれを読むことになります。
+            </p>
+            <p>掲載していただくかどうかは、そのあとで決めていただければ十分です。</p>
+            <p className="fc-prose-note">
+              早い時期に掲載いただいた相談所ほど、口コミが先に積み上がっていきます。
+            </p>
+          </div>
+
+          <h3 className="fc-h3">Kinda が大切にしている3つのこと</h3>
+          <div className="fc-card-grid fc-card-grid-3">
+            {DIFF_CARDS.map((c, i) => (
+              <div key={c.title} className="fc-card">
+                <span className="fc-card-num">{i + 1}</span>
+                <h3 className="fc-card-title">{c.title}</h3>
+                <p className="fc-card-body">{c.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 6. Kinda voices（取材）：掲載を条件としない・費用ゼロ */}
+        <section id="voices" className="fc-section">
+          <h2 className="fc-h2">取材について（Kinda voices）</h2>
+          <p className="fc-section-lead">
+            面談で大切にしていること、どんなご相談が多いか、この仕事を選んだ理由。
+            そういったことを伺って、記事にまとめます。
+          </p>
+          <dl className="fc-deflist">
+            {INTERVIEW_ITEMS.map((item) => (
+              <div key={item.term} className="fc-def">
+                <dt className="fc-dt">{item.term}</dt>
+                <dd className="fc-dd">{item.desc}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* 6-2. 取材から公開までの流れ */}
+        <section className="fc-section">
+          <h2 className="fc-h2">取材から公開までの流れ</h2>
+          <ol className="fc-steps">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="fc-step">
+                <span className="fc-step-num">{i + 1}</span>
+                <div>
+                  <h3 className="fc-step-title">{s.title}</h3>
+                  <p className="fc-step-body">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        {/* 6-3. 公開している記事の例 */}
         {exampleColumns.length > 0 && (
           <section className="fc-section">
             <h2 className="fc-h2">公開している記事の例</h2>
@@ -374,64 +575,7 @@ export default async function ForCounselorsPage() {
           </section>
         )}
 
-        {/* S7. 掲載について */}
-        <section id="listing" className="fc-section">
-          <h2 className="fc-h2">掲載について</h2>
-          <p className="fc-section-lead">
-            取材とは別に、Kinda にカウンセラーページを掲載していただくこともできます。
-            取材を受けた方に掲載をお願いすることはありません。ご希望があればご案内します。
-          </p>
-
-          {/* 7-1. 掲載いただける内容 */}
-          <h3 className="fc-h3">掲載いただける内容</h3>
-          <div className="fc-card-grid fc-card-grid-3">
-            {LISTING_CARDS.map((c) => (
-              <div key={c.title} className="fc-card">
-                <h4 className="fc-card-title">{c.title}</h4>
-                <p className="fc-card-body">{c.body}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* 7-2. 費用 */}
-          <h3 className="fc-h3">費用</h3>
-          <div className="fc-price-card">
-            <div className="fc-price-row">
-              <span className="fc-price-label">初期費用</span>
-              <span className="fc-price-value">無料</span>
-            </div>
-            <div className="fc-price-row">
-              <span className="fc-price-label">月額掲載料</span>
-              <span className="fc-price-value">無料</span>
-            </div>
-            <div className="fc-price-row">
-              <span className="fc-price-label">送客料</span>
-              <span className="fc-price-value">面談予約の成立ごとに ¥5,000</span>
-            </div>
-          </div>
-          <ul className="fc-price-notes">
-            <li>取材は無料です。掲載していただかない場合も費用は発生しません。</li>
-            <li>
-              予約が成立した時点で送客料が発生します。以後のキャンセルは原則返金いたしませんが、やむを得ない事情の場合は運営事務局にご相談ください。
-            </li>
-          </ul>
-
-          {/* 7-3. 掲載までの流れ */}
-          <h3 className="fc-h3">掲載までの流れ</h3>
-          <ol className="fc-steps">
-            {LISTING_STEPS.map((s, i) => (
-              <li key={s.title} className="fc-step">
-                <span className="fc-step-num">{i + 1}</span>
-                <div>
-                  <h4 className="fc-step-title">{s.title}</h4>
-                  <p className="fc-step-body">{s.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* S8. よくあるご質問 */}
+        {/* 7. よくあるご質問 */}
         <section className="fc-section">
           <h2 className="fc-h2">よくあるご質問</h2>
           <div className="fc-faq">
@@ -444,7 +588,7 @@ export default async function ForCounselorsPage() {
           </div>
         </section>
 
-        {/* S9. お問い合わせフォーム */}
+        {/* 8. お問い合わせフォーム */}
         <section id="inquiry" className="fc-section fc-inquiry">
           <h2 className="fc-h2">お問い合わせ</h2>
           <p className="fc-inquiry-lead">
@@ -452,19 +596,6 @@ export default async function ForCounselorsPage() {
             運営から3営業日以内にご返信します。
           </p>
           <CounselorInquiryForm />
-        </section>
-
-        {/* S10. 運営者について */}
-        <section className="fc-section fc-operator">
-          <h2 className="fc-h2">運営者について</h2>
-          <p className="fc-operator-body">
-            Kinda の運営チームには、結婚相談所「Emma」の運営者も参加しています。
-            Kinda では Emma を他の相談所と完全に同じ扱いで掲載しており、
-            検索結果やおすすめで優遇することはありません。
-          </p>
-          <p className="fc-operator-link">
-            <a href="/about">このサービスについて →</a>
-          </p>
         </section>
 
         <script
