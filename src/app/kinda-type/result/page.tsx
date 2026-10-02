@@ -9,7 +9,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
-import { COUNSELORS } from "@/lib/data";
+import { getPublicCounselors } from "@/lib/data";
 import ShareRetryActions from "./ShareRetryActions";
 
 // preview / production / カスタムドメインに自動追従するため request header から導出。
@@ -144,22 +144,27 @@ function getSubCards(subRoute: "cafe" | "beauty" | "counselor"): [SubCardDef, Su
 export default async function DiagnosisResultPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; utm_source?: string }>;
 }) {
-  const { type } = await searchParams;
+  const { type, utm_source } = await searchParams;
+  // シェアされた URL から来た人（＝まだ診断していない人）。
+  // 受け取った人の手間を最小にするため、冒頭で「自分も60秒で」を出す。
+  const isShared = utm_source === "share";
   const typeId = (type as DiagnosisTypeId) || "C";
   const diagType = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
   const siteUrl = await deriveSiteUrl();
 
-  // typeに合うカウンセラーを最大2件取得
-  // 営業デモ（isDemo）は診断結果に出さない（架空の評価値を実データと同列に並べない）
-  const matchedCounselors = COUNSELORS.filter(
-    (c) => !c.isDemo && c.diagnosisType === typeId
-  ).slice(0, 2);
+  // typeに合うカウンセラーを最大2件取得（Supabase の公開データ）
+  // 営業デモ（isDemo）は getPublicCounselors で除外済み（架空の評価値を実データと同列に並べない）
+  const matchedCounselors = (await getPublicCounselors())
+    .filter((c) => c.diagnosisType === typeId)
+    .slice(0, 2);
 
   const [subCard1, subCard2] = getSubCards(diagType.subRoute);
 
   const pageUrl = `${siteUrl}/kinda-type/result?type=${typeId}`;
+  // シェア用 URL。UTM で「シェア経由の着地」を識別する（canonical は pageUrl のまま）
+  const shareUrl = `${pageUrl}&utm_source=share&utm_medium=social&utm_campaign=kinda_type_result`;
   const imageUrl = `${siteUrl}/images/kinda-type/type-${typeId.toLowerCase()}.webp`;
 
   // JSON-LD 構造化データ（Article + FAQPage schema）
@@ -215,6 +220,23 @@ export default async function DiagnosisResultPage({
           ]}
         />
         <div className="ktr-content">
+
+          {/* ══════════════════════════════════
+              ⓪ シェア経由で来た人向け：自分も診断する（ログイン不要・60秒）
+          ══════════════════════════════════ */}
+          {isShared && (
+            <div className="ktr-shared">
+              <p className="ktr-shared-text">
+                これは、シェアされた診断結果です。
+                <br />
+                あなたのタイプも、60秒でわかります。
+              </p>
+              <Link href="/kinda-type/quiz" className="ktl-cta">
+                自分のタイプを見つける →
+              </Link>
+              <p className="ktr-shared-note">会員登録・ログイン不要です</p>
+            </div>
+          )}
 
           {/* ══════════════════════════════════
               ① ヒーロー
@@ -285,7 +307,7 @@ export default async function DiagnosisResultPage({
                   <article key={c.id} className="ktr-counselor-card">
                     {/* カード全体タップで詳細ページへ（stretched link） */}
                     <Link
-                      href={`/counselors/${c.id}`}
+                      href={`/counselors/${c.id}?from=kinda-type`}
                       aria-label={`${c.name}の詳細を見る`}
                       className="ktr-counselor-stretch"
                     />
@@ -307,7 +329,7 @@ export default async function DiagnosisResultPage({
                     {/* 評価行 */}
                     <div
                       className="ktr-counselor-rating"
-                      aria-label={`評価 ${c.rating} 5段階中、口コミ ${c.reviewCount} 件、経験 ${c.experience} 年`}
+                      aria-label={`口コミ ${c.reviewCount} 件${c.experience > 0 ? `、経験 ${c.experience} 年` : ""}`}
                     >
                       {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
                       {hasEnoughReviewsForRating(c.reviewCount) && (
@@ -315,8 +337,12 @@ export default async function DiagnosisResultPage({
                           ★ {c.rating.toFixed(1)}
                         </span>
                       )}
-                      <span className="ktr-counselor-rating-sub">口コミ {c.reviewCount}件</span>
-                      <span className="ktr-counselor-rating-sub">経験{c.experience}年</span>
+                      <span className="ktr-counselor-rating-sub">
+                        {c.reviewCount > 0 ? `口コミ ${c.reviewCount}件` : "レビュー募集中"}
+                      </span>
+                      {c.experience > 0 && (
+                        <span className="ktr-counselor-rating-sub">経験{c.experience}年</span>
+                      )}
                     </div>
 
                     {/* キャッチコピー */}
@@ -347,10 +373,10 @@ export default async function DiagnosisResultPage({
                       </div>
                     )}
 
-                    {/* 予約ボタン（stretched link より上のレイヤー） */}
+                    {/* 主CTAは「知る」。予約はいきなり出さず、詳細ページで人柄を知ってから */}
                     <div className="ktr-counselor-actions">
-                      <Link href={`/booking/${c.id}`} className="ktr-counselor-cta">
-                        面談を予約する
+                      <Link href={`/counselors/${c.id}?from=kinda-type`} className="ktr-counselor-cta">
+                        この人を知る
                       </Link>
                     </div>
                   </article>
@@ -474,17 +500,20 @@ export default async function DiagnosisResultPage({
               /mypage は未ログイン時 AuthCard でログイン/新規登録を促す。
               履歴は DiagnosisTypeHistorySection が表示する。
           ══════════════════════════════════ */}
-          <div className="ktr-recall">
-            <Link href="/mypage" className="ktr-recall-link">
-              あとから見返したい人はこちら（無料）
-            </Link>
-          </div>
+          {!isShared && (
+            <div className="ktr-recall">
+              <Link href="/mypage" className="ktr-recall-link">
+                あとから見返したい人はこちら（無料）
+              </Link>
+            </div>
+          )}
 
           {/* ══════════════════════════════════
               ⑥ SNSシェア + もう一度試す（trackEvent付き Client Component）
           ══════════════════════════════════ */}
           <ShareRetryActions
-            pageUrl={pageUrl}
+            pageUrl={shareUrl}
+            isShared={isShared}
             shareText={`私は${diagType.name}でした。\n#Kindaふたりへ #相性チェック`}
             shareTitle={`私は${diagType.name}でした`}
             resultType={typeId}

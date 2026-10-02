@@ -28,7 +28,7 @@
 /kinda-type/result                結果画面
 /kinda-talk                       Kinda talk
 /kinda-talk/area/[area]           エリア別集約（tokyo/osaka/nagoya/fukuoka/online）
-/kinda-talk/type/[type]           Kinda type のタイプ別集約
+/kinda-talk/type/*                 （廃止：旧6タイプ。/kinda-talk へ 308）
 /kinda-act                        Kinda act
 /kinda-glow                       Kinda glow
 /kinda-pair                       Kinda pair LP
@@ -66,7 +66,7 @@
 > `/kinda-talk` 配下ではなくトップレベルに実装されている点に注意（§4 の計画と実体が違う）。
 
 ```
-/counselors                       カウンセラー検索
+/counselors                       （廃止：架空データの旧一覧。/kinda-talk へ 308）
 /counselors/[id]                  カウンセラー個別ページ
 /counselors/booking               カウンセラー指定の予約
 /booking/[counselorId]            予約フロー
@@ -228,7 +228,7 @@ sitemap は動的生成（静的配列 + データ由来を結合）。**noindex
 | `/counselors/[id]`（デモ） | **ページは残し noindex**。一覧・診断からの導線は切ってある |
 
 - `getCounselors()`（デモ込み）を直接使ってよいのは上記2箇所だけ。それ以外は `getPublicCounselors()`
-- デモ除外の結果、`/kinda-talk/area/*`（5本）と `/kinda-talk/type/*`（6本）は実データが埋まるまで0件になる。
+- デモ除外の結果、`/kinda-talk/area/*`（5本）は実データが埋まるまで0件になる。
   0件時は `CounselorEmptyState`（「まだ公開していません」＋ `NotifySignup`）を出す。「準備中」「近日公開」は使わない
 
 ### Kinda story の sitemap 収録条件 ★

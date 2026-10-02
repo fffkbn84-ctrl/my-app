@@ -41,6 +41,9 @@ export type ColumnMeta = {
   weatherKey?: string;
   /** 引用した公的データの ID 配列（src/lib/publicData.ts の PUBLIC_DATA キー） */
   sources?: string[];
+  /** Kinda voices（取材レポート）の取材対象カウンセラー ID（Supabase counselors.id）。
+   *  記事末尾の「この方のページを見る」と、詳細ページの「インタビューを読む」を双方向に出す */
+  counselorId?: string;
 };
 
 export type Column = ColumnMeta & {
@@ -68,6 +71,7 @@ function readFrontmatter(filepath: string, slug: string): ColumnMeta & { content
     faq: Array.isArray(data.faq) ? data.faq : undefined,
     weatherKey: data.weatherKey ?? undefined,
     sources: Array.isArray(data.sources) ? data.sources : undefined,
+    counselorId: data.counselorId ? String(data.counselorId) : undefined,
     content,
   };
 }
@@ -121,4 +125,12 @@ export async function getColumnByWeatherKey(
 ): Promise<ColumnMeta | undefined> {
   const all = await getAllColumns();
   return all.find((c) => c.weatherKey === weatherKey);
+}
+
+/**
+ * counselorId から、そのカウンセラーを取材した Kinda voices 記事を返す（詳細ページからの逆引き）
+ */
+export async function getColumnsByCounselorId(counselorId: string): Promise<ColumnMeta[]> {
+  const all = await getAllColumns();
+  return all.filter((c) => c.counselorId === counselorId);
 }

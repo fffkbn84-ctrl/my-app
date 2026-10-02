@@ -1,7 +1,7 @@
 "use client";
 
 import { Counselor, isNewShop, isCounselorCampaignActive } from "@/lib/data";
-import { KindaTypeKey } from "@/lib/kinda-types";
+import type { DiagnosisTypeId } from "@/lib/diagnosis";
 import { trackEvent } from "@/lib/analytics";
 import KindaTypeBadge from "./KindaTypeBadge";
 import DemoBadge from "./DemoBadge";
@@ -21,7 +21,7 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
   // backgroundImage に分離して渡す。
   const bgImage = cover?.bg ?? counselor.gradient;
   const catchphrase = counselor.catchphrase ?? counselor.message;
-  const matchingTypes = (counselor.matchingTypes ?? []) as KindaTypeKey[];
+  const diagnosisType = counselor.diagnosisType as DiagnosisTypeId | undefined;
   const showAgencyNewShop = isNewShop(counselor.agencyFoundedAt);
 
   return (
@@ -42,9 +42,7 @@ export default function CounselorReelCard({ counselor, onOpen, sourcePage = "kin
 
       <div className="kt-reel-card-top">
         <div className="kt-reel-card-types">
-          {matchingTypes.slice(0, 2).map((t, i) => (
-            <KindaTypeBadge key={t} type={t} manual={i === 1} />
-          ))}
+          {diagnosisType && <KindaTypeBadge type={diagnosisType} />}
         </div>
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "flex-end" }}>
           {showAgencyNewShop && (

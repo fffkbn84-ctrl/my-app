@@ -111,7 +111,7 @@ export default function KindaStoryPage() {
                 </svg>
               </Link>
               <Link href="/diagnosis" className="ks-cta-btn ks-cta-btn-ghost">
-                合うタイプを知る（1〜3分）
+                合うタイプを知る（60秒）
               </Link>
             </div>
           </div>

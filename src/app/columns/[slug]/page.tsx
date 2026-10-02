@@ -17,6 +17,7 @@ import SourceCitation from "@/components/ui/SourceCitation";
 import { getPublicData } from "@/lib/publicData";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { getCounselorById } from "@/lib/data";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
@@ -81,6 +82,10 @@ export default async function ColumnDetailPage({ params }: Props) {
   }
 
   const allColumns = await getAllColumns();
+
+  // Kinda voices：取材したカウンセラーの詳細ページへ送る（営業デモ・未取得時は出さない）
+  const interviewed = column.counselorId ? await getCounselorById(column.counselorId) : null;
+  const interviewedCounselor = interviewed && !interviewed.isDemo ? interviewed : null;
 
   // 関連記事：
   // - 天気コラム（weatherKey あり）→ related_weather_keys に対応するコラムを優先
@@ -472,6 +477,37 @@ export default async function ColumnDetailPage({ params }: Props) {
 
           {/* 出典・参考にした公的データ（YMYL / E-E-A-T 対応） */}
           <SourceCitation sources={citationSources} />
+
+          {/* Kinda voices → 取材したカウンセラーの詳細ページ */}
+          {interviewedCounselor && (
+            <Link
+              href={`/counselors/${interviewedCounselor.id}?from=voices`}
+              style={{
+                display: "block",
+                background: "var(--pale)",
+                borderRadius: "16px",
+                padding: "20px 24px",
+                marginTop: "40px",
+                textDecoration: "none",
+                color: "var(--black)",
+              }}
+            >
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--muted)", letterSpacing: ".04em" }}>
+                この記事で話を聞いた人
+              </p>
+              <p style={{ fontFamily: "var(--font-mincho)", fontSize: "17px", marginTop: "6px" }}>
+                {interviewedCounselor.name}
+              </p>
+              {interviewedCounselor.agencyName && (
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--mid)", marginTop: "2px" }}>
+                  {interviewedCounselor.agencyName}
+                </p>
+              )}
+              <p style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--accent)", marginTop: "12px" }}>
+                この方のページを見る →
+              </p>
+            </Link>
+          )}
 
           {/* 区切り線 */}
           <div style={{ borderBottom: "1px solid var(--pale)", margin: "48px 0 32px" }} />

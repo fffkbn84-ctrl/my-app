@@ -85,7 +85,7 @@ export default async function KindaTalkPage() {
               </p>
 
               <Link href="/kinda-type" className="kt-hero-cta">
-                あなたに合うタイプを知る（1〜3分）
+                あなたに合うタイプを知る（60秒）
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2 7h10M7 2l5 5-5 5" />
                 </svg>

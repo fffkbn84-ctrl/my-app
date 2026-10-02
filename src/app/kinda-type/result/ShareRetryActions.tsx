@@ -5,13 +5,15 @@ import { trackEvent } from "@/lib/analytics";
 import ShareBar from "@/components/share/ShareBar";
 
 interface Props {
-  /** 共有する本番 URL（preview から共有しても production を指すよう固定） */
+  /** 共有する URL（UTM 付き。シェア経由の着地を識別する） */
   pageUrl: string;
   /** SNS 投稿テキスト（ハッシュタグ込み） */
   shareText: string;
   /** native 共有のタイトル */
   shareTitle: string;
   resultType: string;
+  /** シェア URL から来た（まだ診断していない）人か */
+  isShared?: boolean;
 }
 
 export default function ShareRetryActions({
@@ -19,6 +21,7 @@ export default function ShareRetryActions({
   shareText,
   shareTitle,
   resultType,
+  isShared = false,
 }: Props) {
   return (
     <div className="ktr-share-wrap">
@@ -40,7 +43,7 @@ export default function ShareRetryActions({
             trackEvent("kinda_type_retry", { from_type: resultType })
           }
         >
-          もう一度試す
+          {isShared ? "自分のタイプを見つける（60秒）" : "もう一度試す"}
         </Link>
       </div>
     </div>

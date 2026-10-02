@@ -108,7 +108,7 @@ export default function DiagnosisPage() {
           <div className="ktq-header">
             <div className="ktq-eyebrow">COUNSELOR MATCHING</div>
             <h1 className="ktq-title">あなたに合うカウンセラータイプを見つける</h1>
-            <p className="ktq-subtitle">8つの質問に答えるだけ。1〜3分でわかります。</p>
+            <p className="ktq-subtitle">8つの質問に答えるだけ。60秒でわかります。</p>
           </div>
 
           {/* プログレスバー */}
