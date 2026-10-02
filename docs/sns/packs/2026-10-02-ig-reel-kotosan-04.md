@@ -76,16 +76,18 @@ No text, no letters, no numbers, no logos anywhere, including on the bill slip. 
 python3 prep-futari.py <生成1.png> plate-1.png 200     # 2〜4 も同じ
 
 B='["ウーロン茶一杯の割り勘","ことさんは、飲み込んだ。#4"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   <x> '["@幹事","じゃあ、ひとり","4,500円で〜"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say   <x> '["@ことさん","私、ウーロン茶…"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" gokun <x> '["（ごくん）"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say   <x> '["@ことさん","楽しかったです〜"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   800 '["@幹事","じゃあ、ひとり","4,500円で〜"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say   400 '["@ことさん","私、ウーロン茶…"]'
+TIP_Y=690 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" gokun 360 '["（ごくん）"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say   380 '["@ことさん","楽しかったです〜"]'
 
 python3 build_reel.py kotosanv2 kinda-ig-1002-kotosan04.mp4          # 9.1秒
 python3 add_sfx.py kinda-ig-1002-kotosan04.mp4 kinda-ig-1002-kotosan04-sfx.mp4 kotosan03   # 秒が #3 と同じなので流用
 ```
 
-- しっぽの x は生成画像を見てから決める（#3 は 770／400／360／370）
+- しっぽの x は実際の生成画像に合わせた値（2026-10-02 確定：800／400／360／380）
+- **3カット目は `TIP_Y=690`。** ふくらんだ頭が高く、既定（780）だと「（ごくん）」が頭のてっぺんに重なった。
+  `render-kotosan-v2.js` に環境変数 `TIP_Y`（文字の下端の高さ・既定 780）を足した。既定の出力は変わらない（cmp で確認）
 - 生成4枚は `docs/sns/assets/kotosan/` に WebP（quality 95）で commit。
   ファイル名：`kotosan-izakaya-bill-v1`／`-answer-v1`／`-puff-v1`／`-glare-bow-v1`
 
@@ -110,3 +112,9 @@ python3 add_sfx.py kinda-ig-1002-kotosan04.mp4 kinda-ig-1002-kotosan04-sfx.mp4 k
 年齢・性別・婚活に触れない。焦らせない。絵文字なし。ハッシュタグ3個。
 
 投稿時：カバーは1カット目を手動指定／AI 生成の開示を付ける。7日後（10/9）に**送信数・3秒残存・シェア数・フォロー数**。
+
+## 6. 制作記録（2026-10-02）
+
+- ChatGPT で4枚とも1回で採用。口なし・ウーロン茶はビールと見分けがつく・幹事は2→3で同じ姿勢
+- カット2の腕の上がりは弱い（ウーロン茶を指すほどではない）が、真顔とグラスの位置で伝わるので採用
+- 書き出し：`kinda-ig-1002-kotosan04-sfx.mp4`（9.10秒・1080×1920・効果音は kotosan03 を流用）

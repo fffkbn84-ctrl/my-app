@@ -98,21 +98,23 @@ fs.writeFileSync(tmp, html);
   const p = await b.newPage({viewport:{width:1080,height:1920}});
   await p.goto('file://' + process.cwd() + '/' + tmp);
   await p.evaluate(() => document.fonts.ready);
-  const r = await p.evaluate(({tailX, kind}) => {
+  const tipY = Number(process.env.TIP_Y) || 780;
+  const r = await p.evaluate(({tailX, kind, tipY}) => {
     const band = document.querySelector('.band').getBoundingClientRect();
     const bub = document.getElementById('b');
     if (!bub) return {bandBottom: Math.round(band.bottom), bandW: Math.round(band.width)};
     const w = bub.offsetWidth, h = bub.offsetHeight;
     const tailH = kind === 'think' ? 90 : kind === 'say' ? 55 : 0;
     // しっぽの先が頭の少し上（y≈780）に来るように。帯とは 50px 空ける
-    const top = Math.max(band.bottom + 50, 780 - tailH - h);
+    // 頭が高い絵（ふくらんだ回など）は TIP_Y=700 のように上げる（#4 で必要になった）
+    const top = Math.max(band.bottom + 50, tipY - tailH - h);
     const left = Math.min(Math.max(tailX - w / 2, 40), 1040 - w);   // gokun も x に置く（相手役の頭を避ける。#3 で必要になった）
     bub.style.top = top + 'px'; bub.style.left = left + 'px';
     const t = document.getElementById('t');
     if (t) { t.style.left = (tailX - 35) + 'px'; t.style.top = (top + h - (kind === 'say' ? 5 : -6)) + 'px'; }
     return {bandBottom: Math.round(band.bottom), bandW: Math.round(band.width),
             top: Math.round(top), bottom: Math.round(top + h + tailH), left: Math.round(left), right: Math.round(left + w)};
-  }, {tailX, kind});
+  }, {tailX, kind, tipY});
   if (r.bandW > 1040) { console.error(`帯の幅 ${r.bandW}px が画面からはみ出す。題を短くする`); await b.close(); fs.unlinkSync(tmp); process.exit(1); }
   if (r.bottom > 1500) { console.error(`文字の下端が y=${r.bottom}。1500 を超えている（IG の UI に隠れる）`); await b.close(); fs.unlinkSync(tmp); process.exit(1); }
   await p.waitForTimeout(200);
