@@ -76,6 +76,8 @@ python3 build_reel.py kotosan5 kinda-ig-1009-kotosan.mp4   # 救いのある回�
 
 - **#3 からは v2（`render-kotosan-v2.js`）。** 黒帯＋1カット1文字。使い方は `packs/2026-09-30-ig-reel-kotosan-03.md` §3、
   版面の正は `kotosan-reel.md` §3-b。動画は `build_reel.py kotosanv2`（9.1秒）、効果音は `add_sfx.py <in> <out> kotosan03`。
+- **並べる型・肯定の型**（`ideas.md` 案3・案4）も同じ `render-kotosan-v2.js` の `label` モード（帯＋画面下の一言・「」は自動・本文10字まで・上端 `LABEL_Y`=1290）。
+  動画は `build_reel.py narabe4`（9.3秒）。手順の実例は `packs/ig-reel-narabe-01-mada-ienai.md` §3。
   フォントは「ふたり」と同じ `noto900.woff2` `noto700.woff2`（`@fontsource/noto-sans-jp` の `japanese-900/700-normal`）。
   下の v1（`render-kotosan.js`）は #1・#2 の再現用に残している
 - `render-kotosan.js` の第1引数は版面：`scene`（場面＋シリーズ名＋状況44px）／`omote`（白い吹き出し48px）／

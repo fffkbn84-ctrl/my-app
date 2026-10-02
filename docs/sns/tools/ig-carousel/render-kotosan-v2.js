@@ -8,6 +8,8 @@
 //   think : 飲み込んだ本音。薄いローズの吹き出し・しっぽが小さな丸3つ（44px）
 //   gokun : （ごくん）だけ。吹き出しなし・96px（シリーズの目印。空で出させない）
 //   none  : 帯だけ（真顔を見せる間）
+//   label : 画面下の一言（並べる型・肯定の型）。吹き出しなし・「」は自動で付ける・72px・本文10字まで
+//           x は使わない（中央）。縦位置は LABEL_Y（既定 1290＝一言の上端）
 //
 //   node render-kotosan-v2.js <plate.png> <out.png> '["題","シリーズ名"]' <say|think|gokun|none> <x> '["行1","行2"]'
 //     x = しっぽの先を置く横位置（話している側の頭の上。ことさん≈400／相手役≈760）
@@ -31,6 +33,7 @@ const L = {
   think: {size:44, max:12},
   gokun: {size:96, max:6 },
   none:  {size:0,  max:0 },
+  label: {size:72, max:10},
 }[kind];
 if (!L) { console.error('unknown kind:', kind); process.exit(2); }
 
@@ -43,6 +46,10 @@ if (kind === 'gokun' && !lines.join('').trim()) {
   console.error('gokun が空。「（ごくん）」を省かない（kotosan-reel.md §6）'); process.exit(1);
 }
 if (kind === 'none' && lines.length) { console.error('none に文字は載せない'); process.exit(1); }
+if (kind === 'label') {
+  if (lines.length !== 1 || !lines[0].trim()) { console.error('label は1行だけ（1カット1項目）'); process.exit(1); }
+  if (/[「」]/.test(lines[0])) { console.error('label の「」は自動で付く。外して渡す'); process.exit(1); }
+}
 
 const INK = '#2E2620';
 const THINK = '#F6E6DF';   // #D4A090 を白で薄めた色。透けさせると絵に負けるので不透明にする
@@ -55,7 +62,8 @@ const bubble = kind === 'say' ? `
   font-family:N7;font-size:${L.size}px;line-height:1.45;color:${INK};letter-spacing:.04em}`
 : `
 .bub{background:none;padding:0;font-family:N9;font-size:${L.size}px;line-height:1.2;color:${INK};
-  -webkit-text-stroke:0;text-shadow:0 0 18px #F5EEE6,0 0 8px #F5EEE6}`;
+  -webkit-text-stroke:0;text-shadow:0 0 18px #F5EEE6,0 0 8px #F5EEE6}
+.bub.label{font-size:${L.size}px;letter-spacing:.04em}`;
 
 const tail = kind === 'say' ? `
 <svg class="tail" id="t" width="70" height="70" viewBox="0 0 70 70" style="overflow:visible">
@@ -88,7 +96,7 @@ ${bubble}
 </style>
 ${plate === 'none' ? '' : `<img src="./${plate}">`}
 <div class="band"><div class="t">${title}</div>${series ? `<div class="s">${series}</div>` : ''}</div>
-${kind === 'none' ? '' : `<div class="bub" id="b">${who ? `<span class="who">${who}</span>` : ''}${lines.map(l => `<div>${l}</div>`).join('')}</div>${tail}`}`;
+${kind === 'none' ? '' : kind === 'label' ? `<div class="bub label" id="b">「${lines[0]}」</div>` : `<div class="bub" id="b">${who ? `<span class="who">${who}</span>` : ''}${lines.map(l => `<div>${l}</div>`).join('')}</div>${tail}`}`;
 
 const tmp = `_kotosan2_${Date.now()}.html`;
 fs.writeFileSync(tmp, html);
@@ -98,12 +106,19 @@ fs.writeFileSync(tmp, html);
   const p = await b.newPage({viewport:{width:1080,height:1920}});
   await p.goto('file://' + process.cwd() + '/' + tmp);
   await p.evaluate(() => document.fonts.ready);
+  await p.evaluate(y => { document.body.dataset.ly = y; }, Number(process.env.LABEL_Y) || 1290);
   const tipY = Number(process.env.TIP_Y) || 780;
   const r = await p.evaluate(({tailX, kind, tipY}) => {
     const band = document.querySelector('.band').getBoundingClientRect();
     const bub = document.getElementById('b');
     if (!bub) return {bandBottom: Math.round(band.bottom), bandW: Math.round(band.width)};
     const w = bub.offsetWidth, h = bub.offsetHeight;
+    if (kind === 'label') {
+      const top = Number(document.body.dataset.ly);
+      bub.style.top = top + 'px'; bub.style.left = (540 - w / 2) + 'px';
+      return {bandBottom: Math.round(band.bottom), bandW: Math.round(band.width),
+              top, bottom: Math.round(top + h), left: Math.round(540 - w / 2), right: Math.round(540 + w / 2)};
+    }
     const tailH = kind === 'think' ? 90 : kind === 'say' ? 55 : 0;
     // しっぽの先が頭の少し上（y≈780）に来るように。帯とは 50px 空ける
     // 頭が高い絵（ふくらんだ回など）は TIP_Y=700 のように上げる（#4 で必要になった）
@@ -115,6 +130,7 @@ fs.writeFileSync(tmp, html);
     return {bandBottom: Math.round(band.bottom), bandW: Math.round(band.width),
             top: Math.round(top), bottom: Math.round(top + h + tailH), left: Math.round(left), right: Math.round(left + w)};
   }, {tailX, kind, tipY});
+  if (r.left !== undefined && (r.left < 40 || r.right > 1040)) { console.error(`文字の幅が画面からはみ出す（x ${r.left}..${r.right}）`); await b.close(); fs.unlinkSync(tmp); process.exit(1); }
   if (r.bandW > 1040) { console.error(`帯の幅 ${r.bandW}px が画面からはみ出す。題を短くする`); await b.close(); fs.unlinkSync(tmp); process.exit(1); }
   if (r.bottom > 1500) { console.error(`文字の下端が y=${r.bottom}。1500 を超えている（IG の UI に隠れる）`); await b.close(); fs.unlinkSync(tmp); process.exit(1); }
   await p.waitForTimeout(200);
