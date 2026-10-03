@@ -21,7 +21,8 @@ import type { WeatherDescription } from "../data/weatherDescriptions";
  */
 
 type Props = {
-  type: TypeContent;
+  /** 毎日モードでも使うため、カードに出す3項目だけを受け取る */
+  type: Pick<TypeContent, "fullName" | "summary" | "color">;
   weather: WeatherDescription;
   /** 選んだ項目（ラベル）。長すぎる場合は呼び出し側で絞り込む */
   selectedLabels: string[];

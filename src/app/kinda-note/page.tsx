@@ -13,18 +13,18 @@ export default function KindaNotePage() {
   const steps = [
     {
       num: 1,
-      title: "いまの場所を選ぶ",
-      desc: "まだ何も始めていなくても、誰かと会っていても",
+      title: "今日の気持ちを選ぶ",
+      desc: "なんとなくでいい。3つ選ぶだけです",
     },
     {
       num: 2,
-      title: "気持ちに答える",
-      desc: "なんとなくでいい。選ぶだけです",
+      title: "天気を受け取る",
+      desc: "言葉にならない気持ちが、天気の名前になります",
     },
     {
       num: 3,
-      title: "今日の天気を受け取る",
-      desc: "カードで残せます。誰かに相談するときは、そのまま渡せます",
+      title: "毎日、並べる",
+      desc: "明日また来ると、これまでの天気と並べて見られます",
     },
   ];
 
@@ -136,9 +136,9 @@ export default function KindaNotePage() {
               marginBottom: 18,
             }}
           >
-            今の気持ちをそのままでいい。
+            今日の気持ちを、天気にする。
             <br />
-            60秒で終わるよ。
+            20秒で終わるよ。
           </p>
 
           {/* バッジ */}
@@ -159,7 +159,7 @@ export default function KindaNotePage() {
               <circle cx="5.5" cy="5.5" r="4.5" stroke="#D4A090" strokeWidth="1.2" />
               <path d="M5.5 3v2.5l1.5 1.5" stroke="#D4A090" strokeWidth="1.2" strokeLinecap="round" />
             </svg>
-            会員登録なし・60秒・無料
+            会員登録なし・20秒・無料
           </div>
         </div>
 
@@ -276,7 +276,7 @@ export default function KindaNotePage() {
         {/* ⑥ CTAボタン */}
         <div style={{ marginBottom: 12 }}>
           <Link
-            href="/kinda-note/quiz"
+            href="/kinda-note/today"
             onMouseDown={() => setBtnPressed(true)}
             onMouseUp={() => setBtnPressed(false)}
             onMouseLeave={() => setBtnPressed(false)}
@@ -313,6 +313,17 @@ export default function KindaNotePage() {
           }}
         >
           会員登録・ログイン不要です
+        </p>
+
+        {/* 段階の note（じっくり整理・カウンセラーに渡せる）。主役は今日の天気、こちらは控えめに */}
+        <p style={{ textAlign: "center", margin: "28px 0 0", fontSize: 12.5, lineHeight: 1.8 }}>
+          <Link href="/kinda-note/quiz" style={{ color: "#7A6A5A", textDecoration: "underline", textUnderlineOffset: 3 }}>
+            じっくり整理する（60秒）
+          </Link>
+          <br />
+          <span style={{ fontSize: 11, color: "#B0A090" }}>
+            いまいる場所に合わせて整理し、相談するときにそのまま渡せます
+          </span>
         </p>
 
       </div>

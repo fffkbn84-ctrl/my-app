@@ -36,6 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "",
     "/kinda-talk",
     "/kinda-note",
+    "/kinda-note/today",
     "/kinda-note/quiz",
     "/kinda-type",
     "/kinda-type/quiz",
