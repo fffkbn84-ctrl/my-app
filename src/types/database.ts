@@ -330,14 +330,17 @@ export interface Database {
           price_guides: PriceGuide[] | null;
           /* 一覧カードに出す一行の観察 */
           observation_line: string | null;
+          /* 詳細ページの URL（/places/<slug>）。null の店は UUID の URL のまま */
+          slug: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: Omit<
           Database["public"]["Tables"]["shops"]["Row"],
-          "id" | "created_at" | "updated_at" | "last_reviewed_at" | "is_demo"
+          "id" | "created_at" | "updated_at" | "last_reviewed_at" | "is_demo" | "slug"
         > & {
           id?: string;
+          slug?: string | null;
           created_at?: string;
           updated_at?: string;
           last_reviewed_at?: string;
