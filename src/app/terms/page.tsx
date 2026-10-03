@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/terms" },
   title: "利用規約 | Kinda ふたりへ",
   description: "Kinda ふたりへ の利用規約。サービスの利用条件・禁止事項・免責事項などを定めています。",
   robots: { index: true, follow: true },

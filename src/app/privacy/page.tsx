@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/privacy" },
   title: "プライバシーポリシー | Kinda ふたりへ",
   description: "Kinda ふたりへ における個人情報の取り扱いについて。取得情報・利用目的・第三者提供・お問い合わせ窓口。",
   robots: { index: true, follow: true },

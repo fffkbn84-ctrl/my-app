@@ -13,9 +13,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://kinda.jp"
   ),
-  // トップの自己参照 canonical。子ページは各自 alternates.canonical を上書きする。
-  // www 有無や旧 my-app-rp9u.vercel.app と重複判定されないよう、正規URLを明示する。
-  alternates: { canonical: "/" },
+  // canonical はここに置かない（2026-10-03）。ルートに置くと、自分で canonical を
+  // 持たない子ページ全部に「正はトップ」が継承され、/kinda-act や /places/[id] が
+  // トップの重複として扱われていた。トップの canonical は src/app/page.tsx にある。
   // ファビコン／ホーム画面アイコンは App Router 規約のファイルに一本化：
   // src/app/favicon.ico（/favicon.ico 直リクエスト対応）, src/app/icon.png, src/app/apple-icon.png。
   // 旧 1.1MB の /images/kinda-icon.png 直指定はサイズ過大で一部環境でフォールバックしていたため撤去。

@@ -115,6 +115,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
+  /* お店の詳細ページ（2026-10-03 追加）。以前は一覧だけを送っていて、詳細は1件も送っていなかった。
+     getShops() は Supabase 失敗時に mock を返すため、UUID の id（＝実在の掲載店）だけを送る。 */
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const placeEntries: MetadataRoute.Sitemap = allShops
+    .filter(
+      (p) =>
+        UUID_RE.test(p.id) &&
+        (ACT_THUMB_VARIANTS.has(p.thumbVariant) || GLOW_THUMB_VARIANTS.has(p.thumbVariant)),
+    )
+    .map((p) => ({
+      url: `${SITE_URL}/places/${p.id}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
+
   /* 一覧ページは「掲載0名」だと実質空ページになり、Google に
      「クロール済み - インデックス未登録」と判定されてドメイン全体の評価を下げる。
      該当カウンセラーが1名以上いるエリアだけを送信する。
@@ -160,6 +175,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...counselorEntries,
     ...storyEntries,
     ...shopSectionEntries,
+    ...placeEntries,
     ...areaEntries,
     ...weatherListEntry,
     ...columnEntries,

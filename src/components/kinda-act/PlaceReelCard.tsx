@@ -47,11 +47,19 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
   }, [images.length]);
 
   return (
-    <button
-      type="button"
+    /* 見た目と挙動はボタンのまま（クリックでリールを開く）だが、要素は詳細ページへの
+       <a href> にしている（2026-10-03）。<button> だと検索エンジンが詳細ページへ辿れず、
+       お店のページが1件も検索に出ていなかった。新しいタブで開く操作もそのまま効く。 */
+    <a
+      href={`/places/${place.id}`}
       className="kt-reel-card"
+      style={{ textDecoration: "none" }}
       aria-label={`${place.name} のリールを開く`}
-      onClick={() => onOpen(place)}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        onOpen(place);
+      }}
     >
       {hasPhoto ? (
         // 全レイヤーを重ねて opacity でクロスフェード
@@ -188,6 +196,6 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
           </div>
         ) : null}
       </div>
-    </button>
+    </a>
   );
 }

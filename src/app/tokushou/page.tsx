@@ -4,6 +4,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/tokushou" },
   title: "特定商取引法に基づく表記 | Kinda ふたりへ",
   description:
     "Kinda ふたりへ（kinda.jp）の特定商取引法に基づく表記。販売事業者、所在地、料金、返品・キャンセル等の情報。",

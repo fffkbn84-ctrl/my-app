@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about/editorial-policy" },
   title: "編集ポリシー | Kinda ふたりへ",
   description:
     "Kinda ふたりへ の編集ポリシー。誰が、どんな方針で取材・執筆しているか。コラムの情報源、心理学研究の引用方針、口コミの扱い、訂正のルールを明文化しています。",
