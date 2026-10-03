@@ -9,6 +9,7 @@ import { getPlaceThumbGradientClass } from "@/components/kinda-act/PlaceThumb";
 import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
 import { useState } from "react";
+import { placePath } from "@/lib/placeSections";
 
 /** 各コーナーの初期表示件数（超過分は「もっと見る」で展開） */
 const INITIAL_SHOWN = 6;
@@ -244,7 +245,7 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
             {(showAllPlaces ? savedPlaces : savedPlaces.slice(0, INITIAL_SHOWN)).map((p) => (
               <Link
                 key={p.id}
-                href={`/places/${p.id}`}
+                href={placePath(p)}
                 style={{
                   display: "flex",
                   gap: 12,

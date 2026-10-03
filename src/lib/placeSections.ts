@@ -30,3 +30,11 @@ export function hasPublishedPlaces(
 ): boolean {
   return places.some((p) => variants.has(p.thumbVariant));
 }
+
+/**
+ * お店の詳細ページの URL。slug があれば店名の URL、なければ UUID（2026-10-03）。
+ * 旧 UUID の URL は /places/[id] 側で slug へ 301 転送する。リンクは必ずここを通す。
+ */
+export function placePath(place: { id: string; slug?: string | null }): string {
+  return `/places/${place.slug || place.id}`;
+}

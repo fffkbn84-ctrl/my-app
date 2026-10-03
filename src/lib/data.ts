@@ -989,6 +989,7 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
     priceRange: row.price_range ?? undefined,
     photoUrl: row.photo_url ?? undefined,
     isDemo: row.is_demo,
+    slug: row.slug ?? undefined,
     observationLine: row.observation_line ?? undefined,
     access: row.access ?? undefined,
     scenes: row.scenes ?? undefined,
@@ -1087,11 +1088,13 @@ export type ShopDetail = Omit<PlaceHome, 'scenes'> & {
   priceGuides: PriceGuide[] | null
 }
 
+/** id には UUID と slug のどちらも渡せる（/places/<slug> と旧 /places/<uuid> の両方を受ける） */
 export async function getShopById(id: string): Promise<ShopDetail | null> {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   const res = await supabase
     .from('shops')
     .select('*')
-    .eq('id', id)
+    .eq(isUuid ? 'id' : 'slug', id)
     .eq('is_published', true)
     .single()
   const row = res.data as ShopRow | null

@@ -11,6 +11,7 @@ import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import ShareSheet from "@/components/kinda-talk/ShareSheet";
+import { placePath } from "@/lib/placeSections";
 
 type Props = {
   place: PlaceHome | null;
@@ -125,8 +126,8 @@ export default function PlaceReelModal({ place, onClose }: Props) {
   const currentSlide = slides[imgIndex];
   const shareUrl = place
     ? typeof window !== "undefined"
-      ? `${window.location.origin}/places/${place.id}`
-      : `/places/${place.id}`
+      ? `${window.location.origin}${placePath(place)}`
+      : placePath(place)
     : "";
 
   return createPortal(
@@ -229,7 +230,7 @@ export default function PlaceReelModal({ place, onClose }: Props) {
                   type="button"
                   className="kt-reel-modal-action"
                   onClick={() => {
-                    window.location.href = `/places/${place.id}#reviews`;
+                    window.location.href = `${placePath(place)}#reviews`;
                   }}
                   aria-label="口コミを見る"
                 >
@@ -279,13 +280,13 @@ export default function PlaceReelModal({ place, onClose }: Props) {
 
                 <div className="kt-reel-modal-cta-row">
                   <Link
-                    href={`/places/${place.id}`}
+                    href={placePath(place)}
                     className="kt-reel-modal-cta is-secondary"
                   >
                     詳細を見る
                   </Link>
                   <Link
-                    href={`/places/${place.id}#reviews`}
+                    href={`${placePath(place)}#reviews`}
                     className="kt-reel-modal-cta is-primary"
                   >
                     口コミを見る

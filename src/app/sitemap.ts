@@ -8,6 +8,7 @@ import {
   ACT_THUMB_VARIANTS,
   GLOW_THUMB_VARIANTS,
   hasPublishedPlaces,
+  placePath,
 } from "@/lib/placeSections";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
@@ -125,7 +126,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         (ACT_THUMB_VARIANTS.has(p.thumbVariant) || GLOW_THUMB_VARIANTS.has(p.thumbVariant)),
     )
     .map((p) => ({
-      url: `${SITE_URL}/places/${p.id}`,
+      url: `${SITE_URL}${placePath(p)}`,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     }));

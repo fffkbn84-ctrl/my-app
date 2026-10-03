@@ -12,6 +12,7 @@ import { matchesAreaFilter } from "@/lib/areas";
 import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
 import Pagination from "@/components/ui/Pagination";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import { placePath } from "@/lib/placeSections";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -152,7 +153,7 @@ function ShopCard({ place }: { place: PlaceHome }) {
     <div
       className="place-card"
       style={{ width: "auto", cursor: "pointer" }}
-      onClick={() => router.push(`/places/${place.id}`)}
+      onClick={() => router.push(placePath(place))}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
         (e.currentTarget as HTMLDivElement).style.boxShadow = "0 20px 56px rgba(0,0,0,.09)";

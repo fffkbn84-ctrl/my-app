@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
@@ -16,7 +16,7 @@ import type { PlaceReview, Place } from "@/lib/mock/places";
 import type { ActObservations, PriceGuide } from "@/types/database";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import { sortActScenes } from "@/lib/actScenes";
-import { GLOW_THUMB_VARIANTS } from "@/lib/placeSections";
+import { GLOW_THUMB_VARIANTS, placePath } from "@/lib/placeSections";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -517,7 +517,7 @@ export async function generateMetadata({
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 120);
-  const canonical = `/places/${id}`;
+  const canonical = placePath(shop);
 
   return {
     title,
@@ -544,6 +544,8 @@ export default async function PlaceDetailPage({
   // F-3 (2026-05-21): Supabase shops 一本化。mock places.ts は廃止。
   const shop = await getShop(id);
   if (!shop) notFound();
+  // 旧 UUID の URL で来たら、店名の URL へ恒久転送する（検索の評価を引き継ぐため 308）
+  if (shop.slug && id !== shop.slug) permanentRedirect(placePath(shop));
   const place = buildPlaceFromShop(shop);
 
   // 地図・営業時間の照会に使う検索語。駅からの徒歩案内より住所のほうが正確に引ける。

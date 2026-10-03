@@ -6,6 +6,7 @@ import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
 import { PLACE_CATEGORY_ICON } from "./placeIcons";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
+import { placePath } from "@/lib/placeSections";
 
 const GRADIENT_BG: Record<string, string> = {
   cafe: "linear-gradient(135deg,#FAEAE5,#F0D8D0)",
@@ -51,7 +52,7 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
        <a href> にしている（2026-10-03）。<button> だと検索エンジンが詳細ページへ辿れず、
        お店のページが1件も検索に出ていなかった。新しいタブで開く操作もそのまま効く。 */
     <a
-      href={`/places/${place.id}`}
+      href={placePath(place)}
       className="kt-reel-card"
       style={{ textDecoration: "none" }}
       aria-label={`${place.name} のリールを開く`}

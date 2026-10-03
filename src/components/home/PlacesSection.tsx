@@ -11,6 +11,7 @@ import {
   type ThumbVariant,
 } from "@/lib/mock/places-home";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
+import { placePath } from "@/lib/placeSections";
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
@@ -234,7 +235,7 @@ export default function PlacesSection() {
               style={{ cursor: "pointer" }}
               onClick={() => {
                 if (dragDistance.current > 6) return;
-                router.push(`/places/${place.id}`);
+                router.push(placePath(place));
               }}
             >
               <PlaceThumb variant={place.thumbVariant} photoUrl={place.photoUrl} alt={place.name} />
