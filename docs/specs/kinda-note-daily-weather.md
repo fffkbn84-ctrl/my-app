@@ -68,8 +68,61 @@
 - おすすめの順：**凪 → 雨上がり → 天気雨**（凪は「何もない日」を選べない穴を埋める。雨上がりは毎日使う人ほど出番が多い）
 - 生成の条件はいまの20枚に揃える：正方形・ミニチュアクレイ・空だけの情景・文字なし・人なし。ファイル名 `w_<key>.webp`
 
+### 4-b. 画像の作り方（2026-10-03）
+
+- ChatGPT で **1:1**。**1枚ずつ、同じスレッドで**生成する（並べたときに揃う）
+- スレッドの最初に、いまのカードを2枚添付して「このスタイルに揃えて」と伝える
+  （`https://kinda.jp/images/w_light_rain.webp` と `https://kinda.jp/images/w_quiet_overcast.webp`。夜の絵だけ `w_twilight.webp` も）
+- 生成された画像をチャットに貼る → Claude が 1254×1254 の WebP にして `public/images/w_<key>.webp` に置き、対応表に足す
+- 雷雨の画像の右下に、別の生成ツールの透かし（きらりマーク）が入っている。新しい画像では透かしがないか確認する
+
+**共通（毎回、先頭に付ける）**
+
+```
+Square 1:1 image. Top-down flat-lay photo of a handmade miniature made of matte clay and soft felt,
+placed on a plain warm cream background (#F5EEE6). Muted, dusty colors. Soft diffused light from above,
+gentle soft shadows. Simple, minimal, centered composition with generous empty space around the motif.
+Calm, warm, quiet mood. Match the style of the attached reference images.
+No text, no letters, no logos, no people, no faces, no watermark, no frame.
+```
+
+**凪（なぎ）** `calm`
+```
+SCENE: A calm sea at the horizon. A smooth, completely flat band of pale blue-grey clay across the lower third,
+with no waves or ripples at all. A small pale butter-yellow clay sun sits low just above it,
+and its soft reflection is a short vertical stroke of the same yellow on the flat surface. Nothing is moving.
+```
+
+**雨上がり** `after_rain`
+```
+SCENE: A small soft cream-grey felt cloud drifting away toward the upper right, with only two last tiny
+pale blue clay raindrops falling from it. Below, three small flat clay puddles in pale blue on the cream surface,
+one of them catching a soft warm glint of light. The feeling of rain that has just stopped.
+```
+
+**天気雨** `sun_shower`
+```
+SCENE: A small warm yellow clay sun peeking out from behind a soft light-grey felt cloud, while thin pale blue
+clay raindrops fall at the same time. A few of the raindrops catch warm golden light.
+Bright and rainy at once, gentle and a little bittersweet.
+```
+
+**月夜** `moonlit_night`（背景を夜にするため、共通の「cream background」はこの回だけ外す）
+```
+SCENE: Full-frame night sky made of deep muted indigo felt (not black). A crescent moon of soft cream-yellow clay
+in the upper area, five or six tiny clay star dots, and a low line of dark soft felt hills along the bottom.
+Quiet and still.
+```
+
+**陽だまり** `sunny_spot`
+```
+SCENE: A small warm clay sun in the upper left. Soft beams made of thin pale-yellow felt reach down diagonally
+to a round pool of warm golden light on the cream surface. Inside the pool of light, one tiny round clay pebble
+rests, as if warming in the sun. Cozy and still.
+```
+
 ## 5. 残っていること
 
-- [ ] 新しい天気の画像（§4）。決まったらプロンプトを出す
+- [ ] 新しい天気の画像（§4）。プロンプトは §4-b。ふうかさんが生成 → Claude が組み込む
 - [ ] マイページの履歴（Supabase 側）には今日の天気を保存していない（端末のみ）。必要になったら `saveDiagnosisResult` を足す
 - [ ] `/note/weather`（天気一覧）は段階ごとの見出しのまま。今日の天気の入口として見直すか
