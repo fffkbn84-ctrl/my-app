@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-10-03（GA4・Search Console を読んで計画を決定／canonical の継承バグを修理）
+
+- GA4（9/5〜10/2）は自分のアクセス込み。`vercel.com / referral` 31 はほぼ自分。外部は実質10人前後。Google 自然検索0
+- Search Console：登録17／未登録64。本番を実測して原因を特定：
+  - ルート `layout.tsx` の `alternates.canonical: "/"` が、自前の canonical を持たない子ページに**継承**されていた
+    （Next.js の metadata はマージされる）。sitemap 中の11ページと全店の `/places/[id]` が「正はトップ」を出していた
+  - `/places/[id]` に `generateMetadata` がなくタイトルもトップと同じ／`/counselors/[id]` は mock しか見ず実在カウンセラーが「見つかりません」
+  - sitemap にお店の詳細なし・一覧カードが `<button>`
+- 修理：canonical をトップ `page.tsx` へ移動＋各ページに自己参照／places に metadata／counselors は Supabase も引く／
+  sitemap に UUID の実在店を追加／カードを `<a href>`（クリックは従来どおりモーダル、修飾キーなら新規タブ）
+- ハマりどころ：**ルート layout に canonical を置かない**。置くと全子ページに継承される
+- ローカル build と canonical 出力を確認（Supabase なしのため places は本番で要確認）
+- 計画は `docs/ops/content-plan-2026-10.md`。glow は A 案（店舗一覧を閉じてコラムで育てる）、note は改修方向で了承
+
 ## 2026-10-02（ことさん#4 を割り勘回に差し替え・v2 に統一）
 
 - **#4 を差し替え**（ふうか決裁）：口コミの社内回「ちょっと会ってみたい」→「ウーロン茶一杯の割り勘」。
