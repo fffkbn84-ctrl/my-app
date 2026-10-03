@@ -13,8 +13,8 @@ export default function KindaNotePage() {
   const steps = [
     {
       num: 1,
-      title: "今の状態を選ぶ",
-      desc: "入会前〜交際中、今どこにいても使えます",
+      title: "いまの場所を選ぶ",
+      desc: "まだ何も始めていなくても、誰かと会っていても",
     },
     {
       num: 2,
@@ -23,8 +23,8 @@ export default function KindaNotePage() {
     },
     {
       num: 3,
-      title: "整理された状態を受け取る",
-      desc: "そのままカウンセラーに渡せます",
+      title: "今日の天気を受け取る",
+      desc: "カードで残せます。誰かに相談するときは、そのまま渡せます",
     },
   ];
 
@@ -198,7 +198,7 @@ export default function KindaNotePage() {
                 <path d="M18 12h-5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
               </svg>
             </span>
-            そのままカウンセラーに渡せる
+            誰かに相談するとき、そのまま渡せる
           </li>
         </ul>
 

@@ -12,7 +12,7 @@ const SITE_URL =
 export const metadata: Metadata = {
   title: "Kinda note｜気持ちを、天気の言葉で整理する",
   description:
-    "なんとなくの気持ちを、20種類の天気にあてはめて整理する。会員登録なし・60秒・無料。整理した内容はそのままカウンセラーに渡せます。",
+    "なんとなくの気持ちを、20種類の天気にあてはめて整理する。会員登録なし・60秒・無料。今日の天気をカードで残して、前の天気と並べて見られます。",
   alternates: { canonical: `${SITE_URL}/kinda-note` },
 };
 
