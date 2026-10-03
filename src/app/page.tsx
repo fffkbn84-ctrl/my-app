@@ -316,18 +316,18 @@ export default async function HomePage() {
           {/* Block 3 — 主CTA（Kinda note） */}
           <div className="ktp-hero-cta-block">
             <p className="ktp-hero-cta-tagline">
-              言葉にならないモヤモヤを、60秒で。
+              言葉にならない今日の気持ちを、天気に。
             </p>
             <Link
-              href="/kinda-note"
+              href="/kinda-note/today"
               className="ktp-hero-cta"
-              aria-label="いまの気持ちを整理する Kinda note を始める"
+              aria-label="今日の気持ちを天気にする Kinda note を始める"
             >
-              いまの気持ちを整理する
+              今日の天気をみる
               <ArrowRight color="white" />
             </Link>
             <p className="ktp-hero-micro">
-              ✓60秒で言葉になる　✓登録不要　✓相談前の整理に
+              ✓3つ選ぶだけ・20秒　✓登録不要　✓毎日の天気が並んでいく
             </p>
             {/* サイトの核（カウンセラー個人を口コミで選べる）への控えめな導線。
                 主CTA（気持ちの整理）と競わないよう、テキストリンクにとどめる */}
@@ -413,9 +413,9 @@ export default async function HomePage() {
                 margin: "0 0 18px",
               }}
             >
-              あなたの気持ちは
+              今日のあなたは
               <br />
-              いま、どんな天気？
+              どんな天気？
             </h2>
 
             {/* リード文 */}
@@ -512,7 +512,7 @@ export default async function HomePage() {
             >
               並んでいるのは、ほんの一部。
               <br />
-              あなたの天気は、20の中にあります。
+              毎日、ちがう天気に出会えます。
             </p>
 
             {/* 機能の特徴 3 つ（チェックリスト） */}
@@ -528,9 +528,9 @@ export default async function HomePage() {
               }}
             >
               {[
-                "60秒で、いまの気持ちが言葉になる",
-                "整理したメモは、そのままカウンセラーに渡せる",
-                "何度でも、気持ちが揺れたときに",
+                "3つ選ぶだけ。20秒で、今日の気持ちが天気になる",
+                "毎日来ると、これまでの天気が絵で並んでいく",
+                "じっくり整理したら、そのままカウンセラーに渡せる",
               ].map((item) => (
                 <li
                   key={item}
@@ -565,10 +565,10 @@ export default async function HomePage() {
               ))}
             </ul>
 
-            {/* CTA — 気持ちを整理する */}
+            {/* CTA — 今日の天気（毎日モード）へ */}
             <div style={{ textAlign: "center" }}>
               <Link
-                href="/kinda-note"
+                href="/kinda-note/today"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -586,7 +586,7 @@ export default async function HomePage() {
                   transition: "transform .2s, box-shadow .2s",
                 }}
               >
-                気持ちを整理する
+                今日の天気をみる
                 <ArrowRight color="white" />
               </Link>
             </div>

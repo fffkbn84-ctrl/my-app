@@ -9,6 +9,7 @@ import ShareBar from "@/components/share/ShareBar";
 import { trackEvent } from "@/lib/analytics";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
+import RecentWeatherStrip from "../components/RecentWeatherStrip";
 import {
   DAILY_QUESTIONS,
   PASSING_NOTE,
@@ -416,18 +417,7 @@ function Result({
 
       <div style={{ height: 1, background: "#EAE0D8", margin: "28px 0 24px" }} />
 
-      {recent.length > 0 && (
-        <section style={{ marginBottom: 24 }}>
-          <Eyebrow>これまでの天気</Eyebrow>
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexWrap: "wrap", gap: 8 }}>
-            {recent.map((it) => (
-              <li key={it.id} style={chipStyle}>
-                {fmtDate(it.created_at)} {getCardWeather(it.weather)?.name_ja ?? ""}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <RecentWeatherStrip items={recent} />
 
       <section
         style={{
@@ -560,11 +550,6 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-function fmtDate(iso: string) {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}月${d.getDate()}日`;
-}
-
 const headingStyle: React.CSSProperties = {
   fontFamily: "'Shippori Mincho', serif",
   fontSize: 20,
@@ -596,14 +581,4 @@ const primaryButtonStyle: React.CSSProperties = {
   color: "white",
   cursor: "pointer",
   boxShadow: "0 4px 0 #B8806E",
-};
-
-const chipStyle: React.CSSProperties = {
-  fontSize: 12.5,
-  color: "#5A4A3E",
-  background: "#FDFAF7",
-  border: "1px solid #EAE0D8",
-  borderRadius: 999,
-  padding: "6px 12px",
-  lineHeight: 1.4,
 };

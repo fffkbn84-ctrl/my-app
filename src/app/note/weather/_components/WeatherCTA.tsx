@@ -38,7 +38,7 @@ export default function WeatherCTA() {
             lineHeight: 1.6,
           }}
         >
-          いまの気持ちを、60秒で確かめる
+          今日の気持ちを、20秒で確かめる
         </h2>
         <p
           style={{
@@ -51,10 +51,10 @@ export default function WeatherCTA() {
         >
           選ぶだけで、今日のあなたの天気がわかります。
           <br />
-          そのまま、カウンセラーに渡せるかたちで。
+          毎日来ると、これまでの天気が並んでいきます。
         </p>
         <Link
-          href="/kinda-note"
+          href="/kinda-note/today"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -70,7 +70,7 @@ export default function WeatherCTA() {
             boxShadow: "0 4px 14px rgba(212,160,144,0.35)",
           }}
         >
-          気持ちを整理する
+          今日の天気をみる
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
             <path
               d="M2 7h10M7 2l5 5-5 5"

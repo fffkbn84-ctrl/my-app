@@ -263,10 +263,10 @@ export default function WeatherListPage() {
                 margin: "0 0 20px",
               }}
             >
-              60秒の質問に答えるだけで、いまの気持ちが天気として現れます。
+              3つ選ぶだけで、今日の気持ちが天気として現れます。
             </p>
             <Link
-              href="/kinda-note"
+              href="/kinda-note/today"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -282,7 +282,7 @@ export default function WeatherListPage() {
                 boxShadow: "0 4px 14px rgba(212,160,144,0.35)",
               }}
             >
-              気持ちを整理する
+              今日の天気をみる
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
                 <path
                   d="M2 7h10M7 2l5 5-5 5"
