@@ -5,10 +5,6 @@ import type { WeatherKey, RouteKey } from "../data/weatherDescriptions";
  *
  * 既存 quiz では各選択肢が単一文字 ID（a/b/c/...）で保存されているため、
  * v3 の「ラベル文字列でマッチング」するロジックを「ID でマッチング」に置き換えている。
- *
- * Q2-pre は v3 で 8 択（料金を 3 分解）だが、現行は 6 択。
- * 暫定的に pre_q2.a を「料金関連の不安」として扱い、info カウントは 1 として数える。
- * 質問側の3分解パッチ後に下記の `INFO_PRE_IDS` を更新する。
  */
 
 export type Answers = Record<string, string[]>;
@@ -16,22 +12,29 @@ export type Answers = Record<string, string[]>;
 // ─── pre ────────────────────────────────────────────────────────────────────
 
 /**
- * pre_q2 で「情報不足」系として扱う option ID。
- * v3 通り 8 択に分解済み：a1 相場 / a2 続けられるか / a3 結果出なかったら / d どんな人 / e 抵抗感
+ * 2026-10 第2段階：入口を中立にし、相談所の質問（pre_q2）は任意の Q4 に移した。
+ * 数え方（閾値と優先順位）は変えず、数える対象を「pre_self ＋ 任意の pre_q2」に広げる。
+ * 任意を飛ばしても pre_self だけで3タイプすべてに届く。
+ * pre_q2 の c / f は旧形式（2026-10 以前）の回答の互換のため残している。
  */
+
+/** 「まだ見えていない」系（朝もや側） */
+const INFO_SELF_IDS = ["a", "b"];
 const INFO_PRE_IDS = ["a1", "a2", "a3", "d", "e"];
 
-/**
- * pre_q2 で「自信不足」系として扱う option ID。
- * v3：自分に合うカウンセラー / 相手が見つかるか
- * 現行：b / c
- */
+/** 「自信」系（夜明け前側） */
+const CONFIDENCE_SELF_IDS = ["c", "d"];
 const CONFIDENCE_PRE_IDS = ["b", "c"];
 
 export function decidePreType(answers: Answers): WeatherKey {
+  const self = answers["pre_self"] ?? [];
   const reasons = answers["pre_q2"] ?? [];
-  const infoCount = reasons.filter((r) => INFO_PRE_IDS.includes(r)).length;
-  const confCount = reasons.filter((r) => CONFIDENCE_PRE_IDS.includes(r)).length;
+  const infoCount =
+    self.filter((r) => INFO_SELF_IDS.includes(r)).length +
+    reasons.filter((r) => INFO_PRE_IDS.includes(r)).length;
+  const confCount =
+    self.filter((r) => CONFIDENCE_SELF_IDS.includes(r)).length +
+    reasons.filter((r) => CONFIDENCE_PRE_IDS.includes(r)).length;
 
   // 優先順位：自信不足 > 情報不足 > 慎重型
   if (confCount >= 2) return "pre_dawn"; // 夜明け前

@@ -1326,7 +1326,7 @@ function SubLinks() {
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <Link href="/kinda-act" style={subLinkStyle}>
-          Kinda act：お見合いやデートに使いやすい場所
+          Kinda act：会うときに使いやすい場所
         </Link>
       </div>
     </div>

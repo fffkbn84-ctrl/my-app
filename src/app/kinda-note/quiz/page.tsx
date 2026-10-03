@@ -23,6 +23,10 @@ interface Question {
   type: "single" | "multi" | "text";
   options?: Option[];
   required: boolean;
+  /** 質問の下に出す補足（任意の質問で「とばして大丈夫です」等） */
+  note?: string;
+  /** 任意の選択式で、何も選ばずに進むときのボタン文言 */
+  skipLabel?: string;
 }
 
 interface QuizState {
@@ -34,45 +38,46 @@ interface QuizState {
 
 // ─── Q0 選択肢 ──────────────────────────────────────────────────────────────
 const Q0_OPTIONS = [
-  { id: "pre",     label: "まだ相談所に入っていない",               sub: "入会前でも使えます" },
-  { id: "waiting", label: "入会したけど、まだお見合いが始まっていない", sub: "活動準備中の方へ" },
-  { id: "active",  label: "活動中（お見合いや交際をしている）",       sub: "今の気持ちを整理しよう" },
+  { id: "pre",     label: "誰かと過ごす日々を、考えはじめたところ", sub: "まだ何も始めていなくても" },
+  { id: "waiting", label: "始めたけれど、まだ誰とも会っていない",   sub: "登録したばかり・紹介を待っているところ" },
+  { id: "active",  label: "会っている人がいる",                     sub: "初めて会った人も、何度か会っている人も" },
 ];
 
 // ─── active_sub 選択肢 ───────────────────────────────────────────────────────
 const ACTIVE_SUB_OPTIONS = [
-  { id: "omiai",    label: "お見合いをした（初めて会った）",                  sub: "お見合いの気持ちを整理しよう" },
-  { id: "date1",    label: "デート1回目を終えた（お見合いの次に1度会った）", sub: "1回目のデートの気持ちを整理しよう" },
-  { id: "kousai",   label: "交際中（2回以上会っている）",                     sub: "今の関係について整理する" },
-  { id: "multiple", label: "複数人と同時に迷っている",                         sub: "迷いや気持ちを整理する" },
+  { id: "omiai",    label: "初めて会った人がいる",             sub: "会ったあとの気持ちを整理しよう" },
+  { id: "date1",    label: "もう一度会った（2回目）",           sub: "2回目に会ったあとの気持ちを整理しよう" },
+  { id: "kousai",   label: "何度か会っている",                 sub: "いまの関係について整理する" },
+  { id: "multiple", label: "何人かと会っていて、迷っている",   sub: "迷いや気持ちを整理する" },
 ];
 
-// ─── pre ルート（入会前）4問 ─────────────────────────────────────────────────
+// ─── pre ルート（まだ始めていない）5問 ─────────────────────────────────────
+// 2026-10 第2段階：全員が通る前半（Q1〜Q3）は中立語彙のみ。相談所の話は任意の Q4 に移した。
+// ID は旧形式を保つ（pre_q1 は文言のみ変更、pre_q2 は相談所の質問として Q4 へ移動、pre_self を新設）。
+// 詳細は docs/specs/kinda-note-v4-phase2.md
 const PRE_QUESTIONS: Question[] = [
   {
     id: "pre_q1", label: "Q1",
-    text: "相談所に興味を持ったきっかけは？",
+    text: "いまの気持ちに、いちばん近いのは？",
     type: "single", required: true,
     options: [
-      { id: "a", label: "自然な出会いがなかなかない" },
-      { id: "b", label: "真剣に活動したいと思った" },
-      { id: "c", label: "友人や知人に勧められた" },
-      { id: "d", label: "なんとなく気になって" },
+      { id: "a", label: "出会うきっかけが、なかなかない" },
+      { id: "b", label: "そろそろ、ちゃんと向き合いたいと思った" },
+      { id: "c", label: "人に勧められて、考えはじめた" },
+      { id: "d", label: "なんとなく、気になって" },
     ],
   },
   {
-    id: "pre_q2", label: "Q2",
-    text: "踏み出せていない理由は？",
+    id: "pre_self", label: "Q2",
+    text: "引っかかっているのは、どんなこと？",
     type: "multi", required: true,
     options: [
-      { id: "a1", label: "相場がわからない（高いのか安いのかも判断できない）", sectionStart: "お金のこと" },
-      { id: "a2", label: "毎月の費用を続けられるか不安" },
-      { id: "a3", label: "払ったのに結果が出なかったら、と思うと踏み出せない" },
-      { id: "b",  label: "自分に合うカウンセラーがいるか不安",                 sectionStart: "自分のこと" },
-      { id: "c",  label: "本当に相手が見つかるか自信がない" },
-      { id: "d",  label: "どんな人が活動しているか想像できない",               sectionStart: "相談所のこと" },
-      { id: "e",  label: "相談所に入ることへの抵抗感がある" },
-      { id: "f",  label: "特にない、もう少し情報を集めたい",                   sectionStart: "その他" },
+      { id: "a", label: "何から始めればいいのか、わからない" },
+      { id: "b", label: "自分が何を望んでいるのか、まだはっきりしない" },
+      { id: "c", label: "自分に合う人がいるのか、わからない" },
+      { id: "d", label: "本当に相手が見つかるのか、自信がない" },
+      { id: "e", label: "ひとりの時間も好きで、急ぐ気持ちはない" },
+      { id: "f", label: "特にない。もう少しゆっくり考えたい" },
     ],
   },
   {
@@ -87,7 +92,22 @@ const PRE_QUESTIONS: Question[] = [
     ],
   },
   {
-    id: "pre_q4", label: "Q4",
+    id: "pre_q2", label: "Q4",
+    text: "相談所やカウンセラーのことで、気になっていることは？",
+    type: "multi", required: false,
+    note: "考えていなければ、とばして大丈夫です。",
+    skipLabel: "いまは考えていない",
+    options: [
+      { id: "a1", label: "相場がわからない（高いのか安いのかも判断できない）", sectionStart: "お金のこと" },
+      { id: "a2", label: "毎月の費用を続けられるか不安" },
+      { id: "a3", label: "払ったのに結果が出なかったら、と思うと踏み出せない" },
+      { id: "b",  label: "自分に合うカウンセラーがいるか不安",                 sectionStart: "カウンセラーのこと" },
+      { id: "d",  label: "どんな人が活動しているか想像できない",               sectionStart: "相談所のこと" },
+      { id: "e",  label: "相談所に入ることへの抵抗感がある" },
+    ],
+  },
+  {
+    id: "pre_q4", label: "Q5",
     text: "今の気持ちを、そのまま書いてみて。",
     type: "text", required: false,
   },
@@ -97,7 +117,7 @@ const PRE_QUESTIONS: Question[] = [
 const WAITING_QUESTIONS: Question[] = [
   {
     id: "wait_q1", label: "Q1",
-    text: "入会してからどのくらい経つ？",
+    text: "始めてからどのくらい経つ？",
     type: "single", required: true,
     options: [
       { id: "a", label: "1ヶ月以内" },
@@ -128,6 +148,7 @@ const WAITING_QUESTIONS: Question[] = [
       { id: "c", label: "何を言えばいいかわからない" },
       { id: "d", label: "気を遣ってしまって本音が言えない" },
       { id: "e", label: "相談してもどうせ変わらないと思っている" },
+      { id: "f", label: "相談できる担当の人はいない" },
     ],
   },
   {
@@ -141,7 +162,7 @@ const WAITING_QUESTIONS: Question[] = [
 const OMIAI_QUESTIONS: Question[] = [
   {
     id: "omiai_q1", label: "Q1",
-    text: "お見合い、どうだった？",
+    text: "初めて会ってみて、どうだった？",
     type: "single", required: true,
     options: [
       { id: "a", label: "楽しかった" },
@@ -201,19 +222,19 @@ const OMIAI_QUESTIONS: Question[] = [
 const DATE1_QUESTIONS: Question[] = [
   {
     id: "date1_q2", label: "Q1",
-    text: "デート1回目、どうだった？",
+    text: "もう一度会ってみて、どうだった？",
     type: "single", required: true,
     options: [
       { id: "a", label: "もっと一緒にいたいと思った" },
-      { id: "b", label: "お見合いの印象と同じだった" },
-      { id: "c", label: "お見合いの印象と変わった（良い方に）" },
-      { id: "d", label: "お見合いの印象と変わった（違和感が出た）" },
+      { id: "b", label: "初めて会ったときの印象と同じだった" },
+      { id: "c", label: "初めて会ったときの印象と変わった（良い方に）" },
+      { id: "d", label: "初めて会ったときの印象と変わった（違和感が出た）" },
       { id: "e", label: "よくわからなかった" },
     ],
   },
   {
     id: "date1_q3", label: "Q2",
-    text: "次のデートに進む気持ちは？",
+    text: "また会いたい気持ちは？",
     type: "single", required: true,
     options: [
       { id: "a", label: "進みたい" },
@@ -334,8 +355,8 @@ const MULTIPLE_QUESTIONS: Question[] = [
       { id: "b", label: "比べてしまって罪悪感がある" },
       { id: "c", label: "同時に複数人と会い続けるのが疲れてきた" },
       { id: "d", label: "もっと合う人がいそうで踏み切れない" },
-      { id: "e", label: "新しいお見合いも続いていて消耗している" },
-      { id: "f", label: "婚活自体しんどくなってきた" },
+      { id: "e", label: "新しく会う人も続いていて消耗している" },
+      { id: "f", label: "人と会うこと自体、しんどくなってきた" },
       { id: "g", label: "特にしんどくはない、整理したいだけ" },
     ],
   },
@@ -412,10 +433,11 @@ export default function KindaNoteQuizPage() {
     ? q0Selected !== null
     : isActiveSub
       ? activeSubSelected !== null
-      : currentQ?.type === "text"
+      : currentQ?.type === "text" || currentQ?.required === false
         ? true
         : currentAnswers.length > 0;
-  const btnLabel = isLastQ ? "結果を見る" : "つぎへ";
+  const isSkipping = !!currentQ?.skipLabel && currentAnswers.length === 0;
+  const btnLabel = isSkipping ? currentQ!.skipLabel! : isLastQ ? "結果を見る" : "つぎへ";
 
   // ─── ハンドラ ─────────────────────────────────────────────────────────────
   function handleNext() {
@@ -469,6 +491,9 @@ export default function KindaNoteQuizPage() {
       trackEvent("kinda_note_complete", {
         weather_type: "",
         route: quizState.phase,
+        ...(quizState.phase === "pre"
+          ? { pre_optional: (quizState.answers["pre_q2"] ?? []).length > 0 }
+          : {}),
       });
       router.push(`/kinda-note/result?route=${quizState.phase}`);
       return;
@@ -642,7 +667,7 @@ export default function KindaNoteQuizPage() {
                 letterSpacing: "0.03em",
               }}
             >
-              今のあなたの状態は？
+              いまのあなたに、近いのは？
             </h1>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
@@ -842,6 +867,9 @@ export default function KindaNoteQuizPage() {
 
                 {currentQ.type === "multi" && (
                   <p style={{ fontSize: 12, color: "#B0A090" }}>複数選んでもOK</p>
+                )}
+                {currentQ.note && (
+                  <p style={{ fontSize: 12, color: "#B0A090", marginTop: 4 }}>{currentQ.note}</p>
                 )}
               </div>
 

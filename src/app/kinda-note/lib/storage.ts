@@ -14,7 +14,8 @@ const MAX_ITEMS = 100;
 export type KindaNoteHistoryItem = {
   /** uuid v4 */
   id: string;
-  route: RouteKey;
+  /** "daily" は毎日モード「今日の天気」（2026-10） */
+  route: RouteKey | "daily";
   /** 例: "Kinda 朝もや" */
   result_type: string;
   /** 例: "morning_mist" */
@@ -46,7 +47,7 @@ function generateId(): string {
 }
 
 export function saveKindaNoteHistory(item: {
-  route: RouteKey;
+  route: RouteKey | "daily";
   result_type: string;
   weather: WeatherKey;
   answers: Record<string, unknown>;
