@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Header from "@/components/layout/Header";
@@ -14,6 +16,7 @@ import type { PlaceReview, Place } from "@/lib/mock/places";
 import type { ActObservations, PriceGuide } from "@/types/database";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import { sortActScenes } from "@/lib/actScenes";
+import { GLOW_THUMB_VARIANTS } from "@/lib/placeSections";
 
 /* ────────────────────────────────────────────────────────────
    Supabase ShopDetail → Place 型互換オブジェクトに変換
@@ -486,6 +489,51 @@ function BadgePill({ badge }: { badge: Place["badge"] }) {
  */
 export const revalidate = 300;
 
+/* generateMetadata とページ本体で同じ取得を2回しないよう、リクエスト内で共有する */
+const getShop = cache((id: string) => getShopById(id));
+
+/**
+ * お店ごとのタイトル・説明・canonical（2026-10-03 追加）。
+ *
+ * 以前はこの関数がなく、全店のタイトルがトップと同じ、canonical もトップを指していた。
+ * Google からは「トップの重複」に見えるため、お店のページが1件も検索に出ていなかった。
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const shop = await getShop(id);
+  if (!shop) return { title: "お店が見つかりません | Kinda ふたりへ" };
+
+  const section = GLOW_THUMB_VARIANTS.has(shop.thumbVariant) ? "Kinda glow" : "Kinda act";
+  const where = shop.location ? `（${shop.location}）` : "";
+  const title = `${shop.name}${where} | ${section} | Kinda ふたりへ`;
+  const description = (
+    shop.description ||
+    `${shop.name}を、実際に足を運んで確かめた記録。${shop.access ?? ""}`
+  )
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+  const canonical = `/places/${id}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      url: canonical,
+      title,
+      description,
+      ...(shop.photoUrl ? { images: [{ url: shop.photoUrl, alt: shop.name }] } : {}),
+    },
+    twitter: { card: shop.photoUrl ? "summary_large_image" : "summary", title, description },
+  };
+}
+
 export default async function PlaceDetailPage({
   params,
 }: {
@@ -494,7 +542,7 @@ export default async function PlaceDetailPage({
   const { id } = await params;
 
   // F-3 (2026-05-21): Supabase shops 一本化。mock places.ts は廃止。
-  const shop = await getShopById(id);
+  const shop = await getShop(id);
   if (!shop) notFound();
   const place = buildPlaceFromShop(shop);
 

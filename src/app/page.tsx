@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
@@ -228,6 +229,12 @@ function SectionLabel({ label, en }: { label: string; en?: string }) {
 /* ────────────────────────────────────────────────────────────
    トップページ
 ──────────────────────────────────────────────────────────── */
+/* トップの自己参照 canonical。www 有無や旧 my-app-rp9u.vercel.app と重複判定されないよう
+   正規URLを明示する。layout.tsx に置くと子ページ全部に継承されるため、ここに置く。 */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
 export default async function HomePage() {
   // ホームのリールカルーセル用：Supabase or mock fallback から取得し
   // rating × log(reviewCount+2) で上位 6 件

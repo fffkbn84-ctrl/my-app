@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about/transparency" },
   title: "運営の透明性 | Kinda ふたりへ",
   description:
     "Kinda ふたりへ がどのように収益を得ているか、カウンセラー・相談所・お店の並び順をどう決めているかを明文化しています。広告で順位を操作しない、ユーザーファーストの設計です。",

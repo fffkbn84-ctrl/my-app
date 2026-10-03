@@ -389,7 +389,13 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   const mock = counselors[id as keyof typeof counselors];
-  const fromCounselors = COUNSELORS.find((c) => String(c.id) === id);
+  // 実在のカウンセラーは Supabase にしかいない。以前は mock だけを見ていたため、
+  // 公開中のカウンセラーのタイトルが「見つかりません」、canonical がトップになっていた。
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const fromCounselors =
+    COUNSELORS.find((c) => String(c.id) === id) ??
+    (isUuid ? await getCounselorById(id).catch(() => null) : null) ??
+    undefined;
 
   if (!mock && !fromCounselors) {
     return { title: "カウンセラーが見つかりません | Kinda ふたりへ" };
