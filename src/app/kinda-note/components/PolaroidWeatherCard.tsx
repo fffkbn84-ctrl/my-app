@@ -1,5 +1,5 @@
 import Image from "next/image";
-import type { WeatherKey } from "../data/weatherDescriptions";
+import type { CardWeatherKey } from "../data/daily";
 
 /**
  * ポラロイド風 天気カード。
@@ -14,7 +14,7 @@ import type { WeatherKey } from "../data/weatherDescriptions";
  */
 
 type Props = {
-  weather: WeatherKey;
+  weather: CardWeatherKey;
   /** カード下部に表示する英名 */
   nameEn: string;
   /** 例: "rotate(-1.2deg)"。デフォルト "rotate(0deg)" */
@@ -23,7 +23,7 @@ type Props = {
   variant?: "result" | "share";
 };
 
-const IMAGE_PATHS: Record<WeatherKey, string> = {
+const IMAGE_PATHS: Record<CardWeatherKey, string> = {
   morning_mist: "/images/w_morning_mist.webp",
   pre_dawn: "/images/w_pre_dawn.webp",
   flower_overcast: "/images/w_flower_overcast.webp",
@@ -45,6 +45,8 @@ const IMAGE_PATHS: Record<WeatherKey, string> = {
   dissonance_wind: "/images/w_uneasy_wind.webp",
   quiet_overcast: "/images/w_quiet_overcast.webp",
   mist: "/images/w_mist.webp",
+  // 毎日モード専用（data/daily.ts）
+  calm: "/images/w_calm.webp",
 };
 
 export default function PolaroidWeatherCard({

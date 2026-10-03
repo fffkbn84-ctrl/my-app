@@ -1,4 +1,5 @@
-import type { WeatherKey } from "./weatherDescriptions";
+import { getTypeContent } from "./typeContent";
+import { WEATHER_DESCRIPTIONS, type WeatherKey } from "./weatherDescriptions";
 
 /**
  * Kinda note「今日の天気」（毎日モード）。2026-10-03 ふうか案 → 入口の主役に。
@@ -11,6 +12,53 @@ import type { WeatherKey } from "./weatherDescriptions";
  */
 
 export type DailyOption = { id: string; label: string };
+
+// ─── 毎日モード専用の天気 ──────────────────────────────────────────────────
+// 段階の note の20天気（WeatherKey）とは別に持つ。段階ごとの解説ページ（/note/weather）や
+// 結果の第1〜3層を持たないため、WeatherKey には混ぜない。画像は public/images/w_<key>.webp
+
+export type DailyOnlyWeatherKey = "calm";
+/** カード・履歴で扱う天気（段階の20＋毎日専用） */
+export type CardWeatherKey = WeatherKey | DailyOnlyWeatherKey;
+
+export type CardWeather = {
+  key: CardWeatherKey;
+  name_ja: string;
+  name_en: string;
+  /** 詩的な2文（\n 区切り）。段階の20天気は WEATHER_DESCRIPTIONS の description と同じ */
+  description: string;
+  color: string;
+};
+
+const DAILY_ONLY_WEATHERS: Record<DailyOnlyWeatherKey, Omit<CardWeather, "key">> = {
+  calm: {
+    name_ja: "凪",
+    name_en: "Calm",
+    description:
+      "風も波も止まって、水面が空をそのまま映している時間。\n何も起きないことが、ちゃんと満ちている。その静けさの中にあなたはいます。",
+    color: "#8E9FAF",
+  },
+};
+
+export function getCardWeather(key: string): CardWeather | null {
+  if (key in DAILY_ONLY_WEATHERS) {
+    return { key: key as DailyOnlyWeatherKey, ...DAILY_ONLY_WEATHERS[key as DailyOnlyWeatherKey] };
+  }
+  const w = WEATHER_DESCRIPTIONS[key as WeatherKey];
+  if (!w) return null;
+  return {
+    key: w.key,
+    name_ja: w.name_ja,
+    name_en: w.name_en,
+    description: w.description,
+    color: getTypeContent(w.key)?.color ?? "#D4A090",
+  };
+}
+
+/** 画像ファイル名（dissonance_wind だけ w_uneasy_wind） */
+export function cardImageFile(key: CardWeatherKey): string {
+  return key === "dissonance_wind" ? "w_uneasy_wind" : `w_${key}`;
+}
 
 export type DailyQuestion = {
   id: "feeling" | "size" | "want";
@@ -25,6 +73,7 @@ export const DAILY_QUESTIONS: DailyQuestion[] = [
     options: [
       { id: "glad", label: "うれしかった" },
       { id: "relief", label: "ほっとしていた" },
+      { id: "calm", label: "とくに何もない、おだやかな日だった" },
       { id: "flutter", label: "どきどき・そわそわしていた" },
       { id: "foggy", label: "もやもやしていた" },
       { id: "anxious", label: "不安だった" },
@@ -56,7 +105,7 @@ export const DAILY_QUESTIONS: DailyQuestion[] = [
 ];
 
 export type FeelingId =
-  | "glad" | "relief" | "flutter" | "foggy" | "anxious"
+  | "glad" | "relief" | "calm" | "flutter" | "foggy" | "anxious"
   | "lonely" | "restless" | "tired" | "unknown";
 
 /**
@@ -64,9 +113,10 @@ export type FeelingId =
  * 「胸いっぱい」は濃い方、「すこしだけ」「通り過ぎかけている」は淡い方。
  * いまある20の天気とカード画像を使う（新しい天気は画像ができてから足す。spec §3）。
  */
-const WEATHER_MAP: Record<FeelingId, { full: WeatherKey; light: WeatherKey }> = {
+const WEATHER_MAP: Record<FeelingId, { full: CardWeatherKey; light: CardWeatherKey }> = {
   glad: { full: "sunrise", light: "light_sunrise" },               // 朝焼け / 淡い朝焼け
   relief: { full: "sun_break", light: "faint_sunlight" },          // 晴れ間 / 薄日
+  calm: { full: "calm", light: "calm" },                           // 凪（大きさは聞かない）
   flutter: { full: "windy_sunshine", light: "angels_ladder" },     // 風の強い晴れ / 天使の梯子
   foggy: { full: "mist", light: "morning_mist" },                  // 霧 / 朝もや
   anxious: { full: "rain_cloud", light: "light_rain_start" },      // 雨雲 / 降り始め
@@ -76,7 +126,10 @@ const WEATHER_MAP: Record<FeelingId, { full: WeatherKey; light: WeatherKey }> = 
   unknown: { full: "wandering_clouds", light: "flower_overcast" }, // 迷い雲 / 花曇り
 };
 
-export function decideDailyWeather(feeling: string, size: string): WeatherKey {
+/** 大きさを聞かない気持ち（「何もない」に大きさは無いので Q2 を飛ばす） */
+export const SKIP_SIZE_FEELINGS = ["calm"];
+
+export function decideDailyWeather(feeling: string, size: string): CardWeatherKey {
   const pair = WEATHER_MAP[feeling as FeelingId] ?? WEATHER_MAP.unknown;
   return size === "full" ? pair.full : pair.light;
 }
