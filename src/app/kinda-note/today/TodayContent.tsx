@@ -12,15 +12,13 @@ import ShareCard from "../components/ShareCard";
 import {
   DAILY_QUESTIONS,
   PASSING_NOTE,
+  SKIP_SIZE_FEELINGS,
   decideDailyWeather,
+  getCardWeather,
   getDailyLabel,
   getDailyTodayOne,
+  type CardWeatherKey,
 } from "../data/daily";
-import { getTypeContent } from "../data/typeContent";
-import {
-  getWeatherDescription,
-  type WeatherKey,
-} from "../data/weatherDescriptions";
 import {
   loadKindaNoteHistory,
   saveKindaNoteHistory,
@@ -46,7 +44,7 @@ export default function TodayContent() {
   const [step, setStep] = useState(0); // 0..2 = 質問, 3 = 一言, 4 = 結果
   const [answers, setAnswers] = useState<Answers>({});
   const [note, setNote] = useState("");
-  const [weather, setWeather] = useState<WeatherKey | null>(null);
+  const [weather, setWeather] = useState<CardWeatherKey | null>(null);
   const [recent, setRecent] = useState<KindaNoteHistoryItem[]>([]);
   const [tiltAngle, setTiltAngle] = useState("rotate(0deg)");
   const [saving, setSaving] = useState(false);
@@ -67,10 +65,16 @@ export default function TodayContent() {
 
   function select(optionId: string) {
     if (!q) return;
-    setAnswers((a) => ({ ...a, [q.id]: optionId }));
+    // 「何もない日」には大きさが無いので、Q2（どのくらい？）を飛ばす
+    const skipSize = q.id === "feeling" && SKIP_SIZE_FEELINGS.includes(optionId);
+    setAnswers((a) => {
+      const next = { ...a, [q.id]: optionId };
+      if (q.id === "feeling") next.size = skipSize ? undefined : a.size;
+      return next;
+    });
     // 選んだ色を一瞬見せてから次へ（20秒で終わる軽さを優先して「つぎへ」は押させない）
     if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
-    advanceTimer.current = window.setTimeout(() => setStep((s) => s + 1), 260);
+    advanceTimer.current = window.setTimeout(() => setStep((s) => s + (skipSize ? 2 : 1)), 260);
   }
 
   function back() {
@@ -78,7 +82,9 @@ export default function TodayContent() {
       router.push("/kinda-note");
       return;
     }
-    setStep((s) => s - 1);
+    // Q3 から戻るとき、Q2 を飛ばしていたら Q1 へ
+    const skipped = SKIP_SIZE_FEELINGS.includes(answers.feeling ?? "");
+    setStep((s) => (s === 2 && skipped ? 0 : s - 1));
   }
 
   function finish() {
@@ -87,7 +93,7 @@ export default function TodayContent() {
     const previous = loadKindaNoteHistory().slice(-6).reverse();
     const isRare = Math.random() < 0.03;
     const angle = `rotate(${(isRare ? (Math.random() * 2 - 1) * 1.8 : 0).toFixed(2)}deg)`;
-    const desc = getWeatherDescription(w);
+    const desc = getCardWeather(w)!;
     saveKindaNoteHistory({
       route: "daily",
       result_type: `Kinda ${desc.name_ja}`,
@@ -300,11 +306,11 @@ export default function TodayContent() {
           <ShareCard
             ref={shareCardRef}
             type={{
-              fullName: `今日の天気　${getWeatherDescription(weather).name_ja}`,
-              summary: getWeatherDescription(weather).description.split("\n")[0],
-              color: getTypeContent(weather)?.color ?? ACCENT,
+              fullName: `今日の天気　${getCardWeather(weather)?.name_ja ?? ""}`,
+              summary: getCardWeather(weather)?.description.split("\n")[0] ?? "",
+              color: getCardWeather(weather)?.color ?? ACCENT,
             }}
-            weather={getWeatherDescription(weather)}
+            weather={{ key: weather, name_en: getCardWeather(weather)?.name_en ?? "" }}
             selectedLabels={[
               getDailyLabel("feeling", answers.feeling ?? ""),
               getDailyLabel("size", answers.size ?? ""),
@@ -352,7 +358,7 @@ function Result({
   onSaveImage,
   onRestart,
 }: {
-  weather: WeatherKey;
+  weather: CardWeatherKey;
   answers: Answers;
   note: string;
   recent: KindaNoteHistoryItem[];
@@ -362,8 +368,8 @@ function Result({
   onSaveImage: () => void;
   onRestart: () => void;
 }) {
-  const desc = getWeatherDescription(weather);
-  const accent = getTypeContent(weather)?.color ?? ACCENT;
+  const desc = getCardWeather(weather)!;
+  const accent = desc.color;
   const todayOne = getDailyTodayOne(answers.want ?? "stay");
 
   return (
@@ -416,7 +422,7 @@ function Result({
           <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexWrap: "wrap", gap: 8 }}>
             {recent.map((it) => (
               <li key={it.id} style={chipStyle}>
-                {fmtDate(it.created_at)} {getWeatherDescription(it.weather)?.name_ja ?? ""}
+                {fmtDate(it.created_at)} {getCardWeather(it.weather)?.name_ja ?? ""}
               </li>
             ))}
           </ul>

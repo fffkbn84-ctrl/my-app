@@ -4,6 +4,12 @@
 
 ---
 
+## 2026-10-03（今日の天気に「凪」を追加）
+
+- ふうかさんが ChatGPT で生成した凪を `public/images/w_calm.webp`（1254×1254）に。Q1 に「とくに何もない、おだやかな日だった」を足し、選ぶと Q2 を飛ばす
+- 凪は段階の20天気（`WeatherKey`）に混ぜず、毎日専用（`DailyOnlyWeatherKey`）にした。カード・画像保存・履歴・og:image は `CardWeatherKey`／`getCardWeather` で両方を扱う
+- ハマり：`pkill -f` / `pgrep -f` がシェル自身の行にも当たり、シェルごと落ちる（exit 144）。前回のサーバーも生き残って古い画面を見ていた。止めるときは `ps -eo pid,comm` で next-server の PID を拾う
+
 ## 2026-10-03（Kinda note「今日の天気」を入口の主役に）
 
 - ふうか決裁：毎日モードを入口に／質問は自分軸（旧案「それは誰のこと？」は原因探しに読めるので削除）／名前は Kinda note の中のモード名

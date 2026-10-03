@@ -21,6 +21,7 @@ import {
   type KindaNoteHistoryItem,
 } from "../lib/storage";
 import { TODAY_ONE } from "../data/todayOne";
+import { getCardWeather } from "../data/daily";
 import { buildMemoText } from "../lib/buildMemo";
 import { saveDiagnosisResult } from "@/lib/kinda/diagnosisHistory";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -1245,7 +1246,7 @@ function RecentWeather({ items }: { items: KindaNoteHistoryItem[] }) {
               lineHeight: 1.4,
             }}
           >
-            {fmt(it.created_at)} {getWeatherDescription(it.weather)?.name_ja ?? ""}
+            {fmt(it.created_at)} {getCardWeather(it.weather)?.name_ja ?? ""}
           </li>
         ))}
       </ul>

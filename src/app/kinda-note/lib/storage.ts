@@ -1,4 +1,5 @@
-import type { RouteKey, WeatherKey } from "../data/weatherDescriptions";
+import type { RouteKey } from "../data/weatherDescriptions";
+import type { CardWeatherKey } from "../data/daily";
 
 /**
  * Kinda note の履歴を localStorage に保存する。
@@ -19,7 +20,7 @@ export type KindaNoteHistoryItem = {
   /** 例: "Kinda 朝もや" */
   result_type: string;
   /** 例: "morning_mist" */
-  weather: WeatherKey;
+  weather: CardWeatherKey;
   /** 回答全体 */
   answers: Record<string, unknown>;
   /** ISO 8601 */
@@ -49,7 +50,7 @@ function generateId(): string {
 export function saveKindaNoteHistory(item: {
   route: RouteKey | "daily";
   result_type: string;
-  weather: WeatherKey;
+  weather: CardWeatherKey;
   answers: Record<string, unknown>;
   meta?: { isRareTilt?: boolean; tiltAngle?: string };
 }): KindaNoteHistoryItem | null {
