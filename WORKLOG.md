@@ -12,6 +12,16 @@
 - キャプションの読点が続く一文を対句2行に直した。書き出し 9.3 秒（`kinda-ig-1003-narabe.mp4`）。Notion 登録済み（状態：制作中）
 - ふうかさんから：ChatGPT 用プロンプトは【ACTING】をはめ込んだ完成形で1枚ずつ出す（コピペで使えるように）
 
+## 2026-10-03（note 改修 第1段階：結果画面を「今日の天気」に）
+
+- ふうか指摘で「週」ではなく「毎日」に。「今日、ひとつだけ」（`src/app/kinda-note/data/todayOne.ts`）と
+  「これまでの天気」（保存前に履歴を読み、今回を除いた最大6件）を追加。比較の矢印は付けない
+- 残す操作（画像保存・X・LINE・リンク）を最下部から中ほどへ。画像保存は入会前ルートにも出した
+- カウンセラー向け（伝えるなら・担当を探す・コピー・type・story）は `<details>` の「カウンセラーに渡すなら」へ
+- glow への導線を2か所撤去（A 案）。新イベント `kinda_note_repeat`
+- 本番 DB につないだローカル build ＋ Playwright（390px）で表示確認
+- ResultContent の既存 lint エラー2件（early return 後の useMemo）は今回触っていない
+
 ## 2026-10-03（お店の URL を店名に）
 
 - `shops.slug` を追加（migration 045。DDL は apply_migration、10件の値は execute_sql で投入）。形式 CHECK と UNIQUE 付き
