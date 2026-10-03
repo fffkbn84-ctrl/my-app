@@ -21,13 +21,13 @@ import {
   type KindaNoteHistoryItem,
 } from "../lib/storage";
 import { TODAY_ONE } from "../data/todayOne";
-import { getCardWeather } from "../data/daily";
 import { buildMemoText } from "../lib/buildMemo";
 import { saveDiagnosisResult } from "@/lib/kinda/diagnosisHistory";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getQuestionsForRoute } from "../data/questions";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
+import RecentWeatherStrip from "../components/RecentWeatherStrip";
 import ShareBar from "@/components/share/ShareBar";
 
 const VALID_ROUTES: RouteKey[] = [
@@ -348,7 +348,7 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
         />
 
         {/* これまでの天気（2回目以降のみ）。良くなった・悪くなったは書かず、並べるだけ */}
-        {recent.length > 0 && <RecentWeather items={recent} />}
+        {recent.length > 0 && <RecentWeatherStrip items={recent} />}
 
         {/* 第1層（常に表示） */}
         <Section>
@@ -958,28 +958,39 @@ function StoryCard() {
           marginBottom: 12,
         }}
       >
-        今日のあなたの物語を、誰かに残しませんか？
+        あなたの話を、聞かせてもらえませんか？
       </p>
       <p style={{ fontSize: 13, lineHeight: 1.9, color: "#7A6A5A", marginBottom: 18 }}>
-        匿名でも大丈夫。あなたが今感じているこの気持ちが、これから始める誰かの「自分もこうなりたい」になるかもしれません。
+        Kinda story では、先に進んだ人の話をお聞きして、編集して掲載しています。仮名・年代ぼかしで、載せる範囲はあなたが決められます。
+        あなたが今感じているこの気持ちが、これから始める誰かの「自分もこうなりたい」になるかもしれません。
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <Link
-          href="/kinda-story/new"
+        {/* Story は編集ゲート制（CLAUDE.md §5）。投稿フォームは作らず、メールで相談を受ける。
+            旧リンク /kinda-story/new は存在せず 404 だった（2026-10-03 修正） */}
+        <a
+          href={STORY_MAIL_HREF}
           style={storyBtnStyle}
         >
-          Kinda story に書いてみる
-        </Link>
+          話を聞かせる
+        </a>
         <Link
           href="/kinda-story"
           style={storyBtnStyle}
         >
-          他の物語を見てみる
+          他の物語を読む
         </Link>
       </div>
     </div>
   );
 }
+
+const STORY_MAIL_HREF =
+  "mailto:hello@kinda.jp?subject=" +
+  encodeURIComponent("Kinda story に話を聞かせたい") +
+  "&body=" +
+  encodeURIComponent(
+    "差し支えない範囲でお書きください。\n\n・いまの状況（交際中・成婚した など）：\n・話してみたいこと：\n・ご連絡のつく方法：\n\nいただいた内容は、掲載のご相談のためにだけ使います。掲載する場合は、載せる範囲を一緒に決めてから進めます。"
+  );
 
 const storyBtnStyle: React.CSSProperties = {
   display: "flex",
@@ -1216,40 +1227,6 @@ function TodayOneCard({ text, accent }: { text: string; accent: string }) {
     >
       <Eyebrow>今日、ひとつだけ</Eyebrow>
       <p style={{ fontSize: 15, lineHeight: 1.9, color: "#3A2E26", margin: 0 }}>{text}</p>
-    </section>
-  );
-}
-
-/**
- * これまでの天気（新しい順）。日記のように日付と天気の名前を並べるだけ。
- * 矢印・良い悪い・「変わっていない」は書かない（ブランドトーン「比較しない」）。
- */
-function RecentWeather({ items }: { items: KindaNoteHistoryItem[] }) {
-  const fmt = (iso: string) => {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}月${d.getDate()}日`;
-  };
-  return (
-    <section style={{ marginBottom: 24 }}>
-      <Eyebrow>これまでの天気</Eyebrow>
-      <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {items.map((it) => (
-          <li
-            key={it.id}
-            style={{
-              fontSize: 12.5,
-              color: "#5A4A3E",
-              background: "#FDFAF7",
-              border: "1px solid #EAE0D8",
-              borderRadius: 999,
-              padding: "6px 12px",
-              lineHeight: 1.4,
-            }}
-          >
-            {fmt(it.created_at)} {getCardWeather(it.weather)?.name_ja ?? ""}
-          </li>
-        ))}
-      </ul>
     </section>
   );
 }
