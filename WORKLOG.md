@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-10-03（お店の URL を店名に）
+
+- `shops.slug` を追加（migration 045。DDL は apply_migration、10件の値は execute_sql で投入）。形式 CHECK と UNIQUE 付き
+- `getShopById` は UUID と slug の両方を受ける。UUID で来たら `permanentRedirect`（308）で slug へ
+- リンクは全部 `placePath()`（`src/lib/placeSections.ts`）経由に統一：カード・リールモーダル・/shops 検索・トップ・マイページ・sitemap・canonical
+- 本番 DB につないだローカル build で確認（slug 表示・UUID→308・存在しない slug→404・sitemap 10件）
+
 ## 2026-10-03（GA4・Search Console を読んで計画を決定／canonical の継承バグを修理）
 
 - GA4（9/5〜10/2）は自分のアクセス込み。`vercel.com / referral` 31 はほぼ自分。外部は実質10人前後。Google 自然検索0
