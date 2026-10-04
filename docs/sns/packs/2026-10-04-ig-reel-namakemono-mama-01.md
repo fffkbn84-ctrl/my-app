@@ -54,10 +54,18 @@ The sloth: a gentle young-woman-like big sister figure with a mother's warmth. S
 Faces are simple and cute: embroidered eyes and mouth only. No text, no letters, no numbers, no logos. No gold, no brass, no metallic parts. Portrait 2:3 (1024x1536).
 ```
 
+### 3-0b. エプロンを足す（10/4 ふうか指示：1枚目にエプロンかスカートがほしい）
+
+1枚目（カーディガンだけ）は顔・毛色・体型が良かったので、同じスレッドで服だけ足す。
+
+```
+Keep this exact same sloth character and the same two-view sheet layout (same face, same eye patches, same fleece, same cardigan, same proportions, same pose, same background). Only add one thing: a soft dusty rose (#D4A090) cotton apron tied over the cardigan at the waist, with a small front pocket and a gently gathered, slightly flared knee-length hem so it reads like a little skirt. A thin cream bow is tied at the back of the waist (visible in the side view). Matte fabric with visible stitches, same handmade plush world. No text, no letters, no logos, no patterns. No gold, no brass, no metallic parts. Portrait 2:3 (1024x1536).
+```
+
 ### 3-1〜3-4. 場面（共通テンプレート＋【ACTING】）
 
 ```
-Use exactly the same sloth character as in the reference image (same caramel fleece, same cream face and drooping eye patches, same cream knit cardigan with wooden buttons, same long arms, same size). Only this one character appears.
+Use exactly the same sloth character as in the reference image (same caramel fleece, same cream face and drooping eye patches, same cream knit cardigan with wooden buttons, same dusty rose apron, same long arms, same size). Only this one character appears.
 The character is on a plain warm beige background (#F5EEE6) — no room, no walls, no floor line, no furniture.
 The character looks straight at the camera, as if talking warmly to the viewer. Front view, camera at the viewer's eye level, a little closer than a full-body shot.
 Framing: the character fills the lower half of the image, between 45 percent and 95 percent of the image height. The top 45 percent of the image is completely plain empty beige background.
