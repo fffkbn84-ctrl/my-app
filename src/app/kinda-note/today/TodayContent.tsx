@@ -7,6 +7,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import ShareBar from "@/components/share/ShareBar";
 import { trackEvent } from "@/lib/analytics";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
 import RecentWeatherStrip from "../components/RecentWeatherStrip";
@@ -23,13 +24,15 @@ import {
 import {
   loadKindaNoteHistory,
   saveKindaNoteHistory,
+  syncDailyToSupabase,
   type KindaNoteHistoryItem,
 } from "../lib/storage";
 
 /**
  * Kinda note「今日の天気」（毎日モード・入口の主役）。
  * 3問（気持ち／大きさ／いまの自分）＋任意の一言 → 天気。仕様は docs/specs/kinda-note-daily-weather.md
- * 回答は端末の履歴（kinda_note_history）にだけ残す。段階の note と同じ履歴に積むので、
+ * 回答は端末の履歴（kinda_note_history）に残し、ログイン中はマイページ（diagnosis_results）にも送る（2026-10-04）。
+ * 段階の note と同じ端末の履歴に積むので、
  * 「これまでの天気」は両方を日付順に並べる。
  */
 
@@ -42,6 +45,7 @@ type Answers = { feeling?: string; size?: string; want?: string };
 
 export default function TodayContent() {
   const router = useRouter();
+  const { user, supabase } = useAuth();
   const [step, setStep] = useState(0); // 0..2 = 質問, 3 = 一言, 4 = 結果
   const [answers, setAnswers] = useState<Answers>({});
   const [note, setNote] = useState("");
@@ -102,6 +106,8 @@ export default function TodayContent() {
       answers: { answers, freeTexts: note.trim() ? { daily_note: note.trim() } : {} },
       meta: { isRareTilt: isRare, tiltAngle: angle },
     });
+    // ログイン中はマイページにも残す（天気・日付・答え・一言）。ゲストは端末だけで、ログイン後に送る
+    if (user && supabase) void syncDailyToSupabase(supabase, user.id);
     // 計測は天気名と回数だけ（回答内容は送らない）
     trackEvent("kinda_note_daily_complete", { weather_type: w, count: previous.length + 1 });
 
@@ -273,7 +279,9 @@ export default function TodayContent() {
               }}
             />
             <p style={{ fontSize: 11, color: FAINT, margin: "0 0 28px" }}>
-              書いた言葉は、この端末にだけ残ります。
+              {user
+                ? "書いた言葉は、マイページにも残ります。あとから振り返れます。"
+                : "書いた言葉は、この端末に残ります。ログインすると、マイページでも振り返れます。"}
             </p>
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={back} style={{ ...ghostButtonStyle, flex: 1 }}>

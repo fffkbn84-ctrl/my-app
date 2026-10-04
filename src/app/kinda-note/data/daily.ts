@@ -8,7 +8,7 @@ import { WEATHER_DESCRIPTIONS, type WeatherKey } from "./weatherDescriptions";
  * - 聞くのは「自分の」今日の気持ちだけ（自分軸）。段階・相手・原因は聞かない
  * - 天気は選ばせない。答えた気持ちから天気が返ってくる
  * - 点数・前日比・良し悪しの判定を出さない
- * - 回答は端末にだけ残す（サーバーへは天気名のみ計測）
+ * - 回答と一言は端末に残す。ログイン中はマイページ用に Supabase にも保存（2026-10-04 ふうか決定）。計測（GA4）は天気名と回数のみ
  */
 
 export type DailyOption = { id: string; label: string };
