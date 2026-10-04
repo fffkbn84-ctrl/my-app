@@ -6073,3 +6073,13 @@ Resend の実装状況を調査して整理（コードはまだ書かず、状�
 - **デプロイ履歴の裏取り**：`mcp__Vercel__list_deployments` で確認 → コード変更コミットは全て `READY`、docs のみコミットは全て `CANCELED` という明確なパターン。バグではなく設計どおり。
 - **対処**：`src/lib/mock/stories.ts` に運用コメント1行（実益あり）を足して tip を src 変更にし、main へ再 push → 本番ビルドが走り `d1b7e93` が `READY`。`kinda.jp/kinda-story/atsumi-20s-mayoi` 本番反映を確認。
 - **教訓**：コード＋docs をまとめて main に出す時は **最後のコミットを必ず src 変更にする**（または docs を先に積む）。docs のみの push は本番未反映になるが、それは正しい挙動。
+
+---
+
+### 2026-10-04（Kinda note 今日の天気：雨上がり・天気雨・月夜を追加／X と IG の下準備）
+
+- ふうかさんの生成画像3枚を 1254×1254 WebP に（`public/images/w_after_rain|sun_shower|moonlit_night.webp`）。透かしなし。月夜はフェルトの質感で 260KB → quality 72 で 128KB
+- `daily.ts`：毎日専用の天気に3つ追加。Q1 に「いろいろ混ざっていた」（`mixed`）。`decideDailyWeather` に Q3 を渡し、雨上がり・月夜を先に判定（spec §3-b）。雨上がりのときは「通り過ぎかけています」の一文を出さない
+- ローカルで `next dev` を動かし Playwright で4通りの結果画面を確認（雨上がり・天気雨・月夜・うれしい×通り過ぎ＝淡い朝焼けのまま）。tsc OK。lint の2件は既存の `ResultContent.tsx`
+- **IG の素材は本物の画面を Claude が撮れる**（iPhone 幅 390×844・3倍）。画面収録の代わりになる。手順は `docs/sns/packs/2026-10-note-today.md`
+- X の告知文 A/B・天気雨の続きを同ファイルに。決裁待ち

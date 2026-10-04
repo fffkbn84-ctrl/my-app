@@ -47,6 +47,9 @@ const IMAGE_PATHS: Record<CardWeatherKey, string> = {
   mist: "/images/w_mist.webp",
   // 毎日モード専用（data/daily.ts）
   calm: "/images/w_calm.webp",
+  after_rain: "/images/w_after_rain.webp",
+  sun_shower: "/images/w_sun_shower.webp",
+  moonlit_night: "/images/w_moonlit_night.webp",
 };
 
 export default function PolaroidWeatherCard({
