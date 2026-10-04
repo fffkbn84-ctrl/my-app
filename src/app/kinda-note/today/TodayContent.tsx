@@ -25,6 +25,7 @@ import {
   loadKindaNoteHistory,
   saveKindaNoteHistory,
   syncDailyToSupabase,
+  mergeRemoteRecent,
   type KindaNoteHistoryItem,
 } from "../lib/storage";
 
@@ -95,6 +96,7 @@ export default function TodayContent() {
   function finish() {
     const w = decideDailyWeather(answers.feeling ?? "unknown", answers.size ?? "little", answers.want);
     // これまでの天気は、今回を保存する前に読む（今回の分を含めないため）
+    const before = new Date().toISOString();
     const previous = loadKindaNoteHistory().slice(-6).reverse();
     const isRare = Math.random() < 0.03;
     const angle = `rotate(${(isRare ? (Math.random() * 2 - 1) * 1.8 : 0).toFixed(2)}deg)`;
@@ -115,6 +117,10 @@ export default function TodayContent() {
     window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
     setShareUrl(window.location.href);
     setRecent(previous);
+    // ログイン中は、マイページの記録も丸窓に並べる（機種変更後なども前の天気が出る）
+    if (user && supabase) {
+      void mergeRemoteRecent(previous, supabase, user.id, before).then(setRecent);
+    }
     setTiltAngle(angle);
     setWeather(w);
     setStep(4);
