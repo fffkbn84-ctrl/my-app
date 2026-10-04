@@ -17,7 +17,7 @@ export type DailyOption = { id: string; label: string };
 // 段階の note の20天気（WeatherKey）とは別に持つ。段階ごとの解説ページ（/note/weather）や
 // 結果の第1〜3層を持たないため、WeatherKey には混ぜない。画像は public/images/w_<key>.webp
 
-export type DailyOnlyWeatherKey = "calm";
+export type DailyOnlyWeatherKey = "calm" | "after_rain" | "sun_shower" | "moonlit_night";
 /** カード・履歴で扱う天気（段階の20＋毎日専用） */
 export type CardWeatherKey = WeatherKey | DailyOnlyWeatherKey;
 
@@ -37,6 +37,27 @@ const DAILY_ONLY_WEATHERS: Record<DailyOnlyWeatherKey, Omit<CardWeather, "key">>
     description:
       "風も波も止まって、水面が空をそのまま映している時間。\n何も起きないことが、ちゃんと満ちている。その静けさの中にあなたはいます。",
     color: "#8E9FAF",
+  },
+  after_rain: {
+    name_ja: "雨上がり",
+    name_en: "After Rain",
+    description:
+      "雨が止んで、地面にまだ水たまりが残っている時間。\n濡れたものが、少しずつ光を返しはじめている。その途中にあなたはいます。",
+    color: "#9FB0BC",
+  },
+  sun_shower: {
+    name_ja: "天気雨",
+    name_en: "Sun Shower",
+    description:
+      "晴れているのに、雨がぱらぱら降ってくる空。\n光をつかまえた雨粒で、まわりの空気までちょっときらきらしている。そんな空の下にあなたはいます。",
+    color: "#D8B870",
+  },
+  moonlit_night: {
+    name_ja: "月夜",
+    name_en: "Moonlit Night",
+    description:
+      "灯りを落とした夜に、月だけが静かに出ている空。\n誰にも見せなくていい時間を、やわらかい光が照らしています。",
+    color: "#4A5675",
   },
 };
 
@@ -80,6 +101,7 @@ export const DAILY_QUESTIONS: DailyQuestion[] = [
       { id: "lonely", label: "さみしかった" },
       { id: "restless", label: "いらいら・ざわざわしていた" },
       { id: "tired", label: "くたびれていた" },
+      { id: "mixed", label: "いろいろ混ざっていた" },
       { id: "unknown", label: "よくわからない" },
     ],
   },
@@ -106,12 +128,12 @@ export const DAILY_QUESTIONS: DailyQuestion[] = [
 
 export type FeelingId =
   | "glad" | "relief" | "calm" | "flutter" | "foggy" | "anxious"
-  | "lonely" | "restless" | "tired" | "unknown";
+  | "lonely" | "restless" | "tired" | "mixed" | "unknown";
 
 /**
  * 気持ち × 大きさ → 天気。
  * 「胸いっぱい」は濃い方、「すこしだけ」「通り過ぎかけている」は淡い方。
- * いまある20の天気とカード画像を使う（新しい天気は画像ができてから足す。spec §3）。
+ * 雨上がり・月夜は Q2/Q3 との組み合わせで decideDailyWeather が先に決める（spec §3-b）。
  */
 const WEATHER_MAP: Record<FeelingId, { full: CardWeatherKey; light: CardWeatherKey }> = {
   glad: { full: "sunrise", light: "light_sunrise" },               // 朝焼け / 淡い朝焼け
@@ -123,13 +145,21 @@ const WEATHER_MAP: Record<FeelingId, { full: CardWeatherKey; light: CardWeatherK
   lonely: { full: "light_rain", light: "twilight" },               // 小雨 / 夕暮れ
   restless: { full: "thunderstorm", light: "dissonance_wind" },    // 雷雨 / 違和感の風
   tired: { full: "pre_dawn", light: "quiet_overcast" },            // 夜明け前 / 静かな曇り
+  mixed: { full: "sun_shower", light: "sun_shower" },              // 天気雨（晴れと雨がいっしょ。きらきらして少しはしゃぐ空）
   unknown: { full: "wandering_clouds", light: "flower_overcast" }, // 迷い雲 / 花曇り
 };
 
 /** 大きさを聞かない気持ち（「何もない」に大きさは無いので Q2 を飛ばす） */
 export const SKIP_SIZE_FEELINGS = ["calm"];
 
-export function decideDailyWeather(feeling: string, size: string): CardWeatherKey {
+/** 「もう、通り過ぎかけている」で雨上がりになる気持ち（重さのある気持ちが抜けていくところ）。
+ *  うれしい・ほっとした・どきどきが通り過ぎるのは雨上がりではないので、淡い天気＋PASSING_NOTE のまま */
+const AFTER_RAIN_FEELINGS = ["foggy", "anxious", "lonely", "restless", "tired", "mixed"];
+
+export function decideDailyWeather(feeling: string, size: string, want?: string): CardWeatherKey {
+  if (size === "passing" && AFTER_RAIN_FEELINGS.includes(feeling)) return "after_rain";
+  // くたびれた（すこしだけ）× ひとりで静かにしていたい → 月夜（時刻では分けない）
+  if (feeling === "tired" && size === "little" && want === "quiet") return "moonlit_night";
   const pair = WEATHER_MAP[feeling as FeelingId] ?? WEATHER_MAP.unknown;
   return size === "full" ? pair.full : pair.light;
 }

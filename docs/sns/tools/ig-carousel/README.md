@@ -10,6 +10,7 @@ IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 | （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
 | ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
 | ハイライトの中身（ストーリー） | 単発 | `render-story.js` | `docs/sns/ig-week-2026-09.md` §6 |
+| 今日の天気、つけてみた（note 紹介） | 単発〜木曜 | `capture-note-today.mjs`＋`prep-screen.py`＋`render-reel.js`＋`build_reel.py noteday4` | `docs/sns/packs/2026-10-note-today.md` §2 |
 
 > **2026-09-20 から全枠リール。** カルーセル（`render.js` / `render-series.js`）は型としては生きているが、
 > フォロワー0の段階ではフィード投稿のリーチが0だったため使っていない（理由は `ig-week-2026-09.md` §0）。

@@ -89,7 +89,7 @@ export default function TodayContent() {
   }
 
   function finish() {
-    const w = decideDailyWeather(answers.feeling ?? "unknown", answers.size ?? "little");
+    const w = decideDailyWeather(answers.feeling ?? "unknown", answers.size ?? "little", answers.want);
     // これまでの天気は、今回を保存する前に読む（今回の分を含めないため）
     const previous = loadKindaNoteHistory().slice(-6).reverse();
     const isRare = Math.random() < 0.03;
@@ -395,7 +395,7 @@ function Result({
       <p style={{ fontSize: 14, lineHeight: 2, color: SUB, textAlign: "center", margin: "0 0 8px", whiteSpace: "pre-line" }}>
         {desc.description}
       </p>
-      {answers.size === "passing" && (
+      {answers.size === "passing" && weather !== "after_rain" && (
         <p style={{ fontSize: 13, color: SUB, textAlign: "center", margin: "0 0 8px" }}>{PASSING_NOTE}</p>
       )}
 
