@@ -155,3 +155,13 @@ The sloth holds out a small round cream clay soup bowl with both long arms towar
 Soft daylight from the upper left, one soft shadow. Miniature product photography, matte fleece texture with visible stitches.
 No text, no letters, no numbers, no logos. No speech bubbles. No gold, no brass, no metallic parts. Portrait 2:3 (1024x1536).
 ```
+
+### 差し替えと「温かみ」（同日・ふうか：温かみがある感じにしたい）
+
+- 2枚目を `mama-01-soup-v2`（エプロンあり・味噌の濁り）に差し替え。キャラが大きく出たので、**左右に背景を足して幅1060にしてから**台紙にした（上端650）
+- ⚠️ `prep-futari.py` は上の余白を画像の帯を折り返して埋めるため、上端を大きく取ると**頭の切れ端が上に映り込む**。
+  上端が大きいときは、画像の1行目を引き伸ばして埋める（今回は手で作った）
+- 温かみは2つで出した：
+  1. **`warm.py`**：文字を載せる前の台紙に、灯りの下のような淡い暖色の光だまり＋ごく弱い暖色寄せ（吹き出しの白は動かさない）
+  2. **`build_reel.py mama4`**：カット切りをやめて **0.5秒のクロスディゾルブ**、尺を **11.6秒**に（ゆっくりでいい、を間で見せる）
+- 書き出し `kinda-ig-1004-mama-01-warm.mp4`（11.6秒）
