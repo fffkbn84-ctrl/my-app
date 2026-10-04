@@ -33,7 +33,7 @@
 
 | # | 秒 | 画面（ママ1体・カメラ目線） | 吹き出し（say） |
 |---|---|---|---|
-| 帯 | 全編 | — | **日曜の夜、元気がない日**／なまけものママ |
+| 帯 | 全編 | — | **日曜の夜、元気がない日**／今夜は、甘えていい。 |
 | 1 | 0〜2.8 | 少しかがんで、こちらの顔をのぞきこむ。首をかしげる | ちょっと暗い顔してるね／どうしたの？　話したい？ |
 | 2 | 〜5.5 | 湯気の立つ小さなお椀（豚汁）を両手でこちらへ差し出す | そっか。じゃあ／あったかい豚汁のもうか |
 | 3 | 〜8.0 | 肩に小さなタオルをかけて、片手で奥を指す（お風呂のほう） | お風呂も沸いたよ |
@@ -94,7 +94,7 @@ No text, no letters, no numbers, no logos. No speech bubbles. No gold, no brass,
 ```bash
 cd docs/sns/tools/ig-carousel   # フォント：noto900.woff2 / noto700.woff2
 python3 prep-futari.py gen-1.png plate-1.png <上端>   # 頭の上端が y≈820 に来る値を画像ごとに測る（吹き出しは y≈520〜780）
-B='["日曜の夜、元気がない日","なまけものママ"]'
+B='["日曜の夜、元気がない日","今夜は、甘えていい。"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say 540 '["ちょっと暗い顔してるね","どうしたの？　話したい？"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say 540 '["そっか。じゃあ","あったかい豚汁のもうか"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" say 540 '["お風呂も沸いたよ"]'
@@ -136,3 +136,22 @@ python3 build_reel.py futari4 kinda-ig-1004-mama-01.mp4
 
 - **保存数**（この回の主指標）・送信数・3秒残存（並べる型 #1 の36%と比べる）
 - 新キャラなので**2回目まで出して判断**。2回目の候補：「月曜の朝、起きられない日」（「起きただけで、えらいねえ」）
+
+## 8. 実際に作った形（2026-10-04）
+
+- 生成は設定画（エプロン版）＋場面4枚。素材 `docs/sns/assets/mama/`（`mama-reference-v1`・`mama-01-{peek,soup,bath,hug}-v1`）
+- **帯の小さな文字は「なまけものママ」をやめて「今夜は、甘えていい。」にした**（ふうか：名前は合っているが、伝えたいのはそこではない）。
+  キャラの名前はまだ付けない。台詞の「ママに話してごらん」で役は伝わる
+- 生成画像はキャラが画面の中ほど（頭の上端が約30%）に出た。`prep-futari.py` の上端を **1=352／2=367／3=340／4=380** にして、
+  頭の上端を y≈800 前後（吹き出しの下）にそろえた。足元は少し切れるが問題なし
+- 書き出し `kinda-ig-1004-mama-01.mp4`（`futari4`・10.4秒・効果音なし）
+- ⚠️ **2枚目（豚汁）だけエプロンが無く、汁が澄んだスープに見える**。差し替え用プロンプトは下。差し替えたら 2 だけ書き直す
+
+```
+Use exactly the same sloth character as in the reference image (same caramel fleece, same cream face and drooping eye patches, same cream knit cardigan with wooden buttons, same dusty rose apron with the small front pocket, same long arms, same size). Only this one character appears.
+The character is on a plain warm beige background (#F5EEE6) — no room, no walls, no floor line, no furniture.
+The character looks straight at the camera, as if talking warmly to the viewer. Front view, camera at the viewer's eye level.
+The sloth holds out a small round cream clay soup bowl with both long arms toward the viewer, offering it. Inside is Japanese tonjiru: cloudy light brown miso soup with small pieces of pork, carrot, radish and green onion, with a soft wisp of steam rising. The sloth smiles warmly with its eyes gently closed. The dusty rose apron is clearly visible below the bowl.
+Soft daylight from the upper left, one soft shadow. Miniature product photography, matte fleece texture with visible stitches.
+No text, no letters, no numbers, no logos. No speech bubbles. No gold, no brass, no metallic parts. Portrait 2:3 (1024x1536).
+```
