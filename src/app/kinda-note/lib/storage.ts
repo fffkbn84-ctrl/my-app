@@ -142,3 +142,50 @@ export async function syncDailyToSupabase(
     );
   }
 }
+
+/**
+ * 「これまでの天気」（丸窓）に、マイページ（Supabase）の記録も合わせて並べる（2026-10-04）。
+ * 機種変更・ブラウザのデータ削除のあとも、ログインしていれば前の天気が丸窓に出る。
+ *
+ * - before より前の記録だけを読む（今回の分を含めないため。before は保存の前に取る）
+ * - 端末の記録と同じものは、天気が同じで時刻の差が60秒以内なら1つとみなす
+ * - 新しい順に limit 件
+ */
+export async function mergeRemoteRecent(
+  local: KindaNoteHistoryItem[],
+  supabase: SupabaseClient,
+  userId: string,
+  before: string,
+  limit = 6,
+): Promise<KindaNoteHistoryItem[]> {
+  const { data, error } = await supabase
+    .from("diagnosis_results")
+    .select("id, result_key, answers, created_at")
+    .eq("user_id", userId)
+    .eq("kind", "note")
+    .lt("created_at", before)
+    .order("created_at", { ascending: false })
+    .limit(limit * 2);
+  if (error || !data) return local;
+
+  const sameAsLocal = (weather: string, at: string) =>
+    local.some(
+      (it) =>
+        it.weather === weather &&
+        Math.abs(new Date(it.created_at).getTime() - new Date(at).getTime()) <= 60_000,
+    );
+  const remote: KindaNoteHistoryItem[] = data
+    .filter((r) => !sameAsLocal(r.result_key, r.created_at))
+    .map((r) => ({
+      id: `remote-${r.id}`,
+      route: ((r.answers as { route?: string } | null)?.route ?? "omiai") as RouteKey | "daily",
+      result_type: "",
+      weather: r.result_key as CardWeatherKey,
+      answers: {},
+      created_at: r.created_at,
+    }));
+
+  return [...local, ...remote]
+    .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    .slice(0, limit);
+}

@@ -17,6 +17,7 @@ import { getTypeContent, type TypeContent } from "../data/typeContent";
 import { decideTypeForRoute } from "../lib/decideType";
 import {
   loadKindaNoteHistory,
+  mergeRemoteRecent,
   saveKindaNoteHistory,
   type KindaNoteHistoryItem,
 } from "../lib/storage";
@@ -102,6 +103,9 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
   const [isRareTilt, setIsRareTilt] = useState<boolean>(false);
   /** 今回より前の天気（新しい順・最大6件）。毎日の「今日の天気」として並べる */
   const [recent, setRecent] = useState<KindaNoteHistoryItem[]>([]);
+  // 丸窓にマイページの記録を合わせるための元データ。ログインの読み込みが保存より遅れても合わせられるよう、別の effect で使う
+  const recentBaseRef = useRef<{ previous: KindaNoteHistoryItem[]; before: string } | null>(null);
+  const recentMergedRef = useRef(false);
   const shareCardRef = useRef<HTMLDivElement | null>(null);
   const savedRef = useRef(false);
 
@@ -153,8 +157,10 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
     if (isReplay) return;
 
     // 保存する前に、これまでの天気を読んでおく（今回の分を含めないため）
+    const before = new Date().toISOString();
     const previous = loadKindaNoteHistory().slice(-6).reverse();
     setRecent(previous);
+    recentBaseRef.current = { previous, before };
     if (previous.length > 0) {
       trackEvent("kinda_note_repeat", { weather_type: weather, route, count: previous.length + 1 });
     }
@@ -183,6 +189,14 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
       route,
     });
   }, [hydrated, stored, typeContent, weather, route, supabase, user, isReplay]);
+
+  // ログイン中は、マイページの記録も丸窓に並べる（機種変更後なども前の天気が出る）
+  useEffect(() => {
+    const base = recentBaseRef.current;
+    if (!user || !supabase || !base || recentMergedRef.current) return;
+    recentMergedRef.current = true;
+    void mergeRemoteRecent(base.previous, supabase, user.id, base.before).then(setRecent);
+  }, [user, supabase, recent]);
 
   // SNS シェア時の og:image を weather 別に出すため、URL に weather パラメータを反映
   useEffect(() => {
