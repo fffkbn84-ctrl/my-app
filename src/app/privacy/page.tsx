@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = "2026年5月23日";
+const LAST_UPDATED = "2026年10月4日";
 
 export default function PrivacyPage() {
   return (
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               <li>アカウント登録時：メールアドレス、パスワード（ハッシュ化して保存）</li>
               <li>面談予約時：氏名、ふりがな、メールアドレス、電話番号、希望日時、簡単なアンケート回答</li>
               <li>口コミ投稿時：投稿内容、評価、年代・属性等の任意項目</li>
-              <li>診断ツール（Kinda type / Kinda note）利用時：選択した回答内容</li>
+              <li>診断ツール（Kinda type / Kinda note）利用時：選択した回答内容（Kinda note の「今日の天気」では、任意で入力した一言を含みます）</li>
               <li>お問い合わせ時：お名前、メールアドレス、お問い合わせ内容</li>
               <li>本サービスの閲覧時：IP アドレス、Cookie、ブラウザ情報、OS 情報、アクセス日時、閲覧ページ等のログ情報</li>
             </ul>
@@ -140,6 +140,11 @@ export default function PrivacyPage() {
               Kinda pair（ひとりでお使いいただく機能）では、選択いただいた内容を
               お使いの端末内にのみ保存し、当社のサーバーには送信していません。
               ブラウザの保存データを削除すると、記録も消えます。
+            </p>
+            <p className="legal-text">
+              Kinda note の「今日の天気」は、ログインしていない間は、選択いただいた内容と一言をお使いの端末内にのみ保存します。
+              ログインすると、マイページで振り返れるよう、端末内の記録（天気・日付・選択いただいた内容・一言）を当社のサーバーに保存します。
+              保存した記録はご本人のみが閲覧でき、アカウントを削除すると合わせて削除されます。
             </p>
           </section>
 
