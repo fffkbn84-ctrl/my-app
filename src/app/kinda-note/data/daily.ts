@@ -49,7 +49,7 @@ const DAILY_ONLY_WEATHERS: Record<DailyOnlyWeatherKey, Omit<CardWeather, "key">>
     name_ja: "天気雨",
     name_en: "Sun Shower",
     description:
-      "日が差しているのに、雨も降っている空。\nどちらか一方に決めなくていい気持ちが、同じ空にちゃんと並んでいます。",
+      "晴れているのに、雨がぱらぱら降ってくる空。\n光をつかまえた雨粒で、まわりの空気までちょっときらきらしている。そんな空の下にあなたはいます。",
     color: "#D8B870",
   },
   moonlit_night: {
@@ -145,7 +145,7 @@ const WEATHER_MAP: Record<FeelingId, { full: CardWeatherKey; light: CardWeatherK
   lonely: { full: "light_rain", light: "twilight" },               // 小雨 / 夕暮れ
   restless: { full: "thunderstorm", light: "dissonance_wind" },    // 雷雨 / 違和感の風
   tired: { full: "pre_dawn", light: "quiet_overcast" },            // 夜明け前 / 静かな曇り
-  mixed: { full: "sun_shower", light: "sun_shower" },              // 天気雨（うれしいのに泣きたい、など）
+  mixed: { full: "sun_shower", light: "sun_shower" },              // 天気雨（晴れと雨がいっしょ。きらきらして少しはしゃぐ空）
   unknown: { full: "wandering_clouds", light: "flower_overcast" }, // 迷い雲 / 花曇り
 };
 
