@@ -59,7 +59,7 @@ NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '
   プレートが要らない枚は `none` を渡す。`{"gap":true}` を挟むと .7em の余白が入る
 - **1枚目の級数で火曜と木曜を見分けさせている**（連載62px＝疑問形／つくる日記54px＝断言形）。
   そろえてはいけない
-- `render-reel.js` は 1080×1920。第1引数は `hook`（1秒目・58px）／`body`（48px）
+- `render-reel.js` は 1080×1920。第1引数は `hook`（1秒目・58px）／`body`（48px）／`list`（保存版カード・文字のみ。json は `{"title":…,"items":[["行","行"],…]}`・1行18字・3〜6項目。2026-10-04 追加、`build_reel.py pair-list` と組む）
 - `build_reel.py` は**プリセット名と出力名を引数で渡す**。H.264 / yuv420p / 30fps / 無音AAC入りの
   MP4 を書き出す。**音楽は IG 側で足す**。引数なしは従来どおり連載の値（`pair`）
 
