@@ -6,6 +6,7 @@
 #   python3 build_reel.py kotosan4  out.mp4    # ことさん・軽い回（4カット）
 #   python3 build_reel.py kotosan5  out.mp4    # ことさん・救いのある回（5カット）
 #   python3 build_reel.py one7      out.mp4    # 木曜の1枚リール（1枚・7秒・ズームなし）
+#   python3 build_reel.py one10     out.mp4    # 「ぎっしり情景」（1枚・10秒・ズームなし）。ラベルを読み切る時間
 #   python3 build_reel.py iinikui3  out.mp4    # 土曜「言いにくい気持ち」（3カット・13.0秒）
 #   python3 build_reel.py futari4   out.mp4    # 「ふたり」（4カット・約10秒・ズームなし・ほぼカット切り）
 #   python3 build_reel.py futari-go6 out.mp4   # 「ふたり」ゲームオーバー回（6カット・12.5秒）
@@ -121,6 +122,12 @@ PRESETS = {
      ("f3.png",3.6,1.00,1.03,0.0),   # 結果のカード
      ("f4.png",3.0,1.03,1.05,0.0)],  # 登録なしで
     [0.4,0.4,0.4]),
+
+  # 「ぎっしり情景」（series/gisshiri-jokei.md）。ラベルが10前後あるので one7 より長く。
+  # ズームするとラベルが端で切れるので、ズームなし
+  "one10": (
+    [("f1.png",10.0,1.00,1.00,0.0)],
+    []),
 
   # 木曜の1枚リール（夜の窓など）。1枚・7秒・ズームなし。ループで見返させる
   "one7": (

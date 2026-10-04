@@ -8,6 +8,7 @@ IG の4つの型で共用する。仕様と運用の正はそれぞれ：
 | ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js` ＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md`／画像は `kotosan-poses.md` |
 | 言いにくい気持ち | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/iinikui-kimochi.md` |
 | （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
+| ぎっしり情景（1枚から自分を探す） | 空き枠 | `render-labels.js` ＋ `build_reel.py one10` | `docs/sns/series/gisshiri-jokei.md` |
 | ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
 | ハイライトの中身（ストーリー） | 単発 | `render-story.js` | `docs/sns/ig-week-2026-09.md` §6 |
 | 今日の天気、つけてみた（note 紹介） | 単発〜木曜 | `capture-note-today.mjs`＋`prep-screen.py`＋`render-reel.js`＋`build_reel.py noteday4` | `docs/sns/packs/2026-10-note-today.md` §2 |
