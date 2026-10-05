@@ -5,11 +5,17 @@
 > 2026-07-02 に全面整理（重複統合・完了項目の退避）。整理前の全文は `docs/archive/todo-full-archive-2026-07-02.md`。
 > 定期整理は `/repo-tidy` Skill で行う。
 
-最終更新: 2026-10-04
+最終更新: 2026-10-05
 
 ---
 
 ## 📌 次セッション引き継ぎ（最初に読む）
+
+### 🟢 2026-10-05 story 2本・コラム「仮交際の連絡頻度」
+
+- [ ] **本番反映**（ふうかさんの OK 後に main へ）：story `kei-30s-mayotte-iru-to-kiite` / `daiki-40s-jibun-kara-moshikomu`、コラム `karikousai-renraku-hindo-hetta`
+- [ ] 本番反映の翌日以降に、上の3本を Search Console で登録リクエスト
+- [ ] SNS 展開（`/sns-pack`）：けいさんの story ＋連絡頻度のコラムは組み合わせやすい
 
 ### 🟢 2026-10-04 IG 日曜の外枠に新キャラ（ナマケモノの甘やかし）#1 を投稿済
 
