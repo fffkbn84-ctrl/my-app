@@ -43,6 +43,11 @@
 4. `render-labels.js` → `build_reel.py one10`
 5. カバーは書き出した1枚。曲は IG 側。AI 生成の開示
 
+## 曲
+
+- 第1回（10/5）：Citizens of Halloween「This Is Halloween」（季節もの・ふうか選曲）
+- 固定曲はまだ決めていない。ほかのシリーズで使っている曲（木曜の「reset, restart, refocus」・ことさんの「のほほん」・ふたり#1 の「Good Day」）は使わない
+
 ## 見る数字
 
 **送信数**（「これあなた」で送られるか）と**3秒残存**。コメントにラベル名で返事が来たら当たり。
