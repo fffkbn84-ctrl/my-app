@@ -13,9 +13,9 @@
 
 ### 🟢 2026-10-05 story 2本・コラム「仮交際の連絡頻度」
 
-- [ ] **本番反映**（ふうかさんの OK 後に main へ）：story `kei-30s-mayotte-iru-to-kiite` / `daiki-40s-jibun-kara-moshikomu`、コラム `karikousai-renraku-hindo-hetta`
-- [ ] 本番反映の翌日以降に、上の3本を Search Console で登録リクエスト
-- [ ] SNS 展開（`/sns-pack`）：けいさんの story ＋連絡頻度のコラムは組み合わせやすい
+- [x] **本番反映**（10/5・main へ）：story `mio-30s-mayotte-iru-to-kiite` / `daiki-40s-jibun-kara-moshikomu`、コラム `karikousai-renraku-hindo-hetta`
+- [ ] **ふうかさん：10/6 以降に**上の3本を Search Console で登録リクエスト（`https://kinda.jp/kinda-story/mio-30s-mayotte-iru-to-kiite`／`https://kinda.jp/kinda-story/daiki-40s-jibun-kara-moshikomu`／`https://kinda.jp/columns/karikousai-renraku-hindo-hetta`）
+- [ ] SNS 展開（`/sns-pack`）：みおさんの story ＋連絡頻度のコラムは組み合わせやすい
 
 ### 🟢 2026-10-04 IG 日曜の外枠に新キャラ（ナマケモノの甘やかし）#1 を投稿済
 
