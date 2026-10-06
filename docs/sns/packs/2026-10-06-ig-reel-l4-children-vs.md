@@ -109,3 +109,24 @@ fleece plush characters (same colors, fabric, stitches, scarf, notebook, beanie,
 Embroidered eyes and mouth only; emotion is shown by posture and by small
 felt/fleece marks (sweat drops, sparkles), not by drawn symbols.
 ```
+
+## 書き出し（2026-10-06）
+
+- 画像：`docs/sns/assets/vs/l4c-1〜5.jpg`（①カフェ ②夜道 ③公園 ④夜のテーブル ⑤改札）。全部初回生成で採用
+  - ④のランプが金色（「no gold」違反）。小さく、文字の下になるのでそのまま使った
+  - 画像の中に白い縦線が描かれていたが、スクリプトの中央線（x=537・6px）で上から覆った
+- `render-vs.js`（新規）＋ `build_reel.py vs5`（新規・5×3.0秒・0.05秒でつなぐ）＝ 14.8秒
+- 文字の正：`tools/ig-carousel/vs-l4c.json`
+- 画像は幅1080に合わせて y=155 から置いた（全面に敷くと左右が8%切れ、①のくまの腕が欠ける）
+- カバーは書き出した①（f1）
+
+## キャプション
+
+```
+子どものことを話すとき、聞く側も、聞かれる側も、少し構えています。
+言ってみるなら、の一文だけでも、保存しておいてください。
+
+連載「ふたりの話題、ひとつずつ」第4週。
+
+#婚活 #結婚相談所 #将来の話 #カップル #恋愛
+```

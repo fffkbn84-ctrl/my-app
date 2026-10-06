@@ -6,6 +6,7 @@
 #   python3 build_reel.py kotosan4  out.mp4    # ことさん・軽い回（4カット）
 #   python3 build_reel.py kotosan5  out.mp4    # ことさん・救いのある回（5カット）
 #   python3 build_reel.py one7      out.mp4    # 木曜の1枚リール（1枚・7秒・ズームなし）
+#   python3 build_reel.py vs5       out.mp4    # 「A vs B 比較」5選（5カット・各3.0秒・カット切り・ズームなし）
 #   python3 build_reel.py one10     out.mp4    # 「ぎっしり情景」（1枚・10秒・ズームなし）。ラベルを読み切る時間
 #   python3 build_reel.py iinikui3  out.mp4    # 土曜「言いにくい気持ち」（3カット・13.0秒）
 #   python3 build_reel.py futari4   out.mp4    # 「ふたり」（4カット・約10秒・ズームなし・ほぼカット切り）
@@ -128,6 +129,16 @@ PRESETS = {
   "one10": (
     [("f1.png",10.0,1.00,1.00,0.0)],
     []),
+
+  # 「A vs B 比較」型（packs/2026-10-06-ig-reel-l4-children-vs.md）。参考アカウントに合わせてカット切り。
+  # 文字が多いのでズームなし。xfade は 0 秒にできないので 0.05 秒
+  "vs5": (
+    [("f1.png",3.0,1.00,1.00,0.0),
+     ("f2.png",3.0,1.00,1.00,0.0),
+     ("f3.png",3.0,1.00,1.00,0.0),
+     ("f4.png",3.0,1.00,1.00,0.0),
+     ("f5.png",3.0,1.00,1.00,0.0)],
+    [0.05,0.05,0.05,0.05]),
 
   # 木曜の1枚リール（夜の窓など）。1枚・7秒・ズームなし。ループで見返させる
   "one7": (
