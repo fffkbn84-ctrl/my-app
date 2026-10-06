@@ -21,3 +21,72 @@
 
 - 「欲しい派 vs 欲しくない派」にはしない（判定になる・pair の不変則）
 - 子どもを持つ前提にしない（④で「決めていない」を答えとして置く）
+
+## 参考リールの分解（@koarasan_genkai「20代で出産vs30代で出産 8選」・2026-10-06）
+
+- 全カット同じ版面：上に**題の帯**（灰色半透明・明朝）／左右上に**札**（太字・色の光彩）／**縦の白線**で左右に分割
+- 中央に**白い箱**（手書き風・統計3行）→ 大きな **「①項目」**（白・太・影）→ **濃い灰の角丸に2行**「20代：…／30代：…」
+- **同じ人物が全カットに出る**（20代＝金髪ポニーテール、30代＝ショートボブ）
+- 感情はステッカー（汗・きらきら・HAHA・いいね）で足す
+- 導入カットなしで**いきなり①**。カットはパッと切り替え
+
+## うちでの置き換え
+
+| 向こう | うち | 理由 |
+|---|---|---|
+| ピンク／青の札 | **ダスティローズ／セージ** | ピンクと青は性別に読める |
+| 統計の箱 | **「言ってみるなら」の箱**（そのまま口に出せる1文） | 保存の理由になる。統計は軸に合わない |
+| 絵文字ステッカー | **クレイで作った汗・きらきら**を画像に描かせる | 絵文字なし |
+| 実写の人 | **同じクレイの2体**を全カットに出す（2枚目以降は1枚目を添付して生成） | 実写にしない |
+| 太いゴシック | Shippori Mincho（項目だけ太い字） | ブランドの書体 |
+| 最後の自社宣伝 | **置かない**（⑤で終わる） | ふうか判断 |
+
+## カット割り（1080×1920・5カット・各3.0秒・計15秒・切り替えはカット・ズームなし）
+
+| # | 項目 | 言ってみるなら |
+|---|---|---|
+| ① | 切り出すタイミング | 「今度、先のことも少し話せたらうれしい」 |
+| ② | 最初のひとこと | 「子どものことは、どんなふうに考えていますか？」 |
+| ③ | 自分の考え | 「わたしはまだ迷ってる。あなたは？」 |
+| ④ | 「まだ決めていない」 | 「決めていないのも、ちゃんと答えだと思う」 |
+| ⑤ | 話したあと | 「また、話そうね」 |
+
+②は `topics.ts` の `ask` そのまま。カバーは①。
+
+## 画像プロンプト（ChatGPT・2:3 縦・5枚）
+
+共通テンプレート＋【SCENE】。2枚目以降は**1枚目を添付**して「Use the attached image as the character reference」を先頭に足す。
+
+```
+A handmade miniature clay diorama, vertical 2:3. Split-screen diptych: the left half
+and the right half are two separate small scenes placed side by side, divided
+exactly at the vertical center. Each half shows ONE clay figure, large, from the
+waist up, facing slightly toward the center, so the two figures seem to face
+each other across the split.
+
+Characters (keep identical in every image):
+- LEFT figure: soft round clay person, short wavy light-brown hair, dusty rose /
+  terracotta (#D4A090) knit sweater, cream trousers.
+- RIGHT figure: soft round clay person, short straight dark-brown hair, muted
+  sage green cardigan over a cream shirt.
+Both are gender-neutral adults, simple dot eyes, small expressive mouths.
+
+【SCENE】
+
+Faces between 20% and 50% from the top. Keep the top 12% and the bottom 30% calm
+(plain background or tabletop) because text will be placed there later.
+Small emotion marks (sweat drops, sparkles) are sculpted from clay, not drawn.
+Matte air-dry clay with fingerprints, soft rounded forms, soft light from the
+upper left, warm beige (#F5EEE6) base palette. No text, no letters, no numbers,
+no logos, no gold, no metallic parts, no children, no babies.
+```
+
+| # | 【SCENE】 |
+|---|---|
+| ① | Both halves are the same small café. LEFT: the figure holds a cup and glances sideways at the center, a clay sweat drop beside the head, waiting for the right moment. RIGHT: the figure sits upright, both hands around a cup, shoulders a little stiff, eyes slightly wide, bracing. |
+| ② | Both halves are an evening street with soft lamps. LEFT: the figure has opened the mouth to speak, one hand half raised, hesitating. RIGHT: the figure has turned toward the center with a gentle curious face, eyebrows slightly raised. |
+| ③ | Both halves are a park bench under a tree. LEFT: the figure speaks with one hand on the chest, calm and honest face. RIGHT: the figure listens, shoulders relaxed, small soft smile, a tiny clay sparkle near the head. |
+| ④ | Both halves are a quiet dining table at night with a small lamp. LEFT: the figure nods slowly with a kind, unhurried face. RIGHT: the figure exhales in relief, hands open on the table, two tiny clay sparkles near the head. |
+| ⑤ | Both halves are a station ticket gate in the evening. LEFT: the figure waves goodbye, looking back over the shoulder, relaxed smile. RIGHT: the figure waves back while walking away, light and easy, a small clay sparkle. |
+
+再生成の基準：文字・数字が出た／2体の髪・服が前の枚と違う／子どもや赤ちゃんが出た／顔が下 30% に入った
