@@ -1,15 +1,23 @@
 import type { MetadataRoute } from "next";
-import { COUNSELORS } from "@/lib/data";
+import { getPublicCounselors } from "@/lib/data";
 import { STORIES } from "@/lib/mock/stories";
-import { KINDA_TYPE_KEYS } from "@/lib/kinda-types";
-import { getAllWeathers } from "@/app/kinda-note/data/weatherDescriptions";
 import { getAllColumns } from "@/lib/columns";
+import { AREA_SLUGS, matchesArea } from "@/lib/talk-areas";
+import { getShops } from "@/lib/data";
+import {
+  ACT_THUMB_VARIANTS,
+  GLOW_THUMB_VARIANTS,
+  hasPublishedPlaces,
+  placePath,
+} from "@/lib/placeSections";
 
 /* 本番ドメイン未確定のため、env でも上書き可能 */
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 
-const AREA_SLUGS = ["tokyo", "osaka", "nagoya", "fukuoka", "online"];
+/* カウンセラーが Supabase に追加されたとき、再デプロイなしで sitemap に反映させる。
+   ビルド時に固定されると新規カウンセラーの詳細ページが送信されないため。 */
+export const revalidate = 3600;
 
 /**
  * lastmod について
@@ -27,9 +35,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = [
     "",
     "/kinda-talk",
-    "/kinda-act",
-    "/kinda-glow",
     "/kinda-note",
+    "/kinda-note/today",
     "/kinda-note/quiz",
     "/kinda-type",
     "/kinda-type/quiz",
@@ -71,13 +78,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.3,
   }));
 
-  const counselorEntries: MetadataRoute.Sitemap = COUNSELORS
-    .filter((c) => !c.isDemo)
-    .map((c) => ({
-      url: `${SITE_URL}/counselors/${c.id}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    }));
+  /* カウンセラー詳細は Supabase の公開カウンセラーが正。
+     以前は mock 配列 COUNSELORS を参照していたが、mock は全件 isDemo=true のため
+     除外され、実在カウンセラーの詳細ページが 1 件も sitemap に載っていなかった。
+     デモは詳細ページ側で noindex になっているので、ここでも除外する。 */
+  const publicCounselors = await getPublicCounselors();
+
+  const counselorEntries: MetadataRoute.Sitemap = publicCounselors.map((c) => ({
+    url: `${SITE_URL}/counselors/${c.id}`,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
 
   // Kinda story は「掲載同意の記録がある物語」だけを sitemap に載せる。
   // consent を持たない初期のサンプル物語（A.M さん等）は実在の取材素材ではないため、
@@ -90,17 +101,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-  const areaEntries: MetadataRoute.Sitemap = AREA_SLUGS.map((a) => ({
-    url: `${SITE_URL}/kinda-talk/area/${a}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
-  }));
+  /* お店の一覧も同じ理由で、掲載が1件以上あるセクションだけ送信する。
+     掲載を始めれば次の再生成で自動的に戻る（ページ側の noindex 判定と同じデータを見る）。 */
+  const allShops = await getShops();
+  const shopSectionEntries: MetadataRoute.Sitemap = (
+    [
+      ["/kinda-act", ACT_THUMB_VARIANTS],
+      ["/kinda-glow", GLOW_THUMB_VARIANTS],
+    ] as const
+  )
+    .filter(([, variants]) => hasPublishedPlaces(allShops, variants))
+    .map(([path]) => ({
+      url: `${SITE_URL}${path}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }));
 
-  const typeEntries: MetadataRoute.Sitemap = KINDA_TYPE_KEYS.map((t) => ({
-    url: `${SITE_URL}/kinda-talk/type/${t}`,
-    changeFrequency: "weekly" as const,
-    priority: 0.6,
-  }));
+  /* お店の詳細ページ（2026-10-03 追加）。以前は一覧だけを送っていて、詳細は1件も送っていなかった。
+     getShops() は Supabase 失敗時に mock を返すため、UUID の id（＝実在の掲載店）だけを送る。 */
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const placeEntries: MetadataRoute.Sitemap = allShops
+    .filter(
+      (p) =>
+        UUID_RE.test(p.id) &&
+        (ACT_THUMB_VARIANTS.has(p.thumbVariant) || GLOW_THUMB_VARIANTS.has(p.thumbVariant)),
+    )
+    .map((p) => ({
+      url: `${SITE_URL}${placePath(p)}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
+
+  /* 一覧ページは「掲載0名」だと実質空ページになり、Google に
+     「クロール済み - インデックス未登録」と判定されてドメイン全体の評価を下げる。
+     該当カウンセラーが1名以上いるエリアだけを送信する。
+     掲載が増えれば次のビルドで自動的に sitemap へ戻る。 */
+  const areaEntries: MetadataRoute.Sitemap = AREA_SLUGS
+    .filter((a) => publicCounselors.some((c) => matchesArea(c.area, a)))
+    .map((a) => ({
+      url: `${SITE_URL}/kinda-talk/area/${a}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.6,
+    }));
+
 
   const weatherListEntry: MetadataRoute.Sitemap = [
     {
@@ -110,14 +153,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 紐づくコラムがある天気のみ sitemap に含める（薄いページは除外）
-  const weatherEntries: MetadataRoute.Sitemap = getAllWeathers()
-    .filter((w) => !!w.column_slug)
-    .map((w) => ({
-      url: `${SITE_URL}/note/weather/${w.slug}`,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    }));
+  /* 天気の個別ページ（/note/weather/[slug]）は sitemap に含めない。
+     本文が約400字のティーザーで、内容も検索意図も紐づくコラム本体と重複するため、
+     ページ側を noindex, follow にして評価をコラムへ集約した（2026-09-13）。
+     一覧の /note/weather だけは Kinda note の入口として残す。 */
 
   // コラム本体（MDX 全件、publishedAt を lastmod に使用）
   const columns = await getAllColumns();
@@ -137,10 +176,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...legalEntries,
     ...counselorEntries,
     ...storyEntries,
+    ...shopSectionEntries,
+    ...placeEntries,
     ...areaEntries,
-    ...typeEntries,
     ...weatherListEntry,
-    ...weatherEntries,
     ...columnEntries,
   ];
 }

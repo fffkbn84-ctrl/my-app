@@ -43,3 +43,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# SNS 書き出し物の受け渡し用（MP4・PNG）。リポジトリには入れない
+ig-out/

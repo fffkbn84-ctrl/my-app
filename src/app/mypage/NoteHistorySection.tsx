@@ -15,6 +15,8 @@ import type {
   WeatherKey,
 } from "@/app/kinda-note/data/weatherDescriptions";
 import { WEATHER_IMAGE } from "@/app/note/weather/_components/weatherImages";
+import { getCardWeather, getDailyLabel } from "@/app/kinda-note/data/daily";
+import { syncDailyToSupabase } from "@/app/kinda-note/lib/storage";
 
 /**
  * Kinda note 履歴セクション。
@@ -24,6 +26,8 @@ import { WEATHER_IMAGE } from "@/app/note/weather/_components/weatherImages";
  * - 履歴なし + 未ログイン: ぼかしプレビュー + ログイン誘導
  *
  * タイルタップ → answers を localStorage に書き戻し /kinda-note/result?route= へ遷移。
+ * 毎日モード「今日の天気」（answers.route === "daily"）のタイルは、下に その日の答えと一言 を開く（2026-10-04）。
+ * 端末にだけ残っている今日の天気は、表示の前に syncDailyToSupabase でマイページへ送る。
  */
 
 const ROUTE_LABEL: Record<RouteKey, string> = {
@@ -57,7 +61,8 @@ function formatMonthDay(iso: string): string {
 
 type StoredAnswerShape = {
   route?: string;
-  answers?: Record<string, string[]>;
+  /** 段階の note は string[]、今日の天気は string（feeling / size / want） */
+  answers?: Record<string, string[] | string>;
   freeTexts?: Record<string, string>;
 };
 
@@ -65,6 +70,7 @@ export default function NoteHistorySection() {
   const router = useRouter();
   const { user, supabase, loading: authLoading } = useAuth();
   const [history, setHistory] = useState<DiagnosisHistoryItem[] | null>(null);
+  const [openDailyId, setOpenDailyId] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -77,11 +83,14 @@ export default function NoteHistorySection() {
     }
     let active = true;
     (async () => {
+      // 端末にだけ残っている今日の天気（ログイン前につけた分を含む）を先に送る
+      if (supabase) await syncDailyToSupabase(supabase, user.id);
       const items = await fetchDiagnosisHistory({
         supabase,
         userId: user.id,
         kind: "note",
-        limit: 5,
+        // 毎日つける人がいるので、約1か月分を並べる
+        limit: 30,
       });
       if (!active) return;
       setHistory(items);
@@ -96,6 +105,11 @@ export default function NoteHistorySection() {
 
   const handleTileClick = (item: DiagnosisHistoryItem) => {
     const data = item.answers as StoredAnswerShape | undefined;
+    // 今日の天気は結果ページを持たないので、その場で答えと一言を開く
+    if (data?.route === "daily") {
+      setOpenDailyId((cur) => (cur === item.id ? null : item.id));
+      return;
+    }
     const route = (data?.route ?? "omiai") as RouteKey;
     // 過去の回答を復元してから結果ページへ。
     // これにより layer2/3 の動的本文も当時のまま再表示される。
@@ -122,7 +136,12 @@ export default function NoteHistorySection() {
     <section style={{ marginTop: 32 }}>
       <SectionHeader />
       {history.length > 0 ? (
-        <ScrollList items={history} onItemClick={handleTileClick} />
+        <>
+          <ScrollList items={history} onItemClick={handleTileClick} openId={openDailyId} />
+          {openDailyId && (
+            <DailyDetail item={history.find((h) => h.id === openDailyId) ?? null} />
+          )}
+        </>
       ) : (
         <EmptyState loggedIn={!!user} />
       )}
@@ -174,9 +193,11 @@ function SectionHeader() {
 function ScrollList({
   items,
   onItemClick,
+  openId,
 }: {
   items: DiagnosisHistoryItem[];
   onItemClick: (item: DiagnosisHistoryItem) => void;
+  openId: string | null;
 }) {
   return (
     <div
@@ -196,18 +217,21 @@ function ScrollList({
         const tc = getTypeContent(weather);
         const data = item.answers as StoredAnswerShape | undefined;
         const route = (data?.route ?? "omiai") as RouteKey;
+        const isDaily = data?.route === "daily";
+        const name = isDaily ? getCardWeather(item.result_key)?.name_ja : tc?.typeName;
         return (
           <button
             type="button"
             key={item.id}
             onClick={() => onItemClick(item)}
+            aria-expanded={isDaily ? openId === item.id : undefined}
             style={{
               flex: "0 0 auto",
               width: 124,
               scrollSnapAlign: "start",
               padding: 12,
               background: "white",
-              border: "1px solid var(--border)",
+              border: isDaily && openId === item.id ? "1px solid var(--accent)" : "1px solid var(--border)",
               borderRadius: 16,
               boxShadow: "0 2px 10px rgba(180,140,90,.06)",
               display: "flex",
@@ -218,7 +242,11 @@ function ScrollList({
               fontFamily: "var(--font-sans)",
               textAlign: "center",
             }}
-            aria-label={`${tc?.fullName ?? "Kinda note"} の結果を再表示`}
+            aria-label={
+              isDaily
+                ? `${formatMonthDay(item.created_at)} の今日の天気「${name ?? ""}」を開く`
+                : `${tc?.fullName ?? "Kinda note"} の結果を再表示`
+            }
           >
             <div
               style={{
@@ -252,7 +280,7 @@ function ScrollList({
                 maxWidth: "100%",
               }}
             >
-              {tc?.typeName ?? "—"}
+              {name ?? "—"}
             </div>
             <div
               style={{
@@ -262,11 +290,76 @@ function ScrollList({
                 letterSpacing: ".04em",
               }}
             >
-              {ROUTE_LABEL[route] ?? ""} · {formatMonthDay(item.created_at)}
+              {isDaily ? "今日の天気" : (ROUTE_LABEL[route] ?? "")} · {formatMonthDay(item.created_at)}
             </div>
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/* ─────────── 今日の天気：その日の答えと一言 ─────────── */
+function DailyDetail({ item }: { item: DiagnosisHistoryItem | null }) {
+  if (!item) return null;
+  const data = item.answers as StoredAnswerShape | undefined;
+  const w = getCardWeather(item.result_key);
+  const a = (data?.answers ?? {}) as Record<string, string>;
+  const picks = [
+    getDailyLabel("feeling", a.feeling ?? ""),
+    getDailyLabel("size", a.size ?? ""),
+    getDailyLabel("want", a.want ?? ""),
+  ].filter(Boolean);
+  const note = data?.freeTexts?.daily_note;
+  const d = new Date(item.created_at);
+  const dateLabel = Number.isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}月${d.getDate()}日`;
+  return (
+    <div
+      style={{
+        marginTop: 12,
+        padding: "16px 18px",
+        background: "white",
+        border: "1px solid var(--border)",
+        borderRadius: 16,
+      }}
+    >
+      <p style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".06em", margin: 0 }}>
+        {dateLabel}の天気
+      </p>
+      <p
+        style={{
+          fontFamily: "var(--font-mincho)",
+          fontSize: 18,
+          color: "var(--ink)",
+          letterSpacing: ".06em",
+          margin: "4px 0 10px",
+        }}
+      >
+        {w?.name_ja ?? "—"}
+      </p>
+      {picks.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "0 0 4px", fontSize: 13, lineHeight: 1.9, color: "var(--mid)" }}>
+          {picks.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+      )}
+      {note && (
+        <p
+          style={{
+            margin: "10px 0 0",
+            padding: "10px 14px",
+            background: "var(--pale)",
+            borderRadius: 12,
+            fontSize: 14,
+            lineHeight: 1.9,
+            color: "var(--ink)",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {note}
+        </p>
+      )}
     </div>
   );
 }

@@ -260,13 +260,16 @@ export function PlaceHoursTooltipContent(): ReactElement {
       </p>
       <ul style={{ listStyle: "disc outside", paddingLeft: 18, margin: 0 }}>
         <li style={liStyle}>
-          祝日や年末年始など、表示と異なる場合があります。
+          Kinda では営業時間・定休日を保持していません。
         </li>
         <li style={liStyle}>
-          ラストオーダーは閉店時刻より早いことがあります。
+          変わることのある情報を、古いまま残さないためです。
         </li>
         <li style={liStyle}>
-          ご来店前に、お店のサイトでの確認をおすすめします。
+          Googleマップの表示か、お店のサイトでご確認ください。
+        </li>
+        <li style={liStyle}>
+          祝日や年末年始は通常と異なることがあります。ラストオーダーは閉店時刻より早いことがあります。
         </li>
       </ul>
     </>

@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useFavoritesList } from "@/hooks/useFavorites";
 import type { Counselor, Agency } from "@/lib/data";
 import type { PlaceHome } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import { getPlaceThumbGradientClass } from "@/components/kinda-act/PlaceThumb";
 import CounselorReelCard from "@/components/kinda-talk/CounselorReelCard";
 import CounselorReelModal from "@/components/kinda-talk/CounselorReelModal";
 import { useState } from "react";
+import { placePath } from "@/lib/placeSections";
 
 /** 各コーナーの初期表示件数（超過分は「もっと見る」で展開） */
 const INITIAL_SHOWN = 6;
@@ -196,7 +198,13 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
                     {a.name}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--mid)", marginTop: 2 }}>
-                    {a.area} · ★{a.rating.toFixed(1)} ({a.reviewCount})
+                    {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                    {a.area}
+                    {hasEnoughReviewsForRating(a.reviewCount)
+                      ? ` · ★${a.rating.toFixed(1)} (${a.reviewCount})`
+                      : a.reviewCount > 0
+                        ? ` · 口コミ ${a.reviewCount}件`
+                        : ""}
                   </div>
                 </div>
                 <svg
@@ -237,7 +245,7 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
             {(showAllPlaces ? savedPlaces : savedPlaces.slice(0, INITIAL_SHOWN)).map((p) => (
               <Link
                 key={p.id}
-                href={`/places/${p.id}`}
+                href={placePath(p)}
                 style={{
                   display: "flex",
                   gap: 12,
@@ -275,7 +283,13 @@ export default function SavedSection({ allCounselors, allAgencies, allPlaces }: 
                     {p.name}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--mid)", marginTop: 2 }}>
-                    {p.stage} · ★{p.rating.toFixed(1)} ({p.reviewCount})
+                    {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+                    {p.stage}
+                    {hasEnoughReviewsForRating(p.reviewCount)
+                      ? ` · ★${p.rating.toFixed(1)} (${p.reviewCount})`
+                      : p.reviewCount > 0
+                        ? ` · 口コミ ${p.reviewCount}件`
+                        : ""}
                   </div>
                 </div>
                 <svg

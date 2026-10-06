@@ -19,8 +19,46 @@ const CATEGORY_ORDER: Exclude<CategoryKey, "すべて">[] = [
   "お見合いと交際のこと",
 ];
 
-/** 「すべて」モードでカテゴリセクションに出す最大件数。超えたら「もっと見る →」を出す */
+/** 「すべて」モードでカテゴリセクションにカードで出す最大件数。
+    超えた分は下の `.kv-more-links` にテキストリンクで並べる（全件が必ずどちらかに出る）。 */
 const SECTION_PREVIEW_COUNT = 6;
+
+/* ============================================================================
+   TODO（恒久対応）: カテゴリアーカイブ + ページネーションへの移行
+   ----------------------------------------------------------------------------
+   いまの `.kv-more-links`（プレビュー6枚に入らなかった記事のテキストリンク一覧）は
+   GSC のインデックス停滞を止めるための **応急処置** であって、恒久的な設計ではない。
+
+   【なぜ応急処置なのか】
+   記事が増えるほどテキストリンクが一方的に伸びる。スマホは1カラムなので、
+   「気持ちの整理」が 40 本になった時点でリンクだけで画面数スクロール分になる。
+
+   【なぜ今これで良いのか】
+   2026-09-13 時点で GSC の未登録 84 件の内訳が「検出 - インデックス未登録」78 件
+   ＝ 未クロールの渋滞だった。そこに新規 URL を足すのは順序が逆なので、
+   **新規 URL 0 本**で全記事を深さ2に引き上げるこの方法を先に採った。
+
+   【移行の引き金】次のどちらか早いほう
+     - GSC の登録済みページ数が 50 本を超えたら（＝クロールが回り始めた証拠）
+     - どれか1カテゴリの `items.length - SECTION_PREVIEW_COUNT` が 25 を超えたら
+
+   【移行先の形】
+     /columns                        ハブ（各カテゴリのプレビュー6枚）
+       └ /columns/category/[slug]    アーカイブ1ページ目（24本・カードのグリッド）
+           └ /columns/category/[slug]/2, /3 ...
+
+   【Google の要件（3点だけ）】
+     1. ページ送りは必ず `<a href>`。onClick でのクライアント状態切り替えは不可
+        （まさにこの一覧の「もっと見る」がそれで、15本が深さ3に沈んでいた）
+     2. 各ページは自己参照 canonical。2ページ目を1ページ目に canonical しない
+        （やると2ページ目以降の記事がインデックスから消える）
+     3. rel="next" / rel="prev" は不要（Google が2019年にサポート廃止を公表）
+
+   【移行したら消すもの】
+     - この TODO ブロック
+     - 下の `hasMore && (<nav className="kv-more-links">...)` ブロック
+     - globals.css の `.kv-more-links*` 一式
+   ========================================================================== */
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -344,6 +382,27 @@ export default function ColumnsClient({ columns }: { columns: ColumnMeta[] }) {
                       <ColumnCard key={col.slug} column={col} />
                     ))}
                   </div>
+
+                  {/* プレビュー6枚に入らなかった記事へのテキストリンク。
+                      「もっと見る」は onClick でクライアント状態を切り替えるだけの
+                      ボタンなのでクローラーからはリンクが存在せず、
+                      「気持ちの整理」の16本などがトップから深さ3のページになっていた。
+                      ここに実リンクを置いて全記事を深さ2に引き上げる（2026-09-13）。 */}
+                  {hasMore && (
+                    <nav
+                      className="kv-more-links"
+                      aria-label={`${cat}の他の記事`}
+                    >
+                      <p className="kv-more-links-label">このカテゴリの他の記事</p>
+                      <ul className="kv-more-links-list">
+                        {items.slice(SECTION_PREVIEW_COUNT).map((col) => (
+                          <li key={col.slug}>
+                            <Link href={`/columns/${col.slug}`}>{col.title}</Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  )}
                 </section>
               );
             })}

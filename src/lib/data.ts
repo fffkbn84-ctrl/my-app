@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { episodesData } from '@/lib/mock/episodes'
 import { places } from '@/lib/mock/places'
 import { placesHomeData, type PlaceHome, type PlaceTabCategory, type ThumbVariant } from '@/lib/mock/places-home'
-import type { Database } from '@/types/database'
+import type { ActObservations, Database, PriceGuide } from '@/types/database'
 
 type CounselorRow = Database['public']['Tables']['counselors']['Row']
 type CounselorMediaRow = Database['public']['Tables']['counselor_media']['Row']
@@ -988,6 +988,11 @@ function mapShopRowToPlaceHome(row: ShopRow): PlaceHome {
     areaLabel: row.area_label ?? row.area ?? '',
     priceRange: row.price_range ?? undefined,
     photoUrl: row.photo_url ?? undefined,
+    isDemo: row.is_demo,
+    slug: row.slug ?? undefined,
+    observationLine: row.observation_line ?? undefined,
+    access: row.access ?? undefined,
+    scenes: row.scenes ?? undefined,
   }
 }
 
@@ -1057,7 +1062,7 @@ export type ShopGalleryItem = {
   altText: string | null
 }
 
-export type ShopDetail = PlaceHome & {
+export type ShopDetail = Omit<PlaceHome, 'scenes'> & {
   category: PlaceTabCategory
   hours: string | null
   holiday: string | null
@@ -1070,13 +1075,26 @@ export type ShopDetail = PlaceHome & {
   otherSocialUrl: string | null
   /** shop_media テーブルから取得した詳細ページ用ギャラリー（display_order 昇順） */
   gallery: ShopGalleryItem[]
+  /**
+   * Kinda が最後にそのお店へ行った日。
+   * 営業時間・定休日は二次情報なので持たない方針だが、
+   * 「いつ時点の観察か」だけは Kinda が責任を持てるので出す。
+   * 行っていないお店（listed）では意味を持たないため表示側で出し分ける。
+   */
+  lastReviewedAt: string | null
+  /** 着く／話せる／なじむ／終われる の観察記録 */
+  actObservations: ActObservations | null
+  /** お見合い／デートなど、使い方ごとの価格の目安 */
+  priceGuides: PriceGuide[] | null
 }
 
+/** id には UUID と slug のどちらも渡せる（/places/<slug> と旧 /places/<uuid> の両方を受ける） */
 export async function getShopById(id: string): Promise<ShopDetail | null> {
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   const res = await supabase
     .from('shops')
     .select('*')
-    .eq('id', id)
+    .eq(isUuid ? 'id' : 'slug', id)
     .eq('is_published', true)
     .single()
   const row = res.data as ShopRow | null
@@ -1113,6 +1131,9 @@ export async function getShopById(id: string): Promise<ShopDetail | null> {
     bookingUrl: row.booking_url ?? null,
     instagramUrl: row.instagram_url ?? null,
     otherSocialUrl: row.other_social_url ?? null,
+    lastReviewedAt: row.last_reviewed_at,
+    actObservations: row.act_observations,
+    priceGuides: row.price_guides,
     gallery,
   }
 }

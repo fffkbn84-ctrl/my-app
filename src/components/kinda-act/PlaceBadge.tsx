@@ -4,7 +4,7 @@ const BADGE_INFO: Record<
   Exclude<BadgeType, "listed">,
   { label: string; color: string }
 > = {
-  certified: { label: "取材済み", color: "#B89A4A" },
+  certified: { label: "行って確かめた", color: "#B89A4A" },
   agency: { label: "相談所おすすめ", color: "#5A7FAF" },
 };
 

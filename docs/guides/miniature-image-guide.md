@@ -167,3 +167,53 @@ or any background outside the room. Square 1:1 composition.
 
 戸棚B（升目UI）を先に確定 → 4部屋を色小物付きに差し替え（talk はA/B比較で選定）→ 装飾（角飾り・小さなラベル）を最後に微調整。
 天気カード・トップヒーローは**人物ありのまま維持**（ふうか方針）。
+
+---
+
+## Kinda act の席タイプ画像（リール・一覧カード用・2026-09-28 明文化）
+
+> 一覧のリールカードに出る画像。**店ごとではなく席のかたちごと**に1枚作って使い回す
+> （実在店の写真は使わない＝掲載許諾が要らず、店の外観を偽らない）。
+> これまで上の「共通テンプレート」の `【SCENE】` を差し替えて作っていたが、席画像用とは
+> どこにも書いておらず見つけにくかったので、ここに独立させた。
+
+### 貼るだけの全文（`【SCENE】` の行だけ席ごとに差し替える）
+
+```
+A photorealistic miniature dollhouse room interior, flat front view at eye level,
+of 【SCENE】. Same doll-house scale, same eye-level camera, same soft warm light from
+above. Warm beige palette (#F5EEE6) with dusty rose and terracotta accents (#D4A090).
+Cozy, handmade, tilt-shift miniature look with subtle clay seams that reveal it is a
+made object. NO people, no figures, no dolls. No readable text, no logos.
+The room interior FILLS THE ENTIRE FRAME, seen straight through the open front —
+do NOT show the outer wooden box, the display base, or any background outside the room.
+Square 1:1 composition.
+```
+
+- **色はブランド色に寄せなくてよい**（2026-09-21 ふうかさん判断）。店の見分けがつく要素
+  （絨毯・壁の色など）を残したいときは、`Warm beige palette ...` の1文を消してその要素を 【SCENE】 に書く
+- 必ず **1:1**。一覧のリールカードは縦長で `objectFit: cover` のため、横長だと左右が切れる
+- 生成後：WebP・正方形 1254px → `public/images/seats/<席タイプ>.webp` → `shops.photo_url`
+  （Claude に画像を渡せば変換から設定までやる）
+
+### 作成済み
+
+| 席タイプ | 使っている店 |
+|---|---|
+| `booth-semi-private`（カーテンで閉じる半個室） | PISOLA 横浜睦町 |
+| `counter-window`（窓向き横並び） | 銀座伴助 新宿タカシマヤ |
+| `booth-high-back`（背もたれの高い対面ボックス） | おだしもん トレッサ横浜 |
+| `booth-window-green`（窓に面した対面ソファ） | むさしの森珈琲 久が原 |
+| `banquette-open-row`（壁沿いの一続きベンチ・仕切りなし） | RIE COFFEE 本店 |
+| `lounge-armchairs`（ラウンジの肘掛け椅子が対面） | ランデブーラウンジ |
+| `table-open-dining`（開けたダイニングのテーブル席・仕切りなし） | フィオレンティーナ／フレンチ キッチン（グランド ハイアット東京） |
+| `table-fryer-partition`（真ん中に鍋のあるテーブル席・腰高の仕切り・奥に窓向きカウンター） | 串揚げ・串天ブッフェ くし葉 横浜ワールドポーターズ |
+| `tatami-private-room`（和室の個室・畳にテーブルといす・掛け軸と丸窓の床の間） | 明神下 神田川 本店 |
+
+`table-open-dining` の 【SCENE】（2026-09-28 生成）：
+`a bright open hotel dining room: a small square wooden table for two with two empty chairs facing each other in the center of the room, other tables spaced well apart around it, no partitions between tables, tall windows along one side letting in soft daylight`
+
+`table-fryer-partition` / `tatami-private-room` の 【SCENE】（2026-10-01 生成。元はふうかさんが撮った店内写真）：
+- `table-fryer-partition`：`a bright casual buffet restaurant: a light wooden table for two with a small built-in fryer pot in the center and two chairs facing each other, low wooden partitions between tables, a long counter facing tall windows in the background`
+- `tatami-private-room`：`a quiet traditional Japanese private dining room: a dark wooden table for two with two wooden chairs on tatami mats, a hanging scroll on the wall, an alcove with a small oval paper window, warm dim light, no other tables`
+- 2枚とも外枠の木の縁が少し写っている（テンプレートは「箱を写さない」）。一覧カードは `objectFit: cover` で縁が細く出る程度なので、そのまま使う

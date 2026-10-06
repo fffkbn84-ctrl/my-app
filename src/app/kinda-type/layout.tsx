@@ -5,7 +5,7 @@ const SITE_URL =
 
 const TITLE = "Kinda type｜あなたに合うカウンセラーを見つける";
 const DESCRIPTION =
-  "8つの質問に1〜3分で答えるだけ。あなたに合うカウンセラータイプと、相性の良いカウンセラーが見つかります。Kinda ふたりへの相性チェック。";
+  "8つの質問に60秒で答えるだけ。4つのタイプから、あなたに合うカウンセラー像と、相性の良いカウンセラーが見つかります。Kinda ふたりへの相性チェック。";
 
 export const metadata: Metadata = {
   title: TITLE,

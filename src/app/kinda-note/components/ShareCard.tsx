@@ -3,7 +3,7 @@
 import { forwardRef } from "react";
 import PolaroidWeatherCard from "./PolaroidWeatherCard";
 import type { TypeContent } from "../data/typeContent";
-import type { WeatherDescription } from "../data/weatherDescriptions";
+import type { CardWeatherKey } from "../data/daily";
 
 /**
  * 画像保存用カード。html2canvas でキャプチャされる。
@@ -21,8 +21,10 @@ import type { WeatherDescription } from "../data/weatherDescriptions";
  */
 
 type Props = {
-  type: TypeContent;
-  weather: WeatherDescription;
+  /** 毎日モードでも使うため、カードに出す3項目だけを受け取る */
+  type: Pick<TypeContent, "fullName" | "summary" | "color">;
+  /** 段階の20天気・毎日専用の天気のどちらも渡せるよう、使う2項目だけ */
+  weather: { key: CardWeatherKey; name_en: string };
   /** 選んだ項目（ラベル）。長すぎる場合は呼び出し側で絞り込む */
   selectedLabels: string[];
   /** 自由記述（あれば） */

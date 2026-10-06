@@ -44,9 +44,32 @@ export interface PlaceHome {
    * L-1/L-2（2026-05-22）追加。
    */
   images?: string[];
+  /**
+   * 営業デモ用のダミー店。true のときだけ「サンプル」バッジを出す。
+   * 以前は全カードに無条件で出していたが、実在店に付くと誤解を招くため
+   * shops.is_demo を見て出し分ける。
+   */
+  isDemo: boolean;
+  /** 詳細ページの URL に使う店名ベースの識別子。URL は placePath() で作る */
+  slug?: string;
+  /**
+   * 一覧カードに出す一行の観察。
+   * 説明文ではなく、行って見てきたことを一文で。行っていない店では持たない。
+   */
+  observationLine?: string;
+  /**
+   * 最寄駅からの行き方。「吉野町駅 徒歩11分」の形。
+   * 生活圏で店を探すとき、いちばん自然な単位が駅なので検索対象に含める。
+   */
+  access?: string | null;
+  /**
+   * 使える場面（お見合い／初回デート／何度か会ってから）。語彙の正は src/lib/actScenes.ts。
+   * 一覧の「使う場面」で絞り込むのに使う。
+   */
+  scenes?: string[];
 }
 
-export const placesHomeData: PlaceHome[] = [
+const demoPlacesHomeData: Omit<PlaceHome, "isDemo">[] = [
   {
     id: "1",
     name: "カフェ ノエル 表参道",
@@ -338,6 +361,13 @@ export const placesHomeData: PlaceHome[] = [
     priceRange: "¥",
   },
 ];
+
+
+/** mock は営業デモ用のダミーデータなので、すべて「サンプル」として扱う */
+export const placesHomeData: PlaceHome[] = demoPlacesHomeData.map((p) => ({
+  ...p,
+  isDemo: true,
+}));
 
 export const placeTabs: { label: string; value: PlaceTabCategory }[] = [
   { label: "すべて",    value: "all" },

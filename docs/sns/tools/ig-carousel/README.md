@@ -1,0 +1,156 @@
+# ig-carousel — 単色背景の IG 投稿を作る（画像処理＋文字入れ＋リール書き出し）
+
+IG の4つの型で共用する。仕様と運用の正はそれぞれ：
+
+| 型 | 曜日 | 書き出し | 正 |
+|---|---|---|---|
+| ふたりの話題、ひとつずつ（連載28週） | 毎週火 20:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/kinda-pair-28.md` |
+| ことさんは、飲み込んだ。 | 毎週水・金 18:00 | `render-kotosan.js` ＋ `build_reel.py` | `docs/sns/series/kotosan-reel.md`／画像は `kotosan-poses.md` |
+| 言いにくい気持ち | 毎週土 12:00 | `render-reel.js` ＋ `build_reel.py` | `docs/sns/series/iinikui-kimochi.md` |
+| （休止）つくる日記 | — | `render-series.js`（`note`/`body`） | `docs/sns/series/tsukuru-nikki.md` |
+| ぎっしり情景（1枚から自分を探す） | 空き枠 | `render-labels.js` ＋ `build_reel.py one10` | `docs/sns/series/gisshiri-jokei.md` |
+| ハイライトのカバー6枚 | 単発 | `covers.js` | `docs/sns/ig-week-2026-09.md` §6 |
+| ハイライトの中身（ストーリー） | 単発 | `render-story.js` | `docs/sns/ig-week-2026-09.md` §6 |
+| 今日の天気、つけてみた（note 紹介） | 単発〜木曜 | `capture-note-today.mjs`＋`prep-screen.py`＋`render-reel.js`＋`build_reel.py noteday4` | `docs/sns/packs/2026-10-note-today.md` §2 |
+
+> **2026-09-20 から全枠リール。** カルーセル（`render.js` / `render-series.js`）は型としては生きているが、
+> フォロワー0の段階ではフィード投稿のリーチが0だったため使っていない（理由は `ig-week-2026-09.md` §0）。
+> `render.js`・`render-series.js` は**フォロワーが付いてカルーセルを戻すときに使う**。
+
+ChatGPT が出したクレイのモチーフ画像を、**全枚とも同じ地色・同じ位置・同じ大きさ**に揃えて、
+Shippori Mincho で文字を焼き込む。グリッドに並んだとき1枚の作品に見せることが目的。
+
+## 準備（セッションごとに1回）
+
+```bash
+python3 -m pip install --break-system-packages Pillow numpy
+python3 -m pip install --break-system-packages imageio-ffmpeg   # リールを書き出す回だけ
+npm pack @fontsource/shippori-mincho
+tar xzf fontsource-shippori-mincho-*.tgz
+cp package/files/shippori-mincho-japanese-400-normal.woff2 ./shippori400.woff2
+```
+
+`fonts.google.com` はセッションの egress で塞がっているので、必ず npm レジストリから取る
+（`registry.npmjs.org` は noProxy に入っていて直通で届く）。
+
+**ffmpeg も同様**。Playwright 同梱の ffmpeg は VP8/WebM だけの縮小ビルドで H.264 を吐けない。
+`imageio-ffmpeg`（PyPI）が libx264・aac・xfade・zoompan 入りのバイナリを持っているので、そちらを使う。
+
+## 実行
+
+```bash
+# 「言いにくい気持ち」：モチーフ中心 y=500・サイズ340（既定）、文字 54px
+python3 prep.py <生成画像.png> bg-01.png
+NODE_PATH=$(npm root -g) node render.js bg-01.png out-01.png "1行目" "2行目" "3行目"
+
+# 連載・つくる日記：モチーフのサイズと中心 y を引数で渡す
+python3 prep.py <生成画像.png> pair-bg-01.png 300 420
+NODE_PATH=$(npm root -g) node render-series.js hook  pair-bg-01.png out-01.png '["行1","行2","行3"]'
+NODE_PATH=$(npm root -g) node render-series.js note  pair-bg-01.png out-01.png '["行1","行2"]'
+NODE_PATH=$(npm root -g) node render-series.js body  none           out-02.png '["行1","行2"]'
+NODE_PATH=$(npm root -g) node render-series.js close pair-bg-05.png out-05.png '["行1",{"gap":true},"CTA"]'
+```
+
+- `prep.py` の引数は `<入力> <出力> [モチーフサイズ] [モチーフ中心y] [カンバス幅] [カンバス高]`
+  （省略すると 340 / 500 / 1080×1350）。**同じ生成画像から 4:5 と 9:16 の両方を作れる**ので、
+  土曜リールの絵を火曜カルーセルに使い回せる
+- `render-series.js` の第1引数は版面の種類：
+  `hook`（モチーフ＋質問を**62px**。連載の1枚目）／`note`（モチーフ＋見出しを**54px**。つくる日記の1枚目）／
+  `body`（文字のみ・天地中央・44px）／`close`（モチーフ＋本文44px＋CTA。連載の5枚目）。
+  プレートが要らない枚は `none` を渡す。`{"gap":true}` を挟むと .7em の余白が入る
+- **1枚目の級数で火曜と木曜を見分けさせている**（連載62px＝疑問形／つくる日記54px＝断言形）。
+  そろえてはいけない
+- `render-reel.js` は 1080×1920。第1引数は `hook`（1秒目・58px）／`body`（48px）／`list`（保存版カード・文字のみ。json は `{"title":…,"items":[["行","行"],…]}`・1行18字・3〜6項目。2026-10-04 追加、`build_reel.py pair-list` と組む）
+- `build_reel.py` は**プリセット名と出力名を引数で渡す**。H.264 / yuv420p / 30fps / 無音AAC入りの
+  MP4 を書き出す。**音楽は IG 側で足す**。引数なしは従来どおり連載の値（`pair`）
+
+```bash
+# ことさん（水・金）：場面はその回の生成画像、カット2以降は assets/kotosan/ のポーズ
+NODE_PATH=$(npm root -g) node render-kotosan.js scene kt-scene.png f1.png '["金曜17時55分","上司から「ちょっといい？」"]' 2
+NODE_PATH=$(npm root -g) node render-kotosan.js omote kt-glare.png f2.png '["はい、大丈夫です！"]'
+NODE_PATH=$(npm root -g) node render-kotosan.js honne kt-down.png  f3.png '["ちょっとで","済んだ試しがない"]'
+NODE_PATH=$(npm root -g) node render-kotosan.js gokun kt-puff.png  f4.png '["（ごくん）"]'
+NODE_PATH=$(npm root -g) node render-kotosan.js sukui kt-mug.png   f5.png '["今日はもう、ここまでで十分"]'   # 重さのある回だけ
+
+python3 build_reel.py kotosan4 kinda-ig-0925-kotosan.mp4   # 軽い回（4カット・12.15秒）
+python3 build_reel.py kotosan5 kinda-ig-1009-kotosan.mp4   # 救いのある回（5カット・14.80秒）
+```
+
+- **#3 からは v2（`render-kotosan-v2.js`）。** 黒帯＋1カット1文字。使い方は `packs/2026-09-30-ig-reel-kotosan-03.md` §3、
+  版面の正は `kotosan-reel.md` §3-b。動画は `build_reel.py kotosanv2`（9.1秒）、効果音は `add_sfx.py <in> <out> kotosan03`。
+- **並べる型・肯定の型**（`ideas.md` 案3・案4）も同じ `render-kotosan-v2.js` の `label` モード（帯＋画面下の一言・「」は自動・本文10字まで・上端 `LABEL_Y`=1290）。
+  動画は `build_reel.py narabe4`（9.3秒）。手順の実例は `packs/ig-reel-narabe-01-mada-ienai.md` §3。
+  フォントは「ふたり」と同じ `noto900.woff2` `noto700.woff2`（`@fontsource/noto-sans-jp` の `japanese-900/700-normal`）。
+  下の v1（`render-kotosan.js`）は #1・#2 の再現用に残している
+- `render-kotosan.js` の第1引数は版面：`scene`（場面＋シリーズ名＋状況44px）／`omote`（白い吹き出し48px）／
+  `honne`（薄茶の透ける吹き出し44px）／`gokun`（88px・吹き出しなし・天地中央）／`sukui`（白44px）。
+  第5引数はシリーズ番号（`scene` のときだけ効く）
+- **版面の正は `kotosan-reel.md` §3。** 級数・位置・色をこのスクリプト側で勝手に変えない
+- **落ちる条件を3つ持たせてある**（黙って壊れたフレームを出さないため）。
+  ① 1行の字数上限超え（48px=16字／44px=17字／88px=8字）
+  ② 吹き出しの下端が y=1500 を超える（IG の UI に隠れる）
+  ③ `gokun` が空（シリーズの目印を省かせない）
+- `build_reel.py` のプリセットは `pair`（連載・従来値）／`kotosan4`／`kotosan5`。
+  木曜の1枚リールは `one7`（1枚・7秒・ズームなし）。左右が端に寄った 2:3 は切らずに `prep-sky.py` で上に空を足して 9:16 にする（夜の窓 §8）。
+  単色の背景に模型が並ぶ絵（間取りなど）は `prep-fill.py` で中身を 1080 幅いっぱいまで拡大し、上端を y=580 に置く（間取りキット §7）。
+  `SEGS` の5つ目の値が**静止**で、ことさんは3カット目の末尾 0.5 秒だけズームを止める
+  （「飲み込む間」。`kotosan-reel.md` §2）。クロスディゾルブは `XFS` でカット間ごとに指定し、
+  **ことさんは 3→4 だけ 0.15**
+- いずれも同じディレクトリの `shippori400.woff2` と `*-bg-*.png` / `f*.png` を相対参照する
+
+## ハイライトを作る（`covers.js` / `render-story.js` / `icons.js`）
+
+```bash
+NODE_PATH=$(npm root -g) node covers.js   # cover-about.png 他6枚を書き出す
+```
+
+- 1080×1920。IG は**中央を円でクロップして直径60px 前後で出す**ので、確認は必ず縮小してから行う
+- 地色 `#F5EEE6`／線 `#2E2620`・太さ13／アクセント `#D4A090` を1枚に1箇所だけ
+- **文字とロゴを入れない。** 円に切られると読めないし、6枚並ぶと騒がしくなる
+- アイコンを足す・直すときは `ICONS` に 560×560 の inline SVG を書く。
+  **そのあと必ず150px 前後に縮めた一覧で読めるか見る**（等倍で見ると全部読めてしまう）
+
+中身（ハイライトに入れるストーリー）は `render-story.js`。
+
+```bash
+NODE_PATH=$(npm root -g) node render-story.js lead about hl1-01.png '["行1","行2"]'
+NODE_PATH=$(npm root -g) node render-story.js body none  hl1-02.png '["行1","行2","行3"]'
+```
+
+- 第1引数は `lead`（アイコン＋見出し56px・各ハイライトの1枚目）／`body`（文字だけ48px）／`note`（44px）
+- 第2引数は `icons.js` のキー（`about` `note` `topics` `places` `type` `kotosan` `feelings`）。要らない枚は `none`
+  （`making` はつくる日記が休止中で未使用。再開したら使う）
+- **上下は IG の UI に隠れる**ので、中身は y=400〜1500 に収めてある。ここを動かさない
+- カバーと中身の1枚目で**同じアイコンを使う**。棚の見出しと中身がつながる
+- `icons.js` が `covers.js` と `render-story.js` の共通の正。**アイコンは1箇所だけ直せば両方に効く**
+
+## 過去に踏んだバグ
+
+**`letter-spacing` と同じ値を `margin-right` に流用するとき、文字列を切り出さないこと。**
+`'.08em'.slice(1)` は `'08em'` になり、Chromium はこれを **-8em** として解釈する。
+文字ブロック全体が約170px 右へずれて、右端の文字が切れる（2026-09-15 に実際に発生）。
+`margin-right:-${ls}` のように、値をそのまま符号付きで使う。
+
+## prep.py が何をしているか
+
+1. **ホワイトバランス** — 外周の中央値を `#F5EEE6` に合わせる。生成画像の地色は毎回微妙に違う
+2. **地の平坦化** — `#F5EEE6` に近い画素を厳密に `#F5EEE6` へ寄せる。ビネットとノイズが消える。影は残る
+3. **モチーフ検出** — **エッジ基準**。柔らかい落ち影にはエッジが立たないので拾わない。
+   輝度差で取ると影を物体と誤検出して**中心が横にズレる**（実際にやらかした）
+4. **配置** — bbox の**相乗平均を指定サイズに正規化**して、中心を (540, 指定y) に置く。
+   幅で正規化すると縦長のモチーフ（窓・封筒）が巨大に見えるため
+
+## 調整したいとき
+
+`prep.py` の定数（全枚に効く。1枚だけ変えない）：
+
+| 定数 | 既定 | 意味 |
+|---|---|---|
+| `MOTIF_SIZE` | 340 | モチーフの視覚的な大きさ（第3引数で上書き可） |
+| `MOTIF_CY` | 500 | モチーフの中心 y（第4引数で上書き可） |
+| `MAX_W` / `MAX_H` | 640 / 380 | 極端な縦横比のときの上限 |
+
+文字は `render.js` の `.t`（`top:800px` / `font-size:54px` / `line-height:1.95` / `letter-spacing:.08em`）、
+連載は `render-series.js` の `L` テーブル。どちらも**1行の上限は文字サイズで決まる**：
+54px なら13字、44px なら16字、62px なら10字（グリッドの 3:4 クロップ幅 1012px に収まる範囲）。
+文節で折る。助詞の途中では折らない。

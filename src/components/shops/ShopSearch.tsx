@@ -7,8 +7,12 @@ import {
   type PlaceHome,
   type ThumbVariant,
 } from "@/lib/mock/places-home";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
+import { matchesAreaFilter } from "@/lib/areas";
+import AreaOptions, { buildAreaCountMap } from "@/components/ui/AreaOptions";
 import Pagination from "@/components/ui/Pagination";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
+import { placePath } from "@/lib/placeSections";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -17,14 +21,13 @@ const ITEMS_PER_PAGE = 8;
 ──────────────────────────────────────────────────────────── */
 const BADGE_FILTERS = [
   { value: "all",       label: "すべて" },
-  { value: "certified", label: "取材済み" },
+  { value: "certified", label: "行って確かめた" },
   { value: "agency",    label: "相談所おすすめ" },
 ] as const;
 
 type BadgeFilter = typeof BADGE_FILTERS[number]["value"];
 
 const CATEGORIES = ["すべて", "カフェ", "レストラン", "美容室", "ネイルサロン", "眉毛サロン", "フォトスタジオ"];
-const AREAS      = ["すべて", "東京", "大阪", "名古屋"];
 
 /* ────────────────────────────────────────────────────────────
    サムネイル — グラデーション + SVGアイコン
@@ -150,7 +153,7 @@ function ShopCard({ place }: { place: PlaceHome }) {
     <div
       className="place-card"
       style={{ width: "auto", cursor: "pointer" }}
-      onClick={() => router.push(`/places/${place.id}`)}
+      onClick={() => router.push(placePath(place))}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-6px)";
         (e.currentTarget as HTMLDivElement).style.boxShadow = "0 20px 56px rgba(0,0,0,.09)";
@@ -171,7 +174,7 @@ function ShopCard({ place }: { place: PlaceHome }) {
               className={`pt-review-type ${place.badgeType === "certified" ? "rt-certified" : "rt-agency"}`}
               style={{ fontSize: 9, padding: "3px 8px" }}
             >
-              {place.badgeType === "certified" ? "取材済み" : "相談所おすすめ"}
+              {place.badgeType === "certified" ? "行って確かめた" : "相談所おすすめ"}
             </span>
           </div>
         )}
@@ -243,14 +246,15 @@ function ShopCard({ place }: { place: PlaceHome }) {
         {/* 下部 */}
         <div className="pt-bottom">
           <div className="pt-rating">
-            <Stars rating={place.rating} />
+            {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+            {hasEnoughReviewsForRating(place.reviewCount) && <Stars rating={place.rating} />}
             <span className="pt-cnt">口コミ {place.reviewCount}件</span>
           </div>
           {place.badgeType !== "listed" && (
             <span
               className={`pt-review-type ${place.badgeType === "certified" ? "rt-certified" : "rt-agency"}`}
             >
-              {place.badgeType === "certified" ? "取材済み" : "相談所おすすめ"}
+              {place.badgeType === "certified" ? "行って確かめた" : "相談所おすすめ"}
             </span>
           )}
         </div>
@@ -270,15 +274,24 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
   const [query, setQuery]       = useState("");
   const [page, setPage]         = useState(1);
 
+  /* 掲載中のお店から都道府県ごとの件数を作る。0 件の県はグレーアウトされる */
+  const areaCountMap = useMemo(() => buildAreaCountMap(shops), [shops]);
+
   const filtered = useMemo(() => {
     return shops.filter((p) => {
       const matchB = badge === "all" || p.badgeType === badge;
       const matchC = category === "すべて" || p.categoryLabel === category;
-      const matchA = area === "すべて" || p.areaLabel === area;
-      const matchQ = query === "" || p.name.includes(query) || p.location.includes(query);
+      // "東京"・"東京都"・"東京・新宿" を同じものとして扱い、広域エリアにも対応する
+      const matchA = matchesAreaFilter(p.location || p.areaLabel, area);
+      // 生活圏で探すときの単位は駅なので、最寄駅も検索対象に入れる
+      const matchQ =
+        query === "" ||
+        p.name.includes(query) ||
+        p.location.includes(query) ||
+        (p.access ?? "").includes(query);
       return matchB && matchC && matchA && matchQ;
     });
-  }, [badge, category, area, query]);
+  }, [shops, badge, category, area, query]);
 
   /* フィルター変更時にページをリセット */
   useEffect(() => { setPage(1); }, [badge, category, area, query]);
@@ -324,8 +337,14 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
               {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
             </select>
 
-            <select value={area} onChange={(e) => setArea(e.target.value)} style={selectStyle}>
-              {AREAS.map((a) => <option key={a}>{a}</option>)}
+            <select
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+              aria-label="エリア"
+              style={selectStyle}
+            >
+              <option value="すべて">エリアを選ぶ</option>
+              <AreaOptions countMap={areaCountMap} />
             </select>
 
             <div style={{ position: "relative" }}>
@@ -339,7 +358,7 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="店名・エリアで検索"
+                placeholder="店名・駅・エリアで検索"
                 style={{
                   ...selectStyle,
                   paddingLeft: 34,
@@ -354,9 +373,9 @@ export default function ShopSearch({ initialShops }: { initialShops?: PlaceHome[
         <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="pt-review-type rt-certified" style={{ fontSize: 10, padding: "4px 10px" }}>
-              Kinda ふたりへ取材済み
+              Kinda が行って確かめた
             </span>
-            <span style={{ fontSize: 12, color: "var(--mid)" }}>Kinda ふたりへスタッフが現地訪問・取材したお店</span>
+            <span style={{ fontSize: 12, color: "var(--mid)" }}>Kinda ふたりへスタッフが実際に足を運んで確かめたお店</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span className="pt-review-type rt-agency" style={{ fontSize: 10, padding: "4px 10px" }}>

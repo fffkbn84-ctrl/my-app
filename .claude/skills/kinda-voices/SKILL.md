@@ -34,6 +34,7 @@ category: "取材レポート"
 author: "ふうか"        # 取材記事は実名著者（E-E-A-T）。編集部名義の過去記事に合わせる場合は要確認
 tags: [相談所名, カウンセラー名, 地域名, "結婚相談所", "カウンセラー"]
 atomicAnswer: 必須 / faq: 3件推奨
+counselorId: "<Supabase counselors.id（UUID）>"   # 必須。記事末尾「この方のページを見る」と詳細ページ「インタビューを読む」が自動で双方向に出る
 ```
 title・description・publishedAt・readTime・thumbnail 等は `/kinda-column` Skill の仕様と同じ。
 

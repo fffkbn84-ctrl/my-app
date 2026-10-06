@@ -5,6 +5,8 @@ import type { PlaceHome } from "@/lib/mock/places-home";
 import PlaceBadge from "./PlaceBadge";
 import DemoBadge from "@/components/kinda-talk/DemoBadge";
 import { PLACE_CATEGORY_ICON } from "./placeIcons";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
+import { placePath } from "@/lib/placeSections";
 
 const GRADIENT_BG: Record<string, string> = {
   cafe: "linear-gradient(135deg,#FAEAE5,#F0D8D0)",
@@ -46,11 +48,19 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
   }, [images.length]);
 
   return (
-    <button
-      type="button"
+    /* 見た目と挙動はボタンのまま（クリックでリールを開く）だが、要素は詳細ページへの
+       <a href> にしている（2026-10-03）。<button> だと検索エンジンが詳細ページへ辿れず、
+       お店のページが1件も検索に出ていなかった。新しいタブで開く操作もそのまま効く。 */
+    <a
+      href={placePath(place)}
       className="kt-reel-card"
+      style={{ textDecoration: "none" }}
       aria-label={`${place.name} のリールを開く`}
-      onClick={() => onOpen(place)}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        onOpen(place);
+      }}
     >
       {hasPhoto ? (
         // 全レイヤーを重ねて opacity でクロスフェード
@@ -127,7 +137,7 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
 
       <div className="kt-reel-card-top">
         <PlaceBadge type={place.badgeType} />
-        <DemoBadge />
+        {place.isDemo && <DemoBadge />}
       </div>
 
       <div className="kt-reel-card-bottom">
@@ -153,18 +163,40 @@ export default function PlaceReelCard({ place, onOpen }: Props) {
         <div className="kt-reel-meta" style={{ marginBottom: 4 }}>
           {place.location}
         </div>
-        <div
-          className="kt-reel-rating"
-          aria-label={`平均評価 ${place.rating.toFixed(1)}、レビュー ${place.reviewCount}件`}
-        >
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
-          <span aria-hidden="true">
-            {place.rating.toFixed(1)} ({place.reviewCount})
-          </span>
-        </div>
+        {/* 行って見てきたことを一文で。説明文でも宣伝文句でもない */}
+        {place.observationLine && (
+          <p
+            className="kt-reel-meta"
+            style={{
+              marginTop: 6,
+              marginBottom: 0,
+              color: "rgba(255,255,255,.95)",
+              lineHeight: 1.6,
+              textShadow: "0 1px 4px rgba(0,0,0,.35)",
+            }}
+          >
+            {place.observationLine}
+          </p>
+        )}
+        {/* 件数が少ないうちは平均が振れるため、星は出さず件数だけ出す */}
+        {hasEnoughReviewsForRating(place.reviewCount) ? (
+          <div
+            className="kt-reel-rating"
+            aria-label={`平均評価 ${place.rating.toFixed(1)}、レビュー ${place.reviewCount}件`}
+          >
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            <span aria-hidden="true">
+              {place.rating.toFixed(1)} ({place.reviewCount})
+            </span>
+          </div>
+        ) : place.reviewCount > 0 ? (
+          <div className="kt-reel-rating">
+            <span aria-hidden="true">口コミ {place.reviewCount}件</span>
+          </div>
+        ) : null}
       </div>
-    </button>
+    </a>
   );
 }

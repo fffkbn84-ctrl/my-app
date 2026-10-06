@@ -6,6 +6,8 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import KindaLoader from "@/components/ui/KindaLoader";
 import { getShops } from "@/lib/data";
+import { ACT_THUMB_VARIANTS } from "@/lib/placeSections";
+import PlacesDataNotice from "@/components/places/PlacesDataNotice";
 import KindaActClient from "./KindaActClient";
 
 /**
@@ -13,7 +15,11 @@ import KindaActClient from "./KindaActClient";
  * Supabase の thumb_variant が cafe / lounge のお店を表示する。
  * 美容室・ネイル・眉毛・エステ・フォトスタジオは Kinda glow へ分離。
  */
-const ACT_THUMB_VARIANTS = new Set(["cafe", "lounge"]);
+/**
+ * Supabase の shops は静的生成のままだと新規掲載が反映されないため ISR にする。
+ * 掲載・取り下げが本番へ出るまで最大 5 分。
+ */
+export const revalidate = 300;
 
 export default async function KindaActPage() {
   // F-3 (2026-05-21): Supabase 経由に統一。
@@ -97,11 +103,28 @@ export default async function KindaActPage() {
             <p className="kt-guide-text">
               お見合いやデートで使うお店は、空気で決まります。
               <br />
-              Kinda ふたりへは、次の 4 つの基準で取材・厳選しています。
+              Kinda ふたりへは、実際に行って、店に着いてから別れるまでを次の 4 つで確かめています。
             </p>
 
-            {/* 4つの選定基準カード（2×2 グリッド） */}
+            {/*
+              4つの選定基準カード（2×2 グリッド）。
+              詳細ページの4章（着く／話せる／なじむ／終われる）と同じ言葉にそろえる。
+              ここに並べるのは取材ログで実際に記録している項目だけ。
+              以前あった「店員の干渉」は一度も記録しておらず、基準として掲げる根拠がなかった。
+              「話せる」を音量や席の距離ではなく沈黙で書くのは、関係をつくっている途中のふたりに
+              いちばん効くのが「途切れたときに気まずくならないか」だから（取材ログの音量も沈黙の側から測っている）。
+            */}
             <div className="ka-criteria-grid">
+              <div className="ka-criterion">
+                <div className="ka-criterion-icon" aria-hidden>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+                    <circle cx="12" cy="9.5" r="2.5" />
+                  </svg>
+                </div>
+                <div className="ka-criterion-label">着く</div>
+                <div className="ka-criterion-desc">迷わず着いて、先に待てるか</div>
+              </div>
               <div className="ka-criterion">
                 <div className="ka-criterion-icon" aria-hidden>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -110,49 +133,33 @@ export default async function KindaActPage() {
                     <line x1="12" y1="19" x2="12" y2="23" />
                   </svg>
                 </div>
-                <div className="ka-criterion-label">話しやすい音量</div>
-                <div className="ka-criterion-desc">大声を出さず会話できる空間</div>
+                <div className="ka-criterion-label">話せる</div>
+                <div className="ka-criterion-desc">沈黙が気まずくならないか</div>
               </div>
-
-              <div className="ka-criterion">
-                <div className="ka-criterion-icon" aria-hidden>
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 18v3M20 18v3" />
-                    <path d="M2 14h20l-1 4H3z" />
-                    <path d="M5 14V8a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v6" />
-                  </svg>
-                </div>
-                <div className="ka-criterion-label">座席の距離</div>
-                <div className="ka-criterion-desc">隣との適度な間が取れるか</div>
-              </div>
-
               <div className="ka-criterion">
                 <div className="ka-criterion-icon" aria-hidden>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
                     <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
-                    <path d="M16 4l4 4M20 4l-4 4" opacity=".5" />
                   </svg>
                 </div>
-                <div className="ka-criterion-label">店員の干渉</div>
-                <div className="ka-criterion-desc">過度な接客がないか</div>
+                <div className="ka-criterion-label">なじむ</div>
+                <div className="ka-criterion-desc">ふたりで行って浮かないか</div>
               </div>
-
               <div className="ka-criterion">
                 <div className="ka-criterion-icon" aria-hidden>
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 21h18" />
-                    <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
-                    <circle cx="14" cy="12" r="1" fill="currentColor" />
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 7v5l3 2" />
                   </svg>
                 </div>
-                <div className="ka-criterion-label">入店のしやすさ</div>
-                <div className="ka-criterion-desc">気軽に予約・入店できるか</div>
+                <div className="ka-criterion-label">終われる</div>
+                <div className="ka-criterion-desc">急かされず、区切れるか</div>
               </div>
             </div>
 
             <p className="kt-guide-text">
-              「取材済み」のバッジは、運営スタッフが現地で確認したお店。
+              「行って確かめた」のバッジは、運営スタッフが実際に足を運んで確かめたお店。
               <br />
               「相談所おすすめ」は、現役カウンセラーが推薦する場所です。
             </p>
@@ -165,34 +172,7 @@ export default async function KindaActPage() {
           <KindaActClient places={places} />
         </Suspense>
 
-        {/* ─── 注記：すべてサンプル表示 ─── */}
-        <section
-          style={{
-            padding: "32px 20px 56px",
-            background: "rgba(254,252,250,.18)",
-          }}
-        >
-          <div
-            style={{
-              maxWidth: 540,
-              margin: "0 auto",
-              padding: "20px 24px",
-              background: "rgba(255,255,255,.72)",
-              backdropFilter: "blur(6px)",
-              WebkitBackdropFilter: "blur(6px)",
-              border: "1px dashed rgba(184,110,104,.4)",
-              borderRadius: 16,
-              textAlign: "center",
-              fontSize: 12,
-              color: "var(--mid)",
-              lineHeight: 1.85,
-            }}
-          >
-            現在掲載中のお店はすべて<strong style={{ color: "var(--ink)" }}>サンプル表示</strong>です。
-            <br />
-            Kinda ふたりへが実際に取材した本物のお店は、これから順次公開予定です。
-          </div>
-        </section>
+        <PlacesDataNotice places={places} borderColor="rgba(184,110,104,.4)" />
       </main>
 
       <Footer />

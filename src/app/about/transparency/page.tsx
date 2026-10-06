@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about/transparency" },
   title: "運営の透明性 | Kinda ふたりへ",
   description:
     "Kinda ふたりへ がどのように収益を得ているか、カウンセラー・相談所・お店の並び順をどう決めているかを明文化しています。広告で順位を操作しない、ユーザーファーストの設計です。",
@@ -78,7 +79,7 @@ export default function TransparencyPage() {
               お店に表示されるバッジは、Kinda との関係性を表すもので、優劣を表すものではありません。
             </p>
             <ul className="legal-ul">
-              <li><strong>取材済み</strong>：Kinda 編集部が実際に足を運んで取材したお店</li>
+              <li><strong>行って確かめた</strong>：Kinda 編集部がふたりで実際に足を運び、席に座って確かめたお店</li>
               <li><strong>相談所おすすめ</strong>：提携している結婚相談所が推薦したお店</li>
               <li><strong>掲載店</strong>：情報として掲載しているお店</li>
             </ul>

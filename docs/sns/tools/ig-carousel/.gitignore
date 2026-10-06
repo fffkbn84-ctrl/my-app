@@ -1,0 +1,22 @@
+# セッションごとに取り直す作業ファイル。リポジトリには入れない
+shippori400.woff2
+fontsource-shippori-mincho-*.tgz
+package/
+_reel.html
+_kotosan_*.html
+# 書き出したフレームと動画
+f*.png
+*-bg-*.png
+reel-*.png
+out-*.png
+hl*-*.png
+cover-*.png
+plate-*.png
+*.mp4
+noto*.woff2
+fontsource-noto-sans-jp-*.tgz
+_futari_*.html
+_sfx.wav
+shippori800.woff2
+_vs.html
+_labels.html

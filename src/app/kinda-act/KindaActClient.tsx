@@ -14,6 +14,7 @@ import {
   matchesAreaFilter,
   prefecturesInBroadRegion,
 } from "@/lib/areas";
+import { ACT_SCENES } from "@/lib/actScenes";
 
 type Props = {
   places: PlaceHome[];
@@ -22,11 +23,15 @@ type Props = {
 /**
  * Kinda act はお見合い・デートで使うカフェ・レストラン専用。
  * 美容系（美容室・ネイル・眉毛・フォト）は Kinda glow に分離。
+ *
+ * カテゴリは固定の並びを先に、掲載中の店にだけある値を後ろに足す。
+ * 固定の配列だけだと、ホテルラウンジのように配列にない業態の店が
+ * 「すべて」でしか見つからなくなるため（2026-09-27 に実際そうなっていた）。
  */
-const CATEGORIES = ["すべて", "カフェ", "レストラン"];
+const CATEGORY_ORDER = ["カフェ", "レストラン", "ホテルラウンジ"];
 const BADGE_FILTERS = [
   { value: "all", label: "すべて" },
-  { value: "certified", label: "取材済み" },
+  { value: "certified", label: "行って確かめた" },
   { value: "agency", label: "相談所おすすめ" },
 ] as const;
 
@@ -43,6 +48,10 @@ export default function KindaActClient({ places }: Props) {
     "すべて";
 
   const [category, setCategory] = useState<string>(initialCategory);
+  const sceneParam = searchParams.get("scene");
+  const [scene, setScene] = useState<string>(
+    sceneParam && (ACT_SCENES as readonly string[]).includes(sceneParam) ? sceneParam : "すべて"
+  );
   const [areaFilter, setAreaFilter] = useState<string>(searchParams.get("area") ?? "すべて");
   const [areaOpen, setAreaOpen] = useState(false);
   const [badge, setBadge] = useState<BadgeFilter>("all");
@@ -82,14 +91,28 @@ export default function KindaActClient({ places }: Props) {
     return () => document.removeEventListener("mousedown", onClick);
   }, [areaOpen]);
 
+  /* 掲載中の店がある値だけを出す。0件になるピルは押しても何も起きないので置かない */
+  const categories = useMemo(() => {
+    const present = new Set(places.map((p) => p.categoryLabel).filter(Boolean));
+    const ordered = CATEGORY_ORDER.filter((c) => present.has(c));
+    const rest = [...present].filter((c) => !CATEGORY_ORDER.includes(c));
+    return ["すべて", ...ordered, ...rest];
+  }, [places]);
+
+  const scenes = useMemo(
+    () => ["すべて", ...ACT_SCENES.filter((s) => places.some((p) => p.scenes?.includes(s)))],
+    [places]
+  );
+
   const filtered = useMemo(() => {
     return places.filter((p) => {
       const matchC = category === "すべて" || p.categoryLabel === category;
+      const matchS = scene === "すべて" || (p.scenes ?? []).includes(scene);
       const matchA = matchesAreaFilter(p.areaLabel, areaFilter);
       const matchB = badge === "all" || p.badgeType === badge;
-      return matchC && matchA && matchB;
+      return matchC && matchS && matchA && matchB;
     });
-  }, [places, category, areaFilter, badge]);
+  }, [places, category, scene, areaFilter, badge]);
 
   return (
     <>
@@ -317,13 +340,33 @@ export default function KindaActClient({ places }: Props) {
           </div>
         </div>
 
+        {/* 使う場面。何に使うかで探す人がいちばん多いので、業態より先に置く */}
+        {scenes.length > 1 && (
+          <div
+            className="kt-filter-scroll"
+            style={{ marginTop: 8 }}
+            aria-label="使う場面で絞り込み"
+          >
+            {scenes.map((s) => (
+              <button
+                key={s}
+                type="button"
+                className={`kt-pill ${scene === s ? "is-active" : ""}`}
+                onClick={() => setScene(s)}
+              >
+                {s === "すべて" ? "すべての場面" : s}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* カテゴリピル（横スクロール可、mask-image で右端フェード） */}
         <div
           className="kt-filter-scroll"
           style={{ marginTop: 8 }}
           aria-label="カテゴリで絞り込み"
         >
-          {CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c}
               type="button"

@@ -15,13 +15,20 @@ import {
 } from "../data/weatherDescriptions";
 import { getTypeContent, type TypeContent } from "../data/typeContent";
 import { decideTypeForRoute } from "../lib/decideType";
-import { saveKindaNoteHistory } from "../lib/storage";
+import {
+  loadKindaNoteHistory,
+  mergeRemoteRecent,
+  saveKindaNoteHistory,
+  type KindaNoteHistoryItem,
+} from "../lib/storage";
+import { TODAY_ONE } from "../data/todayOne";
 import { buildMemoText } from "../lib/buildMemo";
 import { saveDiagnosisResult } from "@/lib/kinda/diagnosisHistory";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getQuestionsForRoute } from "../data/questions";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
+import RecentWeatherStrip from "../components/RecentWeatherStrip";
 import ShareBar from "@/components/share/ShareBar";
 
 const VALID_ROUTES: RouteKey[] = [
@@ -94,6 +101,11 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
   // hydration 後の useEffect で一度だけ算出する。
   const [tiltAngle, setTiltAngle] = useState<string>("rotate(0deg)");
   const [isRareTilt, setIsRareTilt] = useState<boolean>(false);
+  /** 今回より前の天気（新しい順・最大6件）。毎日の「今日の天気」として並べる */
+  const [recent, setRecent] = useState<KindaNoteHistoryItem[]>([]);
+  // 丸窓にマイページの記録を合わせるための元データ。ログインの読み込みが保存より遅れても合わせられるよう、別の effect で使う
+  const recentBaseRef = useRef<{ previous: KindaNoteHistoryItem[]; before: string } | null>(null);
+  const recentMergedRef = useRef(false);
   const shareCardRef = useRef<HTMLDivElement | null>(null);
   const savedRef = useRef(false);
 
@@ -144,6 +156,15 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
     // 履歴保存・完了イベントを全てスキップ。表示のみ行う。
     if (isReplay) return;
 
+    // 保存する前に、これまでの天気を読んでおく（今回の分を含めないため）
+    const before = new Date().toISOString();
+    const previous = loadKindaNoteHistory().slice(-6).reverse();
+    setRecent(previous);
+    recentBaseRef.current = { previous, before };
+    if (previous.length > 0) {
+      trackEvent("kinda_note_repeat", { weather_type: weather, route, count: previous.length + 1 });
+    }
+
     saveKindaNoteHistory({
       route,
       result_type: typeContent.fullName,
@@ -168,6 +189,14 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
       route,
     });
   }, [hydrated, stored, typeContent, weather, route, supabase, user, isReplay]);
+
+  // ログイン中は、マイページの記録も丸窓に並べる（機種変更後なども前の天気が出る）
+  useEffect(() => {
+    const base = recentBaseRef.current;
+    if (!user || !supabase || !base || recentMergedRef.current) return;
+    recentMergedRef.current = true;
+    void mergeRemoteRecent(base.previous, supabase, user.id, base.before).then(setRecent);
+  }, [user, supabase, recent]);
 
   // SNS シェア時の og:image を weather 別に出すため、URL に weather パラメータを反映
   useEffect(() => {
@@ -332,10 +361,36 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
           hydrated={hydrated}
         />
 
+        {/* これまでの天気（2回目以降のみ）。良くなった・悪くなったは書かず、並べるだけ */}
+        {recent.length > 0 && <RecentWeatherStrip items={recent} />}
+
         {/* 第1層（常に表示） */}
         <Section>
           <Eyebrow>今のあなたは</Eyebrow>
           <BodyText>{typeContent.layer1}</BodyText>
+        </Section>
+
+        {/* 今日、ひとつだけ（説明で終わらせず、できることを1つ渡す） */}
+        <TodayOneCard text={TODAY_ONE[weather]} accent={typeContent.color} />
+
+        {/* あなたの言葉（最後の質問で書いた自由記述。表示／非表示をユーザー自身で選べる）。
+            画像・コピーに含めるかの切り替えを兼ねるため、残す操作より前に置く */}
+        {firstFreeText && (
+          <FreeTextSection
+            text={firstFreeText}
+            include={includeFreeText}
+            onToggle={() => setIncludeFreeText((v) => !v)}
+            accent={typeContent.color}
+          />
+        )}
+
+        {/* 今日の天気を残す（以前は最下部で最も控えめだった。2026-10-03 に上げた） */}
+        <Section>
+          <Eyebrow>今日の天気を残す</Eyebrow>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <SaveImageButton onSaveImage={handleSaveImage} saving={saving} />
+            {shareBar}
+          </div>
         </Section>
 
         {/* 展開ボタン */}
@@ -372,56 +427,47 @@ export default function ResultContent({ initialRoute, isReplay = false }: Props)
           </>
         )}
 
-        {/* consultTexts（活動中ルートのみ・常に表示） */}
-        {isActiveRoute && typeContent.consultTexts && typeContent.consultTexts.length > 0 && (
-          <Section>
-            <Eyebrow>カウンセラーに伝えるなら</Eyebrow>
-            <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
-              {typeContent.consultTexts.map((t, i) => (
-                <li
-                  key={i}
-                  style={{
-                    fontSize: 14,
-                    lineHeight: 1.9,
-                    color: "#3A2E26",
-                    paddingLeft: 14,
-                    borderLeft: `3px solid ${typeContent.color}`,
-                  }}
-                >
-                  {t}
-                </li>
-              ))}
-            </ul>
-          </Section>
-        )}
-
-        {/* あなたの言葉（最後の質問で書いた自由記述。表示／非表示をユーザー自身で選べる） */}
-        {firstFreeText && (
-          <FreeTextSection
-            text={firstFreeText}
-            include={includeFreeText}
-            onToggle={() => setIncludeFreeText((v) => !v)}
-            accent={typeContent.color}
-          />
-        )}
-
         {/* Kinda story 誘導カード（ポジティブ系3タイプ限定） */}
         {typeContent.storyCard && <StoryCard />}
 
-        {/* メイン CTA */}
-        <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 12 }}>
-          {isPre ? (
-            <PreButtons isLoggedIn={!!user} shareBar={shareBar} />
-          ) : (
-            <ActiveButtons
-              onCopy={handleCopy}
-              onSaveImage={handleSaveImage}
-              shareBar={shareBar}
-              saving={saving}
-              isLoggedIn={!!user}
-            />
+        {/* カウンセラーに渡すなら（折りたたみ）。今日の天気を自分のために使う人が先、
+            カウンセラーに渡す人は開いて使う */}
+        <CounselorFold>
+          {isActiveRoute && typeContent.consultTexts && typeContent.consultTexts.length > 0 && (
+            <Section>
+              <Eyebrow>カウンセラーに伝えるなら</Eyebrow>
+              <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+                {typeContent.consultTexts.map((t, i) => (
+                  <li
+                    key={i}
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.9,
+                      color: "#3A2E26",
+                      paddingLeft: 14,
+                      borderLeft: `3px solid ${typeContent.color}`,
+                    }}
+                  >
+                    {t}
+                  </li>
+                ))}
+              </ul>
+            </Section>
           )}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {isPre ? (
+              <PreButtons isLoggedIn={!!user} />
+            ) : (
+              <ActiveButtons onCopy={handleCopy} isLoggedIn={!!user} />
+            )}
+          </div>
+        </CounselorFold>
+
+        <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 4 }}>
           <RestartButton />
+          <p style={{ fontSize: 11.5, color: "#A0907A", textAlign: "center", margin: 0, lineHeight: 1.7 }}>
+            明日また来ると、今日の天気と並べて見られます。
+          </p>
         </div>
 
         {/* 活動中ルートのみ：他の機能も見てみる */}
@@ -926,28 +972,39 @@ function StoryCard() {
           marginBottom: 12,
         }}
       >
-        今日のあなたの物語を、誰かに残しませんか？
+        あなたの話を、聞かせてもらえませんか？
       </p>
       <p style={{ fontSize: 13, lineHeight: 1.9, color: "#7A6A5A", marginBottom: 18 }}>
-        匿名でも大丈夫。あなたが今感じているこの気持ちが、これから始める誰かの「自分もこうなりたい」になるかもしれません。
+        Kinda story では、先に進んだ人の話をお聞きして、編集して掲載しています。仮名・年代ぼかしで、載せる範囲はあなたが決められます。
+        あなたが今感じているこの気持ちが、これから始める誰かの「自分もこうなりたい」になるかもしれません。
       </p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <Link
-          href="/kinda-story/new"
+        {/* Story は編集ゲート制（CLAUDE.md §5）。投稿フォームは作らず、メールで相談を受ける。
+            旧リンク /kinda-story/new は存在せず 404 だった（2026-10-03 修正） */}
+        <a
+          href={STORY_MAIL_HREF}
           style={storyBtnStyle}
         >
-          Kinda story に書いてみる
-        </Link>
+          話を聞かせる
+        </a>
         <Link
           href="/kinda-story"
           style={storyBtnStyle}
         >
-          他の物語を見てみる
+          他の物語を読む
         </Link>
       </div>
     </div>
   );
 }
+
+const STORY_MAIL_HREF =
+  "mailto:hello@kinda.jp?subject=" +
+  encodeURIComponent("Kinda story に話を聞かせたい") +
+  "&body=" +
+  encodeURIComponent(
+    "差し支えない範囲でお書きください。\n\n・いまの状況（交際中・成婚した など）：\n・話してみたいこと：\n・ご連絡のつく方法：\n\nいただいた内容は、掲載のご相談のためにだけ使います。掲載する場合は、載せる範囲を一緒に決めてから進めます。"
+  );
 
 const storyBtnStyle: React.CSSProperties = {
   display: "flex",
@@ -964,7 +1021,7 @@ const storyBtnStyle: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
-function PreButtons({ isLoggedIn, shareBar }: { isLoggedIn: boolean; shareBar: React.ReactNode }) {
+function PreButtons({ isLoggedIn }: { isLoggedIn: boolean }) {
   // ログイン状態に関わらず Kinda talk へ。結果は localStorage に永続化済み。
   // 予約フローで初めてログインが必要になる（その時に localStorage の結果が DB に同期される）。
   const talkHref = "/kinda-talk?from=note";
@@ -1000,18 +1057,10 @@ function PreButtons({ isLoggedIn, shareBar }: { isLoggedIn: boolean; shareBar: R
         60秒でぴったりのカウンセラーが見つかる
       </Link>
 
-      {/* 3. Kinda glow（secondary） */}
-      <Link href="/kinda-glow" style={secondaryStyle}>
-        Kinda glow で自分を整える時間を
-      </Link>
-
       {/* 4. Kinda story（tertiary、小） */}
       <Link href="/kinda-story" style={tertiaryStyle}>
         Kinda story を見てみる
       </Link>
-
-      {/* 5. SNS シェア（共通 ShareBar・最も控えめに） */}
-      <div style={{ marginTop: 4 }}>{shareBar}</div>
 
       {!isLoggedIn && (
         <p
@@ -1062,15 +1111,9 @@ const tertiaryStyle: React.CSSProperties = {
 
 function ActiveButtons({
   onCopy,
-  onSaveImage,
-  shareBar,
-  saving,
   isLoggedIn,
 }: {
   onCopy: () => void;
-  onSaveImage: () => void;
-  shareBar: React.ReactNode;
-  saving: boolean;
   isLoggedIn: boolean;
 }) {
   // この結果のままカウンセラーへ持っていける動線（主CTA）
@@ -1145,34 +1188,88 @@ function ActiveButtons({
         コピーして他で使う
       </button>
 
-      <button
-        onClick={onSaveImage}
-        disabled={saving}
+    </>
+  );
+}
+
+function SaveImageButton({
+  onSaveImage,
+  saving,
+}: {
+  onSaveImage: () => void;
+  saving: boolean;
+}) {
+  return (
+    <button
+      onClick={onSaveImage}
+      disabled={saving}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        background: saving ? "#EAE0D8" : "#FDFAF7",
+        border: "1.5px solid #EAE0D8",
+        borderRadius: 999,
+        padding: "14px",
+        fontSize: 14,
+        color: saving ? "#B0A090" : "#3A2E26",
+        cursor: saving ? "wait" : "pointer",
+      }}
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+        <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4" />
+        <circle cx="11.5" cy="5.5" r="0.6" fill="currentColor" />
+      </svg>
+      {saving ? "画像を生成中..." : "画像にして持っておく"}
+    </button>
+  );
+}
+
+/** 「今日、ひとつだけ」。天気ごとに今日できる行動を1つ（data/todayOne.ts） */
+function TodayOneCard({ text, accent }: { text: string; accent: string }) {
+  return (
+    <section
+      style={{
+        background: "#FDFAF7",
+        border: `1px solid ${accent}55`,
+        borderRadius: 16,
+        padding: "18px 20px",
+        marginBottom: 24,
+      }}
+    >
+      <Eyebrow>今日、ひとつだけ</Eyebrow>
+      <p style={{ fontSize: 15, lineHeight: 1.9, color: "#3A2E26", margin: 0 }}>{text}</p>
+    </section>
+  );
+}
+
+/** カウンセラーに渡すための内容をまとめた折りたたみ */
+function CounselorFold({ children }: { children: React.ReactNode }) {
+  return (
+    <details
+      style={{
+        border: "1px solid #EAE0D8",
+        borderRadius: 16,
+        background: "#FDFAF7",
+        padding: "0 18px",
+        marginTop: 8,
+      }}
+    >
+      <summary
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 10,
-          background: saving ? "#EAE0D8" : "#FDFAF7",
-          border: "1.5px solid #EAE0D8",
-          borderRadius: 999,
-          padding: "14px",
+          cursor: "pointer",
+          padding: "16px 0",
           fontSize: 14,
-          color: saving ? "#B0A090" : "#3A2E26",
-          cursor: saving ? "wait" : "pointer",
+          color: "#3A2E26",
+          letterSpacing: "0.02em",
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
-          <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.4" />
-          <circle cx="11.5" cy="5.5" r="0.6" fill="currentColor" />
-        </svg>
-        {saving ? "画像を生成中..." : "画像にして持っておく"}
-      </button>
-
-      {/* SNS シェア（共通 ShareBar） */}
-      <div style={{ marginTop: 4 }}>{shareBar}</div>
-    </>
+        カウンセラーに渡すなら
+      </summary>
+      <div style={{ paddingBottom: 18 }}>{children}</div>
+    </details>
   );
 }
 
@@ -1221,10 +1318,7 @@ function SubLinks() {
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <Link href="/kinda-act" style={subLinkStyle}>
-          Kinda act：お見合いやデートに使いやすい場所
-        </Link>
-        <Link href="/kinda-glow" style={subLinkStyle}>
-          Kinda glow：好きな人に会う前に、自分を整える時間
+          Kinda act：会うときに使いやすい場所
         </Link>
       </div>
     </div>

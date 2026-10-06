@@ -8,15 +8,8 @@ import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { getPublicCounselors } from "@/lib/data";
 import CounselorReelGrid from "@/components/kinda-talk/CounselorReelGrid";
 import CounselorEmptyState from "@/components/kinda-talk/CounselorEmptyState";
+import { AREA_MAP, matchesArea } from "@/lib/talk-areas";
 
-/* スラグ（URL）→ 検索用部分文字列・表示名 */
-const AREA_MAP: Record<string, { label: string; match: string[] }> = {
-  tokyo: { label: "東京", match: ["東京"] },
-  osaka: { label: "大阪", match: ["大阪"] },
-  nagoya: { label: "名古屋", match: ["名古屋"] },
-  fukuoka: { label: "福岡", match: ["福岡"] },
-  online: { label: "オンライン", match: ["オンライン"] },
-};
 
 export function generateStaticParams() {
   return Object.keys(AREA_MAP).map((area) => ({ area }));
@@ -52,9 +45,7 @@ export default async function AreaPage({
   if (!info) notFound();
 
   const all = await getPublicCounselors();
-  const filtered = all.filter((c) =>
-    info.match.some((m) => c.area.includes(m)),
-  ).sort(
+  const filtered = all.filter((c) => matchesArea(c.area, area)).sort(
     (a, b) =>
       b.rating * Math.log(b.reviewCount + 2) -
       a.rating * Math.log(a.reviewCount + 2),

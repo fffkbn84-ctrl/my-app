@@ -6,6 +6,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import { jsonLdStringify } from "@/lib/jsonld";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import Footer from "@/components/layout/Footer";
+import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
 import ScrollToTopButton from "@/components/ui/ScrollToTopButton";
 import AgencyCardBlock from "@/components/ui/AgencyCardBlock";
 import SaveButton from "@/components/ui/SaveButton";
@@ -31,6 +32,7 @@ import {
 } from "@/lib/data";
 import { DIAGNOSIS_TYPES, DiagnosisTypeId } from "@/lib/diagnosis";
 import { getStoryById } from "@/lib/mock/stories";
+import { getColumnsByCounselorId } from "@/lib/columns";
 
 // ISR：60秒キャッシュで2回目以降の遷移を高速化
 export const revalidate = 60;
@@ -387,7 +389,13 @@ export async function generateMetadata({
 }) {
   const { id } = await params;
   const mock = counselors[id as keyof typeof counselors];
-  const fromCounselors = COUNSELORS.find((c) => String(c.id) === id);
+  // 実在のカウンセラーは Supabase にしかいない。以前は mock だけを見ていたため、
+  // 公開中のカウンセラーのタイトルが「見つかりません」、canonical がトップになっていた。
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const fromCounselors =
+    COUNSELORS.find((c) => String(c.id) === id) ??
+    (isUuid ? await getCounselorById(id).catch(() => null) : null) ??
+    undefined;
 
   if (!mock && !fromCounselors) {
     return { title: "カウンセラーが見つかりません | Kinda ふたりへ" };
@@ -445,10 +453,12 @@ export default async function CounselorDetailPage({
 
   // Supabase から取得を試みる（フォールバック: モックデータ）
   // 並列化で初回 SSR を短縮（counselor / reviews / 次の空き枠 を 1 ラウンドトリップで）
-  const [supabaseCounselor, supabaseReviews, nextSlot] = await Promise.all([
+  const [supabaseCounselor, supabaseReviews, nextSlot, interviews] = await Promise.all([
     getCounselorById(id),
     getReviewsByCounselor(id),
     getNextSlotByCounselor(id),
+    // Kinda voices（content/columns の frontmatter counselorId で紐づけ）
+    getColumnsByCounselorId(id),
   ]);
 
   // Supabase にレコードがある（UUID）が、ローカル counselors{} にエントリが
@@ -688,7 +698,7 @@ export default async function CounselorDetailPage({
               <div className="d-breadcrumb">
                 <Link href="/">トップ</Link>
                 <span>/</span>
-                <Link href="/counselors">カウンセラー一覧</Link>
+                <Link href="/kinda-talk">カウンセラー一覧</Link>
                 <span>/</span>
                 <span>{counselor.name}</span>
               </div>
@@ -735,8 +745,9 @@ export default async function CounselorDetailPage({
                 </div>
               </div>
 
-              {/* 星評価 + 口コミ件数 */}
+              {/* 星評価 + 口コミ件数。件数が少ないうちは平均を出さない */}
               <div className="d-rating-row">
+                {hasEnoughReviewsForRating(counselorReviews.length) && (
                 <div className="d-stars">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <svg key={star} width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -750,8 +761,13 @@ export default async function CounselorDetailPage({
                     </svg>
                   ))}
                 </div>
-                <span className="d-rating-num">{avgRating.toFixed(1)}</span>
-                <span className="d-rating-sep" />
+                )}
+                {hasEnoughReviewsForRating(counselorReviews.length) && (
+                  <>
+                    <span className="d-rating-num">{avgRating.toFixed(1)}</span>
+                    <span className="d-rating-sep" />
+                  </>
+                )}
                 {/* コメントアイコン（独自作成） */}
                 <Link href="#reviews" className="d-review-badge">
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -986,8 +1002,177 @@ export default async function CounselorDetailPage({
                   </div>
                 </section>
 
-                {/* 料金表 */}
+                {/* メッセージ */}
                 <section style={{ marginBottom: 48 }}>
+                  <h2
+                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
+                    style={{ fontFamily: "var(--font-mincho)" }}
+                  >
+                    カウンセラーからのメッセージ
+                  </h2>
+                  <div className="d-message">
+                    <p className="d-message-text">&ldquo;{counselor.message}&rdquo;</p>
+                    <p className="d-message-author">— {counselor.name}</p>
+                  </div>
+                </section>
+
+                {/* Kinda voices（取材記事）があれば、口コミの前に置く */}
+                {interviews.length > 0 && (
+                  <section style={{ marginBottom: 48 }}>
+                    <h2
+                      className="text-lg text-ink mb-6 pb-3 border-b border-light"
+                      style={{ fontFamily: "var(--font-mincho)" }}
+                    >
+                      インタビューを読む
+                    </h2>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                      {interviews.map((col) => (
+                        <Link
+                          key={col.slug}
+                          href={`/columns/${col.slug}`}
+                          className="d-message"
+                          style={{ display: "block", padding: "20px 24px", textDecoration: "none", color: "var(--black)" }}
+                        >
+                          <p style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".04em" }}>Kinda voices</p>
+                          <p style={{ fontFamily: "var(--font-mincho)", fontSize: 15, lineHeight: 1.7, marginTop: 4 }}>
+                            {col.title}
+                          </p>
+                          <p style={{ fontSize: 12, color: "var(--accent)", marginTop: 8 }}>記事を読む →</p>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* 口コミ */}
+                <section id="reviews">
+                  <div className="flex items-end justify-between mb-6 pb-3 border-b border-light">
+                    <h2
+                      className="text-lg text-ink"
+                      style={{ fontFamily: "var(--font-mincho)" }}
+                    >
+                      口コミ・評価
+                    </h2>
+                    <span className="text-xs text-muted">{counselorReviews.length}件</span>
+                  </div>
+
+                  {/* 評価サマリー */}
+                  {counselorReviews.length > 0 ? (
+                    <div className="bg-pale rounded-2xl p-6 mb-6">
+                      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+                        <div className="text-center md:w-32 shrink-0">
+                          {/* 件数が少ないうちは平均が振れるため出さない */}
+                          {hasEnoughReviewsForRating(counselorReviews.length) && (
+                            <>
+                              <p
+                                className="text-5xl text-ink leading-none mb-2"
+                                style={{ fontFamily: "var(--font-serif)" }}
+                              >
+                                {avgRating.toFixed(1)}
+                              </p>
+                              <StarRating rating={Math.round(avgRating)} size={16} />
+                            </>
+                          )}
+                          <p className="text-xs text-muted mt-1">{counselorReviews.length}件の評価</p>
+                        </div>
+                        {/* 評価カテゴリの棒グラフは口コミが一定数集まってから出す。
+                            少数件だと数字に意味が出ないため 3 件以上を閾値にしている */}
+                        {counselorReviews.length >= 3 && (
+                          <div className="flex-1 space-y-2 w-full">
+                            <RatingBar label="話しやすさ" value={4.9} />
+                            <RatingBar label="専門知識" value={4.8} />
+                            <RatingBar label="提案力" value={4.7} />
+                            <RatingBar label="サポート" value={4.9} />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
+                        ※ Kinda ふたりへ経由で面談した方のみ投稿できます
+                      </p>
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-pale rounded-2xl p-6 mb-6"
+                      style={{ textAlign: "center" }}
+                    >
+                      <p style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.8 }}>
+                        まだ口コミはありません。<br />
+                        面談された方の口コミがここに表示されます。
+                      </p>
+                      <p className="text-xs text-muted mt-3">
+                        ※ Kinda ふたりへ経由で面談した方のみ投稿できます
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 口コミ一覧 */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    {counselorReviews.map((review) => (
+                      <div key={review.id} className="rv-card">
+
+                        {/* 上段: 日付 / 面談済みバッジ */}
+                        <div className="rv-meta">
+                          <span className="rv-date">{review.date}</span>
+                          {review.verified && (
+                            <span className="rv-verified">
+                              <svg width="11" height="11" viewBox="0 0 10 10" fill="currentColor">
+                                <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
+                              </svg>
+                              面談済み口コミ
+                            </span>
+                          )}
+                        </div>
+
+                        {/* 星 + 数値 */}
+                        <div className="rv-stars-row">
+                          <StarRating rating={review.rating} size={17} />
+                          <span className="rv-rating-num">{review.rating}.0</span>
+                        </div>
+
+                        {/* タイトル */}
+                        <p className="rv-title">{review.title}</p>
+
+                        {/* 本文 */}
+                        <p className="rv-text">{review.text}</p>
+
+                        {/* よかった点タグ（投稿者が選択したもの） */}
+                        {Array.isArray(review.goodTags) && review.goodTags.length > 0 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
+                            {review.goodTags.map((tag: string) => (
+                              <span
+                                key={tag}
+                                style={{
+                                  padding: "4px 10px",
+                                  borderRadius: 16,
+                                  fontSize: 11,
+                                  color: "var(--accent)",
+                                  background: "var(--adim, rgba(200,169,122,.12))",
+                                  border: "1px solid var(--light)",
+                                }}
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* フッター: 投稿者 */}
+                        <div className="rv-footer">
+                          <span className="rv-author">{review.author}</span>
+                        </div>
+
+                        {/* 相談所（カウンセラー）からの返信：マーク → タップで展開 */}
+                        {review.reply && (
+                          <ReviewReply counselorName={counselor.name} reply={review.reply} />
+                        )}
+
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* 料金表（「知る」情報のあとに置く） */}
+                <section style={{ marginTop: 48 }}>
                   <h2
                     className="text-lg text-ink mb-6 pb-3 border-b border-light"
                     style={{
@@ -1343,142 +1528,6 @@ export default async function CounselorDetailPage({
                   )}
                 </section>
 
-                {/* メッセージ */}
-                <section style={{ marginBottom: 48 }}>
-                  <h2
-                    className="text-lg text-ink mb-6 pb-3 border-b border-light"
-                    style={{ fontFamily: "var(--font-mincho)" }}
-                  >
-                    カウンセラーからのメッセージ
-                  </h2>
-                  <div className="d-message">
-                    <p className="d-message-text">&ldquo;{counselor.message}&rdquo;</p>
-                    <p className="d-message-author">— {counselor.name}</p>
-                  </div>
-                </section>
-
-                {/* 口コミ */}
-                <section id="reviews">
-                  <div className="flex items-end justify-between mb-6 pb-3 border-b border-light">
-                    <h2
-                      className="text-lg text-ink"
-                      style={{ fontFamily: "var(--font-mincho)" }}
-                    >
-                      口コミ・評価
-                    </h2>
-                    <span className="text-xs text-muted">{counselorReviews.length}件</span>
-                  </div>
-
-                  {/* 評価サマリー */}
-                  {counselorReviews.length > 0 ? (
-                    <div className="bg-pale rounded-2xl p-6 mb-6">
-                      <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-                        <div className="text-center md:w-32 shrink-0">
-                          <p
-                            className="text-5xl text-ink leading-none mb-2"
-                            style={{ fontFamily: "var(--font-serif)" }}
-                          >
-                            {avgRating.toFixed(1)}
-                          </p>
-                          <StarRating rating={Math.round(avgRating)} size={16} />
-                          <p className="text-xs text-muted mt-1">{counselorReviews.length}件の評価</p>
-                        </div>
-                        {/* 評価カテゴリの棒グラフは口コミが一定数集まってから出す。
-                            少数件だと数字に意味が出ないため 3 件以上を閾値にしている */}
-                        {counselorReviews.length >= 3 && (
-                          <div className="flex-1 space-y-2 w-full">
-                            <RatingBar label="話しやすさ" value={4.9} />
-                            <RatingBar label="専門知識" value={4.8} />
-                            <RatingBar label="提案力" value={4.7} />
-                            <RatingBar label="サポート" value={4.9} />
-                          </div>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted mt-4 pt-4 border-t border-light">
-                        ※ Kinda ふたりへ経由で面談した方のみ投稿できます
-                      </p>
-                    </div>
-                  ) : (
-                    <div
-                      className="bg-pale rounded-2xl p-6 mb-6"
-                      style={{ textAlign: "center" }}
-                    >
-                      <p style={{ fontSize: 13, color: "var(--mid)", lineHeight: 1.8 }}>
-                        まだ口コミはありません。<br />
-                        面談された方の口コミがここに表示されます。
-                      </p>
-                      <p className="text-xs text-muted mt-3">
-                        ※ Kinda ふたりへ経由で面談した方のみ投稿できます
-                      </p>
-                    </div>
-                  )}
-
-                  {/* 口コミ一覧 */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                    {counselorReviews.map((review) => (
-                      <div key={review.id} className="rv-card">
-
-                        {/* 上段: 日付 / 面談済みバッジ */}
-                        <div className="rv-meta">
-                          <span className="rv-date">{review.date}</span>
-                          {review.verified && (
-                            <span className="rv-verified">
-                              <svg width="11" height="11" viewBox="0 0 10 10" fill="currentColor">
-                                <path d="M5 0a5 5 0 100 10A5 5 0 005 0zm2.3 3.8L4.5 6.6 2.7 4.8a.5.5 0 00-.7.7l2.1 2.1a.5.5 0 00.7 0l3.2-3.2a.5.5 0 00-.7-.6z" />
-                              </svg>
-                              面談済み口コミ
-                            </span>
-                          )}
-                        </div>
-
-                        {/* 星 + 数値 */}
-                        <div className="rv-stars-row">
-                          <StarRating rating={review.rating} size={17} />
-                          <span className="rv-rating-num">{review.rating}.0</span>
-                        </div>
-
-                        {/* タイトル */}
-                        <p className="rv-title">{review.title}</p>
-
-                        {/* 本文 */}
-                        <p className="rv-text">{review.text}</p>
-
-                        {/* よかった点タグ（投稿者が選択したもの） */}
-                        {Array.isArray(review.goodTags) && review.goodTags.length > 0 && (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10 }}>
-                            {review.goodTags.map((tag: string) => (
-                              <span
-                                key={tag}
-                                style={{
-                                  padding: "4px 10px",
-                                  borderRadius: 16,
-                                  fontSize: 11,
-                                  color: "var(--accent)",
-                                  background: "var(--adim, rgba(200,169,122,.12))",
-                                  border: "1px solid var(--light)",
-                                }}
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* フッター: 投稿者 */}
-                        <div className="rv-footer">
-                          <span className="rv-author">{review.author}</span>
-                        </div>
-
-                        {/* 相談所（カウンセラー）からの返信：マーク → タップで展開 */}
-                        {review.reply && (
-                          <ReviewReply counselorName={counselor.name} reply={review.reply} />
-                        )}
-
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
                 {/* 基本情報（ホットペッパー的に下部に配置）
                    所属相談所の場所・営業時間・定休日 + Google Maps を一箇所にまとめる。
                    mock agency 優先・Supabase agency へフォールバックして
@@ -1689,14 +1738,19 @@ export default async function CounselorDetailPage({
                       ? counselor.bio.slice(0, 280)
                       : "",
                 },
-                {
-                  "@type": "AggregateRating",
-                  itemReviewed: { "@id": `/counselors/${counselor.id}#person` },
-                  ratingValue: avgRating.toFixed(2),
-                  reviewCount: counselorReviews.length,
-                  bestRating: "5",
-                  worstRating: "1",
-                },
+                // 件数が少ないうちは平均を出さない方針に合わせ、構造化データにも載せない
+                ...(hasEnoughReviewsForRating(counselorReviews.length)
+                  ? [
+                      {
+                        "@type": "AggregateRating",
+                        itemReviewed: { "@id": `/counselors/${counselor.id}#person` },
+                        ratingValue: avgRating.toFixed(2),
+                        reviewCount: counselorReviews.length,
+                        bestRating: "5",
+                        worstRating: "1",
+                      },
+                    ]
+                  : []),
                 ...counselorReviews.slice(0, 5).map((r: { rating: number; user?: string; text?: string; body?: string; date?: string }) => ({
                   "@type": "Review",
                   itemReviewed: { "@id": `/counselors/${counselor.id}#person` },

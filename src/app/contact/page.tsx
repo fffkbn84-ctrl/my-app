@@ -5,6 +5,7 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import ContactForm from "@/components/contact/ContactForm";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "お問い合わせ | Kinda ふたりへ",
   description:
     "Kinda ふたりへ のサービスに関するご質問・ご要望はこちらから。メール または LINE 公式アカウントでお受けしています。",

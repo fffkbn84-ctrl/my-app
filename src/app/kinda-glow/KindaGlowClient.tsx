@@ -33,7 +33,7 @@ const CATEGORIES = [
 ];
 const BADGE_FILTERS = [
   { value: "all", label: "すべて" },
-  { value: "certified", label: "取材済み" },
+  { value: "certified", label: "行って確かめた" },
   { value: "agency", label: "相談所おすすめ" },
 ] as const;
 

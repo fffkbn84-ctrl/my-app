@@ -131,8 +131,8 @@ export default function KindaSearchBar() {
                     />
                   </div>
                   <div className="ks-modal-tool-name"><em>Kinda</em> note</div>
-                  <p className="ks-modal-tool-sub">今の気持ちを整理する</p>
-                  <span className="ks-modal-tool-badge">登録不要 · 約2分 · 無料</span>
+                  <p className="ks-modal-tool-sub">今日の気持ちを天気にする</p>
+                  <span className="ks-modal-tool-badge">登録不要 · 20秒 · 無料</span>
                 </Link>
                 <Link href="/kinda-type" className="ks-modal-tool-card" style={{ background: '#E8F4E4' }} onClick={close}>
                   <div className="ks-modal-tool-img">
@@ -146,7 +146,7 @@ export default function KindaSearchBar() {
                   </div>
                   <div className="ks-modal-tool-name"><em>Kinda</em> type</div>
                   <p className="ks-modal-tool-sub">診断するだけで合うカウンセラーが見つかる</p>
-                  <span className="ks-modal-tool-badge">登録不要 · 約2分 · 無料</span>
+                  <span className="ks-modal-tool-badge">登録不要 · 60秒 · 無料</span>
                 </Link>
               </div>
             </div>
