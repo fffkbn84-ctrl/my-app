@@ -90,3 +90,22 @@ no logos, no gold, no metallic parts, no children, no babies.
 | ⑤ | Both halves are a station ticket gate in the evening. LEFT: the figure waves goodbye, looking back over the shoulder, relaxed smile. RIGHT: the figure waves back while walking away, light and easy, a small clay sparkle. |
 
 再生成の基準：文字・数字が出た／2体の髪・服が前の枚と違う／子どもや赤ちゃんが出た／顔が下 30% に入った
+
+## 決定：人形ではなく「ふたり」の2体を使う（2026-10-06）
+
+ふうかさんが ChatGPT で人間型のクレイ（カフェ①の試作）と「ふたり」の2体を並べて比べた → **「ふたり」の2体を使う**（Claude 推奨）。
+- 人間型は髪型と服で性別に読めた（左が女性・右が男性に見える）。非人間のキャラなら性別が付かない
+- 連載・ふたりシリーズで同じ2体が出続ける＝参考アカウントの「毎回同じ人が出る」をそのまま取れる
+- 配役：**聞く側＝A（ダスティローズのくま・手帳とスカーフ）**／**聞かれる側＝B（クリーム・緑のニット帽・眠そうな目）**
+- 5枚とも、ふたりの設定画を添付して生成する。プロンプトの Characters ブロックを下に差し替える
+
+```
+Use the attached image as the character reference: the exact same two handmade
+fleece plush characters (same colors, fabric, stitches, scarf, notebook, beanie, sizes).
+- LEFT half: Character A, the dusty rose (#D4A090) bear-eared one with the cream
+  scarf and tiny notebook.
+- RIGHT half: Character B, the oatmeal cream one with the floppy sage green beanie
+  and half-closed relaxed eyes.
+Embroidered eyes and mouth only; emotion is shown by posture and by small
+felt/fleece marks (sweat drops, sparkles), not by drawn symbols.
+```
