@@ -258,28 +258,55 @@ export default function AboutPage() {
             }}
           >
             <p style={{ margin: "0 0 1.6em" }}>
-              既存のレビューサイトは、関係が成立した人のためにある。
-            </p>
-            <p style={{ margin: "0 0 .4em" }}>結婚した人が振り返って書くレビュー。</p>
-            <p style={{ margin: "0 0 1.6em" }}>成婚した人だけが語れるストーリー。</p>
-            <p style={{ margin: "0 0 1.6em" }}>
-              それはとても大切なものだけれど、
+              相談所を決めるとき、
               <br />
-              今まさに婚活をしている人には届かない。
+              いちばん不安なのは
+              <br />
+              「どこに入るか」ではなく
+              <br />
+              「誰が担当になるか」かもしれません。
             </p>
-            <p style={{ margin: "0 0 .4em" }}>カウンセラーを選ぶ前の不安</p>
+            <p style={{ margin: "0 0 .4em" }}>立派な相談所に入りたい、というより</p>
+            <p style={{ margin: "0 0 1.6em" }}>
+              親身になってくれる人に、ついてほしい。
+            </p>
+            <p style={{ margin: "0 0 1.6em" }}>
+              でも多くの場合、担当は選べません。
+              <br />
+              会ってみるまで、どんな人かも分からない。
+            </p>
+            <p style={{ margin: "0 0 1.6em" }}>
+              ふだん、何かを相談するとき、
+              <br />
+              わたしたちは相手を自分で見ています。
+              <br />
+              この人になら話せる、と思ってから
+              <br />
+              相談しているはずです。
+            </p>
+            <p style={{ margin: "0 0 1.6em" }}>
+              人生の一大事のときだけ、
+              <br />
+              それができないのは、
+              <br />
+              少し不思議だと思いました。
+            </p>
             <p style={{ margin: "0 0 .4em" }}>お見合い前夜の緊張</p>
             <p style={{ margin: "0 0 1.6em" }}>断られた翌朝の気持ち</p>
             <p style={{ margin: "0 0 1.6em" }}>
-              そういう瞬間に寄り添える場所が
+              既存のレビューサイトは、
+              <br />
+              関係が成立した人のためにある。
+              <br />
+              そういう瞬間に寄り添える場所が、
               <br />
               なかった。
             </p>
             <p style={{ margin: "0 0 .4em" }}>だから作りました。</p>
             <p style={{ margin: 0 }}>
-              今まさに関係を作っているあなたのための
+              誰に相談するかを、
               <br />
-              レビューと予約と、頑張れる場所を。
+              あなた自身が選べる場所を。
             </p>
           </div>
         </div>
@@ -596,7 +623,7 @@ export default function AboutPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑤' Kinda のしくみ（5つの Kinda 一覧・Apple 風：白背景）
+          ⑤' Kinda のしくみ（6つの Kinda 一覧・Apple 風：白背景）
       ━━━━━━━━━━━━━━━━━━━━ */}
       <section style={{ padding: "clamp(96px, 14vw, 160px) 32px", background: "#FFFFFF" }}>
         <div style={{ maxWidth: 760, margin: "0 auto" }}>
@@ -624,7 +651,7 @@ export default function AboutPage() {
               marginBottom: 20,
             }}
           >
-            5つの<span className="brand-name"> Kinda</span>、ひとつの場所で。
+            6つの<span className="brand-name"> Kinda</span>、ひとつの場所で。
           </h2>
           <p
             style={{
@@ -637,10 +664,10 @@ export default function AboutPage() {
           >
             気持ちの整理から、ふたりが過ごす日々まで。
             <br />
-            Kinda は5つの役割で、あなたのそばにいます。
+            Kinda は6つの役割で、あなたのそばにいます。
           </p>
 
-          {/* 5つの Kinda サービスカード（2×n グリッド） */}
+          {/* 6つの Kinda サービスカード（2×n グリッド） */}
           <div
             style={{
               display: "grid",
@@ -680,6 +707,14 @@ export default function AboutPage() {
                 accent: "#B86E68",
                 bg: "#F5E1E0",
                 desc: "お見合いやデートに使いやすい場所",
+              },
+              {
+                key: "pair",
+                href: "/kinda-pair",
+                suffix: "pair",
+                accent: "#6F8A5E",
+                bg: "#E7EEE1",
+                desc: "話したことと、まだ話していないこと",
               },
               {
                 key: "glow",
