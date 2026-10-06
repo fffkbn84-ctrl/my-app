@@ -801,85 +801,10 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ━━━━━━━━━━━━━━━━━━━━
-          ⑥ 数字で見るKinda ふたりへ
-      ━━━━━━━━━━━━━━━━━━━━ */}
-      <section
-        style={{
-          background: "#FBF7F1",
-          padding: "clamp(96px, 14vw, 160px) 32px",
-          textAlign: "center",
-        }}
-      >
-        <div style={{ maxWidth: 760, margin: "0 auto" }}>
-          <p
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 500,
-              fontSize: 12,
-              letterSpacing: ".2em",
-              color: "#D4A090",
-              textTransform: "uppercase",
-              marginBottom: 20,
-            }}
-          >
-            BY THE NUMBERS
-          </p>
-          <h2
-            style={{
-              fontFamily: "'Shippori Mincho', serif",
-              fontWeight: 500,
-              fontSize: "clamp(26px, 4.2vw, 42px)",
-              color: "#1A130E",
-              letterSpacing: ".04em",
-              lineHeight: 1.5,
-              marginBottom: 48,
-            }}
-          >
-            数字で見る<span className="brand-name">Kinda ふたりへ</span>
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 40,
-            }}
-          >
-            {[
-              { num: "247", label: "掲載カウンセラー数" },
-              { num: "1,840", label: "累計口コミ数" },
-              { num: "5", label: "掲載エリア" },
-              { num: "無料", label: "ご利用料金" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <div
-                  style={{
-                    fontFamily: "'DM Serif Display', serif",
-                    fontSize: 48,
-                    color: "var(--black)",
-                    lineHeight: 1,
-                    marginBottom: 8,
-                  }}
-                >
-                  {stat.num}
-                </div>
-                <div
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontWeight: 300,
-                    fontSize: 11,
-                    color: "var(--muted)",
-                    letterSpacing: ".1em",
-                  }}
-                >
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 「数字で見る Kinda」セクションは削除（2026-10-06）。
+          掲載カウンセラー数 247・累計口コミ数 1,840 という実態のない数字を出していた
+          （実際はカウンセラー1名・公開口コミ0件）。景品表示法上の優良誤認にあたるうえ、
+          掲載を検討する相談所が最初に見るページでもある。実数で語れるようになるまで置かない。 */}
 
       {/* ━━━━━━━━━━━━━━━━━━━━
           ⑦ 運営チームより（Apple 風：白背景・大きな見出し）
