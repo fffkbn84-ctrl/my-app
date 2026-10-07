@@ -4,6 +4,13 @@
 
 ---
 
+## 2026-10-07（Search Console 登録リクエスト候補10件）
+
+- 10/2 に slug を付け替えた天気コラム18本のうち、検索需要が大きいもの10本を候補に出した。次回は残り8本から：
+  konkatsu-tsukareta / konkatsu-genkai / angels-ladder-kari-kosai / faint-sunlight-honmei-mayoi / cold-wind-date-fuan /
+  windy-sunshine-fukusu-kosai / sun-break-omiai-tegotae / dissonance-wind-iwakan / light-rain-konkatsu-mannneri / morning-mist-konkatsu-start
+- 10/5 に出した10件は記録が残っていなかった。**今後は出した URL をここに残す**
+
 ## 2026-10-06（IG：ぎっしり#1 が伸びた／参考アカウントの分解／連載第4週を「A vs B 比較」型で投稿）
 
 - **ぎっしり情景#1（10/5）が投稿2時間で過去最高**：リーチ730・3秒残存54%・平均再生6／10秒・スキップ41.6%（前日ナマケモノは13%）。
