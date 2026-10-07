@@ -77,7 +77,7 @@
 /shops/[id]/review                お店の口コミ投稿
 /places/[id]                      場所個別ページ
 /episodes/[id]                    エピソード個別ページ
-/reviews/new                      口コミ投稿（認証コード経由）
+/reviews/new                      口コミ投稿（?reservation= でログイン本人の完了済み予約に紐づく）
 ```
 
 ### 1-4. アカウント（robots.txt で Disallow）
