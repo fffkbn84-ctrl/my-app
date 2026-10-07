@@ -9,6 +9,10 @@
 - 10/2 に slug を付け替えた天気コラム18本のうち、検索需要が大きいもの10本を候補に出した。次回は残り8本から：
   konkatsu-tsukareta / konkatsu-genkai / angels-ladder-kari-kosai / faint-sunlight-honmei-mayoi / cold-wind-date-fuan /
   windy-sunshine-fukusu-kosai / sun-break-omiai-tegotae / dissonance-wind-iwakan / light-rain-konkatsu-mannneri / morning-mist-konkatsu-start
+- 結果（ふうかさん）：thunderstorm-konkatsu-genkai・cold-wind-date-fuan・morning-mist-konkatsu-start は**登録済み**だった（thunderstorm だけ再リクエスト）。
+  新規リクエストは7本。枠の残り2本に pre-dawn-konkatsu-ketsudan・wandering-clouds-date-mayoi を追加で出した。
+  次回の候補（未リクエスト）：flower-overcast-konkatsu-fuan / light-rain-start-omiai-machi / light-sunrise-date-yokan / mist-shinken-mayoi /
+  quiet-overcast-shinken-fuan / sunrise-shinken-zenmuki / twilight-fukusu-zaiakukan / windy-day-omiai-yokan
 - 10/5 に出した10件は記録が残っていなかった。**今後は出した URL をここに残す**
 
 ## 2026-10-06（IG：ぎっしり#1 が伸びた／参考アカウントの分解／連載第4週を「A vs B 比較」型で投稿）
