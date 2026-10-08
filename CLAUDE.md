@@ -202,6 +202,8 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 | **土 12:00** | 「言いにくい気持ち」 | **リール** | `docs/sns/series/iinikui-kimochi.md` |
 | 木 | つくる日記 | — | **休止中**（`docs/sns/series/tsukuru-nikki.md`） |
 
+> **2026-10-08 から：曜日の枠より伸びる型を先に出す（1日1本・毎日）。** 固定はことさん（水金）だけ。日ごとの予定は `docs/sns/ig-week-2026-09.md` §00
+
 週の設計と背景は `docs/sns/ig-week-2026-09.md`、戦略は `docs/sns/ig-strategy-2026-09.md`。
 画像処理・文字入れ・MP4書き出しのスクリプトは `docs/sns/tools/ig-carousel/`（README に手順）。
 
