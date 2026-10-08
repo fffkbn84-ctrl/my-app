@@ -4,6 +4,31 @@
 
 ---
 
+## 2026-10-07（X：数字の読み直し・仕組みの調査・第2週21本）
+
+- **X の数字（9/12〜10/3 の30本）**：インプ中央値10・最大31・プロフ1・リンククリック0。7月（中央値12）から動いていない。
+  柱・時間・文の型で差が出ない＝中身ではなく**届く道がない**のが原因と判断
+- **公開コード（xai-org/x-algorithm）と解説を調査**：候補は「フォロー中／似ている人へ（意味のベクトル）／話題」の3つだけ。
+  小さい投稿者の補正（1,000以下・48時間）はあるが候補を作ってはくれない。返信5・リンクコピー共有20・いいね0.5。
+  連投の減衰は同じ人の表示の中だけなので1日3本は問題なし。X コミュニティは 2026-05-30 に終了
+- 決めたこと（ふうか確認待ち）：昼を**画像・動画の枠**に／問いを**記号で答える形**に／**リプ回り1日10件**／固定投稿を駅前の絵に。
+  正は `docs/sns/x-strategy-2026-10.md`、週の投稿は `docs/sns/packs/2026-10-w2-x.md`
+- Notion X カレンダーに 10/8〜10/14 の20本を下書き済で投入。10/5 昼の未投稿分（pair 点数）を 10/14 昼へ移動
+- **ぎっしり#1 を X 用 4:5・番号つきに作り直した**（`tools/ig-carousel/render-x-labels.js` 新設。IG 版の座標をそのまま使える）。
+  「2 30分前」が「230分前」に読めたので番号だけ色を変えた。素材は `docs/sns/assets/x/2026-10-w2/`（天気の絵3枚も同梱）
+- Notion に下書き済のまま残っている古い行：9/27 中の人「まだ一通も送っていない」・10/4 夜「終える理由」（投稿済なら状態を直す）
+
+## 2026-10-07（Search Console 登録リクエスト候補10件）
+
+- 10/2 に slug を付け替えた天気コラム18本のうち、検索需要が大きいもの10本を候補に出した。次回は残り8本から：
+  konkatsu-tsukareta / konkatsu-genkai / angels-ladder-kari-kosai / faint-sunlight-honmei-mayoi / cold-wind-date-fuan /
+  windy-sunshine-fukusu-kosai / sun-break-omiai-tegotae / dissonance-wind-iwakan / light-rain-konkatsu-mannneri / morning-mist-konkatsu-start
+- 結果（ふうかさん）：thunderstorm-konkatsu-genkai・cold-wind-date-fuan・morning-mist-konkatsu-start は**登録済み**だった（thunderstorm だけ再リクエスト）。
+  新規リクエストは7本。枠の残り2本に pre-dawn-konkatsu-ketsudan・wandering-clouds-date-mayoi を追加で出した。
+  次回の候補（未リクエスト）：flower-overcast-konkatsu-fuan / light-rain-start-omiai-machi / light-sunrise-date-yokan / mist-shinken-mayoi /
+  quiet-overcast-shinken-fuan / sunrise-shinken-zenmuki / twilight-fukusu-zaiakukan / windy-day-omiai-yokan
+- 10/5 に出した10件は記録が残っていなかった。**今後は出した URL をここに残す**
+
 ## 2026-10-06（IG：ぎっしり#1 が伸びた／参考アカウントの分解／連載第4週を「A vs B 比較」型で投稿）
 
 - **ぎっしり情景#1（10/5）が投稿2時間で過去最高**：リーチ730・3秒残存54%・平均再生6／10秒・スキップ41.6%（前日ナマケモノは13%）。
