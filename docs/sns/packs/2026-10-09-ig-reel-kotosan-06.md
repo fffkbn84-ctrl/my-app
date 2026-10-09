@@ -11,7 +11,7 @@ Notion の原案は v1 の並び（状況の文字 → 表 → 本音 → ごく
 |---|---|
 | **v2 の並びに組み直した** | 2026-10-02 の決裁で #3 以降は v2 に統一。原案の「親戚の集まりにて。」の状況文字は、1カット目に読むものを増やす（10/6 A vs B が 18% で止まった仮説と同じ） |
 | **親戚を3体にした**（話すのは1体だけ） | 3秒残存は「画面にいる人の数」で並ぶ：ぎっしり#1（大勢）56%／ことさん#1（会議・人形2体）38%／#3・#4（1対1）23%。親戚の集まりは人が多くて自然な場面なので、型を変えずに人を増やせる |
-| **本音を「ご縁って、どこで…」に** | 原案「そのご縁、どこで配ってるか」は、v2 だと「ご縁」が建前（後）にしか出ないので「その」が何も指さない。言いかけて飲み込んだ言葉を、そのまま建前で自分が使うので、オチが一段強くなる |
+| **本音を「それ、去年も聞…」に**（10/9 差し替え） | 原案「そのご縁、どこで配ってるか」は、v2 だと「ご縁」が建前（後）にしか出ないので「その」が何も指さない。一度「ご縁って、どこで…」にしたが、ふうかさん「微妙」で差し替え（理由は下）。題「毎年くる、あの質問」と本音が同じことを指すので、1カット目の題と2カット目がつながる |
 
 題は #5 で試した「見る人のこと」の書き方にそろえた：**毎年くる、あの質問**（結婚の語を題に出さない。結婚に限らず「まだ〇〇しないの？」全般に読める）。
 
@@ -21,12 +21,14 @@ Notion の原案は v1 の並び（状況の文字 → 表 → 本音 → ごく
 |---|---|---|---|---|
 | 帯 | 全編 | — | **毎年くる、あの質問**／ことさんは、飲み込んだ。#6 | — |
 | 1 | 0〜2.5 | 座卓を囲む親戚の集まり。右の親戚がことさんのほうへ身を乗り出す | 〔親戚〕「まだ結婚／しないの？」 | ポン／曲が始まる |
-| 2 | 〜4.4 | **ことさんが真顔で、親戚のほうへ向き直りかける** | 〔ことさん〕「ご縁って、どこで…」 | ポン |
+| 2 | 〜4.4 | **ことさんが真顔で、親戚のほうへ向き直りかける** | 〔ことさん〕「それ、去年も聞…」 | ポン |
 | 3 | 〜6.1 | **ことさんがまんまるにふくらむ。** 親戚たちは気づかず笑っている | **（ごくん）** | ごくん・曲が止まる |
 | 4 | 〜8.7 | **眼鏡がきらっと光り、湯のみを両手に会釈** | 〔ことさん〕「ご縁があれば〜」 | キラッ → ポン／曲が戻る |
 | 5 | 〜11.5 | 親戚たちは別の話に移っている。ことさんはひとり湯のみでお茶を飲んでいる。眼鏡は光らず、目が見える穏やかな顔 | 「自分のペースでいい」（画面下・`label`） | 音なし |
 
-- 本音の続き（「配ってるんですか」）は誰でも補える。v2 の条件どおり
+- 本音の続き（「かれました」）は誰でも補える。v2 の条件どおり
+- **「ご縁って、どこで…」をやめた理由**（10/9 ふうか「微妙」）：①続き（配ってるんですか）が「ご縁を配る」という言葉遊びを知らないと補えず、頭の数文字で残りが立たない ②皮肉の向きが「ご縁」という概念に向いて、相談所が扱っているもの（出会い・ご縁）を茶化すようにも読める ③理不尽さがない。親戚の質問のいちばんの理不尽は**毎年同じことを聞かれる**ことで、そこを飲み込むほうが「わかる」になる
+- 建前「ご縁があれば〜」は、毎年同じ答えを返している側の定型。質問も答えも毎年同じ、という往復が笑いになる
 - **毒の向き先は「まだ結婚しないの？」という定型の質問と、「ご縁」という言い回し**。親戚個人を責める言葉は置かない。
   結婚相談所・カウンセラー・婚活している人には向けない（設定書§5）
 - 救いは設定書§6 の「重さのある回のみ」に当たる（親戚の結婚の質問は軽くない）。帯の題は残したまま、文字は画面下の一言だけ
@@ -53,7 +55,7 @@ No text, no letters, no numbers, no logos anywhere. No speech bubbles. No phones
 | # | 【ACTING】 |
 |---|---|
 | 1 | `The relative on the right leans forward over the table toward the character in a friendly, curious way, one arm raised slightly, round head tilted as if asking a casual question. The two relatives in the back are turned toward the character too, as if waiting to hear the answer. The character looks slightly up and to the side toward the right relative, eyes visible behind the glasses, no glare, a calm ordinary face.` |
-| 2 | `The character turns to face the camera with a completely blank, flat, serious face: the matte black oval eyes are fully visible and perfectly still, no glare on the lenses. Its body leans slightly forward toward the right relative, one short arm lifted a little, as if about to ask a serious question back. The three relatives stay in exactly the same poses as before.` |
+| 2 | `The character turns to face the camera with a completely blank, flat, serious face: the matte black oval eyes are fully visible and perfectly still, no glare on the lenses. Its body leans slightly forward toward the right relative, one short arm lifted a little, as if about to point out something obvious. The three relatives stay in exactly the same poses as before.` |
 | 3 | `The character's pouch body has suddenly swollen into a round ball, clearly wider than in the reference, and the gathered top is cinched shut hard so the terracotta drawstring bites into the fabric and the two wooden beads stick out sideways. Both matte black eyes are visible behind the glasses, no glare. The three relatives are still in exactly the same poses, cheerful, not noticing anything.` |
 | 4 | `The character is back to its normal size, holding the small cream teacup with both short arms, and tips its whole body forward in a small polite bow toward the right relative. Both round gold wire lenses catch the light in a flat bright glare, so the eyes are not visible. The right relative leans back, satisfied, one arm raised in a pleased gesture.` |
 | 5 | `The three relatives have turned toward each other in the middle and are chatting among themselves, no longer looking at the character. The character sits alone at the left side, normal size, quietly sipping from the small cream teacup held with both short arms, the eyes visible behind the glasses, no glare, a soft relaxed face. A thin wisp of steam rises from the cup.` |
@@ -75,7 +77,7 @@ python3 prep-futari.py <生成1.png> plate-1.png 200     # 2〜5 も同じ
 
 B='["毎年くる、あの質問","ことさんは、飲み込んだ。#6"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say   <x> '["@親戚","まだ結婚","しないの？"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say   <x> '["@ことさん","ご縁って、どこで…"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say   <x> '["@ことさん","それ、去年も聞…"]'
 TIP_Y=650 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" gokun <x> '["（ごくん）"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say   <x> '["@ことさん","ご縁があれば〜"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-5.png f5.png "$B" label 0  '["自分のペースでいい"]'
@@ -97,7 +99,7 @@ python3 add_sfx.py kinda-ig-1009-kotosan06.mp4 kinda-ig-1009-kotosan06-sfx.mp4 k
 
 ```
 親戚の集まりの、あの質問。
-「ご縁って、どこで…」まで出かけて、しまいました。
+「それ、去年も聞…」まで出かけて、しまいました。
 
 答えを急かされても、決めるのは自分のペースでいい。
 毎年この質問を一緒に乗り切っている人へ、送ってあげてください。
