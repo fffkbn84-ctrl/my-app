@@ -81,6 +81,7 @@ python3 build_reel.py kotosan5 kinda-ig-1009-kotosan.mp4   # 救いのある回�
 - **並べる型・肯定の型**（`ideas.md` 案3・案4）も同じ `render-kotosan-v2.js` の `label` モード（帯＋画面下の一言・「」は自動・本文10字まで・上端 `LABEL_Y`=1290）。
   動画は `build_reel.py narabe4`（9.3秒）。手順の実例は `packs/ig-reel-narabe-01-mada-ienai.md` §3。
   フォントは「ふたり」と同じ `noto900.woff2` `noto700.woff2`（`@fontsource/noto-sans-jp` の `japanese-900/700-normal`）。
+  **置き忘れてもエラーにならず、細い代わりの書体で描かれる**（2026-10-09 に一度出た）。jsdelivr の `@fontsource/noto-sans-jp@5.0.19/files/noto-sans-jp-japanese-{900,700}-normal.woff2` を作業フォルダに置く。
   下の v1（`render-kotosan.js`）は #1・#2 の再現用に残している
 - `render-kotosan.js` の第1引数は版面：`scene`（場面＋シリーズ名＋状況44px）／`omote`（白い吹き出し48px）／
   `honne`（薄茶の透ける吹き出し44px）／`gokun`（88px・吹き出しなし・天地中央）／`sukui`（白44px）。
