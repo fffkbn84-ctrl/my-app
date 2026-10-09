@@ -63,7 +63,9 @@ No text, no letters, no numbers, no logos anywhere. No speech bubbles. No phones
 |---|---|
 | 1 | `The relative on the right leans forward over the table toward the character with a pushy, know-it-all air, one short arm raised with a pointing finger as if lecturing, round head tilted forward. The two relatives in the back are turned toward the character too, as if waiting to hear the answer. The character looks slightly up and to the side toward the right relative, eyes visible behind the glasses, no glare, a calm ordinary face.` |
 | 2 | `The character turns to face the camera with a completely blank, flat, serious face: the matte black oval eyes are fully visible and perfectly still, no glare on the lenses. Its body leans slightly forward toward the right relative, one short arm lifted a little, as if about to say something sharp and honest. The three relatives stay in exactly the same poses as before.` |
-| 3 | `The character's pouch body has suddenly swollen into a round ball, clearly wider than in the reference, and the gathered top is cinched shut hard so the terracotta drawstring bites into the fabric and the two wooden beads stick out sideways. Both matte black eyes are visible behind the glasses, no glare. The three relatives are still in exactly the same poses, cheerful, not noticing anything.` |
+| 3 | `The character's pouch body has suddenly inflated into a huge, perfectly round ball, about twice as wide as before and clearly bigger than the relatives' heads, swelling upward into the empty beige space above. The fabric is stretched tight and smooth, the hand-stitched seams pulled taut. The gathered top is cinched shut hard so the terracotta drawstring bites deep into the fabric and the two wooden beads stick straight out sideways. Both matte black eyes are still visible behind the gold glasses, small and wide-open in the middle of the big round body, no glare, no mouth. The three relatives stay in exactly the same poses as before, not noticing anything. Keep the looped fluffy fabric texture; do not turn it into clay or a balloon.` |
+
+> カット3は**人形より大きくなってよい**（10/9 ふうか）。初回の控えめなふくらみでは飲み込んだことが伝わらなかった
 | 4 | `The character is back to its normal size, holding the small cream teacup with both short arms, and tips its whole body forward in a small polite bow toward the right relative. Both round gold wire lenses catch the light in a flat bright glare, so the eyes are not visible. The right relative leans back, satisfied, one arm raised in a pleased gesture.` |
 | 5 | `The three relatives have turned toward each other in the middle and are chatting among themselves, no longer looking at the character. The character sits alone at the left side, normal size, quietly sipping from the small cream teacup held with both short arms, the eyes visible behind the glasses, no glare, a soft relaxed face. A thin wisp of steam rises from the cup.` |
 
@@ -109,7 +111,7 @@ python3 add_sfx.py kinda-ig-1009-kotosan06.mp4 kinda-ig-1009-kotosan06-sfx.mp4 k
 「余計なお世…」まで出かけて、飲み込みました。
 
 言い返して空気を悪くするより、笑って流すほうを選ぶ日もある。
-それは負けではなくて、自分で選んだことです。
+それは負けではなくて、場を丸く収める大人の技です。
 相手がいるかどうかも、いつ決めるかも、責められることではありません。
 
 毎年あの席を一緒に乗り切っている人へ、送ってあげてください。
@@ -145,12 +147,13 @@ python3 add_sfx.py kinda-ig-1009-kotosan06.mp4 kinda-ig-1009-kotosan06-sfx.mp4 k
 ## 7. 制作記録（2026-10-09）
 
 - ChatGPT の5枚を全部採用（貼られた順は 5→4→2→1→3 の逆順ぎみ）。口なし・親戚は顔なし・性別や年齢の手がかりなし・湯のみに文字なし
-- カット3（ふくらみ）は控えめ。卵形が丸くなり、巾着の玉が横に出ている程度。ごくんの文字と効果音で成立すると判断して採用
+- カット3（ふくらみ）は初回が控えめだったので、ふうかさんの判断で**人形より大きく**作り直した（`kotosan-relatives-puff-v2`）。親戚のポーズが少し変わった（指さしが手を合わせる形に）が、カット4でも変わっているので採用。gokun は `TIP_Y=780`
 - カット5は親戚が互いのほうを向いて話している。眼鏡は光っていない・湯気あり
 - 場面が画面の下半分に寄るので、しっぽの先を下げた：**TIP_Y＝930／950／880（gokun）／960**、x＝830／190／210／190。
   カット5の一言は座卓と重なって読めないので **`LABEL_Y=640`**（上の空き）に移した
-- 書き出し：`kinda-ig-1009-kotosan06-sfx.mp4`（11.50秒・効果音 kotosan06）
-- 素材：`assets/kotosan/kotosan-relatives-{ask,answer,puff,glare-bow,tea}-v1.webp`
+- 書き出し：`kinda-ig-1009-kotosan06-v2-sfx.mp4`（11.50秒・効果音 kotosan06）
+- キャプション：「自分で選んだことです」→「場を丸く収める大人の技です」（ふうか「もう少し変えられないか」。「選んだ」は理屈っぽく、言わない美学の軽さが出ない）
+- 素材：`assets/kotosan/kotosan-relatives-{ask,answer,puff,glare-bow,tea}-v1.webp`（使ったふくらみは `puff-v2`）
 - 注意：`noto900.woff2`／`noto700.woff2` を作業フォルダに置かないと、エラーにならず代わりの細い書体で描かれる。
   jsdelivr の `@fontsource/noto-sans-jp@5.0.19/files/noto-sans-jp-japanese-{900,700}-normal.woff2` から取る
 
