@@ -1,14 +1,37 @@
 # IGリール制作キット｜ぎっしり情景#3 土曜15時のカフェ（2026-10-10 土 12:00）
 
-> 型の正は `docs/sns/series/gisshiri-jokei.md`。ふうか案（10/8）。版面と番号の付け方は #2（`packs/2026-10-08-ig-reel-gisshiri-02-henshin.md`）と同じ。
+> 型の正は `docs/sns/series/gisshiri-jokei.md`。ふうか案（10/8）。
+> **10/9 書き直し**：最初の版は「12の席を仕切りで分けた3×4のマス目」だったが、#2 と同じ箱割りの構図なので撤回した（§0）。
 
 - **題**：土曜15時のカフェ ／ **問いかけ**：あなたは、何番？
-- **見る数字**：送信・保存・コメント（番号で返るか）・3秒残存（#1 56%）
+- **見る数字**：**スキップ率と3秒残存**（#1 41〜47%・56% ／ #2 78.6%・24%）。次に送信・保存・コメント（番号で返るか）
 - これで**ぎっしりが3本**。投稿後、3本ともプロフィールに固定する
+
+## 0. この回で確かめること（10/9 ふうか仮説・Claude 同意）
+
+#2（アパートの断面図）は16時間でリーチ126・3秒残存24%・スキップ78.6%。#1 の1/10。
+
+- **仮説**：#2 は「景色を切り取った写真」ではなく「箱（ドールハウス）を外から撮った物の写真」に見えた。
+  さらに3×4のマス目は左上から順に読めば終わる「表」なので、**目が画面の中を探し回らない**。ぎっしりの強み（自分を探す）が消えた
+- 下1/3 が平らな地色（道路の色）で埋まっていて、空白が目立った
+- **だから #3 は構図だけを #1 に戻す。** 箱・仕切り・建物の外枠を描かない。店内の一角を斜め上から切り取る
+
+#2 では構図のほかにも変えたものがあった。今回は**構図以外も #1 にそろえて**、構図の効き目だけを見る。
+
+| | #1（伸びた） | #2（伸びなかった） | #3 |
+|---|---|---|---|
+| 構図 | 広場を斜め上から。端が画面の外に切れる | 建物の正面・外枠まで全部写る・3×4 | **#1 と同じ**（店内を斜め上から・端が切れる） |
+| 人の置き方 | ばらばら | 1部屋1人の格子 | **ばらばら** |
+| 明るさ | 昼 | 夜（全体が暗い） | **昼**（午後の窓の光） |
+| ラベル | 30px・不透明 0.92 | 23px・0.8 | **30px・0.92**（既定値に戻す） |
+| 番号 | なし | あり | あり（コメントの返しやすさのため残す。見た目への影響は小さい） |
+| 曜日・時刻 | 月 20:00 | 木 20:00 | 土 12:00（予定どおり。**残る違いはこれ**） |
+
+**判定**：スキップ率が #1 並み（50%未満）に戻れば、構図の仮説は当たり。#2 並み（70%超）なら構図以外（テーマ・曜日）を疑う。
 
 ## 1. ラベル（12字まで・番号込み）
 
-| # | ラベル | 席の中 |
+| # | ラベル | 人形の動き |
 |---|---|---|
 | 1 | 1 お見合いの沈黙10秒 | 向かい合って座る2体。少しかしこまって、両方ともカップを見ている |
 | 2 | 2 3回目、同じ席で笑う | 向かい合って笑い合う2体 |
@@ -19,26 +42,36 @@
 | 7 | 7 ケーキを2つ頼んだ | ひとりの前にケーキが2つ。うれしそう |
 | 8 | 8 撮ってる間に冷めた | スマホでラテを真上から撮っている |
 | 9 | 9 真顔で旅行の相談 | 2体が真剣な顔で1枚の地図をのぞきこんでいる |
-| 10 | 10 隣の会話が気になる | ひとりで本を持っているが、目は隣の席（1番）のほうを見ている |
-| 11 | 11 メニューで5分迷う | カウンターでメニューを持って固まっている |
+| 10 | 10 隣の会話が気になる | ひとりで本を持っているが、目は隣のテーブル（1番）のほうを見ている |
+| 11 | 11 メニューで5分迷う | カウンターの前でメニューを持って固まっている |
 | 12 | 12 外の犬に夢中 | 窓際の席で、窓の外の小さな犬を見ている |
 
 - お見合いの席（1）が混ざるのが Kinda らしさ。**沈黙を笑いにするが、下には見ない**（「沈黙10秒」は誰にでもある間）
 - 10 は見ている人そのもの（隣の会話が気になる＝この画面を眺めている自分）
 - 「進んでいる・遅れている」と読めるラベルなし。2体組の性別は決めない
+- 12人は #1（11）より多い。描かれなかった動きのラベルは外してよい（10前後で十分）
 
 ## 2. 画像プロンプト（ChatGPT・**2:3 縦**・1枚）
 
 ```
-A handmade miniature clay diorama of a cozy café on a Saturday afternoon,
-seen from a high front angle like a dollhouse with the front wall removed.
-The café is arranged as a neat grid of twelve small separate seating nooks:
-four rows of three, each nook clearly separated from its neighbours by low
-light-wood partitions, small potted plants and shelves, so every nook reads
-as its own little room. Warm soft afternoon light, small pendant lamps.
+A handmade miniature clay diorama of the inside of a cozy, busy café on a
+Saturday afternoon, photographed like a real tilt-shift miniature photo from
+a high three-quarter bird's-eye angle, looking down into one corner of the
+room. It should feel like a single candid snapshot cut out of a larger scene,
+not a model on a table: the room continues beyond every edge of the frame.
+Tables, chairs, plants and the counter are cut off by the left, right and
+bottom edges. Do not show the outside walls, the edges of the diorama, a
+building outline, a box, a frame or any background behind the model.
 
-Each nook has one small table and its own clay figures doing one small thing,
-each with simple dot eyes and a tiny readable expression:
+Layout of the room: big windows with soft afternoon sunlight along the upper
+part of the image, a small wooden counter on one side, and small round and
+square tables scattered irregularly across the wooden floor at different
+distances and angles, like a real café. No grid, no rows, no partitions, no
+separate booths or compartments.
+
+About twelve groups of small clay figures are spread across the room with
+clear space between them, each doing one small thing, each with simple dot
+eyes and a tiny readable expression:
 1. two figures sitting face to face, a little stiff and formal, both looking down at their cups in silence
 2. two figures sitting face to face, laughing together
 3. two adults leaning in and chatting eagerly, two small children beside them sipping juice
@@ -48,32 +81,46 @@ each with simple dot eyes and a tiny readable expression:
 7. one figure alone with two slices of cake in front of them, delighted
 8. one figure taking a photo of a latte from directly above with a phone
 9. two figures with serious faces peering together at one unfolded map
-10. one figure holding a book but glancing sideways toward nook number 1
-11. one figure at a small counter frozen while holding a menu
+10. one figure at the table right next to group 1, holding a book but glancing sideways at group 1
+11. one figure standing at the counter, frozen while holding a menu
 12. one figure at a window seat watching a small clay dog outside the window
 
-Composition: the café grid fills the middle of the image from about 18 percent
-to 80 percent of the height, with a thin margin on the left and right. Plain
-warm wall above, plain floor below, no figures there. Figures are large
-enough to read their poses clearly.
+Composition: all the figures are between about 8 percent and 70 percent of
+the image height, and kept away from the far left and far right edges. The
+top of the image is the windows and wall; the bottom 30 percent is the same
+café continuing toward the camera, with empty chairs, a potted plant and
+floorboards, slightly blurred in the foreground, with no figures there. No
+large plain or empty areas anywhere.
 
 Matte air-dry clay texture with visible fingerprints and soft rounded forms,
-miniature photography look, every nook evenly lit so every figure stays
-readable. Muted palette: warm beige (#F5EEE6), soft off-white, dusty rose /
-terracotta (#D4A090), muted sage and soft blue. The figures are
-gender-neutral. No text, no letters, no numbers, no logos, no menus with
-writing, no signs, no writing on any screen, cup or map. No gold, no brass,
-no metallic parts. Vertical 2:3 composition.
+bright and warm daylight, mild depth of field so every figure stays readable.
+Muted palette: warm beige (#F5EEE6), soft off-white, dusty rose / terracotta
+(#D4A090), muted sage and soft blue. The figures are gender-neutral. No text,
+no letters, no numbers, no logos, no menus with writing, no signs, no writing
+on any screen, cup or map. No gold, no brass, no metallic parts.
+Vertical 2:3 composition.
 ```
 
 ### 再生成の基準
 
-メニュー・看板・画面・地図に文字が出た／12の席が崩れて誰がどこか分からない／1番（お見合い）と2番（3回目）が見分けられない／
-人形が小さすぎる／実写っぽくなった
+- **店の外枠・壁の端・模型の台・背景が写った**（＝箱に見える。いちばん大事）
+- テーブルが格子に並んだ／仕切りやブースで区切られた
+- 下のほうが平らな床だけで、空白に見える
+- メニュー・看板・画面・地図に文字が出た
+- 1番（お見合い）と2番（3回目）が見分けられない／10番が1番の隣にいない（隣にいなければラベル10は外す）
+- 人形が小さすぎる・重なって誰が誰か分からない／実写っぽくなった（クレイの質感が消えた）
 
 ## 3. 書き出し
 
-#2 と同じ。建物が縦長なら縮めて囲む（#2 §6）、収まれば `"fit":"width","top":300`。ラベルは隣どうしで天井側と床側を互い違いにする。
+- **`"fit":"width","top":300`**（#1 と同じ。画像は y=300〜1920 に敷かれ、下の約440px はキャプションの下に入る）
+- 縮めて地色で囲む方法（#2 §6）は**使わない**。外枠と空白が見えて「箱」に戻る
+- ラベルは**既定値（30px・0.92）**。`size`・`alpha` を指定しない
+- 座標は画像を見てから Claude が決める。y=360〜1480 の中だけ（画像の高さの約4〜73%）
+
+```bash
+NODE_PATH=$(npm root -g) node render-labels.js <生成画像.png> f1.png '{"title":"土曜15時のカフェ","sub":"あなたは、何番？","fit":"width","top":300,"labels":[{"t":"1 お見合いの沈黙10秒","x":0,"y":0}, …]}'
+python3 build_reel.py one10 kinda-ig-1010-gisshiri03.mp4
+```
 
 ## 4. キャプション
 
@@ -83,3 +130,12 @@ no metallic parts. Vertical 2:3 composition.
 
 #結婚相談所 #お見合い #婚活 #カフェ #デート
 ```
+
+## 5. セルフQA
+
+- [ ] 1枚の写真として見て、「箱」「模型」に見えない（外枠・台・背景が無い。端が画面の外に切れている）
+- [ ] 画面の下 1/3 に、平らな地色の帯が無い
+- [ ] 画像の中に文字・数字が無い（メニュー・画面・地図・看板を確認）
+- [ ] 「進んでいる・遅れている」と読めるラベルが無い／2体組の性別を決めつけていない
+- [ ] ラベルが全部 y=360〜1480 に入り、重なっていない（スクリプトが止めてくれる）
+- [ ] 曲を足した（ほかのシリーズで使っている曲は避ける）／カバーは書き出した1枚／AI 生成の開示
