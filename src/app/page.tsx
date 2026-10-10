@@ -30,6 +30,12 @@ const STAGE_VISUAL: Record<StoryStage, { key: string; gradient: string; en: stri
 ──────────────────────────────────────────────────────────── */
 // 文節単位で分割し、折り返しは文節境界でのみ起こるようにする
 // （「一緒に過ごす日々ま／で。」のように単語の途中で割れて "で。" が孤立するのを防ぐ）
+// トップの Kinda story は stage ごとの最新1件ずつ（成婚・交際中・活動中）。
+// 同じ stage が並ぶと絵と空気が重なるため。並びは新しい順（STORIES は新しい順に持っている）。
+const HOME_STORIES = STORIES.filter(
+  (story, i) => STORIES.findIndex((s) => s.stage === story.stage) === i,
+).slice(0, 3);
+
 const HERO_H1_LINE1 = ["好きな人を", "見つけて、"];
 const HERO_H1_LINE2 = ["一緒に過ごす", "日々まで。"];
 const HERO_H2 =
@@ -861,7 +867,7 @@ export default async function HomePage() {
           </div>
 
           <div className="pc-stack-to-grid3" style={{ marginBottom: 28 }}>
-            {STORIES.slice(0, 3).map((story) => (
+            {HOME_STORIES.map((story) => (
               <Link
                 key={story.id}
                 href={`/kinda-story/${story.id}`}
@@ -1256,17 +1262,18 @@ export default async function HomePage() {
             <p
               style={{
                 fontFamily: "'Shippori Mincho', serif",
-                fontStyle: "italic",
                 fontSize: 13,
-                color: "var(--muted)",
+                color: "var(--mid)",
                 lineHeight: 2,
                 letterSpacing: ".06em",
                 marginBottom: 36,
               }}
             >
-              Kinda — 英語で「なんとなく」。
+              Kinda（カインダ）は、英語の kind of から。
               <br />
-              そして &ldquo;my kinda&rdquo; と言えば、「私にぴったりの」。
+              &ldquo;my kind of person&rdquo;──
+              <br />
+              なんだか、この人とは合う。
             </p>
 
             {/* CTA → /about */}

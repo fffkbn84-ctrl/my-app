@@ -1002,9 +1002,11 @@ footer {
 @media (max-width: 480px) {
   .ft-grid { grid-template-columns: 1fr; }
 }
+/* フッターの文字は --mid（#6B6B6B・白地で約5.3:1）。
+   --muted（#A0A0A0）は約2.6:1で読みにくかった（2026-10-10） */
 .ft-desc {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--mid);
   line-height: 2;
   margin-top: 14px;
 }
@@ -1025,7 +1027,7 @@ footer {
 }
 .ft-col a {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--mid);
   text-decoration: none;
   transition: color .3s;
 }
@@ -1042,7 +1044,7 @@ footer {
 }
 .ft-bottom p {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--mid);
   font-family: 'DM Sans';
 }
 
