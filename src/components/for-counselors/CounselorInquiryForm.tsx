@@ -10,13 +10,13 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type InquiryType = "interview" | "listing" | "other";
 
 const INQUIRY_TYPES: { value: InquiryType; label: string }[] = [
+  { value: "listing", label: "30分、話を聞きたい（仕組み・掲載）" },
   { value: "interview", label: "取材について聞きたい" },
-  { value: "listing", label: "掲載について聞きたい" },
   { value: "other", label: "その他" },
 ];
 
 export default function CounselorInquiryForm() {
-  const [inquiryType, setInquiryType] = useState<InquiryType>("interview");
+  const [inquiryType, setInquiryType] = useState<InquiryType>("listing");
   const [agencyName, setAgencyName] = useState("");
   const [contactName, setContactName] = useState("");
   const [email, setEmail] = useState("");

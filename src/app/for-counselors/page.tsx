@@ -8,21 +8,21 @@ import { getAllColumns, type ColumnMeta } from "@/lib/columns";
 import { getDemoCounselors } from "@/lib/data";
 
 // 掲載イメージのサンプル取得は 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
-// 取材ファースト構成（S1-S10）。
+// 構成：選べるサイト（S1）→ なぜ個人か → まず30分 → 取材（S2-S4）→ 大切にしていること → 掲載（S7）→ FAQ → フォーム。
 export const revalidate = 3600;
 
 const SITE_URL = "https://kinda.jp";
 
 export const metadata: Metadata = {
-  title: "カウンセラー取材と掲載のご案内｜結婚相談所の方へ | Kinda",
+  title: "カウンセラー個人を選べるサイト｜結婚相談所のカウンセラーの方へ | Kinda",
   description:
-    "Kinda は結婚相談所のカウンセラーお一人ずつに取材し、記事として公開しています。取材は無料で、Kinda への掲載は条件ではありません。掲載をご希望の場合も初期費用・月額費用は無料、面談予約が成立したときのみ送客料 ¥5,000 です。",
+    "Kinda は、結婚相談所を「どこ」ではなく「誰」で選ぶためのサイトです。カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。掲載は初期費用・月額費用とも無料で、面談予約が成立したときのみ送客料 ¥5,000 です。取材記事の公開も無料でお受けしています。",
   alternates: { canonical: `${SITE_URL}/for-counselors` },
   robots: { index: true, follow: true },
   openGraph: {
-    title: "カウンセラー取材と掲載のご案内｜結婚相談所の方へ | Kinda",
+    title: "カウンセラー個人を選べるサイト｜結婚相談所のカウンセラーの方へ | Kinda",
     description:
-      "結婚相談所のカウンセラーお一人ずつに取材し、記事として公開しています。取材は無料・掲載は条件ではありません。",
+      "相談所ではなく、カウンセラー個人を選べるサイトです。同じ現場にいるカウンセラーの方に、30分前後お話を伺っています。",
     url: `${SITE_URL}/for-counselors`,
     type: "website",
     locale: "ja_JP",
@@ -30,9 +30,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "カウンセラー取材と掲載のご案内｜結婚相談所の方へ | Kinda",
+    title: "カウンセラー個人を選べるサイト｜結婚相談所のカウンセラーの方へ | Kinda",
     description:
-      "カウンセラー個人を取材し、記事として公開しています。取材は無料・掲載は条件ではありません。",
+      "相談所ではなく、カウンセラー個人を選べるサイトです。同じ現場にいるカウンセラーの方に、30分前後お話を伺っています。",
   },
 };
 
@@ -66,6 +66,14 @@ async function getExampleColumns(): Promise<ColumnMeta[]> {
   }
   return picked.slice(0, 3);
 }
+
+// S1-3 まず30分のお話（定義リスト）。営業文面 v1 の「30分前後」と揃える
+const FIRST_TALK_ITEMS = [
+  { term: "方法", desc: "オンライン（Google Meet）で30分前後です。日程はご都合に合わせます。" },
+  { term: "内容", desc: "Kinda の仕組みをご説明します。それ以上に、同じ現場を見ている方としてのご意見を伺いたいと思っています。" },
+  { term: "話し手", desc: "運営のふうかです。同じく結婚相談所のカウンセラーです。" },
+  { term: "その後", desc: "掲載も取材も、その場でご返答いただく必要はありません。" },
+];
 
 // S2 取材について（定義リスト）
 const INTERVIEW_ITEMS = [
@@ -138,11 +146,11 @@ const LISTING_CARDS = [
 const LISTING_STEPS = [
   {
     title: "ご相談",
-    body: "下のフォームで「掲載について聞きたい」を選んでご連絡ください。",
+    body: "下のフォームで「30分、話を聞きたい」を選んでご連絡ください。",
   },
   {
     title: "ご説明",
-    body: "オンラインで15分ほど、仕組み・費用・掲載範囲をご説明します。この時点でお断りいただいて構いません。",
+    body: "オンラインで30分前後、仕組み・費用・掲載範囲をご説明します。この時点でお断りいただいて構いません。",
   },
   {
     title: "アカウント発行",
@@ -216,21 +224,20 @@ export default async function ForCounselorsPage() {
           items={[{ label: "ホーム", href: "/" }, { label: "カウンセラーの方へ" }]}
         />
 
-        {/* S1. ヒーロー（取材が主CTA） */}
+        {/* S1. ヒーロー（営業文面 v1 と同じ「選べるサイト＋お話を」が主CTA） */}
         <section className="fc-hero">
           <p className="fc-eyebrow">for counselors</p>
           <h1 className="fc-hero-title">
-            相談所ではなく、カウンセラーを取材しています。
+            相談所ではなく、カウンセラー個人を選べるサイトです。
           </h1>
           <p className="fc-hero-lead">
             Kinda は、結婚相談所を「どこ」ではなく「誰」で選ぶためのサイトです。
-            いま、カウンセラーの方お一人ずつにお話を伺い、記事として公開しています。
-            取材は無料で、Kinda への掲載は条件ではありません。
-            記事はご自身のサイトや SNS でも自由に使っていただけます。
+            カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。
+            いま、同じ現場にいるカウンセラーの方に、30分前後お話を伺っています。
           </p>
           <div className="fc-hero-cta">
             <a href="#inquiry" className="fc-btn fc-btn-primary">
-              取材について相談する
+              30分、お話を聞かせてください
             </a>
             <a href="#listing" className="fc-btn fc-btn-ghost">
               掲載について知る
@@ -238,10 +245,48 @@ export default async function ForCounselorsPage() {
           </div>
         </section>
 
-        {/* S2. 取材について（ページの中核） */}
+        {/* S1-2. なぜカウンセラー個人なのか（営業文面 v1 の「違和感」の段落と同じ話） */}
+        <section className="fc-section">
+          <h2 className="fc-h2">なぜ、カウンセラー個人なのか</h2>
+          <div className="fc-prose">
+            <p>
+              会員様が本当に気にされているのは、どんなに立派な相談所に入るかより、
+              誰が担当になるかではないか。運営のふうかも結婚相談所のカウンセラーとして現場にいて、
+              ずっとそう感じていました。
+            </p>
+            <p>
+              普段、誰かに相談するときは「この人になら話せる」と思ってから相談します。
+              けれど専門家に相談するときだけは、相手を選べないまま、知らない人に打ち明けることになります。
+            </p>
+            <p>
+              結婚相手を見つけるという大切な場面でも、同じように担当を選べない。
+              そこに違和感があり、相談所単位ではなく、カウンセラー個人に焦点を当てた作りにしました。
+            </p>
+          </div>
+        </section>
+
+        {/* S1-3. まず30分のお話 */}
+        <section className="fc-section">
+          <h2 className="fc-h2">まず、30分ほどお話を</h2>
+          <p className="fc-section-lead">
+            Kinda はまだ始まったばかりのサイトです。
+            カウンセラー仲間の皆さんと一緒に育てていきたいと思っています。
+          </p>
+          <dl className="fc-deflist">
+            {FIRST_TALK_ITEMS.map((item) => (
+              <div key={item.term} className="fc-def">
+                <dt className="fc-dt">{item.term}</dt>
+                <dd className="fc-dd">{item.desc}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* S2. 取材について */}
         <section className="fc-section">
           <h2 className="fc-h2">取材について</h2>
           <p className="fc-section-lead">
+            ご希望があれば、取材もお受けしています。
             面談で大切にしていること、どんなご相談が多いか、この仕事を選んだ理由。
             そういったことを伺って、記事にまとめます。
           </p>
@@ -257,7 +302,7 @@ export default async function ForCounselorsPage() {
 
         {/* S3. なぜ取材からなのか */}
         <section className="fc-section">
-          <h2 className="fc-h2">なぜ、取材からお願いしているのか</h2>
+          <h2 className="fc-h2">取材をお受けしている理由</h2>
           <div className="fc-prose">
             <p>
               Kinda は 2026 年に立ち上がったばかりのサイトです。
@@ -448,7 +493,7 @@ export default async function ForCounselorsPage() {
         <section id="inquiry" className="fc-section fc-inquiry">
           <h2 className="fc-h2">お問い合わせ</h2>
           <p className="fc-inquiry-lead">
-            取材のご相談も、掲載のご相談も、こちらからお願いします。
+            30分のお話のご希望も、取材・掲載のご相談も、こちらからお願いします。
             運営から3営業日以内にご返信します。
           </p>
           <CounselorInquiryForm />
