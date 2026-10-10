@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SOCIAL_ACCOUNTS } from "@/lib/socialAccounts";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -36,6 +37,15 @@ export default function Footer() {
           <ul>
             <li><Link href="/kinda-story">Kinda story — ふたりの物語</Link></li>
             <li><Link href="/columns">Kinda voices — 取材・コラム</Link></li>
+          </ul>
+
+          <h5 style={{ marginTop: 28 }}>Kinda の SNS</h5>
+          <ul>
+            {SOCIAL_ACCOUNTS.map((a) => (
+              <li key={a.label}>
+                <a href={a.href} target="_blank" rel="noopener noreferrer">{a.label}</a>
+              </li>
+            ))}
           </ul>
 
           <h5 style={{ marginTop: 28 }}>アカウント</h5>
