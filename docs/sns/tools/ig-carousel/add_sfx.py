@@ -47,6 +47,8 @@ PRESETS = {
   "futari-go": [(0.40,"pico"), (0.90,"pico"), (2.45,"pop"), (4.30,"over"),
                 (6.80,"pico"), (7.30,"pico"), (8.45,"pop"), (10.35,"lvup")],
   "kotosan03": [(0.05,"pop"), (2.50,"pop"), (4.40,"gulp"), (6.10,"kira"), (6.30,"pop")],
+  # ことさん v2・救いのある回（kotosanv2s：cut 開始 0 / 2.5 / 4.4 / 6.1 / 8.7）。救いは音を足さない
+  "kotosan06": [(0.05,"pop"), (2.50,"pop"), (4.40,"gulp"), (6.10,"kira"), (6.30,"pop")],
 }
 src, out, preset = sys.argv[1], sys.argv[2], sys.argv[3]
 FF = imageio_ffmpeg.get_ffmpeg_exe()
