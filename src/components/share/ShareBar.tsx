@@ -11,6 +11,23 @@ import { useEffect, useState } from "react";
  */
 type ShareMethod = "x" | "line" | "copy" | "native";
 
+/**
+ * シェア先ごとに UTM を付ける（GA4 で「X から来た人」等を数えるため）。
+ * utm_campaign は呼び出し側の URL に付いていれば残す。
+ * 表示中ページの URL を使うと、受け取った側の utm が残っているので上書きする。
+ */
+function withUtm(rawUrl: string, source: "x" | "line" | "copy" | "share"): string {
+  if (!rawUrl) return rawUrl;
+  try {
+    const u = new URL(rawUrl);
+    u.searchParams.set("utm_source", source);
+    u.searchParams.set("utm_medium", "social");
+    return u.toString();
+  } catch {
+    return rawUrl;
+  }
+}
+
 export default function ShareBar({
   title,
   label = "この記事をシェアする",
@@ -35,12 +52,12 @@ export default function ShareBar({
   }, [url]);
 
   const shareText = shareTextProp ?? `${title} | Kinda`;
-  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(resolvedUrl)}`;
-  const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(resolvedUrl)}&text=${encodeURIComponent(shareText)}`;
+  const xUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(withUtm(resolvedUrl, "x"))}`;
+  const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(withUtm(resolvedUrl, "line"))}&text=${encodeURIComponent(shareText)}`;
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(resolvedUrl);
+      await navigator.clipboard.writeText(withUtm(resolvedUrl, "copy"));
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
       onShare?.("copy");
@@ -51,7 +68,7 @@ export default function ShareBar({
 
   const nativeShare = async () => {
     try {
-      await navigator.share({ title: shareText, url: resolvedUrl });
+      await navigator.share({ title: shareText, url: withUtm(resolvedUrl, "share") });
       onShare?.("native");
     } catch {
       /* キャンセル時は無視 */

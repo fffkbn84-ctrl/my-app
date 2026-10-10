@@ -144,12 +144,14 @@ function getSubCards(subRoute: "cafe" | "beauty" | "counselor"): [SubCardDef, Su
 export default async function DiagnosisResultPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string; utm_source?: string }>;
+  searchParams: Promise<{ type?: string; utm_source?: string; utm_medium?: string }>;
 }) {
-  const { type, utm_source } = await searchParams;
+  const { type, utm_source, utm_medium } = await searchParams;
   // シェアされた URL から来た人（＝まだ診断していない人）。
   // 受け取った人の手間を最小にするため、冒頭で「自分も60秒で」を出す。
-  const isShared = utm_source === "share";
+  // シェアボタンは utm_source にシェア先（x / line 等）を入れるので、utm_medium で見る。
+  // utm_source=share は 2026-10-10 以前に出回ったリンクの互換。
+  const isShared = utm_medium === "social" || utm_source === "share";
   const typeId = (type as DiagnosisTypeId) || "C";
   const diagType = DIAGNOSIS_TYPES[typeId] ?? DIAGNOSIS_TYPES.C;
   const siteUrl = await deriveSiteUrl();
