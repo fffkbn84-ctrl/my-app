@@ -91,14 +91,14 @@ export default function AboutPage() {
             style={{
               fontFamily: "'Shippori Mincho', serif",
               fontWeight: 500,
-              fontSize: "clamp(32px, 5.4vw, 56px)",
+              fontSize: "clamp(28px, 5.4vw, 56px)", // 下限32pxだと390px幅で「の、」が落ちた
               color: "#1A130E",
               letterSpacing: ".04em",
               lineHeight: 1.45,
               margin: 0,
             }}
           >
-            ふたりになるまでの、
+            <span style={{ display: "inline-block" }}>ふたりになるまでの、</span>
             <br />
             全部をここで。
           </h1>
@@ -141,25 +141,25 @@ export default function AboutPage() {
               その瞬間のために、<span className="brand-name">Kinda ふたりへ</span>
             </p>
 
-            {/* Kinda の語源を一行で（ブランド名の腑落ち）*/}
+            {/* Kinda の語源（ブランド名の腑落ち）。2026-10-10 に「なんとなく」版から差し替え（仮） */}
             <p
               style={{
                 margin: "3em 0 0",
                 fontFamily: "'Shippori Mincho', serif",
-                fontStyle: "italic",
                 fontSize: "clamp(13px, 1.6vw, 15px)",
                 color: "#6B5D52",
                 letterSpacing: ".06em",
                 lineHeight: 2,
               }}
             >
-              Kinda — 英語で「なんとなく」。
+              Kinda（カインダ）は、英語の kind of から。
               <br />
-              そして &ldquo;my kinda&rdquo; と言えば、「私にぴったりの」。
+              &ldquo;my kind of person&rdquo;──
               <br />
-              決めなくていい余白と、しっくりくる感覚から、
+              なんだか、この人とは合う。
               <br />
-              ふたりは始まる。
+              <span style={{ display: "inline-block" }}>そう思える人に</span>
+              <span style={{ display: "inline-block" }}>出会うための場所です。</span>
             </p>
           </div>
         </div>
@@ -199,7 +199,9 @@ export default function AboutPage() {
               margin: 0,
             }}
           >
-            出会いは、人で決まる。
+            {/* Kinda のうり（仮・2026-10-10）。キャッチコピーと合わせて正式に決め直す予定 */}
+            <span style={{ display: "inline-block" }}>担当は、</span>
+            <span style={{ display: "inline-block" }}>選んでいい。</span>
           </h2>
           <p
             style={{
@@ -211,9 +213,11 @@ export default function AboutPage() {
               letterSpacing: ".04em",
             }}
           >
-            担当者を自分の目で選んで、
+            面談した人の口コミを読んで、
             <br />
-            納得してから始められる婚活を。
+            話せそうだと思えた人に、
+            <br />
+            そのまま予約できます。
           </p>
         </div>
       </section>
@@ -258,55 +262,23 @@ export default function AboutPage() {
             }}
           >
             <p style={{ margin: "0 0 1.6em" }}>
-              相談所を決めるとき、
-              <br />
-              いちばん不安なのは
-              <br />
-              「どこに入るか」ではなく
-              <br />
-              「誰が担当になるか」かもしれません。
-            </p>
-            <p style={{ margin: "0 0 .4em" }}>立派な相談所に入りたい、というより</p>
-            <p style={{ margin: "0 0 1.6em" }}>
-              親身になってくれる人に、ついてほしい。
-            </p>
-            <p style={{ margin: "0 0 1.6em" }}>
-              でも多くの場合、担当は選べません。
-              <br />
-              会ってみるまで、どんな人かも分からない。
-            </p>
-            <p style={{ margin: "0 0 1.6em" }}>
-              ふだん、何かを相談するとき、
-              <br />
-              わたしたちは相手を自分で見ています。
-              <br />
-              この人になら話せる、と思ってから
-              <br />
-              相談しているはずです。
-            </p>
-            <p style={{ margin: "0 0 1.6em" }}>
-              人生の一大事のときだけ、
-              <br />
-              それができないのは、
-              <br />
-              少し不思議だと思いました。
-            </p>
-            <p style={{ margin: "0 0 .4em" }}>お見合い前夜の緊張</p>
-            <p style={{ margin: "0 0 1.6em" }}>断られた翌朝の気持ち</p>
-            <p style={{ margin: "0 0 1.6em" }}>
               既存のレビューサイトは、
               <br />
               関係が成立した人のためにある。
-              <br />
+            </p>
+            <p style={{ margin: "0 0 .4em" }}>カウンセラーを選ぶ前の不安</p>
+            <p style={{ margin: "0 0 .4em" }}>お見合い前夜の緊張</p>
+            <p style={{ margin: "0 0 1.6em" }}>断られた翌朝の気持ち</p>
+            <p style={{ margin: "0 0 1.6em" }}>
               そういう瞬間に寄り添える場所が、
               <br />
               なかった。
             </p>
             <p style={{ margin: "0 0 .4em" }}>だから作りました。</p>
             <p style={{ margin: 0 }}>
-              誰に相談するかを、
+              今まさに関係を作っているあなたのための、
               <br />
-              あなた自身が選べる場所を。
+              レビューと予約と、頑張れる場所を。
             </p>
           </div>
         </div>
@@ -565,7 +537,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* ③ 仲間と頑張る */}
+          {/* ③ Kinda story（編集部が取材して載せる。ユーザーが直接投稿する場ではない＝CLAUDE.md §5） */}
           <div style={{ display: "flex", gap: 20, alignItems: "flex-start", marginBottom: 0 }}>
             <div
               style={{
@@ -600,7 +572,7 @@ export default function AboutPage() {
                   marginBottom: 8,
                 }}
               >
-                孤独じゃない婚活を
+                ひとりじゃない、と思える物語
               </h3>
               <p
                 style={{
@@ -611,11 +583,14 @@ export default function AboutPage() {
                   margin: 0,
                 }}
               >
-                婚活は、孤独になりやすい。
+                迷ったこと、うれしかったこと、断られた日のこと。
                 <br />
-                今日頑張ったこと、うれしかったこと。
+                少し先を歩いた人の話を、
                 <br />
-                小さな一歩を報告できる場所が、ここにある。
+                <Link href="/kinda-story" style={{ color: "var(--accent)", textDecoration: "underline" }}>
+                  Kinda story
+                </Link>
+                で読めます。
               </p>
             </div>
           </div>
@@ -1102,7 +1077,7 @@ export default function AboutPage() {
               margin: 0,
             }}
           >
-            あなたの婚活を、孤独にしない。
+            話せる人を、見つけるところから。
           </h2>
           <div
             style={{
@@ -1186,6 +1161,7 @@ export default function AboutPage() {
 
       <style>{`
         .brand-name {
+          white-space: nowrap;
           color: var(--accent);
           font-family: 'Shippori Mincho', serif;
           font-weight: 500;

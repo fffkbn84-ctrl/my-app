@@ -4,6 +4,50 @@
 
 ---
 
+## 2026-10-10（Claude Code セッション：サイト点検・予約枠補充・PR #40 マージ・/about 文言）
+
+### サイト点検（スマホ幅 390px・本番）
+
+- 横スクロール・コンソールエラーなし（トップ／about／kinda-talk／kinda-note／for-counselors）
+- 本番 `/about` に 247／1,840 が残っていた（PR #40 未マージのため）→ 先にマージした
+- `/about`「小さな一歩を報告できる場所」は**実在しない機能に読めた**。ふうかさんの意図は Kinda story。
+  story は編集ゲート制で利用者が投稿する場ではない（CLAUDE.md §5）ので、「少し先を歩いた人の話を Kinda story で読めます」に直した
+- カウンセラーカードの1枚目のリール画像がサイト画面のスクショで、文字が重なる（データ側。差し替えはふうかさん）
+- 「毎日の天気が並んでいく」の「く」落ちは、ふうかさんの実機では起きていない（ヘッドレス Chromium の字幅の差）。直していない
+- 期限切れキャンペーン（9/30）は表示側で正しく隠れていることを確認
+
+### 予約枠の補充（DB 直接）
+
+小山楓華（`counselor_id = 779b38e7-…`）に 10/11〜10/31・10:00 開始の75分×8コマ・水曜除外で144コマ。
+既存と同じ形（`meeting_type` は null・`status='open'`）。重複は `not exists` で避けた。
+
+```sql
+insert into slots (counselor_id, start_at, end_at, status)
+select '<counselor_id>'::uuid, t, t + interval '75 minutes', 'open'
+from generate_series('<開始日>'::date, '<終了日>'::date, interval '1 day') d
+cross join generate_series(0,7) k
+cross join lateral (select ((d::date + time '10:00') + k * interval '75 minutes') at time zone 'Asia/Tokyo' as t) x
+where extract(isodow from d) <> 3
+and not exists (select 1 from slots s where s.counselor_id='<counselor_id>' and s.start_at = x.t);
+```
+
+- 10/6 に `locked` のまま残った過去の枠が2つある（過去なので実害なし）
+
+### PR #40
+
+main と TODO.md・WORKLOG.md だけが衝突（両側が冒頭に追記）。両方残して解消 → build 通過 → squash マージ。
+本番 `dfc7702` が READY・`/about` から数字が消えたことを確認。
+
+### /about・トップ・フッター（ブランチ `claude/clever-allen-2wb9fg`）
+
+- 語源：B 案（仮）。和文の斜体をやめた。トップの ABOUT 欄も同じ文に
+- ②のカード：仮のうり「担当は、選んでいい。」＋「面談した人の口コミを読んで、話せそうだと思えた人に、そのまま予約できます。」
+- 「なぜ、作ったのか」：ふうかさん指定の箇所だけで組み直し。PR #40 で足した「担当は選べない」の段落は外した（うり側に移した）
+- 締めの見出し「あなたの婚活を、孤独にしない。」→「話せる人を、見つけるところから。」（CTA 位置で「婚活」を使わない＝§2）
+- 改行：「選んでい／い。」「Kinda ふたり／へ」「ふたりになるまで／の、」を文節で折れるように（ヒーロー h1 の下限 32px→28px）
+- トップの story：stage ごとの最新1件ずつ（同じ夕焼けの絵が続いていた）
+- フッター文字色 `--muted`（約2.6:1）→ `--mid`（約5.3:1）
+
 ## 2026-10-07（Claude Code セッション：営業前の是正・/about 更新・営業文面 v1）
 
 ### 背景
