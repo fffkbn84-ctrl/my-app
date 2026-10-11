@@ -25,11 +25,30 @@
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
       「パスワードを忘れた方」のメールはこのページに飛ぶのに、ページ自体が存在せず再設定できなかった
-- [ ] **ふうか：Supabase の Redirect URLs を確認**。Supabase → Authentication → URL Configuration → Redirect URLs に
-      `https://futarive-counselor.vercel.app/**` があるか。無いと再設定メールのリンクが kinda.jp に飛ぶ。足したら Claude が再設定を通しで確認
+- [x] **Supabase の URL 設定を直した**（10/11 ふうか）。Redirect URLs が空・**Site URL が `http://localhost:3000`** だった。
+      Site URL を `https://kinda.jp`、Redirect URLs に `futarive-counselor.vercel.app/**`・`kinda.jp/**`・`www.kinda.jp/**`。正は `docs/ops/supabase-auth-email.md` §4
+- [x] **counselor のパスワード再設定を通しで確認**（10/11・`d7eccba`）。メール → `/reset-password` → 新しいパスワードでログインまで通った。
+      途中で2つ直した：画面は「8文字以上」なのに Supabase は「10文字以上・英小／英大／数字／記号」／
+      2段階認証のあるアカウント（**ふうかさんだけ**）は6桁コードがないと変更できない → 再設定ページにコード欄
+- [ ] **ふうか：Supabase のメールを Kinda 名義・日本語にする**（1社目に招待リンクを送る前に）。手順と文面は `docs/ops/supabase-auth-email.md`。費用なし。
+      いまは英語・送信元「Supabase Auth」で届き、カウンセラーが Kinda のメールと気づけない。標準の送信は1時間に数通の上限もある
+      1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings に入れる
+      2. Email Templates の Reset Password／Confirm signup／Change Email Address に日本語の件名・本文を貼る
+      3. 自分宛てに再設定メールを1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える
+- [ ] **Claude：上が済んだら `claude/counselor-reset-mail-notice`（`2715efe`）を counselor に出す**。
+      再設定メールを送った直後の画面に、送信元・件名・迷惑メールの確認・同じブラウザで開くことを出す変更。
+      メールの設定より先に出すと画面とメールが食い違うので、待たせてある。`claude/fix-profile-creation-1clpG` に cherry-pick して push
+- [ ] **Claude：kinda.jp 側のパスワード条件の表示を直す**（main から feature branch → PR）。
+      新規登録・パスワード再設定・マイページのパスワード変更が「8文字以上」のままで、利用者が同じように詰まる。
+      対象：`src/app/login/LoginForm.tsx`・`src/app/auth/reset-password/ResetPasswordForm.tsx`・`src/app/mypage/AccountSettingsSection.tsx`。
+      counselor の `futarive-counselor/lib/password.ts` と同じ条件・同じ言い方にする
+- [ ] **Claude：admin の Ignored Build Step が効いているかを確かめる**。10/11 の main の CANCELED は docs だけのコミット（`a740873`）で、
+      もともとの docs スキップと見分けがつかない。次に**コードを含むコミット**を main に出したとき、admin の本番ビルドが CANCELED なら OK。
+      あわせて admin ブランチ `claude/futarive-admin-dashboard-iKBfw` への push ではビルドが走ることも確かめる
 - [ ] **`counselor.kinda.jp` 化は「1社目に招待リンクを送る前」にやる**（招待メールの住所を後から変えると混乱するため）。
       追加の契約は不要。Claude：Vercel へのドメイン追加・コード内の `futarive-counselor.vercel.app` の書き換え。
-      ふうか：Supabase の Redirect URLs に新しい住所を1行足すだけ
+      ふうか：Supabase の Redirect URLs に `https://counselor.kinda.jp/**` を1行足すだけ。
+      このとき `docs/ops/supabase-auth-email.md` と counselor ログイン画面の案内文の住所も合わせる
 
 ### 🔴 2026-10-10 予約枠の補充・PR #40 マージ・`/about` の文言（仮）
 

@@ -6,6 +6,22 @@
 
 
 
+## 2026-10-11（続き2）Supabase の URL 設定・counselor のパスワード再設定を通しで確認
+
+- **Supabase の URL 設定**：Redirect URLs が空、**Site URL が `http://localhost:3000`** だった（ふうか確認）。
+  許可リストにない戻り先は Site URL に飛ぶため、これまで認証メールのリンクは localhost 行きだった。
+  ふうかが Site URL＝`https://kinda.jp`、Redirect URLs＝`futarive-counselor.vercel.app/**`・`kinda.jp/**`・`www.kinda.jp/**` に。
+  メール未確認のまま止まっているユーザーは0人（7人中）
+- **再設定の通しで2つ詰まった**（認証ログで特定）：
+  1. 422：Supabase のパスワード条件は 10文字以上・英小／英大／数字／記号。画面は「8文字以上」で、断られても「時間をおいて」としか出なかった
+  2. 401 `insufficient_aal`：ふうかのアカウントに admin 用の TOTP がある（`auth.mfa_factors` は全体で1件だけ）。2段階認証のあるアカウントは AAL2 でないとパスワードを変えられない
+  → counselor `d7eccba`：`lib/password.ts` に条件を1か所にまとめ、再設定と招待の新規登録で先に弾く。再設定ページは AAL を見て6桁コード欄を出し、challengeAndVerify → updateUser。
+  tsc・next build 通過。**ふうかが新しいパスワードでログインまで確認**
+- **メールが英語・送信元「Supabase Auth」**：カウンセラーが気づけない。Resend の SMTP と日本語テンプレートの手順・文面を `docs/ops/supabase-auth-email.md` に。設定はふうか（TODO）
+- 送った直後の画面に送信元・件名を出す変更は `claude/counselor-reset-mail-notice`（`2715efe`）に置いて待機（メール設定より先に出すと食い違う）
+- admin：main の最新（`a740873`）は CANCELED だが docs だけのコミットなので、Ignored Build Step の効果はまだ判定できない
+- 注意：counselor のブランチを checkout すると、作業ディレクトリの CLAUDE.md が古い版に替わる（ブランチごとに中身が違う）。正は main
+
 ## 2026-10-11（続き）Emma のカード・課金失敗の取りこぼし・counselor のパスワード再設定
 
 - **Emma のカード**：本番キーへ切り替えるとき本物のカードで登録し直すと決定。テストで作った Stripe 顧客は本番から見えない
