@@ -465,9 +465,9 @@ export default async function ForCounselorsPage() {
         <section className="fc-section fc-operator">
           <h2 className="fc-h2">運営者について</h2>
           <p className="fc-operator-body">
-            Kinda の運営チームには、結婚相談所「Emma」の運営者も参加しています。
-            Kinda では Emma を他の相談所と完全に同じ扱いで掲載しており、
-            検索結果やおすすめで優遇することはありません。
+            代表のふうかは、結婚相談所「Emma」のカウンセラーでもあります。
+            いまは Kinda の運営を中心にしています。
+            Emma も他の相談所と同じ扱いで掲載しており、検索結果やおすすめで優遇することはありません。
           </p>
           <p className="fc-operator-link">
             <a href="/about">このサービスについて →</a>
