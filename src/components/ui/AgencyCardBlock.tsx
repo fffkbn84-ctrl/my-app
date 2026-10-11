@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { isCampaignActive, isNewShop, type Agency, type FeePlan } from "@/lib/data";
 import { hasEnoughReviewsForRating } from "@/lib/reviewDisplay";
@@ -135,15 +136,32 @@ export default function AgencyCardBlock({ agency, fallbackName, fallbackAddress 
           gap: 6,
         }}
       >
-        <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
-          <path
-            d="M8 44V20L24 8l16 12v24H32V30H16v14H8z"
-            stroke="rgba(255,255,255,.6)"
-            strokeWidth="1.5"
-            fill="rgba(255,255,255,.1)"
-            strokeLinejoin="round"
-          />
-        </svg>
+        {/* 相談所ロゴの登録があれば出す。無ければ従来の家アイコン */}
+        {agency.logoUrl ? (
+          <div
+            style={{
+              position: "relative",
+              width: 64,
+              height: 64,
+              borderRadius: 14,
+              overflow: "hidden",
+              background: "rgba(255,255,255,.65)",
+              border: "1px solid rgba(255,255,255,.7)",
+            }}
+          >
+            <Image src={agency.logoUrl} alt="" fill sizes="64px" style={{ objectFit: "cover" }} />
+          </div>
+        ) : (
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none">
+            <path
+              d="M8 44V20L24 8l16 12v24H32V30H16v14H8z"
+              stroke="rgba(255,255,255,.6)"
+              strokeWidth="1.5"
+              fill="rgba(255,255,255,.1)"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
         <div style={{ display: "flex", gap: 4, flexWrap: "wrap", justifyContent: "center", padding: "0 12px" }}>
           {isNewShop(agency.foundedAt) && (
             <span
