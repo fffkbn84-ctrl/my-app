@@ -29,7 +29,8 @@ export async function middleware(request: NextRequest) {
   // 認証不要の公開ページ（法務ページは未ログインの新規 claim ユーザーが
   // 規約同意リンクから到達できる必要があるため公開）
   // /api/login はここで新規にセッションを確立するためのエンドポイントなので公開に含める
-  const PUBLIC_PATHS = ['/login', '/claim', '/signup', '/terms', '/privacy', '/api/login']
+  // /reset-password はメールのリンクから来た時点ではまだセッションがない（ページ内でリンクのコードをセッションに替える）
+  const PUBLIC_PATHS = ['/login', '/claim', '/signup', '/terms', '/privacy', '/api/login', '/reset-password']
   const isPublic = PUBLIC_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
 
   if (!user && !isPublic) {

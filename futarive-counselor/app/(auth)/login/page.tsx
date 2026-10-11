@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { logAuthEvent } from '@/lib/supabase/audit'
+import PasswordInput from '@/components/shared/PasswordInput'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -140,9 +141,7 @@ export default function LoginPage() {
               </div>
               <div style={{ marginBottom: 24 }}>
                 <label className="kc-label">パスワード</label>
-                <input
-                  type="password"
-                  className="kc-input"
+                <PasswordInput
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"

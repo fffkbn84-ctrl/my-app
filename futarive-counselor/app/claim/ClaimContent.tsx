@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import PasswordInput from '@/components/shared/PasswordInput'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
 import {
@@ -364,9 +365,7 @@ export default function ClaimContent() {
                     パスワード
                     {mode === 'signup' && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-light)' }}>8文字以上</span>}
                   </label>
-                  <input
-                    className="kc-input"
-                    type="password"
+                  <PasswordInput
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••"
