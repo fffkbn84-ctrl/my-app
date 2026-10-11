@@ -329,8 +329,8 @@ export default function DashboardPage() {
     if (reelTotal > 0 && reelPublished < reelTotal) {
       newTodos.push({
         type: 'rec',
-        label: `写真未公開のカウンセラーが${reelTotal - reelPublished}名います。3〜5枚を追加しましょう`,
-        action: '写真を追加する',
+        label: `リール写真が未公開のカウンセラーが${reelTotal - reelPublished}名います。3〜5枚を追加しましょう`,
+        action: 'リール写真を追加する',
         href: '/reel',
       })
     }

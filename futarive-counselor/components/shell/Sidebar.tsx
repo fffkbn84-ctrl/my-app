@@ -50,7 +50,7 @@ const NAV_ITEMS = [
   },
   {
     href: '/reel',
-    label: '写真',
+    label: 'リール写真',
     icon: (
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
         <rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" strokeWidth="1.4"/>
