@@ -21,14 +21,15 @@
       課金できなかった時は hello@kinda.jp に「【要対応】送客料の課金ができませんでした」が届く（予約ID・相談所・理由）
 - [ ] **ふうか：Stripe 本番の有効化を再開**。代表者の個人情報の提出で止まっている。サンドボックスではなく本番の画面に切り替えてから続きを入力
 - [ ] 本番有効化後：本番 Webhook → live キーを Vercel env（`my-app-rp9u`・`futarive-counselor`）→ Emma を本物のカードで登録し直す → 自分で1件予約して課金・連絡先開示・メールを確認 → Stripe で返金
-- [ ] **ふうか：counselor 管理画面の古いプレビューを閉じる**（10/11 発見）。Vercel `futarive-counselor` → Deployment Protection の保護が全部オフで、
-      過去のバージョンの画面も URL を知っていれば誰でも開ける。Vercel Authentication の「Require Log In」をオン → 範囲は Standard Protection → Save。
-      そのあと `futarive-counselor.vercel.app` が相談所の立場で今までどおり開けるか確認。**`futarive-admin` には入れない**
-- [ ] **ふうか：admin の main ビルドを止める**（10/11）。原因は main への push で admin プロジェクトが本番ビルドを走らせ、`.next` の出力先違いで ERROR になっていること。
-      Vercel `futarive-admin` → Settings → Build and Deployment → Ignored Build Step を「Custom」にして
-      `[ "$VERCEL_GIT_COMMIT_REF" != "claude/futarive-admin-dashboard-iKBfw" ]` → Save（admin ブランチ以外はビルドしない）
-- [ ] （急がない）counselor 管理画面を `counselor.kinda.jp` に。kinda.jp は取得済み・DNS は Vercel なので追加契約は不要。
-      Vercel に追加するだけでなく、Supabase Auth の Redirect URLs と、コード内の `futarive-counselor.vercel.app`（webhook のメール等）の書き換えがセット
+- [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
+- [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
+- [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
+      「パスワードを忘れた方」のメールはこのページに飛ぶのに、ページ自体が存在せず再設定できなかった
+- [ ] **ふうか：Supabase の Redirect URLs を確認**。Supabase → Authentication → URL Configuration → Redirect URLs に
+      `https://futarive-counselor.vercel.app/**` があるか。無いと再設定メールのリンクが kinda.jp に飛ぶ。足したら Claude が再設定を通しで確認
+- [ ] **`counselor.kinda.jp` 化は「1社目に招待リンクを送る前」にやる**（招待メールの住所を後から変えると混乱するため）。
+      追加の契約は不要。Claude：Vercel へのドメイン追加・コード内の `futarive-counselor.vercel.app` の書き換え。
+      ふうか：Supabase の Redirect URLs に新しい住所を1行足すだけ
 
 ### 🔴 2026-10-10 予約枠の補充・PR #40 マージ・`/about` の文言（仮）
 

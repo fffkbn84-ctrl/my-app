@@ -6,6 +6,21 @@
 
 
 
+## 2026-10-11（続き）Emma のカード・課金失敗の取りこぼし・counselor のパスワード再設定
+
+- **Emma のカード**：本番キーへ切り替えるとき本物のカードで登録し直すと決定。テストで作った Stripe 顧客は本番から見えない
+- **課金の取りこぼし（PR #82・本番 READY）**：`/api/stripe/charge` の `customers.retrieve` が try の外にあり、顧客がいまのモードに無いと 500。
+  さらに課金が通らないと webhook が来ず、連絡先開示も確定メールも止まるのに、ユーザーには予約完了と出て誰も気づけなかった。
+  → 402 で返し、hello@kinda.jp に要対応メールを送るように。連打で同じ通知が複数届く件は、ふうか判断で当面そのまま
+- **counselor（`claude/fix-profile-creation-1clpG` 2b99c3b）**：パスワードの表示ボタン。`/reset-password` が**存在しなかった**ので新設
+  （`?code=` を exchangeCodeForSession → updateUser）。middleware の公開パスに追加。申し込みと別ブラウザで開くと PKCE で失敗する旨を画面に出す。
+  counselor の eslint は設定の読み込みで落ちる（既存）。tsc・next build は通過
+- **Vercel**：counselor の Deployment Protection が全部オフだった → ふうかが Standard Protection に。
+  admin の main ビルドは kinda.jp 本体を丸ごとビルドして `.next` の出力先違いで ERROR → ふうかが Ignored Build Step を設定
+- `.claude/settings.json` を新設。Supabase の普段使うツール（execute_sql / apply_migration を含む）を常時許可。プロジェクトの作成・停止・ブランチ削除は確認を残す
+- CLAUDE.md §7 に 10「お金がかかる操作の手前で必ず止まって報告する」を追加
+- Vercel の環境変数は「保存後は見られない」設定のため、Stripe のキーがテストか本番かはコードからも Claude からも確認できない
+
 ## 2026-10-11 `/for-counselors` 2回目の修正・画像プロンプト・voices サンプルの判断
 
 - 決定と訂正の経緯・画像プロンプト・判断の根拠は `docs/handoff/2026-10-11-for-counselors.md` に集約（ここには要点だけ）

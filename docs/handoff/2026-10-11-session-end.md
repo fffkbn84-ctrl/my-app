@@ -21,3 +21,9 @@
 2. 新しい相談所が来たら、カード登録（counselor 管理画面 /billing）まで済んだかを確認。済むまで kinda.jp には出ない
 3. admin 用 Vercel プロジェクトは main への push のたびに ERROR になる（既存の状態・実害なし）。通知がうるさければ Ignored Build Step で main を除外
 4. Supabase MCP の execute_sql / apply_migration は、明示 BEGIN/ROLLBACK や DDL を含む DO ブロックだと返ってこない。DDL は `SET lock_timeout='5s';` ＋1文ずつで流す
+
+## 追記（10/11 続きのセッション終了時）
+- Stripe 本番審査に提出済み（ふうか）。結果が出たら TODO「2026-10-11 Stripe 本番化と Emma のカード」の順で進める
+- 次に最初にやること：ふうかが Supabase の Redirect URLs を確認 → Claude が counselor のパスワード再設定を通しで確認
+- `counselor.kinda.jp` 化は「1社目に招待リンクを送る前」
+- 詳細は WORKLOG 2026-10-11（続き）
