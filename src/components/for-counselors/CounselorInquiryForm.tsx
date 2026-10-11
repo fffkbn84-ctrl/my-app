@@ -10,7 +10,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type InquiryType = "interview" | "listing" | "other";
 
 const INQUIRY_TYPES: { value: InquiryType; label: string }[] = [
-  { value: "listing", label: "30分、話を聞きたい（仕組み・掲載）" },
+  { value: "listing", label: "サービスの説明を受けたい（オンライン30分）" },
   { value: "interview", label: "取材について聞きたい" },
   { value: "other", label: "その他" },
 ];

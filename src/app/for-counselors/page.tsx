@@ -5,9 +5,8 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import CounselorInquiryForm from "@/components/for-counselors/CounselorInquiryForm";
 import { getAllColumns, type ColumnMeta } from "@/lib/columns";
-import { getDemoCounselors } from "@/lib/data";
 
-// 掲載イメージのサンプル取得は 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
+// 記事一覧の取得は 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
 // 構成：選べるサイト（S1）→ なぜ個人か → まず30分 → 取材（S2-S4）→ 大切にしていること → 掲載（S7）→ FAQ → フォーム。
 export const revalidate = 3600;
 
@@ -16,7 +15,7 @@ const SITE_URL = "https://kinda.jp";
 export const metadata: Metadata = {
   title: "カウンセラー個人を選べるサイト｜結婚相談所のカウンセラーの方へ | Kinda",
   description:
-    "Kinda は、結婚相談所を「どこ」ではなく「誰」で選ぶためのサイトです。カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。掲載は初期費用・月額費用とも無料で、面談予約が成立したときのみ送客料 ¥5,000 です。取材記事の公開も無料でお受けしています。",
+    "Kinda は、担当になるカウンセラーを見て結婚相談所を選べるサイトです。カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。カウンセラーページの掲載は初期費用・月額費用とも無料で、面談予約が成立したときのみ送客料 ¥5,000 です。取材記事は Kinda voices で公開します。",
   alternates: { canonical: `${SITE_URL}/for-counselors` },
   robots: { index: true, follow: true },
   openGraph: {
@@ -71,19 +70,35 @@ async function getExampleColumns(): Promise<ColumnMeta[]> {
 const FIRST_TALK_ITEMS = [
   { term: "方法", desc: "オンライン（Google Meet）で30分前後です。日程はご都合に合わせます。" },
   { term: "内容", desc: "Kinda の仕組みをご説明します。それ以上に、同じ現場を見ている方としてのご意見を伺いたいと思っています。" },
-  { term: "話し手", desc: "運営のふうかです。同じく結婚相談所のカウンセラーです。" },
-  { term: "その後", desc: "掲載も取材も、その場でご返答いただく必要はありません。" },
+  { term: "話し手", desc: "運営のふうかです。" },
+  { term: "その後", desc: "専用の URL をお渡しします。カウンセラーページを開設していただくだけで、掲載が始まります。" },
 ];
 
 // S2 取材について（定義リスト）
 const INTERVIEW_ITEMS = [
   { term: "費用", desc: "無料です。こちらから費用をいただくことも、お支払いすることもありません。" },
   { term: "方法", desc: "オンライン（Google Meet）で60分ほどです。日程はご都合に合わせます。" },
-  { term: "聞き手", desc: "運営のふうかが伺います。同じく結婚相談所のカウンセラーです。" },
-  { term: "掲載との関係", desc: "Kinda への掲載は条件ではありません。取材だけでも構いません。" },
-  { term: "原稿の確認", desc: "公開前に必ず原稿をご確認いただきます。表現の修正も、公開の取りやめもできます。" },
+  { term: "聞き手", desc: "運営のふうかです。" },
+  { term: "公開場所", desc: "Kinda voices（カウンセラーの取材記事を集めたページ）に公開します。記事の最後から、カウンセラーページへそのまま進めます。" },
+  { term: "原稿の確認", desc: "公開前に必ず原稿をご確認いただきます。事実の誤りや表現のご希望があれば直します。" },
   { term: "写真", desc: "顔写真は任意です。ご提供がない場合はイラストで対応します。" },
-  { term: "公開後", desc: "記事はご自身のサイトや SNS で自由に引用・リンクしていただけます。公開後の取り下げもいつでもお受けします。" },
+  { term: "公開後", desc: "記事はご自身のサイトや SNS で自由に引用・リンクしていただけます。" },
+];
+
+// S3 取材記事があることで変わること
+const INTERVIEW_MERITS = [
+  {
+    title: "会う前に、人柄が伝わります",
+    body: "面談で大切にしていることや、この仕事を選んだ理由が文章で残ります。読んだ方は、話す前からどんな人かを知った状態で予約できます。",
+  },
+  {
+    title: "検索で見つかります",
+    body: "相談所名やお名前で調べた方に、広告ではない文章として届きます。記事は消えずに残り続けます。",
+  },
+  {
+    title: "ご自身の発信にも使えます",
+    body: "記事の URL はご自身のサイトや SNS で自由に紹介していただけます。第三者が書いた紹介文として使えます。",
+  },
 ];
 
 // S5 Kinda が大切にしている3つのこと（3枚目を取材ファースト版に差し替え）
@@ -114,15 +129,15 @@ const STEPS = [
   },
   {
     title: "取材",
-    body: "面談で大切にしていること、これまでのご経験などを伺います。Kinda の仕組みについてもご説明しますが、その場でご返答いただく必要はありません。",
+    body: "面談で大切にしていること、これまでのご経験などを伺います。",
   },
   {
     title: "原稿の確認",
-    body: "記事にまとめて、公開前にお送りします。事実の誤りや表現のご希望があれば直します。公開を取りやめることもできます。",
+    body: "記事にまとめて、公開前にお送りします。事実の誤りや表現のご希望があれば直します。",
   },
   {
     title: "公開",
-    body: "Kinda 上に公開します。記事のURLはご自身のサイトや SNS で自由にお使いください。",
+    body: "Kinda voices に公開します。記事の URL はご自身のサイトや SNS で自由にお使いください。",
   },
 ];
 
@@ -146,28 +161,24 @@ const LISTING_CARDS = [
 const LISTING_STEPS = [
   {
     title: "ご相談",
-    body: "下のフォームで「30分、話を聞きたい」を選んでご連絡ください。",
+    body: "下のフォームで「サービスの説明を受けたい」を選んでご連絡ください。",
   },
   {
     title: "ご説明",
-    body: "オンラインで30分前後、仕組み・費用・掲載範囲をご説明します。この時点でお断りいただいて構いません。",
+    body: "オンラインで30分前後、仕組み・費用・掲載範囲をご説明します。",
   },
   {
-    title: "アカウント発行",
-    body: "ご相談所専用の管理画面アカウントをお渡しします。プロフィール・写真の入力はカウンセラーご自身が行い、いつでも編集できます。",
+    title: "専用 URL のお渡し",
+    body: "カウンセラーページを開設するための専用 URL をお渡しします。プロフィール・写真はカウンセラーご自身が入力し、いつでも編集できます。",
   },
   {
     title: "公開",
-    body: "ページが公開されます。掲載の停止はいつでも可能で、違約金はありません。",
+    body: "カウンセラーページが公開され、Kinda talk と Kinda type に表示されます。",
   },
 ];
 
 // S8 よくあるご質問（取材系4問 → 既存4問の順）
 const FAQ_ITEMS = [
-  {
-    q: "取材を受けたら、Kinda に掲載しなければいけませんか？",
-    a: "いいえ。掲載は取材の条件ではありません。取材だけを受けていただいても構いませんし、記事の公開後に掲載をお断りいただくこともできます。取材の場で掲載をご返答いただく必要もありません。",
-  },
   {
     q: "取材に費用はかかりますか？",
     a: "かかりません。こちらから取材費用をいただくことも、お支払いすることもありません。オンライン（Google Meet）で60分ほどお時間をいただくだけです。",
@@ -199,10 +210,7 @@ const FAQ_ITEMS = [
 ];
 
 export default async function ForCounselorsPage() {
-  const [demoCounselors, exampleColumns] = await Promise.all([
-    getDemoCounselors(),
-    getExampleColumns(),
-  ]);
+  const exampleColumns = await getExampleColumns();
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -231,7 +239,7 @@ export default async function ForCounselorsPage() {
             相談所ではなく、カウンセラー個人を選べるサイトです。
           </h1>
           <p className="fc-hero-lead">
-            Kinda は、結婚相談所を「どこ」ではなく「誰」で選ぶためのサイトです。
+            Kinda は、担当になるカウンセラーを見て、結婚相談所を選べるサイトです。
             カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。
             いま、同じ現場にいるカウンセラーの方に、30分前後お話を伺っています。
           </p>
@@ -240,7 +248,7 @@ export default async function ForCounselorsPage() {
               30分、お話を聞かせてください
             </a>
             <a href="#listing" className="fc-btn fc-btn-ghost">
-              掲載について知る
+              カウンセラーページについて
             </a>
           </div>
         </section>
@@ -250,17 +258,16 @@ export default async function ForCounselorsPage() {
           <h2 className="fc-h2">なぜ、カウンセラー個人なのか</h2>
           <div className="fc-prose">
             <p>
-              会員様が本当に気にされているのは、どんなに立派な相談所に入るかより、
-              誰が担当になるかではないか。運営のふうかも結婚相談所のカウンセラーとして現場にいて、
-              ずっとそう感じていました。
+              会員様が本当に気にされているのは、どの相談所に入るかより誰が担当になるかではないか。
+              運営のふうかは、カウンセラーとして現場にいてずっとそう感じていました。
             </p>
             <p>
-              普段、誰かに相談するときは「この人になら話せる」と思ってから相談します。
-              けれど専門家に相談するときだけは、相手を選べないまま、知らない人に打ち明けることになります。
+              普段は「この人になら話せる」と思ってから誰かに相談します。
+              けれど専門家に相談するときだけは、相手を選べないまま知らない人に打ち明けることになります。
             </p>
             <p>
-              結婚相手を見つけるという大切な場面でも、同じように担当を選べない。
-              そこに違和感があり、相談所単位ではなく、カウンセラー個人に焦点を当てた作りにしました。
+              結婚相手を見つけるという大切な場面でも、担当は選べません。
+              その違和感から、相談所単位ではなくカウンセラー個人に焦点を当てた作りにしました。
             </p>
           </div>
         </section>
@@ -280,13 +287,26 @@ export default async function ForCounselorsPage() {
               </div>
             ))}
           </dl>
+
+          <h3 className="fc-h3">掲載までの流れ</h3>
+          <ol className="fc-steps">
+            {LISTING_STEPS.map((s, i) => (
+              <li key={s.title} className="fc-step">
+                <span className="fc-step-num">{i + 1}</span>
+                <div>
+                  <h4 className="fc-step-title">{s.title}</h4>
+                  <p className="fc-step-body">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </section>
 
         {/* S2. 取材について */}
         <section className="fc-section">
           <h2 className="fc-h2">取材について</h2>
           <p className="fc-section-lead">
-            ご希望があれば、取材もお受けしています。
+            カウンセラーページとあわせて、取材記事も作らせてください。
             面談で大切にしていること、どんなご相談が多いか、この仕事を選んだ理由。
             そういったことを伺って、記事にまとめます。
           </p>
@@ -300,20 +320,24 @@ export default async function ForCounselorsPage() {
           </dl>
         </section>
 
-        {/* S3. なぜ取材からなのか */}
+        {/* S3. 取材している理由 */}
         <section className="fc-section">
-          <h2 className="fc-h2">取材をお受けしている理由</h2>
+          <h2 className="fc-h2">取材している理由</h2>
           <div className="fc-prose">
             <p>
-              Kinda は 2026 年に立ち上がったばかりのサイトです。
-              いま掲載をお勧めしても、お渡しできる実績はまだ多くありません。
+              カウンセラー一人ひとりの考えや想いを、もっと伝えられる場所を作りたいと思ったからです。
+              プロフィールの数行だけでは、面談で何を大切にしているかまでは伝わりません。
             </p>
-            <p>
-              だから先に、カウンセラーの方が考えていることを記事として残すことから始めています。
-              記事は検索で見つかります。相談所名やお名前で調べた方が、
-              広告ではない文章としてそれを読むことになります。
-            </p>
-            <p>掲載していただくかどうかは、そのあとで決めていただければ十分です。</p>
+          </div>
+          <div className="fc-card-grid fc-card-grid-3 fc-merit-grid">
+            {INTERVIEW_MERITS.map((m) => (
+              <div key={m.title} className="fc-card">
+                <h3 className="fc-card-title">{m.title}</h3>
+                <p className="fc-card-body">{m.body}</p>
+              </div>
+            ))}
+          </div>
+          <div className="fc-prose">
             <p className="fc-prose-note">
               早い時期に掲載いただいた相談所ほど、口コミが先に積み上がっていきます。
             </p>
@@ -350,55 +374,6 @@ export default async function ForCounselorsPage() {
           </div>
         </section>
 
-        {/* S5-2. 掲載イメージ（旧トラスト数値の位置）
-            営業用サンプルはここに集約する。rating / reviewCount / fee / campaign は
-            一切レンダリングしない。構造化データ（Person / Review / AggregateRating）も付けない。 */}
-        {demoCounselors.length > 0 && (
-          <section className="fc-section">
-            <h2 className="fc-h2">掲載イメージ</h2>
-            <p className="fc-section-lead">
-              実際の掲載ページは、このように表示されます。
-              <br />
-              以下はすべて表示例で、実在のカウンセラーではありません。
-            </p>
-
-            <div className="fc-sample-area">
-              <div className="fc-card-grid fc-card-grid-3">
-                {demoCounselors.slice(0, 3).map((c) => (
-                  <div key={String(c.id)} className="fc-sample-card">
-                    <span className="fc-sample-tag">表示例</span>
-                    <h3 className="fc-sample-name">{c.name}</h3>
-                    <p className="fc-sample-meta">
-                      {c.agencyName}
-                      {c.area ? ` / ${c.area}` : ""}
-                    </p>
-                    {c.experience > 0 && (
-                      <p className="fc-sample-meta">経歴 {c.experience} 年</p>
-                    )}
-                    {c.catchphrase && (
-                      <p className="fc-sample-catch">{c.catchphrase}</p>
-                    )}
-                    {c.tags.length > 0 && (
-                      <ul className="fc-sample-tags">
-                        {c.tags.slice(0, 3).map((t) => (
-                          <li key={t}>{t}</li>
-                        ))}
-                      </ul>
-                    )}
-                    <div className="fc-sample-review-slot">
-                      面談された方の口コミが、ここに表示されます
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <p className="fc-section-note">
-              掲載後は、プロフィール・写真をカウンセラーご自身が管理画面から編集できます。
-            </p>
-          </section>
-        )}
-
         {/* S6. 公開している記事の例 */}
         {exampleColumns.length > 0 && (
           <section className="fc-section">
@@ -419,16 +394,16 @@ export default async function ForCounselorsPage() {
           </section>
         )}
 
-        {/* S7. 掲載について */}
+        {/* S7. カウンセラーページへの掲載 */}
         <section id="listing" className="fc-section">
-          <h2 className="fc-h2">掲載について</h2>
+          <h2 className="fc-h2">カウンセラーページへの掲載</h2>
           <p className="fc-section-lead">
-            取材とは別に、Kinda にカウンセラーページを掲載していただくこともできます。
-            取材を受けた方に掲載をお願いすることはありません。ご希望があればご案内します。
+            Kinda に、カウンセラーお一人ずつのページを開設します。
+            利用者はこのページを見て、担当になる人を選びます。
           </p>
 
-          {/* 7-1. 掲載いただける内容 */}
-          <h3 className="fc-h3">掲載いただける内容</h3>
+          {/* 7-1. 掲載される内容 */}
+          <h3 className="fc-h3">掲載される内容</h3>
           <div className="fc-card-grid fc-card-grid-3">
             {LISTING_CARDS.map((c) => (
               <div key={c.title} className="fc-card">
@@ -455,25 +430,12 @@ export default async function ForCounselorsPage() {
             </div>
           </div>
           <ul className="fc-price-notes">
-            <li>取材は無料です。掲載していただかない場合も費用は発生しません。</li>
+            <li>取材・記事の公開に費用はかかりません。</li>
             <li>
               予約が成立した時点で送客料が発生します。以後のキャンセルは原則返金いたしませんが、やむを得ない事情の場合は運営事務局にご相談ください。
             </li>
           </ul>
 
-          {/* 7-3. 掲載までの流れ */}
-          <h3 className="fc-h3">掲載までの流れ</h3>
-          <ol className="fc-steps">
-            {LISTING_STEPS.map((s, i) => (
-              <li key={s.title} className="fc-step">
-                <span className="fc-step-num">{i + 1}</span>
-                <div>
-                  <h4 className="fc-step-title">{s.title}</h4>
-                  <p className="fc-step-body">{s.body}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
         </section>
 
         {/* S8. よくあるご質問 */}
@@ -493,7 +455,7 @@ export default async function ForCounselorsPage() {
         <section id="inquiry" className="fc-section fc-inquiry">
           <h2 className="fc-h2">お問い合わせ</h2>
           <p className="fc-inquiry-lead">
-            30分のお話のご希望も、取材・掲載のご相談も、こちらからお願いします。
+            サービスのご説明・取材・掲載のご相談は、こちらからお願いします。
             運営から3営業日以内にご返信します。
           </p>
           <CounselorInquiryForm />
@@ -658,80 +620,7 @@ export default async function ForCounselorsPage() {
           color: var(--ink) !important;
         }
 
-        /* 掲載イメージ（サンプル領域）— 一目でサンプルと分かるよう枠で囲う */
-        .fc-sample-area {
-          border: 1px dashed rgba(212,160,144,.7);
-          border-radius: 20px;
-          background: rgba(245,238,230,.5);
-          padding: 20px 16px;
-        }
-        .fc-sample-card {
-          position: relative;
-          background: #fff;
-          border-radius: 18px;
-          padding: 40px 18px 18px;
-          box-shadow: 0 1px 2px rgba(26,19,14,.04), 0 8px 24px rgba(26,19,14,.05);
-          text-align: left;
-        }
-        .fc-sample-tag {
-          position: absolute;
-          top: 14px;
-          left: 16px;
-          display: inline-block;
-          padding: 3px 10px;
-          border: 1px solid #D4A090;
-          border-radius: 999px;
-          color: #D4A090;
-          font-size: 10.5px;
-          letter-spacing: .1em;
-          line-height: 1.6;
-        }
-        .fc-sample-name {
-          font-family: 'Shippori Mincho', serif;
-          font-size: 17px;
-          font-weight: 500;
-          color: var(--ink);
-          margin: 0 0 6px;
-        }
-        .fc-sample-meta {
-          font-size: 12.5px;
-          line-height: 1.8;
-          color: var(--mid);
-          margin: 0 0 4px;
-        }
-        .fc-sample-catch {
-          font-size: 13px;
-          line-height: 1.9;
-          color: #5f544c;
-          margin: 10px 0 0;
-          padding-left: 11px;
-          border-left: 2px solid #D4A090;
-        }
-        .fc-sample-tags {
-          list-style: none;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          margin: 12px 0 0;
-          padding: 0;
-        }
-        .fc-sample-tags li {
-          font-size: 11px;
-          color: var(--mid);
-          background: #F5EEE6;
-          border-radius: 999px;
-          padding: 3px 10px;
-        }
-        .fc-sample-review-slot {
-          margin-top: 14px;
-          border: 1px dashed #EAE0D8;
-          border-radius: 12px;
-          padding: 16px 12px;
-          font-size: 11.5px;
-          line-height: 1.8;
-          color: #a3968a;
-          text-align: center;
-        }
+        .fc-merit-grid { margin: 24px 0; }
         .fc-section-note {
           margin: 16px 0 0;
           font-size: 12.5px;
