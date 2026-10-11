@@ -211,7 +211,13 @@ export default function LoginPage() {
                 fontSize: '13px',
                 color: 'var(--success)',
               }}>
-                リセットリンクをメールで送りました。ご確認ください。
+                <p style={{ margin: 0, fontWeight: 600 }}>パスワード再設定のメールを送りました。</p>
+                <p style={{ margin: '8px 0 0', color: 'var(--text)', lineHeight: 1.8 }}>
+                  送信元：Kinda（noreply@send.kinda.jp）<br />
+                  件名：【Kinda】パスワード再設定のご案内<br />
+                  数分たっても届かないときは、迷惑メールのフォルダもご確認ください。
+                  メールのリンクは、この画面を開いているのと同じ端末・同じブラウザで開いてください。
+                </p>
               </div>
             ) : (
               <form onSubmit={handleReset}>
