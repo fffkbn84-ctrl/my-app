@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import PasswordInput from '@/components/shared/PasswordInput'
+import { PASSWORD_RULE_TEXT, checkNewPassword, describePasswordError } from '@/lib/password'
 
 type Phase = 'checking' | 'ready' | 'invalid' | 'done'
 
@@ -12,6 +13,7 @@ type Phase = 'checking' | 'ready' | 'invalid' | 'done'
  * パスワード再設定。ログイン画面の「パスワードを忘れた方」から送るメールのリンク先。
  * リンクの ?code= をセッションに替えてから、新しいパスワードを受け付ける。
  * code はリセットを申し込んだのと同じブラウザでしか替えられない（PKCE）。
+ * 2段階認証のあるアカウントは、6桁のコードを確かめてからでないと Supabase がパスワードを変えさせない。
  */
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -20,6 +22,8 @@ export default function ResetPasswordPage() {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [needsMfa, setNeedsMfa] = useState(false)
+  const [mfaCode, setMfaCode] = useState('')
 
   useEffect(() => {
     const supabase = createClient()
@@ -30,7 +34,13 @@ export default function ResetPasswordPage() {
         await supabase.auth.exchangeCodeForSession(code).catch(() => {})
       }
       const { data } = await supabase.auth.getSession()
-      setPhase(data.session ? 'ready' : 'invalid')
+      if (!data.session) {
+        setPhase('invalid')
+        return
+      }
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      setNeedsMfa(aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2')
+      setPhase('ready')
     }
     run()
   }, [])
@@ -38,20 +48,41 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    if (password.length < 8) {
-      setError('パスワードは8文字以上にしてください')
+    const ruleError = checkNewPassword(password)
+    if (ruleError) {
+      setError(ruleError)
       return
     }
     if (password !== confirm) {
       setError('確認用のパスワードが一致しません')
       return
     }
+    if (needsMfa && !/^\d{6}$/.test(mfaCode)) {
+      setError('認証アプリの6桁のコードを入力してください')
+      return
+    }
     setLoading(true)
     const supabase = createClient()
+    if (needsMfa) {
+      const { data: factors } = await supabase.auth.mfa.listFactors()
+      const factor = factors?.totp[0]
+      if (!factor) {
+        setLoading(false)
+        setError('2段階認証の設定が見つかりませんでした。運営までお問い合わせください')
+        return
+      }
+      const { error: mfaError } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: mfaCode })
+      if (mfaError) {
+        setLoading(false)
+        setError('6桁のコードが違うか、時間が過ぎています。認証アプリの新しいコードを入れてください')
+        return
+      }
+      setNeedsMfa(false)
+    }
     const { error: updateError } = await supabase.auth.updateUser({ password })
     setLoading(false)
     if (updateError) {
-      setError('パスワードを変更できませんでした。時間をおいて、もう一度お試しください')
+      setError(describePasswordError(updateError) ?? 'パスワードを変更できませんでした。時間をおいて、もう一度お試しください')
       return
     }
     setPhase('done')
@@ -110,7 +141,7 @@ export default function ResetPasswordPage() {
               <div style={{ marginBottom: 16 }}>
                 <label className="kc-label">
                   新しいパスワード
-                  <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-light)' }}>8文字以上</span>
+                  <span style={{ display: 'block', marginTop: 2, fontSize: 10, color: 'var(--text-light)' }}>{PASSWORD_RULE_TEXT}</span>
                 </label>
                 <PasswordInput
                   value={password}
@@ -128,6 +159,25 @@ export default function ResetPasswordPage() {
                   required
                 />
               </div>
+              {needsMfa && (
+                <div style={{ marginBottom: 24 }}>
+                  <label className="kc-label">
+                    認証アプリの6桁のコード
+                    <span style={{ display: 'block', marginTop: 2, fontSize: 10, color: 'var(--text-light)' }}>
+                      このアカウントは2段階認証を使っています
+                    </span>
+                  </label>
+                  <input
+                    className="kc-input"
+                    value={mfaCode}
+                    onChange={e => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="123456"
+                    required
+                  />
+                </div>
+              )}
               <button
                 type="submit"
                 className="kc-btn kc-btn-primary"

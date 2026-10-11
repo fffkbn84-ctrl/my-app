@@ -6,6 +6,7 @@ import Link from 'next/link'
 import PasswordInput from '@/components/shared/PasswordInput'
 import { createClient } from '@/lib/supabase/client'
 import { describeError } from '@/lib/errors'
+import { PASSWORD_RULE_TEXT, checkNewPassword, describePasswordError } from '@/lib/password'
 import {
   detectInAppBrowser,
   inAppBrowserLabel,
@@ -96,7 +97,10 @@ export default function ClaimContent() {
     setError('')
     setInfo('')
     if (!email || !password) { setError('メールアドレスとパスワードを入力してください'); return }
-    if (password.length < 8) { setError('パスワードは8文字以上にしてください'); return }
+    if (mode === 'signup') {
+      const ruleError = checkNewPassword(password)
+      if (ruleError) { setError(ruleError); return }
+    }
     if (mode === 'signup' && !termsAccepted) {
       setError('利用規約とプライバシーポリシーに同意してください')
       return
@@ -117,7 +121,7 @@ export default function ClaimContent() {
           },
         },
       })
-      if (error) { setError(describeError(error)); setSubmitting(false); return }
+      if (error) { setError(describePasswordError(error) ?? describeError(error)); setSubmitting(false); return }
       if (!data.session) {
         setInfo('登録メールを送信しました。受信箱からリンクをタップしてアカウントを有効化したあと、もう一度この画面に戻って「引き継ぎを実行」を押してください。')
         setSubmitting(false)
@@ -363,7 +367,7 @@ export default function ClaimContent() {
                 <div style={{ marginBottom: 14 }}>
                   <label className="kc-label">
                     パスワード
-                    {mode === 'signup' && <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--text-light)' }}>8文字以上</span>}
+                    {mode === 'signup' && <span style={{ display: 'block', marginTop: 2, fontSize: 10, color: 'var(--text-light)' }}>{PASSWORD_RULE_TEXT}</span>}
                   </label>
                   <PasswordInput
                     value={password}
