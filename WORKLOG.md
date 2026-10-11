@@ -6449,7 +6449,7 @@ Resend の実装状況を調査して整理（コードはまだ書かず、状�
   - **案A（ふうか決裁）**：kinda.jp に見えるのは `agencies.card_registered_at` がある相談所のカウンセラーだけ（RLS）。本人・オーナー・運営は未登録でも自分の行を読める。Emma は登録済み扱いに backfill
   - shop-media の書き込みを is_admin() だけに
 - counselor 管理画面（`claude/fix-profile-creation-1clpG`）：stripe_customer_id と card_registered_at は service role で書く（`lib/supabase/service.ts`）。カード未登録ならダッシュボードに「登録すると kinda.jp に表示されます」
-- `/for-counselors`：掲載までの流れに「カードのご登録」を追加（「開設するだけで掲載」を訂正）
+- `/for-counselors` は変えない（カード登録は「開設」に含まれる必須手続きとして、口頭・契約書で説明する＝ふうか判断 10/11）
 - 確認：最後に例外で取り消す DO ブロックで、非 admin 会員の書き込みが拒否・通常編集は通ることを確認。公開 API（anon）で見え方が従来どおり（本物は小山楓華・Emma のみ）なことも確認
 - ハマったこと：Supabase MCP の execute_sql / apply_migration は、明示 BEGIN/ROLLBACK や「DDL を含む DO ブロック」だと 60 秒で返ってこない（DB 側は何も変わっていない）。DDL は `SET lock_timeout='5s';` ＋1文ずつで通った
 - **訂正**：以前「カウンセラー管理画面はセキュリティ面で大丈夫」と伝えていたが、DB の列単位の書き換えまでは見ていなかった。今回の点検で上記を発見・修正
