@@ -4,6 +4,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import CounselorInquiryForm from "@/components/for-counselors/CounselorInquiryForm";
+import ListingPreview from "@/components/for-counselors/ListingPreview";
+import VoicesSample from "@/components/for-counselors/VoicesSample";
 import { getAllColumns, type ColumnMeta } from "@/lib/columns";
 
 // 記事一覧の取得は 1 時間キャッシュ。cookies を読まないため静的生成 + ISR が効く。
@@ -318,6 +320,10 @@ export default async function ForCounselorsPage() {
               </div>
             ))}
           </dl>
+
+          {/* 記事イメージ（架空・ページ内抜粋のみ。単独 URL は作らない） */}
+          <h3 className="fc-h3">記事イメージ</h3>
+          <VoicesSample />
         </section>
 
         {/* S3. 取材している理由 */}
@@ -401,6 +407,10 @@ export default async function ForCounselorsPage() {
             Kinda に、カウンセラーお一人ずつのページを開設します。
             利用者はこのページを見て、担当になる人を選びます。
           </p>
+
+          {/* 7-0. 掲載イメージ（架空のカウンセラー・スマホ枠） */}
+          <h3 className="fc-h3">掲載イメージ</h3>
+          <ListingPreview />
 
           {/* 7-1. 掲載される内容 */}
           <h3 className="fc-h3">掲載される内容</h3>
@@ -848,6 +858,325 @@ export default async function ForCounselorsPage() {
           text-decoration: none;
         }
         .fc-operator-link a:hover { text-decoration: underline; }
+
+        /* S7-0 掲載イメージ（スマホ枠） */
+        .fc-preview { margin: 0 0 8px; }
+        .fc-preview-phones {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 28px 36px;
+        }
+        .fc-preview-item {
+          width: min(260px, 72vw);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .fc-phone {
+          width: 100%;
+          aspect-ratio: 9 / 18.5;
+          background: #2E2620;
+          border-radius: 34px;
+          padding: 9px;
+          box-sizing: border-box;
+          box-shadow: 0 2px 4px rgba(26,19,14,.08), 0 18px 40px rgba(26,19,14,.14);
+        }
+        .fc-phone-screen {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          border-radius: 26px;
+          overflow: hidden;
+          background: #F5EEE6;
+        }
+        .fc-preview-cap {
+          display: flex;
+          gap: 8px;
+          align-items: flex-start;
+          margin-top: 16px;
+          font-size: 13px;
+          line-height: 1.8;
+          color: var(--mid);
+        }
+        .fc-preview-cap-num {
+          flex: none;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 22px;
+          height: 22px;
+          margin-top: 2px;
+          border-radius: 999px;
+          background: var(--accent);
+          color: #fff;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+        }
+        .fc-preview-note {
+          margin: 22px 0 0;
+          text-align: center;
+          font-size: 12px;
+          color: var(--muted);
+        }
+
+        /* リール画面 */
+        .fc-reel { color: #fff; }
+        .fc-reel-img { object-fit: cover; }
+        .fc-reel-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,0) 14%, rgba(0,0,0,0) 45%, rgba(0,0,0,.5) 78%, rgba(0,0,0,.72) 100%);
+        }
+        .fc-reel-progress {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          right: 12px;
+          display: flex;
+          gap: 4px;
+        }
+        .fc-reel-progress span {
+          flex: 1;
+          height: 2px;
+          border-radius: 2px;
+          background: rgba(255,255,255,.4);
+        }
+        .fc-reel-progress span.is-current { background: #fff; }
+        .fc-reel-close {
+          position: absolute;
+          top: 22px;
+          right: 12px;
+          display: inline-flex;
+          padding: 5px;
+          border-radius: 999px;
+          background: rgba(0,0,0,.25);
+        }
+        .fc-reel-actions {
+          position: absolute;
+          right: 10px;
+          bottom: 42%;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .fc-reel-actions span {
+          display: inline-flex;
+          padding: 7px;
+          border-radius: 999px;
+          background: rgba(0,0,0,.28);
+        }
+        .fc-reel-bottom {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          padding: 0 14px 16px;
+        }
+        .fc-reel-bottom .kt-type-badge { transform: scale(.88); transform-origin: left center; }
+        .fc-reel-catch {
+          font-family: 'Shippori Mincho', var(--font-mincho, serif);
+          font-size: 14px;
+          line-height: 1.55;
+          margin: 8px 0 8px;
+          text-shadow: 0 2px 8px rgba(0,0,0,.35);
+        }
+        .fc-reel-name { font-size: 12px; font-weight: 600; margin: 0; }
+        .fc-reel-meta { font-size: 10px; opacity: .85; margin: 2px 0 12px; }
+        .fc-reel-cta { display: flex; gap: 6px; }
+        .fc-reel-cta span {
+          flex: 1;
+          text-align: center;
+          padding: 8px 0;
+          border-radius: 999px;
+          font-size: 10.5px;
+          font-weight: 600;
+        }
+        .fc-reel-cta .is-secondary { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.5); }
+        .fc-reel-cta .is-primary { background: var(--accent); }
+
+        /* カウンセラーページ */
+        .fc-detail { overflow: hidden; }
+        .fc-detail-hero { position: relative; height: 30%; }
+        .fc-detail-hero-img { object-fit: cover; object-position: center 55%; }
+        .fc-detail-head {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: -24px 14px 0;
+          position: relative;
+        }
+        .fc-detail-avatar {
+          position: relative;
+          flex: none;
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 3px solid #F5EEE6;
+          background: #EDD8C0;
+        }
+        .fc-detail-avatar-img { object-fit: cover; object-position: 50% 40%; transform: scale(1.9); transform-origin: 50% 42%; }
+        .fc-detail-name {
+          font-family: var(--font-mincho, serif);
+          font-size: 15px;
+          font-weight: 600;
+          margin: 30px 0 0;
+          color: var(--ink);
+        }
+        .fc-detail-role { font-size: 10px; color: var(--mid); margin: 2px 0 0; }
+        .fc-detail-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          margin: 12px 14px 0;
+        }
+        .fc-detail-tags span {
+          font-size: 9.5px;
+          padding: 3px 8px;
+          border-radius: 999px;
+          background: #fff;
+          color: var(--mid);
+          border: 1px solid var(--pale);
+        }
+        .fc-detail-book {
+          margin: 12px 14px 0;
+          padding: 9px 0;
+          border-radius: 10px;
+          background: var(--accent);
+          color: #fff;
+          text-align: center;
+          font-size: 11px;
+          font-weight: 600;
+        }
+        .fc-detail-h {
+          font-family: var(--font-mincho, serif);
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--ink);
+          margin: 14px 14px 6px;
+          padding-bottom: 4px;
+          border-bottom: 1px solid var(--light);
+        }
+        .fc-detail-text, .fc-detail-quote {
+          font-size: 10.5px;
+          line-height: 1.8;
+          color: var(--mid);
+          margin: 0 14px;
+        }
+        .fc-detail-quote {
+          background: #fff;
+          border-radius: 10px;
+          padding: 8px 10px;
+          font-family: var(--font-mincho, serif);
+          color: var(--ink);
+        }
+
+        /* S2 記事イメージ（Kinda voices の抜粋） */
+        .fc-voices {
+          max-width: 620px;
+          margin: 0 auto;
+        }
+        .fc-voices-label {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px;
+          letter-spacing: .06em;
+          color: var(--accent);
+        }
+        .fc-voices-badge {
+          font-family: inherit;
+          letter-spacing: 0;
+          font-size: 11px;
+          color: var(--mid);
+          background: #fff;
+          border: 1px solid var(--light);
+          border-radius: 999px;
+          padding: 3px 10px;
+        }
+        .fc-voices-hero {
+          position: relative;
+          aspect-ratio: 16 / 9;
+          border-radius: 20px 20px 0 0;
+          overflow: hidden;
+        }
+        .fc-voices-hero-img { object-fit: cover; object-position: center 42%; }
+        .fc-voices-body {
+          background: #fff;
+          border-radius: 0 0 20px 20px;
+          padding: 26px 26px 30px;
+          box-shadow: 0 1px 2px rgba(26,19,14,.04), 0 8px 24px rgba(26,19,14,.05);
+        }
+        .fc-voices-title {
+          font-family: var(--font-mincho, serif);
+          font-size: clamp(18px, 3.6vw, 21px);
+          font-weight: 600;
+          line-height: 1.6;
+          margin: 0 0 16px;
+          color: var(--ink);
+        }
+        .fc-voices-title span {
+          display: block;
+          margin-top: 4px;
+          font-size: 13px;
+          font-weight: 400;
+          color: var(--mid);
+        }
+        .fc-voices-lead, .fc-voices-text {
+          font-size: 14px;
+          line-height: 2;
+          color: var(--mid);
+          margin: 0;
+        }
+        .fc-voices-profile {
+          margin: 20px 0 0;
+          padding: 14px 18px;
+          border-radius: 14px;
+          background: #F5EEE6;
+        }
+        .fc-voices-profile div { display: flex; gap: 14px; padding: 4px 0; font-size: 13px; }
+        .fc-voices-profile dt { flex: none; width: 7.5em; color: var(--mid); }
+        .fc-voices-profile dd { margin: 0; color: var(--ink); }
+        .fc-voices-h {
+          font-family: var(--font-mincho, serif);
+          font-size: 16px;
+          font-weight: 600;
+          margin: 26px 0 10px;
+          color: var(--ink);
+        }
+        .fc-voices-fade { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+        .fc-voices-quote {
+          margin: 22px 0 0;
+          padding: 4px 0 4px 18px;
+          border-left: 3px solid var(--accent);
+          font-family: var(--font-mincho, serif);
+          font-size: 16px;
+          line-height: 1.9;
+          color: var(--ink);
+        }
+        .fc-voices-cta {
+          margin: 26px auto 0;
+          max-width: 22em;
+          padding: 12px 0;
+          border-radius: 999px;
+          background: var(--accent);
+          color: #fff;
+          text-align: center;
+          font-size: 13px;
+          font-weight: 600;
+        }
+        .fc-voices-cap {
+          margin: 14px 0 0;
+          text-align: center;
+          font-size: 12.5px;
+          color: var(--mid);
+        }
 
         @media (min-width: 720px) {
           .fc-card-grid-3 { grid-template-columns: repeat(3, 1fr); }
