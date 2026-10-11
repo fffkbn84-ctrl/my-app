@@ -6440,3 +6440,17 @@ Resend の実装状況を調査して整理（コードはまだ書かず、状�
 - **登録画像が出ない2か所** → 保存は正しく、表示側が最初から登録画像を読まない作りだった。
   カウンセラーページ下の「所属相談所」カード（`AgencyCardBlock`）は `logoUrl`、相談所ページの「在籍カウンセラー」カード（`CounselorScrollCard`）は `photoUrl` を、あれば出すように（PR #80）
 - **トップから Kinda note に入ると説明なしで質問が始まる** → 10/3 の決定（今日の天気を入口の主役に・トップから `/kinda-note/today` 直行）どおり。画面は増やさず、1問目の上に「3つ選ぶと、今日の気持ちが天気になります。」を足した（PR #80）
+
+### 2026-10-11（営業開始前のセキュリティ点検 → 案A で塞いだ）
+
+- **見つかった穴**（kinda.jp に会員登録しただけの人でも PostgREST 経由でできた）：相談所・カウンセラーを自作して即公開（is_published 既定 true）／Emma 等の既存相談所の所属としてカウンセラーを作る／rating_avg・review_count を書き換えて星と件数を偽装／is_demo・stripe_customer_id・owner_user_id の書き換え／shop-media の画像を誰でも追加・上書き・削除
+- **直したこと**（`supabase/migrations/046_*`）：
+  - `guard_counselor_agency_columns()` トリガーを counselors / agencies に。`current_user` が authenticated/anon（＝PostgREST 直）かつ非 admin のときだけ保護列を拒否。集計・招待の受け取りは SECURITY DEFINER なので通る
+  - **案A（ふうか決裁）**：kinda.jp に見えるのは `agencies.card_registered_at` がある相談所のカウンセラーだけ（RLS）。本人・オーナー・運営は未登録でも自分の行を読める。Emma は登録済み扱いに backfill
+  - shop-media の書き込みを is_admin() だけに
+- counselor 管理画面（`claude/fix-profile-creation-1clpG`）：stripe_customer_id と card_registered_at は service role で書く（`lib/supabase/service.ts`）。カード未登録ならダッシュボードに「登録すると kinda.jp に表示されます」
+- `/for-counselors`：掲載までの流れに「カードのご登録」を追加（「開設するだけで掲載」を訂正）
+- 確認：最後に例外で取り消す DO ブロックで、非 admin 会員の書き込みが拒否・通常編集は通ることを確認。公開 API（anon）で見え方が従来どおり（本物は小山楓華・Emma のみ）なことも確認
+- ハマったこと：Supabase MCP の execute_sql / apply_migration は、明示 BEGIN/ROLLBACK や「DDL を含む DO ブロック」だと 60 秒で返ってこない（DB 側は何も変わっていない）。DDL は `SET lock_timeout='5s';` ＋1文ずつで通った
+- **訂正**：以前「カウンセラー管理画面はセキュリティ面で大丈夫」と伝えていたが、DB の列単位の書き換えまでは見ていなかった。今回の点検で上記を発見・修正
+- 残り：Leaked password protection は有料のためオフのまま（代わりにパスワード要件を英大小・数字・記号・10文字以上に強化＝ふうか設定）。SECURITY DEFINER 関数が anon から呼べる警告は、中身に本人／admin 確認があることを確認済み（実害なし）
