@@ -81,22 +81,29 @@ function CounselorScrollCard({ c }: { c: Counselor }) {
             width: 60,
             height: 60,
             borderRadius: "50%",
+            position: "relative",
+            overflow: "hidden",
             background: "rgba(255,255,255,.45)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="9" r="5" fill={c.svgColor} opacity=".65" />
-            <path
-              d="M3 22c0-4.971 4.029-9 9-9s9 4.029 9 9"
-              stroke={c.svgColor}
-              strokeWidth="1.2"
-              fill="none"
-              opacity=".45"
-            />
-          </svg>
+          {/* プロフィール写真の登録があれば出す。無ければ従来の人型アイコン */}
+          {c.photoUrl ? (
+            <Image src={c.photoUrl} alt="" fill sizes="60px" style={{ objectFit: "cover" }} />
+          ) : (
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="9" r="5" fill={c.svgColor} opacity=".65" />
+              <path
+                d="M3 22c0-4.971 4.029-9 9-9s9 4.029 9 9"
+                stroke={c.svgColor}
+                strokeWidth="1.2"
+                fill="none"
+                opacity=".45"
+              />
+            </svg>
+          )}
         </div>
         <p
           style={{

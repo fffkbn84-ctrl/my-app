@@ -206,6 +206,12 @@ export default function TodayContent() {
       <div className="pc-readable" style={{ padding: "28px 24px 80px" }}>
         {q && (
           <>
+            {/* トップから説明なしで直接来る人のための一文（1問目だけ） */}
+            {step === 0 && (
+              <p style={{ fontSize: 12, color: "#7A6A5A", lineHeight: 1.8, margin: "0 0 14px" }}>
+                3つの質問に答えると、今日の気持ちが天気になります。
+              </p>
+            )}
             <h1 style={headingStyle}>{q.text}</h1>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
               {q.options.map((opt) => {
