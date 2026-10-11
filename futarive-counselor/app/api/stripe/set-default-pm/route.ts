@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service'
 import { stripe } from '@/lib/stripe'
 
 export const runtime = 'nodejs'
@@ -35,10 +36,11 @@ export async function POST(req: Request) {
 
   const { data: agencies } = await supabase
     .from('agencies')
-    .select('stripe_customer_id')
+    .select('id, stripe_customer_id')
     .eq('owner_user_id', user.id)
     .limit(1)
-  const customerId = (agencies?.[0] as { stripe_customer_id: string | null } | undefined)?.stripe_customer_id
+  const agency = agencies?.[0] as { id: string; stripe_customer_id: string | null } | undefined
+  const customerId = agency?.stripe_customer_id
   if (!customerId) {
     return NextResponse.json({ ok: false, error: 'no_customer' }, { status: 400 })
   }
@@ -49,6 +51,19 @@ export async function POST(req: Request) {
     await stripe.customers.update(customerId, {
       invoice_settings: { default_payment_method: paymentMethodId },
     })
+    // カード登録済みの印。kinda.jp はこれがある相談所のカウンセラーだけを表示する（DB の RLS）。
+    // 本人のセッションでは書けない列なので service role で書く
+    const service = createServiceRoleClient()
+    if (!service || !agency) {
+      return NextResponse.json({ ok: false, error: 'server_misconfigured' }, { status: 500 })
+    }
+    const { error: markErr } = await service
+      .from('agencies')
+      .update({ card_registered_at: new Date().toISOString() })
+      .eq('id', agency.id)
+    if (markErr) {
+      return NextResponse.json({ ok: false, error: 'mark_card_failed' }, { status: 500 })
+    }
     return NextResponse.json({ ok: true })
   } catch (err) {
     const e = err as Error

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/service'
 import { stripe } from '@/lib/stripe'
 
 export const runtime = 'nodejs'
@@ -45,7 +46,18 @@ export async function POST() {
       metadata: { agency_id: agency.id },
     })
     customerId = customer.id
-    await supabase.from('agencies').update({ stripe_customer_id: customerId }).eq('id', agency.id)
+    // stripe_customer_id は本人のセッションでは書けない（DB ガード）。本人確認済みなので service role で書く
+    const service = createServiceRoleClient()
+    if (!service) {
+      return NextResponse.json({ ok: false, error: 'server_misconfigured' }, { status: 500 })
+    }
+    const { error: saveErr } = await service
+      .from('agencies')
+      .update({ stripe_customer_id: customerId })
+      .eq('id', agency.id)
+    if (saveErr) {
+      return NextResponse.json({ ok: false, error: 'save_customer_failed' }, { status: 500 })
+    }
   }
 
   // 既存の登録カード（default → 無ければ最初の card）

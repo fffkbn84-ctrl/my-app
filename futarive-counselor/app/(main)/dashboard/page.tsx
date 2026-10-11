@@ -326,6 +326,31 @@ export default function DashboardPage() {
         href: '/reviews',
       })
     })
+    // ─── カード未登録 ───
+    // kinda.jp は、カード登録済み（agencies.card_registered_at あり）の相談所の
+    // カウンセラーだけを表示する（DB の RLS）。未登録だと公開にしていても表示されない。
+    // 所属相談所が読めない（＝未登録で非公開扱い）場合も未登録として案内する。
+    const agencyIds = Array.from(new Set(filtered.map(c => c.agency_id).filter(Boolean)))
+    if (agencyIds.length > 0) {
+      const { data: cardRows, error: cardErr } = await supabase
+        .from('agencies').select('id, card_registered_at').in('id', agencyIds)
+      if (!cardErr) {
+        const registered = new Set(
+          ((cardRows ?? []) as { id: string; card_registered_at: string | null }[])
+            .filter(a => a.card_registered_at)
+            .map(a => a.id),
+        )
+        if (agencyIds.some(id => !registered.has(id))) {
+          newTodos.push({
+            type: 'rec',
+            label: 'お支払いカードの登録が済むと、kinda.jp にカウンセラーページが表示されます',
+            action: 'カードを登録する',
+            href: '/billing',
+          })
+        }
+      }
+    }
+
     if (reelTotal > 0 && reelPublished < reelTotal) {
       newTodos.push({
         type: 'rec',
