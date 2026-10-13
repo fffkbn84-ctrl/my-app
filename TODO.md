@@ -48,15 +48,22 @@
 - [ ] **次セッション最初：Emma のカード登録**。10/13 に「カード設定の取得に失敗しました」→ 原因はテストモードの顧客ID（`cus_UhagwdJ2Ryr8l7`）。
       Claude が DB の1件を null に戻し済み。ふうかが /billing を開き直してカード登録 → Claude が Stripe 本番に顧客とカードができたか確認（＝本番キーが効いている確認にもなる）
       → 10/13 夜に確認：**まだ未登録**（DB の `stripe_customer_id` は null のまま・Stripe 本番の顧客は0件）。ふうかの登録待ち。下の改善を出さなくても登録はできる状態
-- [ ] **次セッション：counselor カード画面の改善**（`futarive-counselor/components/billing/CardRegistration.tsx`・`app/api/stripe/setup-intent/route.ts`）
+- [x] **counselor カード画面の改善**（`futarive-counselor/components/billing/CardRegistration.tsx`・`app/api/stripe/setup-intent/route.ts`）
       1. setup-intent：保存済みの顧客が Stripe に無い（`resource_missing`）なら作り直して上書きする（今回の再発防止）
       2. エラー時に「もう一度読み込む」とお問い合わせへの導線を出す（今は文言だけで何もできない）
       3. 「カードを変更」ボタンが常に見えるか確認（カード登録済みなら既にある。他社 SaaS の請求設定と比べて判断）
-      → 10/13：1・2 を実装（`dcd2b48`・ブランチ `claude/admiring-knuth-b69bzf-counselor`。`claude/fix-profile-creation-1clpG` への PR／マージ待ち）。
+      → 10/13：1・2 を実装し **PR #86 で `claude/fix-profile-creation-1clpG` にマージ**（`6b33935`）。
         3 は確認のみ：登録済みなら「カードを変更」が常に出ている。変更不要
 - [ ] **実課金の疎通確認**（ふうか判断待ち）。本番 Webhook の署名シークレットが正しいかは、本物の決済が届くまで確かめられない。
       案A：¥5,500 で1件 → 返金（手数料 約¥200 は戻らない）。案B：金額を一時的に下げる（JPY の最低額は ¥50）が、コードと env を触る分だけ戻し忘れのリスクがある。Claude は案A を推す。
       ⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る
+      → **10/13 ふうか決定：案A で行う**。手順（上の Emma のカード登録が済んでから）：
+        1. ふうか：kinda.jp に利用者としてログインし、小山楓華（Emma）の枠を1つ予約して確定まで進める（Emma のカードに ¥5,500）
+        2. Claude：Stripe 本番で PaymentIntent が succeeded か／Webhook の配信が 200 か（＝署名シークレットが正しい）／
+           DB の予約に `paid_at`・`user_info_visible` が入ったか／確定メールが出たかを確認
+        3. Claude：Stripe で返金 → `charge.refunded` の Webhook で予約に `refunded_at` が入るか確認（Webhook の2本目の確認も兼ねる）
+        4. テスト予約をキャンセル扱いにして枠を戻す
+- [ ] **Supabase のメール設定は、上のカード登録と課金テストが終わってから**（10/13 ふうか）
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
