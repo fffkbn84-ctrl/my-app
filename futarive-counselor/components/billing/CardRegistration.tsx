@@ -9,6 +9,28 @@ const stripePromise = pk ? loadStripe(pk) : null
 
 type Card = { brand: string; last4: string } | null
 
+// 画面がダークか（data-theme の手動指定 → 無ければ OS の設定）。テーマ切替にも追従する
+function useIsDark() {
+  const [dark, setDark] = useState(false)
+  useEffect(() => {
+    const html = document.documentElement
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const read = () => {
+      const t = html.getAttribute('data-theme')
+      setDark(t === 'dark' || (t !== 'light' && mq.matches))
+    }
+    read()
+    const obs = new MutationObserver(read)
+    obs.observe(html, { attributes: true, attributeFilter: ['data-theme'] })
+    mq.addEventListener('change', read)
+    return () => {
+      obs.disconnect()
+      mq.removeEventListener('change', read)
+    }
+  }, [])
+  return dark
+}
+
 const muted: React.CSSProperties = { fontSize: 13, color: 'var(--text-mid)', lineHeight: 1.7 }
 
 function Section({ children }: { children: React.ReactNode }) {
@@ -34,6 +56,7 @@ export default function CardRegistration() {
   const [card, setCard] = useState<Card>(null)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState(false)
+  const dark = useIsDark()
 
   const fetchSetup = async () => {
     setLoading(true)
@@ -114,7 +137,13 @@ export default function CardRegistration() {
         </div>
       ) : (
         clientSecret && (
-          <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
+          // ダークモードでは Stripe の見出し（カード番号など）が背景に沈むので night に切り替える。
+          // 配色はマウント時に決まるため、テーマが変わったら key で作り直す
+          <Elements
+            key={dark ? 'dark' : 'light'}
+            stripe={stripePromise}
+            options={{ clientSecret, appearance: { theme: dark ? 'night' : 'stripe' } }}
+          >
             <CardForm
               onDone={() => {
                 setEditing(false)
