@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = "2026年6月4日";
+const LAST_UPDATED = "2026年10月13日";
 
 export default function TokushouPage() {
   return (
@@ -146,6 +146,70 @@ export default function TokushouPage() {
                   <td>
                     結婚相談所に関する口コミは、Kinda 経由で面談を完了したユーザーのみが投稿できます。
                     投稿内容は当社の確認後に掲載される場合があり、利用規約・ガイドラインに反する投稿は掲載されないことがあります。
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section className="legal-section">
+            <h2 className="legal-h2">結婚相談所さま向け（送客サービス）</h2>
+            <p className="legal-text">
+              当社が結婚相談所さま・カウンセラー（以下「掲載事業者」）に提供する送客サービスに関する表記です。
+              販売事業者・所在地・連絡先は上記と同じです。ユーザーのみなさまにご負担いただくものではありません。
+            </p>
+            <table className="legal-table">
+              <tbody>
+                <tr>
+                  <th>サービス名</th>
+                  <td>Kinda 送客サービス（カウンセラー管理画面）</td>
+                </tr>
+                <tr>
+                  <th>役務の内容</th>
+                  <td>掲載事業者のプロフィール・口コミの掲載、およびユーザーからの面談予約の送客（媒介）</td>
+                </tr>
+                <tr>
+                  <th>販売価格</th>
+                  <td>
+                    送客 1 件あたり 5,500 円（税込）の成果報酬（税別 5,000 円）。
+                    掲載費・初期費用・月額固定費は無料です。
+                  </td>
+                </tr>
+                <tr>
+                  <th>商品代金以外の必要料金</th>
+                  <td>インターネット通信費、通信機器の購入・維持費用等は掲載事業者のご負担となります。</td>
+                </tr>
+                <tr>
+                  <th>お支払い方法</th>
+                  <td>クレジットカード決済のみ（決済代行：Stripe）。銀行振込その他の方法は取り扱っておりません。</td>
+                </tr>
+                <tr>
+                  <th>お支払い時期</th>
+                  <td>予約が確定した時点で、ご登録のクレジットカードに即時課金します（前払い）。</td>
+                </tr>
+                <tr>
+                  <th>役務の提供時期</th>
+                  <td>
+                    掲載は、利用規約への同意およびアカウント発行後すみやかに開始します。
+                    送客（ユーザーの連絡先の開示）は、予約確定に係る決済の完了後ただちに行います。
+                  </td>
+                </tr>
+                <tr>
+                  <th>キャンセル・返金</th>
+                  <td>
+                    送客料は予約確定をもって確定し、以後のキャンセル、当日のキャンセル、ユーザーの面談不参加、日程変更のいずれの場合も、原則として返金いたしません。
+                    <span className="legal-note-inline">
+                      天災その他やむを得ない事情がある場合は、
+                      <a href="mailto:hello@kinda.jp" className="legal-link">運営事務局</a>
+                      にご相談ください。個別の判断で返金を行うことがあります。
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>関連する規定</th>
+                  <td>
+                    <a href="https://futarive-counselor.vercel.app/terms" className="legal-link">Kinda カウンセラー管理画面 利用規約</a>
+                    および送客契約書によります。
                   </td>
                 </tr>
               </tbody>
