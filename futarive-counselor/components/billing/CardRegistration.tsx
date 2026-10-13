@@ -53,7 +53,7 @@ export default function CardRegistration() {
       setClientSecret(data.clientSecret)
       setCard(data.card ?? null)
     } catch {
-      setError('カード設定の取得に失敗しました。')
+      setError('カード設定の取得に失敗しました。通信状況をご確認のうえ、もう一度お試しください。')
     }
     setLoading(false)
   }
@@ -70,7 +70,24 @@ export default function CardRegistration() {
     )
   }
   if (loading) return <Section><p style={muted}>読み込み中...</p></Section>
-  if (error) return <Section><p style={{ color: 'var(--danger)', fontSize: 13 }}>{error}</p></Section>
+  if (error)
+    return (
+      <Section>
+        <p style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 12 }}>{error}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <button className="kc-btn kc-btn-ghost kc-btn-sm" onClick={fetchSetup}>
+            もう一度読み込む
+          </button>
+          <span style={muted}>
+            何度か試しても開けない場合は{' '}
+            <a href="mailto:hello@kinda.jp" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
+              hello@kinda.jp
+            </a>{' '}
+            までご連絡ください。
+          </span>
+        </div>
+      </Section>
+    )
 
   return (
     <Section>
