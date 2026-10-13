@@ -5,7 +5,7 @@
 > 2026-07-02 に全面整理（重複統合・完了項目の退避）。整理前の全文は `docs/archive/todo-full-archive-2026-07-02.md`。
 > 定期整理は `/repo-tidy` Skill で行う。
 
-最終更新: 2026-10-11
+最終更新: 2026-10-13
 
 ---
 
@@ -35,17 +35,21 @@
 - [x] **送客料を ¥5,500（税込）に統一**（10/13 ふうか決裁）。Stripe の事業説明は ¥5,500 で申告済み、契約書は「金5,000円（税別）＋消費税」、
       DB `billing_events.amount_jpy` の初期値も 5500 だったので、ずれていたのはサイト表示とコードの実課金額だけ。
       実課金額（`REFERRAL_FEE_JPY=5500`）・相談所向け／透明性ページ・メール本文・契約書・事業者向け特商法・営業資料・CLAUDE.md をまとめて直した
-- [ ] （任意・Claude の Stripe 接続が読み取り専用のため未実施）Stripe の公開情報に サポートメール（`hello@kinda.jp`）・サポート URL・特商法表記 URL（`https://kinda.jp/tokushou`）が未設定。埋めておくと問い合わせ・チャージバック対応で効く
+- [ ] **ふうか：Stripe の公開情報を埋める**（設定 → 公開情報。API からは変えられない）：サポートメール `hello@kinda.jp`／顧客サポート URL `https://kinda.jp/contact`／
+      ウェブサイト `https://kinda.jp`／プライバシー `https://kinda.jp/privacy`／利用規約 `https://futarive-counselor.vercel.app/terms`（課金されるのは相談所なので相談所向け規約）／特商法 `https://kinda.jp/tokushou`
 - [x] 本番 Webhook を作成（10/13 Claude・Stripe MCP）：`we_1UQ3Y2ApDnL2Iw4scZUGtxC6`／`https://kinda.jp/api/stripe/webhook`／
       `payment_intent.succeeded`・`charge.refunded` の2つ。署名シークレットはダッシュボード → 開発者 → Webhook で「表示」してコピーする
-- [ ] counselor 管理画面の利用規約 第2条の「送客」の定義が「面談が実施されたこと」になっていて、実装（予約確定で即時課金）と食い違う。
-      契約書 第6条第2項（予約確定時点）に合わせて直す（`futarive-counselor/app/terms/page.tsx`。系統は `claude/fix-profile-creation-1clpG`）
+- [ ] **法務書類の食い違いを修正（10/13・PR 2本、マージ待ち）**
+      - counselor（`claude/fervent-dirac-5v5za3-counselor` → `claude/fix-profile-creation-1clpG`）：規約 第2条「送客」を予約確定に／第6条にカード前払い・即時課金・原則返金なし・税込¥5,500／
+        第4条の認証コード→招待 URL／[会社名][所在地][氏名] の未記入／旧ドメイン kinda-futari.app → kinda.jp／プライバシーの委託先に Resend・Stripe
+      - main：kinda.jp/tokushou に「結婚相談所さま向け（送客サービス）」節を追加（Stripe の特商法 URL がここなので料金・支払方法・返金を載せる）／
+        一般向け規約 第7条の「認証手続き」を実態（完了済み予約に紐づけ）に／契約書の [会社名]・旧ドメイン・条番号のずれ（回避禁止は第6条第7項）／事業者向け特商法の未記入
 - [ ] **ふうか：Vercel の env に live キーを入れる**（チャットに貼らない。**Production だけ**。Preview はテストキーのまま残す）→ 両方 Redeploy
       - `my-app-rp9u`：`STRIPE_SECRET_KEY`（`sk_live_`）・`STRIPE_WEBHOOK_SECRET`（本番の `whsec_`）
       - `futarive-counselor`：`STRIPE_SECRET_KEY`（`sk_live_`）・`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`（`pk_live_`）
       - コードに test/live の分岐は無い（10/13 確認）。キーを替えるだけで本番になる
 - [ ] Emma を本物のカードで登録し直す（counselor 管理画面 /billing）。**登録し直すまで Emma への予約は課金されず連絡先も開示されない**
-- [ ] **実課金の疎通確認**（自分で1件予約 → ¥5,000 課金・連絡先開示・メール → Stripe で返金）。⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る。返金しても決済手数料（約¥180）は戻らない
+- [ ] **実課金の疎通確認**（自分で1件予約 → ¥5,500 課金・連絡先開示・メール → Stripe で返金）。⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る。返金しても決済手数料（約¥180）は戻らない
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
