@@ -13,7 +13,7 @@
 ```
 ユーザーが予約確定ボタン押下
     ↓
-Kindaサーバー：Stripe Payment Intentを作成（¥5,000）
+Kindaサーバー：Stripe Payment Intentを作成（¥5,500・税込）
     ↓
 相談所の登録カードに即時課金
     ↓
@@ -32,7 +32,7 @@ Resend：相談所と管理者に決済完了メール送信
 
 | トリガー | 処理 |
 |---|---|
-| 予約確定 | 即時 ¥5,000 課金（猶予期間なし） |
+| 予約確定 | 即時 ¥5,500（税込）課金（猶予期間なし） |
 | 以後のキャンセル・当日キャンセル・ユーザー不参加（ドタキャン） | 原則返金なし（課金確定） |
 | やむを得ない事情 | 運営事務局へ相談 → 個別判断で返金しうる（Stripe Refund API・admin のみ実行） |
 
@@ -158,7 +158,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-const CHARGE_AMOUNT = 5000 // ¥5,000
+const CHARGE_AMOUNT = 5500 // ¥5,500（税込）
 
 export async function POST(req: Request) {
   const { reservation_id, agency_id } = await req.json()

@@ -38,7 +38,7 @@ async function notifyChargeFailure(p: {
     to: SUPPORT_INBOX,
     subject: "【要対応】送客料の課金ができませんでした｜Kinda",
     html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
-      <p>予約は成立していますが、送客料（¥5,000）の課金ができませんでした。相談所への連絡先開示と確定メールは止まっています。</p>
+      <p>予約は成立していますが、送客料（¥5,500・税込）の課金ができませんでした。相談所への連絡先開示と確定メールは止まっています。</p>
       <table style="font-size:14px;margin:8px 0;">${rows}</table>
       <p style="font-size:12px;color:#9a9088;">相談所にカードの登録・更新を依頼し、Stripe で課金できたら webhook で開示されます。</p>
     </div>`,
@@ -46,7 +46,7 @@ async function notifyChargeFailure(p: {
 }
 
 /**
- * 予約成立で相談所カードに即時 ¥5,000 を off_session 課金する。
+ * 予約成立で相談所カードに即時 ¥5,500（税込）を off_session 課金する。
  * - 呼び出しは予約本人（ログインユーザー）に限定。
  * - 相談所が Stripe Customer + カード登録済みであることが前提（未登録は 402）。
  * - 二重課金防止：paid_at / stripe_payment_intent_id があればスキップ。

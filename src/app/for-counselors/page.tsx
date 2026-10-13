@@ -17,7 +17,7 @@ const SITE_URL = "https://kinda.jp";
 export const metadata: Metadata = {
   title: "カウンセラー個人を選べるサイト｜結婚相談所のカウンセラーの方へ | Kinda",
   description:
-    "Kinda は、担当になるカウンセラーを見て結婚相談所を選べるサイトです。カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。カウンセラーページの掲載は初期費用・月額費用とも無料で、面談予約が成立したときのみ送客料 ¥5,000 です。取材記事は Kinda voices で公開します。",
+    "Kinda は、担当になるカウンセラーを見て結婚相談所を選べるサイトです。カウンセラーお一人ずつのページがあり、口コミもその人に紐づきます。カウンセラーページの掲載は初期費用・月額費用とも無料で、面談予約が成立したときのみ送客料 ¥5,500（税込）です。取材記事は Kinda voices で公開します。",
   alternates: { canonical: `${SITE_URL}/for-counselors` },
   robots: { index: true, follow: true },
   openGraph: {
@@ -436,7 +436,7 @@ export default async function ForCounselorsPage() {
             </div>
             <div className="fc-price-row">
               <span className="fc-price-label">送客料</span>
-              <span className="fc-price-value">面談予約の成立ごとに ¥5,000</span>
+              <span className="fc-price-value">面談予約の成立ごとに ¥5,500（税込）</span>
             </div>
           </div>
           <ul className="fc-price-notes">

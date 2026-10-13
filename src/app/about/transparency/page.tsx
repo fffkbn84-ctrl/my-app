@@ -44,7 +44,7 @@ export default function TransparencyPage() {
             <h2 className="legal-h2">1. Kinda がお金を得るしくみ</h2>
             <ul className="legal-ul">
               <li>ユーザーが Kinda を利用するのは<strong>完全に無料</strong>です。会員登録も、Kinda note も、コラムを読むことも、料金は一切かかりません。</li>
-              <li>Kinda の収益は、<strong>結婚相談所からの送客料</strong>です。Kinda 経由で面談予約が成立したとき、相談所から 1 件あたり ¥5,000 をいただいています。</li>
+              <li>Kinda の収益は、<strong>結婚相談所からの送客料</strong>です。Kinda 経由で面談予約が成立したとき、相談所から 1 件あたり ¥5,500（税込）をいただいています。</li>
               <li>掲載していただく相談所の初期費用・月額掲載料は無料で、費用は送客料のみです。掲載や取材の条件は{" "}
                 <Link href="/for-counselors" className="legal-link">
                   カウンセラーの方へ

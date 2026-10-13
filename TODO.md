@@ -32,17 +32,17 @@
 - [ ] **ふうか：入金スケジュールが「手動」になっている**（10/13 確認）。このままだと売上は Stripe に貯まるだけで口座に振り込まれない。
       自動にするならダッシュボード → 設定 → 入金 で頻度を変える（週1・月1など）。手動のままでよいなら、その方針をここに書く
 - [x] カード明細の読みがな「カインダ」は**正しい**（10/13 ふうか）。Kinda の読みは「カインダ」。CLAUDE.md §1 の「キンダ」が誤りだったので直した
-- [ ] **Stripe の事業説明が「¥5,500」で申告されている**（10/13 確認）。7/6 の決定メモは「¥5,000 で申告済み」としていたが、実際は ¥5,500。
-      一方コードの実課金額は ¥5,000（`src/lib/stripe.ts` の `REFERRAL_FEE_JPY`）。下の ¥5,500 統一の判断はこの事実を前提に決める
-- [ ] （任意）Stripe の公開情報に サポートメール（`hello@kinda.jp`）・サポート URL・特商法表記 URL（`https://kinda.jp/tokushou`）が未設定。埋めておくと問い合わせ・チャージバック対応で効く
-- [ ] 本番 Webhook を作る：エンドポイント `https://kinda.jp/api/stripe/webhook`、イベントは **`payment_intent.succeeded` と `charge.refunded` の2つ**だけ → 署名シークレット `whsec_...` を控える
+- [x] **送客料を ¥5,500（税込）に統一**（10/13 ふうか決裁）。Stripe の事業説明は ¥5,500 で申告済み、契約書は「金5,000円（税別）＋消費税」、
+      DB `billing_events.amount_jpy` の初期値も 5500 だったので、ずれていたのはサイト表示とコードの実課金額だけ。
+      実課金額（`REFERRAL_FEE_JPY=5500`）・相談所向け／透明性ページ・メール本文・契約書・事業者向け特商法・営業資料・CLAUDE.md をまとめて直した
+- [ ] （任意・Claude の Stripe 接続が読み取り専用のため未実施）Stripe の公開情報に サポートメール（`hello@kinda.jp`）・サポート URL・特商法表記 URL（`https://kinda.jp/tokushou`）が未設定。埋めておくと問い合わせ・チャージバック対応で効く
+- [ ] 本番 Webhook を作る（10/13 Claude が試したが、Stripe 接続が読み取り専用で Forbidden。書き込み権限を付ければ Claude が作れる）：エンドポイント `https://kinda.jp/api/stripe/webhook`、イベントは **`payment_intent.succeeded` と `charge.refunded` の2つ**だけ → 署名シークレット `whsec_...` を控える
 - [ ] **ふうか：Vercel の env に live キーを入れる**（チャットに貼らない。**Production だけ**。Preview はテストキーのまま残す）→ 両方 Redeploy
       - `my-app-rp9u`：`STRIPE_SECRET_KEY`（`sk_live_`）・`STRIPE_WEBHOOK_SECRET`（本番の `whsec_`）
       - `futarive-counselor`：`STRIPE_SECRET_KEY`（`sk_live_`）・`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`（`pk_live_`）
       - コードに test/live の分岐は無い（10/13 確認）。キーを替えるだけで本番になる
 - [ ] Emma を本物のカードで登録し直す（counselor 管理画面 /billing）。**登録し直すまで Emma への予約は課金されず連絡先も開示されない**
 - [ ] **実課金の疎通確認**（自分で1件予約 → ¥5,000 課金・連絡先開示・メール → Stripe で返金）。⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る。返金しても決済手数料（約¥180）は戻らない
-- [ ] ¥5,500（税込）への統一をどうするか決める（7/6 に「審査完了まで凍結」と決めた件。修正は `claude/stripe-production-deployment-sshgj2` にある）
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
