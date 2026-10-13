@@ -45,7 +45,7 @@
 - [x] **Vercel の env を本番キーに**（10/13 ふうか・Redeploy 済み）。Production＝live（`sk_live_`・本番 `whsec_`・`pk_live_`）、Preview＝test（`sk_test_`・`pk_test_`）。
       ⚠️ Preview に `sk_live_` を置かない（Preview も本番 DB を使うので、プレビューで予約確定すると本物のカードに課金される）。
       `NEXT_PUBLIC_` の変数は Secret にできないので Type は Config。Preview の `STRIPE_WEBHOOK_SECRET` はお金を動かせないので未変更でよい（テスト用 Webhook は作らない）
-- [ ] **次セッション最初：Emma のカード登録**。10/13 に「カード設定の取得に失敗しました」→ 原因はテストモードの顧客ID（`cus_UhagwdJ2Ryr8l7`）。
+- [x] **Emma のカード登録**（10/13 ふうか・本番顧客 `cus_VQx9gOUalXZLbt`）。10/13 に「カード設定の取得に失敗しました」→ 原因はテストモードの顧客ID（`cus_UhagwdJ2Ryr8l7`）。
       Claude が DB の1件を null に戻し済み。ふうかが /billing を開き直してカード登録 → Claude が Stripe 本番に顧客とカードができたか確認（＝本番キーが効いている確認にもなる）
       → 10/13 夜に確認：**まだ未登録**（DB の `stripe_customer_id` は null のまま・Stripe 本番の顧客は0件）。ふうかの登録待ち。下の改善を出さなくても登録はできる状態
 - [x] **counselor カード画面の改善**（`futarive-counselor/components/billing/CardRegistration.tsx`・`app/api/stripe/setup-intent/route.ts`）
@@ -63,6 +63,12 @@
            DB の予約に `paid_at`・`user_info_visible` が入ったか／確定メールが出たかを確認
         3. Claude：Stripe で返金 → `charge.refunded` の Webhook で予約に `refunded_at` が入るか確認（Webhook の2本目の確認も兼ねる）
         4. テスト予約をキャンセル扱いにして枠を戻す
+      → **10/13 実施**：予約 `ff9fd08a`（10/16 16:15）で ¥5,500 の課金が成功（`pi_3UQ5w0ApDnL2Iw4s172KyJDZ`）。
+        Webhook で `paid_at`・`user_info_visible` が入った（＝本番の署名シークレットは正しい）。確定メール・相談所への通知メールも配信済み。
+        残り：**ふうかが Stripe ダッシュボードで返金**（Claude の Stripe 接続は返金の権限がなく Forbidden）→ Claude が `refunded_at` を確認 →
+        ふうかがマイページから予約をキャンセル（枠が空きに戻るか確認）
+- [ ] **Stripe の Link をオフにする**（ふうか・ダッシュボード「設定 → 決済手段」の Link）。カード登録画面に Link のメール欄が出たり出なかったりする（Stripe が出し分ける）。
+      相談所から見て怪しく見えるうえ Kinda には不要。課金には影響しない
 - [ ] **Supabase のメール設定は、上のカード登録と課金テストが終わってから**（10/13 ふうか）
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
