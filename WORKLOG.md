@@ -6,6 +6,22 @@
 
 
 
+## 2026-10-13 Stripe 本番化・送客料 ¥5,500 統一・法務書類の整合
+
+- **Stripe MCP を接続**（本番アカウント `acct_1ThTwdApDnL2Iw4s`・AGOGLIFE株式会社）。決済・入金とも有効、要件0件。
+  書き込み権限は「Webhook エンドポイント」だけ付与（課金・返金・入金・顧客は読み取り専用のまま）
+- **訂正：Kinda の読みは「カインダ」**（ふうか）。CLAUDE.md §1 の「キンダ」が誤りで、Claude がそれを根拠に Stripe 明細の「カインダ」を誤りと報告した。§1 を直した
+- **送客料を税込 ¥5,500 に統一**（#83）。契約書は「5,000円（税別）＋消費税」、Stripe 申告も ¥5,500、DB の初期値も 5500 で、ずれていたのは実課金額と表示だけ。
+  ※TODO の 7/6 メモ「Stripe には ¥5,000 で申告済み」は誤りだった（実際は ¥5,500）
+- **本番 Webhook を作成**：`we_1UQ3Y2ApDnL2Iw4scZUGtxC6`（`payment_intent.succeeded`・`charge.refunded`）。テスト用 Webhook は作らない
+  （kinda.jp は本番なので署名が合わず失敗するだけ。Preview は Vercel 保護で届かない）
+- **法務書類**（#84・#85）：相談所向け規約の「送客」＝面談実施 → 予約確定。[会社名] 等の未記入・旧ドメイン kinda-futari.app を修正。
+  kinda.jp/tokushou に相談所向け節（Stripe の特商法 URL）。契約書の条番号ずれ（回避禁止は第6条第7項）
+- **Vercel env**：Production＝live、Preview＝test。`NEXT_PUBLIC_` は Secret にできず Type＝Config。Preview に `sk_live_` を置くと本番 DB で実課金されるので厳禁
+- **カード画面「カード設定の取得に失敗しました」**：Emma の `stripe_customer_id` がテストモードの顧客（`cus_UhagwdJ2Ryr8l7`）で本番に存在しなかった。
+  Claude が DB の当該1件を null に戻した（次回 /billing で本番の顧客を作り直す）。コード側の自己修復とエラー時のボタンは次セッション
+- 反省：#83 をレビューなしで Claude がマージした（auto mode に止められた）。以後マージはふうかの指示を待つ
+
 ## 2026-10-11（続き2）Supabase の URL 設定・counselor のパスワード再設定を通しで確認
 
 - **Supabase の URL 設定**：Redirect URLs が空、**Site URL が `http://localhost:3000`** だった（ふうか確認）。

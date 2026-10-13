@@ -29,14 +29,12 @@
 - [x] **ふうか：Stripe 本番の本人確認（代表者KYC）を提出**（10/13 完了と報告）
 - [x] **本番が使える状態かを確認**（10/13 Claude が Stripe MCP で直接確認）：`charges_enabled` / `payouts_enabled` ともに true、
       未提出の要件（requirements）は0件。カード決済・JCB は active。入金先は三井住友銀行（法人口座）。本番の顧客・決済は0件、Webhook は0件
-- [ ] **ふうか：入金スケジュールが「手動」になっている**（10/13 確認）。このままだと売上は Stripe に貯まるだけで口座に振り込まれない。
-      自動にするならダッシュボード → 設定 → 入金 で頻度を変える（週1・月1など）。手動のままでよいなら、その方針をここに書く
+- [x] 入金スケジュールを週1回に変更（10/13 ふうか）
 - [x] カード明細の読みがな「カインダ」は**正しい**（10/13 ふうか）。Kinda の読みは「カインダ」。CLAUDE.md §1 の「キンダ」が誤りだったので直した
 - [x] **送客料を ¥5,500（税込）に統一**（10/13 ふうか決裁）。Stripe の事業説明は ¥5,500 で申告済み、契約書は「金5,000円（税別）＋消費税」、
       DB `billing_events.amount_jpy` の初期値も 5500 だったので、ずれていたのはサイト表示とコードの実課金額だけ。
       実課金額（`REFERRAL_FEE_JPY=5500`）・相談所向け／透明性ページ・メール本文・契約書・事業者向け特商法・営業資料・CLAUDE.md をまとめて直した
-- [ ] **ふうか：Stripe の公開情報を埋める**（設定 → 公開情報。API からは変えられない）：サポートメール `hello@kinda.jp`／顧客サポート URL `https://kinda.jp/contact`／
-      ウェブサイト `https://kinda.jp`／プライバシー `https://kinda.jp/privacy`／利用規約 `https://futarive-counselor.vercel.app/terms`（課金されるのは相談所なので相談所向け規約）／特商法 `https://kinda.jp/tokushou`
+- [x] Stripe の公開情報（サポートメール・各 URL）を記入（10/13 ふうか。利用規約は相談所向け `futarive-counselor.vercel.app/terms`）
 - [x] 本番 Webhook を作成（10/13 Claude・Stripe MCP）：`we_1UQ3Y2ApDnL2Iw4scZUGtxC6`／`https://kinda.jp/api/stripe/webhook`／
       `payment_intent.succeeded`・`charge.refunded` の2つ。署名シークレットはダッシュボード → 開発者 → Webhook で「表示」してコピーする
 - [x] **法務書類の食い違いを修正（10/13・#84・#85 マージ済み・本番反映済み）**
@@ -47,8 +45,15 @@
 - [x] **Vercel の env を本番キーに**（10/13 ふうか・Redeploy 済み）。Production＝live（`sk_live_`・本番 `whsec_`・`pk_live_`）、Preview＝test（`sk_test_`・`pk_test_`）。
       ⚠️ Preview に `sk_live_` を置かない（Preview も本番 DB を使うので、プレビューで予約確定すると本物のカードに課金される）。
       `NEXT_PUBLIC_` の変数は Secret にできないので Type は Config。Preview の `STRIPE_WEBHOOK_SECRET` はお金を動かせないので未変更でよい（テスト用 Webhook は作らない）
-- [ ] Emma を本物のカードで登録し直す（counselor 管理画面 /billing）。**登録し直すまで Emma への予約は課金されず連絡先も開示されない**
-- [ ] **実課金の疎通確認**（自分で1件予約 → ¥5,500 課金・連絡先開示・メール → Stripe で返金）。⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る。返金しても決済手数料（約¥180）は戻らない
+- [ ] **次セッション最初：Emma のカード登録**。10/13 に「カード設定の取得に失敗しました」→ 原因はテストモードの顧客ID（`cus_UhagwdJ2Ryr8l7`）。
+      Claude が DB の1件を null に戻し済み。ふうかが /billing を開き直してカード登録 → Claude が Stripe 本番に顧客とカードができたか確認（＝本番キーが効いている確認にもなる）
+- [ ] **次セッション：counselor カード画面の改善**（`futarive-counselor/components/billing/CardRegistration.tsx`・`app/api/stripe/setup-intent/route.ts`）
+      1. setup-intent：保存済みの顧客が Stripe に無い（`resource_missing`）なら作り直して上書きする（今回の再発防止）
+      2. エラー時に「もう一度読み込む」とお問い合わせへの導線を出す（今は文言だけで何もできない）
+      3. 「カードを変更」ボタンが常に見えるか確認（カード登録済みなら既にある。他社 SaaS の請求設定と比べて判断）
+- [ ] **実課金の疎通確認**（ふうか判断待ち）。本番 Webhook の署名シークレットが正しいかは、本物の決済が届くまで確かめられない。
+      案A：¥5,500 で1件 → 返金（手数料 約¥200 は戻らない）。案B：金額を一時的に下げる（JPY の最低額は ¥50）が、コードと env を触る分だけ戻し忘れのリスクがある。Claude は案A を推す。
+      ⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
