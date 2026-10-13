@@ -6,6 +6,20 @@
 
 
 
+## 2026-10-13（続き）本番の課金・返金・キャンセルを通しで確認・カード画面の改善
+
+- **Emma のカード登録**（ふうか）→ 本番顧客 `cus_VQx9gOUalXZLbt`。登録時、正式 URL ではなくデプロイ固有 URL（`futarive-counselor-31of05c1d-…`）で開いていた
+- **カード画面の改善**（#86 マージ）：保存済みの顧客が Stripe に無ければ作り直して上書き／エラー時に「もう一度読み込む」と hello@kinda.jp。
+  ダークモードで Stripe の見出しが沈む件は #87（`night` 配色に切替）
+- **本番の通し確認（案A）**：予約 `ff9fd08a`（10/16 16:15）で ¥5,500 課金成功 → Webhook で `paid_at`・`user_info_visible`（署名シークレット正）→
+  確定メール2通配信 → ふうかがダッシュボードで返金 → `charge.refunded` で `refunded_at`・`billing_events=voided` → マイページでキャンセル・枠 `open`。
+  手数料 ¥218（¥198＋JCT ¥20）は戻らず残高 -¥218
+- Claude の Stripe 接続で返金は Forbidden（書き込みは Webhook のみ）。返金はダッシュボードでふうかが行う
+- 見つけた不具合：返金 Webhook が `charge.refunds.data[0]` を読むが、いまの API では Charge に refunds が入らず `stripe_refund_id` が null
+- Link：Stripe が出し分けるためカード画面にメール欄が出たり出なかったりした → ふうかが「設定 → 決済手段」でオフ
+- 運営向けの手引き `docs/ops/billing-and-refunds.md` を新設（課金・返金のお金の動き・失敗時・まだ無いもの）
+- ログインで「くるっとした矢印」が要る件：パスキー（WebAuthn）は実装しておらず、iPhone の保存パスワード。デプロイ固有 URL は別サイト扱い＋Vercel 保護がかかるのが原因の見込み。正式 URL で再確認待ち
+
 ## 2026-10-13 Stripe 本番化・送客料 ¥5,500 統一・法務書類の整合
 
 - **Stripe MCP を接続**（本番アカウント `acct_1ThTwdApDnL2Iw4s`・AGOGLIFE株式会社）。決済・入金とも有効、要件0件。

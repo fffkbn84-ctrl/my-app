@@ -71,9 +71,19 @@
 - [ ] **Claude：返金 Webhook が `stripe_refund_id` を保存できていない**（10/13 の返金で null）。
       `src/app/api/stripe/webhook/route.ts` は `charge.refunds.data[0]` を読むが、いまの API バージョンでは Charge に refunds が入らない。
       `stripe.refunds.list({ payment_intent })` で取り直す（main から feature branch → PR）。返金済みの判定は `refunded_at` で動いているので急ぎではない
-- [ ] **Stripe の Link をオフにする**（ふうか・ダッシュボード「設定 → 決済手段」の Link）。カード登録画面に Link のメール欄が出たり出なかったりする（Stripe が出し分ける）。
-      相談所から見て怪しく見えるうえ Kinda には不要。課金には影響しない
-- [ ] **Supabase のメール設定は、上のカード登録と課金テストが終わってから**（10/13 ふうか）
+- [x] **Stripe の Link をオフ**（10/13 ふうか・「設定 → 決済手段」）
+- [ ] **counselor：カード登録欄のダークモード**（#87・ふうか OK 済み）。マージ後、ダークモードで /billing の見出しが読めるかふうかが確認
+- [ ] **運営の手引き `docs/ops/billing-and-refunds.md`** の §4「まだ無いもの」を順に片付ける：
+      1. **Claude：課金に失敗した予約を運営が課金し直す仕組み**（いまは予約した本人の画面からしか課金が起きない）
+      2. **ふうか判断：相談所への領収書・適格請求書**。AGOGLIFE の適格請求書発行事業者の登録有無を確認 → Stripe の領収書メールで足りるか、別に請求書を出すか決める
+      3. 返金 Webhook の `stripe_refund_id`（上の項）
+- [ ] **counselor 管理画面に FAQ ページ**（10/13 ふうか案）。カードの種類（特商法には足さない＝10/13 ふうか決定）・返金の反映日数（カード会社により数日〜10日）・
+      課金のタイミング・日程変更で課金しないこと・Link のメール欄は不要、などを相談所向けに。文言は `docs/ops/billing-and-refunds.md` から起こす
+- [ ] **ふうか：counselor のログインを正式 URL（`https://futarive-counselor.vercel.app`）で試す**。それでも再読み込みが要るなら、
+      Claude がログイン後の画面遷移をページ全体の読み込み（`window.location`）に直す（`app/(auth)/login/page.tsx` の `router.push`＋`router.refresh`）
+- [ ] **kinda.jp 予約：渡す Kinda note の結果を選べるようにする**（10/13 ふうか案）。いまは直近の結果が自動で付く（10/13 のテストでは Today になった）。
+      少なくとも「今日の天気（Today）」と「60秒モード」を選べるように。まず Claude が予約フローの現状（`src/components/booking/`）と note の結果の保存のされ方を調べ、選択肢と画面案を出す
+- [ ] **Supabase のメール設定は、上のカード登録と課金テストが終わってから**（10/13 ふうか）→ 課金テストは完了。次はこれ
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
