@@ -47,10 +47,13 @@
       `NEXT_PUBLIC_` の変数は Secret にできないので Type は Config。Preview の `STRIPE_WEBHOOK_SECRET` はお金を動かせないので未変更でよい（テスト用 Webhook は作らない）
 - [ ] **次セッション最初：Emma のカード登録**。10/13 に「カード設定の取得に失敗しました」→ 原因はテストモードの顧客ID（`cus_UhagwdJ2Ryr8l7`）。
       Claude が DB の1件を null に戻し済み。ふうかが /billing を開き直してカード登録 → Claude が Stripe 本番に顧客とカードができたか確認（＝本番キーが効いている確認にもなる）
+      → 10/13 夜に確認：**まだ未登録**（DB の `stripe_customer_id` は null のまま・Stripe 本番の顧客は0件）。ふうかの登録待ち。下の改善を出さなくても登録はできる状態
 - [ ] **次セッション：counselor カード画面の改善**（`futarive-counselor/components/billing/CardRegistration.tsx`・`app/api/stripe/setup-intent/route.ts`）
       1. setup-intent：保存済みの顧客が Stripe に無い（`resource_missing`）なら作り直して上書きする（今回の再発防止）
       2. エラー時に「もう一度読み込む」とお問い合わせへの導線を出す（今は文言だけで何もできない）
       3. 「カードを変更」ボタンが常に見えるか確認（カード登録済みなら既にある。他社 SaaS の請求設定と比べて判断）
+      → 10/13：1・2 を実装（`dcd2b48`・ブランチ `claude/admiring-knuth-b69bzf-counselor`。`claude/fix-profile-creation-1clpG` への PR／マージ待ち）。
+        3 は確認のみ：登録済みなら「カードを変更」が常に出ている。変更不要
 - [ ] **実課金の疎通確認**（ふうか判断待ち）。本番 Webhook の署名シークレットが正しいかは、本物の決済が届くまで確かめられない。
       案A：¥5,500 で1件 → 返金（手数料 約¥200 は戻らない）。案B：金額を一時的に下げる（JPY の最低額は ¥50）が、コードと env を触る分だけ戻し忘れのリスクがある。Claude は案A を推す。
       ⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る
@@ -68,6 +71,7 @@
       1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings に入れる
       2. Email Templates の Reset Password／Confirm signup／Change Email Address に日本語の件名・本文を貼る
       3. 自分宛てに再設定メールを1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える
+      → 10/13 確認：Resend の `send.kinda.jp` は verified・送信可。Supabase 用の API キーはまだ無い（既存は counselor／user-site／futarive の3本）。手順1から
 - [ ] **Claude：上が済んだら `claude/counselor-reset-mail-notice`（`2715efe`）を counselor に出す**。
       再設定メールを送った直後の画面に、送信元・件名・迷惑メールの確認・同じブラウザで開くことを出す変更。
       メールの設定より先に出すと画面とメールが食い違うので、待たせてある。`claude/fix-profile-creation-1clpG` に cherry-pick して push
