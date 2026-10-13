@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-const LAST_UPDATED = '2026年5月23日'
+const LAST_UPDATED = '2026年10月13日'
 
 export default function CounselorPrivacyPage() {
   return (
@@ -18,7 +18,7 @@ export default function CounselorPrivacyPage() {
           <h1 className="kc-legal-title">Kinda カウンセラー管理画面 プライバシーポリシー</h1>
           <p className="kc-legal-meta">最終更新日：{LAST_UPDATED}</p>
           <p className="kc-legal-lead">
-            [会社名]（以下「当社」といいます）は、Kinda カウンセラー管理画面（以下「本サービス」といいます）における
+            株式会社AGOGLIFE（以下「当社」といいます）は、Kinda カウンセラー管理画面（以下「本サービス」といいます）における
             利用者および本サービスを通じて取得するエンドユーザーの個人情報の取り扱いについて、
             個人情報の保護に関する法律（以下「個人情報保護法」といいます）その他関係法令を遵守し、
             以下のとおりプライバシーポリシー（以下「本ポリシー」といいます）を定めます。
@@ -34,14 +34,14 @@ export default function CounselorPrivacyPage() {
           <ul className="kc-legal-ul">
             <li>アカウント登録時：メールアドレス、パスワード（ハッシュ化して保存）</li>
             <li>プロフィール登録・編集時：氏名、所属相談所名、自己紹介文、対応エリア、料金プラン、保有資格、活動年数、プロフィール画像、SNS リンク等</li>
-            <li>請求・支払関連：請求書送付先情報、支払口座情報、適格請求書発行事業者登録番号（インボイス対応時）</li>
+            <li>請求・支払関連：クレジットカードのブランド・下4桁、決済の履歴、適格請求書発行事業者登録番号（インボイス対応時）。カード番号そのものは決済代行事業者（Stripe）が保持し、当社のサーバーでは保存・処理しません</li>
             <li>お問い合わせ時：お問い合わせ内容</li>
             <li>本サービスの閲覧時：IP アドレス、Cookie、ブラウザ情報、OS 情報、アクセス日時、操作ログ等</li>
           </ul>
           <h3 className="kc-legal-h3">(2) 利用者を通じて取得するエンドユーザーの情報</h3>
           <p className="kc-legal-text">
             利用者がエンドユーザーから面談予約を受け付ける際、本サービス上で以下のエンドユーザー情報を閲覧・取得する場合があります。当該情報は、エンドユーザーが
-            <Link href="https://kinda-futari.app/privacy" className="kc-legal-link" target="_blank" rel="noopener noreferrer">公開プラットフォームのプライバシーポリシー</Link>
+            <Link href="https://kinda.jp/privacy" className="kc-legal-link" target="_blank" rel="noopener noreferrer">公開プラットフォームのプライバシーポリシー</Link>
             に同意のうえ提供したものです。
           </p>
           <ul className="kc-legal-ul">
@@ -56,7 +56,7 @@ export default function CounselorPrivacyPage() {
           <p className="kc-legal-text">取得した個人情報は、以下の目的の範囲内で利用します。</p>
           <ul className="kc-legal-ul">
             <li>本サービスの提供・運営・維持</li>
-            <li>利用者のプロフィール情報の公開プラットフォーム（kinda-futari.app）への掲載</li>
+            <li>利用者のプロフィール情報の公開プラットフォーム（kinda.jp）への掲載</li>
             <li>送客予約の成立、利用者への予約情報の連携</li>
             <li>本人確認、認証、不正利用防止</li>
             <li>送客手数料の請求・回収、領収書発行</li>
@@ -90,8 +90,8 @@ export default function CounselorPrivacyPage() {
             本サービスにおける利用者の登録情報は、以下のとおり公開・非公開を区別して取り扱います。
           </p>
           <ul className="kc-legal-ul">
-            <li><strong>公開される情報（公開プラットフォーム kinda-futari.app に掲載）</strong>：プロフィール画面で「公開」と表示される項目（氏名または活動名、所属相談所名、自己紹介文、対応エリア、料金プラン、プロフィール画像、保有資格、活動年数等）</li>
-            <li><strong>非公開情報（当社内および利用者のみ閲覧）</strong>：ログイン用メールアドレス、パスワードのハッシュ、請求情報、支払口座情報、操作ログ、内部メモ、エンドユーザーの予約情報（当該予約の相手方カウンセラー以外には開示しません）</li>
+            <li><strong>公開される情報（公開プラットフォーム kinda.jp に掲載）</strong>：プロフィール画面で「公開」と表示される項目（氏名または活動名、所属相談所名、自己紹介文、対応エリア、料金プラン、プロフィール画像、保有資格、活動年数等）</li>
+            <li><strong>非公開情報（当社内および利用者のみ閲覧）</strong>：ログイン用メールアドレス、パスワードのハッシュ、請求情報、クレジットカードのブランド・下4桁、操作ログ、内部メモ、エンドユーザーの予約情報（当該予約の相手方カウンセラー以外には開示しません）</li>
           </ul>
           <p className="kc-legal-text">
             利用者は、本サービスの編集画面において、各項目の公開・非公開設定を確認・変更することができます。
@@ -105,7 +105,7 @@ export default function CounselorPrivacyPage() {
           </p>
           <ul className="kc-legal-ul">
             <li>送客予約の成立に伴い、予約された利用者に対し、面談に必要な範囲でエンドユーザーの予約情報（氏名、連絡先、希望日時、アンケート回答等）を提供する場合</li>
-            <li>利用者の公開情報を公開プラットフォーム kinda-futari.app に掲載することによる事実上の公開（利用者の利用規約および本ポリシーへの同意により、当該掲載に同意したものとみなします）</li>
+            <li>利用者の公開情報を公開プラットフォーム kinda.jp に掲載することによる事実上の公開（利用者の利用規約および本ポリシーへの同意により、当該掲載に同意したものとみなします）</li>
             <li>法令に基づく場合（裁判所、警察、検察、税務当局等からの正当な要請を含む）</li>
             <li>人の生命、身体または財産の保護のために必要がある場合であって、本人の同意を得ることが困難であるとき</li>
             <li>公衆衛生の向上または児童の健全な育成の推進のために特に必要がある場合であって、本人の同意を得ることが困難であるとき</li>
@@ -122,8 +122,8 @@ export default function CounselorPrivacyPage() {
           <ul className="kc-legal-ul">
             <li>Supabase（データベース・認証基盤）— Supabase Inc.（米国）</li>
             <li>Vercel（Web ホスティング・ログ解析）— Vercel Inc.（米国）</li>
-            <li>メール配信サービス（業務上の通知の送信。運用開始後に追記予定）</li>
-            <li>請求・支払関連の処理業務（運用開始後に追記予定）</li>
+            <li>Resend（業務上の通知メールの送信）— Resend, Inc.（米国）</li>
+            <li>Stripe（クレジットカード決済・カード情報の保管）— Stripe, Inc.（米国）およびその関連会社</li>
           </ul>
         </section>
 
@@ -182,7 +182,7 @@ export default function CounselorPrivacyPage() {
           <ol className="kc-legal-ol">
             <li>本サービスから対応可能な範囲（登録情報の表示・編集・削除、退会等）は、セルフサービスによりご操作ください。</li>
             <li>セルフサービスでは対応できない請求は、サポートメール
-              <Link href="mailto:hello@kinda-futari.app" className="kc-legal-link">hello@kinda-futari.app</Link>
+              <Link href="mailto:hello@kinda.jp" className="kc-legal-link">hello@kinda.jp</Link>
               までご連絡ください。当社は、本人確認を行ったうえで、合理的な範囲で速やかに対応します。
             </li>
             <li>請求内容が法令の要件を満たさない場合、または当該請求に応じることにより本人もしくは第三者の生命、身体、財産その他の権利利益を害するおそれがある場合等、個人情報保護法に定める事由に該当する場合は、開示等の請求の全部または一部に応じられないことがあります。この場合、当社はその理由を利用者に通知します。</li>
@@ -210,13 +210,13 @@ export default function CounselorPrivacyPage() {
         <section className="kc-legal-section">
           <h2 className="kc-legal-h2">14. お問い合わせ窓口</h2>
           <div className="kc-legal-info-box">
-            <p>事業者名：[会社名]</p>
-            <p>所在地：[所在地]</p>
-            <p>個人情報保護管理者：[氏名]</p>
+            <p>事業者名：株式会社AGOGLIFE</p>
+            <p>所在地：〒104-0061 東京都中央区銀座1-12-4 N&amp;E BLD.6F</p>
+            <p>個人情報保護管理者：船田剛</p>
             <p>
               お問い合わせ：
-              <Link href="mailto:hello@kinda-futari.app" className="kc-legal-link">
-                hello@kinda-futari.app
+              <Link href="mailto:hello@kinda.jp" className="kc-legal-link">
+                hello@kinda.jp
               </Link>
             </p>
           </div>
