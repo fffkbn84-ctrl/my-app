@@ -36,7 +36,10 @@
       DB `billing_events.amount_jpy` の初期値も 5500 だったので、ずれていたのはサイト表示とコードの実課金額だけ。
       実課金額（`REFERRAL_FEE_JPY=5500`）・相談所向け／透明性ページ・メール本文・契約書・事業者向け特商法・営業資料・CLAUDE.md をまとめて直した
 - [ ] （任意・Claude の Stripe 接続が読み取り専用のため未実施）Stripe の公開情報に サポートメール（`hello@kinda.jp`）・サポート URL・特商法表記 URL（`https://kinda.jp/tokushou`）が未設定。埋めておくと問い合わせ・チャージバック対応で効く
-- [ ] 本番 Webhook を作る（10/13 Claude が試したが、Stripe 接続が読み取り専用で Forbidden。書き込み権限を付ければ Claude が作れる）：エンドポイント `https://kinda.jp/api/stripe/webhook`、イベントは **`payment_intent.succeeded` と `charge.refunded` の2つ**だけ → 署名シークレット `whsec_...` を控える
+- [x] 本番 Webhook を作成（10/13 Claude・Stripe MCP）：`we_1UQ3Y2ApDnL2Iw4scZUGtxC6`／`https://kinda.jp/api/stripe/webhook`／
+      `payment_intent.succeeded`・`charge.refunded` の2つ。署名シークレットはダッシュボード → 開発者 → Webhook で「表示」してコピーする
+- [ ] counselor 管理画面の利用規約 第2条の「送客」の定義が「面談が実施されたこと」になっていて、実装（予約確定で即時課金）と食い違う。
+      契約書 第6条第2項（予約確定時点）に合わせて直す（`futarive-counselor/app/terms/page.tsx`。系統は `claude/fix-profile-creation-1clpG`）
 - [ ] **ふうか：Vercel の env に live キーを入れる**（チャットに貼らない。**Production だけ**。Preview はテストキーのまま残す）→ 両方 Redeploy
       - `my-app-rp9u`：`STRIPE_SECRET_KEY`（`sk_live_`）・`STRIPE_WEBHOOK_SECRET`（本番の `whsec_`）
       - `futarive-counselor`：`STRIPE_SECRET_KEY`（`sk_live_`）・`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`（`pk_live_`）
