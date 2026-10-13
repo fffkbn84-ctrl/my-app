@@ -26,8 +26,18 @@
       → 切り替え後すぐ counselor 管理画面 /billing で登録し直すまで、Emma への予約は課金されず連絡先も開示されない
 - [x] **課金失敗の取りこぼしを修正**（10/11）：`/api/stripe/charge` で顧客が見つからない時の 500 を 402 に。
       課金できなかった時は hello@kinda.jp に「【要対応】送客料の課金ができませんでした」が届く（予約ID・相談所・理由）
-- [ ] **ふうか：Stripe 本番の有効化を再開**。代表者の個人情報の提出で止まっている。サンドボックスではなく本番の画面に切り替えてから続きを入力
-- [ ] 本番有効化後：本番 Webhook → live キーを Vercel env（`my-app-rp9u`・`futarive-counselor`）→ Emma を本物のカードで登録し直す → 自分で1件予約して課金・連絡先開示・メールを確認 → Stripe で返金
+- [x] **ふうか：Stripe 本番の本人確認（代表者KYC）を提出**（10/13 完了と報告）
+- [ ] **ふうか：本番が使える状態かをダッシュボードで確認**（10/13 時点で Claude からは未確認。Stripe に繋がるツールが無い）。
+      本番モードのホームに「アカウントを有効化」等の未完了バナーが無いこと／設定 → 事業 → アカウントの状態で「支払い」「入金」が有効。
+      7/4 に求められた「セキュリティ対策措置状況申告書」の提出・審査が残っていればそれも
+- [ ] 本番 Webhook を作る：エンドポイント `https://kinda.jp/api/stripe/webhook`、イベントは **`payment_intent.succeeded` と `charge.refunded` の2つ**だけ → 署名シークレット `whsec_...` を控える
+- [ ] **ふうか：Vercel の env に live キーを入れる**（チャットに貼らない。**Production だけ**。Preview はテストキーのまま残す）→ 両方 Redeploy
+      - `my-app-rp9u`：`STRIPE_SECRET_KEY`（`sk_live_`）・`STRIPE_WEBHOOK_SECRET`（本番の `whsec_`）
+      - `futarive-counselor`：`STRIPE_SECRET_KEY`（`sk_live_`）・`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`（`pk_live_`）
+      - コードに test/live の分岐は無い（10/13 確認）。キーを替えるだけで本番になる
+- [ ] Emma を本物のカードで登録し直す（counselor 管理画面 /billing）。**登録し直すまで Emma への予約は課金されず連絡先も開示されない**
+- [ ] **実課金の疎通確認**（自分で1件予約 → ¥5,000 課金・連絡先開示・メール → Stripe で返金）。⚠️ 実課金なので CLAUDE.md §7-10 により実行前に確認を取る。返金しても決済手数料（約¥180）は戻らない
+- [ ] ¥5,500（税込）への統一をどうするか決める（7/6 に「審査完了まで凍結」と決めた件。修正は `claude/stripe-production-deployment-sshgj2` にある）
 - [x] counselor 管理画面の古いプレビューを Vercel Authentication（Standard Protection）で閉じた（10/11 ふうか）
 - [x] admin の Ignored Build Step を設定（10/11 ふうか）。admin ブランチ以外はビルドしない
 - [x] counselor 管理画面：パスワードの表示ボタン（ログイン・招待）／**パスワード再設定ページ `/reset-password` を新設**（10/11）。
