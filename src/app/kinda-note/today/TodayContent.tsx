@@ -11,6 +11,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
 import RecentWeatherStrip from "../components/RecentWeatherStrip";
+import StorageHint from "../components/StorageHint";
 import {
   DAILY_QUESTIONS,
   PASSING_NOTE,
@@ -438,6 +439,7 @@ function Result({
       <div style={{ height: 1, background: "#EAE0D8", margin: "28px 0 24px" }} />
 
       <RecentWeatherStrip items={recent} />
+      <StorageHint color={FAINT} />
 
       <section
         style={{
