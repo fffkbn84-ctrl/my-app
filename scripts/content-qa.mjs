@@ -44,6 +44,25 @@ const NG_WARN = [
   { re: /異性/, label: "「異性」（LGBTQ+包摂＝「相手」「ふたり」で書けないか確認）" },
 ];
 
+// 読みやすさ（2026-10-14 追加）。読点が多いと「AIが書いた文」に見える。
+// 既存記事を一斉に警告しないよう、この日以降に公開する記事だけを見る。
+const READABILITY_FROM = "2026-10-14";
+const COMMA_PER_SENTENCE_MAX = 0.8; // 参考：ヒトデブログ 約0.8 / 2026-10-14 書き直し後 0.61
+const CONJ_COMMA = /(?:^|[。」\n])(けれど|けれども|でも|ただ|なお|また|もちろん|そのうえで|つまり|だから|そして)、/g;
+
+function checkReadability(file, body) {
+  const lines = body.split("\n").filter((l) => l.trim() && !/^\s*(#|-|\*\s|\||>|!|<)/.test(l));
+  const text = lines.join("");
+  const sentences = text.split(/[。！？]/).filter((s) => s.trim()).length;
+  if (!sentences) return;
+  const ratio = (text.match(/、/g) || []).length / sentences;
+  if (ratio > COMMA_PER_SENTENCE_MAX)
+    warn(file, `本文の読点が多い（1文あたり ${ratio.toFixed(2)}・目安 ${COMMA_PER_SENTENCE_MAX} 以下）。接続詞・短い主語のあとの読点を外し、長い文は切る`);
+  const conj = [...text.matchAll(CONJ_COMMA)].map((m) => m[1]);
+  if (conj.length)
+    warn(file, `接続詞のあとに読点 ${conj.length} 箇所（${[...new Set(conj)].join("・")}）。外せないか確認`);
+}
+
 const COLUMN_REQUIRED = ["title", "description", "category", "publishedAt", "tags"];
 
 const errors = [];
@@ -100,6 +119,7 @@ function checkColumns() {
     if (!fm.faq || fm.faq.length === 0) warn(file, "faq がない（FAQPage 構造化データ・AEO 推奨）");
     walkStrings(file, "frontmatter", fm);
     checkText(file, "本文", parsed.content);
+    if (String(fm.publishedAt ?? "") >= READABILITY_FROM) checkReadability(file, parsed.content);
   }
 }
 
@@ -163,6 +183,7 @@ if (process.argv.includes("--list")) {
   [error] kinda-story 配下に Review/AggregateRating 構造化データ
   [error] コラム frontmatter 必須項目（${COLUMN_REQUIRED.join(", ")}）
   [warn]  焦らせ・比較・「異性」表現
+  [warn]  コラム本文の読点が多い（1文あたり ${COMMA_PER_SENTENCE_MAX} 超）／接続詞のあとの読点（${READABILITY_FROM} 以降の公開分）
   [warn]  description 160字超 / atomicAnswer・faq なし / story consent 記録なし`);
   process.exit(0);
 }
