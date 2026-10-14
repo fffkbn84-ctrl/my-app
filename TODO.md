@@ -13,8 +13,10 @@
 
 ### 2026-10-14 コラム「面談後の断り方」・文の書き方のルール
 - [x] コラム `kekkon-soudanjo-mendan-ato-kotowarikata` を公開（10/14・main へ）。口コミの「入会しなかった」選択肢へつないだ
-- [ ] **ふうかさん：10/15 以降に** Search Console で登録リクエスト（`https://kinda.jp/columns/kekkon-soudanjo-mendan-ato-kotowarikata`）
-- [ ] SNS 展開（`/sns-pack`）：このコラムをソースに
+- [x] Search Console 登録リクエスト（10/14 ふうか実施）：新コラム・`karikousai-renraku-hindo-hetta`・story `mio`・`daiki`・`kei`。
+      ほかの候補（`tenkin-sumu-basho`・`kousai-shuryo-koukai`・`masashi`・`asami`・`omiai-kaiwa-wadai`・`omiai-wakaregiwa-hitokoto`・`nagi`・`yk`）は**登録済みだった**
+- [x] SNS パック（`docs/sns/packs/2026-10-14-kekkon-soudanjo-mendan-ato-kotowarikata.md`）。Notion に X 3本（10/15朝・10/17朝・10/19夜）＋予備2本（アイデア）、IG ストーリーズ1本（10/16）を下書きで投入。
+      面談の話が続きすぎないよう間引いた。**10/16・10/18 の朝枠などの空きは第3週の X で埋める**
 - [x] **文の書き方のルールをサイト全体に**（10/14 ふうか決裁・正は CLAUDE.md §3「文の書き方」）。読点は1文あたり0.8以下。`qa:content` が 10/14 以降の公開分のコラムに warn を出す
 - [ ] **既存ページの読点を少しずつ直す**（一斉にはやらない。触ったついでに直す）。多い順（1文あたりの読点）：
       `soudanjo-to-konkatsu-app-chigai` 1.55／`kekkon-soudanjo-ryokin-no-mikata` 1.49／`omiai-shodate-fukuso` 1.48／
@@ -239,7 +241,7 @@
 ### 🟢 2026-10-05 story 2本・コラム「仮交際の連絡頻度」
 
 - [x] **本番反映**（10/5・main へ）：story `mio-30s-mayotte-iru-to-kiite` / `daiki-40s-jibun-kara-moshikomu`、コラム `karikousai-renraku-hindo-hetta`
-- [ ] **ふうかさん：10/6 以降に**上の3本を Search Console で登録リクエスト（`https://kinda.jp/kinda-story/mio-30s-mayotte-iru-to-kiite`／`https://kinda.jp/kinda-story/daiki-40s-jibun-kara-moshikomu`／`https://kinda.jp/columns/karikousai-renraku-hindo-hetta`）
+- [x] ~~**ふうかさん：10/6 以降に**上の3本を Search Console で登録リクエスト~~（10/14 実施済み）（`https://kinda.jp/kinda-story/mio-30s-mayotte-iru-to-kiite`／`https://kinda.jp/kinda-story/daiki-40s-jibun-kara-moshikomu`／`https://kinda.jp/columns/karikousai-renraku-hindo-hetta`）
 - [ ] SNS 展開（`/sns-pack`）：みおさんの story ＋連絡頻度のコラムは組み合わせやすい
 
 ### 🟢 2026-10-04 IG 日曜の外枠に新キャラ（ナマケモノの甘やかし）#1 を投稿済
