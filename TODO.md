@@ -11,6 +11,24 @@
 
 ## 📌 次セッション引き継ぎ（最初に読む）
 
+### 2026-10-14 コラム「面談後の断り方」・文の書き方のルール
+- [x] コラム `kekkon-soudanjo-mendan-ato-kotowarikata` を公開（10/14・main へ）。口コミの「入会しなかった」選択肢へつないだ
+- [ ] **ふうかさん：10/15 以降に** Search Console で登録リクエスト（`https://kinda.jp/columns/kekkon-soudanjo-mendan-ato-kotowarikata`）
+- [ ] SNS 展開（`/sns-pack`）：このコラムをソースに
+- [x] **文の書き方のルールをサイト全体に**（10/14 ふうか決裁・正は CLAUDE.md §3「文の書き方」）。読点は1文あたり0.8以下。`qa:content` が 10/14 以降の公開分のコラムに warn を出す
+- [ ] **既存ページの読点を少しずつ直す**（一斉にはやらない。触ったついでに直す）。多い順（1文あたりの読点）：
+      `soudanjo-to-konkatsu-app-chigai` 1.55／`kekkon-soudanjo-ryokin-no-mikata` 1.49／`omiai-shodate-fukuso` 1.48／
+      `kekkon-soudanjo-kuchikomi-no-mikata` 1.43／`date-plan-by-stage` 1.42／`counselor-de-erabu-soudanjo` 1.39／
+      `weather-sun-break-omiai-tegotae` 1.38／`counselor-tantou-henkou` 1.34。story・LP・UI 文言も同じルールで
+- **ルーティンの候補出しが古かった**（10/14）：「転勤・住む場所」は 9/29 に公開済み・Notion の 9/29 X 行のリプリンクも記入済みだったのに、未着手として提案された。次に候補を出すときは `content/columns/` の実ファイルで重複を確かめる
+
+#### 💡 アイディアとして保留（やらない）：Kinda story に「相談所探しの話」を載せる
+- 10/14 ふうか案。いちばんの読者（未入会の人）に近い話になる利点はある
+- 保留の理由（Claude の懸念にふうか同意）：相談所を比べる話になりやすい。Kinda は相談所から送客料を受けるので、
+  載せている相談所を良く書けば広告に見え、断った相談所を悪く書けばトラブルになる。面談した人だけの口コミと役割もかぶる
+- やるなら：書くのは本人の迷いと決めるまでの過程だけ（相談所の評価はしない）／相談所名は入会先も断った先も出さない／構造化データは Article のみ。段階は「活動中」のまま status を「相談所を探しているところ」にすればコード変更なしで載る
+
+
 ### 2026-10-12〜14 調べもの：商標／東京都へのお知らせ／動くLP（正は `docs/research/2026-10-12-shohyo-tokyo-ugoki.md`）
 
 - [ ] **商標**：J-PlatPat で「Kinda」45類・35類の先行調査 → 出願判断（3区分で特許庁実費 約12.8万円。実費がかかるので Claude は手続きしない）
