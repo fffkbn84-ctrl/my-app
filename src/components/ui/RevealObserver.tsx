@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 
 /**
- * スクロール時に .reveal 要素へ .vis クラスを付与する
+ * スクロール時に .reveal / .rise 要素へ .vis クラスを付与する
  * futarive-v4.html の IntersectionObserver 実装に準拠
  */
 export default function RevealObserver() {
@@ -19,7 +19,7 @@ export default function RevealObserver() {
       },
       { threshold: 0.07 }
     );
-    document.querySelectorAll('.reveal').forEach((el) => obs.observe(el));
+    document.querySelectorAll('.reveal, .rise').forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
