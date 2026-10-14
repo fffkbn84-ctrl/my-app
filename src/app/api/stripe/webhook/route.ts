@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/email";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
 const COUNSELOR_APP_URL = "https://futarive-counselor.vercel.app";
+const SUPPORT_INBOX = "hello@kinda.jp";
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -80,6 +81,52 @@ async function sendReservationConfirmedEmails(
   }
 }
 
+/**
+ * チャージバック（相談所がカード会社に申し立て）を運営に知らせる。
+ * 期限までに Stripe ダッシュボードで反論しないと自動で負けになり、¥1,500 の手数料もかかる。
+ */
+async function notifyDispute(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  dispute: Stripe.Dispute,
+): Promise<void> {
+  const piId = typeof dispute.payment_intent === "string" ? dispute.payment_intent : dispute.payment_intent?.id ?? null;
+  let reservationId: string | null = null;
+  let agencyName: string | null = null;
+  if (piId) {
+    const { data } = await admin
+      .from("reservations")
+      .select("id, agency_name")
+      .eq("stripe_payment_intent_id", piId)
+      .maybeSingle();
+    const row = data as { id: string; agency_name: string | null } | null;
+    reservationId = row?.id ?? null;
+    agencyName = row?.agency_name ?? null;
+  }
+  const dueBy = dispute.evidence_details?.due_by
+    ? fmtJst(new Date(dispute.evidence_details.due_by * 1000).toISOString())
+    : "（Stripe で確認）";
+  const rows = [
+    ["予約ID", reservationId ?? "（見つかりません）"],
+    ["相談所", agencyName ?? "—"],
+    ["金額", `¥${dispute.amount.toLocaleString("ja-JP")}`],
+    ["理由", dispute.reason],
+    ["反論の期限", dueBy],
+    ["Stripe の ID", dispute.id],
+  ]
+    .map(([k, v]) => `<tr><td style="color:#8a7;padding-right:12px;">${k}</td><td>${escapeHtml(v)}</td></tr>`)
+    .join("");
+  await sendEmail({
+    to: SUPPORT_INBOX,
+    subject: "【要対応】チャージバック（支払いへの異議）が届きました｜Kinda",
+    html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
+      <p>相談所のカード会社から、送客料の支払いに異議が出されました。金額はいったん Stripe の残高から引かれています。</p>
+      <table style="font-size:14px;margin:8px 0;">${rows}</table>
+      <p>期限までに Stripe ダッシュボードの「不審請求の申し立て」から、予約の記録と規約を出して反論してください。手順は docs/ops/billing-and-refunds.md §3。</p>
+      <p style="margin:24px 0;"><a href="https://dashboard.stripe.com/disputes/${encodeURIComponent(dispute.id)}" style="display:inline-block;background:#D4A090;color:#fff;text-decoration:none;padding:12px 24px;border-radius:24px;">Stripe で開く</a></p>
+    </div>`,
+  }).catch(() => {});
+}
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -87,6 +134,7 @@ export const dynamic = "force-dynamic";
  * Stripe Webhook。
  * - payment_intent.succeeded → 予約を paid_at / user_info_visible=true に更新（相談所に連絡先開示）。
  * - charge.refunded → 予約を refunded_at に更新。
+ * - charge.dispute.created → 運営（hello@kinda.jp）に要対応メール。
  * 署名検証に raw body が必要なので req.text() を使う。service role で更新。
  */
 export async function POST(req: Request) {
@@ -171,6 +219,8 @@ export async function POST(req: Request) {
             .eq("reservation_id", refundedReservationId);
         }
       }
+    } else if (event.type === "charge.dispute.created") {
+      await notifyDispute(admin, event.data.object as Stripe.Dispute);
     }
   } catch (err) {
     const e = err as Error;

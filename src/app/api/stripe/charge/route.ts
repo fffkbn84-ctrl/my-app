@@ -49,7 +49,7 @@ async function notifyChargeFailure(p: {
  * 予約成立で相談所カードに即時 ¥5,500（税込）を off_session 課金する。
  * - 呼び出しは予約本人（ログインユーザー）に限定。
  * - 相談所が Stripe Customer + カード登録済みであることが前提（未登録は 402）。
- * - 二重課金防止：paid_at / stripe_payment_intent_id があればスキップ。
+ * - 二重課金防止：paid_at / stripe_payment_intent_id があればスキップ＋Stripe の idempotency key。
  * - DB の確定更新（paid_at / user_info_visible）は Webhook 側で行う。ここでは PI 作成のみ。
  */
 export async function POST(req: Request) {
@@ -159,16 +159,22 @@ export async function POST(req: Request) {
   }
 
   try {
-    const pi = await stripe.paymentIntents.create({
-      amount: REFERRAL_FEE_JPY,
-      currency: "jpy",
-      customer: customerId,
-      payment_method: paymentMethodId,
-      off_session: true,
-      confirm: true,
-      metadata: { reservation_id: reservation.id },
-      description: `Kinda 送客料 (予約 ${reservation.id})`,
-    });
+    // 同じ予約への課金がほぼ同時に2回届いても、上の DB チェックは両方とも通ってしまう。
+    // Stripe 側で「予約×カード」につき1回に絞る（キーは24時間有効）。
+    // カードを登録し直せば支払い方法が変わりキーも変わるので、失敗後の再課金は塞がない。
+    const pi = await stripe.paymentIntents.create(
+      {
+        amount: REFERRAL_FEE_JPY,
+        currency: "jpy",
+        customer: customerId,
+        payment_method: paymentMethodId,
+        off_session: true,
+        confirm: true,
+        metadata: { reservation_id: reservation.id },
+        description: `Kinda 送客料 (予約 ${reservation.id})`,
+      },
+      { idempotencyKey: `referral-fee:${reservation.id}:${paymentMethodId}` },
+    );
 
     // PI ID は先に控える（確定更新は webhook）
     await admin
@@ -180,6 +186,10 @@ export async function POST(req: Request) {
   } catch (err) {
     // カードエラー等（残高不足・認証要求 など）
     const e = err as Stripe.errors.StripeError;
+    // 同じキーの課金がまだ処理中＝もう1本が課金している最中。失敗ではないので運営に知らせない。
+    if (e.type === "StripeIdempotencyError") {
+      return NextResponse.json({ ok: true, alreadyCharged: true });
+    }
     await failure("カードで課金できませんでした（残高不足・認証要求など）", [e.code, e.message].filter(Boolean).join(" / ") || null);
     return NextResponse.json(
       { ok: false, error: "charge_failed", code: e.code ?? null, message: e.message ?? null },
