@@ -5678,6 +5678,30 @@ body:has(.cta-mobile-bar) .floating-back {
 /* 意図した2行構成を保ちつつ、各行が狭いときは文節境界で折り返す */
 .ktp-hero-h1-line { display: block; }
 .ktp-hero-h1-w { display: inline-block; }
+/* 見出しの文節が、下からゆっくり出る（ホテラバ LP の「文字が下からスッと出る」を穏やかにしたもの）。
+   docs/research/2026-10-12-shohyo-tokyo-ugoki.md §3。
+   - 外側（.ktp-hero-h1-w）で下をクリップし、内側を translateY(100%) → 0。透明度は変えない
+     （文字は最初から DOM にも画面にもある。LCP はヒーロー画像のまま）
+   - 弾ませない。power2.out 相当の柔らかい減速で、文節ごとに 0.12 秒ずつずらす */
+.ktp-hero-h1-w { overflow: hidden; vertical-align: top; }
+.ktp-hero-h1-in {
+  display: inline-block;
+  animation: ktpHeroRise .95s cubic-bezier(.215,.61,.355,1) both;
+  animation-delay: calc(.15s + var(--i, 0) * .12s);
+}
+@keyframes ktpHeroRise {
+  from { transform: translateY(100%); }
+  to   { transform: none; }
+}
+.ktp-hero-h2 { animation: ktpHeroFade 1s ease-out .75s both; }
+@keyframes ktpHeroFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ktp-hero-h1-in,
+  .ktp-hero-h2 { animation: none; }
+}
 .ktp-hero-h2 {
   font-family: var(--font-sans);
   font-weight: 400;

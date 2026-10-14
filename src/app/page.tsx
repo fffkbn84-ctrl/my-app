@@ -302,16 +302,20 @@ export default async function HomePage() {
           <div className="ktp-hero-copy">
             <h1 id="hero-h1" className="ktp-hero-h1">
               <span className="ktp-hero-h1-line">
-                {HERO_H1_LINE1.map((w) => (
+                {HERO_H1_LINE1.map((w, i) => (
                   <span key={w} className="ktp-hero-h1-w">
-                    {w}
+                    <span className="ktp-hero-h1-in" style={{ "--i": i } as React.CSSProperties}>
+                      {w}
+                    </span>
                   </span>
                 ))}
               </span>
               <span className="ktp-hero-h1-line">
-                {HERO_H1_LINE2.map((w) => (
+                {HERO_H1_LINE2.map((w, i) => (
                   <span key={w} className="ktp-hero-h1-w">
-                    {w}
+                    <span className="ktp-hero-h1-in" style={{ "--i": HERO_H1_LINE1.length + i } as React.CSSProperties}>
+                      {w}
+                    </span>
                   </span>
                 ))}
               </span>
