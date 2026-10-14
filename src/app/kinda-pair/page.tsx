@@ -5,6 +5,7 @@ import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import RevealObserver from "@/components/ui/RevealObserver";
 import NotifySignup from "@/components/kinda-talk/NotifySignup";
+import PairTryCard from "./PairTryCard";
 import { jsonLdStringify } from "@/lib/jsonld";
 import { PAIR_LAYERS, PAIR_TOPICS } from "@/lib/pair/topics";
 
@@ -113,26 +114,30 @@ export default function KindaPairPage() {
           </p>
         </section>
 
+        {/* ─── 1枚めくってみる（説明より先に触ってもらう） ─── */}
+        <section className="kp-lp-section kp-lp-section--try">
+          <h2 className="kp-lp-h2 kp-lp-h2--center rise">
+            <span className="rise-in">まず1枚めくってみてください</span>
+          </h2>
+          <PairTryCard />
+        </section>
+
         {/* ─── 何をするページか ─── */}
         <section className="kp-lp-section">
           <h2 className="kp-lp-h2 rise">
             <span className="rise-in">会話が続かないのは、話題がないからではない</span>
           </h2>
+          <ul className="kp-aruaru">
+            <li>会うたびに天気と仕事と週末の話に戻ってくる</li>
+            <li>聞きたいことはあるのに、何から聞けばいいか分からない</li>
+            <li>帰り道で「あの話をしていなかった」と気づく</li>
+          </ul>
           <p className="kp-lp-text">
-            初めて会った日から何度か会うようになると、不思議なもので、
-            だんだん同じ話に戻ってくることがあります。天気の話、仕事の話、週末の話。
-            話題が尽きたわけではなく、どこまで話したかを覚えていられないだけ、ということが少なくありません。
+            話題が尽きたわけではありません。どこまで話したかを覚えていられないだけです。
           </p>
-          <p className="kp-lp-text">
-            相手のことを知りたい気持ちはあるのに、いざ会うと何から聞けばいいのか分からなくなる。
-            聞きそびれたまま時間だけが過ぎて、あとになって「そういえば、あの話をしていなかった」と気づく。
-            会話の中身より、会話の地図がないことのほうが、しんどかったりします。
-          </p>
-          <p className="kp-lp-text">
-            Kinda pair がするのは、その地図を1枚つくることだけです。
-            話題を一つずつ見て、もう話したか、まだかを分けていく。
-            それだけで、次に会うときに聞きたいことが、自分の言葉で並びます。
-            うまく話す方法は載せていません。並べ替えるだけのページです。
+          <p className="kp-lp-text kp-lp-text--key">
+            Kinda pair はどこまで話したかを1枚に並べるページです。
+            うまく話す方法は載せていません。
           </p>
         </section>
 
@@ -153,8 +158,8 @@ export default function KindaPairPage() {
             ))}
           </ol>
           <p className="kp-lp-text">
-            最後まで送らなくても構いません。層の区切りごとに、そこまでの結果を見られます。
-            途中でページを閉じても、次に開いたときは続きから始められます。
+            最後まで送らなくて大丈夫です。層の区切りごとに結果を見られます。
+            閉じても次に開いたときは続きから始まります。
           </p>
         </section>
 
@@ -164,8 +169,8 @@ export default function KindaPairPage() {
             <span className="rise-in">{PAIR_TOPICS.length}の話題は、4つの層に分かれています</span>
           </h2>
           <p className="kp-lp-text">
-            会って間もない時期に聞きやすいことと、しばらく経ってからのほうが話しやすいことがあります。
-            順番に進む必要はありませんが、手前の層から見ていくと、話が急に重くなりません。
+            会って間もないころに聞きやすいことと、しばらく経ってから話しやすいことがあります。
+            手前の層から見ていくと話が急に重くなりません。
           </p>
           <ul className="kp-layer-cards">
             {PAIR_LAYERS.map((l) => (
