@@ -6,6 +6,14 @@
 
 
 
+## 2026-10-14 返金の手数料ロス調査・二重課金の印・チャージバック通知
+
+- 返金の Q&A：返金は取り消せない（戻すなら再課金・手数料もう一度）／¥218 は Stripe 残高で相殺／**日本は口座からの自動引き落とし対象外**
+  （10/13 の手引きの「三井住友から引き落とし」は誤り→訂正）
+- 調査メモ `docs/ops/refund-loss-research-2026-10.md`：手数料ロスはどこも費用扱い。減らす手はクレジット方式（次の1件無料）が最有力だが、いまは不要
+- コード修正（PR `fix/stripe-idempotency-dispute`）：課金に idempotency key（`referral-fee:<予約ID>:<pm>`）／`charge.dispute.created` で hello@ に要対応メール
+- Stripe の Webhook 送信先は `payment_intent.succeeded` と `charge.refunded` のみ → `charge.dispute.created` の追加はふうか作業（TODO）
+
 ## 2026-10-13（続き）本番の課金・返金・キャンセルを通しで確認・カード画面の改善
 
 - **Emma のカード登録**（ふうか）→ 本番顧客 `cus_VQx9gOUalXZLbt`。登録時、正式 URL ではなくデプロイ固有 URL（`futarive-counselor-31of05c1d-…`）で開いていた

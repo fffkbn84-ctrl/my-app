@@ -75,8 +75,12 @@
 - [ ] **counselor：カード登録欄のダークモード**（#87・ふうか OK 済み）。マージ後、ダークモードで /billing の見出しが読めるかふうかが確認
 - [ ] **運営の手引き `docs/ops/billing-and-refunds.md`** の §4「まだ無いもの」を順に片付ける：
       1. **Claude：課金に失敗した予約を運営が課金し直す仕組み**（いまは予約した本人の画面からしか課金が起きない）
-      2. **ふうか判断：相談所への領収書・適格請求書**。AGOGLIFE の適格請求書発行事業者の登録有無を確認 → Stripe の領収書メールで足りるか、別に請求書を出すか決める
+      2. **ふうか判断：相談所への領収書・適格請求書**（10/14 時点 ふうか確認中）。AGOGLIFE の適格請求書発行事業者の登録有無を確認 → Stripe の領収書メールで足りるか、別に請求書を出すか決める。
+         返金時の返還インボイスは1万円未満なら交付不要（¥5,500 は該当）。`docs/ops/refund-loss-research-2026-10.md`
       3. 返金 Webhook の `stripe_refund_id`（上の項）
+      4. [x] 二重課金の印（idempotency key）とチャージバック通知（10/14 Claude・PR `fix/stripe-idempotency-dispute`）
+- [ ] **ふうか：Stripe の Webhook に `charge.dispute.created` を追加**（上の PR のマージ後）。ダッシュボード → 開発者 → Webhook →
+      `kinda.jp/api/stripe/webhook` → イベントを編集。これがないとチャージバックの【要対応】メールが届かない
 - [ ] **counselor 管理画面に FAQ ページ**（10/13 ふうか案）。カードの種類（特商法には足さない＝10/13 ふうか決定）・返金の反映日数（カード会社により数日〜10日）・
       課金のタイミング・日程変更で課金しないこと・Link のメール欄は不要、などを相談所向けに。文言は `docs/ops/billing-and-refunds.md` から起こす
 - [ ] **ふうか：counselor のログインを正式 URL（`https://futarive-counselor.vercel.app`）で試す**。それでも再読み込みが要るなら、
