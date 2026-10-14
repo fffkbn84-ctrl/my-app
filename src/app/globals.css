@@ -488,6 +488,30 @@ a {
 }
 .reveal.vis { opacity: 1; transform: none; }
 .rd1 { transition-delay: .1s; }
+
+/* 見出しが下からゆっくり出る（ホテラバ風の動きを穏やかにしたもの）。
+   docs/research/2026-10-12-shohyo-tokyo-ugoki.md §3。トップのヒーロー（.ktp-hero-h1-in）と同じ速さ・減速。
+   外側でクリップし、内側を translateY(100%) → 0。透明度は変えない。弾ませない。
+   - .rise-load ：ファーストビュー用。読み込み時に1回。行ごとに --i × 0.12 秒ずらす
+   - .rise      ：スクロールで画面に入ったら（RevealObserver が .vis を付ける）
+   本文・CTA には付けない（LCP になりうるため） */
+.rise-load,
+.rise { display: block; overflow: hidden; }
+.rise-in { display: inline-block; }
+.rise-load > .rise-in {
+  animation: ktpHeroRise .95s cubic-bezier(.215,.61,.355,1) both;
+  animation-delay: calc(var(--i, 0) * .12s);
+}
+.rise > .rise-in {
+  transform: translateY(100%);
+  transition: transform .95s cubic-bezier(.215,.61,.355,1);
+}
+.rise.vis > .rise-in { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .rise-load > .rise-in { animation: none; }
+  .rise > .rise-in { transform: none; transition: none; }
+}
+
 .rd2 { transition-delay: .2s; }
 .rd3 { transition-delay: .3s; }
 

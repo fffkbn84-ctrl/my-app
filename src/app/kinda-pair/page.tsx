@@ -3,6 +3,7 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import RevealObserver from "@/components/ui/RevealObserver";
 import NotifySignup from "@/components/kinda-talk/NotifySignup";
 import { jsonLdStringify } from "@/lib/jsonld";
 import { PAIR_LAYERS, PAIR_TOPICS } from "@/lib/pair/topics";
@@ -76,6 +77,7 @@ export default function KindaPairPage() {
   return (
     <div className="kt-page">
       <Header />
+      <RevealObserver />
 
       <main className="kp-lp">
         <Breadcrumb items={[{ label: "ホーム", href: "/" }, { label: "Kinda pair" }]} />
@@ -84,9 +86,12 @@ export default function KindaPairPage() {
         <section className="kp-lp-hero">
           <p className="kp-eyebrow">kinda pair</p>
           <h1 className="kp-lp-h1">
-            話したことと、
-            <br />
-            まだ話していないこと。
+            <span className="rise-load">
+              <span className="rise-in">話したことと、</span>
+            </span>
+            <span className="rise-load" style={{ "--i": 1 } as React.CSSProperties}>
+              <span className="rise-in">まだ話していないこと。</span>
+            </span>
           </h1>
           <p className="kp-lp-hero-lead">
             ふたりの会話が、いま、どこまで来ているか。
@@ -110,7 +115,9 @@ export default function KindaPairPage() {
 
         {/* ─── 何をするページか ─── */}
         <section className="kp-lp-section">
-          <h2 className="kp-lp-h2">会話が続かないのは、話題がないからではない</h2>
+          <h2 className="kp-lp-h2 rise">
+            <span className="rise-in">会話が続かないのは、話題がないからではない</span>
+          </h2>
           <p className="kp-lp-text">
             初めて会った日から何度か会うようになると、不思議なもので、
             だんだん同じ話に戻ってくることがあります。天気の話、仕事の話、週末の話。
@@ -131,7 +138,9 @@ export default function KindaPairPage() {
 
         {/* ─── 3ステップ ─── */}
         <section className="kp-lp-section">
-          <h2 className="kp-lp-h2">使い方</h2>
+          <h2 className="kp-lp-h2 rise">
+            <span className="rise-in">使い方</span>
+          </h2>
           <ol className="kp-steps">
             {STEPS.map((s) => (
               <li key={s.num} className="kp-step">
@@ -151,7 +160,9 @@ export default function KindaPairPage() {
 
         {/* ─── 4つの層 ─── */}
         <section className="kp-lp-section">
-          <h2 className="kp-lp-h2">{PAIR_TOPICS.length}の話題は、4つの層に分かれています</h2>
+          <h2 className="kp-lp-h2 rise">
+            <span className="rise-in">{PAIR_TOPICS.length}の話題は、4つの層に分かれています</span>
+          </h2>
           <p className="kp-lp-text">
             会って間もない時期に聞きやすいことと、しばらく経ってからのほうが話しやすいことがあります。
             順番に進む必要はありませんが、手前の層から見ていくと、話が急に重くなりません。
@@ -171,7 +182,9 @@ export default function KindaPairPage() {
 
         {/* ─── 端末内保存 ─── */}
         <section className="kp-lp-section">
-          <h2 className="kp-lp-h2">選んだ内容は、どこにも送られません</h2>
+          <h2 className="kp-lp-h2 rise">
+            <span className="rise-in">選んだ内容は、どこにも送られません</span>
+          </h2>
           <p className="kp-lp-text">
             選んだ内容は、お使いの端末の中にだけ保存しています。
             当社のサーバーには送信していません。ブラウザの保存データを削除すると、記録も消えます。
@@ -181,7 +194,9 @@ export default function KindaPairPage() {
 
         {/* ─── ふたりで使う機能 ─── */}
         <section className="kp-lp-section">
-          <h2 className="kp-lp-h2">ふたりで使う機能は準備中です</h2>
+          <h2 className="kp-lp-h2 rise">
+            <span className="rise-in">ふたりで使う機能は準備中です</span>
+          </h2>
           <p className="kp-lp-text">
             いまはひとりで並べるところまでです。準備ができたらお知らせします。
           </p>
