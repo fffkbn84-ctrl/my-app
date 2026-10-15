@@ -357,6 +357,41 @@ A で訪れた街が端末に溜まる。「あなたの空が行った街」を
 - 手帳は `/kinda-note/sky`（noindex）。スタンプは**画像を作らず CSS で描く**（丸い二重枠・街名・日付・天気の色）。行っていない街は「？」の点線枠
 - 地図は v1 以降（クレイ風の世界地図を1枚だけ作り、点を座標で置く想定）
 
+### v1 の設計（2026-10-15 Claude 案・ふうか確認待ち）
+
+v1 は2つに分ける。小さいほうから出す。
+
+**v1-a. note のトップに手帳の入口（Claude だけで出せる）**
+- いまの入口は note today の結果画面とマイページだけ。`/kinda-note` のトップには無い
+- トップの「今日の天気」の近くに「空の手帳を見る」を1行。**一度でも街に行った端末にだけ**出す（行っていない人には中身が空なので）
+- 画像なし・小さな PR 1本
+
+**v1-b. クレイの世界地図（ふうかさんの画像が要る）**
+- 画像は ChatGPT で1枚（横長 3:2）。生成後に WebP にする
+- **点の位置は緯度経度から計算しない。** 生成した地図は形が正確ではないので、計算すると海に落ちる。画像ができてから Claude が画像を見て、街ごとに位置（横％・縦％）を `skyCities.ts` に足す
+- **日本の街は7つ**（金沢・尾道・京都・函館・鎌倉・札幌・那覇）。世界地図の上では重なって押せないので、**日本だけの小さな地図を2枚目**として下に置く（同じ画風で1枚）
+- 行った街：小さなスタンプ（v0 と同じ CSS の丸）を地図の上に置く。押すと一言が出る
+- 行っていない街は**地図に出さない**（点の位置で「どの辺か」が分かると、決定2「どこかは伏せる」が崩れる）。数だけ「まだ 17 の街があります」
+- 地図はスタンプの並びの**上**に置く。スタンプの並びは残す（地図が読み込めなくても使える）
+
+**画像のプロンプト（たたき台）**
+
+```
+A miniature clay (plasticine) world map diorama, seen from directly above.
+Soft matte clay texture, rounded edges, gentle soft shadows, light falling softly from above.
+Continents in muted warm tones (sand, pale sage, a little dusty rose #D4A090),
+oceans as smooth pale blue-beige clay. Background color #F5EEE6.
+Continents roughly in their real positions, wide landscape, aspect ratio 3:2.
+Calm, warm, minimal. No text, no letters, no labels, no pins, no icons, no people.
+```
+
+日本の2枚目は1行目を `A miniature clay map of the Japanese archipelago, from Hokkaido down to Okinawa,` に替え、縦長 2:3。
+
+**決めること（ふうかさん）**
+1. v1-a を先に出してよいか
+2. 行っていない街を地図に出さない、でよいか
+3. 日本を2枚目の地図にする、でよいか
+
 ---
 
 ## 出典
