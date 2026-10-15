@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Header from "@/components/layout/Header";
@@ -38,8 +39,8 @@ const HOME_STORIES = STORIES.filter(
 
 const HERO_H1_LINE1 = ["好きな人を", "見つけて、"];
 const HERO_H1_LINE2 = ["一緒に過ごす", "日々まで。"];
-const HERO_H2 =
-  "カウンセラー × お見合いのカフェ × デートの場所、ふたりに寄り添うすべて。";
+// 小見出しも文節（inline-block）単位でだけ折り返す。スマホで「ふ／たりに」と割れたため（2026-10-15）
+const HERO_H2_PHRASES = ["カウンセラー ×", "お見合いのカフェ ×", "デートの場所、", "ふたりに寄り添うすべて。"];
 // 季節ビジュアルは src/lib/season.ts の CURRENT_SEASON が正。
 // ここではパスを直書きしない（layout.tsx の LCP preload とズレるため）。
 const HERO_IMAGE_SRC = seasonVisual.hero;
@@ -320,7 +321,15 @@ export default async function HomePage() {
                 ))}
               </span>
             </h1>
-            <h2 className="ktp-hero-h2">{HERO_H2}</h2>
+            <h2 className="ktp-hero-h2">
+              {HERO_H2_PHRASES.map((w, i) => (
+                <Fragment key={w}>
+                  {/* 区切りの空白（「、」のあとは空白なしで折り返し位置だけ置く） */}
+                  {i > 0 && (HERO_H2_PHRASES[i - 1].endsWith("、") ? <wbr /> : " ")}
+                  <span className="ktp-hero-h2-w">{w}</span>
+                </Fragment>
+              ))}
+            </h2>
           </div>
 
           {/* Block 3 — 主CTA（Kinda note） */}
