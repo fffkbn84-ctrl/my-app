@@ -38,7 +38,7 @@
    - **10/15 判断：直す**（pair LP のフォームは本番に出ていて、利用目的を約束している）。手順は handoff 2026-10-16 §1
    - 直し方：`NotifySignup` が `source` を送る → API は決まった値だけ受け付ける → 一意制約を「メール＋source」にするマイグレーション
    - マイページ（アカウント登録・予約）は `auth.users` で別物。こちらは区別できている
-8. [ ] **「× 美容」をトップのヒーローから外す** → PR #94（スマホの折り返しも修正済み。ふうかがプレビューで確認 → マージ）。サイト全体の meta description・kinda-act の description・`/about` の2か所にも美容が残っている（外すかはふうか判断）
+8. [x] **「× 美容」をトップのヒーローから外す** → PR #94 マージ・本番反映を確認（10/15。スマホの折り返しも修正）。残りの3か所は外すか未定。サイト全体の meta description・kinda-act の description・`/about` の2か所にも美容が残っている（外すかはふうか判断）
 
 ### 2026-10-14 コラム「面談後の断り方」・文の書き方のルール
 - [x] コラム `kekkon-soudanjo-mendan-ato-kotowarikata` を公開（10/14・main へ）。口コミの「入会しなかった」選択肢へつないだ
@@ -180,7 +180,7 @@
       新規登録・パスワード再設定・マイページのパスワード変更が「8文字以上」のままで、利用者が同じように詰まる。
       対象：`src/app/login/LoginForm.tsx`・`src/app/auth/reset-password/ResetPasswordForm.tsx`・`src/app/mypage/AccountSettingsSection.tsx`。
       counselor の `futarive-counselor/lib/password.ts` と同じ条件・同じ言い方にする
-- [ ] **Claude：admin の Ignored Build Step が効いているかを確かめる**。10/11 の main の CANCELED は docs だけのコミット（`a740873`）で、
+- [ ] **Claude：admin の Ignored Build Step が効いているかを確かめる**（10/15 半分確認：コードを含む #94 のマージで admin の本番ビルドは CANCELED＝main ではビルドしない。残りは admin ブランチへの push でビルドが走るか）。10/11 の main の CANCELED は docs だけのコミット（`a740873`）で、
       もともとの docs スキップと見分けがつかない。次に**コードを含むコミット**を main に出したとき、admin の本番ビルドが CANCELED なら OK。
       あわせて admin ブランチ `claude/futarive-admin-dashboard-iKBfw` への push ではビルドが走ることも確かめる
 - [ ] **`counselor.kinda.jp` 化は「1社目に招待リンクを送る前」にやる**（招待メールの住所を後から変えると混乱するため）。
