@@ -55,7 +55,7 @@ const SKY_LINES: Record<CardWeatherKey, [SkyLine, SkyLine]> = {
   ],
   pre_dawn: [
     { city: "istanbul", line: "イスタンブールの海峡はまだ暗い色をしています。始発のフェリーを待つ人がチャイで手を温めています。" },
-    { city: "hakodate", line: "函館の朝市にはもう灯りがついています。目覚ましを止めて二度寝した人は、きっといま慌てています。" },
+    { city: "hakodate", line: "函館の朝市はまだ暗いうちから灯りがつきます。目覚ましを止めて二度寝した人が慌てて走ってくるのも、いつもの朝の景色です。" },
   ],
   flower_overcast: [
     { city: "kamakura", line: "鎌倉の空は白っぽい曇りです。写真を撮りに来た人が晴れなかったことを少し残念がっています。それでも気づけば何枚も撮っています。" },
