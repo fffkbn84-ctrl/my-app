@@ -39,7 +39,7 @@ const HOME_STORIES = STORIES.filter(
 const HERO_H1_LINE1 = ["好きな人を", "見つけて、"];
 const HERO_H1_LINE2 = ["一緒に過ごす", "日々まで。"];
 const HERO_H2 =
-  "カウンセラー × お見合いのカフェ × デートの場所 × 美容、ふたりに寄り添うすべて。";
+  "カウンセラー × お見合いのカフェ × デートの場所、ふたりに寄り添うすべて。";
 // 季節ビジュアルは src/lib/season.ts の CURRENT_SEASON が正。
 // ここではパスを直書きしない（layout.tsx の LCP preload とズレるため）。
 const HERO_IMAGE_SRC = seasonVisual.hero;
