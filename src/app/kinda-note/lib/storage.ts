@@ -41,6 +41,10 @@ export type KindaNoteHistoryItem = {
    * ログイン前につけた分も、ログイン後に syncDailyToSupabase で送る（2026-10-04）
    */
   synced_at?: string;
+  /**
+   * 空の手帳：今日の空が行った街のキー（src/app/kinda-note/data/skyCities.ts）。毎日モードのみ（2026-10-15）
+   */
+  sky_city?: string;
 };
 
 export type KindaNoteHistory = KindaNoteHistoryItem[];
@@ -58,7 +62,7 @@ export function saveKindaNoteHistory(item: {
   result_type: string;
   weather: CardWeatherKey;
   answers: Record<string, unknown>;
-  meta?: { isRareTilt?: boolean; tiltAngle?: string };
+  meta?: { isRareTilt?: boolean; tiltAngle?: string; skyCity?: string };
 }): KindaNoteHistoryItem | null {
   if (typeof window === "undefined") return null;
 
@@ -75,6 +79,7 @@ export function saveKindaNoteHistory(item: {
       created_at: new Date().toISOString(),
       isRareTilt: item.meta?.isRareTilt ?? false,
       tiltAngle: item.meta?.tiltAngle ?? "rotate(0deg)",
+      ...(item.meta?.skyCity ? { sky_city: item.meta.skyCity } : {}),
     };
 
     history.push(newItem);
@@ -131,7 +136,7 @@ export async function syncDailyToSupabase(
       user_id: userId,
       kind: "note",
       result_key: it.weather,
-      answers: { route: "daily", ...it.answers },
+      answers: { route: "daily", ...it.answers, ...(it.sky_city ? { sky_city: it.sky_city } : {}) },
       created_at: it.created_at,
     })),
   );
@@ -188,4 +193,38 @@ export async function mergeRemoteRecent(
   return [...local, ...remote]
     .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
     .slice(0, limit);
+}
+
+export type SkyStamp = { city: string; weather: CardWeatherKey; first_at: string };
+
+/**
+ * 空の手帳：行った街ごとに、はじめて行った日とそのときの天気を返す（古い順）。
+ * 端末の履歴に加えて、ログイン中ならマイページ（diagnosis_results）の記録も合わせる。
+ */
+export async function loadSkyStamps(
+  supabase?: SupabaseClient | null,
+  userId?: string | null,
+): Promise<SkyStamp[]> {
+  const rows: SkyStamp[] = loadKindaNoteHistory()
+    .filter((it) => it.sky_city)
+    .map((it) => ({ city: it.sky_city!, weather: it.weather, first_at: it.created_at }));
+
+  if (supabase && userId) {
+    const { data } = await supabase
+      .from("diagnosis_results")
+      .select("result_key, answers, created_at")
+      .eq("user_id", userId)
+      .eq("kind", "note");
+    for (const r of data ?? []) {
+      const city = (r.answers as { sky_city?: string } | null)?.sky_city;
+      if (city) rows.push({ city, weather: r.result_key as CardWeatherKey, first_at: r.created_at });
+    }
+  }
+
+  const first = new Map<string, SkyStamp>();
+  for (const r of rows) {
+    const cur = first.get(r.city);
+    if (!cur || r.first_at < cur.first_at) first.set(r.city, r);
+  }
+  return [...first.values()].sort((a, b) => (a.first_at < b.first_at ? -1 : 1));
 }
