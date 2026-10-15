@@ -12,6 +12,8 @@
   `weather-quiet-overcast-shinken-fuan`／`weather-sunrise-shinken-zenmuki`／`weather-twilight-fukusu-zaiakukan`／`weather-windy-day-omiai-yokan`（10/7 の残り8本）／
   `columns/oya-ni-kekkon-sekasareru`（8/16 公開・記録に一度も出てこない）／`places/kushiba-yokohama-world-porters`（10/4 から持ち越し）。
   予備：`/`（10/15 小見出し変更）・`/kinda-pair`（10/14〜15 に LP を組み替え）・`/kinda-story`・`/kinda-story/atsumi-20s-mayoi`・`/kinda-note/quiz`（8/16 の残り）
+- **結果（ふうか）：1〜7 を登録リクエスト済み。8 以降は1日の割り当てを超えたので翌日以降**。
+  残り＝`weather-windy-day-omiai-yokan`・`oya-ni-kekkon-sekasareru`・`places/kushiba-yokohama-world-porters`＋上の予備5本（TODO 🟠 に転記）
 - TODO.md を全面整理（980行 → 約300行）。原文は `docs/archive/todo-full-archive-2026-10-15.md`。
   ふうか待ち（🔴）と Claude がすぐやれる（🟣）を分けた。過ぎた日付の IG・X 項目はアーカイブだけに残した（予定の正は ig-week §00）
 - 整理中に分かったこと：
