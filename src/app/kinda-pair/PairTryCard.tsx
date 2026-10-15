@@ -25,6 +25,18 @@ import { loadPairSolo, savePairSolo } from "@/lib/pair/storage";
 const DECK = topicsByLayer("l1");
 const STATE_ORDER: PairState[] = ["talked", "want", "hold"];
 
+/** トランプの隅の札記号（ふれる＝細い丸）。数字は点数に見えるので使わない */
+function Corner({ pos }: { pos: "tl" | "br" }) {
+  return (
+    <span className={`kp-try-corner kp-try-corner--${pos}`} aria-hidden>
+      <span className="kp-try-corner-kana">ふ</span>
+      <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
+        <circle cx="5" cy="5" r="3.6" stroke="currentColor" strokeWidth="1.1" />
+      </svg>
+    </span>
+  );
+}
+
 const AFTER: Record<PairState, string> = {
   talked: "「もう話した」に入れておきました。",
   want: "次に会うときはこの聞き方をそのまま使えます。",
@@ -63,6 +75,7 @@ export default function PairTryCard() {
 
   return (
     <div className="kp-try">
+      <div className="kp-try-deck">
       <div className={`kp-try-card${flipped ? " is-flipped" : ""}`}>
         <button
           type="button"
@@ -71,8 +84,10 @@ export default function PairTryCard() {
           aria-hidden={flipped}
           tabIndex={flipped ? -1 : 0}
         >
-          <span className="kp-try-layer">ふれる</span>
-          <span className="kp-try-title">{topic.title}</span>
+          <span className="kp-try-plate">
+            <span className="kp-try-layer">ふれる</span>
+            <span className="kp-try-title">{topic.title}</span>
+          </span>
           <span className="kp-try-hint">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
               <path
@@ -88,6 +103,8 @@ export default function PairTryCard() {
         </button>
 
         <div className="kp-try-face kp-try-back" aria-hidden={!flipped}>
+          <Corner pos="tl" />
+          <Corner pos="br" />
           <span className="kp-try-layer">聞き方</span>
           <p className="kp-try-ask">{topic.ask}</p>
           <p className="kp-try-q">この話はもうしましたか？</p>
@@ -105,6 +122,7 @@ export default function PairTryCard() {
             ))}
           </div>
         </div>
+      </div>
       </div>
 
       <div className="kp-try-after" aria-live="polite">
