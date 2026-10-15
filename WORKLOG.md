@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-10-15（続き4）チャージバック通知を有効に・TODO の隔週整理を定期タスクに
+
+- 本番 Webhook `we_1UQ3Y2ApDnL2Iw4scZUGtxC6` に `charge.dispute.created` を追加（ふうか OK のうえ Claude が Stripe API で）。読み直して3イベント（`payment_intent.succeeded`・`charge.refunded`・`charge.dispute.created`）を確認。説明文も「…・チャージバック通知」に。署名シークレット・Vercel env は変更なし
+- 本物のチャージバックでしか通しの確認はできない。メール送信は課金失敗の【要対応】と同じ `sendEmail` 経路
+- 定期タスク「TODO・WORKLOG の隔週整理」（`trig_01LgxNV3tzwVrhCc7Crye7oL`）を作成。毎週日曜 8:51（日本時間）に新しいセッションで起動し、10/25 起点の隔週だけ `/repo-tidy` を実行（休みの週は1行報告で終了）。cron に「隔週」が書けないための形
+- この定期タスクにはコネクタ（Notion 等）が付いていない。Notion への記入は飛ばす。リポジトリは起動後に `add_repo` で追加する指示にした
+- CLAUDE.md §7-11・repo-tidy Skill・TODO の定常運用・`billing-and-refunds.md` §4-5 を更新
+
 ## 2026-10-15（続き3）Search Console 候補10件・TODO と WORKLOG の棚卸し（/repo-tidy）
 
 - Search Console 登録リクエスト候補（10/15 分・本番で 200・noindex なしを確認）：

@@ -2,7 +2,7 @@
 
 > **やることの正はこのファイル。日程・繰り返し予定の正は Notion「運営カレンダー」**（Kinda 運営ダッシュボード内）。
 > 完了したら行頭を `- [x]` にして1行に圧縮。詳細な実装メモは `WORKLOG.md`。
-> 定期整理は `/repo-tidy` Skill で行う（月1回）。
+> 定期整理は `/repo-tidy` Skill で行う（**隔週日曜**・定期タスク「TODO・WORKLOG の隔週整理」が自動で起動。2026-10-15 ふうか依頼）。
 > **2026-10-15 に全面整理。** 整理前の全文は `docs/archive/todo-full-archive-2026-10-15.md`（その前は `todo-full-archive-2026-07-02.md`）。
 > 過ぎた日付の SNS 項目・完了済みの Stripe 本番化などはアーカイブ側にだけ残した。
 
@@ -46,7 +46,7 @@
       1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings
       2. Email Templates（Reset Password／Confirm signup／Change Email Address）に日本語の件名・本文
       3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
-- [ ] **Stripe の Webhook に `charge.dispute.created` を追加**（PR #88 はマージ済み＝もうできる）。ダッシュボード → 開発者 → Webhook → `kinda.jp/api/stripe/webhook` → イベントを編集。ないとチャージバックの【要対応】メールが届かない
+- [x] **Stripe の Webhook に `charge.dispute.created` を追加**（10/15 Claude が Stripe API で追加・読み直して3イベントを確認）。届くかは本物のチャージバックが来るまで確かめられない
 - [ ] **相談所への領収書・適格請求書**：AGOGLIFE の適格請求書発行事業者の登録有無 → Stripe の領収書メールで足りるか決める（`docs/ops/refund-loss-research-2026-10.md`）
 - [ ] 返金の充当：**対象を広げるか**（無断不参加など。いまは「やむを得ない事情で運営が認めたとき」だけで書く）
 - [ ] 弁護士・税理士に1回確認（期限なしの充当が前払式支払手段に当たるか・充当時の帳簿とインボイス）。規約の書き換え後に
@@ -153,7 +153,7 @@
 - [ ] 週1：`/sns-pack` で翌週分 → Notion 下書き承認／週1（月曜）：数字を貼る → `/sns-review`（CSV は `docs/sns/metrics/`）
 - [ ] act：ストック約10店を週1で掲載（ふうかさんは取材ログの体験欄だけ。手順 `docs/guides/kinda-act-log.md`）
 - [ ] voices（`/columns`）：週1。act の店と組み合わせたテーマ・内部リンク優先
-- [ ] 月1：`/repo-tidy`（次回 11/15 ごろ）
+- [ ] 隔週日曜 8:51（日本時間）：`/repo-tidy` が定期タスクで自動起動（初回 10/25、次 11/8…）。新しいセッションで整理して main に入れ、ふうか待ちの上位5件を報告する
 
 ---
 
