@@ -17,6 +17,8 @@ import type {
 import { WEATHER_IMAGE } from "@/app/note/weather/_components/weatherImages";
 import { getCardWeather, getDailyLabel } from "@/app/kinda-note/data/daily";
 import { syncDailyToSupabase } from "@/app/kinda-note/lib/storage";
+import { getSkyCity, getSkyLine } from "@/app/kinda-note/data/skyCities";
+import type { CardWeatherKey } from "@/app/kinda-note/data/daily";
 
 /**
  * Kinda note 履歴セクション。
@@ -64,6 +66,8 @@ type StoredAnswerShape = {
   /** 段階の note は string[]、今日の天気は string（feeling / size / want） */
   answers?: Record<string, string[] | string>;
   freeTexts?: Record<string, string>;
+  /** 空の手帳：その日の空が行った街（今日の天気のみ・2026-10-15） */
+  sky_city?: string;
 };
 
 export default function NoteHistorySection() {
@@ -145,6 +149,7 @@ export default function NoteHistorySection() {
       ) : (
         <EmptyState loggedIn={!!user} />
       )}
+      {user && <DailyLinks />}
     </section>
   );
 }
@@ -360,6 +365,46 @@ function DailyDetail({ item }: { item: DiagnosisHistoryItem | null }) {
           {note}
         </p>
       )}
+      <SkyOfTheDay weather={item.result_key} city={data?.sky_city} />
+    </div>
+  );
+}
+
+function SkyOfTheDay({ weather, city }: { weather: string; city?: string }) {
+  const c = getSkyCity(city);
+  const line = c ? getSkyLine(weather as CardWeatherKey, c.key) : null;
+  if (!c || !line) return null;
+  return (
+    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid var(--border)" }}>
+      <p style={{ fontSize: 11, color: "var(--muted)", letterSpacing: ".06em", margin: "0 0 4px" }}>
+        この日の空は{c.name}へ
+      </p>
+      <p style={{ fontSize: 13, lineHeight: 1.9, color: "var(--mid)", margin: 0 }}>{line}</p>
+    </div>
+  );
+}
+
+/* ─────────── 今日の天気・空の手帳への入口（2026-10-15） ─────────── */
+function DailyLinks() {
+  const linkStyle: React.CSSProperties = {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 12.5,
+    padding: "11px 12px",
+    borderRadius: 999,
+    border: "1px solid var(--border)",
+    background: "white",
+    color: "var(--ink)",
+    textDecoration: "none",
+  };
+  return (
+    <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+      <Link href="/kinda-note/today" style={linkStyle}>
+        今日の天気をつける
+      </Link>
+      <Link href="/kinda-note/sky" style={linkStyle}>
+        空の手帳を見る
+      </Link>
     </div>
   );
 }

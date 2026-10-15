@@ -12,6 +12,8 @@ import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
 import RecentWeatherStrip from "../components/RecentWeatherStrip";
 import StorageHint from "../components/StorageHint";
+import SkyStamp from "../components/SkyStamp";
+import { getSkyCity, getSkyLine, pickSkyCity } from "../data/skyCities";
 import {
   DAILY_QUESTIONS,
   PASSING_NOTE,
@@ -54,6 +56,7 @@ export default function TodayContent() {
   const [weather, setWeather] = useState<CardWeatherKey | null>(null);
   const [recent, setRecent] = useState<KindaNoteHistoryItem[]>([]);
   const [tiltAngle, setTiltAngle] = useState("rotate(0deg)");
+  const [sky, setSky] = useState<{ city: string; isNew: boolean } | null>(null);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState("");
@@ -98,7 +101,11 @@ export default function TodayContent() {
     const w = decideDailyWeather(answers.feeling ?? "unknown", answers.size ?? "little", answers.want);
     // これまでの天気は、今回を保存する前に読む（今回の分を含めないため）
     const before = new Date().toISOString();
-    const previous = loadKindaNoteHistory().slice(-6).reverse();
+    const all = loadKindaNoteHistory();
+    const previous = all.slice(-6).reverse();
+    // 空の手帳：天気から街を1つ。はじめての街かは端末の記録で見る
+    const skyCity = pickSkyCity(w);
+    const isNewCity = !!skyCity && !all.some((it) => it.sky_city === skyCity);
     const isRare = Math.random() < 0.03;
     const angle = `rotate(${(isRare ? (Math.random() * 2 - 1) * 1.8 : 0).toFixed(2)}deg)`;
     const desc = getCardWeather(w)!;
@@ -107,7 +114,7 @@ export default function TodayContent() {
       result_type: `Kinda ${desc.name_ja}`,
       weather: w,
       answers: { answers, freeTexts: note.trim() ? { daily_note: note.trim() } : {} },
-      meta: { isRareTilt: isRare, tiltAngle: angle },
+      meta: { isRareTilt: isRare, tiltAngle: angle, skyCity: skyCity ?? undefined },
     });
     // ログイン中はマイページにも残す（天気・日付・答え・一言）。ゲストは端末だけで、ログイン後に送る
     if (user && supabase) void syncDailyToSupabase(supabase, user.id);
@@ -123,6 +130,7 @@ export default function TodayContent() {
       void mergeRemoteRecent(previous, supabase, user.id, before).then(setRecent);
     }
     setTiltAngle(angle);
+    setSky(skyCity ? { city: skyCity, isNew: isNewCity } : null);
     setWeather(w);
     setStep(4);
     window.scrollTo({ top: 0 });
@@ -132,6 +140,7 @@ export default function TodayContent() {
     setAnswers({});
     setNote("");
     setWeather(null);
+    setSky(null);
     setStep(0);
     window.history.replaceState(null, "", window.location.pathname);
     window.scrollTo({ top: 0 });
@@ -313,6 +322,7 @@ export default function TodayContent() {
             answers={answers}
             note={note.trim()}
             recent={recent}
+            sky={sky}
             tiltAngle={tiltAngle}
             shareUrl={shareUrl}
             saving={saving}
@@ -374,6 +384,7 @@ function Result({
   answers,
   note,
   recent,
+  sky,
   tiltAngle,
   shareUrl,
   saving,
@@ -384,6 +395,7 @@ function Result({
   answers: Answers;
   note: string;
   recent: KindaNoteHistoryItem[];
+  sky: { city: string; isNew: boolean } | null;
   tiltAngle: string;
   shareUrl: string;
   saving: boolean;
@@ -435,6 +447,8 @@ function Result({
           「{note}」
         </p>
       )}
+
+      {sky && <SkyCard weather={weather} city={sky.city} isNew={sky.isNew} />}
 
       <div style={{ height: 1, background: "#EAE0D8", margin: "28px 0 24px" }} />
 
@@ -508,6 +522,57 @@ function Result({
         </p>
       </Link>
     </>
+  );
+}
+
+// ─── 空の手帳 ─────────────────────────────────────────────────────────────
+
+function SkyCard({ weather, city, isNew }: { weather: CardWeatherKey; city: string; isNew: boolean }) {
+  const c = getSkyCity(city);
+  const line = getSkyLine(weather, city);
+  if (!c || !line) return null;
+  const color = getCardWeather(weather)?.color ?? ACCENT;
+  const today = new Date();
+
+  return (
+    <section
+      style={{
+        background: "#FDFAF7",
+        border: "1px solid #EAE0D8",
+        borderRadius: 16,
+        padding: "20px 20px 16px",
+        margin: "28px 0 0",
+      }}
+    >
+      <Eyebrow>今日の空は</Eyebrow>
+      <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
+        <SkyStamp city={c} color={color} date={today} size={84} />
+        <div style={{ minWidth: 0 }}>
+          <p
+            style={{
+              fontFamily: "'Shippori Mincho', serif",
+              fontSize: 20,
+              fontWeight: 500,
+              color: INK,
+              margin: 0,
+              letterSpacing: "0.04em",
+            }}
+          >
+            {c.name}へ
+          </p>
+          {isNew && (
+            <p style={{ fontSize: 11.5, color: SUB, margin: "4px 0 0" }}>はじめての街です</p>
+          )}
+        </div>
+      </div>
+      <p style={{ fontSize: 14, lineHeight: 1.95, color: INK, margin: "0 0 12px" }}>{line}</p>
+      <Link
+        href="/kinda-note/sky"
+        style={{ fontSize: 12.5, color: SUB, textDecoration: "underline", textUnderlineOffset: 3 }}
+      >
+        空の手帳を見る
+      </Link>
+    </section>
   );
 }
 
