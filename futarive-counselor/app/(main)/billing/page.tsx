@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { BillingEvent, BillingStatus } from '@/lib/types-billing'
 import CardRegistration from '@/components/billing/CardRegistration'
@@ -143,9 +144,13 @@ export default function BillingPage() {
         <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 6, lineHeight: 1.7 }}>
           ※ ご予約が確定した時点で送客料が発生します。以後のキャンセル・当日キャンセル・ユーザーの不参加（ドタキャン）について、<strong>原則として返金はいたしません</strong>。初期費用・月額費用は不要で、成果報酬のみ。
           <br />
-          ※ やむを得ない事情がある場合は、運営事務局にて個別にご相談を承ります。お手数ですが{' '}
+          ※ やむを得ない事情がある場合は{' '}
           <a href="mailto:hello@kinda.jp" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>お問い合わせ</a>
-          {' '}よりご連絡ください。
+          {' '}よりご相談ください。運営が認めた場合は、その送客料を次のご予約1件分の送客料に充てます（期限はありません）。充てる前にご退会された場合は返金します。
+          <br />
+          ※ 課金のタイミングや返金については{' '}
+          <Link href="/faq" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>よくある質問</Link>
+          {' '}にまとめています。
         </div>
       </div>
 
