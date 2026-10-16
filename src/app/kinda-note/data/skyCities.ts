@@ -16,33 +16,44 @@ export type SkyCity = {
   name: string;
   /** スタンプの上に小さく出す英字 */
   en: string;
+  /**
+   * 地図の上の位置（画像の左上からの％）。緯度経度から計算しない（生成した地図は形が正確でないため）。
+   * 画像を見て置いた値。画像を差し替えたら置き直す（2026-10-16）
+   */
+  map: { on: "world" | "japan"; x: number; y: number };
 };
 
+/** 地図画像（public/images/sky-map-*.webp）の大きさ。元は docs/assets/sky-map/ */
+export const SKY_MAP_WORLD = { src: "/images/sky-map-world.webp", w: 1518, h: 974 };
+export const SKY_MAP_JAPAN = { src: "/images/sky-map-japan.webp", w: 939, h: 1420 };
+/** 世界地図の上の日本の位置（％）。日本の街は世界地図では重なるので、ここを押して日本地図へ移る */
+export const SKY_MAP_JAPAN_ON_WORLD = { x: 87.9, y: 42.6 };
+
 export const SKY_CITIES: SkyCity[] = [
-  { key: "dublin", name: "ダブリン", en: "DUBLIN" },
-  { key: "kanazawa", name: "金沢", en: "KANAZAWA" },
-  { key: "lisbon", name: "リスボン", en: "LISBOA" },
-  { key: "onomichi", name: "尾道", en: "ONOMICHI" },
-  { key: "san_francisco", name: "サンフランシスコ", en: "SAN FRANCISCO" },
-  { key: "kyoto", name: "京都", en: "KYOTO" },
-  { key: "istanbul", name: "イスタンブール", en: "ISTANBUL" },
-  { key: "hakodate", name: "函館", en: "HAKODATE" },
-  { key: "kamakura", name: "鎌倉", en: "KAMAKURA" },
-  { key: "paris", name: "パリ", en: "PARIS" },
-  { key: "taipei", name: "台北", en: "TAIPEI" },
-  { key: "edinburgh", name: "エディンバラ", en: "EDINBURGH" },
-  { key: "bergen", name: "ベルゲン", en: "BERGEN" },
-  { key: "hanoi", name: "ハノイ", en: "HA NOI" },
-  { key: "buenos_aires", name: "ブエノスアイレス", en: "BUENOS AIRES" },
-  { key: "naha", name: "那覇", en: "NAHA" },
-  { key: "reykjavik", name: "レイキャビク", en: "REYKJAVIK" },
-  { key: "wellington", name: "ウェリントン", en: "WELLINGTON" },
-  { key: "cape_town", name: "ケープタウン", en: "CAPE TOWN" },
-  { key: "helsinki", name: "ヘルシンキ", en: "HELSINKI" },
-  { key: "vancouver", name: "バンクーバー", en: "VANCOUVER" },
-  { key: "sapporo", name: "札幌", en: "SAPPORO" },
-  { key: "havana", name: "ハバナ", en: "LA HABANA" },
-  { key: "marrakech", name: "マラケシュ", en: "MARRAKECH" },
+  { key: "dublin", name: "ダブリン", en: "DUBLIN", map: { on: "world", x: 46.4, y: 31.3 } },
+  { key: "kanazawa", name: "金沢", en: "KANAZAWA", map: { on: "japan", x: 50.9, y: 51.4 } },
+  { key: "lisbon", name: "リスボン", en: "LISBOA", map: { on: "world", x: 46.1, y: 39.5 } },
+  { key: "onomichi", name: "尾道", en: "ONOMICHI", map: { on: "japan", x: 35.7, y: 61.0 } },
+  { key: "san_francisco", name: "サンフランシスコ", en: "SAN FRANCISCO", map: { on: "world", x: 17.7, y: 41.1 } },
+  { key: "kyoto", name: "京都", en: "KYOTO", map: { on: "japan", x: 48.5, y: 58.5 } },
+  { key: "istanbul", name: "イスタンブール", en: "ISTANBUL", map: { on: "world", x: 56.3, y: 41.1 } },
+  { key: "hakodate", name: "函館", en: "HAKODATE", map: { on: "japan", x: 62.6, y: 27.3 } },
+  { key: "kamakura", name: "鎌倉", en: "KAMAKURA", map: { on: "japan", x: 65.2, y: 57.4 } },
+  { key: "paris", name: "パリ", en: "PARIS", map: { on: "world", x: 49.7, y: 35.4 } },
+  { key: "taipei", name: "台北", en: "TAIPEI", map: { on: "world", x: 81.4, y: 48.9 } },
+  { key: "edinburgh", name: "エディンバラ", en: "EDINBURGH", map: { on: "world", x: 48.0, y: 29.3 } },
+  { key: "bergen", name: "ベルゲン", en: "BERGEN", map: { on: "world", x: 50.6, y: 27.4 } },
+  { key: "hanoi", name: "ハノイ", en: "HA NOI", map: { on: "world", x: 77.4, y: 49.3 } },
+  { key: "buenos_aires", name: "ブエノスアイレス", en: "BUENOS AIRES", map: { on: "world", x: 34.3, y: 71.7 } },
+  { key: "naha", name: "那覇", en: "NAHA", map: { on: "japan", x: 10.6, y: 94.9 } },
+  { key: "reykjavik", name: "レイキャビク", en: "REYKJAVIK", map: { on: "world", x: 44.8, y: 23.4 } },
+  { key: "wellington", name: "ウェリントン", en: "WELLINGTON", map: { on: "world", x: 94.2, y: 79.8 } },
+  { key: "cape_town", name: "ケープタウン", en: "CAPE TOWN", map: { on: "world", x: 51.7, y: 73.4 } },
+  { key: "helsinki", name: "ヘルシンキ", en: "HELSINKI", map: { on: "world", x: 55.3, y: 26.9 } },
+  { key: "vancouver", name: "バンクーバー", en: "VANCOUVER", map: { on: "world", x: 15.3, y: 30.8 } },
+  { key: "sapporo", name: "札幌", en: "SAPPORO", map: { on: "japan", x: 69.2, y: 19.7 } },
+  { key: "havana", name: "ハバナ", en: "LA HABANA", map: { on: "world", x: 27.7, y: 46.4 } },
+  { key: "marrakech", name: "マラケシュ", en: "MARRAKECH", map: { on: "world", x: 45.5, y: 45.2 } },
 ];
 
 type SkyLine = { city: string; line: string };

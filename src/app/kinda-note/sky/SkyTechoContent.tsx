@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import SkyMap from "../components/SkyMap";
 import SkyStamp from "../components/SkyStamp";
 import StorageHint from "../components/StorageHint";
 import { getCardWeather } from "../data/daily";
@@ -16,6 +17,7 @@ import { loadSkyStamps, type SkyStamp as Stamp } from "../lib/storage";
  * - 行った街をスタンプで並べる（古い順）。まだ行っていない街は「？」の枠だけ（どこかは伏せる）
  * - 出す数字は行った街の数だけ。連続日数・皆勤・ランキングは出さない
  * - スタンプを押すと、はじめて行った日の一言を出す
+ * - v1-b（2026-10-16）：スタンプの上にクレイの地図。行った街だけ点で出す（components/SkyMap.tsx）
  */
 
 const INK = "#3A2E26";
@@ -74,6 +76,16 @@ export default function SkyTechoContent() {
           <p style={{ fontSize: 13, color: INK, margin: "0 0 18px" }}>
             行った街　<span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18 }}>{visited.length}</span>
           </p>
+        )}
+
+        {/* 地図は行った街だけ。地図が読めなくてもスタンプの並びで使えるよう、並びは下に残す（v1-b） */}
+        {stamps !== null && visited.length > 0 && (
+          <>
+            <SkyMap stamps={visited} open={open} onOpen={setOpen} />
+            {rest > 0 && (
+              <p style={{ fontSize: 12, color: SUB, margin: "-8px 0 18px" }}>まだ {rest} の街があります</p>
+            )}
+          </>
         )}
 
         {/* 押したスタンプの一言は枠の上に出す（下だと「？」の枠に押し出されて見えない） */}
