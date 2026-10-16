@@ -3,12 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import { loadKindaNoteHistory } from "./lib/storage";
+
+const noSubscribe = () => () => {};
 
 export default function KindaNotePage() {
   const router = useRouter();
   const [btnPressed, setBtnPressed] = useState(false);
+  // 空の手帳の入口は、一度でも街に行った端末にだけ出す（行っていない人には中身が空なので）
+  const hasSky = useSyncExternalStore(
+    noSubscribe,
+    () => loadKindaNoteHistory().some((it) => it.sky_city),
+    () => false,
+  );
 
   const steps = [
     {
@@ -314,6 +323,17 @@ export default function KindaNotePage() {
         >
           会員登録・ログイン不要です
         </p>
+
+        {hasSky && (
+          <p style={{ textAlign: "center", margin: "20px 0 0", fontSize: 12.5 }}>
+            <Link
+              href="/kinda-note/sky"
+              style={{ color: "#7A6A5A", textDecoration: "underline", textUnderlineOffset: 3 }}
+            >
+              空の手帳を見る
+            </Link>
+          </p>
+        )}
 
         {/* 段階の note（じっくり整理・カウンセラーに渡せる）。主役は今日の天気、こちらは控えめに */}
         <p style={{ textAlign: "center", margin: "28px 0 0", fontSize: 12.5, lineHeight: 1.8 }}>
