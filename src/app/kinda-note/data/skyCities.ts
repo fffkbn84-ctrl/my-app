@@ -47,7 +47,7 @@ export const SKY_CITIES: SkyCity[] = [
 
 type SkyLine = { city: string; line: string };
 
-/** 天気ごとに、その空が似合う街を2つ。どの街もちょうど2つの天気に出る */
+/** 天気ごとに、その空が似合う街を2つ。today で出る天気の中では、どの街もちょうど2つの天気に出る（晴れ間・風の日は today で出ない） */
 const SKY_LINES: Record<CardWeatherKey, [SkyLine, SkyLine]> = {
   morning_mist: [
     { city: "san_francisco", line: "サンフランシスコの坂の上はまだもやの中です。ケーブルカーを待つ人が、橋が見えないねと笑っています。" },
@@ -140,6 +140,11 @@ const SKY_LINES: Record<CardWeatherKey, [SkyLine, SkyLine]> = {
   sun_shower: [
     { city: "naha", line: "那覇は晴れているのに雨が降っています。干したばかりの洗濯物の前で、取り込むか迷っている人がいます。" },
     { city: "havana", line: "ハバナに天気雨が降っています。古いアメ車の運転手は、すぐ止むさと言って窓も閉めずに走っています。" },
+  ],
+  // 陽だまりは today で晴れ間の代わりに出る（10/16）。晴れ間と同じ2都市にして「どの街も2つの天気」を保つ
+  sunny_spot: [
+    { city: "dublin", line: "ダブリンの公園に陽だまりができています。ベンチの端に座った人が、上着を脱ぐかどうかしばらく迷っています。" },
+    { city: "edinburgh", line: "エディンバラの石段に日が当たっています。ひなたで丸くなった猫の横に、気づけば人がふたり並んで座っていました。" },
   ],
   moonlit_night: [
     { city: "marrakech", line: "マラケシュの屋根の上に月が出ています。屋上でミントティーを飲む人たちの声が少しずつ小さくなってきました。" },
