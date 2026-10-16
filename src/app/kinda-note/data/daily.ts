@@ -144,7 +144,7 @@ export type FeelingId =
  */
 const WEATHER_MAP: Record<FeelingId, { full: CardWeatherKey; light: CardWeatherKey }> = {
   glad: { full: "sunrise", light: "light_sunrise" },               // 朝焼け / 淡い朝焼け
-  relief: { full: "sunny_spot", light: "faint_sunlight" },         // 陽だまり / 薄日（10/16 晴れ間から変更）
+  relief: { full: "sun_break", light: "faint_sunlight" },          // 晴れ間 / 薄日（胸いっぱい×静かに・このままは陽だまり）
   calm: { full: "calm", light: "calm" },                           // 凪（大きさは聞かない）
   flutter: { full: "windy_sunshine", light: "angels_ladder" },     // 風の強い晴れ / 天使の梯子
   foggy: { full: "mist", light: "morning_mist" },                  // 霧 / 朝もや
@@ -167,6 +167,8 @@ export function decideDailyWeather(feeling: string, size: string, want?: string)
   if (size === "passing" && AFTER_RAIN_FEELINGS.includes(feeling)) return "after_rain";
   // くたびれた（すこしだけ）× ひとりで静かにしていたい → 月夜（時刻では分けない）
   if (feeling === "tired" && size === "little" && want === "quiet") return "moonlit_night";
+  // ほっとしていた（胸いっぱい）× 静かにしていたい／このままでいたい → 陽だまり（ぬくもりの中にとどまる）。外へ向かう答えは晴れ間のまま
+  if (feeling === "relief" && size === "full" && (want === "quiet" || want === "stay")) return "sunny_spot";
   // さみしかった（すこしだけ）× 外に出したい／動いてみたい → 冷たい風（ふと我に返って、外へ向かう）。静かに・このままは夕暮れのまま
   if (feeling === "lonely" && size === "little" && (want === "out" || want === "move")) return "cold_wind";
   const pair = WEATHER_MAP[feeling as FeelingId] ?? WEATHER_MAP.unknown;
