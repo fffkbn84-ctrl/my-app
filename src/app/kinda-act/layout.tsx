@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/kinda-act" },
   title: "Kinda act | お見合い・デートのお店 | Kinda ふたりへ",
   description:
-    "お見合いやデート、婚活前の美容まで、ふたりが実際に会う場所を選ぶ。Kinda actは、実際に足を運んで確かめたカフェ・レストラン・サロンを Kinda ふたりへが厳選してお届けします。",
+    "お見合いやデートで、ふたりが実際に会う場所を選ぶ。Kinda actは、実際に足を運んで確かめたカフェ・レストランを Kinda ふたりへが厳選してお届けします。",
 };
 
 export default function KindaActLayout({ children }: { children: React.ReactNode }) {

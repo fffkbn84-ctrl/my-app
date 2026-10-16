@@ -341,7 +341,7 @@ export default function AboutPage() {
               {
                 num: "04",
                 title: "ふたりの時間に、いい場所を渡す",
-                body: "出会いのカフェから、婚活準備の美容室、成婚後の記念日まで。\n\nはじめてでも、もう一度でも。婚活中だけじゃなく、ふたりになったあとも\nずっと使えるサービスでありたい。",
+                body: "出会いのカフェから、成婚後の記念日まで。\n\nはじめてでも、もう一度でも。婚活中だけじゃなく、ふたりになったあとも\nずっと使えるサービスでありたい。",
               },
             ].map((belief) => (
               <div key={belief.num} className="about-belief-card">
@@ -526,9 +526,7 @@ export default function AboutPage() {
                   margin: 0,
                 }}
               >
-                お見合いのカフェ、婚活前の美容室、
-                <br />
-                記念日のレストラン。
+                お見合いのカフェ、記念日のレストラン。
                 <br />
                 <span className="brand-name">Kinda ふたりへ</span>が取材・厳選したお店を、
                 <br />
