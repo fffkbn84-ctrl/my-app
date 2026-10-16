@@ -49,6 +49,8 @@ PRESETS = {
   "kotosan03": [(0.05,"pop"), (2.50,"pop"), (4.40,"gulp"), (6.10,"kira"), (6.30,"pop")],
   # ことさん v2・救いのある回（kotosanv2s：cut 開始 0 / 2.5 / 4.4 / 6.1 / 8.7）。救いは音を足さない
   "kotosan06": [(0.05,"pop"), (2.50,"pop"), (4.40,"gulp"), (6.10,"kira"), (6.30,"pop")],
+  # ことさん v2・速い版（kotosanv2q：cut 開始 0 / 1.8 / 3.0 / 4.0）
+  "kotosan07": [(0.05,"pop"), (1.80,"pop"), (3.00,"gulp"), (4.00,"kira"), (4.20,"pop")],
 }
 src, out, preset = sys.argv[1], sys.argv[2], sys.argv[3]
 FF = imageio_ffmpeg.get_ffmpeg_exe()
