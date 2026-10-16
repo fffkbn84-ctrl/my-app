@@ -9,6 +9,15 @@ export const dynamic = "force-dynamic";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// 登録した場所ごとに「何をお知らせするか」の約束が違うため、source で区別して保存する。
+// 決まった値だけ受け付ける（任意の文字列を DB に入れさせない）。
+// 1つのメールアドレスでも source が違えば別の登録として持つ（一意制約は (lower(email), source)）。
+const SOURCES = ["talk_empty", "talk_area_empty", "home_reel", "pair_lp"] as const;
+type Source = (typeof SOURCES)[number];
+function isSource(v: unknown): v is Source {
+  return typeof v === "string" && (SOURCES as readonly string[]).includes(v);
+}
+
 // 簡易レート制限（同一 IP からの短時間の連投を弾く・プロセス内メモリのみ）。
 // /api/for-counselors/inquiry と同方針。永続的な保証はないが、
 // フォーム bot による登録の連投・リスト汚染の抑止には十分。
@@ -39,9 +48,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { email } = await req.json();
+    const { email, source } = await req.json();
     if (typeof email !== "string" || !EMAIL_RE.test(email.trim())) {
       return NextResponse.json({ error: "invalid_email" }, { status: 400 });
+    }
+    if (!isSource(source)) {
+      return NextResponse.json({ error: "invalid_source" }, { status: 400 });
     }
 
     const ip =
@@ -55,9 +67,9 @@ export async function POST(req: NextRequest) {
     const supabase = createClient(url, serviceKey);
     const { error } = await supabase
       .from("notify_signups")
-      .insert({ email: email.trim().toLowerCase(), source: "talk_empty" });
+      .insert({ email: email.trim().toLowerCase(), source });
 
-    // 23505 = unique 違反（既に登録済み）。冪等にするため成功扱い。
+    // 23505 = unique 違反（同じ場所で既に登録済み）。冪等にするため成功扱い。
     if (error && error.code !== "23505") {
       console.error("notify insert error:", error.message);
       return NextResponse.json({ error: "server_error" }, { status: 500 });

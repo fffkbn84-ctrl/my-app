@@ -55,7 +55,7 @@ export default function NotifySignup({
       const res = await fetch("/api/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: v }),
+        body: JSON.stringify({ email: v, source }),
       });
       if (!res.ok) throw new Error();
       setState("done");

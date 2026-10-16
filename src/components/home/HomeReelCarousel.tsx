@@ -52,7 +52,7 @@ export default function HomeReelCarousel({ counselors }: Props) {
             scrollSnapAlign: "start",
           }}
         >
-          <NotifySignup fill />
+          <NotifySignup fill source="home_reel" />
         </div>
 
         {/* 末尾「すべて見る」CTA カード */}
