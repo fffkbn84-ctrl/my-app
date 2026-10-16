@@ -6,7 +6,7 @@
 > **2026-10-15 に全面整理。** 整理前の全文は `docs/archive/todo-full-archive-2026-10-15.md`（その前は `todo-full-archive-2026-07-02.md`）。
 > 過ぎた日付の SNS 項目・完了済みの Stripe 本番化などはアーカイブ側にだけ残した。
 
-最終更新: 2026-10-15
+最終更新: 2026-10-16
 
 ### このファイルの読み方
 
@@ -24,15 +24,18 @@
 
 ## 📌 次セッション（最初に読む）
 
-> **`docs/handoff/2026-10-16-next-session.md` を読んで、上から1つずつ進める。** 一気にはやらない。
+> **`docs/handoff/2026-10-17-next-session.md` を読んで、上から1つずつ進める。** 一気にはやらない。
 
-1. [ ] 🟣 **お知らせ登録（`notify_signups`）がどの機能の登録か区別できていない** → 直す（10/15 判断）。手順は handoff §1
-   - `NotifySignup` が `source` を API に送っていない → API が全部 `talk_empty` で保存。一意制約が `lower(email)` だけで2件目が黙って捨てられる
-   - 直し方：`source` を送る → API は `talk_empty`・`home_reel`・`pair_lp` だけ受け付ける → 一意制約を `(lower(email), source)` に。テーブルは `list_tables` で確認してから
-2. [ ] 🟣 **返金 → 次の予約に充当、の規約書き換え**（10/15 ふうか決定：期限なし・解約時に残っていれば返金・返金は元のカードへ Stripe が原則で失敗時のみ振込）。
-       書き換える場所の一覧は handoff §2（main の docs／main の src は PR／counselor ブランチ／CLAUDE.md §12）。条文のたたき台は `docs/ops/refund-credit-slide-2026-10.md` §5（「6か月」は消す）
+1. [x] お知らせ登録を場所（source）ごとに保存（10/16 PR #95 マージ・本番 DB の一意制約も張り替え済み・本番で invalid_source を確認）。あわせて「美容」の記述3か所を外した（ふうか決裁）
+2. [x] 返金 → 次の予約に充当、の規約書き換え（10/16）。main は PR `claude/refund-credit`、counselor は PR `claude/counselor-refund-credit`（FAQ ページ `/faq` 新設込み）。「前払い」の語も外した。調べは `docs/research/2026-10-16-prepay-privacy-credit.md`
+2-b. [ ] 🟣 **充当の仕組みを作る（1社目の契約までに・最優先）**。規約と counselor FAQ はもう「次のご予約では課金されません」と書いてある。
+       Stripe の credit は請求書専用で Kinda の課金方式では使えない → Kinda の DB に未使用の充当を持ち、課金の手前で止める。課金しない場合も連絡先開示・確定メールを同じように出す。設計は `refund-credit-slide-2026-10.md` §4。
+       「課金して返金する」つなぎは**やらない**（10/16 ふうか指摘）
 3. [ ] 🟣 **空の手帳 v1-a**：note トップに入口（街に行ったことがある端末だけ）。小さな PR
-4. [ ] 🔴→🟣 **空の手帳 v1-b：クレイの世界地図**。ふうかさんが画像2枚（世界・日本）を生成中 → 届いたら WebP 化・点を置く・世界→日本のズーム（reduced-motion では切り替えのみ）。プロンプトは研究メモ §5
+4. [ ] 🟣 **空の手帳 v1-b：クレイの世界地図**。画像2枚は10/16に届いて確認済み（作り直し不要）。元画像は `docs/assets/sky-map/world-raw.png`（3:2）・`japan-raw.png`（2:3）
+       → WebP 化（**海の外側を透明に**。背景が #EBDCC9 前後でサイトの #F5EEE6 より濃く、四角い縁が出るため）・日本地図は左上の余白を詰める
+       → 点を画像を見て置く（那覇は左下の囲み）→ 世界→日本のズーム（reduced-motion では切り替えのみ）
+       → ヨーロッパに9都市が集まって点が重なる件は**案A：重なった点を押すと近くの街を並べて出す**（10/16 ふうか決定）
 
 ---
 
@@ -48,6 +51,7 @@
       3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
 - [x] **Stripe の Webhook に `charge.dispute.created` を追加**（10/15 Claude が Stripe API で追加・読み直して3イベントを確認）。届くかは本物のチャージバックが来るまで確かめられない
 - [ ] **相談所への領収書・適格請求書**：AGOGLIFE の適格請求書発行事業者の登録有無 → Stripe の領収書メールで足りるか決める（`docs/ops/refund-loss-research-2026-10.md`）
+- [ ] **退会・解約後の個人情報の書き足し**（10/16 調べ・未着手）：①法令で保存する記録（課金・返金は7年）②充当の返金が終わるまで保持する情報 ③相談所が解約したとき受け取った利用者の連絡先の扱い。足すか決める。詳細 `docs/research/2026-10-16-prepay-privacy-credit.md` §2
 - [ ] 返金の充当：**対象を広げるか**（無断不参加など。いまは「やむを得ない事情で運営が認めたとき」だけで書く）
 - [ ] 弁護士・税理士に1回確認（期限なしの充当が前払式支払手段に当たるか・充当時の帳簿とインボイス）。規約の書き換え後に
 - [ ] **商標**：J-PlatPat で「Kinda」45類・35類の先行調査 → 出願判断（3区分で実費 約12.8万円。Claude は手続きしない）
@@ -125,7 +129,7 @@
 - [ ] **kinda.jp 側のパスワード条件の表示が「8文字以上」のまま**（Supabase は「10文字以上・英小／英大／数字／記号」）。
       `src/app/login/LoginForm.tsx`・`src/app/auth/reset-password/ResetPasswordForm.tsx`・`src/app/mypage/AccountSettingsSection.tsx` を counselor の `futarive-counselor/lib/password.ts` と同じ条件・言い方に
 - [ ] **課金に失敗した予約を運営が課金し直す仕組み**（いまは予約した本人の画面からしか課金が起きない）。`docs/ops/billing-and-refunds.md` §4
-- [ ] **counselor 管理画面に FAQ ページ**（10/13 ふうか案）。返金の充当（📌2 と一緒に）・返金の反映日数（数日〜10日）・課金のタイミング・日程変更では課金しない・Link のメール欄は不要。文言は `billing-and-refunds.md` から
+- [x] counselor 管理画面に FAQ ページ（10/16 `/faq` 新設・未ログインでも読める）。元の案：返金の充当（📌2 と一緒に）・返金の反映日数（数日〜10日）・課金のタイミング・日程変更では課金しない・Link のメール欄は不要。文言は `billing-and-refunds.md` から
 - [ ] **返金 → 充当の実装**（📌2 の規約が決まってから。遅くとも最初の返金相談の前）。充当の表・課金の手前の分岐・課金しないときの連絡先開示とメール・`refund.failed` の受信・/billing に残高（`refund-credit-slide` §4）
 - [ ] **kinda.jp 予約：渡す Kinda note の結果を選べるように**（10/13 ふうか案）。まず予約フロー（`src/components/booking/`）と note の結果の保存を調べ、選択肢と画面案を出す
 - [ ] **`/note/weather`（天気一覧）の見出しが「入会前」「お見合い後」**。天気ページは中立語彙（CLAUDE.md §2）なので直す

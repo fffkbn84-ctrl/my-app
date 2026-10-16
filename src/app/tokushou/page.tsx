@@ -185,7 +185,7 @@ export default function TokushouPage() {
                 </tr>
                 <tr>
                   <th>お支払い時期</th>
-                  <td>予約が確定した時点で、ご登録のクレジットカードに即時課金します（前払い）。</td>
+                  <td>予約が確定した時点で、ご登録のクレジットカードに即時課金します（後払い・猶予期間はありません）。</td>
                 </tr>
                 <tr>
                   <th>役務の提供時期</th>
@@ -201,7 +201,7 @@ export default function TokushouPage() {
                     <span className="legal-note-inline">
                       天災その他やむを得ない事情がある場合は、
                       <a href="mailto:hello@kinda.jp" className="legal-link">運営事務局</a>
-                      にご相談ください。個別の判断で返金を行うことがあります。
+                      にご相談ください。運営が認めた場合は、その送客料を次回以降のご予約1件分の送客料に充てます（充てる期限はありません）。充てる前にご解約された場合は、残っている分を返金します。
                     </span>
                   </td>
                 </tr>
