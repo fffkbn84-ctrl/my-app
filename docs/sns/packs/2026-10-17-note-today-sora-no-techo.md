@@ -17,10 +17,10 @@
 | 帯 | 全編 | — | **今日の空は、どの街へ？**／Kinda note・今日の天気 |
 | 1 | 0〜2.4 | ウェリントンの港・強い風。帽子を追いかけて走る人 | 〔ウェリントン・風の強い晴れ〕「帽子、待って〜！」 |
 | 2 | 〜4.7 | 那覇の路地・晴れているのに雨。洗濯物の前で迷う人 | 〔那覇・天気雨〕「洗濯物、どうしよう」 |
-| 3 | 〜7.0 | 札幌の夜道・月夜。月を撮ろうとしてうまく撮れない人 | 〔札幌・月夜〕「月、うまく撮れない…」 |
+| 3 | 〜7.0 | 札幌の歩道・冷たい風。片方の手袋を探す人 | 〔札幌・冷たい風〕「手袋、片方どこ…」 |
 | 4 | 〜9.3 | 函館の朝市・夜明け前。走ってくる人 | 〔函館・夜明け前〕「二度寝した〜！」 |
 
-- 天気と街の組み合わせは `skyCities.ts` のとおり（windy_sunshine／sun_shower／moonlit_night／pre_dawn）。**today の答えから出る天気だけを使う**（10/16 訂正：最初は windy_day・cold_wind を使ったが、この2つは `WEATHER_MAP` に無く today では出ない。カット1は絵がそのまま「風の強い晴れ」なので名札だけ直し、カット3は札幌・月夜で作り直し）。台詞は一言の中の人の気持ちを短くしたもの
+- 天気と街の組み合わせは `skyCities.ts` のとおり（windy_sunshine／sun_shower／cold_wind／pre_dawn）。**today の答えから出る天気だけを使う**（10/16 訂正：最初は windy_day・cold_wind を使ったが、この2つは `WEATHER_MAP` に無く today では出ない。カット1は絵がそのまま「風の強い晴れ」なので名札だけ直し、カット3はふうかさんが札幌の絵を残したいので、**冷たい風を today に入れた**（PR #100・さみしかった × すこしだけ × 外に出したい／動いてみたい）。**PR #100 が本番に入ってから投稿する**）。台詞は一言の中の人の気持ちを短くしたもの
 - 人は「失敗も書く」の線（研究メモ §5）。笑われる側ではなく、誰にでもある小さな失敗にする
 - **例外の線引き**：既定（単色＋物1つ・人なし）を外し、クレイの情景＋人1人にする。人は顔なし・性別や年齢の手がかりなし。文字は後から入れる（CLAUDE.md §7-b の例外一覧に追記）
 - 書き出しは並べる型と同じ `render-kotosan-v2.js say`（名札＝街・天気）＋ `build_reel.py narabe4`
@@ -62,7 +62,7 @@ for i in 1 2 3 4; do python3 prep-futari.py g$i.png plate-$i.png 200; done
 B='["今日の空は、どの街へ？","Kinda note・今日の天気"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-1.png f1.png "$B" say <x> '["@ウェリントン・風の強い晴れ","帽子、待って〜！"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-2.png f2.png "$B" say <x> '["@那覇・天気雨","洗濯物、どうしよう"]'
-NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" say <x> '["@札幌・月夜","月、うまく撮れない…"]'
+NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-3.png f3.png "$B" say <x> '["@札幌・冷たい風","手袋、片方どこ…"]'
 NODE_PATH=$(npm root -g) node render-kotosan-v2.js plate-4.png f4.png "$B" say <x> '["@函館・夜明け前","二度寝した〜！"]'
 python3 build_reel.py narabe4 kinda-ig-1017-sora-no-techo.mp4
 ```
@@ -123,7 +123,7 @@ Kinda note の今日の天気に、続きを足しました。
 - 素材：`assets/sora-no-techo-{wellington-wind,naha-sunshower,sapporo-coldwind,hakodate-predawn}-v1.webp`。空の手帳 v1-b（クレイの世界地図）の素材の候補にもなる
 - キャプションと X の文を直した：街は天気ごとに2つのうちから選ばれる（`pickSkyCity` は2つから乱数）。「強い風の日はウェリントンへ」と言い切ると、ケープタウンが出た人に嘘になる → 「ウェリントンかケープタウンへ」
 
-### カット3の作り直し（札幌・月夜・10/16）
+### 使わなかった案：カット3の作り直し（札幌・月夜・10/16）
 
 同じスレッドで続けて生成する（共通文は §1 のまま）。
 
@@ -133,3 +133,5 @@ Kinda note の今日の天気に、続きを足しました。
 
 - この1枚だけ `No phones.` を外してよい（撮ろうとしている道具が要る）。画面や文字が描かれたら作り直す
 - 冷たい風の札幌（`sora-no-techo-sapporo-coldwind-v1.webp`）は今回使わない。today に冷たい風が入ったら使う
+
+- 書き出し v2：`kinda-ig-1017-sora-no-techo-v2.mp4`（カット1の名札を「風の強い晴れ」に直した版）
