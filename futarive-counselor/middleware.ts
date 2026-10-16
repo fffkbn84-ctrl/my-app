@@ -30,7 +30,8 @@ export async function middleware(request: NextRequest) {
   // 規約同意リンクから到達できる必要があるため公開）
   // /api/login はここで新規にセッションを確立するためのエンドポイントなので公開に含める
   // /reset-password はメールのリンクから来た時点ではまだセッションがない（ページ内でリンクのコードをセッションに替える）
-  const PUBLIC_PATHS = ['/login', '/claim', '/signup', '/terms', '/privacy', '/api/login', '/reset-password']
+  // /faq は契約前の相談所にも読んでもらう前提で公開（料金・返金の説明だけで個人のデータは出さない）
+  const PUBLIC_PATHS = ['/login', '/claim', '/signup', '/terms', '/privacy', '/faq', '/api/login', '/reset-password']
   const isPublic = PUBLIC_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
 
   if (!user && !isPublic) {
