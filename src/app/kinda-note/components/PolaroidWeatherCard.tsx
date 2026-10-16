@@ -50,6 +50,7 @@ const IMAGE_PATHS: Record<CardWeatherKey, string> = {
   after_rain: "/images/w_after_rain.webp",
   sun_shower: "/images/w_sun_shower.webp",
   moonlit_night: "/images/w_moonlit_night.webp",
+  sunny_spot: "/images/w_sunny_spot.webp",
 };
 
 export default function PolaroidWeatherCard({
