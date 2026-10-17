@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import SectionSubHeader from "@/components/ui/SectionSubHeader";
 import ShareBar from "@/components/share/ShareBar";
 import { trackEvent } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import NoteIntro from "../components/NoteIntro";
 import PolaroidWeatherCard from "../components/PolaroidWeatherCard";
 import ShareCard from "../components/ShareCard";
 import RecentWeatherStrip from "../components/RecentWeatherStrip";
@@ -47,6 +48,8 @@ const ACCENT = "#D4A090";
 
 type Answers = { feeling?: string; size?: string; want?: string };
 
+const noSubscribe = () => () => {};
+
 export default function TodayContent() {
   const router = useRouter();
   const { user, supabase } = useAuth();
@@ -62,6 +65,15 @@ export default function TodayContent() {
   const [shareUrl, setShareUrl] = useState("");
   const shareCardRef = useRef<HTMLDivElement | null>(null);
   const advanceTimer = useRef<number | null>(null);
+  // はじめての人（この端末で今日の天気をつけたことがない）には、1問目の前に Kinda note の説明を出す（2026-10-17）。
+  // サーバーでは履歴が読めないので説明を出しておき、毎日来る人は読み込み後すぐ1問目に替わる
+  const hasDaily = useSyncExternalStore(
+    noSubscribe,
+    () => loadKindaNoteHistory().some((it) => it.route === "daily"),
+    () => false,
+  );
+  const [started, setStarted] = useState(false);
+  const showIntro = step === 0 && !started && !hasDaily;
 
   useEffect(() => {
     trackEvent("kinda_note_daily_start");
@@ -89,7 +101,13 @@ export default function TodayContent() {
 
   function back() {
     if (step === 0) {
-      router.push("/kinda-note");
+      // 説明から入った人は説明へ、毎日来る人は Kinda note のページへ
+      if (!hasDaily) {
+        setStarted(false);
+        window.scrollTo({ top: 0 });
+      } else {
+        router.push("/kinda-note");
+      }
       return;
     }
     // Q3 から戻るとき、Q2 を飛ばしていたら Q1 へ
@@ -186,9 +204,20 @@ export default function TodayContent() {
         ]}
       />
 
-      <MiniHeader onBack={step === 4 ? () => router.push("/kinda-note") : back} />
+      <MiniHeader
+        onBack={showIntro ? () => router.push("/") : step === 4 ? () => router.push("/kinda-note") : back}
+      />
 
-      {step <= 3 && (
+      {showIntro && (
+        <NoteIntro
+          onStart={() => {
+            setStarted(true);
+            window.scrollTo({ top: 0 });
+          }}
+        />
+      )}
+
+      {!showIntro && step <= 3 && (
         <div className="pc-readable" style={{ padding: "14px 24px 0" }}>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontSize: 11, color: FAINT, fontFamily: "'DM Sans', sans-serif" }}>
@@ -213,15 +242,9 @@ export default function TodayContent() {
         </div>
       )}
 
-      <div className="pc-readable" style={{ padding: "28px 24px 80px" }}>
+      <div className="pc-readable" style={{ padding: "28px 24px 80px", display: showIntro ? "none" : undefined }}>
         {q && (
           <>
-            {/* トップから説明なしで直接来る人のための一文（1問目だけ） */}
-            {step === 0 && (
-              <p style={{ fontSize: 12, color: "#7A6A5A", lineHeight: 1.8, margin: "0 0 14px" }}>
-                3つの質問に答えると、今日の気持ちが天気になります。
-              </p>
-            )}
             <h1 style={headingStyle}>{q.text}</h1>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
               {q.options.map((opt) => {
