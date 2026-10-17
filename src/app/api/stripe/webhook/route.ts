@@ -3,83 +3,9 @@ import type Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe";
 import { sendEmail } from "@/lib/email";
+import { confirmReservationPaid, escapeHtml, fmtJst } from "@/lib/billing/confirmReservationPaid";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://kinda.jp";
-const COUNSELOR_APP_URL = "https://futarive-counselor.vercel.app";
 const SUPPORT_INBOX = "hello@kinda.jp";
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-function fmtJst(iso: string | null): string {
-  if (!iso) return "日時未定";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "日時未定";
-  return new Intl.DateTimeFormat("ja-JP", {
-    timeZone: "Asia/Tokyo", year: "numeric", month: "long", day: "numeric",
-    weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
-  }).format(d);
-}
-
-type ResvForMail = {
-  id: string;
-  user_email: string | null;
-  user_name: string | null;
-  user_phone: string | null;
-  counselor_name: string | null;
-  agency_name: string | null;
-  agency_id: string | null;
-  start_at: string | null;
-};
-
-/** 決済確定時の通知メール（ユーザー＝確定通知 / 相談所＝新規予約・連絡先開示）。失敗は握りつぶす。 */
-async function sendReservationConfirmedEmails(
-  admin: Awaited<ReturnType<typeof createAdminClient>>,
-  r: ResvForMail,
-): Promise<void> {
-  const dt = fmtJst(r.start_at);
-  const who = [r.agency_name, r.counselor_name].filter((x): x is string => !!x).map(escapeHtml).join(" / ") || "担当カウンセラー";
-
-  // ユーザー宛：予約確定
-  if (r.user_email) {
-    const greeting = r.user_name ? `${escapeHtml(r.user_name)} 様` : "こんにちは";
-    await sendEmail({
-      to: r.user_email,
-      subject: "ご予約が確定しました｜Kinda ふたりへ",
-      html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
-        <p>${greeting}</p>
-        <p>${who} さんとのご予約が確定しました。当日はどうぞ落ち着いてお越しください。</p>
-        <table style="font-size:14px;margin:8px 0;"><tr><td style="color:#8a7;padding-right:12px;">日時</td><td>${escapeHtml(dt)}</td></tr></table>
-        <p style="margin:24px 0;"><a href="${SITE_URL}/mypage" style="display:inline-block;background:#D4A090;color:#fff;text-decoration:none;padding:12px 24px;border-radius:24px;">マイページで確認する</a></p>
-        <p style="font-size:12px;color:#9a9088;">日時の確認・変更・キャンセルはマイページからできます。Kinda ふたりへ</p>
-      </div>`,
-    }).catch(() => {});
-  }
-
-  // 相談所宛：新規予約＋連絡先開示
-  if (r.agency_id) {
-    const { data: ag } = await admin.from("agencies").select("email").eq("id", r.agency_id).maybeSingle();
-    const agencyEmail = (ag as { email: string | null } | null)?.email;
-    if (agencyEmail) {
-      const contactRows = [
-        `<tr><td style="color:#8a7;padding-right:12px;">お名前</td><td>${escapeHtml(r.user_name || "（未入力）")}</td></tr>`,
-        `<tr><td style="color:#8a7;padding-right:12px;">メール</td><td>${escapeHtml(r.user_email || "（未入力）")}</td></tr>`,
-        r.user_phone ? `<tr><td style="color:#8a7;padding-right:12px;">電話</td><td>${escapeHtml(r.user_phone)}</td></tr>` : "",
-        `<tr><td style="color:#8a7;padding-right:12px;">日時</td><td>${escapeHtml(dt)}</td></tr>`,
-      ].join("");
-      await sendEmail({
-        to: agencyEmail,
-        subject: "新しいご予約が入りました｜Kinda",
-        html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
-          <p>新しいご予約が確定し、送客料（¥5,500・税込）の決済が完了しました。お客様の連絡先を開示します。</p>
-          <table style="font-size:14px;margin:8px 0;">${contactRows}</table>
-          <p style="margin:24px 0;"><a href="${COUNSELOR_APP_URL}/reservations" style="display:inline-block;background:#D4A090;color:#fff;text-decoration:none;padding:12px 24px;border-radius:24px;">予約を確認する</a></p>
-          <p style="font-size:12px;color:#9a9088;">Kinda 運営事務局</p>
-        </div>`,
-      }).catch(() => {});
-    }
-  }
-}
 
 /**
  * チャージバック（相談所がカード会社に申し立て）を運営に知らせる。
@@ -102,6 +28,23 @@ async function notifyDispute(
     reservationId = row?.id ?? null;
     agencyName = row?.agency_name ?? null;
   }
+  // 充当のもとになった課金への申し立てなら、まだ使っていない充当を取り消す（契約書 第6条第5項）。
+  // 元の課金は充当に写してある（049）。日程変更で予約が替わっていても課金の ID で見つかる
+  let revokedCredits = 0;
+  if (piId) {
+    const { data: revoked } = await admin
+      .from("agency_credits")
+      .update({
+        status: "revoked",
+        revoked_at: new Date().toISOString(),
+        admin_note: `チャージバック ${dispute.id} により取り消し`,
+        updated_at: new Date().toISOString(),
+      } as never)
+      .eq("source_payment_intent_id", piId)
+      .eq("status", "available")
+      .select("id");
+    revokedCredits = (revoked as { id: string }[] | null)?.length ?? 0;
+  }
   const dueBy = dispute.evidence_details?.due_by
     ? fmtJst(new Date(dispute.evidence_details.due_by * 1000).toISOString())
     : "（Stripe で確認）";
@@ -112,6 +55,7 @@ async function notifyDispute(
     ["理由", dispute.reason],
     ["反論の期限", dueBy],
     ["Stripe の ID", dispute.id],
+    ...(revokedCredits > 0 ? [["取り消した充当", `${revokedCredits} 件（未使用だった分）`]] : []),
   ]
     .map(([k, v]) => `<tr><td style="color:#8a7;padding-right:12px;">${k}</td><td>${escapeHtml(v)}</td></tr>`)
     .join("");
@@ -127,14 +71,58 @@ async function notifyDispute(
   }).catch(() => {});
 }
 
+/**
+ * カードへの返金が失敗した（カードの解約・期限切れなど）。失敗した額は Stripe の残高に戻っている。
+ * 契約書 第6条第5項のとおり、相談所の口座への振込で返す必要がある。
+ */
+async function notifyRefundFailed(
+  admin: Awaited<ReturnType<typeof createAdminClient>>,
+  refund: Stripe.Refund,
+): Promise<void> {
+  const piId = typeof refund.payment_intent === "string" ? refund.payment_intent : refund.payment_intent?.id ?? null;
+  let reservationId: string | null = null;
+  let agencyName: string | null = null;
+  if (piId) {
+    const { data } = await admin
+      .from("reservations")
+      .select("id, agency_name")
+      .eq("stripe_payment_intent_id", piId)
+      .maybeSingle();
+    const row = data as { id: string; agency_name: string | null } | null;
+    reservationId = row?.id ?? null;
+    agencyName = row?.agency_name ?? null;
+  }
+  const rows = [
+    ["予約ID", reservationId ?? "（見つかりません）"],
+    ["相談所", agencyName ?? "—"],
+    ["金額", `¥${refund.amount.toLocaleString("ja-JP")}`],
+    ["失敗の理由", refund.failure_reason ?? "—"],
+    ["Stripe の返金 ID", refund.id],
+  ]
+    .map(([k, v]) => `<tr><td style="color:#8a7;padding-right:12px;">${k}</td><td>${escapeHtml(v)}</td></tr>`)
+    .join("");
+  await sendEmail({
+    to: SUPPORT_INBOX,
+    subject: "【要対応】カードへの返金ができませんでした｜Kinda",
+    html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
+      <p>相談所のカードへの返金が失敗しました。金額は Stripe の残高に戻っています。</p>
+      <table style="font-size:14px;margin:8px 0;">${rows}</table>
+      <p>相談所に名義の銀行口座を聞いて、振込で返してください（振込手数料は Kinda の負担）。手順は docs/ops/billing-and-refunds.md。</p>
+      <p style="font-size:12px;color:#9a9088;">予約には返金済み（refunded_at）が入っていることがあります。振込が済むまで、記録の上では未返金として扱ってください。</p>
+    </div>`,
+  }).catch(() => {});
+}
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
  * Stripe Webhook。
  * - payment_intent.succeeded → 予約を paid_at / user_info_visible=true に更新（相談所に連絡先開示）。
+ *   後始末は充当のときと共通（lib/billing/confirmReservationPaid）。
  * - charge.refunded → 予約を refunded_at に更新。
- * - charge.dispute.created → 運営（hello@kinda.jp）に要対応メール。
+ * - charge.dispute.created → 運営（hello@kinda.jp）に要対応メール。未使用の充当は取り消す。
+ * - refund.failed → 運営に要対応メール（振込で返す）。
  * 署名検証に raw body が必要なので req.text() を使う。service role で更新。
  */
 export async function POST(req: Request) {
@@ -164,34 +152,8 @@ export async function POST(req: Request) {
       const pi = event.data.object as Stripe.PaymentIntent;
       const reservationId = pi.metadata?.reservation_id;
       if (reservationId) {
-        // 先に現状取得（メール二重送信防止のため paid_at の有無を確認）
-        const { data: beforeRow } = await admin
-          .from("reservations")
-          .select("*")
-          .eq("id", reservationId)
-          .maybeSingle();
-        const before = beforeRow as unknown as (ResvForMail & { paid_at: string | null }) | null;
-        const wasAlreadyPaid = !!before?.paid_at;
-
-        await admin
-          .from("reservations")
-          .update({
-            stripe_payment_intent_id: pi.id,
-            paid_at: new Date().toISOString(),
-            user_info_visible: true,
-          } as never)
-          .eq("id", reservationId);
-        // 請求台帳(billing_events)も「確定＋支払い済み」に同期（既に無効化された行は除く）
-        await admin
-          .from("billing_events")
-          .update({ status: "confirmed", paid_at: new Date().toISOString() } as never)
-          .eq("reservation_id", reservationId)
-          .neq("status", "voided");
-
-        // 初回確定時のみ通知メール（イベント再送・重複では送らない）
-        if (before && !wasAlreadyPaid) {
-          await sendReservationConfirmedEmails(admin, before);
-        }
+        // 支払い済みへの更新・連絡先の開示・確定メールは充当のときと共通（lib/billing/confirmReservationPaid）
+        await confirmReservationPaid(admin, reservationId, { kind: "card", paymentIntentId: pi.id });
       }
     } else if (event.type === "charge.refunded") {
       const charge = event.data.object as Stripe.Charge;
@@ -221,6 +183,8 @@ export async function POST(req: Request) {
       }
     } else if (event.type === "charge.dispute.created") {
       await notifyDispute(admin, event.data.object as Stripe.Dispute);
+    } else if (event.type === "refund.failed") {
+      await notifyRefundFailed(admin, event.data.object as Stripe.Refund);
     }
   } catch (err) {
     const e = err as Error;
