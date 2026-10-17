@@ -1,6 +1,6 @@
 // 「会う日の服」v5（人の説明書）型（docs/sns/series/au-hi-no-fuku.md）。1080x1920 の1枚を書き出す。
 //   上に題、左に写真（人のまわりを縦長に切り出す）、右に説明書（項目名＋その人の一言）、下に問いかけ。
-//   写真の上に文字を重ねない。IG の右のボタン（x>960・y>1100）と下のキャプション（y>1600）に入れない。
+//   写真の上に文字を重ねない。説明書の列は x=984 までなので IG の右のボタン（x>985）には入らない。下のキャプション（y>1600）に入れない。
 //   node render-manual.js <写真> <出力.png> '<json>'
 //   json = {"no":"01","style":"90s New York","title":"土曜の昼、2回目のデートに古着で行く人",
 //           "crop":[250,0,900,1180],   // 写真の切り出し（元画像の x0,y0,x1,y1）。人が真ん中に来るように
@@ -8,7 +8,7 @@
 //           "footer":"いくつ当てはまりましたか",   // 説明書の最後に置く問いかけ
 //           "points":[{"crop":[360,240,700,480],"text":"大きめのチェックは/中を細いタートルに"}, …],  // 3つ。写真から服の細部を切り出し、下に一言（12字×2行まで）
 //           "sub":"土曜の昼 2回目のデートに古着で",  // 題の下の小さい場面（題は気持ちで書く）
-//           "palette":[{"hex":"#E9DCC8","name":"cream"}, …],  // 服の色を写真から拾って小さい丸で（4つまで）
+//           "palette":[{"hex":"#E9DCC8","name":"cream"}, …],  // 服の色を写真から拾って小さい丸で（4つまで）。説明書の最後・問いかけの上に並び、名前は丸の下
 //           "accent":"#5B4A2E"}        // 項目名と札の色。服の色から取る
 //   フォントは実行ディレクトリに置く：notoserif300.woff2 / notoserif500.woff2 / cormorant-it300.woff2 / cormorant-it500.woff2
 const {chromium}=require('playwright'); const fs=require('fs'); const path=require('path');
@@ -64,6 +64,10 @@ ${d.hand?`
 h1{font-family:"Klee";font-weight:600;font-size:42px;letter-spacing:.06em}
 .uline{display:block;margin:6px auto 0}
 .sub{margin-top:10px;font-family:"Klee";font-weight:400;font-size:26px;letter-spacing:.08em;color:#6E5E50}
+.cpal{display:flex;gap:22px;margin:4px 0 20px}
+.cpal span{display:flex;flex-direction:column;align-items:center;gap:6px;width:66px}
+.cpal i{display:block;width:40px;height:40px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(60,40,30,.18)}
+.cpal em{font-style:normal;font-family:"Cav",cursive;font-weight:500;font-size:24px;color:#6E5E50;line-height:1}
 .pal{display:flex;justify-content:center;gap:26px;margin-top:20px}
 .pal span{display:flex;align-items:center;gap:9px;font-family:"Cav",cursive;font-weight:500;font-size:27px;color:#6E5E50}
 .pal i{display:inline-block;width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(60,40,30,.18)}
@@ -75,9 +79,9 @@ h1{font-family:"Klee";font-weight:600;font-size:42px;letter-spacing:.06em}
 .photo{transform:rotate(-1.2deg)}
 .note{position:absolute;left:0;right:0;top:${d.noteTop||1800}px;text-align:center;font-size:40px;color:${acc}}
 `:''}</style>
-<div class="head"><div class="kick">someone's manual &nbsp;No.${d.no||'01'} &nbsp;<b>${d.style||''}</b></div><h1>${d.title}</h1>${d.hand?`<svg class="uline" width="620" height="18" viewBox="0 0 620 18"><path d="M4 11 C 80 3, 150 16, 230 9 S 380 3, 460 10 S 570 15, 616 7" fill="none" stroke="${acc}" stroke-width="2.2" stroke-linecap="round" opacity=".7"/></svg>`:''}${d.sub?`<div class="sub">${d.sub}</div>`:''}${d.palette?`<div class="pal">${d.palette.map(c=>`<span><i style="background:${c.hex}"></i>${c.name}</span>`).join('')}</div>`:''}</div>
+<div class="head"><div class="kick">someone's manual &nbsp;No.${d.no||'01'} &nbsp;<b>${d.style||''}</b></div><h1>${d.title}</h1>${d.hand?`<svg class="uline" width="620" height="18" viewBox="0 0 620 18"><path d="M4 11 C 80 3, 150 16, 230 9 S 380 3, 460 10 S 570 15, 616 7" fill="none" stroke="${acc}" stroke-width="2.2" stroke-linecap="round" opacity=".7"/></svg>`:''}${d.sub?`<div class="sub">${d.sub}</div>`:''}</div>
 <div class="photo"><img src="./_photo${path.extname(img)}"></div>
-<div class="col">${d.entries.map(([kk,v])=>`<div class="e"><div class="k">${kk}</div><div class="v">${v.split('/').join('<br>')}</div></div>`).join('')}${d.footer?`<div class="foot">${d.footer}</div>`:''}</div>
+<div class="col">${d.entries.map(([kk,v])=>`<div class="e"><div class="k">${kk}</div><div class="v">${v.split('/').join('<br>')}</div></div>`).join('')}${d.palette?`<div class="cpal">${d.palette.map(c=>`<span><i style="background:${c.hex}"></i><em>${c.name}</em></span>`).join('')}</div>`:''}${d.footer?`<div class="foot">${d.footer}</div>`:''}</div>
 ${d.hand&&d.note?`<div class="note">${d.note}</div>`:''}${pts.length?`<div class="qh">today's <b>point</b></div>`+pts.map(thumb).join(''):''}`;
 fs.writeFileSync('_manual.html',html);
 (async()=>{const b=await chromium.launch();
@@ -86,6 +90,6 @@ await p.goto('file://'+process.cwd()+'/_manual.html');
 await p.evaluate(()=>document.fonts.ready); await p.waitForTimeout(300);
 const r=await p.evaluate(()=>{const c=document.querySelector('.col').getBoundingClientRect();
   const h=document.querySelector('h1').getBoundingClientRect();return {colBottom:c.bottom,h1w:h.width,h1h:h.height};});
-if(r.colBottom>1180){await b.close(); throw new Error('説明書が右のボタンの高さに入る（下端 '+Math.round(r.colBottom)+'）。一言を短く');}
+if(r.colBottom>1260){await b.close(); throw new Error('説明書が右のボタンの高さに入る（下端 '+Math.round(r.colBottom)+'）。一言を短く');}
 if(r.h1h>70){await b.close(); throw new Error('題が2行になった。短くする');}
 await p.screenshot({path:out}); await b.close(); fs.unlinkSync('./_photo'+path.extname(img)); console.log('->',out, r);})();
