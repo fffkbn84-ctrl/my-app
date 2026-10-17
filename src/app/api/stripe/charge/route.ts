@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { stripe, REFERRAL_FEE_JPY } from "@/lib/stripe";
 import { sendEmail } from "@/lib/email";
+import { confirmReservationPaid } from "@/lib/billing/confirmReservationPaid";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,7 +39,7 @@ async function notifyChargeFailure(p: {
     to: SUPPORT_INBOX,
     subject: "【要対応】送客料の課金ができませんでした｜Kinda",
     html: `<div style="font-family:sans-serif;line-height:1.9;color:#2E2620;max-width:560px;">
-      <p>予約は成立していますが、送客料（¥5,500・税込）の課金ができませんでした。相談所への連絡先開示と確定メールは止まっています。</p>
+      <p>予約は成立していますが、送客料（¥5,500・税込）の処理（カードの課金、または充当の利用）が完了しませんでした。相談所への連絡先開示と確定メールが止まっている可能性があります。</p>
       <table style="font-size:14px;margin:8px 0;">${rows}</table>
       <p style="font-size:12px;color:#9a9088;">相談所にカードの登録・更新を依頼し、Stripe で課金できたら webhook で開示されます。</p>
     </div>`,
@@ -51,6 +52,7 @@ async function notifyChargeFailure(p: {
  * - 相談所が Stripe Customer + カード登録済みであることが前提（未登録は 402）。
  * - 二重課金防止：paid_at / stripe_payment_intent_id があればスキップ＋Stripe の idempotency key。
  * - DB の確定更新（paid_at / user_info_visible）は Webhook 側で行う。ここでは PI 作成のみ。
+ * - ただし相談所に未使用の充当があれば課金せず、充当を使ってここで確定する（2026-10-17）。
  */
 export async function POST(req: Request) {
   if (!stripe) {
@@ -121,6 +123,27 @@ export async function POST(req: Request) {
       reason,
       detail,
     });
+
+  // 充当（返金に代えて次の予約1件分に充てる・2026-10-17）。未使用の充当があれば課金せずに1件使う。
+  // 課金しないので Webhook は来ない。支払い済み・連絡先の開示・確定メールはここで起こす（Webhook と同じ関数）。
+  // 充当の確認ができないときは課金しない（充当があるのに課金してしまうのを避ける）。運営に知らせる。
+  const { data: creditId, error: creditErr } = await admin.rpc("consume_agency_credit" as never, {
+    p_agency_id: reservation.agency_id,
+    p_reservation_id: reservation.id,
+  } as never);
+  if (creditErr) {
+    await failure("充当の確認ができませんでした（課金は止めています）", creditErr.message);
+    return NextResponse.json({ ok: false, error: "credit_check_failed" }, { status: 500 });
+  }
+  if (typeof creditId === "string" && creditId) {
+    try {
+      await confirmReservationPaid(admin, reservation.id, { kind: "credit", creditId });
+    } catch (err) {
+      await failure("充当は使いましたが、予約の確定処理に失敗しました", (err as Error).message);
+      return NextResponse.json({ ok: false, error: "credit_confirm_failed" }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true, paidWithCredit: true });
+  }
 
   const customerId = agency?.stripe_customer_id;
   if (!customerId) {
