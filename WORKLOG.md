@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-10-17 Search Console 登録リクエスト候補10件
+
+- 本番で 200・noindex なし・canonical が自分自身なのを確認して出した：
+  1 `columns/weather-windy-day-omiai-yokan` 2 `columns/oya-ni-kekkon-sekasareru` 3 `places/kushiba-yokohama-world-porters`（ここまで 10/15 の残り）
+  4 `/` 5 `/kinda-pair` 6 `/kinda-story` 7 `/kinda-story/atsumi-20s-mayoi` 8 `/kinda-note/quiz`（10/15 の予備）
+  9 `/kinda-note`（10/16 空の手帳の入口・10/17 説明を追加） 10 `/kinda-note/today`（10/16 陽だまり・冷たい風を追加）
+- 予備：`/about`・`/for-counselors`（10/16 に美容の表記・返金の記述を更新）
+- 結果は未受領
+
 ## 2026-10-17 今日の天気の前に Kinda note の説明を出す（PR #101）
 
 - ふうか依頼「今日の天気で質問前に kinda note の説明画面をやはり出したい」。10/3 にトップから today へ直接入る形にしていた
