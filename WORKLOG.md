@@ -5,6 +5,17 @@
 
 ---
 
+## 2026-10-17 今日の天気の前に Kinda note の説明を出す（PR #101）
+
+- ふうか依頼「今日の天気で質問前に kinda note の説明画面をやはり出したい」。10/3 にトップから today へ直接入る形にしていた
+- `/kinda-note` の中身を `kinda-note/components/NoteIntro.tsx` に切り出し、`/kinda-note` と today の両方で使う（見た目は変えていない）
+- 出すのは**この端末に今日の天気の記録がない人だけ**（ふうか決定。毎日来る人に1タップ足さない）。`useSyncExternalStore` で履歴の `route === "daily"` を見る
+  - サーバーでは履歴が読めないので説明を描いておく。毎日来る人には読み込み直後に説明が一瞬見えることがある
+- 1問目の「もどる」は説明へ。1問目の上の一文「3つの質問に答えると…」は説明と重なるので外した
+- PC でじっくり版（`/kinda-note/quiz`）へ行ける導線：`/kinda-note`（と today の説明画面）の下の小さなテキストリンクと、today の結果の下のカード。ヘッダー・フッターからは `/kinda-note` 経由
+
+---
+
 ## 2026-10-16（続き）空の手帳 v1-a・v1-b
 
 - v1-a（PR #98）：`/kinda-note` の「はじめる」の下に「空の手帳を見る」。端末の履歴に `sky_city` があるときだけ。`useSyncExternalStore` で読む（setState-in-effect の lint を避けるため）
