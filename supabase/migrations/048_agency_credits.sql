@@ -1,5 +1,7 @@
 -- 048: 充当（返金に代えて、次の予約の送客料1件分に充てる）
 --
+-- Supabase の SQL Editor に貼るとドル記号が書き換わることがあるため、関数の本文はドル記号を使わず一重引用符で囲む（2026-10-17）
+--
 -- 方針（ふうか確定 2026-10-15 / 10-17）：設計は docs/ops/refund-credit-slide-2026-10.md §4・§7
 -- - 充当は「送客料1件分」で持つ（金額の列は持たない）。期限なし。解約時に未使用分を返金する
 -- - 予約確定のとき、未使用の充当があれば Stripe で課金せず、充当を1件使う（/api/stripe/charge）
@@ -66,7 +68,7 @@ CREATE OR REPLACE FUNCTION public.consume_agency_credit(p_agency_id uuid, p_rese
  LANGUAGE plpgsql
  SECURITY DEFINER
  SET search_path TO 'public'
-AS $function$
+AS '
 DECLARE
   v_id uuid;
 BEGIN
@@ -77,7 +79,7 @@ BEGIN
 
   SELECT id INTO v_id
     FROM agency_credits
-   WHERE agency_id = p_agency_id AND status = 'available'
+   WHERE agency_id = p_agency_id AND status = ''available''
    ORDER BY created_at
    LIMIT 1
    FOR UPDATE SKIP LOCKED;
@@ -87,7 +89,7 @@ BEGIN
 
   BEGIN
     UPDATE agency_credits
-       SET status = 'used', used_reservation_id = p_reservation_id, used_at = now(), updated_at = now()
+       SET status = ''used'', used_reservation_id = p_reservation_id, used_at = now(), updated_at = now()
      WHERE id = v_id;
   EXCEPTION WHEN unique_violation THEN
     -- 同じ予約の別の呼び出しが先に使った
@@ -95,27 +97,27 @@ BEGIN
   END;
   RETURN v_id;
 END;
-$function$;
+';
 
--- ── 充当を作る（運営）。元の予約が充当で確定していたら、お金を払った予約まで遡る ──
+-- ── 充当を作る（運営）。関数の中では current_user が持ち主になるので、呼んだ人は session_user で見る。元の予約が充当で確定していたら、お金を払った予約まで遡る ──
 CREATE OR REPLACE FUNCTION public.grant_agency_credit(p_reservation_id uuid, p_reason text)
  RETURNS uuid
  LANGUAGE plpgsql
  SECURITY DEFINER
  SET search_path TO 'public'
-AS $function$
+AS '
 DECLARE
   v_agency uuid;
   v_source uuid;
   v_id uuid;
 BEGIN
-  IF auth.role() IS DISTINCT FROM 'service_role' AND NOT public.is_admin() AND current_user NOT IN ('postgres', 'supabase_admin') THEN
-    RAISE EXCEPTION 'forbidden';
+  IF auth.role() IS DISTINCT FROM ''service_role'' AND NOT public.is_admin() AND session_user NOT IN (''postgres'', ''supabase_admin'') THEN
+    RAISE EXCEPTION ''forbidden'';
   END IF;
 
   SELECT agency_id INTO v_agency FROM reservations WHERE id = p_reservation_id;
   IF v_agency IS NULL THEN
-    RAISE EXCEPTION 'reservation_not_found_or_no_agency';
+    RAISE EXCEPTION ''reservation_not_found_or_no_agency'';
   END IF;
 
   SELECT source_reservation_id INTO v_source
@@ -127,9 +129,10 @@ BEGIN
   RETURNING id INTO v_id;
   RETURN v_id;
 END;
-$function$;
+';
 
 REVOKE ALL ON FUNCTION public.consume_agency_credit(uuid, uuid) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.consume_agency_credit(uuid, uuid) TO service_role;
-REVOKE ALL ON FUNCTION public.grant_agency_credit(uuid, text) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.grant_agency_credit(uuid, text) TO authenticated, service_role;
+-- 作るのは運営だけ。当面は Claude が SQL で呼ぶ（postgres）。admin 画面を作るときはサーバ（service role）経由にする
+REVOKE ALL ON FUNCTION public.grant_agency_credit(uuid, text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.grant_agency_credit(uuid, text) TO service_role;
