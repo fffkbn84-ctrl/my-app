@@ -41,12 +41,16 @@ const VOID_REASON_LABEL: Record<string, string> = {
   rescheduled: '日程変更で新予約へ移行',
 }
 
+/** 充当（返金に代えて次の予約1件分に充てる・2026-10-17）。読めるのは相談所の持ち主だけ（RLS） */
+type CreditRow = { id: string; status: 'available' | 'used' | 'refunded' | 'revoked'; used_reservation_id: string | null }
+
 const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`
 const fmt = (iso: string | null) =>
   iso ? new Date(iso).toLocaleString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'
 
 export default function BillingPage() {
   const [rows, setRows] = useState<Row[]>([])
+  const [credits, setCredits] = useState<CreditRow[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<BillingStatus | 'all'>('all')
   const [disputeFor, setDisputeFor] = useState<Row | null>(null)
@@ -80,6 +84,12 @@ export default function BillingPage() {
       }))
 
       setRows(mapped)
+
+      // 充当：失敗しても請求履歴の表示は止めない
+      const { data: creditData } = await supabase
+        .from('agency_credits')
+        .select('id, status, used_reservation_id')
+      setCredits((creditData ?? []) as CreditRow[])
       setLoading(false)
     }
     load()
@@ -91,13 +101,21 @@ export default function BillingPage() {
     return c
   }, [rows])
 
+  // 充当で確定した予約。カードへの課金はないので、請求額の合計に入れない
+  const creditReservations = useMemo(
+    () => new Set(credits.filter(c => c.status === 'used' && c.used_reservation_id).map(c => c.used_reservation_id as string)),
+    [credits],
+  )
+  const availableCredits = credits.filter(c => c.status === 'available').length
+
   const totals = useMemo(() => {
-    const confirmed = rows.filter(r => r.status === 'confirmed').reduce((a, r) => a + r.amount_jpy, 0)
-    const paid      = rows.filter(r => r.status === 'confirmed' && r.paid_at).reduce((a, r) => a + r.amount_jpy, 0)
-    const unpaid    = rows.filter(r => r.status === 'confirmed' && !r.paid_at).reduce((a, r) => a + r.amount_jpy, 0)
-    const pending   = rows.filter(r => r.status === 'pending').reduce((a, r) => a + r.amount_jpy, 0)
+    const billed = rows.filter(r => !creditReservations.has(r.reservation_id))
+    const confirmed = billed.filter(r => r.status === 'confirmed').reduce((a, r) => a + r.amount_jpy, 0)
+    const paid      = billed.filter(r => r.status === 'confirmed' && r.paid_at).reduce((a, r) => a + r.amount_jpy, 0)
+    const unpaid    = billed.filter(r => r.status === 'confirmed' && !r.paid_at).reduce((a, r) => a + r.amount_jpy, 0)
+    const pending   = billed.filter(r => r.status === 'pending').reduce((a, r) => a + r.amount_jpy, 0)
     return { confirmed, paid, unpaid, pending }
-  }, [rows])
+  }, [rows, creditReservations])
 
   const filtered = filter === 'all' ? rows : rows.filter(r => r.status === filter)
 
@@ -157,6 +175,18 @@ export default function BillingPage() {
       {/* お支払い方法（クレジットカード登録） */}
       <CardRegistration />
 
+      {availableCredits > 0 && (
+        <div className="kc-card" style={{ padding: '14px 18px', marginBottom: 12, borderLeft: '3px solid var(--accent)' }}>
+          <div style={{ fontSize: 13, color: 'var(--text-deep)', fontWeight: 600 }}>
+            次のご予約に充てる分：{availableCredits}件
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 4, lineHeight: 1.7 }}>
+            次にご予約が確定したとき、カードへの課金の代わりにこちらを使います。期限はありません。
+            使う前にご退会された場合は返金します。
+          </div>
+        </div>
+      )}
+
       <div style={{
         display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: 12, marginBottom: 20,
@@ -190,7 +220,7 @@ export default function BillingPage() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {filtered.map(r => <BillingRow key={r.id} row={r} onDispute={() => { setDisputeFor(r); setDisputeNote('') }} />)}
+          {filtered.map(r => <BillingRow key={r.id} row={r} byCredit={creditReservations.has(r.reservation_id)} onDispute={() => { setDisputeFor(r); setDisputeNote('') }} />)}
         </div>
       )}
 
@@ -225,10 +255,11 @@ function SumCard({ label, value, accent }: { label: string; value: string; accen
   )
 }
 
-function BillingRow({ row, onDispute }: { row: Row; onDispute: () => void }) {
+function BillingRow({ row, byCredit, onDispute }: { row: Row; byCredit: boolean; onDispute: () => void }) {
   const color = STATUS_COLOR[row.status]
-  const canDispute = (row.status === 'pending' || row.status === 'confirmed') && !row.dispute_at
-  const isPaid = row.status === 'confirmed' && !!row.paid_at
+  // 充当で確定した予約は課金していないので、異議の対象にもしない
+  const canDispute = (row.status === 'pending' || row.status === 'confirmed') && !row.dispute_at && !byCredit
+  const isPaid = row.status === 'confirmed' && !!row.paid_at && !byCredit
 
   return (
     <div className="kc-card" style={{ padding: '14px 18px' }}>
@@ -245,7 +276,13 @@ function BillingRow({ row, onDispute }: { row: Row; onDispute: () => void }) {
                 background: '#DCFCE7', color: '#166534',
               }}>✓ 支払い済み</span>
             )}
-            {row.status === 'confirmed' && !row.paid_at && (
+            {byCredit && row.status === 'confirmed' && (
+              <span style={{
+                fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
+                background: 'var(--accent-pale)', color: 'var(--accent-deep)',
+              }}>充当で確定（課金なし）</span>
+            )}
+            {row.status === 'confirmed' && !row.paid_at && !byCredit && (
               <span style={{
                 fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 999,
                 background: '#FEF3E2', color: '#C2410C',
@@ -279,9 +316,12 @@ function BillingRow({ row, onDispute }: { row: Row; onDispute: () => void }) {
         <div style={{ textAlign: 'right', flexShrink: 0 }}>
           <div style={{
             fontFamily: 'DM Sans, sans-serif', fontWeight: 600, fontSize: 18,
-            color: row.status === 'voided' ? 'var(--text-light)' : 'var(--text-deep)',
-            textDecoration: row.status === 'voided' ? 'line-through' : 'none',
+            color: row.status === 'voided' || byCredit ? 'var(--text-light)' : 'var(--text-deep)',
+            textDecoration: row.status === 'voided' || byCredit ? 'line-through' : 'none',
           }}>{yen(row.amount_jpy)}</div>
+          {byCredit && (
+            <div style={{ fontSize: 11, color: 'var(--text-mid)', marginTop: 2 }}>充当1件分を使用</div>
+          )}
           {canDispute && (
             <button onClick={onDispute} className="kc-btn kc-btn-ghost kc-btn-sm" style={{ marginTop: 6 }}>
               異議を申し立てる
