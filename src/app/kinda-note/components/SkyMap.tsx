@@ -98,8 +98,10 @@ export default function SkyMap({
   return (
     <div style={{ marginBottom: 20 }}>
       <style>{`
+        @keyframes sky-light-breathe { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
+        .sky-light-on { animation: sky-light-breathe 2.8s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) {
-          .sky-map, .sky-map * { transition: none !important; }
+          .sky-map, .sky-map * { transition: none !important; animation: none !important; }
         }
       `}</style>
       <div
@@ -266,6 +268,18 @@ export default function SkyMap({
   );
 }
 
+/** 天気の色を暖かい白に寄せて「光の色」にする（夜の天気の濃い色でも影に見えないように） */
+function toLight(hex: string): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return "#FFF3DC";
+  const n = parseInt(m[1], 16);
+  const mix = (c: number, w: number) => Math.round(c * 0.5 + w * 0.5);
+  const r = mix((n >> 16) & 255, 255);
+  const g = mix((n >> 8) & 255, 243);
+  const b = mix(n & 255, 220);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
+}
+
 function MapPin({
   x,
   y,
@@ -283,6 +297,7 @@ function MapPin({
   tabIndex: number;
   onClick: () => void;
 }) {
+  const glow = toLight(color);
   return (
     <button
       onClick={onClick}
@@ -293,8 +308,8 @@ function MapPin({
         position: "absolute",
         left: `${x}%`,
         top: `${y}%`,
-        width: 28,
-        height: 28,
+        width: 40,
+        height: 40,
         transform: "translate(-50%, -50%)",
         background: "none",
         border: "none",
@@ -305,17 +320,27 @@ function MapPin({
         justifyContent: "center",
       }}
     >
+      {/* ダウンライトのように、上から落ちた光が粘土の上に丸くにじむ。光の色はその日の天気の色 */}
+      <span
+        className={active ? "sky-light sky-light-on" : "sky-light"}
+        style={{
+          position: "absolute",
+          inset: active ? -6 : 0,
+          borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(255,248,230,.95) 0%, ${glow}aa 28%, ${glow}44 52%, ${glow}00 72%)`,
+          transition: "inset .25s ease",
+          pointerEvents: "none",
+        }}
+      />
       <span
         style={{
-          width: active ? 15 : 12,
-          height: active ? 15 : 12,
+          position: "relative",
+          width: 5,
+          height: 5,
           borderRadius: "50%",
-          background: color,
-          border: "2px solid #FDFAF7",
-          boxShadow: active
-            ? `0 0 0 3px ${color}55, 0 1px 3px rgba(58,46,38,.3)`
-            : "0 1px 3px rgba(58,46,38,.3)",
-          transition: "width .15s, height .15s",
+          background: "#FFF9EC",
+          boxShadow: "0 0 4px 2px rgba(255,246,222,.9)",
+          pointerEvents: "none",
         }}
       />
     </button>
