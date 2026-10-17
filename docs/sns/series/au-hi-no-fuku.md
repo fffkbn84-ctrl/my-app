@@ -1,10 +1,101 @@
 # 会う日の服（IG リール・2026-10-11 ふうか決裁／2026-10-17 v4 に改定）
 
 > 入口は `CLAUDE.md` §7-b。既定の絵柄（単色＋クレイ1つ）から外れる例外の型。
-> **v4（2026-10-17〜）が正。** 下の「v3 までの記録」は経緯として残す。
-> v3 の書き出しは `docs/sns/tools/ig-carousel/render-coord.js` ＋ `build_reel.py one10`。v4 の版面スクリプトは #2 の画像が来てから作る。
+> **v5「人の説明書」（2026-10-17 夜〜）が正。** v4 は1本目の画像で不採用。v3 までは経緯として残す。
+> 書き出しは `docs/sns/tools/ig-carousel/render-manual.js` ＋ `build_reel.py one10`。
 
-## v4 の型（2026-10-17 ふうか合意）
+## v5 の型：人の説明書（2026-10-17 ふうか決裁）
+
+**街にいる1人を写真で描き、その人の「説明書」を横に書く。** 服の説明ではなく、その人の人生と性格を描く。
+A型説明書や MBTI と同じで「これ私だ」を探して、いくつ当てはまったかをコメントしてもらう。
+
+### v4 をやめた理由（ふうかさん 10/17）
+
+- v4（あごから下・スタジオ・モカとアイボリーのお見合い服）は、**「婚活の服＝無難」をそのまま絵にしていた**
+- あそこまで写すなら顔を出すか、横を向かせるほうがいい。マネキンより**人生を描くほうが面白い**
+- **婚活っぽくない服を載せる**。「こんな服で会いに行っていいんだ」と思った人が、どこにも属さない Kinda だけの見込み客になる
+
+### 決まっていること
+
+1. **街のスナップ写真。顔は出してよい。ただし横顔か目線を外す**（カメラを見ない）。登場人物は架空の人。AI 生成の開示を付ける
+2. **ジャンルは韓国系と90年代アメリカ系**（フレンズのレイチェルやモニカのような）。どちらも IG と Pinterest に好きな人が多い
+3. **お見合いの回は作らない。** お見合いは相談所が服装を指導している場で、Kinda の取引先は相談所。場面は「2回目のデート」「土曜の昼」などデートから
+4. **説明書は性格を書く**：好きな人には／友達とは／休日は／LINEは／今日の服。1項目18字まで。
+   相手は「好きな人」「相手」と書き、**「彼氏」「彼」と書かない**（見る人の相手の性別を決めない）。下に見る書き方・からかう書き方をしない
+5. 最後は「いくつ当てはまりましたか」。見る数字は**コメント（数字）・保存・送信**
+6. 参考アカウントと被らないための線（下の v4 の節）は v5 でも同じ
+
+### 版面（1080×1920・1枚・10秒・ズームなし）
+
+- 上：`someone's manual No.01 90s New York`（Cormorant イタリック）→ 題（Noto Serif JP 300・40px・1行）
+- 左：写真（人のまわりを縦長に切り出す・幅540）。右：説明書（項目名は服の色・一言は 27px・`/` で改行位置を決める）
+- 写真の下：「いくつ当てはまりましたか」
+- 説明書は y=1150 より上（IG の右のボタン）、全体は y=1500 より上（キャプション）。スクリプトが超えたら止まる
+
+### 画像プロンプトの形（ChatGPT・2:3 縦）
+
+No.01 で使ったもの。**人・服・街だけ差し替える。** 「横を向く」「下の35%は何もない歩道」は変えない。
+
+```
+A candid street-style photograph, shot on 35mm film look, natural daylight.
+A Japanese woman in her late 20s walks along a quiet city street on a
+Saturday afternoon, past an old café and a vintage clothing shop. She is
+glancing sideways, smiling slightly at something off camera; her face is
+turned three-quarters away from the camera, not looking at the lens.
+
+Her outfit is 1990s New York inspired, like a stylish sitcom character from
+that era: a fitted cream ribbed turtleneck tucked into high-waisted
+light-wash straight jeans, a slim brown leather belt, an oversized brown
+and green plaid blazer, brown penny loafers with white socks, a small
+brown leather shoulder bag. Hair loosely half-up with a tortoiseshell claw
+clip. Effortless, a little playful, clearly fashionable.
+
+The woman is in the upper and middle part of the frame, full body visible.
+The lower 35 percent of the image is a soft, out-of-focus sidewalk with
+nothing important in it.
+
+No text, no letters, no signs with readable words, no logos, no brand marks.
+```
+
+### No.01 土曜の昼、2回目のデートに古着で行く人（90s New York）
+
+原本は `docs/sns/assets/au-hi-no-fuku/manual-01-90s-ny.png`。
+
+```bash
+NODE_PATH=$(npm root -g) node render-manual.js src.png f1.png '{"no":"01","style":"90s New York","title":"土曜の昼、2回目のデートに古着で行く人","crop":[230,20,860,1180],"accent":"#5B4A2E","footer":"いくつ当てはまりましたか","entries":[["好きな人には","好きなものの話になると/早口になる"],["友達とは","予定を決めないで/集まりたい"],["休日は","古着屋を2軒回ってから/喫茶店"],["LINEは","スタンプより/短い文で返す"],["今日の服","張り切って見えない本気"]]}'
+python3 build_reel.py one10 out.mp4
+```
+
+キャプション：
+
+```
+土曜の昼。2回目のデートに古着で行く人の説明書です。
+
+好きなものの話になると早口になる。
+予定は決めないで集まりたい。
+いくつ当てはまりましたか。数字だけコメントに置いていってください。
+
+今日の服
+チェックのジャケットは大きめを選びます。中を細いタートルにすると着られている感じになりません
+デニムはまっすぐの形を少し長めに。ローファーに白い靴下で90年代らしく
+バッグは小さめの革を肩に。2回目は荷物が少ないほうが歩くのが楽です
+
+someone's manual No.01 / 90s New York
+画像はAIで生成しています
+
+#デートコーデ #2回目デート #古着コーデ #90年代ファッション #婚活
+```
+
+### 次の候補
+
+- No.02 韓国系（例：平日の夜、仕事帰りに1回目のデートに行く人）
+- No.03 90年代（モニカ寄りのきれいめ）
+- ふたりのリンクコーデ（ふたりの説明書。組み合わせは男女に固定しない）
+
+---
+
+## v4（2026-10-17 昼・不採用）
+
 
 **1回に1コーデ。1人が全身で着ていて、その服の「説明書」を横に書く。** 会う回数の順にシリーズで出す。
 

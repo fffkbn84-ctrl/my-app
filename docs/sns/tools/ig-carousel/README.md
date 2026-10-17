@@ -156,3 +156,7 @@ NODE_PATH=$(npm root -g) node render-story.js body none  hl1-02.png '["行1","�
 連載は `render-series.js` の `L` テーブル。どちらも**1行の上限は文字サイズで決まる**：
 54px なら13字、44px なら16字、62px なら10字（グリッドの 3:4 クロップ幅 1012px に収まる範囲）。
 文節で折る。助詞の途中では折らない。
+
+## render-manual.js（会う日の服 v5「人の説明書」・2026-10-17）
+
+使い方は `docs/sns/series/au-hi-no-fuku.md` の No.01。フォントは `@fontsource/noto-serif-jp`（japanese-300/500-normal）と `@fontsource/cormorant-garamond`（latin-300/500-italic）を `npm pack` で取って作業フォルダに置く。
