@@ -1,7 +1,106 @@
-# 会う日の服（IG リール・2026-10-11 ふうか決裁）
+# 会う日の服（IG リール・2026-10-11 ふうか決裁／2026-10-17 v4 に改定）
 
 > 入口は `CLAUDE.md` §7-b。既定の絵柄（単色＋クレイ1つ）から外れる例外の型。
-> 書き出しは `docs/sns/tools/ig-carousel/render-coord.js` ＋ `build_reel.py one10`。
+> **v4（2026-10-17〜）が正。** 下の「v3 までの記録」は経緯として残す。
+> v3 の書き出しは `docs/sns/tools/ig-carousel/render-coord.js` ＋ `build_reel.py one10`。v4 の版面スクリプトは #2 の画像が来てから作る。
+
+## v4 の型（2026-10-17 ふうか合意）
+
+**1回に1コーデ。1人が全身で着ていて、その服の「説明書」を横に書く。** 会う回数の順にシリーズで出す。
+
+### なぜ変えたか
+
+参考アカウント @aya_casual_note（`reviews/2026-10-17-benchmark-aya-casual-note.md`）を見て決めた。
+
+- 6着並べ（v3）は実用をキャプションに逃がしていた。リールのキャプションはほぼ読まれない。**画像の中に実用を入れる**
+- 人が着ているほうが自分を重ねられる
+- **「説明書」は強いキーワード**（A型説明書・MBTI）。ぎっしりが面白いのも「これ私だ」を探す遊びだから。服でも同じことをする
+- 「婚活の服は無難」というイメージを外す。**ちゃんとおしゃれ**であることは v3 と同じく外さない
+
+### シリーズの順番（同じ版面で10本続けてから判断する）
+
+1. お見合いの日
+2. 1回目のデート
+3. 2回目のデート（v3 の #1 と同じ場面。v4 で作り直す）
+4. 3回目、帰りに少し遠回りしたい日
+5. ふたりのリンクコーデ（間に挟む。組み合わせは男女に固定しないで回す）
+
+「婚活服」とは言わない。題は場面で書く。「勝負服」「モテ」「目を惹く」も使わない（人からどう見られるかを軸にしない）。
+
+### 版面（1080×1920・1枚・10秒）
+
+```
+┌────────────────────────┐
+│ 題「お見合いの日の服」         │
+│ 場面「土曜14時 ホテルのラウンジ」│
+├───────────┬────────────┤
+│           │ COLOR        │
+│  人が着た  │ TOPS  心の声  │
+│  全身      │       実用1行 │
+│ （顔は写さ │ SKIRT …      │
+│   ない）   │ SHOES …      │
+│           │ BAG …        │
+├───────────┴────────────┤
+│ アイテム5つの小さな写真の列     │
+│ 保存して、当日の朝に見返してね   │
+└────────────────────────┘
+```
+
+- **人は左半分。右半分は無地で空けて生成させ、文字は後から入れる**（画像に文字を描かせない）
+- **顔は写さない**（あごから下か、帽子や角度で隠す）。見る人が自分を重ねやすく、実在の人にも見えない
+- 右の説明書：見出しは英字（Cormorant Garamond イタリック）、**心の声**（Noto Serif JP 300・12字まで・体言止め・読点なし）、**実用1行**（小さめ・2文まで）
+- 下に「保存して…」の一言。見る数字は**保存と送信**
+- 色は v3 と同じく **1回に2色**。題の上に色の名前を入れる
+
+### #2 お見合いの日（2026-10-17 案）
+
+- 題：お見合いの日の服 ／ 場面：土曜14時 ホテルのラウンジ
+- 色：**Mocha & Ivory**
+- ※ ぎっしり#4（10/14）もホテルのラウンジ。同じ週に出さない（10/21 以降）
+
+| 見出し | 心の声 | 実用1行 |
+|---|---|---|
+| COLOR | 甘すぎない白 | 明るい色は顔のそばに置きます。茶色を下にすると甘くなりすぎません |
+| TOPS | ちゃんと見せたい襟元 | パールボタンの薄手ニットです。ホテルの照明でも顔が明るく見えます |
+| SKIRT | 座っても気にならない丈 | ラウンジのソファは低めです。ひざが隠れる丈なら座っても気になりません |
+| SHOES | 歩幅を気にしない高さ | ヒールは5センチまでで大丈夫です。ホテルの床でも音が響きにくいです |
+| BAG | 膝にのる小さな安心 | 自立する小さめのバッグです。ソファの横にも膝の上にも置けます |
+
+#### 画像プロンプト（ChatGPT・2:3 縦）
+
+```
+A clean, stylish fashion lookbook image. Realistic photography, true-to-life
+fabric texture. Soft even studio lighting with gentle shadows. Seamless warm
+off-white background (#F3EEE8).
+
+Layout (important):
+- One woman stands in the LEFT HALF of the image, full body from the chin
+  down to the shoes. Her face is NOT shown: the image is cropped at the chin.
+  Relaxed, natural pose, one hand lightly holding the bag.
+- The RIGHT HALF of the image is completely empty plain background (text will
+  be added there later). Nothing in the right half.
+- Along the BOTTOM of the image, a single neat row of five small separate
+  product photos on the same background: the knit top, the skirt, the shoes,
+  the bag, the earrings. Leave a thin empty strip below the row.
+- Leave an empty strip at the very top, about 12 percent of the height.
+
+Outfit, color story mocha brown and ivory, elegant and quietly fashionable,
+not plain, not overly sweet:
+- An ivory short-sleeve fine-gauge knit top with small pearl buttons and a
+  neat round neckline, tucked in.
+- A mocha brown softly pleated satin-sheen midi skirt that covers the knees.
+- Mocha suede slingback pumps with a 5 cm heel.
+- A small structured ivory leather top-handle bag that can stand on its own.
+- Small pearl stud earrings.
+- An ivory light cardigan draped over the shoulders.
+
+No text, no letters, no labels, no logos, no brand marks, no face, no
+mannequin, no hangers.
+```
+
+---
+
+# v3 までの記録（2026-10-11〜10-13）
 
 ## 何をする型か
 
