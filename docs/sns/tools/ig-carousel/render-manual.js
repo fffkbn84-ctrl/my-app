@@ -7,6 +7,8 @@
 //           "entries":[["好きな人には","好きなものの話になると/早口になる"], …],  // 5つまで。一言は18字まで。/ で改行（言葉の途中で折れないように）
 //           "footer":"いくつ当てはまりましたか",   // 説明書の最後に置く問いかけ
 //           "points":[{"crop":[360,240,700,480],"text":"大きめのチェックは/中を細いタートルに"}, …],  // 3つ。写真から服の細部を切り出し、下に一言（12字×2行まで）
+//           "sub":"土曜の昼 2回目のデートに古着で",  // 題の下の小さい場面（題は気持ちで書く）
+//           "palette":[{"hex":"#E9DCC8","name":"cream"}, …],  // 服の色を写真から拾って小さい丸で（4つまで）
 //           "accent":"#5B4A2E"}        // 項目名と札の色。服の色から取る
 //   フォントは実行ディレクトリに置く：notoserif300.woff2 / notoserif500.woff2 / cormorant-it300.woff2 / cormorant-it500.woff2
 const {chromium}=require('playwright'); const fs=require('fs'); const path=require('path');
@@ -41,8 +43,8 @@ body{width:1080px;height:1920px;position:relative;overflow:hidden;background:${d
 h1{margin:14px 0 0;font-weight:300;font-size:40px;letter-spacing:.1em}
 .photo{position:absolute;left:${PL}px;top:${PT}px;width:${PW}px;height:${PH}px;overflow:hidden;border-radius:6px}
 .photo img{position:absolute;left:${-Math.round(x0*k)}px;top:${-Math.round(y0*k)}px;width:${Math.round(d.iw*k)}px}
-.col{position:absolute;left:${PL+PW+34}px;width:${1080-(PL+PW+34)-96}px;top:${PT+20}px}
-.e{margin-bottom:24px}
+.col{position:absolute;left:${PL+PW+34}px;width:${1080-(PL+PW+34)-96}px;top:${d.colTop||PT+20}px}
+.e{margin-bottom:${d.gap||24}px}
 .e .k{font-weight:500;font-size:22px;letter-spacing:.12em;color:${acc}}
 .e .k:before{content:"";display:inline-block;width:18px;height:1px;background:${acc};vertical-align:.35em;margin-right:10px}
 .e .v{word-break:keep-all;margin-top:8px;font-weight:300;font-size:27px;line-height:1.48;letter-spacing:.04em}
@@ -61,6 +63,11 @@ ${d.hand?`
 .kick{font-size:38px!important}.kick b{font-weight:500}.qh{font-size:42px!important}
 h1{font-family:"Klee";font-weight:600;font-size:42px;letter-spacing:.06em}
 .uline{display:block;margin:6px auto 0}
+.sub{margin-top:10px;font-family:"Klee";font-weight:400;font-size:26px;letter-spacing:.08em;color:#6E5E50}
+.pal{display:flex;justify-content:center;gap:26px;margin-top:20px}
+.pal span{display:flex;align-items:center;gap:9px;font-family:"Cav",cursive;font-weight:500;font-size:27px;color:#6E5E50}
+.pal i{display:inline-block;width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(60,40,30,.18)}
+
 .e .v,.tx,.foot{font-family:"Klee";font-weight:600;letter-spacing:.02em}
 .e .v{font-size:28px}.tx{font-size:25px}.foot{font-size:30px}
 .e .k{font-family:"Klee";font-weight:400}
@@ -68,7 +75,7 @@ h1{font-family:"Klee";font-weight:600;font-size:42px;letter-spacing:.06em}
 .photo{transform:rotate(-1.2deg)}
 .note{position:absolute;left:0;right:0;top:${d.noteTop||1800}px;text-align:center;font-size:40px;color:${acc}}
 `:''}</style>
-<div class="head"><div class="kick">someone's manual &nbsp;No.${d.no||'01'} &nbsp;<b>${d.style||''}</b></div><h1>${d.title}</h1>${d.hand?`<svg class="uline" width="620" height="18" viewBox="0 0 620 18"><path d="M4 11 C 80 3, 150 16, 230 9 S 380 3, 460 10 S 570 15, 616 7" fill="none" stroke="${acc}" stroke-width="2.2" stroke-linecap="round" opacity=".7"/></svg>`:''}</div>
+<div class="head"><div class="kick">someone's manual &nbsp;No.${d.no||'01'} &nbsp;<b>${d.style||''}</b></div><h1>${d.title}</h1>${d.hand?`<svg class="uline" width="620" height="18" viewBox="0 0 620 18"><path d="M4 11 C 80 3, 150 16, 230 9 S 380 3, 460 10 S 570 15, 616 7" fill="none" stroke="${acc}" stroke-width="2.2" stroke-linecap="round" opacity=".7"/></svg>`:''}${d.sub?`<div class="sub">${d.sub}</div>`:''}${d.palette?`<div class="pal">${d.palette.map(c=>`<span><i style="background:${c.hex}"></i>${c.name}</span>`).join('')}</div>`:''}</div>
 <div class="photo"><img src="./_photo${path.extname(img)}"></div>
 <div class="col">${d.entries.map(([kk,v])=>`<div class="e"><div class="k">${kk}</div><div class="v">${v.split('/').join('<br>')}</div></div>`).join('')}${d.footer?`<div class="foot">${d.footer}</div>`:''}</div>
 ${d.hand&&d.note?`<div class="note">${d.note}</div>`:''}${pts.length?`<div class="qh">today's <b>point</b></div>`+pts.map(thumb).join(''):''}`;

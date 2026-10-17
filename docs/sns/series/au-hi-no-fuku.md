@@ -28,6 +28,9 @@ A型説明書や MBTI と同じで「これ私だ」を探して、いくつ当�
 ### 版面（1080×1920・1枚・10秒・ズームなし）
 
 - **手書き風が正**（`"hand":true`。2026-10-17 ふうか「手書きのほうが読みやすい」）。一言とポイントは Klee One 600、英字は Caveat 500、題の下に手描きの波線、写真は少し傾ける、一番下に `save it for your next date`。明朝だけの版は「書きかけでやめたように見える」でやめた
+- **題は「その服を選んだ気持ち」で書く**（ふうか 10/17「2回目のデートに古着で行くからなんなのか」）。場面は題の下の小さい副題（`sub`）に下げる。
+  No.01 は初案「土曜の昼、2回目のデートに古着で行く人」→「いつもの私を好きになってほしい日」
+- **カラーチャート**：題の下に服の色を小さい丸で4つ（`palette`）。色は写真から拾い、名前は英字の手書き
 - フォントは `@fontsource/klee-one`（japanese-400/600）・`@fontsource/caveat`（latin-500）を足して作業フォルダに `klee400/klee600/caveat500.woff2` で置く
 
 - 上：`someone's manual No.01 90s New York`（Cormorant イタリック）→ 題（Noto Serif JP 300・40px・1行）
@@ -62,19 +65,20 @@ nothing important in it.
 No text, no letters, no signs with readable words, no logos, no brand marks.
 ```
 
-### No.01 土曜の昼、2回目のデートに古着で行く人（90s New York）
+### No.01 いつもの私を好きになってほしい日（90s New York）
 
 原本は `docs/sns/assets/au-hi-no-fuku/manual-01-90s-ny.png`。
 
 ```bash
-NODE_PATH=$(npm root -g) node render-manual.js src.png f1.png '{"hand":true,"headTop":170,"pt":400,"note":"save it for your next date","noteTop":1800,"no":"01","style":"90s New York","title":"土曜の昼、2回目のデートに古着で行く人","crop":[230,20,860,1120],"accent":"#5B4A2E","footer":"いくつ当てはまりましたか","entries":[["好きな人には","好きなものの話になると/早口になる"],["友達とは","予定を決めないで/集まりたい"],["休日は","古着屋を2軒回ってから/喫茶店"],["LINEは","スタンプより/短い文で返す"],["今日の服","張り切って見えない本気"]],"points":[{"crop":[360,240,700,480],"text":"大きめのチェックは/中を細いタートルに"},{"crop":[400,430,660,610],"text":"茶色のベルトで/腰の位置を高く"},{"crop":[450,930,650,1115],"text":"ローファーに白い靴下/これだけで90年代"}]}'
+NODE_PATH=$(npm root -g) node render-manual.js src.png f1.png '{"hand":true,"headTop":150,"pt":450,"colTop":445,"gap":18,"no":"01","style":"90s New York","title":"いつもの私を好きになってほしい日","sub":"土曜の昼 2回目のデートに古着で","palette":[{"hex":"#E9DCC8","name":"cream"},{"hex":"#8FA3BE","name":"denim"},{"hex":"#4E5238","name":"forest"},{"hex":"#5A3426","name":"cocoa"}],"crop":[230,20,860,1100],"accent":"#5B4A2E","footer":"いくつ当てはまりましたか","note":"save it for your next date","noteTop":1815,"entries":[["好きな人には","好きなものの話になると/早口になる"],["友達とは","予定を決めないで/集まりたい"],["休日は","古着屋を2軒回ってから/喫茶店"],["LINEは","スタンプより/短い文で返す"],["今日の服","張り切って見えない本気"]],"points":[{"crop":[360,240,700,480],"text":"大きめのチェックは/中を細いタートルに"},{"crop":[400,430,660,610],"text":"茶色のベルトで/腰の位置を高く"},{"crop":[450,930,650,1115],"text":"ローファーに白い靴下/これだけで90年代"}]}'
 python3 build_reel.py one10 out.mp4
 ```
 
 キャプション：
 
 ```
-土曜の昼。2回目のデートに古着で行く人の説明書です。
+いつもの私を好きになってほしい。
+そんな気持ちで、2回目のデートに古着を選んだ人の説明書です。
 
 好きなものの話になると早口になる。
 予定は決めないで集まりたい。
