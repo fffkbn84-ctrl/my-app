@@ -101,6 +101,7 @@
    「【要対応】チャージバック（支払いへの異議）が届きました」が届く（予約ID・金額・理由・反論の期限・Stripe へのリンク）。
    **2026-10-15 に本番 Webhook（`we_1UQ3Y2ApDnL2Iw4scZUGtxC6`）へ `charge.dispute.created` を追加済み**（Claude が Stripe API で）。
    受け取るのは `payment_intent.succeeded`・`charge.refunded`・`charge.dispute.created` の3つ。署名シークレットは変わっていない。
+   **2026-10-17 に `refund.failed` を追加**（4つ目。カードへの返金の失敗を知らせる。Claude が Stripe API で追加・読み直して確認）。
 6. ~~返金の代わりに「次の1件を無料」にするクレジット方式は検討のみ~~ → **2026-10-16 に規約へ入れた**（充当・期限なし）。**2026-10-17 に仕組みを作った**（§2「充当するときの手順」）。充当を作る画面は admin に無い（件数が増えるまで Claude が SQL で作る）。
 
 ## 5. Claude に頼めること

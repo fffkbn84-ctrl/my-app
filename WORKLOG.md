@@ -16,6 +16,21 @@
 
 ---
 
+## 2026-10-17 充当の仕組み（PR #104・#105）
+
+- DB：migration 048（`agency_credits`・`consume_agency_credit`・`grant_agency_credit`・RLS）と 049（元の課金 `source_payment_intent_id` を写す）。本番はふうかが SQL Editor で実行
+  - **Supabase MCP の DDL が通らない**：読み取りは返るが、1列だけの表を作るのも60秒で止まる（ロック待ちなし・確認画面も出ない）。DDL はふうかに SQL Editor で頼むことになる
+  - **SQL Editor に貼るとドル記号が `\$` に書き換わり、末尾に `$0` が付いた** → 関数の本文はドル記号を使わず一重引用符で囲む
+  - **SQL Editor の「Run and enable RLS」は押さない**：関数の `SELECT ... INTO v_id` を「表を作る」と読み違え、存在しない表 v_id に RLS をかける行を足して失敗する。SQL に RLS を書いてあれば「Run without RLS」
+  - 権限の穴：SECURITY DEFINER の中の `current_user` は関数の持ち主になる。呼んだ人は `session_user` で見る（ローカルの Postgres 16 で発見・修正）
+  - 日程変更（039）で Stripe の参照は新しい予約へ移る。予約だけで元の課金を辿ると外れるので、充当に PaymentIntent を写した（049）
+- コード：確定の後始末（支払い済み・連絡先の開示・台帳・確定メール）を `lib/billing/confirmReservationPaid.ts` に切り出し、Webhook と充当の両方から呼ぶ。
+  `paid_at` が空のときだけ更新するので、同時に2回呼ばれてもメールは1回。charge は充当の確認でエラーなら課金しない
+- webhook：チャージバックで未使用の充当を取り消す／`refund.failed` で運営に要対応メール。Stripe の本番 Webhook に `refund.failed` を追加（4イベント）
+- counselor /billing：「次のご予約に充てる分：N件」・充当で確定した予約は「課金なし」で合計から外す・異議の対象外
+- 確認：Supabase・Stripe・メールを偽物に差し替えて本物の charge／webhook を動かす使い捨てのテスト（17項目）。本物での通しは1件目の充当で
+- 退会の受け方（ふうか確認）：counselor 画面に退会ボタンは無く、問い合わせで受ける。契約書 第13条（通知から30日で効力）と合っている
+
 ## 2026-10-16（続き）空の手帳 v1-a・v1-b
 
 - v1-a（PR #98）：`/kinda-note` の「はじめる」の下に「空の手帳を見る」。端末の履歴に `sky_city` があるときだけ。`useSyncExternalStore` で読む（setState-in-effect の lint を避けるため）
