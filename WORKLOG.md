@@ -5,6 +5,12 @@
 
 ---
 
+## 2026-10-18 Kinda act 取材ログ（Notion）の分担を画面で見えるように
+
+- 店のページの項目を「ふうかさんが書く（最初に／文章／1タップ）」→「Claude が埋める」の4区切りにした
+- Default view を「全項目（左＝ふうか／右＝Claude）」に改名し列を並べ替え。ビュー「Claude 記入（公式から）」を追加
+- `徒歩分数` の説明文を分担表どおり（Claude が入れる）に修正。正は `docs/guides/kinda-act-log.md`「Notion での見え方」
+
 ## 2026-10-18 営業文面の URL・/about 04・空の手帳の今後
 
 - 営業文面：本文に URL を置かず「画面をお見せしながら説明」にする案を `docs/sales/kinda-form-outreach-v1.md` に追記（未確定のまま）
