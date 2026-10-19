@@ -26,6 +26,11 @@
 
 > **`docs/handoff/2026-10-18-next-session.md` を読んで、上から1つずつ進める。** 一気にはやらない。
 
+0. [ ] 🔴 **相談所への声がけを始める（10/19 ふうか決定）。その前にこれだけ：Supabase のメールを Kinda 名義・日本語にする**（専用 URL を送ると、いまは Supabase の英語メールが届く）。手順と文面は `docs/ops/supabase-auth-email.md`。費用なし
+      1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings
+      2. Email Templates（Reset Password／Confirm signup／Change Email Address）に日本語の件名・本文
+      3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
+0-b. [ ] 🔴 **小山楓華さんの予約枠を11月末まで足す**（10/19 時点で最後の枠が 10/31。相談所の人は必ずサイトを触る）。counselor 管理画面のカレンダーから
 1. [x] お知らせ登録を場所（source）ごとに保存（10/16 PR #95 マージ・本番 DB の一意制約も張り替え済み・本番で invalid_source を確認）。あわせて「美容」の記述3か所を外した（ふうか決裁）
 2. [x] 返金 → 次の予約に充当、の規約書き換え（10/16）。main は PR `claude/refund-credit`、counselor は PR `claude/counselor-refund-credit`（FAQ ページ `/faq` 新設込み）。「前払い」の語も外した。調べは `docs/research/2026-10-16-prepay-privacy-credit.md`
 2-b. [x] 充当の仕組み（10/17 PR #104・#105 マージ）。DB は migration 048・049（ふうかが SQL Editor で実行）。Stripe の本番 Webhook に `refund.failed` を追加。
@@ -45,15 +50,14 @@
 
 ### お金・契約（1社目の契約より前に）
 
-- [ ] **Supabase のメールを Kinda 名義・日本語にする**（1社目に招待リンクを送る前に）。手順と文面は `docs/ops/supabase-auth-email.md`。費用なし
-      1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings
-      2. Email Templates（Reset Password／Confirm signup／Change Email Address）に日本語の件名・本文
-      3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
 - [x] **Stripe の Webhook に `charge.dispute.created` を追加**（10/15 Claude が Stripe API で追加・読み直して3イベントを確認）。届くかは本物のチャージバックが来るまで確かめられない
 - [ ] **相談所への領収書・適格請求書**：AGOGLIFE の適格請求書発行事業者の登録有無 → Stripe の領収書メールで足りるか決める（`docs/ops/refund-loss-research-2026-10.md`）
 - [ ] **退会・解約後の個人情報の書き足し**（10/16 調べ・未着手）：①法令で保存する記録（課金・返金は7年）②充当の返金が終わるまで保持する情報 ③相談所が解約したとき受け取った利用者の連絡先の扱い。足すか決める。詳細 `docs/research/2026-10-16-prepay-privacy-credit.md` §2
 - [ ] 返金の充当：**対象を広げるか**（無断不参加など。いまは「やむを得ない事情で運営が認めたとき」だけで書く）
 - [ ] 弁護士・税理士に1回確認（期限なしの充当が前払式支払手段に当たるか・充当時の帳簿とインボイス）。規約の書き換え後に
+- [ ] **解約の30日を相談所側だけ短くする案**（10/19 ふうか問い・Claude 案）。契約書 第13条はいま甲乙とも「通知から30日後」。
+      法律で30日が要るわけではない（事業者どうしの契約で、決めた内容が優先）。案：**相談所からの解約は、通知の時点で新しい予約の受付を止め、確定済みの面談が終わった時点で効力**。Kinda からの解約は30日のまま（相談所を守る側）。
+      課金は予約確定の時点なので、30日待たせても Kinda の取り分は増えない。/for-counselors の FAQ「ご連絡いただければ掲載を停止します」はこの案と合う。弁護士に1回見せるときに一緒に聞く
 - [ ] **根拠のないチャージバックの費用を相談所の負担にする条項**（10/17 ふうか案）。弁護士に1回見せるときに一緒に聞く。
       - ふうかの意図：申し立てを受けた時点で Stripe から引かれる手数料 ¥1,500 を、**あとから相談所に払ってもらう**（Stripe からの引き落とし自体は止められないので止めない）
       - **Stripe の決まり（10/17 Claude 調べ・済）**：公開の規約（Stripe サービス契約・決済の規約）とドキュメントには、加盟店が自分の顧客に申し立ての費用を請求することを禁じる条文は見つからなかった。
@@ -65,6 +69,7 @@
 - [ ] **商標**：J-PlatPat で「Kinda」45類・35類の先行調査 → 出願判断（3区分で実費 約12.8万円。Claude は手続きしない）
 - [ ] **東京都へ開設のお知らせ**：都は生活文化局 地域活動推進課 03-5320-4236。区は江戸川区（産業経済部 経営支援課）から
 - [ ] `hello@kinda.jp` 名義で**返信**する手段（受信は済み）。案A Google Workspace／案B ImprovMX 有料＋Gmail の別アドレス送信／案C Resend（手書き返信には不向き）。
+      **10/19 ふうか方針**：案A（Google Workspace）にする。無料期間を活かすため、**相談所から返信が必要になった時点で設定する**（有料化の前に料金を確認・§7-10）
       フォーム営業の間は不要。メール営業に広げる段で決める（料金は契約前に確認・CLAUDE.md §7-10）
 
 ### 営業・相談所まわり
