@@ -149,7 +149,7 @@
 - [ ] **既存ページの読点を少しずつ直す**（触ったついでに。一斉にはやらない）。多い順：`soudanjo-to-konkatsu-app-chigai` 1.55／`kekkon-soudanjo-ryokin-no-mikata` 1.49／`omiai-shodate-fukuso` 1.48／
       `kekkon-soudanjo-kuchikomi-no-mikata` 1.43／`date-plan-by-stage` 1.42／`counselor-de-erabu-soudanjo` 1.39／`weather-sun-break-omiai-tegotae` 1.38／`counselor-tantou-henkou` 1.34
 - [x] **X 第3週の投稿**（2026-10-18 作成・10/19〜10/25 の12本・Notion に下書き済）。正は `docs/sns/packs/2026-10-w3-x.md`。朝 B 毎日＋昼に絵3本（#4 ラウンジ・#5 公園・#6 美術館）。**10/24 昼の絵は IG #6 ロビーの絵ができてから 4:5 を作る**
-- [ ] **IG 10/19〜10/25 の画像生成**（並びは `docs/sns/packs/2026-10-w3-ig.md`）：10/19 ぎっしり#6 ロビー（`packs/2026-10-19-ig-reel-gisshiri-06-lobby.md`）・10/21 人の説明書 No.02（`packs/2026-10-21-ig-reel-manual-02.md`）。ふうかさんが ChatGPT で 2:3 → チャットに貼る → Claude が書き出し。10/21 夜に #6 の数字を見て #7（A 改札／B ラウンジの朝）を決める
+- [ ] **IG 10/19〜10/25 の画像生成**（並びは `docs/sns/packs/2026-10-w3-ig.md`）：10/19 ぎっしり#6 ロビー（書き出し済）・10/21 人の説明書 No.02（`packs/2026-10-21-ig-reel-manual-02.md`）。ふうかさんが ChatGPT で 2:3 → チャットに貼る → Claude が書き出し。10/21 夜に #6 の数字を見て #7（A 改札／B ラウンジの朝）を決める
 - [ ] SNS 展開（`/sns-pack`）：みおさんの story ＋「仮交際の連絡頻度」のコラムは組み合わせやすい
 - [ ] **コラム「会う頻度・一人の時間」**がまだ無い（連載の l2 系のリンク先に使える）。`/kinda-column`
 
