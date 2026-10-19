@@ -24,13 +24,14 @@
 
 ## 📌 次セッション（最初に読む）
 
-> **`docs/handoff/2026-10-18-next-session.md` を読んで、上から1つずつ進める。** 一気にはやらない。
+> **`docs/handoff/2026-10-19-next-session.md` を読んで、上から1つずつ進める。** 一気にはやらない（10/18 の handoff も生きている）。
 
 0. [ ] 🔴 **相談所への声がけを始める（10/19 ふうか決定）。その前にこれだけ：Supabase のメールを Kinda 名義・日本語にする**（専用 URL を送ると、いまは Supabase の英語メールが届く）。手順と文面は `docs/ops/supabase-auth-email.md`。費用なし
       1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings
       2. Email Templates（Reset Password／Confirm signup／Change Email Address）に日本語の件名・本文
       3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
 0-b. [ ] 🔴 **小山楓華さんの予約枠を11月末まで足す**（10/19 時点で最後の枠が 10/31。相談所の人は必ずサイトを触る）。counselor 管理画面のカレンダーから
+0-c. [ ] 🟣 **毎朝の受信チェックを作る**（10/19 ふうか依頼）。設計は `docs/handoff/2026-10-19-next-session.md`。**最初にふうかさんが claude.ai の設定で Gmail をつなぐ**（10/19 のセッションでは Gmail の接続が認証で失敗した）
 1. [x] お知らせ登録を場所（source）ごとに保存（10/16 PR #95 マージ・本番 DB の一意制約も張り替え済み・本番で invalid_source を確認）。あわせて「美容」の記述3か所を外した（ふうか決裁）
 2. [x] 返金 → 次の予約に充当、の規約書き換え（10/16）。main は PR `claude/refund-credit`、counselor は PR `claude/counselor-refund-credit`（FAQ ページ `/faq` 新設込み）。「前払い」の語も外した。調べは `docs/research/2026-10-16-prepay-privacy-credit.md`
 2-b. [x] 充当の仕組み（10/17 PR #104・#105 マージ）。DB は migration 048・049（ふうかが SQL Editor で実行）。Stripe の本番 Webhook に `refund.failed` を追加。
@@ -195,6 +196,7 @@
 
 ## 🔵 中期開発・急がない判断
 
+- [ ] **解約を仕組みで塞ぐ**：解約済みの印を DB に持つ・予約を作る処理（`create_reservation_rpc`）で公開中か確かめる。いまは手順（`docs/ops/billing-and-refunds.md` §2-b）で回す。最初の解約が見えてきたら
 - [ ] **11月上旬：空の手帳に戻ってくる人がいるかを見る**（10/19 Setlog の調べから・ふうか合意）。Claude が Vercel で `/kinda-note/sky` の数字を確認。戻ってくる人がいれば「今日の街を1枚ストーリーズに出す」を小さく足す。いなければ手帳を直すのが先。正は `docs/research/2026-10-19-setlog.md` §4
 - [ ] **カード未登録相談所の予約不可ガード**（いまは kinda.jp に出ない仕組み＝migration 046 で実質塞がっているが、予約 API 側の検証はない）
 - [ ] **セキュリティ advisor 残**：slots UPDATE の RPC 化／Security Definer View 権限／anon revoke／search_path 付与／Storage listing 確認／Leaked Password Protection（Supabase Pro 化時に ON・有料なので CLAUDE.md §7-10）
