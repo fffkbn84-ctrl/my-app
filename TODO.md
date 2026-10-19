@@ -6,7 +6,7 @@
 > **2026-10-15 に全面整理。** 整理前の全文は `docs/archive/todo-full-archive-2026-10-15.md`（その前は `todo-full-archive-2026-07-02.md`）。
 > 過ぎた日付の SNS 項目・完了済みの Stripe 本番化などはアーカイブ側にだけ残した。
 
-最終更新: 2026-10-18
+最終更新: 2026-10-19
 
 ### このファイルの読み方
 
@@ -192,6 +192,7 @@
 
 ## 🔵 中期開発・急がない判断
 
+- [ ] **11月上旬：空の手帳に戻ってくる人がいるかを見る**（10/19 Setlog の調べから・ふうか合意）。Claude が Vercel で `/kinda-note/sky` の数字を確認。戻ってくる人がいれば「今日の街を1枚ストーリーズに出す」を小さく足す。いなければ手帳を直すのが先。正は `docs/research/2026-10-19-setlog.md` §4
 - [ ] **カード未登録相談所の予約不可ガード**（いまは kinda.jp に出ない仕組み＝migration 046 で実質塞がっているが、予約 API 側の検証はない）
 - [ ] **セキュリティ advisor 残**：slots UPDATE の RPC 化／Security Definer View 権限／anon revoke／search_path 付与／Storage listing 確認／Leaked Password Protection（Supabase Pro 化時に ON・有料なので CLAUDE.md §7-10）
 - [ ] **同一ルールの実装ズレ横断監査**：キャンペーン期限・is_demo は共通化済み。残りは is_published と料金表記
