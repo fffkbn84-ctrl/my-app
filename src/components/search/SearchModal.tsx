@@ -221,7 +221,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             [
               ["counselor", "カウンセラー"],
               ["act", "デートの場所"],
-              ["glow", "美容店"],
+              // glow は掲載0件のあいだタブを出さない（2026-10-20）
             ] as const
           ).map(([tab, label]) => (
             <button

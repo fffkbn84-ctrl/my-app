@@ -84,7 +84,7 @@ const ORG_JSONLD = {
  *   talk → #FAF3DE（パステルイエロー）
  *   act  → #F5E1E0（パステルピンク）
  *   pair → #E7EEE1（パステルセージ）
- *   glow → #EDE0F4（パステルパープル）
+ *   glow → #EDE0F4（パステルパープル）※掲載0件のあいだはカードを出さない（2026-10-20）
  */
 const DECIDED_CARDS = [
   {
@@ -130,16 +130,6 @@ const DECIDED_CARDS = [
     alt: "Kinda pair",
     bg: "#E7EEE1",
     accent: "#6F8A5E",
-  },
-  {
-    key: "glow",
-    href: "/kinda-glow",
-    kindaLabel: "glow",
-    desc: "好きな人に会う前に、自分を整える",
-    img: "/images/section-glow-room.webp",
-    alt: "Kinda glow",
-    bg: "#EDE0F4",
-    accent: "#8A66B0",
   },
 ] as const;
 
@@ -332,26 +322,21 @@ export default async function HomePage() {
             </h2>
           </div>
 
-          {/* Block 3 — 主CTA（Kinda note） */}
+          {/* Block 3 — 主CTA（カウンセラー）
+              2026-10-20 ふうか決裁：検索から来た人に「何のサイトか」を先に見せるため、
+              主ボタンをカウンセラーへ。天気（note today）は2番目のテキストリンクに下げた。
+              すぐ下の A' セクションで note は引き続き大きく紹介している。 */}
           <div className="ktp-hero-cta-block">
-            <p className="ktp-hero-cta-tagline">
-              言葉にならない今日の気持ちを、天気に。
-            </p>
             <Link
-              href="/kinda-note/today"
+              href="/kinda-talk"
               className="ktp-hero-cta"
-              aria-label="今日の気持ちを天気にする Kinda note を始める"
+              aria-label="担当のカウンセラーを口コミから見る Kinda talk"
             >
-              今日の天気をみる
+              担当（カウンセラー）を口コミから見る
               <ArrowRight color="white" />
             </Link>
-            <p className="ktp-hero-micro">
-              ✓3つ選ぶだけ・20秒　✓登録不要　✓毎日の天気が並んでいく
-            </p>
-            {/* サイトの核（カウンセラー個人を口コミで選べる）への控えめな導線。
-                主CTA（気持ちの整理）と競わないよう、テキストリンクにとどめる */}
-            <Link href="/kinda-talk" className="ktp-hero-counselor-link">
-              担当（カウンセラー）を口コミから見る
+            <Link href="/kinda-note/today" className="ktp-hero-counselor-link">
+              今日の気持ちを天気にする（登録不要・20秒）
               <svg width="11" height="11" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path
                   d="M3 7h8M7 3l4 4-4 4"
