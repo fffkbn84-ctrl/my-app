@@ -215,8 +215,8 @@ export default function LoginPage() {
                 <p style={{ margin: '8px 0 0', color: 'var(--text)', lineHeight: 1.8 }}>
                   送信元：Kinda（noreply@send.kinda.jp）<br />
                   件名：【Kinda】パスワード再設定のご案内<br />
-                  数分たっても届かないときは、迷惑メールのフォルダもご確認ください。
-                  メールのリンクは、この画面を開いているのと同じ端末・同じブラウザで開いてください。
+                  数分たっても届かないときは迷惑メールのフォルダもご確認ください。<br />
+                  メールのリンクはこの画面を開いているのと同じ端末・同じブラウザで開いてください。
                 </p>
               </div>
             ) : (
