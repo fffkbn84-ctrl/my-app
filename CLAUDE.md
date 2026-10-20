@@ -214,12 +214,12 @@ Kinda は「カウンセラーの代替」ではなく、**気持ちを整理し
 
 | 曜日 | 内容 | 形式 | 正（これを読む） |
 |---|---|---|---|
-| **火 20:00** | 連載「ふたりの話題」28週 | **リール** | `docs/sns/series/kinda-pair-28.md` |
-| **水・金 18:00** | ことさん（キャラクター） | **リール** | `docs/sns/series/kotosan-reel.md` |
-| **土 12:00** | 「言いにくい気持ち」 | **リール** | `docs/sns/series/iinikui-kimochi.md` |
-| 木 | つくる日記 | — | **休止中**（`docs/sns/series/tsukuru-nikki.md`） |
+| **週3本** | **主役：ふたり ゲームオーバー型**（同じ2体） | **リール** | `docs/sns/packs/ig-reel-futari-gameover.md`（型）・`docs/sns/ig-strategy-2026-09.md` §21 |
+| 週1本 | ぎっしり情景（届ける枠） | **リール** | `docs/sns/series/gisshiri-jokei.md` |
+| 週1本 | ふうかさんの声（作り手として見たこと・顔なし） | **リール** | `docs/sns/ideas.md` 案6 |
+| — | ことさん・人の説明書・空の手帳・言いにくい気持ち・連載ほか | — | **11/17 まで休止**（11/18 に戻すか決める） |
 
-> **2026-10-08 から：曜日の枠より伸びる型を先に出す（1日1本・毎日）。** 固定はことさん（水金）だけ。日ごとの予定は `docs/sns/ig-week-2026-09.md` §00
+> **2026-10-20 ふうか決裁：10/21〜11/17 の4週間は型を絞る。** 判定は 11/18・送信数で見る。正は `docs/sns/ig-strategy-2026-09.md` §21。それまでの経緯（ことさんは 10/12 から金曜週1だった）は `docs/sns/ig-week-2026-09.md` §00
 
 週の設計と背景は `docs/sns/ig-week-2026-09.md`、戦略は `docs/sns/ig-strategy-2026-09.md`。
 画像処理・文字入れ・MP4書き出しのスクリプトは `docs/sns/tools/ig-carousel/`（README に手順）。
