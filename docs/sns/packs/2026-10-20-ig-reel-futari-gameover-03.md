@@ -29,30 +29,31 @@
 
 > **10/20 キャラを替えた（ふうか決裁）。** フリースの熊2体 → **気持ちが天気になって出る、クレイの雲の2体**。
 > 理由：熊は AI のかわいい系アカウントで最も多い形で、Kinda のだと分かる理由がなかった。天気は note・サイトと同じ言葉で、すねた／ほどけたが1秒で読め、性別も出ない。
-> 質感はサイトの天気画像（`public/images/w_*.webp`）と同じマットなクレイ（つやのあるフリースが AI っぽさの元）。
+> 質感は**羊毛フェルト**（10/20 ふうか「クレイより、ふわふわで触ったら気持ちよさそうなほうがいい」）。つやのあるぬいぐるみのフリースにはしない（熊が AI っぽく見えた元）。
+> 形・色・顔は 10/20 のクレイ版の設定画（`assets/futari/tenki-clay-draft-v0.png`）を引き継ぐ。
 
-**0枚目＝設定画**（初回だけ。これが以後の参照になる。採用したら `assets/futari/tenki-reference-v1.webp` に保存）
+**0枚目＝設定画**（クレイ版の設定画を添付して、素材だけ替える。採用したら `assets/futari/tenki-reference-v1.webp` に保存）
 
 ```
-Character design sheet photo. Two small handmade clay characters standing side by side on a plain warm beige background (#F5EEE6), front view, camera at eye level, centered. Both are shaped like small puffy cumulus clouds with a rounded bottom, short stubby clay arms and tiny round clay feet. Character A (left): soft dusty rose clay (#D9A797), a little wider and rounder. Character B (right): soft pale blue-grey clay (#A7B6BE), a little taller with one small puff on top. Faces: two small black clay bead eyes, a tiny carved mouth line, faint soft pink cheeks. No clothes, no hats, no scarves, no accessories. Matte clay with faint fingerprints and tool marks, handmade miniature feel, not glossy, not plush, not fleece. Soft daylight from the upper left, one soft shadow. No text, no letters, no numbers, no logos. No gold, no metallic parts. Portrait 2:3 (1024x1536).
+Remake the attached image with exactly the same two characters: same shapes, same colors, same faces, same cheeks, same sizes, same pose and composition. Change only the material: both characters are now handmade needle-felted wool, soft and fluffy with fine fuzzy fibers and a gentle fuzzy halo around the edges, slightly uneven like real handmade felt, so they look soft and pleasant to touch. Not clay, not glossy, not a smooth plush toy, no fleece fabric, no stitches. Plain warm beige background (#F5EEE6), soft daylight from the upper left, one soft shadow. No clothes, no accessories. No text, no letters, no numbers, no logos. No gold, no metallic parts. Portrait 2:3 (1024x1536).
 ```
 
 **1〜4枚目＝場面**（0枚目を参照に。テンプレートの【ACTING】だけ差し替え）
 
 ```
-Use exactly the same two clay cloud characters as in the reference image (same shapes, same colors, same faces, same sizes, no clothes or accessories). They sit side by side on a small matte cream clay sofa, character A (dusty rose) on the left, character B (pale blue-grey) on the right. Plain warm beige background (#F5EEE6) — no room, no walls, no floor line, no other furniture.
-Front view, camera at eye level. The sofa and the two characters are centered and fill the lower 55 percent of the image. The top 40 percent of the image is completely plain empty beige background. Any tiny clay weather above a head floats close to that head, inside the lower 55 percent.
-Soft daylight from the upper left, one soft shadow. Handmade miniature clay, matte surface with faint fingerprints and tool marks, not glossy.
+Use exactly the same two needle-felted wool cloud characters as in the reference image (same shapes, same colors, same faces, same sizes, no clothes or accessories). They sit side by side on a small cream wool felt sofa, character A (dusty rose) on the left, character B (pale blue-grey) on the right. Plain warm beige background (#F5EEE6) — no room, no walls, no floor line, no other furniture.
+Front view, camera at eye level. The sofa and the two characters are centered and fill the lower 55 percent of the image. The top 40 percent of the image is completely plain empty beige background. Any tiny felted weather above a head floats close to that head, inside the lower 55 percent.
+Soft daylight from the upper left, one soft shadow. Handmade needle-felted wool, soft fluffy fuzzy fibers, matte, not glossy, not clay, no stitches.
 【ACTING】
 No notebook. No text, no letters, no numbers, no logos. No speech bubbles. No gold, no metallic parts. Portrait 2:3 (1024x1536).
 ```
 
 | 枚 | 台本 | 【ACTING】 |
 |---|---|---|
-| 1 | カット1・4 | `Character B has turned toward A, leaning in with bright round eager eyes and a small open happy mouth, one stubby arm raised a little as if asking a fun question; a tiny cream clay sun floats just above B's head. Character A looks up and to the side as if thinking hard, one stubby arm touching its cheek, one tiny clear clay droplet of sweat beside its head; a tiny pale clay swirl of breeze floats just above A's head.` |
-| 2 | カット2・3 | `Both characters have slumped back into the sofa, each holding a tiny cream clay smartphone in both stubby arms and staring down at it with tired half-closed eyes, mouths in flat lines, bodies drooping and slightly squashed. One flat grey clay overcast cloud floats low above both of their heads. The phone screens are plain and blank.` |
-| 3 | カット5 | `Character A holds up two tiny clay objects, one in each stubby arm: on the left a tiny cream clay coffee cup, on the right a tiny soft orange clay fish. A has a soft small smile. Character B looks at the two objects with round curious eyes, leaning in a little; above B's head the edge of a tiny cream clay sun peeks out from behind a tiny white clay cloud. The phones are gone.` |
-| 4 | カット6 | `Character B points happily with one stubby arm at the tiny soft orange clay fish that A is still holding, B's face bright with a wide open smile; a tiny cream clay sun with short clay rays floats above B's head. Character A smiles softly back; a smaller tiny cream clay sun floats above A's head. The tiny coffee cup is still in A's other arm.` |
+| 1 | カット1・4 | `Character B has turned toward A, leaning in with bright round eager eyes and a small open happy mouth, one stubby arm raised a little as if asking a fun question; a tiny cream felted wool sun floats just above B's head. Character A looks up and to the side as if thinking hard, one stubby arm touching its cheek, one tiny clear felted wool droplet of sweat beside its head; a tiny pale felted wool swirl of breeze floats just above A's head.` |
+| 2 | カット2・3 | `Both characters have slumped back into the sofa, each holding a tiny cream felted wool smartphone in both stubby arms and staring down at it with tired half-closed eyes, mouths in flat lines, bodies drooping and slightly squashed. One flat grey felted wool overcast cloud floats low above both of their heads. The phone screens are plain and blank.` |
+| 3 | カット5 | `Character A holds up two tiny felted wool objects, one in each stubby arm: on the left a tiny cream felted wool coffee cup, on the right a tiny soft orange felted wool fish. A has a soft small smile. Character B looks at the two objects with round curious eyes, leaning in a little; above B's head the edge of a tiny cream felted wool sun peeks out from behind a tiny white felted wool cloud. The phones are gone.` |
+| 4 | カット6 | `Character B points happily with one stubby arm at the tiny soft orange felted wool fish that A is still holding, B's face bright with a wide open smile; a tiny cream felted wool sun with short felted wool rays floats above B's head. Character A smiles softly back; a smaller tiny cream felted wool sun floats above A's head. The tiny coffee cup is still in A's other arm.` |
 
 ### 天気の出方（この型の決まり・以後も同じ）
 
@@ -67,7 +68,7 @@ No notebook. No text, no letters, no numbers, no logos. No speech bubbles. No go
 
 ### 崩れやすいところ（出たら作り直す）
 
-- 0枚目：**つやが出る・ぬいぐるみっぽくなる・服や小物が付く** → 「matte clay, not plush」を強めて作り直す
+- 0枚目：**つやが出る・縫い目のあるぬいぐるみになる・形や顔が変わる・服や小物が付く** → 「needle-felted, no stitches, same shapes」を強めて作り直す
 - 2体の色・形が変わる／左右が入れ替わる
 - 天気が大きすぎて上の40%に入る（帯と窓が載らない）／天気に顔が付く
 - スマホの画面に何か映る／カップや魚に顔や文字が入る
