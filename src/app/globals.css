@@ -7721,11 +7721,12 @@ body:has(.cta-mobile-bar) .floating-back {
 }
 @media (min-width: 768px) {
   .pc-grid-2to5 {
-    grid-template-columns: repeat(5, 1fr);
-    max-width: 1040px;
+    /* glow を外して4枚になったので4列（2026-10-20）。glow を戻すときは 5 に */
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 840px;
     gap: 14px;
   }
-  /* PC は5列に収まるので中央寄せの上書きを解除する */
+  /* PC は1行に収まるので中央寄せの上書きを解除する */
   .pc-grid-2to5 > :last-child:nth-child(odd) {
     grid-column: auto;
     width: auto;

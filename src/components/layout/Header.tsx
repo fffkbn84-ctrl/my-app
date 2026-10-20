@@ -7,22 +7,28 @@ import { usePathname } from "next/navigation";
 import SearchModal from "@/components/search/SearchModal";
 
 const MENU_SECTIONS: { label: string; items: { href: string; label: string; sub?: string }[] }[] = [
+  // 2026-10-20 ふうか決裁：入口を「探す／読む／整える」の3つに。普通の言葉を前に、Kinda の名前は添える。
+  // glow は掲載0件のあいだメニューに出さない（1件目が入ったら「整える」に戻す）。
   {
-    label: "自分から動く",
+    label: "探す",
     items: [
-      { href: "/kinda-type", label: "Kinda type", sub: "診断するだけで合うカウンセラーが見つかる" },
-      { href: "/kinda-talk", label: "Kinda talk", sub: "カウンセラーを見る" },
-      { href: "/kinda-act", label: "Kinda act", sub: "お見合い・デートの場所" },
-      { href: "/kinda-glow", label: "Kinda glow", sub: "自分を整える" },
-      { href: "/kinda-note", label: "Kinda note", sub: "気持ちを整理する" },
+      { href: "/kinda-talk", label: "カウンセラーを見る", sub: "Kinda talk" },
+      { href: "/kinda-type", label: "診断で合う人を探す", sub: "Kinda type" },
     ],
   },
   {
-    label: "ふたりを知る",
+    label: "読む",
     items: [
-      { href: "/kinda-pair", label: "Kinda pair", sub: "話したことと、まだ話していないこと" },
-      { href: "/kinda-story", label: "Kinda story", sub: "ふたりの物語" },
-      { href: "/columns", label: "Kinda voices", sub: "取材・コラム" },
+      { href: "/columns", label: "コラム・取材", sub: "Kinda voices" },
+      { href: "/kinda-story", label: "ふたりの物語", sub: "Kinda story" },
+    ],
+  },
+  {
+    label: "整える",
+    items: [
+      { href: "/kinda-note", label: "気持ちを整理する", sub: "Kinda note" },
+      { href: "/kinda-pair", label: "話すことを並べる", sub: "Kinda pair" },
+      { href: "/kinda-act", label: "会う場所を探す", sub: "Kinda act" },
     ],
   },
   {
