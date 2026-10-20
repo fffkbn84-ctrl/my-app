@@ -30,6 +30,7 @@
 0-b. [x] 小山楓華さんの予約枠を 11/30 まで足した（10/20 Claude が DB に直接。水曜休み・10:00〜20:00・75分×8枠・208枠）。**次は 11月下旬に12月分**
 0-c. [x] 毎朝の受信チェックを作った（10/20）。定期タスク「hello@ 毎朝の受信チェック」毎朝 7:52・正は `docs/ops/inbox-check.md`。
     - [x] コネクタ（Gmail・Supabase）を付けた（10/20 ふうか）。10/21 朝の初回で 10/11 の Stripe 通知2件が出るかを見る
+    - 📎 **夕方の回を足す目安**：掲載中の相談所が5社以上、または hello@ への連絡が直近7日で5件以上。毎朝のチェック自身が数え、超えたら報告の最後に1行で提案してくる（`docs/ops/inbox-check.md` §3 の6・§4）
     - [x] 8月のテスト問い合わせを declined にした（10/20 ふうか OK）
 1. [x] お知らせ登録を場所（source）ごとに保存（10/16 PR #95 マージ・本番 DB の一意制約も張り替え済み・本番で invalid_source を確認）。あわせて「美容」の記述3か所を外した（ふうか決裁）
 2. [x] 返金 → 次の予約に充当、の規約書き換え（10/16）。main は PR `claude/refund-credit`、counselor は PR `claude/counselor-refund-credit`（FAQ ページ `/faq` 新設込み）。「前払い」の語も外した。調べは `docs/research/2026-10-16-prepay-privacy-credit.md`
