@@ -31,7 +31,9 @@
       2. Email Templates（Reset Password／Confirm signup／Change Email Address）に日本語の件名・本文
       3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
 0-b. [ ] 🔴 **小山楓華さんの予約枠を11月末まで足す**（10/19 時点で最後の枠が 10/31。相談所の人は必ずサイトを触る）。counselor 管理画面のカレンダーから
-0-c. [ ] 🟣 **毎朝の受信チェックを作る**（10/19 ふうか依頼）。設計は `docs/handoff/2026-10-19-next-session.md`。**最初にふうかさんが claude.ai の設定で Gmail をつなぐ**（10/19 のセッションでは Gmail の接続が認証で失敗した）
+0-c. [x] 毎朝の受信チェックを作った（10/20）。定期タスク「hello@ 毎朝の受信チェック」毎朝 7:52・正は `docs/ops/inbox-check.md`。
+    - [ ] 🔴 **ふうかさん：claude.ai の定期タスク画面で、このタスクに Gmail と Supabase のコネクタを付ける**（作成時に付けられなかった。付くまでは「つながっていない」の1行だけが届く）
+    - [ ] 🔴 8月のテスト問い合わせ（`counselor_inquiries` の1件）を片付け済みにしてよいか。OK なら Claude が status を変える（毎朝出続けるため）
 1. [x] お知らせ登録を場所（source）ごとに保存（10/16 PR #95 マージ・本番 DB の一意制約も張り替え済み・本番で invalid_source を確認）。あわせて「美容」の記述3か所を外した（ふうか決裁）
 2. [x] 返金 → 次の予約に充当、の規約書き換え（10/16）。main は PR `claude/refund-credit`、counselor は PR `claude/counselor-refund-credit`（FAQ ページ `/faq` 新設込み）。「前払い」の語も外した。調べは `docs/research/2026-10-16-prepay-privacy-credit.md`
 2-b. [x] 充当の仕組み（10/17 PR #104・#105 マージ）。DB は migration 048・049（ふうかが SQL Editor で実行）。Stripe の本番 Webhook に `refund.failed` を追加。
