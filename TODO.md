@@ -6,7 +6,7 @@
 > **2026-10-15 に全面整理。** 整理前の全文は `docs/archive/todo-full-archive-2026-10-15.md`（その前は `todo-full-archive-2026-07-02.md`）。
 > 過ぎた日付の SNS 項目・完了済みの Stripe 本番化などはアーカイブ側にだけ残した。
 
-最終更新: 2026-10-19
+最終更新: 2026-10-20
 
 ### このファイルの読み方
 
@@ -26,14 +26,11 @@
 
 > **`docs/handoff/2026-10-19-next-session.md` を読んで、上から1つずつ進める。** 一気にはやらない（10/18 の handoff も生きている）。
 
-0. [ ] 🔴 **相談所への声がけを始める（10/19 ふうか決定）。その前にこれだけ：Supabase のメールを Kinda 名義・日本語にする**（専用 URL を送ると、いまは Supabase の英語メールが届く）。手順と文面は `docs/ops/supabase-auth-email.md`。費用なし
-      1. Resend で API キー（Sending access・`send.kinda.jp`）→ Supabase の SMTP Settings
-      2. Email Templates（Reset Password／Confirm signup／Change Email Address）に日本語の件名・本文
-      3. 自分宛てに1通送り、送信元が `Kinda <noreply@send.kinda.jp>` か確認 → Claude に伝える（→ 🟣 の「再設定メールの案内」を出す）
+0. [ ] 🔴 **相談所への声がけを始める（10/19 ふうか決定）。** 前提の Supabase メールの Kinda 名義・日本語化は **10/20 済**（SMTP＝Resend・テンプレート3種・送信元 `noreply@send.kinda.jp` で届くのを確認。正は `docs/ops/supabase-auth-email.md`）。残る前提は 0-b の予約枠
 0-b. [ ] 🔴 **小山楓華さんの予約枠を11月末まで足す**（10/19 時点で最後の枠が 10/31。相談所の人は必ずサイトを触る）。counselor 管理画面のカレンダーから
 0-c. [x] 毎朝の受信チェックを作った（10/20）。定期タスク「hello@ 毎朝の受信チェック」毎朝 7:52・正は `docs/ops/inbox-check.md`。
     - [ ] 🔴 **ふうかさん：claude.ai の定期タスク画面で、このタスクに Gmail と Supabase のコネクタを付ける**（作成時に付けられなかった。付くまでは「つながっていない」の1行だけが届く）
-    - [ ] 🔴 8月のテスト問い合わせ（`counselor_inquiries` の1件）を片付け済みにしてよいか。OK なら Claude が status を変える（毎朝出続けるため）
+    - [x] 8月のテスト問い合わせを declined にした（10/20 ふうか OK）
 1. [x] お知らせ登録を場所（source）ごとに保存（10/16 PR #95 マージ・本番 DB の一意制約も張り替え済み・本番で invalid_source を確認）。あわせて「美容」の記述3か所を外した（ふうか決裁）
 2. [x] 返金 → 次の予約に充当、の規約書き換え（10/16）。main は PR `claude/refund-credit`、counselor は PR `claude/counselor-refund-credit`（FAQ ページ `/faq` 新設込み）。「前払い」の語も外した。調べは `docs/research/2026-10-16-prepay-privacy-credit.md`
 2-b. [x] 充当の仕組み（10/17 PR #104・#105 マージ）。DB は migration 048・049（ふうかが SQL Editor で実行）。Stripe の本番 Webhook に `refund.failed` を追加。
@@ -132,7 +129,7 @@
     `claude/note-sky-techo`・`claude/note-today-storage-hint`・`claude/supabase-redirect-urls-03a015`・`claude/sweet-cori-rul5i5`・`claude/x-post-content-oct-12-tuuyqz`・`fix/stripe-idempotency-dispute`
   - 未マージだが役目を終えた：`claude/review-reply-display`・`claude/review-display-tags-reply`・`claude/reel-count-notif-tweak`・
     `claude/stripe-production-deployment-sshgj2`（¥5,500 統一は 10/13 に main で済み）
-  - **消さない**：`main`／`claude/fix-profile-creation-1clpG`（counselor 本番）／`claude/futarive-admin-dashboard-iKBfw`（admin 本番）／`claude/counselor-reset-mail-notice`（Supabase メール設定待ち）
+  - **消さない**：`main`／`claude/fix-profile-creation-1clpG`（counselor 本番）／`claude/futarive-admin-dashboard-iKBfw`（admin 本番）
   - ほかにリモートブランチが約110本ある。次の棚卸しで「最後のコミットが2か月以上前」を一覧にする
 
 ---
@@ -151,7 +148,7 @@
 - [ ] **`/note/weather`（天気一覧）の見出しが「入会前」「お見合い後」**。天気ページは中立語彙（CLAUDE.md §2）なので直す
 - [ ] **admin の Ignored Build Step**：main では CANCELED になるのは確認済み（10/15）。残りは admin ブランチへの push でビルドが走るか
 - [ ] **`counselor.kinda.jp` 化**（1社目に招待リンクを送る前に）。Claude：Vercel へのドメイン追加・コード内の `futarive-counselor.vercel.app` の書き換え・`supabase-auth-email.md` とログイン画面の案内文。ふうか：Supabase の Redirect URLs に1行
-- [ ] **`claude/counselor-reset-mail-notice`（`2715efe`）を counselor に出す**：Supabase のメール設定（🔴）が済んでから。`claude/fix-profile-creation-1clpG` に cherry-pick
+- [x] `claude/counselor-reset-mail-notice` を counselor 本番に cherry-pick（10/20・送信後の画面に送信元と件名を出す）。ブランチは消してよい
 - [ ] **既存ページの読点を少しずつ直す**（触ったついでに。一斉にはやらない）。多い順：`soudanjo-to-konkatsu-app-chigai` 1.55／`kekkon-soudanjo-ryokin-no-mikata` 1.49／`omiai-shodate-fukuso` 1.48／
       `kekkon-soudanjo-kuchikomi-no-mikata` 1.43／`date-plan-by-stage` 1.42／`counselor-de-erabu-soudanjo` 1.39／`weather-sun-break-omiai-tegotae` 1.38／`counselor-tantou-henkou` 1.34
 - [x] **X 第3週の投稿**（2026-10-18 作成・10/19〜10/25 の12本・Notion に下書き済）。正は `docs/sns/packs/2026-10-w3-x.md`。朝 B 毎日＋昼に絵3本（#4 ラウンジ・#5 公園・#6 美術館）。**10/24 昼の絵は IG #6 ロビーの絵ができてから 4:5 を作る**

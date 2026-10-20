@@ -97,6 +97,8 @@ https://kinda.jp<br>
 
 ### Change Email Address
 
+> 2026-10-20：本文に変更前・変更後のアドレスを出すのをやめた（ふうか指摘）。確認メールは古いアドレスと新しいアドレスの両方に届くことがあるので、相手側のアドレスまで見えてしまうため。
+
 件名：
 
 ```
@@ -106,7 +108,7 @@ https://kinda.jp<br>
 本文：
 
 ```html
-<p>Kinda のメールアドレスを {{ .Email }} から {{ .NewEmail }} に変更するお申し込みを受け付けました。</p>
+<p>Kinda に登録しているメールアドレスを変更するお申し込みを受け付けました。</p>
 <p>下のリンクを開くと変更が完了します。</p>
 <p><a href="{{ .ConfirmationURL }}">メールアドレスの変更を確定する</a></p>
 <p>お申し込みに心当たりがない場合はこのメールを破棄して hello@kinda.jp までご連絡ください。</p>
@@ -120,11 +122,12 @@ https://kinda.jp<br>
 
 counselor の「パスワードを忘れた方」で送ったあとに
 「送信元 `noreply@send.kinda.jp`・件名『【Kinda】パスワード再設定のご案内』」と画面に出す変更は、
-**まだ counselor 本番に出していない**（`claude/counselor-reset-mail-notice` の `2715efe`）。SMTP と件名の設定が済んだら Claude が `claude/fix-profile-creation-1clpG` に cherry-pick する（先に出すと画面とメールが食い違う）。
+2026-10-20 に counselor 本番（`claude/fix-profile-creation-1clpG`）へ cherry-pick して出した。
 **件名や送信元を変えたら、画面の文言も合わせる**（`futarive-counselor/app/(auth)/login/page.tsx`）。
 
 ## 4. 関連する Supabase の設定（2026-10-11 時点）
 
+- Custom SMTP（Resend）：2026-10-20 設定済み。counselor から自分宛てに送り、送信元 `noreply@send.kinda.jp`・件名『【Kinda】パスワード再設定のご案内』で届くのを確認（ふうか）
 - Site URL：`https://kinda.jp`（10/11 まで `http://localhost:3000` だった）
 - Redirect URLs：`https://futarive-counselor.vercel.app/**`／`https://kinda.jp/**`／`https://www.kinda.jp/**`
   - `counselor.kinda.jp` に移すときは `https://counselor.kinda.jp/**` を足す

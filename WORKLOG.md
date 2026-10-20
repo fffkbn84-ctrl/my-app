@@ -5,6 +5,15 @@
 
 ---
 
+## 2026-10-20 Supabase のメールを Kinda 名義・日本語にした
+
+- ふうかさんが Resend の API キー（`supabase-auth`）→ Supabase Custom SMTP → テンプレート3種（Reset Password／Confirm signup／Change Email Address）を設定。counselor から自分宛てに送り、`noreply@send.kinda.jp`・件名『【Kinda】パスワード再設定のご案内』で届いた
+- 文面は 10/14 の書き方ルールに合わせて読点を減らした。ボタン名が kinda.jp と counselor で違うので本文に書かない
+- メールアドレス変更の本文から変更前・変更後のアドレスを外した（ふうか指摘。確認メールは両方のアドレスに届くことがあり、相手側のアドレスまで見えるため）
+- 確認：Supabase の「Confirm email」はオフ（auth.users 7件すべて登録と同時に確認済み・送信記録0）。Confirm signup は今は使われない
+- counselor 本番に `2715efe`（送信後の画面に送信元・件名）を cherry-pick し、読点を減らして push（`bff9eb1`）
+- 8月のテスト問い合わせ（`counselor_inquiries`「デモ」）を declined にした（ふうか OK）
+
 ## 2026-10-20 毎朝の受信チェックを作った
 
 - 定期タスク「hello@ 毎朝の受信チェック」：毎朝 7:52（日本時間）・新しいセッション・プッシュとメールで通知。正は `docs/ops/inbox-check.md`
