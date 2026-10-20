@@ -1,7 +1,7 @@
 # 「ふたり」ゲームオーバー3「行き先が決まらない日」制作キット（2026-10-20 火 20:00）
 
 > 新しい方向（`ig-strategy-2026-09.md` §21）の1本目。主役＝ゲームオーバー型・同じ2体。
-> 道具・版面・秒数は前2回（`packs/ig-reel-futari-gameover.md`・`packs/2026-10-04-ig-reel-futari-gameover-02.md`）と同じ。
+> **キャラは今回から天気の2体**（§2）。道具・版面・秒数は前2回（`packs/ig-reel-futari-gameover.md`・`packs/2026-10-04-ig-reel-futari-gameover-02.md`）と同じ。
 
 ## 0. なぜこの回か
 
@@ -25,33 +25,59 @@
 - GAME OVER の文は**人ではなく行動を言う**（「どこでもいい」と言う人を悪者にしない。やさしさで言っていることを先に認める）
 - 終わりは「よていが　きまった！」。うまくいく約束はしない
 
-## 2. ChatGPT プロンプト（同じスレッドで4枚・2:3）
+## 2. ChatGPT プロンプト（同じスレッドで5枚・2:3）
 
-**最初に `docs/sns/assets/futari/futari-reference-v1.webp`（キャラ設定画）を添付する。**
-1・2・5・6 の4枚だけ生成する（3 は 2 の加工、4 は 1 の使い回し）。
-キャラ：**A（左・ダスティローズ・耳・クリームのマフラー）**、**B（右・オートミール・緑のニット帽）**。今回は A が選ぶ側（プレイヤー）。
+> **10/20 キャラを替えた（ふうか決裁）。** フリースの熊2体 → **気持ちが天気になって出る、クレイの雲の2体**。
+> 理由：熊は AI のかわいい系アカウントで最も多い形で、Kinda のだと分かる理由がなかった。天気は note・サイトと同じ言葉で、すねた／ほどけたが1秒で読め、性別も出ない。
+> 質感はサイトの天気画像（`public/images/w_*.webp`）と同じマットなクレイ（つやのあるフリースが AI っぽさの元）。
 
-共通テンプレートは前回 §2 と同じ（【ACTING】だけ差し替え）。
+**0枚目＝設定画**（初回だけ。これが以後の参照になる。採用したら `assets/futari/tenki-reference-v1.webp` に保存）
 
-| # | 【ACTING】 |
+```
+Character design sheet photo. Two small handmade clay characters standing side by side on a plain warm beige background (#F5EEE6), front view, camera at eye level, centered. Both are shaped like small puffy cumulus clouds with a rounded bottom, short stubby clay arms and tiny round clay feet. Character A (left): soft dusty rose clay (#D9A797), a little wider and rounder. Character B (right): soft pale blue-grey clay (#A7B6BE), a little taller with one small puff on top. Faces: two small black clay bead eyes, a tiny carved mouth line, faint soft pink cheeks. No clothes, no hats, no scarves, no accessories. Matte clay with faint fingerprints and tool marks, handmade miniature feel, not glossy, not plush, not fleece. Soft daylight from the upper left, one soft shadow. No text, no letters, no numbers, no logos. No gold, no metallic parts. Portrait 2:3 (1024x1536).
+```
+
+**1〜4枚目＝場面**（0枚目を参照に。テンプレートの【ACTING】だけ差し替え）
+
+```
+Use exactly the same two clay cloud characters as in the reference image (same shapes, same colors, same faces, same sizes, no clothes or accessories). They sit side by side on a small matte cream clay sofa, character A (dusty rose) on the left, character B (pale blue-grey) on the right. Plain warm beige background (#F5EEE6) — no room, no walls, no floor line, no other furniture.
+Front view, camera at eye level. The sofa and the two characters are centered and fill the lower 55 percent of the image. The top 40 percent of the image is completely plain empty beige background. Any tiny clay weather above a head floats close to that head, inside the lower 55 percent.
+Soft daylight from the upper left, one soft shadow. Handmade miniature clay, matte surface with faint fingerprints and tool marks, not glossy.
+【ACTING】
+No notebook. No text, no letters, no numbers, no logos. No speech bubbles. No gold, no metallic parts. Portrait 2:3 (1024x1536).
+```
+
+| 枚 | 台本 | 【ACTING】 |
+|---|---|---|
+| 1 | カット1・4 | `Character B has turned toward A, leaning in with bright round eager eyes and a small open happy mouth, one stubby arm raised a little as if asking a fun question; a tiny cream clay sun floats just above B's head. Character A looks up and to the side as if thinking hard, one stubby arm touching its cheek, one tiny clear clay droplet of sweat beside its head; a tiny pale clay swirl of breeze floats just above A's head.` |
+| 2 | カット2・3 | `Both characters have slumped back into the sofa, each holding a tiny cream clay smartphone in both stubby arms and staring down at it with tired half-closed eyes, mouths in flat lines, bodies drooping and slightly squashed. One flat grey clay overcast cloud floats low above both of their heads. The phone screens are plain and blank.` |
+| 3 | カット5 | `Character A holds up two tiny clay objects, one in each stubby arm: on the left a tiny cream clay coffee cup, on the right a tiny soft orange clay fish. A has a soft small smile. Character B looks at the two objects with round curious eyes, leaning in a little; above B's head the edge of a tiny cream clay sun peeks out from behind a tiny white clay cloud. The phones are gone.` |
+| 4 | カット6 | `Character B points happily with one stubby arm at the tiny soft orange clay fish that A is still holding, B's face bright with a wide open smile; a tiny cream clay sun with short clay rays floats above B's head. Character A smiles softly back; a smaller tiny cream clay sun floats above A's head. The tiny coffee cup is still in A's other arm.` |
+
+### 天気の出方（この型の決まり・以後も同じ）
+
+| 気持ち | 頭の上 |
 |---|---|
-| 1 | `Character B has turned its body toward A, leaning in slightly with bright round eager eyes and a small open happy mouth, one stubby arm raised a little as if asking a fun question. Character A sits upright looking up and to the side as if thinking hard, one stubby arm touching its cheek, one tiny clear droplet of sweat beside the head.` |
-| 2 | `Both characters have slumped back into the sofa side by side, each holding a tiny cream clay smartphone in both stubby arms and staring down at it with tired half-closed eyes, mouths in small flat lines, bodies drooping. The phone screens are plain and blank.` |
-| 5 | `Character A holds up two tiny felt objects, one in each stubby arm: on the left a tiny cream felt coffee cup, on the right a tiny pale blue felt fish. A has a soft small smile. Character B looks at the two objects with round curious eyes, leaning in a little. The phones are gone.` |
-| 6 | `Character B points happily with one stubby arm at the tiny pale blue felt fish that A is still holding up, B's face bright with a wide open smile and sparkling eyes. Character A smiles softly back at B. The tiny cream felt coffee cup is still in A's other arm.` |
+| ふつう | なにもない |
+| わくわく・うれしい | 小さな太陽（強いと光の線） |
+| 考えこむ・迷う | 小さな風のうず |
+| どんより・すれちがい | 灰色のくもり（ふたりの上に1つ） |
+| すねる・悲しい | 小さな雨雲と雨つぶ |
+| ほどけはじめ | 雲のうしろから太陽がのぞく |
 
 ### 崩れやすいところ（出たら作り直す）
 
-- 2体の色・帽子・マフラーが変わる／左右が入れ替わる
-- 手帳が出る／スマホの画面に何か映る／カップや魚に顔や文字が入る
-- 上の38%に何か写り込む（帯と窓が載らない）
-- 1 と 5・6 で**ソファと2体の位置がずれる**（4 で 1 を使い回すので、1 だけは特に構図を守る）
+- 0枚目：**つやが出る・ぬいぐるみっぽくなる・服や小物が付く** → 「matte clay, not plush」を強めて作り直す
+- 2体の色・形が変わる／左右が入れ替わる
+- 天気が大きすぎて上の40%に入る（帯と窓が載らない）／天気に顔が付く
+- スマホの画面に何か映る／カップや魚に顔や文字が入る
+- 1 と 3・4 で**ソファと2体の位置がずれる**（カット4で1を使い回すので、1 だけは特に構図を守る）
 - 2 のぐったりが弱い → 2 だけ作り直してよい。**2 の「30分スマホ」がこの回の笑いどころ**
 
 ## 3. 書き出し（Claude の担当）
 
 ```bash
-python3 prep-futari.py <生成1.png> plate-1.png 260      # 2・5・6 も同じ
+python3 prep-futari.py <1枚目.png> plate-1.png 260      # 2枚目→plate-2、3枚目→plate-5、4枚目→plate-6
 B='"band":["付き合いたての","行き先が決まらない日"]'
 Q='"lines":["「つぎ、どこ　いきたい？」","どうする？"]'
 node render-game.js plate-1.png f1.png win  "{$B,$Q,\"cmd\":{\"items\":[\"どこでも　いいよ\",\"ふたつに　しぼる\"],\"sel\":0},\"top\":400}"
