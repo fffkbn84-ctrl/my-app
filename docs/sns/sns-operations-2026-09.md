@@ -31,7 +31,7 @@
 
 ## 2. 毎朝の Routine（秘書モード）
 
-`trig_01MM1JdLVzPwVq6YQyR5iSZM`「朝のTODO＆発信ブリーフ」／**毎日 7:00 JST**／通知はプッシュ＋メール。
+`trig_01MM1JdLVzPwVq6YQyR5iSZM`「朝のTODO＆発信ブリーフ」／**毎日 7:00 JST**／通知はプッシュ＋メール。2026-10-21 から「今日の SNS の手作業」（`ig-strategy-2026-09.md` §21-c・`x-strategy-2026-10.md` §6）も毎朝出す。
 Notion・Supabase・Vercel を接続済み。
 
 ### 出力の構成（固定）
