@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-21 IG 今日の回をゲームオーバー4に
+
+- §21 では 10/21 は空ける予定だった。ふうか「今日の投稿を決めて」で、10/22 木のゲームオーバー4を今日に前倒しし、10/22 を空けた（今週の主役は火・水・土の3本）
+- 話題は pair `l2-alone`「一人の時間」。A だけ雨・B は晴れたまま気づかない、が前回（2体ともどんより）との違い。性別を言わない回
+- 人の説明書 No.02 は §21 どおり出さない（休止中の型のため）。ふうかさんの声は 10/28 から
+- キット `docs/sns/packs/2026-10-21-ig-reel-futari-gameover-04.md`・Notion の行を 10/21 に移して本文とキャプションを入れた
+
 ## 2026-10-20 Supabase のメールを Kinda 名義・日本語にした
 
 - ふうかさんが Resend の API キー（`supabase-auth`）→ Supabase Custom SMTP → テンプレート3種（Reset Password／Confirm signup／Change Email Address）を設定。counselor から自分宛てに送り、`noreply@send.kinda.jp`・件名『【Kinda】パスワード再設定のご案内』で届いた
