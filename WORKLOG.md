@@ -5,6 +5,13 @@
 
 ---
 
+## 2026-10-21 PHP の脆弱性（php2shell）の影響調査
+
+- ふうか依頼「PHP のニュースを読んで Kinda に影響があるか、対処まで」。PHP 本体に CVSS 9.2 の RCE が2件（CVE-2026-109618／109619）。10/21 に 8.5.12・8.4.27・8.3.36・8.2.35 で修正
+- **Kinda は影響なし。** PHP をどこにも使っていない（全154ブランチに .php・composer なし／Vercel 3プロジェクトとも Next.js／Supabase Edge Functions 2つは TS／本番は `server: Vercel`）
+- `kinda.jp/wp-login.php` などは Vercel のファイアウォールが 403 で弾いていた
+- 正は `docs/security/php2shell-2026-10.md`（間接的に気にすること・将来 PHP を使う場合の手順・出典つき）
+
 ## 2026-10-21 X の判定・IG に入口を足す
 
 - ふうか質問「X の C 型は型を変えるべきか」「IG の 18〜24 は正解か」「みんなは送信を増やせているのか」→ Claude のおすすめで進めることに合意
