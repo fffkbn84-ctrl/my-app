@@ -89,3 +89,12 @@ The two characters now sit at the two opposite ends of the same sofa, a little a
 ## 6. 見る数字（3日後＝10/24）
 
 **送信数**と3秒残存（ゲームオーバー3 と比べる。熊の1・2 は 26%・24%）。
+
+## 7. 実際に作った形（2026-10-21）
+
+- 生成4枚は**初回で全採用**。保存先 `assets/futari/tenki-go4-{1-tired,2-rain,5-ask,6-clear}-v1.webp`
+- カット5の A は、灰色の上にピンク寄りのピーチが戻る色になった。単体だと「赤くなった」とも読めるが、前後と続けると「晴れはじめ」に見え、照れ笑いの顔とも合うので採用（ふうか確認済み）
+- カット2の窓は「……ひとりだけ　あめが／ふってきた。」の3行にした
+- 台紙の上端 260・窓の top 400 のまま。B の光の線は窓に重ならなかった
+- 書き出し：`kinda-ig-1021-futari-gameover4-sfx.mp4`（12.5秒・効果音8つ）。MP4 はリポジトリに入れていない
+- 書き出し環境のメモ：`build_reel.py` は `imageio-ffmpeg` が要る（新しいセッションでは `pip install imageio-ffmpeg`）
