@@ -1,5 +1,7 @@
 # 晴れ間のひとこと（X のカード型・2026-10-22 ふうか決裁）
 
+> **2026-10-22 保留。** ふうか「恋愛指南系に寄っている。0フォロワーだと埋もれる」。方向は `ichibyo-no-kokoro.md`（1秒の心の声）で探している最中。注意報と No.01 の仕上げも止めている。
+>
 > 型の正はこのファイル。書き出しは `docs/sns/tools/ig-carousel/render-hareman.js`。
 > X の運用全体は `docs/sns/x-strategy-2026-10.md` §6、IG は `ig-strategy-2026-09.md` §21。
 
